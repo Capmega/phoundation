@@ -58,7 +58,7 @@ $o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Manage your API access here'))
             ->setContent('')
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build relevant links

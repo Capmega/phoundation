@@ -40,9 +40,9 @@ $plugin_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
                    ->setContent($plugin->getHtmlDataEntryFormObject())
-                   ->setButtons(Buttons::new()
-                                       ->addButton('Submit')
-                                       ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
+                   ->setButtonsObject(Buttons::new()
+                                             ->addButton('Submit')
+                                             ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
 
 
 // Build relevant links

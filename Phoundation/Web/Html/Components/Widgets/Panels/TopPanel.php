@@ -21,6 +21,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Web\Html\Components\Widgets\Menus\Menu;
 use Phoundation\Web\Http\Url;
 
+
 class TopPanel extends Panel
 {
     /**
@@ -42,7 +43,7 @@ class TopPanel extends Panel
 
         parent::__construct($source);
 
-        $this->elements = Iterator::new([
+        $this->o_elements = Iterator::new([
             'search',
             'notifications',
             'languages',
@@ -57,22 +58,22 @@ class TopPanel extends Panel
      */
     public function render(): ?string
     {
-        if ($this->elements->valueExists('notifications')) {
-            $this->getNotificationsDropDown()
+        if ($this->o_elements->valueExists('notifications')) {
+            $this->getNotificationsDropDownObject()
                  ->setStatusFilter('UNREAD')
                  ->setNotifications(null)
                  ->setNotificationsUrl('/notifications/notification-:ID.html')
                  ->setAllNotificationsUrl('/notifications/unread.html');
         }
 
-        if ($this->elements->valueExists('messages')) {
-            $this->getMessagesDropDown()
+        if ($this->o_elements->valueExists('messages')) {
+            $this->getMessagesDropDownObject()
                  ->setMessages(null)
                  ->setMessagesUrl('/messages/unread.html');
         }
 
-        if ($this->elements->valueExists('languages')) {
-            $this->getLanguagesDropDown()
+        if ($this->o_elements->valueExists('languages')) {
+            $this->getLanguagesDropDownObject()
                  ->setLanguages(null)
                  ->setSettingsUrl('/settings.html');
         }

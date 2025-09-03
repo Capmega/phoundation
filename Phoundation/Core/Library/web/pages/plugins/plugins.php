@@ -64,7 +64,7 @@ $plugins_card = Card::new()
                                    ])
                                    ->setRowUrl('/plugins/plugin+:ROW.html'))
                ->useForm(true)
-               ->setButtons(Buttons::new()->addButton(tr('Scan')));
+               ->setButtonsObject(Buttons::new()->addButton(tr('Scan')));
 
 $plugins_card->getForm()
              ->setAction(Url::newCurrent())

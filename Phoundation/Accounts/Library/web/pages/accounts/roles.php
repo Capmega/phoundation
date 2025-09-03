@@ -106,9 +106,9 @@ $o_roles_card = Card::new()
                                          ->setTopButtons(Buttons::new()
                                                                 ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')))
                   ->useForm(true)
-                  ->setButtons(Buttons::new()
-                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
-                                      ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                  ->setButtonsObject(Buttons::new()
+                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
+                                            ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 
 // Build relevant links

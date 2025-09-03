@@ -229,7 +229,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
              ->setPagingType(EnumPagingType::from(config()->getString('data.paging.type', 'simple_numbers')))
              ->setPageLength(config()->getInteger('data.paging.limit', 25))
              ->setOrderClassesEnabled(config()->getBoolean('data.paging.order-classes', true))
-             ->setButtons([
+             ->setButtonsObject([
                  'copy',
                  'csv',
                  'excel',
@@ -275,11 +275,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param ButtonsInterface|array|string|null $buttons
+     * @param ButtonsInterface|array|string|null $o_buttons
      *
      * @return static
      */
-    public function setButtons(ButtonsInterface|array|string|null $buttons): static
+    public function setButtonsObject(ButtonsInterface|array|string|null $o_buttons): static
     {
         // For now only built in buttons are supported
         $builtin = [
@@ -293,10 +293,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         ];
 
         // Validate buttons and reformat definition
-        $buttons = Arrays::force($buttons);
-        $source  = [];
+        $o_buttons = Arrays::force($o_buttons);
+        $source    = [];
 
-        foreach ($buttons as $button) {
+        foreach ($o_buttons as $button) {
             if (!array_key_exists($button, $builtin)) {
                 throw new OutOfBoundsException(tr('Unknown button ":button" specified. Please specify one of ":builtin"', [
                     ':button'  => $button,
@@ -307,7 +307,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $source['"' . $button . '"'] = $builtin[$button];
         }
 
-        $this->buttons = new Buttons($source);
+        $this->o_buttons = new Buttons($source);
 
         return $this;
     }
@@ -1327,8 +1327,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
             }
 
-            if (isset($this->buttons) and $this->buttons->isNotEmpty()) {
-                $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->buttons->getSource())) . ' ] }';
+            if (isset($this->o_buttons) and $this->o_buttons->isNotEmpty()) {
+                $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->o_buttons->getSource())) . ' ] }';
             }
 
             if ($this->responsive) {

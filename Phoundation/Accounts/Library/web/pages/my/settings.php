@@ -57,10 +57,10 @@ if (Request::isPostRequestMethod()) {
 $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Save'), right: true)
-                                         ->addButton(isset_get($delete))
-                                         ->addButton(isset_get($audit)));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Save'), right: true)
+                                               ->addButton(isset_get($delete))
+                                               ->addButton(isset_get($audit)));
 
 
 // Build relevant links

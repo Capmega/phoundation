@@ -368,7 +368,7 @@ class Response implements ResponseInterface
      */
     public static function getClass(string $section, ?string $default = null): ?string
     {
-        return isset_get(static::$page_classes[$section], $default);
+        return array_get_safe(static::$page_classes, $section, $default);
     }
 
 
@@ -396,7 +396,7 @@ class Response implements ResponseInterface
      */
     public static function setBreadcrumbs(BreadcrumbsInterface|array|null $bread_crumbs = null): void
     {
-        if (!$bread_crumbs) {
+        if (empty($bread_crumbs)) {
             static::$bread_crumbs = new Breadcrumbs();
 
         } elseif(is_array($bread_crumbs)) {

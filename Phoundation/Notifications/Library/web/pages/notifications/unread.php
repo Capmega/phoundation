@@ -76,7 +76,7 @@ $o_notifications_card = Card::new()
                             ->setContent($notifications->getHtmlDataTableObject()
                                                        ->setRowUrl('/notifications/notification+:ROW.html'))
                             ->useForm(true)
-                            ->setButtons(
+                            ->setButtonsObject(
                                   Session::isImpersonated()
                                 ? null
                                 : Buttons::new()->addButton(tr('Mark all as read'), EnumDisplayMode::warning, outline: true)

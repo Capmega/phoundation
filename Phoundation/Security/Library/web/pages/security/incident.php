@@ -41,7 +41,7 @@ $o_card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
                 ->setContent($form)
-                ->setButtons(Buttons::new()->addButton(
+                ->setButtonsObject(Buttons::new()->addButton(
                     tr('Back'), EnumDisplayMode::secondary,
                     Url::newPrevious('/security/incidents.html')->addQueries(
                         $get['date_range'] ? 'date_range=' . $get['date_range'] : ''

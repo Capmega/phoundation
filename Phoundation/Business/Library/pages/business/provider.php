@@ -70,7 +70,7 @@ $provider_card = Card::new()
                      ->setCollapseSwitch(true)
                      ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
                      ->setContent($provider->getHtmlDataEntryFormObject()->render())
-                     ->setButtons($buttons);
+                     ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the provider and roles cards

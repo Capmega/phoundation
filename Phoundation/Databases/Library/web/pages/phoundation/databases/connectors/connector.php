@@ -185,14 +185,14 @@ $connector_card = Card::new()
                       ->setMaximizeSwitch(true)
                       ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
                       ->setContent($connector->getHtmlDataEntryFormObject())
-                      ->setButtons(Buttons::new()
-                                          ->addButton(isset_get($save))
-                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
-                                          ->addButton(isset_get($test))
-                                          ->addButton(isset_get($audit))
-                                          ->addButton(isset_get($delete))
-                                          ->addButton(isset_get($lock))
-                                          ->addButton(isset_get($impersonate)));
+                      ->setButtonsObject(Buttons::new()
+                                                ->addButton(isset_get($save))
+                                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
+                                                ->addButton(isset_get($test))
+                                                ->addButton(isset_get($audit))
+                                                ->addButton(isset_get($delete))
+                                                ->addButton(isset_get($lock))
+                                                ->addButton(isset_get($impersonate)));
 
 
 // Build relevant links

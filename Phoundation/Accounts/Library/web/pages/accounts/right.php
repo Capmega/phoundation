@@ -146,11 +146,11 @@ $o_card = Card::new()
               ->setMaximizeSwitch(true)
               ->setContent($o_right->getHtmlDataEntryFormObject())
               ->useForm(true)
-              ->setButtons(Buttons::new()
-                                  ->addButton(tr('Save'))
-                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
-                                  ->addButton(isset_get($o_delete))
-                                  ->addButton(isset_get($o_audit)));
+              ->setButtonsObject(Buttons::new()
+                                        ->addButton(tr('Save'))
+                                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
+                                        ->addButton(isset_get($o_delete))
+                                        ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links

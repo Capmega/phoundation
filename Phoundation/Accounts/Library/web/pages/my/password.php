@@ -104,7 +104,7 @@ $o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change your password'))
             ->setContent($password->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build relevant links

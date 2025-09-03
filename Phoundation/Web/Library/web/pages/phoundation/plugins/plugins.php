@@ -52,7 +52,7 @@ $plugins_card = Card::new()
                                    ->getHtmlDataTableObject()
                                    ->setRowUrl('/phoundation/plugins/plugin+:ROW.html'))
                ->useForm(true)
-               ->setButtons($buttons);
+               ->setButtonsObject($buttons);
 
 $plugins_card->getForm()
              ->setAction(Url::newCurrent())

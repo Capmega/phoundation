@@ -105,9 +105,9 @@ $o_rights_card = Card::new()
                                            ->setTopButtons(Buttons::new()
                                                                   ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')))
                      ->useForm(true)
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
-                                         ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
+                                               ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 
 // Add form for the "rights" card
