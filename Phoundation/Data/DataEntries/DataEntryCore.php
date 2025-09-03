@@ -2762,7 +2762,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setColumnValueWithObjectSetter($value, $key, $directly, $o_definition);
 
             } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
-                $this->handleCopyValuesToSourceExceptions($e, $source, $value, $key);
+                $this->handleCopyValuesToSourceExceptions($e, $source, $value, $key, $force);
             }
         }
 
@@ -2788,11 +2788,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param array                                               $source
      * @param mixed                                               $value
      * @param Stringable|string|float|int                         $key
+     * @param bool                                                $force
      *
-     * @return never
+     * @return void
      */
-    protected function handleCopyValuesToSourceExceptions(TypeError | DataEntryException | DataEntryTypeException $e, array $source, mixed $value, Stringable|string|float|int $key): never
+    protected function handleCopyValuesToSourceExceptions(TypeError | DataEntryException | DataEntryTypeException $e, array $source, mixed $value, Stringable|string|float|int $key, bool $force): void
     {
+        if ($e instanceof DataEntryTypeException) {
+            if ($force) {
+                // Type errors with forced copy values means that we're working with an untrusted source and datatype
+                // mismatch may happen, but we'll ignore it. Forced feeding!
+                return;
+            }
+        }
+
         if (!is_string($key)) {
             throw DataEntryColumnDefinitionInvalidException::new(tr('Detected invalid column definition while copying new source data, Definition column name ":column" of ":class" DataEntry class is invalid, it should be a string', [
                 ':class'  => $this::class,
@@ -3267,7 +3276,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Force was used, but the object will now be in readonly mode, so we can save failed data
             // Validate data and copy data into the source array
             $data_source = $this->doNotValidate($data_source, $require_clean_source, $force);
-            $this->copyValuesToSource($data_source, true, true);
+            $this->copyValuesToSource($data_source, true, false, true);
 
         } else {
             // Validate data and copy data into the source array

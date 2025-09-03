@@ -28,9 +28,9 @@ trait TraitDataObjectDate
     /**
      * The date to use
      *
-     * @var PhoDateTimeInterface|null $date
+     * @var PhoDateTimeInterface|null $o_date
      */
-    protected ?PhoDateTimeInterface $date = null;
+    protected ?PhoDateTimeInterface $o_date = null;
 
 
     /**
@@ -40,32 +40,20 @@ trait TraitDataObjectDate
      */
     public function getDateObject(): ?PhoDateTimeInterface
     {
-        return $this->date;
+        return $this->o_date;
     }
 
 
     /**
      * Sets the date
      *
-     * @param PhoDateTimeInterface|string|null     $date
-     * @param PhoDateTimeZoneInterface|string|null $timezone
+     * @param PhoDateTimeInterface|null $date
      *
      * @return static
      */
-    public function setDateObject(PhoDateTimeInterface|string|null $date, PhoDateTimeZoneInterface|string|null $timezone = null): static
+    public function setDateObject(?PhoDateTimeInterface $date): static
     {
-        if ($date instanceof PhoDateTime) {
-            $this->date = new PhoDateTime($date->format('Y-m-d'), $timezone ?? $date->getTimezone());
-
-        } else {
-            if (empty($date)) {
-                $this->date = null;
-
-            } else {
-                $this->date = new PhoDateTime((string) $date, $timezone);
-            }
-        }
-
+        $this->o_date = $date;
         return $this;
     }
 }

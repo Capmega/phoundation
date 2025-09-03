@@ -696,9 +696,14 @@ class PhoDateTimeFormats
         $date = trim((string) $date);
 
         // Do we have a datetime or date? Try matching something like DD-MM-YYYY HH:MM:II (and maybe microseconds)
-        if (preg_match_all('/^(\d+)\D+(\d+)\D+(\d+)\D+(\d{2})\D+(\d{2})\D+(\d{2})(?:\D+(\d+))?$/', $date, $matches)) {
+        if (preg_match_all('/^(\d{1,4})\D+(\d{1,2})\D+(\d{1,4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2})(?:\D+(\d{1,6}))?)?$/', $date, $matches)) {
             if (array_get_safe(array_get_safe($matches, 7), 0)) {
                 $microseconds = $microsecond_separator . $matches[7][0];
+            }
+
+            if (is_empty(array_get_safe(array_get_safe($matches, 6), 0))) {
+                // Seconds was not specified, presume :00
+                $matches[6] = [0 => '00'];
             }
 
             // This is a datetime
