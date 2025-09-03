@@ -6751,7 +6751,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Requires that the specified value is empty
+     * Requires that the specified value is NOT empty
      *
      * @param mixed  $value
      * @param string $failure
