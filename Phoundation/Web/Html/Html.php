@@ -94,16 +94,21 @@ class Html
      *
      * @param RenderInterface|string|float|int|null $html
      * @param bool                                  $enabled
+     * @param bool                                  $force_render
      *
      * @return RenderInterface|string|null
      * @see htmlentities()
      */
-    public static function safe(RenderInterface|string|float|int|null $html, bool $enabled = true): RenderInterface|string|null
+    public static function safe(RenderInterface|string|float|int|null $html, bool $enabled = true, bool $force_render = false): RenderInterface|string|null
     {
         if (is_object($html)) {
             // We don't make objects safe! We know these are renderable objects, but:
             // a) We'd need to render them before making them safe, even though that may not be wanted yet because we might need to set properties still later
             // b) it would make the entire content of the object safe, which likely isn't what we want as those types of objects almost always contain HTML.
+            if ($force_render) {
+                return (string) $html;
+            }
+
             return $html;
         }
 
