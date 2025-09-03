@@ -2658,9 +2658,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($this->columns and !array_key_exists($key, $this->columns)) {
             // Don't copy this column
-            Log::dump(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
-                ':key' => $key,
-            ]), echo_header: false);
+            if ($this->debug) {
+                Log::dump(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
+                    ':key' => $key,
+                ]), echo_header: false);
+            }
+
             return false;
         }
 
