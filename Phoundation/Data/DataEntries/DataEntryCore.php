@@ -370,8 +370,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if ($identifier) {
             // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
-            $this->initialize($identifier)
-                 ->load(null, $on_null_identifier, $on_not_exists);
+            $o_data_entry = $this->load($identifier, $on_null_identifier, $on_not_exists);
+
+            if ($o_data_entry !== $this) {
+                // DataEntry::load() returned a cached DataEntry object instead of $this, so copy the contents
+                $this->setSourceDirect($o_data_entry->getSource())
+                     ->setObjectState($o_data_entry->getObjectState());
+            }
 
         } elseif ($identifier === null) {
             // Pre-initialize the DataEntry object
@@ -1432,12 +1437,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Connector classes can't be cached!
             if (!is_a($this, Connector::class)) {
                 // Try loading the DataEntry object from cache
-                $data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache(), $this->debug);
+                $o_data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache(), $this->debug);
 
-                if ($data_entry) {
+                if ($o_data_entry) {
                     // This DataEntry was found in the cache, all is done!
-                    return $data_entry->setIsLoaded()
-                                      ->ready(true);
+                    return $o_data_entry->setIsLoaded()
+                                        ->ready(true);
                 }
 
                 if ($this->debug) {

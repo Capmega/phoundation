@@ -48,9 +48,9 @@ class Activity implements ActivityInterface, RenderInterface
     /**
      * Caches the user that created this activity
      *
-     * @var UserInterface $user
+     * @var UserInterface $o_user
      */
-    protected UserInterface $user;
+    protected UserInterface $o_user;
 
     /**
      * Caches the DateTime object for when this activity was created
@@ -115,11 +115,11 @@ class Activity implements ActivityInterface, RenderInterface
     public function getUserObject(): ?UserInterface
     {
         if (array_key_exists('created_by', $this->source)) {
-            if (empty($this->user)) {
-                $this->user = new User($this->source['created_by']);
+            if (empty($this->o_user)) {
+                $this->o_user = new User($this->source['created_by']);
             }
 
-            return $this->user;
+            return $this->o_user;
         }
 
         return null;
@@ -133,7 +133,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getAction(): string
     {
-        return isset_get($this->source['action'], tr('Unknown'));
+        return array_get_safe($this->source, 'action', tr('Unknown'));
     }
 
 
@@ -157,7 +157,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getComment(): string
     {
-        return isset_get($this->source['comment'], tr('-'));
+        return array_get_safe($this->source, 'comment', tr('-'));
     }
 
 
@@ -168,7 +168,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getData(): array
     {
-        $data = isset_get($this->source['data']);
+        $data = array_get_safe($this->source, 'data');
 
         if ($data) {
             try {
@@ -273,8 +273,7 @@ class Activity implements ActivityInterface, RenderInterface
                                                  ->getProfileImageObject()
                                                      ->getHtmlImgObject()
                                                          ->setClass("img-circle img-bordered-sm")
-                                                         ->setAlt(tr("Profile picture for :user", [":user" => Html::safe($this->getUserObject()->getDisplayName())]))
-                                                         ->render() .'
+                                                         ->setAlt(tr("Profile picture for :user", [":user" => Html::safe($this->getUserObject()->getDisplayName())])) .'
                                         <span class="username">
                                             ' . Anchor::new(Url::new('profiles/profile+' . $this->getUserObject()->getId() . '.html')->makeWww())
                                                       ->setContent($this->getUserObject()->getDisplayName()) . '
@@ -283,9 +282,7 @@ class Activity implements ActivityInterface, RenderInterface
                                     </div>
                                     <!-- /.user-block -->
                                     <p>' . $this->getComment() . '</p>
-
                                     ' . $fileuploads . '
-
                                 </div>';
         }
 

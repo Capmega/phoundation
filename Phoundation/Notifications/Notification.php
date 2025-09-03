@@ -624,7 +624,7 @@ FILES variables:
 
                     case 'exception':
                         if (!$value instanceof Throwable) {
-                            $value = Poad::new($value)->getObject();
+                            $value = PhoException::newFromSource($value);
                         }
 
                         Log::exception($value);
