@@ -50,7 +50,6 @@ trait TraitChildElement
     public function setChildElement(?ElementInterface $child_element): static
     {
         $this->child_element = $child_element;
-
         return $this;
     }
 }

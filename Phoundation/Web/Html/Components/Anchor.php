@@ -362,7 +362,7 @@ class Anchor extends SpanCore implements AnchorInterface
                     case EnumAnchorRenderRightsFail::no_url:
                         // Continue rendering the anchor, but without URL by converting it to a <span>
                         $this->setHref(null);
-                    // no break
+                        // no break
 
                     case EnumAnchorRenderRightsFail::full:
                         // Continue rendering this anchor as normal.
