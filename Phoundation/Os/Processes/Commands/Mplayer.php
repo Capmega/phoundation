@@ -38,7 +38,7 @@ class Mplayer extends Command
         $this->clearArguments()
              ->setRestrictionsObject(PhoRestrictions::getRestrictionsOrDefaultObject($this->o_restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mplayer', true, 'audio')))
              ->setCommand('mplayer')
-             ->addArgument($this->file)
+             ->addArgument($this->o_file)
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);
     }
 }
