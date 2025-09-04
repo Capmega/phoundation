@@ -1887,9 +1887,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * @param string $column
      * @param bool   $allow_scalar
      *
-     * @return static
+     * @return IteratorInterface
      */
-    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): static
+    public function getAllRowsSingleColumn(string $column, bool $allow_scalar = false): IteratorInterface
     {
         if (!$column) {
             throw new OutOfBoundsException(tr('Cannot return source column for ":this", no column specified', [
@@ -1915,7 +1915,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        return new static($return);
+        return Iterator::new()->setAcceptedDataTypes('string|float|int|bool|null')->setSource($return);
     }
 
 
