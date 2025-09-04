@@ -163,11 +163,13 @@ class Import
      */
     public function import(): static
     {
+        $this->o_file->checkExists();
+
         switch ($this->driver) {
             case 'mysql':
                 Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
-                    ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->file->getSize()),
-                    ':file'     => $this->file->getRootname(),
+                    ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->o_file->getSize()),
+                    ':file'     => $this->o_file->getRootname(),
                     ':database' => $this->getConnectorObject()->getDatabase(),
                 ]));
 
@@ -176,10 +178,10 @@ class Import
                      ->setConnectorObject($this->getConnectorObject())
                      ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
                      ->create($this->database ?? $this->getConnectorObject()->getDatabase())
-                     ->import($this->file);
+                     ->import($this->o_file);
 
                 Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
-                    ':file'     => $this->file,
+                    ':file'     => $this->o_file,
                     ':database' => $this->database,
                 ]));
                 break;
