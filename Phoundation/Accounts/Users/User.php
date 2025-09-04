@@ -2613,14 +2613,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function hasRoles(RolesInterface|RoleInterface|Stringable|string $roles): bool
     {
-        $result = true;
+        $result = false;
         $roles  = Arrays::force($roles);
 
         foreach ($roles as $role) {
             $exists = $this->getRolesObject()->keyExists($role);
 
             if ($exists) {
-                $result = false;
+                $result = true;
                 break;
             }
         }
