@@ -1261,13 +1261,17 @@ throw new ObsoleteException();
     /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
-     * @param string|float|int $key
-     * @param bool             $force
+     * @param string|float|int|null $key
+     * @param bool                  $force
      *
      * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key, bool $force = false): mixed
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int|null $key, bool $force = false): mixed
     {
+        if ($key === null) {
+            return null;
+        }
+
         if ($this->ensure_objects) {
             // Ensure the source key is of DataEntryInterface
             if (!$this->source[$key] instanceof DataEntryInterface) {
