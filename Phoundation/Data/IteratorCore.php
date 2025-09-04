@@ -1191,7 +1191,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function keepMatchingAutocompleteValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null): static
     {
-        return new static(Arrays::keepMatchingValuesStartingWith($this->source, $needles, Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::SKIP_NULL_NEEDLES, $column));
+        $this->source = Arrays::keepMatchingValuesStartingWith($this->source, $needles, Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::SKIP_NULL_NEEDLES, $column);
+        return $this;
     }
 
 

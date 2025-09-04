@@ -20,6 +20,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Data\Interfaces\CacheableObjectInterface;
 use Phoundation\Data\Interfaces\ContentObjectInterface;
 
+
 trait TraitDataCache
 {
     /**

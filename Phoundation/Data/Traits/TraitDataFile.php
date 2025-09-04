@@ -22,34 +22,34 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 trait TraitDataFile
 {
     /**
-     * The file for this object
+     * Tracks the file for this object
      *
-     * @var PhoFileInterface|null $file
+     * @var PhoFileInterface|null $o_file
      */
-    protected ?PhoFileInterface $file = null;
+    protected ?PhoFileInterface $o_file = null;
 
 
     /**
-     * Returns the file
+     * Returns the file for this object
      *
      * @return PhoFileInterface|null
      */
     public function getFileObject(): ?PhoFileInterface
     {
-        return $this->file;
+        return $this->o_file;
     }
 
 
     /**
-     * Sets the file
+     * Sets the file for this object
      *
-     * @param PhoFileInterface|null $file
+     * @param PhoFileInterface|null $o_file
      *
      * @return static
      */
-    public function setFileObject(?PhoFileInterface $file): static
+    public function setFileObject(?PhoFileInterface $o_file): static
     {
-        $this->file = $file;
+        $this->o_file = $o_file;
         return $this;
     }
 }
