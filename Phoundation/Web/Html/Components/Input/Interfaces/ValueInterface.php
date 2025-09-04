@@ -32,12 +32,12 @@ interface ValueInterface
     /**
      * Sets the value for the input element
      *
-     * @param RenderInterface|string|float|int|null $value
-     * @param bool                                  $make_safe
+     * @param Stringable|string|float|int|null $value
+     * @param bool                             $make_safe
      *
      * @return static
      */
-    public function setValue(RenderInterface|string|float|int|null $value, bool $make_safe = false): static;
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static;
 
     /**
      * Returns the HTML "null_display" element attribute

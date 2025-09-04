@@ -179,12 +179,12 @@ trait TraitInputElement
     /**
      * Sets the value for the input element
      *
-     * @param RenderInterface|string|float|int|null $value
+     * @param Stringable|string|float|int|null $value
      * @param bool                             $make_safe
      *
      * @return static
      */
-    public function setValue(RenderInterface|string|float|int|null $value, bool $make_safe = false): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         $this->value = Html::safe($value, $make_safe, true);
         return $this;

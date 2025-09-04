@@ -2323,13 +2323,17 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
-     * @param string|float|int $key
-     * @param bool             $force
+     * @param string|float|int|null $key
+     * @param bool                  $force
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] protected function ensureObject(string|float|int $key, bool $force = false): mixed
+    #[ReturnTypeWillChange] protected function ensureObject(string|float|int|null $key, bool $force = false): mixed
     {
+        if ($key === null) {
+            return null;
+        }
+
         if ($this->ensure_objects or $force) {
             if (is_object($this->source[$key])) {
                 // Already object, assume it's the right type

@@ -462,12 +462,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Sets static value for this column
      *
-     * @param RenderInterface|callable|string|float|int|bool|null $value
-     * @param bool                                                $only_when_new = false
+     * @param Stringable|callable|string|float|int|bool|null $value
+     * @param bool                                           $only_when_new = false
      *
      * @return static
      */
-    public function setValue(RenderInterface|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
+    public function setValue(Stringable|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
 
 
     /**

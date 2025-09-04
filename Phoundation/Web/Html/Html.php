@@ -92,14 +92,14 @@ class Html
     /**
      * Wrapper for htmlspecialchars() that can conditionally execute and accept more data types
      *
-     * @param RenderInterface|string|float|int|null $html
-     * @param bool                                  $enabled
-     * @param bool                                  $force_render
+     * @param Stringable|string|float|int|null $html
+     * @param bool                             $enabled
+     * @param bool                             $force_render
      *
-     * @return RenderInterface|string|null
+     * @return Stringable|string|null
      * @see htmlentities()
      */
-    public static function safe(RenderInterface|string|float|int|null $html, bool $enabled = true, bool $force_render = false): RenderInterface|string|null
+    public static function safe(Stringable|string|float|int|null $html, bool $enabled = true, bool $force_render = false): Stringable|string|null
     {
         if (is_object($html)) {
             // We don't make objects safe! We know these are renderable objects, but:
