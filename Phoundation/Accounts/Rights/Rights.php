@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataAutoCreate;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -43,6 +44,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Rights extends DataIterator implements RightsInterface
 {
     use TraitDataAutoCreate;
@@ -53,22 +55,21 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(RightInterface::class)
-             ->getQueryBuilderObject()->addSelect('`accounts_rights`.`id`, 
+        parent::__construct($source);
+
+        $this->getQueryBuilderObject()->addSelect('`accounts_rights`.`id`, 
                                                    `accounts_rights`.`seo_name`, 
                                                    `accounts_rights`.`description`,
                                                    CONCAT(UPPER(LEFT(`accounts_rights`.`name`, 1)), SUBSTRING(`accounts_rights`.`name`, 2)) AS `right`, 
                                                    GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,')
-                                      ->addJoin('LEFT JOIN `accounts_roles_rights`
-                                                        ON `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`')
-                                      ->addJoin('LEFT JOIN `accounts_roles`
-                                                        ON `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id`
-                                                       AND `accounts_roles`.`status` IS NULL')
-                                      ->addWhere('`accounts_rights`.`status` IS NULL')
+                                      ->addJoin('LEFT JOIN  `accounts_roles_rights`
+                                                        ON  `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`')
+                                      ->addJoin('LEFT JOIN  `accounts_roles`
+                                                        ON  `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id`
+                                                       AND (`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted")')
+                                      ->addWhere('(`accounts_rights`.`status` IS NULL OR `accounts_rights`.`status` != "deleted")')
                                       ->addGroupBy('`accounts_rights`.`name`')
                                       ->addOrderBy('`accounts_rights`.`name`');
-
-        parent::__construct($source);
     }
 
 
@@ -525,12 +526,12 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                                                     $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->o_parent) {
             // Load only rights for specified parent

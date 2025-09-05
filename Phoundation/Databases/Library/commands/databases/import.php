@@ -19,6 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Import;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Pho;
 
@@ -59,7 +60,7 @@ CliDocumentation::setAutoComplete([
         '-c,--connector' => function ($word) {
             return Connectors::new()
                              ->load(null, true, true)
-                             ->keepMatchingAutocompleteValues($word);
+                             ->keepMatchingAutocompleteValues($word, 'name');
         },
         '-b,--database'  => [
             'word'   => function ($word) {
@@ -92,13 +93,18 @@ $argv = ArgvValidator::new()
 // Execute the import for the specified driver
 Log::information(ts('Executing database import'), 10);
 
-Import::new()
-      ->setConnector($argv['connector'])
-      ->setDatabase($argv['database'])
-      ->setDrop(!$argv['no_drop'])
-      ->setFileObject($argv['file'])
-      ->setTimeout($argv['timeout'])
-      ->import();
+try {
+    Import::new()
+          ->setConnector($argv['connector'])
+          ->setDatabase($argv['database'])
+          ->setDrop(!$argv['no_drop'])
+          ->setFileObject($argv['file'])
+          ->setTimeout($argv['timeout'])
+          ->import();
+
+} catch (FileNotExistException $e) {
+    throw $e->makeWarning();
+}
 
 
 // Execute init?

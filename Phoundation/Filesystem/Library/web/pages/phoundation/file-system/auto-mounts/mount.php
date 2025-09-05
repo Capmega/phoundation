@@ -20,11 +20,11 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Filesystem\Mounts\PhoMount;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -132,12 +132,12 @@ $mount_card = Card::new()
     ->setMaximizeSwitch(true)
     ->setTitle(tr('Edit mount :name', [':name' => $mount->getDisplayName()]))
     ->setContent($mount->getHtmlDataEntryFormObject())
-    ->setButtons(Buttons::new()
-                        ->addButton(isset_get($save))
-                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/mounts.html'), true)
-                        ->addButton(isset_get($audit))
-                        ->addButton(isset_get($delete))
-                        ->addButton(isset_get($impersonate)));
+    ->setButtonsObject(Buttons::new()
+                              ->addButton(isset_get($save))
+                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/mounts.html'), true)
+                              ->addButton(isset_get($audit))
+                              ->addButton(isset_get($delete))
+                              ->addButton(isset_get($impersonate)));
 
 
 // Build profile picture card
@@ -152,18 +152,18 @@ $picture = Card::new()
 
 // Build relevant links
 $relevant = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Relevant links'))
-->setContent(AnchorBlock::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems')));
+                ->setMode(EnumDisplayMode::info)
+                ->setTitle(tr('Relevant links'))
+                ->setContent(AnchorBlock::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems')));
 
 
 // Build documentation
 $documentation = Card::new()
-    ->setMode(EnumDisplayMode::info)
-    ->setTitle(tr('Documentation'))
-    ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                  <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                  <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                     ->setMode(EnumDisplayMode::info)
+                     ->setTitle(tr('Documentation'))
+                     ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
+                                   <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                   <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta data
@@ -171,11 +171,11 @@ Response::setPageTitle(tr('FsMount :mount', [':mount' => $mount->getDisplayName(
 Response::setHeaderTitle(tr('FsMount'));
 Response::setHeaderSubTitle($mount->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                                    , tr('Home')),
-    Anchor::new('/system-administration.html'          , tr('System administration')),
-    Anchor::new('/phoundation/file-systems.html'       , tr('Filesystems')),
-    Anchor::new('/phoundation/file-systems/mounts.html', tr('FsMounts')),
-    Anchor::new(''                                     , $mount->getDisplayName()),
+    Breadcrumb::new('/'                                    , tr('Home')),
+    Breadcrumb::new('/system-administration.html'          , tr('System administration')),
+    Breadcrumb::new('/phoundation/file-systems.html'       , tr('Filesystems')),
+    Breadcrumb::new('/phoundation/file-systems/mounts.html', tr('FsMounts')),
+    Breadcrumb::new(''                                     , $mount->getDisplayName()),
 ]);
 
 

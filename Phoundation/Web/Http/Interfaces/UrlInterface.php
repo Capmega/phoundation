@@ -24,6 +24,7 @@ interface UrlInterface
      */
     public function getSource(bool $strip_queries = false): string|int|null;
 
+
     /**
      * Sets the source URL of this URL object
      *

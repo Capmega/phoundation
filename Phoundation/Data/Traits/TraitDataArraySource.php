@@ -129,6 +129,17 @@ trait TraitDataArraySource
 
 
     /**
+     * Returns the source without processing any data first
+     *
+     * @return array
+     */
+    public function getSourceUnprocessed(): array
+    {
+        return $this->source;
+    }
+
+
+    /**
      * Returns the source with the array keys re-indexed, starting from 0
      *
      * @note: The arrays returned from this method will no longer contain key information that are linked to the value.

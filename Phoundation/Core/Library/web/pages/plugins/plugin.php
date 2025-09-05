@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugin;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -40,9 +40,9 @@ $plugin_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
                    ->setContent($plugin->getHtmlDataEntryFormObject())
-                   ->setButtons(Buttons::new()
-                                       ->addButton('Submit')
-                                       ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
+                   ->setButtonsObject(Buttons::new()
+                                             ->addButton('Submit')
+                                             ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
 
 
 // Build relevant links
@@ -66,13 +66,13 @@ $o_documentation_card = Card::new()
 Response::setHeaderTitle(tr('Plugin'));
 Response::setHeaderSubTitle($plugin->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                    , tr('Home')),
-    Anchor::new('/plugins/plugins.html', tr('Plugins')),
-    Anchor::new(''                     , $plugin->getDisplayName()),
+    Breadcrumb::new('/'                    , tr('Home')),
+    Breadcrumb::new('/plugins/plugins.html', tr('Plugins')),
+    Breadcrumb::new(''                     , $plugin->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($plugin_card                        , EnumDisplaySize::nine)
+           ->addGridColumn($plugin_card                            , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -67,7 +67,7 @@ class Vendors extends IteratorCore implements VendorsInterface
     {
         $this->changed = $changed;
 
-        $this->setAcceptedDataTypes(VendorInterface::class);
+        $this->setAcceptedDataTypes(Vendor::class);
 
         if (isset($this->directory)) {
             $this->load();

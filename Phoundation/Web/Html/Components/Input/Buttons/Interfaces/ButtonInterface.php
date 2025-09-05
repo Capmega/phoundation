@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Stringable;
 
 interface ButtonInterface
@@ -30,13 +31,13 @@ interface ButtonInterface
     /**
      * Set the content for this button
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
@@ -48,7 +49,7 @@ interface ButtonInterface
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static;
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static;
 
 
     /**

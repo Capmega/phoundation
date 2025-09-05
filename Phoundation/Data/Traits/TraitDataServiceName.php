@@ -48,7 +48,7 @@ trait TraitDataServiceName
      *
      * @return static
      */
-    public function setServiceName(?string $service_name, bool $make_safe = true): static
+    public function setServiceName(?string $service_name, bool $make_safe = false): static
     {
         if ($make_safe) {
             $service_name = Html::safe((string) $service_name);

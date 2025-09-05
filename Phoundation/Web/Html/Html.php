@@ -23,6 +23,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Stringable;
@@ -93,21 +94,33 @@ class Html
      *
      * @param Stringable|string|float|int|null $html
      * @param bool                             $enabled
+     * @param bool                             $force_render
      *
-     * @return string|null
+     * @return Stringable|string|null
      * @see htmlentities()
      */
-    public static function safe(Stringable|string|float|int|null $html, bool $enabled = true): ?string
+    public static function safe(Stringable|string|float|int|null $html, bool $enabled = true, bool $force_render = false): Stringable|string|null
     {
+        if (is_object($html)) {
+            // We don't make objects safe! We know these are renderable objects, but:
+            // a) We'd need to render them before making them safe, even though that may not be wanted yet because we might need to set properties still later
+            // b) it would make the entire content of the object safe, which likely isn't what we want as those types of objects almost always contain HTML.
+            if ($force_render) {
+                return (string) $html;
+            }
+
+            return $html;
+        }
+
         if ($html === null) {
             return null;
         }
 
         if ($enabled) {
-            return trim(htmlspecialchars((string) $html));
+            return get_null(trim(htmlspecialchars((string) $html)));
         }
 
-        return (string) $html;
+        return get_null((string) $html);
     }
 
 

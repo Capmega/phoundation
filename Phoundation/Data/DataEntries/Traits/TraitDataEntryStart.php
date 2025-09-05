@@ -29,7 +29,7 @@ trait TraitDataEntryStart
      */
     public function getStart(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'start');
+        return PhoDateTime::newOrNull($this->getTypesafe(PhoDateTimeInterface::class . '|string', 'start'));
     }
 
 

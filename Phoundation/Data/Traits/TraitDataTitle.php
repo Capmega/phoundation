@@ -48,7 +48,7 @@ trait TraitDataTitle
      *
      * @return static
      */
-    public function setTitle(?string $title, bool $make_safe = true): static
+    public function setTitle(?string $title, bool $make_safe = false): static
     {
         if ($make_safe) {
             $title = Html::safe($title);

@@ -18,7 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
-use Phoundation\Databases\Connectors\SystemConnector;
+use Phoundation\Databases\Databases;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -62,14 +62,7 @@ trait TraitDataConnector
     public function setConnector(?string $connector, ?string $database = null): static
     {
         $this->connector = $connector;
-        $connector       = $this->getConnector();
-
-        if ($connector === 'system') {
-            $this->setConnectorObject(new SystemConnector(), $database);
-
-        } else {
-            $this->setConnectorObject(new Connector($connector), $database);
-        }
+        $this->setConnectorObject(Databases::getConnectorObject($this->getConnector()), $database);
 
         return $this;
     }
@@ -94,7 +87,7 @@ trait TraitDataConnector
      */
     public static function getDefaultConnectorObject(): ConnectorInterface
     {
-        return new Connector(static::getDefaultConnector());
+        return Databases::getConnectorObject(static::getDefaultConnector());
     }
 
 
@@ -122,7 +115,7 @@ trait TraitDataConnector
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector = null, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
     {
         if ($o_connector) {
             $this->o_connector = $o_connector;

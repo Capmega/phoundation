@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -146,11 +146,11 @@ $o_card = Card::new()
               ->setMaximizeSwitch(true)
               ->setContent($o_right->getHtmlDataEntryFormObject())
               ->useForm(true)
-              ->setButtons(Buttons::new()
-                                  ->addButton(tr('Save'))
-                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
-                                  ->addButton(isset_get($o_delete))
-                                  ->addButton(isset_get($o_audit)));
+              ->setButtonsObject(Buttons::new()
+                                        ->addButton(tr('Save'))
+                                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
+                                        ->addButton(isset_get($o_delete))
+                                        ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links
@@ -172,10 +172,10 @@ $o_documentation_card = Card::new()
 Response::setHeaderTitle(tr('Right'));
 Response::setHeaderSubTitle($o_right->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                    , tr('Home')),
-    Anchor::new('/accounts.html'       , tr('Accounts')),
-    Anchor::new('/accounts/rights.html', tr('Rights')),
-    Anchor::new(''                     , $o_right->getDisplayName()),
+    Breadcrumb::new('/'                    , tr('Home')),
+    Breadcrumb::new('/accounts.html'       , tr('Accounts')),
+    Breadcrumb::new('/accounts/rights.html', tr('Rights')),
+    Breadcrumb::new(''                     , $o_right->getDisplayName()),
 ]);
 
 

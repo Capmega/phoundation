@@ -624,7 +624,7 @@ FILES variables:
 
                     case 'exception':
                         if (!$value instanceof Throwable) {
-                            $value = Poad::new($value)->getObject();
+                            $value = PhoException::newFromSource($value);
                         }
 
                         Log::exception($value);
@@ -853,13 +853,16 @@ FILES variables:
         $o_definitions->add(DefinitionFactory::newCreatedBy())
 
                       ->add(Definition::new('users_id')
-                                    ->setRender(false)
-                                    ->setInputType(EnumInputType::dbid)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isDbId()
-                                                  ->isQueryResult('SELECT `id`
-                                                                   FROM   `accounts_users`
-                                                                   WHERE  `id` = :id', [':id' => '$users_id']);
+                                      ->setRender(false)
+                                      ->setInputType(EnumInputType::dbid)
+                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                          $o_validator->isDbId()
+                                                      ->isQueryResult('SELECT `id`
+                                                                       FROM   `accounts_users`
+                                                                       WHERE  `id` = :id
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':id' => '$users_id'
+                                                      ]);
                                     }))
 
                     ->add(Definition::new('code')

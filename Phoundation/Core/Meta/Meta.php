@@ -43,6 +43,7 @@ use Phoundation\Web\Http\Url;
 use Stringable;
 use Throwable;
 
+
 class Meta implements MetaInterface
 {
     /**
@@ -131,7 +132,7 @@ class Meta implements MetaInterface
                     try {
                         $this->id = random_int(0, PHP_INT_MAX);
                         sql()->query('INSERT INTO `meta` (`id`)
-                                            VALUES             (' . $this->id . ')');
+                                      VALUES             (' . $this->id . ')');
 
                         return;
 
@@ -174,7 +175,11 @@ class Meta implements MetaInterface
      */
     protected function loadFromDatabase(int $id): void
     {
-        $this->id = sql()->getInteger('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $id]);
+        $this->id = sql()->getInteger('SELECT `id` 
+                                       FROM   `meta` 
+                                       WHERE  `id` = :id', [
+                                           ':id' => $id
+        ]);
 
         if (!$this->id) {
             throw new DataEntryNotExistsException(tr('The specified meta id ":id" does not exist', [

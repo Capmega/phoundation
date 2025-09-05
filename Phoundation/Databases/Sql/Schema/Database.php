@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Databases\Export;
 use Phoundation\Databases\Import;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -178,12 +179,12 @@ class Database extends SchemaAbstract implements DatabaseInterface
     /**
      * Load the table parameters from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         // Load columns & indices data
         // TODO Implement

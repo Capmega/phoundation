@@ -20,11 +20,11 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -137,11 +137,11 @@ $o_role_card = Card::new()
                    ->setMaximizeSwitch(true)
                    ->setContent($o_role->getHtmlDataEntryFormObject())
                    ->useForm(true)
-                   ->setButtons(Buttons::new()
-                                       ->addButton(tr('Save'))
-                                       ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
-                                       ->addButton(isset_get($o_delete))
-                                       ->addButton(isset_get($o_audit)));
+                   ->setButtonsObject(Buttons::new()
+                                             ->addButton(tr('Save'))
+                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
+                                             ->addButton(isset_get($o_delete))
+                                             ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links
@@ -176,14 +176,14 @@ $o_rights_card = Card::new()
 Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($o_role->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                   , tr('Home')),
-    Anchor::new('/accounts.html'      , tr('Accounts')),
-    Anchor::new('/accounts/roles.html', tr('Roles')),
-    Anchor::new(''                    , $o_role->getDisplayName()),
+    Breadcrumb::new('/'                   , tr('Home')),
+    Breadcrumb::new('/accounts.html'      , tr('Accounts')),
+    Breadcrumb::new('/accounts/roles.html', tr('Roles')),
+    Breadcrumb::new(''                    , $o_role->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_role_card     . $o_rights_card        . isset_get($o_users_card), EnumDisplaySize::nine)
+           ->addGridColumn($o_role_card    . $o_rights_card        . isset_get($o_users_card), EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card                           , EnumDisplaySize::three);

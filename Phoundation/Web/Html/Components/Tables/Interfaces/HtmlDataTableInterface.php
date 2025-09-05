@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Tables\Interfaces;
 
-use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Enums\EnumPagingType;
+
 
 interface HtmlDataTableInterface extends HtmlTableInterface
 {
@@ -15,17 +15,17 @@ interface HtmlDataTableInterface extends HtmlTableInterface
      *
      * @return ButtonsInterface
      */
-    public function getButtons(): ButtonsInterface;
+    public function getButtonsObject(): ButtonsInterface;
 
 
     /**
      * Sets table top-buttons
      *
-     * @param ButtonsInterface|array|string|null $buttons
+     * @param ButtonsInterface|array|string|null $o_buttons
      *
      * @return static
      */
-    public function setButtons(ButtonsInterface|array|string|null $buttons): static;
+    public function setButtonsObject(ButtonsInterface|array|string|null $o_buttons): static;
 
 
     /**

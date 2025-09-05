@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Interfaces;
 
+use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
@@ -12,7 +13,9 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Enums\EnumSoftHard;
+use Phoundation\Data\Interfaces\CacheableObjectInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -24,7 +27,7 @@ use Stringable;
 use Throwable;
 
 
-interface DataEntryInterface extends EntryInterface, IntegerableInterface
+interface DataEntryInterface extends EntryInterface, IntegerableInterface, CacheableObjectInterface
 {
     /**
      * Returns true if the ID column is the specified column
@@ -56,7 +59,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      */
     public static function getUniqueColumn(): ?string;
 
-
     /**
      * Returns a DataEntry object matching the specified identifier that MUST exist in the database
      *
@@ -80,7 +82,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *                                                                                 to [id_column => integer_value] or a string
      *                                                                                 value which will convert to
      *                                                                                 [unique_column => string_value]]
-     * @param EnumLoadParameters|null                   $on_load_null_identifier       Specifies how this load method will handle
+     * @param EnumLoadParameters|null                   $on_null_identifier       Specifies how this load method will handle
      *                                                                                 the specified identifier being NULL.
      *                                                                                 Options are: EnumLoadParameters::exception
      *                                                                                 (Throws a
@@ -90,7 +92,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *                                                                                 the object as-is, without loading
      *                                                                                 anything). Defaults to
      *                                                                                 EnumLoadParameters::exception
-     * @param EnumLoadParameters|null                   $on_load_not_exists            Specifies how this load method will handle
+     * @param EnumLoadParameters|null                   $on_not_exists            Specifies how this load method will handle
      *                                                                                 the specified identifier not existing in
      *                                                                                 the database. Options are:
      *                                                                                 EnumLoadParameters::exception (Throws a
@@ -102,7 +104,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static;
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -684,12 +686,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface $o_connector
-     * @param string|null        $database
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object
@@ -713,6 +715,15 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return array
      */
     public function getObjectState(): array;
+
+    /**
+     * Sets the state variables for this object
+     *
+     * @param array $state_array
+     *
+     * @return static
+     */
+    public function setObjectState(array $state_array): static;
 
     /**
      * Returns the previous ID
@@ -884,4 +895,45 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface
      * @return static
      */
     public function addPermittedColumns(array|string|null $columns): static;
+
+    /**
+     * Returns true if this DataEntry object was loaded from cache
+     *
+     * @return static
+     */
+    public function setIsLoaded(): static;
+
+    /**
+     * Returns the source without processing any data first
+     *
+     * @return array
+     */
+    public function getSourceUnprocessed(): array;
+
+    /**
+     * Loads the specified data into this DataEntry object directly, circumventing the definitions
+     *
+     * @warning THIS IS CONSIDERED DANGEROUS. You can load any type of data and column into this DataEntry object, whether its defined / permitted or not!
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
+     *
+     * @return static
+     */
+    public function setSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static;
+
+    /**
+     * Sets the flag that this DataEntry object was loaded from local cache
+     *
+     * @return static
+     */
+    public function setIsLoadedFromLocalCache(): static;
+
+    /**
+     * Sets the flag that this DataEntry object was loaded from global cache
+     *
+     * @return static
+     */
+    public function setIsLoadedFromGlobalCache(): static;
 }

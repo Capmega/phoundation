@@ -104,6 +104,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -115,7 +116,6 @@ use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenti
 use Plugins\Phoundation\MultiFactorAuthentication\MultiFactorAuthentication;
 use Stringable;
 use Throwable;
-
 
 
 class User extends DataEntry implements UserInterface
@@ -355,12 +355,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * Returns a single user object for a single user that has the specified alternate email address.
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         try {
             // Intercept loading "system" user
@@ -368,7 +368,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 return $this->initSystemUser();
             }
 
-            $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            $user = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {
@@ -401,13 +401,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 $user = sql()->getRow('SELECT `users_id`, `verified_on`
                                        FROM   `accounts_emails` 
                                        WHERE  `email` = :email 
-                                         AND  `status` IS NULL', [
+                                       AND    `status` IS NULL', [
                     ':email' => $this->identifier['email'],
                 ]);
 
                 if ($user) {
                     if ($user['verified_on'] or !config()->getBoolean('security.accounts.identify.email.verification.required', true)) {
-                        $user = static::new()->setMetaEnabled($this->meta_enabled)
+                        $user = static::new()->setMetaEnabled($this->getMetaEnabled())
                                              ->setIgnoreDeleted($this->ignore_deleted)
                                              ->load($user['users_id']);
 
@@ -1078,8 +1078,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
                      ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                     ':user'    => Session::getUserObject()
-                                          ->getDisplayName(),
+                     ':user'    => Session::getUserObject()->getDisplayName(),
                      ':project' => config()->getString('project.name', 'Phoundation'),
                  ]))
                  ->save()
@@ -1721,7 +1720,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getFingerprintObject(): ?DateTimeInterface
     {
-        return PhoDateTime::newNull($this->getFingerprint());
+        return PhoDateTime::newOrNull($this->getFingerprint());
     }
 
 
@@ -2393,7 +2392,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                             ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $roles->getHtmlSelectOld()->setCache(true)
+        $select = $roles->getHtmlSelectOld()
                         ->setNotSelectedLabel(null)
                         ->setMultiple(true)
                         ->setName($name)
@@ -2614,14 +2613,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function hasRoles(RolesInterface|RoleInterface|Stringable|string $roles): bool
     {
-        $result = true;
+        $result = false;
         $roles  = Arrays::force($roles);
 
         foreach ($roles as $role) {
             $exists = $this->getRolesObject()->keyExists($role);
 
             if ($exists) {
-                $result = false;
+                $result = true;
                 break;
             }
         }
@@ -2686,7 +2685,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $this->loadOrThis(['email' => 'guest']);
+        $o_user = $this->loadOrThis(['email' => 'guest']);
+
+        if ($o_user !== $this) {
+            $this->setSource($o_user->getSourceUnprocessed())
+                 ->setObjectState($o_user->getObjectState());
+        }
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2694,7 +2698,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // Guest user doesn't yet exist, save it now. Since guest user MAY be created automatically by guest itself
             // we will NOT save the created_by column (making created_by the system user)
             $this->setMetaColumns([
                 'id',
@@ -3043,7 +3047,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_id')
                                                          ->isEmail()
-                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
+                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` 
+                                                                                             FROM   `accounts_users` 
+                                                                                             WHERE  `email` = :email 
+                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                 ':email' => '$leaders_email'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newUsersId('leaders_id')
@@ -3054,7 +3063,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_email')
                                                          ->isDbId()
-                                                         ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                                                         ->isQueryResult('SELECT `id` 
+                                                                          FROM   `accounts_users` 
+                                                                          WHERE  `id` = :id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':id' => '$leaders_id'
+                                                         ]);
                                            }))
 
                     ->add(Definition::new('is_leader')

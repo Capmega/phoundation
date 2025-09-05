@@ -16,18 +16,20 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('Project details'));
 Response::setHeaderSubTitle(tr('demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'                   , tr('Home')),
-   Anchor::new('/demos.html'         , tr('Demos')),
-   Anchor::new('/demos/projects.html', tr('Projects')),
-   Anchor::new(''                    , tr('Project details')),
+   Breadcrumb::new('/'                   , tr('Home')),
+   Breadcrumb::new('/demos.html'         , tr('Demos')),
+   Breadcrumb::new('/demos/projects.html', tr('Projects')),
+   Breadcrumb::new(''                    , tr('Project details')),
 ]);
 
 ?>

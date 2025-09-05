@@ -21,9 +21,9 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -88,16 +88,16 @@ $buttons = Buttons::new()
 
 
 // Build the user form
-$card = Card::new()
+$o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
             ->setContent($password->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the password card
 $column = GridColumn::new()
-                    ->addContent($card->render())
+                    ->addContent($o_card->render())
                     ->setSize(9)
                     ->useForm(true);
 
@@ -124,11 +124,11 @@ $o_documentation_card = Card::new()
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                                         , tr('Home')),
-    Anchor::new('/accounts.html'                            , tr('Accounts')),
-    Anchor::new('/accounts/users.html'                      , tr('Users')),
-    Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
-    Anchor::new(''                                          , tr('Modify password'))
+    Breadcrumb::new('/'                                         , tr('Home')),
+    Breadcrumb::new('/accounts.html'                            , tr('Accounts')),
+    Breadcrumb::new('/accounts/users.html'                      , tr('Users')),
+    Breadcrumb::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
+    Breadcrumb::new(''                                          , tr('Modify password'))
 ]);
 
 

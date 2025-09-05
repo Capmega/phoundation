@@ -167,7 +167,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'start');
+        return $this->getTypesafe(PhoDateTimeInterface::class, 'start');
     }
 
 
@@ -178,7 +178,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe('datetime', 'stop');
+        return $this->getTypesafe(PhoDateTimeInterface::class, 'stop');
     }
 
 
@@ -1388,7 +1388,12 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->orColumn('servers_id')
                                                   ->isName()
-                                                  ->setColumnFromQuery('servers_id', 'SELECT `id` FROM `servers` WHERE `hostname` = :hostname AND `status` IS NULL', [':hostname' => '$server']);
+                                                  ->setColumnFromQuery('servers_id', 'SELECT `id` 
+                                                                                      FROM   `servers` 
+                                                                                      WHERE  `hostname` = :hostname 
+                                                                                      AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                          ':hostname' => '$server'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('servers_id')
@@ -1399,7 +1404,12 @@ class Task extends DataEntry implements TaskInterface
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->orColumn('server')
                                                   ->isDbId()
-                                                  ->isQueryResult('SELECT `id` FROM `servers` WHERE `id` = :id AND `status` IS NULL', [':id' => '$servers_id']);
+                                                  ->isQueryResult('SELECT `id` 
+                                                                   FROM   `servers` 
+                                                                   WHERE  `id` = :id 
+                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       ':id' => '$servers_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('roles_id')

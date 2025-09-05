@@ -27,6 +27,7 @@ use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -99,41 +100,41 @@ $buttons = Buttons::new()
 
 
 // Build the "user" form
-$card = Card::new()
+$o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change your password'))
             ->setContent($password->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build relevant links
 $o_relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
-                                  AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')));
-                                //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')));
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                    AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')));
+                                  //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')));
 
 // Build documentation
 $o_documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('<p>Here you can update your password</p>
-                                        <p>Please first supply your current password to be sure that it\'s you.</p>
-                                        <p>Then please supply your new password twice to avoid typos.</p>');
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('<p>Here you can update your password</p>
+                                          <p>Please first supply your current password to be sure that it\'s you.</p>
+                                          <p>Then please supply your new password twice to avoid typos.</p>');
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Change your password'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'               , tr('Home')),
-    Anchor::new('/my/profile.html', tr('My profile')),
-    Anchor::new(''                , tr('Change my password')),
+    Breadcrumb::new('/'               , tr('Home')),
+    Breadcrumb::new('/my/profile.html', tr('My profile')),
+    Breadcrumb::new(''                , tr('Change my password')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card                               , EnumDisplaySize::nine, true)
+           ->addGridColumn($o_card                                   , EnumDisplaySize::nine, true)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

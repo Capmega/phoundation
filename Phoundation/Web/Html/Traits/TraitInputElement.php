@@ -22,6 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataIcon;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Html;
@@ -167,9 +168,9 @@ trait TraitInputElement
     /**
      * Returns the value for the input element
      *
-     * @return Stringable|string|float|int|null
+     * @return string|null
      */
-    public function getValue(): Stringable|string|float|int|null
+    public function getValue(): string|null
     {
         return $this->value ?? $this->null_display;
     }
@@ -183,15 +184,9 @@ trait TraitInputElement
      *
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
-        if ($make_safe) {
-            $this->value = Html::safe($value);
-
-        } else {
-            $this->value = $value;
-        }
-
+        $this->value = Html::safe($value, $make_safe, true);
         return $this;
     }
 

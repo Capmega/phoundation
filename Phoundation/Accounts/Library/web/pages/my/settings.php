@@ -17,9 +17,9 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -57,10 +57,10 @@ if (Request::isPostRequestMethod()) {
 $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Save'), right: true)
-                                         ->addButton(isset_get($delete))
-                                         ->addButton(isset_get($audit)));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Save'), right: true)
+                                               ->addButton(isset_get($delete))
+                                               ->addButton(isset_get($audit)));
 
 
 // Build relevant links
@@ -85,13 +85,13 @@ $o_documentation_card = Card::new()
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'               , tr('Home')),
-    Anchor::new('/my/profile.html', tr('My profile')),
-    Anchor::new(''                , tr('My settings')),
+    Breadcrumb::new('/'               , tr('Home')),
+    Breadcrumb::new('/my/profile.html', tr('My profile')),
+    Breadcrumb::new(''                , tr('My settings')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card                               , EnumDisplaySize::nine, true)
+            ->addGridColumn($settings_card                          , EnumDisplaySize::nine, true)
             ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

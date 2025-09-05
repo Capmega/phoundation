@@ -125,7 +125,7 @@ class Role extends DataEntry implements RoleInterface
                ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $rights->getHtmlSelectOld()->setCache(true)
+        $select = $rights->getHtmlSelectOld()
                          ->setNotSelectedLabel(null)
                          ->setMultiple(true)
                          ->setName($name)
@@ -204,15 +204,15 @@ class Role extends DataEntry implements RoleInterface
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         try {
-            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            return parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new RoleNotExistsException($e);
@@ -310,9 +310,9 @@ class Role extends DataEntry implements RoleInterface
                                                $o_validator->isUnique();
                                            }))
 
-                    ->add(DefinitionFactory::newSeoName())
+                    ->add(DefinitionFactory::newSeoName());
 
-                    ->add(DefinitionFactory::newDescription()
+                    $o_definitions->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this role')));
 
         return $this;

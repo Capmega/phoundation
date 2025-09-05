@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Breadcrumbs
+ * Class Breadcrumb
  *
  *
  *
@@ -14,12 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Web\Html\Components\Widgets;
+namespace Phoundation\Web\Html\Components\Widgets\Breadcrumbs;
 
-use Phoundation\Web\Html\Components\ElementsBlock;
-use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadcrumbsInterface;
+use Phoundation\Web\Html\Components\Anchor;
 
 
-class Breadcrumbs extends ElementsBlock implements BreadcrumbsInterface
+class Breadcrumb extends Anchor
 {
 }

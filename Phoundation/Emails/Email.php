@@ -147,8 +147,11 @@ class Email extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
                                         $o_validator->isOptional()
-                                                  ->isQueryResult('SELECT `id` FROM `emails` WHERE `id` = :id', [
-                                                      ':id' => '$parents_id',
+                                                  ->isQueryResult('SELECT `id` 
+                                                                   FROM   `emails`
+                                                                   WHERE  `id` = :id
+                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       ':id' => '$parents_id',
                                                   ]);
                                     }))
 
@@ -166,8 +169,11 @@ class Email extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
                                         $o_validator->isOptional()
-                                                  ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id', [
-                                                      ':id' => '$categories',
+                                                  ->isQueryResult('SELECT `id`
+                                                                   FROM   `categories` 
+                                                                   WHERE  `id` = :id
+                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       ':id' => '$categories',
                                                   ]);
                                     }))
 
@@ -177,8 +183,12 @@ class Email extends DataEntry
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         // Ensure the specified parents_id exists
                                         $o_validator->isOptional()
-                                                  ->isQueryResult('SELECT `id` FROM `storage_pages` WHERE `id` = :id AND `template` = 1', [
-                                                      ':id' => '$templates_id',
+                                                  ->isQueryResult('SELECT `id` 
+                                                                   FROM   `storage_pages` 
+                                                                   WHERE  `id` = :id 
+                                                                   AND    `template` = 1
+                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       ':id' => '$templates_id',
                                                   ]);
                                     }))
 

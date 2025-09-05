@@ -279,13 +279,16 @@ interface QueryBuilderInterface extends QueryObjectInterface
      */
     public function getConnectorObject(): ConnectorInterface;
 
+
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface $o_connector
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
+     *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
 
     /**
      * Returns a hash from the executed query

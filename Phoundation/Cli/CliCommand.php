@@ -28,7 +28,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Cli\Exception\CliCommandException;
@@ -795,7 +795,7 @@ class CliCommand
         }
 
         if (!CliAutoComplete::isActive()) {
-            InstanceCache::logStatistics();
+            LocalCache::logStatistics();
             Cache::logStatistics();
             Sql::logStatistics();
 
@@ -1844,7 +1844,7 @@ return 'under construction';
             Log::setVerbose($argv['verbose']);
 
             // Set requested language
-            Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
+            Core::writeRegister($argv['language'] ?? config()->getString('locale.languages.default', 'en'), 'system', 'language');
 
             if ($argv['auto_complete']) {
                 // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen

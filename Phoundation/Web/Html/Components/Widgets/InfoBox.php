@@ -18,13 +18,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Data\Traits\TraitDataBackgroundColor;
 use Phoundation\Data\Traits\TraitDataContent;
-use Phoundation\Data\Traits\TraitDataCurrentFloat;
-use Phoundation\Data\Traits\TraitDataLabel;
-use Phoundation\Data\Traits\TraitDataMaximumInteger;
-use Phoundation\Data\Traits\TraitDataMinimumInteger;
 use Phoundation\Data\Traits\TraitDataTitle;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\Widgets\Interfaces\ProgressBarInterface;
 
 
 class InfoBox extends Widget

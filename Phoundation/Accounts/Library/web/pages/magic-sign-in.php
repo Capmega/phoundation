@@ -139,7 +139,7 @@ Response::setPageTitle(tr('Request a new password'));
             <div class="card-header text-center">
                 <?=
                     Anchor::new(config()->getString('project.customer-url', 'https://phoundation.org'))
-                          ->setContent(config()->getString('project.owner.label', '<span>Phoun</span>dation'))
+                          ->setContent(config()->getString('project.owner.label', '<span>Phoun</span>dation'), false)
                           ->setClass('h1')
                 ?>
             </div>

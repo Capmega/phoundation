@@ -57,7 +57,7 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::dbid)
-                         ->setSize(3);
+                         ->setSize(4);
     }
 
 
@@ -89,8 +89,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `categories` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$categories_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$categories_id'
                                               ]);
                                 });
     }
@@ -126,8 +126,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('categories_id', 'SELECT `id` 
                                                                               FROM   `categories` 
                                                                               WHERE  `name` = :name 
-                                                                                AND  `status` IS NULL', [
-                                                                                    ':name' => '$categories_name'
+                                                                              AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                  ':name' => '$categories_name'
                                        ]);
                          });
     }
@@ -161,8 +161,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `servers` 
                                                                WHERE  `id` = :id
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$servers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$servers_id'
                                               ]);
                                 });
     }
@@ -198,7 +198,7 @@ class DefinitionFactory
                                        ->setColumnFromQuery('servers_id', 'SELECT `id` 
                                                                            FROM   `servers` 
                                                                            WHERE  `name` = :name 
-                                                                             AND  `status` IS NULL', [
+                                                                           AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                  ':id' => '$servers_name'
                                        ]);
                          });
@@ -267,7 +267,7 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_companies` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                      ':id' => '$companies_id'
                                               ]);
                                 });
@@ -304,7 +304,7 @@ class DefinitionFactory
                                        ->setColumnFromQuery('companies_id', 'SELECT `id` 
                                                                              FROM   `business_companies` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                    ':name' => '$companies_name'
                                        ]);
                          });
@@ -340,7 +340,12 @@ class DefinitionFactory
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->orColumn('languages_name')
                                               ->isDbId()
-                                              ->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `core_languages` 
+                                                               WHERE  `id` = :id 
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$languages_id'
+                                              ]);
                                 });
     }
 
@@ -377,8 +382,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('languages_id', 'SELECT `id` 
                                                                              FROM   `core_languages` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                           ':name' => '$languages_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':name' => '$languages_name'
                                        ]);
                          });
     }
@@ -416,8 +421,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('languages_id', 'SELECT `id` 
                                                                              FROM   `core_languages` 
                                                                              WHERE  `code_639_1` = :code 
-                                                                               AND  `status` IS NULL', [
-                                           ':code' => '$languages_code'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$languages_code'
                                        ]);
                          });
     }
@@ -452,8 +457,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_providers` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$providers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$providers_id'
                                               ]);
                                 });
     }
@@ -488,8 +493,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('providers_id', 'SELECT `id` 
                                                                              FROM   `business_providers` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':code' => '$providers_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$providers_name'
                                        ]);
                          });
     }
@@ -524,8 +529,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_customers` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$customers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$customers_id'
                                               ]);
                                 });
     }
@@ -560,8 +565,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('customers_id', 'SELECT `id` 
                                                                              FROM   `business_customers` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':id' => '$customers_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':id' => '$customers_name'
                                        ]);
                          });
     }
@@ -634,8 +639,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('timezones_id', 'SELECT `id` 
                                                                              FROM   `geo_timezones` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':name' => '$timezones_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':name' => '$timezones_name'
                                        ]);
                          });
     }
@@ -671,9 +676,9 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('timezones_id', 'SELECT `id` 
                                                                              FROM   `geo_timezones` 
-                                                                             WHERE  `code` = :code 
-                                                                               AND  `status` IS NULL', [
-                                           ':code' => '$timezones_name'
+                                                                             WHERE  `code` = :code
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$timezones_name'
                                        ]);
                          });
     }
@@ -711,8 +716,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_countries` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$countries_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$countries_id'
                                               ]);
                                 });
     }
@@ -749,8 +754,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                ':name' => '$countries_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                   ':name' => '$countries_name'
                                        ]);
                          });
     }
@@ -786,9 +791,9 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
-                                                                             WHERE  `code` = :code 
-                                                                               AND  `status` IS NULL', [
-                                                                                ':code' => '$countries_code'
+                                                                             WHERE  `code` = :code
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$countries_code'
                                        ]);
                          });
     }
@@ -825,10 +830,10 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_states` 
                                                                WHERE  `id`           = :id 
-                                                                 AND  `countries_id` = :countries_id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id'           => '$states_id',
-                                                                     ':countries_id' => '$countries_id',
+                                                               AND    `countries_id` = :countries_id 
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id'           => '$states_id',
+                                                                   ':countries_id' => '$countries_id',
                                               ]);
                                 });
     }
@@ -865,10 +870,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('states_id', 'SELECT `name` 
                                                                           FROM   `geo_states` 
                                                                           WHERE  `name`         = :name 
-                                                                            AND  `countries_id` = :countries_id 
-                                                                            AND  `status` IS NULL', [
-                                                                           ':name'         => '$states_name',
-                                                                           ':countries_id' => '$countries_id',
+                                                                          AND    `countries_id` = :countries_id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':name'         => '$states_name',
+                                                                              ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -905,10 +910,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('states_id', 'SELECT `code` 
                                                                           FROM   `geo_states` 
                                                                           WHERE  `code`         = :code 
-                                                                            AND  `countries_id` = :countries_id 
-                                                                            AND  `status` IS NULL', [
-                                                                               ':code'         => '$states_code',
-                                                                               ':countries_id' => '$countries_id',
+                                                                          AND    `countries_id` = :countries_id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':code'         => '$states_code',
+                                                                              ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -944,11 +949,11 @@ class DefinitionFactory
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_cities` 
-                                                               WHERE  `id` = :id 
-                                                                 AND  `states_id`  = :states_id    
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id'        => '$cities_id',
-                                                                     ':states_id' => '$states_id',
+                                                               WHERE  `id`        = :id 
+                                                               AND    `states_id` = :states_id    
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id'        => '$cities_id',
+                                                                   ':states_id' => '$states_id',
                                               ]);
                                 });
     }
@@ -984,10 +989,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('cities_id', 'SELECT `name` 
                                                                           FROM   `geo_cities` 
                                                                           WHERE  `name`      = :name 
-                                                                            AND  `states_id` = :states_id    
-                                                                            AND  `status` IS NULL', [
-                                                                                ':name'      => '$cities_name',
-                                                                                ':states_id' => '$states_id',
+                                                                          AND    `states_id` = :states_id    
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':name'      => '$cities_name',
+                                                                              ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -1023,10 +1028,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('cities_id', 'SELECT `code` 
                                                                           FROM   `geo_cities` 
                                                                           WHERE  `code`      = :code 
-                                                                            AND  `states_id` = :states_id    
-                                                                            AND  `status` IS NULL', [
-                                                                           ':code'      => '$cities_code',
-                                                                           ':states_id' => '$states_id',
+                                                                          AND    `states_id` = :states_id    
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':code'      => '$cities_code',
+                                                                              ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -1079,7 +1084,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setRender(false)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setCliAutoComplete(true);
     }
 
@@ -1166,8 +1171,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `accounts_roles` 
                                                                WHERE  `id` = :id 
-                                                                 AND `status` IS NULL', [
-                                                                     ':id' => '$' . $column
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$' . $column
                                               ]);
                                 });
     }
@@ -1263,7 +1268,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
-                         ->setMaxLength(20)
+                         ->setMaxLength(32)
                          ->setLabel(tr('Date time'));
     }
 
@@ -1862,7 +1867,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setLabel(tr('Created by'))
                                 ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
@@ -1908,7 +1913,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
@@ -1926,8 +1931,8 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(3)
-                                ->setLabel(tr('Modified by'))
+                                ->setSize(4)
+                                ->setLabel(tr('Last modified by'))
                                 ->setTooltip(tr('This column contains the user who last modified this object. Other users may have made earlier edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
@@ -1972,10 +1977,10 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was last modified'))
-                         ->setLabel(tr('Modified on'));
+                         ->setLabel(tr('Last modified'));
     }
 
 
@@ -2059,7 +2064,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::text)
                          ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(32)
                          ->setLabel(tr('Status'));
     }

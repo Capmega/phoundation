@@ -20,10 +20,10 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -93,13 +93,13 @@ if (!$authentication->isNew()) {
 
 // Build the "authentication" card
 $form = $authentication->getHtmlDataEntryFormObject();
-$card = Card::new()
+$o_card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
-            ->setButtons(Buttons::new()
-                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
-                                ->addButton(isset_get($delete))
-                                ->addButton(isset_get($audit)));
+            ->setButtonsObject(Buttons::new()
+                                      ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
+                                      ->addButton(isset_get($delete))
+                                      ->addButton(isset_get($audit)));
 
 
 // Build relevant links
@@ -129,14 +129,14 @@ $url = Url::new('/security/authentications.html')->makeWww()->addQueries(
 Response::setHeaderTitle(tr('Authentication details'));
 Response::setHeaderSubTitle($authentication->getDisplayId());
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/security.html', tr('Security')),
-    Anchor::new($url            , tr('Authentications management')),
-    Anchor::new(''              , $authentication->getDisplayId()),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/security.html', tr('Security')),
+    Breadcrumb::new($url            , tr('Authentications management')),
+    Breadcrumb::new(''              , $authentication->getDisplayId()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card                               , EnumDisplaySize::nine, true)
+           ->addGridColumn($o_card                               , EnumDisplaySize::nine, true)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

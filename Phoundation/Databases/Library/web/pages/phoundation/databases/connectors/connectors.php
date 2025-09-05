@@ -18,9 +18,9 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\FilterForm;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -34,7 +34,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build the "filters" card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
                     ->setContent($filters);
@@ -113,9 +113,9 @@ $connectors_card = Card::new()
                                         ->setColumns('id,name,hostname,username,database,status,created_on')
                                         ->setOrder([1 => 'asc']))
                        ->useForm(true)
-                       ->setButtons(Buttons::new()
-                                           ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
-                                           ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                       ->setButtonsObject(Buttons::new()
+                                                 ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
+                                                 ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
 $connectors_card->getForm()
                 ->setAction(Url::newCurrent())
@@ -140,14 +140,14 @@ $o_documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Database connectors'));
 Response::setBreadcrumbs([
-    Anchor::new('/'                          , tr('Home')),
-    Anchor::new('/system-administration.html', tr('System administration')),
-    Anchor::new('/phoundation/databases.html', tr('Databases')),
-    Anchor::new(''                           , tr('Connectors')),
+    Breadcrumb::new('/'                          , tr('Home')),
+    Breadcrumb::new('/system-administration.html', tr('System administration')),
+    Breadcrumb::new('/phoundation/databases.html', tr('Databases')),
+    Breadcrumb::new(''                           , tr('Connectors')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $connectors_card   , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card . $connectors_card   , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -23,8 +23,10 @@ use DateTimeInterface;
 use DateTimeZone;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -34,6 +36,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;
 use Throwable;
+use ValueError;
 
 
 class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTimeInterface
@@ -55,7 +58,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
         }
 
         if (is_numeric($datetime)) {
-            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp((int) $datetime)->format('Y-m-d H:i:s.u');
+            $datetime = PhoDateTime::new('now', $timezone)->setTimestamp((int) $datetime)->format('Y-m-d>>DATETIMESEPARATOR<<H:i:s.u');
         }
 
         // Return Phoundation DateTime object for whatever given $datetime
@@ -101,7 +104,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return PhoDateTime|null
      */
-    public static function newNull(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
+    public static function newOrNull(PhoDateTimeInterface|string|float|int|null $datetime = 'now', DateTimeZone|string|null $timezone = null): ?static
     {
         if (empty($datetime)) {
             return null;
@@ -167,7 +170,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getSource(): string
     {
-        return $this->format('Y-m-d H:i:s');
+        return $this->format('Y-m-d>>DATETIMESEPARATOR<<H:i:s');
     }
 
 
@@ -370,11 +373,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * y    A two digit representation of a year    Examples: 99 or 03
      *
      * Time    ---    ---
-     * a    Lowercase Ante meridiem and Post meridiem    am or pm
-     * A    Uppercase Ante meridiem and Post meridiem    AM or PM
+     * a    Lowercase Ante meridiem and Post meridiem       am or pm
+     * A    Uppercase Ante meridiem and Post meridiem       AM or PM
      * B    Swatch Internet time    000 through 999
-     * g    12-hour format of an hour without leading zeros    1 through 12
-     * G    24-hour format of an hour without leading zeros    0 through 23
+     * g    12-hour format of an hour without leading zeros  1 through 12
+     * G    24-hour format of an hour without leading zeros  0 through 23
      * h    12-hour format of an hour with leading zeros    01 through 12
      * H    24-hour format of an hour with leading zeros    00 through 23
      * i    Minutes with leading zeros    00 to 59
@@ -400,29 +403,40 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * U    Seconds since the Unix Epoch (January 1, 1970 00:00:00 GMT)    See also time()
      *
      * @param EnumDateFormat|string|null $format
-     * @param bool                       $compact
+     * @param EnumDateTimeWidth          $width
      *
      * @return string
      */
-    public function format(EnumDateFormat|string|null $format = null, bool $compact = false): string
+    public function format(EnumDateFormat|string|null $format = null, EnumDateTimeWidth $width = EnumDateTimeWidth::default): string
     {
-        return parent::format(static::parseFormat($format, $compact));
+        return parent::format(static::parseFormat($format, $width));
     }
 
 
     /**
      * Applies specific format strings
      *
+     * @note If the specified format is a string instead of a EnumDateFormat, the $width will be forced to EnumDateTimeWidth::wide so that no modifications to
+     *       the format are made
+     *
      * @param EnumDateFormat|string|null $format
-     * @param bool                       $compact
+     * @param EnumDateTimeWidth          $width
      *
      * @return string
      * @todo Currently the human_* formats come from configuration, maybe this is better coming from locale?
-     *
      */
-    protected static function parseFormat(EnumDateFormat|string|null $format = null, bool $compact = false): string
+    protected static function parseFormat(EnumDateFormat|string|null $format = null, EnumDateTimeWidth $width = EnumDateTimeWidth::default): string
     {
-        $format = match ($format) {
+        if (is_string($format)) {
+            try {
+                $format = EnumDateFormat::from($format);
+
+            } catch (ValueError $e) {
+                // All fine, this is a custom format
+            }
+        }
+
+        $return = match ($format) {
             EnumDateFormat::user_time       => Session::getLocaleObject()->getTimeFormatPhp(),
             EnumDateFormat::user_date       => Session::getLocaleObject()->getDateFormatPhp(),
             EnumDateFormat::user_datetime   => Session::getLocaleObject()->getDateTimeFormatPhp(),
@@ -433,16 +447,18 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             EnumDateFormat::system_date,
             EnumDateFormat::mysql_date      => 'Y-m-d',
             EnumDateFormat::iso_date_time,
-            EnumDateFormat::mysql_datetime  => 'Y-m-d>>SEPARATOR<<H:i:s',
+            EnumDateFormat::mysql_datetime  => 'Y-m-d>>DATETIMESEPARATOR<<H:i:s',
             EnumDateFormat::file            => 'ymd-His',
-            default                         => $format,
+            default                         => null,
         };
 
-        if ($compact) {
-            return str_replace('>>SEPARATOR<<', ' ', str_replace(' ', '', $format));
+        if ($return === null) {
+            // Return the format as-is
+            return PhoDateTimeFormats::cleanDateFormat($format, EnumDateTimeWidth::wide);
         }
 
-        return $format;
+
+        return PhoDateTimeFormats::cleanDateFormat($return, $width);
     }
 
 
@@ -527,7 +543,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function getBeginningOfDay(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
-            $this->format('Y-m-d 00:00:00'),
+            $this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'),
             static::selectTimezone($this, $timezone)
         );
     }
@@ -543,7 +559,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     public function getEndOfDay(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
-            $this->format('Y-m-d 23:59:59.999999'),
+            $this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'),
             static::selectTimezone($this, $timezone)
         );
     }
@@ -755,13 +771,13 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 1 - 15 this month
-            return PhoDateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) previous month
         $start = $datetime->sub(PhoDateInterval::createFromDateString('1 month'));
 
-        return PhoDateTime::new($start->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($start->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -779,11 +795,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             // 1 - 15 next month
             $start = $datetime->add(PhoDateInterval::createFromDateString('1 month'));
 
-            return PhoDateTime::new($start->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($start->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -799,11 +815,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return PhoDateTime::new($datetime->format('Y-m-16 00:00:00'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-16>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-1 00:00:00'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $datetime->getTimezone());
     }
 
 
@@ -819,11 +835,11 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
         if ($date_day >= 16) {
             // 15-30 this month
-            return PhoDateTime::new($datetime->format('Y-m-t 23:59:59.999999'), $datetime->getTimezone());
+            return PhoDateTime::new($datetime->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
         }
 
         // 16 - 3(0|1) this month
-        return PhoDateTime::new($datetime->format('Y-m-15 23:59:59.999999'), $datetime->getTimezone());
+        return PhoDateTime::new($datetime->format('Y-m-15>>DATETIMESEPARATOR<<23:59:59.999999'), $datetime->getTimezone());
     }
 
 
@@ -834,7 +850,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getMonthStart(): static
     {
-        return PhoDateTime::new($this->format('Y-m-1 00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
 
 
@@ -845,7 +861,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getMonthStop(): static
     {
-        return PhoDateTime::new($this->format('Y-m-t 23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -856,7 +872,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getDayStart(): static
     {
-        return PhoDateTime::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
 
 
@@ -867,7 +883,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      */
     public function getDayStop(): static
     {
-        return PhoDateTime::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
+        return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
 
 
@@ -1021,7 +1037,6 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
     {
         $date = $this->format('Y m d');
         $date = explode(' ', $date);
-
         $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
         $this->setTime(0, 0, 0, 0);
 
@@ -1207,10 +1222,10 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
                 break;
 
             case 12:
-                $return = substr($source, 0, 4)  . $date_separator .
-                          substr($source, 4, 2)  . $date_separator .
-                          substr($source, 6, 2)  . $date_separator .
-                          substr($source, 8, 2)  . $time_separator .
+                $return = substr($source, 0, 4) . $date_separator .
+                          substr($source, 4, 2) . $date_separator .
+                          substr($source, 6, 2) . $date_separator .
+                          substr($source, 8, 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator
                           . '00';
                 break;

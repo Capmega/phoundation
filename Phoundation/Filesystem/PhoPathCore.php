@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Exception;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -89,6 +89,8 @@ use Phoundation\Security\Incidents\Incident;
 use Phoundation\Servers\Traits\TraitDataServer;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Icons\Icon;
+use Phoundation\Web\Html\Components\Icons\Interfaces\IconInterface;
 use Stringable;
 use Throwable;
 
@@ -621,8 +623,8 @@ class PhoPathCore implements PhoPathInterface
     {
         $path = trim((string) $path);
 
-        if (InstanceCache::exists('path::absolutePath', $path . $absolute_prefix)) {
-            return InstanceCache::getLastChecked();
+        if (LocalCache::exists('path::absolutePath', $path . $absolute_prefix)) {
+            return LocalCache::getLastChecked();
         }
 
         $path = str_replace('//', '/', $path);
@@ -700,7 +702,7 @@ class PhoPathCore implements PhoPathInterface
             // The path doesn't exist, but apparently that's okay! Continue!
         }
 
-        return InstanceCache::set(static::ensureDirectorySlash($return), 'path::absolutePath', $path);
+        return LocalCache::set(static::ensureDirectorySlash($return), 'path::absolutePath', $path);
     }
 
 
@@ -2687,8 +2689,8 @@ class PhoPathCore implements PhoPathInterface
     {
         $path = trim((string) $path);
 
-        if (InstanceCache::exists('path::normalizePath', $path)) {
-            return InstanceCache::getLastChecked();
+        if (LocalCache::exists('path::normalizePath', $path)) {
+            return LocalCache::getLastChecked();
         }
 
         if ($path[0] !== '/') {
@@ -2750,7 +2752,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         // Put all the processed path parts back together again, normalized never ends with a / though!
-        return InstanceCache::set(Strings::ensureEndsNotWith($root . $return, '/'), 'path::normalizePath', $path);
+        return LocalCache::set(Strings::ensureEndsNotWith($root . $return, '/'), 'path::normalizePath', $path);
     }
 
 
@@ -4821,9 +4823,9 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns an appropriate icon string for this file
      *
-     * @return string
+     * @return IconInterface
      */
-    public function getIcon(): string
+    public function getIcon(): IconInterface
     {
         Log::warning('The PhoPathCore::getIcon() method is still under construction and currently only returns PDF icons!');
 
@@ -4832,13 +4834,13 @@ class PhoPathCore implements PhoPathInterface
                 // no break
 
             case 'xlsx':
-                return 'far fa-fw fa-file-excel';
+                return Icon::new('far', 'fa-fw fa-file-excel');
 
             case 'pdf':
-                return 'far fa-fw fa-file-pdf';
+                return Icon::new('far', 'fa-fw fa-file-pdf');
         }
 
-        return 'far fa-fw fa-file';
+        return Icon::new('far', 'fa-fw fa-file');
     }
 
 

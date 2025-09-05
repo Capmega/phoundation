@@ -20,9 +20,9 @@ use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -44,7 +44,7 @@ $o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
                     ->setContent($o_filters)
-                    ->setButtons(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true));
+                    ->setButtonsObject(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true));
 
 
 // Button clicked?
@@ -146,10 +146,10 @@ $o_users_card = Card::new()
                                        ->setTopButtons(Buttons::new()
                                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')))
                   ->useForm(true)
-                  ->setButtons(Buttons::new()
-                                      ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true)
-                                      ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true)
-                                      ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
+                  ->setButtonsObject(Buttons::new()
+                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true)
+                                            ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true)
+                                            ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
 
 
 $o_users_card->getForm()
@@ -176,13 +176,13 @@ $o_documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Users'));
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/accounts.html', tr('Accounts')),
-    Anchor::new(''              , tr('Users')),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/accounts.html', tr('Accounts')),
+    Breadcrumb::new(''              , tr('Users')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_users_card        , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card . $o_users_card        , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

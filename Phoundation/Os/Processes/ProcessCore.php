@@ -197,7 +197,7 @@ abstract class ProcessCore implements ProcessInterface
         $this->setExitCode($exit_code, $output);
 
         if ($this->debug) {
-            Log::debug($output);
+            Log::printr($output);
         }
 
         return $output;
@@ -512,10 +512,17 @@ abstract class ProcessCore implements ProcessInterface
     protected function setExitCode(?int $exit_code, string|array|null $output = null): static
     {
         if (empty($output)) {
+            $array = is_array($output);
+
             // Output was redirected to log file, get output from there
             if ($this->log_file) {
                 if (file_exists($this->log_file)) {
                     $output = file_get_contents($this->log_file);
+
+                    // The original output was an array, ensure this one is too
+                    if ($array) {
+                        $output = explode("\n", $output);
+                    }
                 }
             }
         }

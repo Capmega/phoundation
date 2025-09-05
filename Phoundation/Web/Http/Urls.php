@@ -30,7 +30,7 @@ class Urls extends Iterator implements UrlsInterface
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
-        $this->setAcceptedDataTypes(UrlInterface::class);
+        $this->setAcceptedDataTypes(Url::class);
         parent::__construct($source);
     }
 }

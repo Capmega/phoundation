@@ -132,12 +132,12 @@ class PhoMount extends DataEntry implements PhoMountInterface
     /**
      * @inheritDoc
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         $column = static::determineColumn($identifier);
 
         try {
-            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            return parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             // FsMount wasn't found in the database. Get it from configuration instead but that DOES require the name
@@ -147,7 +147,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     try {
                         $mount = config()->getArray('filesystem.mounts.' . str_replace(' ', '-', $this->identifier['name']));
 
-                        return static::newFromSource($mount)->setMetaEnabled($this->meta_enabled)
+                        return static::newFromSource($mount)->setMetaEnabled($this->getMetaEnabled())
                                      ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                     } catch (ConfigPathDoesNotExistsException) {
@@ -161,14 +161,14 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     // This is a mount that SHOULD already exist on the system
                     $mount = PhoMounts::getMountSources(new PhoDirectory($this->identifier['source_path']));
 
-                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                    return static::new($mount)->setMetaEnabled($this->getMetaEnabled())
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
 
                 case 'target_path':
                     // This is a mount that SHOULD already exist on the system
                     $mount = PhoMounts::getMountTargets(new PhoDirectory($this->identifier['target_path']));
 
-                    return static::new($mount)->setMetaEnabled($this>$this->meta_enabled)
+                    return static::new($mount)->setMetaEnabled($this->getMetaEnabled())
                                               ->setIgnoreDeleted($this>$this->ignore_deleted);
             }
 

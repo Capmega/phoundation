@@ -40,7 +40,7 @@ trait TraitDataEntryServiceDate
      */
     public function getServiceDateObject(): PhoDateTimeInterface|null
     {
-        return PhoDateTime::newNull($this->getServiceDate());
+        return PhoDateTime::newOrNull($this->getServiceDate());
     }
 
 

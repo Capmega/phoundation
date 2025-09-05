@@ -103,7 +103,12 @@ class Page extends DataEntry implements PageInterface
                                                // Ensure categories id exists and that its or category
                                                $o_validator->orColumn('parents_name')
                                                          ->isDbId()
-                                                         ->isQueryResult('SELECT `id` FROM `pages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                                                         ->isQueryResult('SELECT `id` 
+                                                                          FROM   `pages` 
+                                                                          WHERE  `id` = :id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':id' => '$parents_id'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newParent()
@@ -121,7 +126,12 @@ class Page extends DataEntry implements PageInterface
                                                // Ensure category exists and that it's a category id or category name
                                                $o_validator->orColumn('parents_id')
                                                          ->isName()
-                                                         ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `pages` WHERE `name` = :name AND `status` IS NULL', [':id' => '$parents_name']);
+                                                         ->setColumnFromQuery('parents_id', 'SELECT `id` 
+                                                                                             FROM   `pages` 
+                                                                                             WHERE  `name` = :name 
+                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                 ':id' => '$parents_name'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newCategoriesId())

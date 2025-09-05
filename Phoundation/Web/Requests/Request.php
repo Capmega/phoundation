@@ -20,20 +20,14 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Exception\InvalidRequestTypeException;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataStaticContentType;
 use Phoundation\Data\Traits\TraitDataStaticExecuted;
 use Phoundation\Data\Traits\TraitGetInstance;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -47,7 +41,6 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
-use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -61,9 +54,6 @@ use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplatePageInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Exception\Http404Exception;
-use Phoundation\Web\Http\Exception\Http405Exception;
-use Phoundation\Web\Http\Exception\Http409Exception;
-use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
@@ -491,7 +481,7 @@ class Request implements RequestInterface
 
                 if (empty($requested)) {
                     // Go for default language
-                    return config()->getString('languages.default', 'en');
+                    return config()->getString('locale.languages.default', 'en');
                 }
 
                 foreach ($requested as $locale) {
@@ -513,7 +503,7 @@ class Request implements RequestInterface
                             ]))
                             ->send();
 
-                return config()->getString('languages.default', 'en');
+                return config()->getString('locale.languages.default', 'en');
         }
     }
 
@@ -540,7 +530,7 @@ class Request implements RequestInterface
             // No accept language headers were specified
             $return = [
                 '1.0' => [
-                    'language' => config()->get('languages.default', 'en'),
+                    'language' => config()->get('locale.languages.default', 'en'),
                     'locale'   => Strings::cut(config()->get('locale.LC_ALL', 'US'), '_', '.'),
                 ],
             ];
@@ -622,10 +612,11 @@ class Request implements RequestInterface
      * @param EnumDomainAllowed|string $allowed_domain The type of domain that is allowed to be redirected to
      *
      * @return UrlInterface|null
+     * @todo To make sense, update this to just ONLY return the referer. If we need more, have another method return that.
      */
     public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
-        $url = isset_get($_SERVER['HTTP_REFERER']);
+        $url = array_get_safe($_SERVER, 'HTTP_REFERER');
 
         if ($url) {
             return Url::new($url)->checkDomain($allowed_domain);

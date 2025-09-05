@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Connectors;
 
 use PDOStatement;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
@@ -37,8 +39,10 @@ class Connectors extends DataIterator implements ConnectorsInterface
     {
         parent::__construct($source);
 
-        $this->keys_are_unique_column = true;
-        $this->query                  = 'SELECT * FROM `databases_connectors`';
+        // Connectors are stored under multiple names
+        $this->require_key_match_unique_identifier = false;
+        $this->keys_are_unique_column              = true;
+        $this->query                               = 'SELECT * FROM `databases_connectors`';
     }
 
 
@@ -72,13 +76,13 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * Load the id list from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
-     * @param bool                  $ignore_sql_exceptions
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
+     * @param bool                                      $ignore_sql_exceptions
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false, bool $ignore_sql_exceptions = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false, bool $ignore_sql_exceptions = false): static
     {
         try {
             parent::load($identifiers, $like);
@@ -150,12 +154,15 @@ class Connectors extends DataIterator implements ConnectorsInterface
     /**
      * Returns the connector with the specified identifier
      *
-     * @note  If the specified connector does not yet exist, this method will try to load it automatically
+     * @note  If the specified connector doesn't yet exist, this method will try to load it automatically
      *
      * @param Stringable|string|float|int $key
      * @param bool                        $exception
      *
      * @return mixed
+     * @todo Improve accessing "cached" connectors! We always request "just the connector" by its name, like "system" yet we want a connector that is using the
+     *       right database. Maybe have a connector for each database used, i.e. a "USE DATABASE" should use a new connector or something? Think about how to
+     *       do this best
      */
     public function get(Stringable|string|float|int $key, bool $exception = false): mixed
     {
@@ -166,7 +173,12 @@ class Connectors extends DataIterator implements ConnectorsInterface
         $o_connector = parent::get($key, $exception);
 
         if (empty($o_connector)) {
+            // This connector doesn't exist in the source yet.
+            // Create it, it will add itself automatically with the specific name ("system[mysql]:base@127.0.0.1/tracking" for example))
             $o_connector = Connector::new($key);
+
+            // Add this connector as well with its generic name ("system", for example) so that we can easily find it back later
+            $this->add($o_connector, $key);
         }
 
         return $o_connector;

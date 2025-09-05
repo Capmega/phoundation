@@ -17,15 +17,16 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
+use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Web\Html\Pages\SignInPage;
-use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
 
 // Only show sign-in page if we're a guest user
 if (!Session::getUserObject()->isGuest()) {
@@ -49,6 +50,9 @@ if (Request::isPostRequestMethod()) {
             $user = Session::signIn($post['email'], $post['password'], $user_class);
 
             Session::redirectAfterSignIn($get['redirect'], $get['email']);
+
+        } catch (CsrfValidationFailedException $e) {
+            Response::getFlashMessagesObject()->addWarning(tr('The submission failed a security check, please try again'));
 
         } catch (AuthenticationException | PasswordTooShortException | NoPasswordSpecifiedException | ValidationFailedException $e) {
             Response::getFlashMessagesObject()->addWarning(tr('The specified email and/or password were incorrect'));

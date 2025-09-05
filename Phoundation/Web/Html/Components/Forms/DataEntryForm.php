@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use PDOStatement;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
@@ -39,6 +40,7 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
 use Throwable;
+
 
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
@@ -131,13 +133,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Returns the cache key for this DataEntryForm object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
-        return 'DataEntryForm-' . ($this->o_data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render' . $append_string;
+        return PROJECT . '#DataEntryForm#' . static::class . '#' . Json::encode(['render', $this->o_data_entry?->getCacheKey(), $this->source], force_single_line: true);
     }
 
 
@@ -402,7 +402,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $o_component   = match ($o_definition->getInputType()) {
                                     EnumInputType::number       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setStep($o_definition->getStep())
@@ -411,7 +410,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::date         => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setName($field_name)
@@ -419,7 +417,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::auto_suggest => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setAutoComplete(false)
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
@@ -430,13 +427,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::select       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::checkbox     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue('1')
                                                                                  ->setChecked((bool)$source[$column]),
@@ -447,6 +442,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                          ->setHidden($o_definition->getHidden())
                                                                          ->setValue($o_definition->getValue()),
 
+                                    // TODO This should be using ->setDefinitionObject($o_definition)!
                                     EnumInputType::hidden       => $element_class::new()
                                                                                  ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
@@ -454,7 +450,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     default                     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
                                                                                  ->setAutoComplete($o_definition->getAutoComplete())

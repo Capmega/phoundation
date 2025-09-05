@@ -126,7 +126,7 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return ButtonsInterface
      */
-    public function getButtons(): ButtonsInterface;
+    public function getButtonsObject(): ButtonsInterface;
 
     /**
      * Sets the modal buttons
@@ -135,25 +135,25 @@ interface DefinitionsInterface extends IteratorInterface
      *
      * @return static
      */
-    public function setButtons(?ButtonsInterface $buttons): static;
+    public function setButtonsObject(?ButtonsInterface $buttons): static;
 
     /**
      * Adds the specified buttons to this buttons list
      *
-     * @param ButtonsInterface|null $buttons
+     * @param ButtonsInterface|null $o_buttons
      *
      * @return static
      */
-    public function addButtons(?ButtonsInterface $buttons): static;
+    public function addButtons(?ButtonsInterface $o_buttons): static;
 
     /**
      * Sets the modal buttons
      *
-     * @param DropdownButtonInterface|ButtonInterface|null $button
+     * @param DropdownButtonInterface|ButtonInterface|null $o_button
      *
      * @return static
      */
-    public function addButton(DropdownButtonInterface|ButtonInterface|null $button): static;
+    public function addButton(DropdownButtonInterface|ButtonInterface|null $o_button): static;
 
     /**
      * Direct method to render or not render entries
