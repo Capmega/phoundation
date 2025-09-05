@@ -3282,8 +3282,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->copyValuesToSource($data_source, true, false, true);
 
         } else {
-            // Validate data and copy data into the source array
-            $data_source = $this->validateSource($data_source, $require_clean_source, true);
+            try {
+                // Validate data and copy data into the source array
+                $data_source = $this->validateSource($data_source, $require_clean_source, true);
+
+            } catch (DataEntryNotInitializedException $e) {
+                throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                    ':class' => static::class
+                ]), $e);
+            }
 
             if ($this->debug) {
                 Log::dump('VALIDATED DATA', echo_header: false);
@@ -3357,6 +3364,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This data entry won't validate data, just continue.
             return $o_validator->getSource();
         }
+
+        $this->checkDefinitionsObject(action: 'validation');
 
         // Set what prefix to use
         $prefix = $use_prefix ? $this->getDefinitionsObject()->getPrefix() : null;
@@ -4892,6 +4901,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                      ->saveToGlobalCache($this->getCacheKey())
                      ->setTableState();
             }
+
+        } catch (DataEntryNotInitializedException $e) {
+            throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                ':class' => static::class
+            ]), $e);
 
         } catch (SqlContstraintDuplicateEntryException $e) {
             // The unique identifier for the entry being added already exists

@@ -50,10 +50,11 @@ trait TraitDataDefinitions
      *
      * If the object is a DataEntry class object, and has not yet been initialized, it will initialize automatically
      *
+     * @param string|null $action
+     *
      * @return DefinitionsInterface
-     * @throws OutOfBoundsException | DataEntryNotInitializedException
      */
-    protected function checkDefinitionsObject(): DefinitionsInterface
+    protected function checkDefinitionsObject(?string $action = null): DefinitionsInterface
     {
         if (empty($this->o_definitions)) {
             if ($this instanceof DataEntryInterface) {
@@ -63,8 +64,12 @@ trait TraitDataDefinitions
                     ]));
                 }
 
-                // The object has not yet been initialized, do so now.
                 $this->initialize(false);
+
+//                throw DataEntryNotInitializedException::new(tr('Cannot perform ":action", the ":class" object has no Definitions object set', [
+//                    ':action' => $action ?? tr('action'),
+//                    ':class'  => static::class,
+//                ]));
 
             } else {
                 throw OutOfBoundsException::new(tr('The ":class" object has no Definitions object set', [
