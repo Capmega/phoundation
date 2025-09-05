@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotInitializedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\Enums\EnumLoadParameters;
@@ -196,7 +197,7 @@ class DataEntryTest extends TestCase
             TestDataEntry::new()->save();
             $this->fail('Expected ValidationFailedException was not thrown');
         } catch (Throwable $e) {
-            $this->assertInstanceOf(ValidationFailedException::class, $e);
+            $this->assertInstanceOf(DataEntryNotInitializedException::class, $e);
         }
     }
 

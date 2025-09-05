@@ -173,23 +173,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Fix incorrect index name
-            sql()->getSchemaObject()->getTableObject('categories')->alter()
-                ->dropIndex('parent_name')
-                ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
+            $o_table = sql()->getSchemaObject()->getTableObject('categories');
+
+            if ($o_table->indexExists('parent_name')) {
+                $o_table->alter()->dropIndex('parent_name')
+                                 ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
+            }
 
         })->addUpdate('0.1.1', function () {
             // Modify the "test_dataentries" table.
             $table = sql()->getSchemaObject()->getTableObject('test_dataentries');
 
-            if ($table->columnExists('created_by')) {
+            if (!$table->columnExists('created_by')) {
                 $table->alter()->addColumn('`created_by` bigint DEFAULT NULL', 'AFTER `created_on`');
             }
 
-            if ($table->indexExists('created_by')) {
+            if (!$table->indexExists('created_by')) {
                 $table->alter()->addIndices('KEY `created_by` (`created_by`)');
             }
 
-            if ($table->foreignKeyExists('fk_test_dataentries_created_by')) {
+            if (!$table->foreignKeyExists('fk_test_dataentries_created_by')) {
                 $table->alter()->addForeignKeys('CONSTRAINT `fk_test_dataentries_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
             }
 
