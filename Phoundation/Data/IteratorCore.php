@@ -459,7 +459,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if ($this->accepted_data_types) {
             if (!is_datatype_or_class($this->accepted_data_types, $value)) {
                 // Failed data Tests
-                throw new IteratorDataTypeNotAcceptedException(tr('Iterator value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
+                throw new IteratorDataTypeNotAcceptedException(tr('Iterator ":class" value argument is restricted to type(s) ":allowed", value ":value" has datatype ":type"', [
+                    ':class'   => static::class,
                     ':value'   => $value,
                     ':type'    => (is_object($value) ? get_class($value) : gettype($value)),
                     ':allowed' => Strings::force($this->accepted_data_types, ', '),
