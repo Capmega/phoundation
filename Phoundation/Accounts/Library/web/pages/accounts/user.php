@@ -340,11 +340,11 @@ Response::setBreadcrumbs([
 return Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
-                                  ->addContent($o_user_card .
-                                               isset_get($o_roles_card) .
-                                               isset_get($o_rights_card) .
-                                               isset_get($o_emails_card) .
-                                               isset_get($o_phones_card))
-                                  ->setSize(9)
-                                  ->useForm(true))
+                                      ->addContent($o_user_card .
+                                                   isset_get($o_roles_card) .
+                                                   isset_get($o_rights_card) .
+                                                   isset_get($o_emails_card) .
+                                                   isset_get($o_phones_card))
+                                      ->setSize(9)
+                                      ->useForm(true))
             ->addGridColumn($o_picture_card . $o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

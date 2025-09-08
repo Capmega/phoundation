@@ -40,7 +40,7 @@ try {
                    $o_validator->isImage('jpg,png')->isSmallerThan('10MB')
                              ->validate();
                })
-               ->setFunction(function(PhoUploadedFileInterface $file) {
+               ->setFileCallback(function(PhoUploadedFileInterface $file) {
                    // Set this image as the profile image
                    ProfileImage::newFromImageFile(new ImageFile($file))
                                ->setUserObject(Session::getUserObject())

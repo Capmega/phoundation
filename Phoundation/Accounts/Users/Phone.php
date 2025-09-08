@@ -218,6 +218,11 @@ class Phone extends DataEntry implements PhoneInterface
                       ->add(DefinitionFactory::newUsersId()
                                            ->setRender(false))
 
+                      ->add(DefinitionFactory::newUsersEmail('users_email')
+                                             ->setOptional(true)
+                                             ->setVirtual(true)
+                                             ->setRender(false))
+
                       ->add(DefinitionFactory::newPhone()
                                            ->setSize(4)
                                            ->setOptional(true)

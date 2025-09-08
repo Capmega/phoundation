@@ -32,6 +32,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -186,12 +187,16 @@ class Phones extends DataIterator implements PhonesInterface
 
         $phones = [];
         $post   = Validator::pick()
-                           ->select('phones')->isOptional()->sanitizeForceArray()
+                           ->select('phones')->isOptional()->sanitizeForceArray()->skipValidation()
                            ->validate($require_clean_source);
 
         // Parse and sub validate
         if (isset($post['phones'])) {
             foreach ($post['phones'] as $phone) {
+                if (empty(Strings::force($phone))) {
+                    continue;
+                }
+
                 // Command line specified phones will have a EMAIL|TYPE|DESCRIPTION string format instead of an array
                 if (!is_array($phone)) {
                     if (!is_string($phone)) {
@@ -228,6 +233,7 @@ class Phones extends DataIterator implements PhonesInterface
                                        ->isOptional()
                                        ->isDescription()
                                        ->validate();
+
                 // Ignore empty entries
                 if (empty($phone['phone'])) {
                     continue;
@@ -248,7 +254,7 @@ class Phones extends DataIterator implements PhonesInterface
 
             foreach ($diff['add'] as $phone) {
                 if ($phone) {
-                    $this->add(Phone::new()
+                    $this->add(Phone::new(null)
                                     ->apply(false, $phones[$phone])
                                     ->setUsersId($this->o_parent->getId())
                                     ->save());
@@ -262,11 +268,6 @@ class Phones extends DataIterator implements PhonesInterface
                      ->setUsersId($this->o_parent->getId())
                      ->save();
             }
-        }
-
-        // Clear source if required
-        if ($require_clean_source) {
-            PostValidator::new()->noArgumentsLeft();
         }
 
         return $this;

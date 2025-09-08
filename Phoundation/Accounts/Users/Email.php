@@ -172,7 +172,12 @@ class Email extends DataEntry implements EmailInterface
                                              ->setReadonly(true))
 
                       ->add(DefinitionFactory::newUsersId()
-                                           ->setRender(false))
+                                             ->setRender(false))
+
+                      ->add(DefinitionFactory::newUsersEmail('users_email')
+                                             ->setOptional(true)
+                                             ->setVirtual(true)
+                                             ->setRender(false))
 
                       ->add(DefinitionFactory::newEmail()
                                            ->setSize(4)

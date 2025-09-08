@@ -30,6 +30,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Layouts\Grid;
+use Phoundation\Web\Html\Layouts\GridColumn;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
@@ -136,7 +137,6 @@ $o_role_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setMaximizeSwitch(true)
                    ->setContent($o_role->getHtmlDataEntryFormObject())
-                   ->useForm(true)
                    ->setButtonsObject(Buttons::new()
                                              ->addButton(tr('Save'))
                                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
@@ -165,11 +165,7 @@ $o_rights_card = Card::new()
                      ->setTitle(tr('Rights for this role'))
                      ->setCollapseSwitch(true)
                      ->setMaximizeSwitch(true)
-                     ->setContent($o_role->getRightsHtmlDataEntryForm())
-                     ->setForm(Form::new()
-                                   ->setAction('#')
-                                   ->setRequestMethod(EnumHttpRequestMethod::post))
-                     ->render();
+                     ->setContent($o_role->getRightsHtmlDataEntryForm());
 
 
 // Set page meta data
@@ -185,5 +181,10 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_role_card    . $o_rights_card        . isset_get($o_users_card), EnumDisplaySize::nine)
+           ->addGridColumn(GridColumn::new()
+                                     // The role card and all additional cards
+                                     ->addContent($o_role_card . $o_rights_card)
+                                     ->setSize(9)
+                                     ->useForm(true))
+           ->addGridColumn(isset_get($o_users_card), EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card                           , EnumDisplaySize::three);
