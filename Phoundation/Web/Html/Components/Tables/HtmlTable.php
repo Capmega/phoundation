@@ -676,7 +676,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function getRow(int $row, bool $exception = false): ?array
     {
-        return $this->source->get($row, $exception);
+        if ($exception) {
+            return array_get($row, $this->source);
+        }
+
+        return array_get_safe($this->source, $row);
     }
 
 

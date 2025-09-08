@@ -166,7 +166,7 @@ abstract class ElementCore implements ElementInterface
 
         $renderer_class  = $this->getRenderClass();
         $render_function = function () {
-            $attributes  = $this->renderAttributesArray();
+            $attributes  = $this->renderAttributesIteratorObject();
             $attributes  = Arrays::implodeWithKeys($attributes, ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
             $attributes .= $this->getExtraAttributes();
 
@@ -254,7 +254,7 @@ abstract class ElementCore implements ElementInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
         $return = [
             'id'        => $this->id,
