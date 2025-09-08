@@ -160,7 +160,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         if (isset(static::$files)) {
             if (static::$files->getCount()) {
                 $files                    = clone static::$files;
-                static::$mimetypes_groups = Iterator::new()->setAcceptedDataTypes(PhoFile::class);
+                static::$mimetypes_groups = Iterator::new()->setAcceptedDataTypes([PhoFile::class, PhoFiles::class]);
 
                 while ($files->getCount()) {
                     // Get the mimetype of the first available file, yoink all files with that mimetype out of the list
@@ -352,6 +352,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                                                 ->save();
                         }
                     }
+
+                    if ($handler->getFinishedCallback()) {
+                        $handler->getFinishedCallback()();
+                    }
+
                 }
 
                 if (isset($incident)) {
@@ -519,7 +524,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
             $dropzone = $handler->getDropzoneObject();
 
             $return[$mimetype] = [
-                'min_files' => $dropzone->getMaxFiles(),
+                'min_files' => $dropzone->getMinFiles(),
                 'max_files' => $dropzone->getMaxFiles(),
                 'max_size'  => $dropzone->getMaxFileSize()
             ];
