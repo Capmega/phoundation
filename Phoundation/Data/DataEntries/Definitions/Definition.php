@@ -3047,7 +3047,7 @@ class Definition implements DefinitionInterface
         if ($this->getRenderHtmlRequiredAttributeForNew() === false) {
             if ($this->getDataEntryObject()->isNew()) {
                 return true;
-            } //todo see if this is working properly
+            }
         }
 
         return false;
