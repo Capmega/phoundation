@@ -666,7 +666,7 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . '/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
         define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
