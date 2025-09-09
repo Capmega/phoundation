@@ -1437,6 +1437,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Connector classes can't be cached!
             if (!is_a($this, Connector::class)) {
                 // Try loading the DataEntry object from cache
+                // TODO This is not working correctly, if we return a different dataentry it may cause issues with parent::load() in overriding methods, etc... Fix this!
                 $o_data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache());
 
                 if ($o_data_entry) {
