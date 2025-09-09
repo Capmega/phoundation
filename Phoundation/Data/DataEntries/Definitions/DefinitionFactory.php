@@ -72,7 +72,7 @@ class DefinitionFactory
     public static function newCategoriesId(?string $column = 'categories_id', ?array $filters = null): DefinitionInterface
     {
         return DefinitionFactory::newDatabaseId($column)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Categories::new()
                                                      ->getHtmlSelectOld()
                                                      ->setName($key)
@@ -144,7 +144,7 @@ class DefinitionFactory
     public static function newServersId(?string $column = 'servers_id', ?array $filters = null): DefinitionInterface
     {
         return DefinitionFactory::newDatabaseId($column)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Servers::new()
                                                   ->getHtmlSelectOld()
                                                   ->setName($key)
@@ -250,7 +250,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Companies::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -323,7 +323,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Languages::new()
                                                     ->getHtmlSelectOld(key_column: 'id')
                                                     ->setName($key)
@@ -440,7 +440,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Providers::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -512,7 +512,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Customers::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -584,7 +584,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Timezones::new()->getHtmlSelectObject()
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
@@ -698,7 +698,7 @@ class DefinitionFactory
                                 ->setOptional(true)
                                 ->setElement(EnumElement::select)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Countries::new()->getHtmlSelectObject()
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
@@ -811,7 +811,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Country::new($source['countries_id'])
                                                   ->getHtmlStatesSelect($key)
                                                   ->setName($key)
@@ -931,7 +931,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return State::new($source['states_id'])
                                                 ->getHtmlCitiesSelect($key)
                                                 ->setName($key)
@@ -1052,7 +1052,7 @@ class DefinitionFactory
                                 ->setInputType(EnumInputType::dbid)
                                 ->setSize(3)
                                 ->setCliAutoComplete(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
                                     return Users::new()
                                                 ->getHtmlSelectOld()
                                                 ->setId($column)
@@ -1157,7 +1157,7 @@ class DefinitionFactory
                                 ->setInputType(EnumInputType::dbid)
                                 ->setSize(3)
                                 ->setCliAutoComplete(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
                                     return Roles::new()
                                                 ->getHtmlSelectOld()
                                                 ->setId($column)
@@ -1830,7 +1830,7 @@ class DefinitionFactory
                          ->setContainsData(false)
                          ->setElement(EnumElement::input)
                          ->setInputType(EnumInputType::button)
-                         ->setLabel(tr(' '))
+                         ->setLabel(tr('Button'))
                          ->setSize(1);
     }
 
@@ -1874,7 +1874,7 @@ class DefinitionFactory
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
                                 })
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
                                     if ($o_definition->getDataEntryObject()->isNew()) {
                                         // This is a new DataEntry object, so the creator is.. Well, you!
                                         return InputText::new()
@@ -1938,7 +1938,7 @@ class DefinitionFactory
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
                                 })
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
                                     if ($o_definition->getDataEntryObject()->isNew()) {
                                         // This is a new DataEntry object, so the creator is.. Well, you!
                                         return InputText::new()
