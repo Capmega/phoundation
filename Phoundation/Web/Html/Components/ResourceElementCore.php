@@ -18,12 +18,9 @@ namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
-use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataIterator;
 use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
@@ -33,7 +30,6 @@ use Phoundation\Web\Html\Components\Input\Interfaces\ValueInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
-use Phoundation\Web\Requests\Request;
 
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
@@ -300,11 +296,31 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
      *
+     * @param string|float|int|null $value
+     * @param string                $key
+     * @param int                   $row_id
+     * @param string                $column
+     *
+     * @return ResourceElementCore
+     */
+    public function addToDataAttributes(string|float|int|null $value, string $key, int $row_id, string $column = ''): static
+    {
+        $this->data_source[$row_id][$column] = [
+            $key => $value
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the source for "data-*" attributes where the data key matches the source key
+     *
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
      * @return array
      */
-    public function getDataSource(): array
+    public function getDataAttributesSource(): array
     {
         return $this->data_source;
     }
@@ -320,7 +336,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return static
      */
-    public function setDataSource(array $data_source): static
+    public function setDataAttributesSource(array $data_source): static
     {
         $this->data_source = $data_source;
         return $this;

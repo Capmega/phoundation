@@ -119,13 +119,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected ?IteratorInterface $column_urls = null;
 
     /**
-     * Data attributes for <td> columns
-     *
-     * @var IteratorInterface|null $column_data_attributes
-     */
-    protected ?IteratorInterface $column_data_attributes = null;
-
-    /**
      * Data attributes for anchors
      *
      * @var IteratorInterface|null $anchor_data_attributes
@@ -376,21 +369,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         $this->full_width = $full_width;
         return $this;
-    }
-
-
-    /**
-     * Returns the column's data attributes
-     *
-     * @return IteratorInterface
-     */
-    public function getColumnDataAttributes(): IteratorInterface
-    {
-        if (empty($this->column_data_attributes)) {
-            $this->column_data_attributes = new Iterator();
-        }
-
-        return $this->column_data_attributes;
     }
 
 
@@ -713,16 +691,10 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $this->ensureHeadersAndColumns($row_values);
 
         // ID is the first value in the row
-        $row_data = '';
         $this->count++;
 
-        // Add data-* in this option?
-        if (array_key_exists($row_id, $this->data_source)) {
-            $row_data = ' data-' . $row_id . '="' . $this->data_source[$row_id] . '"';
-        }
-
         $cells = null;
-        $row   = '<tr' . $row_data . $this->renderRowClassString($params) . '>';
+        $row   = '<tr' . $this->renderRowClassString($params) . '>';
         $first = true;
 
         foreach ($this->columns as $column) {
@@ -892,10 +864,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         // Use row or column URL's?
         // Use column convert?
-        $attributes = '';
-        $value      = (string) $value;
-        $url        = $this->getColumnUrls()->get($column, false);
-        $convert    = $this->getConvertColumns()->get($column, false);
+        // Add data-* in this option?
+        $attributes  = '';
+        $value       = (string) $value;
+        $url         = $this->getColumnUrls()->get($column, false);
+        $convert     = $this->getConvertColumns()->get($column, false);
+        $attributes .= $this->renderCellData($row_id, $column);
 
         if (empty($url)) {
             $url = $this->row_url;
@@ -929,13 +903,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         if (isset($url) and !is_empty($value)) {
             $queries = $this->getRowQueries();
             $value   = $this->renderAnchor($row_id, $column, $value, $url, $queries);
-        }
-
-        // Add data attributes?
-        if ($this->column_data_attributes) {
-            foreach ($this->column_data_attributes as $data_key => $data_value) {
-                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
-            }
         }
 
         // Build row with TD tags with attributes
@@ -984,6 +951,40 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         }
 
         return $this->convert_columns;
+    }
+
+
+    /**
+     * Renders the data attributes for this cell
+     *
+     * @param int    $row_id
+     * @param string $column
+     *
+     * @return string|null
+     */
+    protected function renderCellData(int $row_id, string $column): ?string
+    {
+        if (array_key_exists($row_id, $this->data_source)) {
+            $cell_data = [];
+
+            if (array_key_exists('', $this->data_source[$row_id])) {
+                foreach ($this->data_source[$row_id][''] as $key => $value) {
+                    $cell_data[] = ' data-' . $key . '="' . $value . '"';
+                }
+            }
+
+            if (array_key_exists($column, $this->data_source[$row_id])) {
+                foreach ($this->data_source[$row_id][$column] as $key => $value) {
+                    $cell_data[] = ' data-' . $key . '="' . $value . '"';
+                }
+            }
+
+            if ($cell_data) {
+                return implode(' ', $cell_data);
+            }
+        }
+
+        return null;
     }
 
 
