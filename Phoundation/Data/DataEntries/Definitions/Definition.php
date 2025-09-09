@@ -1554,6 +1554,35 @@ class Definition implements DefinitionInterface
      *
      * @return RenderInterface|callable|string|null
      */
+    public function getOutput(): RenderInterface|callable|string|null
+    {
+        return get_safe_typed(RenderInterface::class . '|callable|string', $this->source, 'output');
+    }
+
+
+    /**
+     * Sets the HTML content to be shown for this column
+     *
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
+     *
+     * @return static
+     */
+    public function setOutput(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
+    {
+        if ($make_safe and !is_callable($content)) {
+            $content = Html::safe($content);
+        }
+
+        return $this->setKey($content, 'output');
+    }
+
+
+    /**
+     * Returns the HTML content to be shown for this column
+     *
+     * @return RenderInterface|callable|string|null
+     */
     public function getContent(): RenderInterface|callable|string|null
     {
         return get_safe_typed(RenderInterface::class . '|callable|string', $this->source, 'content');
