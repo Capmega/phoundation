@@ -188,7 +188,7 @@ class Emails extends DataIterator implements EmailsInterface
                            ->validate($require_clean_source);
 
         // Parse and sub validate
-        if (isset($post['emails'])) {
+        if ($post['emails']) {
             foreach ($post['emails'] as $email) {
                 // Command line specified emails will have a EMAIL|TYPE|DESCRIPTION string format instead of an array
                 if (!is_array($email)) {

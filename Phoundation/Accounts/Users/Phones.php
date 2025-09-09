@@ -191,7 +191,7 @@ class Phones extends DataIterator implements PhonesInterface
                            ->validate($require_clean_source);
 
         // Parse and sub validate
-        if (isset($post['phones'])) {
+        if ($post['phones']) {
             foreach ($post['phones'] as $phone) {
                 if (empty(Strings::force($phone))) {
                     continue;
