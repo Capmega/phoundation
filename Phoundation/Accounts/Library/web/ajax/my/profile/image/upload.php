@@ -32,55 +32,66 @@ use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Uploads\UploadHandler;
 
+
+$o_json_page = JsonPage::new();
+
+
 try {
     Request::getMethodRestrictionsObject()->require(EnumHttpRequestMethod::upload);
     Request::getFileUploadHandlersObject()
            ->add(UploadHandler::new('image')
                ->addValidationFunction(function (FileValidatorInterface $o_validator) {
                    $o_validator->isImage('jpg,png')->isSmallerThan('10MB')
-                             ->validate();
+                               ->validate();
                })
-               ->setFileCallback(function(PhoUploadedFileInterface $file) {
+               ->setFileCallback(function(PhoUploadedFileInterface $file) use ($o_json_page) {
                    // Set this image as the profile image
                    ProfileImage::newFromImageFile(new ImageFile($file))
                                ->setUserObject(Session::getUserObject())
                                ->save()
                                ->setDefault();
 
-                   JsonPage::new()
-                           ->addFlashMessageSections(FlashMessage::new()
-                                                                 ->setMode(EnumDisplayMode::success)
-                                                                 ->setTitle(tr('Success!'))
-                                                                 ->setMessage(tr('Your profile picture has been updated')))
+                   $o_json_page->addFlashMessageSections(FlashMessage::new()
+                                                                     ->setMode(EnumDisplayMode::success)
+                                                                     ->setTitle(tr('Success!'))
+                                                                     ->setMessage(tr('Your profile picture has been updated')))
 
-                           ->addHtmlSections(JsonHtml::new()
-                                                     ->add(JsonHtmlSection::new('#profile-picture')
-                                                                          ->setMethod(EnumJsonHtmlMethods::replace)
-                                                                          ->setHtml(Session::getUserObject()->getProfileImageObject()->getHtmlImgObject()->setId('profile-picture')
-                                                                                                                                                         ->addClasses('w100')
-                                                                                                                                                         ->setAlt(tr('Profile picture for :name', [
-                                                                                                                                                             ':name' => Session::getUserObject()->getDisplayName()
-                                                                                                                                                         ]))))
+                               ->addHtmlSections(JsonHtml::new()
+                                                         ->add(JsonHtmlSection::new('#profile-picture')
+                                                                              ->setMethod(EnumJsonHtmlMethods::replace)
+                                                                              ->setHtml(Session::getUserObject()
+                                                                                               ->getProfileImageObject()
+                                                                                               ->getHtmlImgObject()
+                                                                                               ->setId('profile-picture')
+                                                                                               ->addClasses('w100')
+                                                                                               ->setAlt(tr('Profile picture for :name', [
+                                                                                                   ':name' => Session::getUserObject()->getDisplayName()
+                                                                                               ]))))
 
-                                                     ->add(JsonHtmlSection::new('#menu-profile-image')
-                                                                          ->setMethod(EnumJsonHtmlMethods::replace)
-                                                                          ->setHtml(Session::getUserObject()->getProfileImageObject()->getHtmlImgObject()->setId('menu-profile-image')
-                                                                                                                                                         ->addClasses('img-circle elevation-2')
-                                                                                                                                                         ->setAlt(tr('Profile picture for :name', [
-                                                                                                                                                             ':name' => Session::getUserObject()->getDisplayName()
-                                                                                                                                                         ])))))
-                           ->reply();
+                                                         ->add(JsonHtmlSection::new('#menu-profile-image')
+                                                                              ->setMethod(EnumJsonHtmlMethods::replace)
+                                                                              ->setHtml(Session::getUserObject()
+                                                                                               ->getProfileImageObject()
+                                                                                               ->getHtmlImgObject()
+                                                                                               ->setId('menu-profile-image')
+                                                                                               ->addClasses('img-circle elevation-2')
+                                                                                               ->setAlt(tr('Profile picture for :name', [
+                                                                                                   ':name' => Session::getUserObject()->getDisplayName()
+                                                                                               ])))));
+
+                   $o_json_page->reply();
                })
-           )->process();
+           )
+           ->process();
 
 } catch (ValidationFailedException $e) {
     if (str_starts_with($e->getMessage(), 'No handler found for files')) {
-        JsonPage::new()
-                ->addFlashMessageSections(FlashMessage::new()
-                                                      ->setMode(EnumDisplayMode::warning)
-                                                      ->setTitle(tr('Warning!'))
-                                                      ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')))
-                ->reply();
+        $o_json_page->addFlashMessageSections(FlashMessage::new()
+                                                          ->setMode(EnumDisplayMode::warning)
+                                                          ->setTitle(tr('Warning!'))
+                                                          ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')));
+
+        $o_json_page->reply();
     }
 
     throw $e;
