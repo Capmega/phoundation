@@ -632,7 +632,7 @@ class Response implements ResponseInterface
         // Determine the absolute file path
         $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type;
 
-        if (config()->getBoolean('cache.web.version-files', true)) {
+        if (config()->getBoolean('web.cdn.resources.versioning', true)) {
             // Return URL with timestamp injected into the given file
             return $url . '-v' . filectime($file) . $minified . '.' . $type;
         }

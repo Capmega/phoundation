@@ -16,21 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Routing;
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Filesystem\PhoPathCore;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Strings;
-use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
-use Stringable;
 use Templates\Phoundation\AdminLte\AdminLte;
 
 
@@ -79,13 +72,6 @@ class RoutingParameters implements RoutingParametersInterface
     protected bool $system_pages_only = false;
 
     /**
-     * The required rights to access this resource
-     *
-     * @var array $rights
-     */
-    protected array $rights = [];
-
-    /**
      * The URI being processed
      *
      * @var string|null $uri
@@ -98,22 +84,6 @@ class RoutingParameters implements RoutingParametersInterface
      * @var array|null $matches
      */
     protected ?array $matches = null;
-
-    /**
-     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
-     * the specified directory, and each subsequent directory below it until the file itself will be a required right
-     * for the user to access that page
-     *
-     * @var string|null $require_directory_rights
-     */
-    protected ?string $require_directory_rights = null;
-
-    /**
-     * Exception file names to the required directory rights
-     *
-     * @var array|null $rights_exceptions
-     */
-    protected ?array $rights_exceptions = null;
 
 
     /**
@@ -187,142 +157,6 @@ class RoutingParameters implements RoutingParametersInterface
 
 
     /**
-     * Returns the rights required for the specified URL
-     *
-     * @param Stringable|string $url
-     *
-     * @return array
-     * @todo Change static::getRequiredRightsForUrl and static::getRequiredRightsForPath, these methods are a mess. rights exceptions are stored with the .php extension which is needed for getRequiredRightsForPath, but getRequiredRightsForUrl will receive .html extensions, etc...
-     */
-    public function getRequiredRightsForUrl(Stringable|string $url): array
-    {
-        $url = basename($url);
-        $url = Strings::untilReverse($url, '.') . '.php';
-
-        // Is this file an exception for required rights?
-        if ($this->rights_exceptions and in_array($url, $this->rights_exceptions)) {
-            return [];
-        }
-
-        return $this->rights;
-    }
-
-
-    /**
-     * Returns what rights are required to access the specified target by specified rights and required directory rights
-     *
-     * @param string $target
-     *
-     * @return array
-     */
-    public function getRequiredRightsForPath(string $target): array
-    {
-        // Is this file an exception for required rights?
-        if ($this->rights_exceptions and in_array(basename($target), $this->rights_exceptions)) {
-            return [];
-        }
-
-        // Check defined rights and directory rights, both have to pass
-        if ($this->require_directory_rights) {
-            // First cut to WWW directory.
-            // Then the rest, as the directory may be partial.
-            // Then remove the file name to only have the directory parts.
-            // Ensure it doesn't start with a slash to avoid empty right entries.
-            // Then explode to array.
-            $directory = Strings::from($target, $this->require_directory_rights, needle_required: true);
-            $directory = Strings::ensureBeginsNotWith($directory, '/');
-            $directory = dirname($directory);
-
-            if (!$directory) {
-                throw new RouteException(tr('Cannot apply auto directory rights for target ":target", the target does not start with the root directory ":root"', [
-                    ':target' => Strings::from($target, DIRECTORY_ROOT),
-                    ':root'   => Strings::from($this->require_directory_rights, DIRECTORY_ROOT),
-                ]));
-            }
-
-            if ($directory === '.') {
-                // Current directory, there is no directory
-                $directory = [];
-
-            } else {
-                $directory = explode(PhoPathCore::DIRECTORY_SEPARATOR, $directory);
-            }
-
-            // Merge with the already specified rights
-            return array_merge($this->rights, $directory);
-        }
-
-        return $this->rights;
-    }
-
-
-    /**
-     * Returns if (and from what directory onwards) rights should be taken from the directories automatically for each
-     * page
-     *
-     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
-     * the specified directory, and each subsequent directory below it until the file itself will be a required right
-     * for the user to access that page
-     *
-     * @return string|null
-     */
-    public function getRequireDirectoryRights(): ?string
-    {
-        return $this->require_directory_rights;
-    }
-
-
-    /**
-     * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
-     *
-     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
-     * the specified directory, and each subsequent directory below it until the file itself will be a required right
-     * for the user to access that page
-     *
-     * @param string            $require_directory_rights
-     * @param array|string|null $rights_exceptions
-     *
-     * @return static
-     */
-    public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static
-    {
-        $this->require_directory_rights = DIRECTORY_WEB . Strings::ensureBeginsNotWith($require_directory_rights, '/');
-
-        if ($rights_exceptions) {
-            $this->rights_exceptions = get_null(Arrays::force($rights_exceptions));
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @return array|null
-     */
-    public function getRightsExceptions(): ?array
-    {
-        return $this->rights_exceptions;
-    }
-
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @param array|string $exceptions
-     *
-     * @return static
-     */
-    public function setRightsExceptions(array|string $exceptions): static
-    {
-        $this->rights_exceptions = Arrays::force($exceptions);
-
-        return $this;
-    }
-
-
-    /**
      * Returns the URI being processed
      *
      * @return string|null
@@ -343,7 +177,6 @@ class RoutingParameters implements RoutingParametersInterface
     public function setUri(string $uri): static
     {
         $this->uri = $uri;
-
         return $this;
     }
 
@@ -369,7 +202,6 @@ class RoutingParameters implements RoutingParametersInterface
     public function setMatches(array $matches): static
     {
         $this->matches = $matches;
-
         return $this;
     }
 
@@ -388,7 +220,7 @@ class RoutingParameters implements RoutingParametersInterface
         $directory = $this->root_directory;
 
         if ($this->matches) {
-            // Apply matches for this parameters pattern
+            // Apply matches for this parameter pattern
             foreach ($this->matches as $key => $value) {
                 $directory = str_replace('$' . $key, $value[0], $directory);
             }
@@ -526,103 +358,6 @@ class RoutingParameters implements RoutingParametersInterface
     public function setSystemPagesOnly(bool $system_pages_only): static
     {
         $this->system_pages_only = $system_pages_only;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the required rights to access this page
-     *
-     * @return array
-     */
-    public function getRights(): array
-    {
-        return $this->rights;
-    }
-
-
-    /**
-     * Sets the required rights to access this page
-     *
-     * @note Rights may be specified as a string, array, Right object, or Rights list. All should work fine
-     *
-     * @param Rights|Right|array|string|null $rights
-     *
-     * @return static
-     */
-    public function setRights(Rights|Right|array|string|null $rights): static
-    {
-        $this->rights = [];
-        $this->addRights($rights);
-
-        return $this;
-    }
-
-
-    /**
-     * Adds multiple required rights to access this page
-     *
-     * @param Rights|Right|array|string|null $rights
-     *
-     * @return static
-     */
-    public function addRights(Rights|Right|array|string|null $rights): static
-    {
-        $this->rights = [];
-
-        foreach ($this->getRightsArray($rights) as $right) {
-            $this->add($right);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Returns an array of rights from whatever is specified
-     *
-     * @note This is an experimental function to see how we can have functions accept multiple formats
-     * @todo See what we're going to do with this
-     *
-     * @param Rights|Right|array|string|null $rights
-     *
-     * @return array
-     */
-    protected function getRightsArray(Rights|Right|array|string|null $rights): array
-    {
-        if (is_object($rights)) {
-            if ($rights instanceof Rights) {
-                $rights = $rights->getSource();
-
-            } else {
-                $rights = $rights->getSeoName();
-            }
-
-        } else {
-            $rights = Arrays::force($rights);
-        }
-
-        return $rights;
-    }
-
-
-    /**
-     * Adds a required right to access this page
-     *
-     * @param Right|string|null $right
-     *
-     * @return static
-     */
-    public function add(Right|string|null $right): static
-    {
-        if ($right) {
-            if (is_object($right)) {
-                $right = $right->getSeoName();
-            }
-
-            $this->rights[] = $right;
-        }
 
         return $this;
     }

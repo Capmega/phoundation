@@ -55,28 +55,30 @@ interface AnchorInterface extends SpanInterface
      *
      * @return array
      */
-    public function getRequiredRights(): array;
+    public function getRights(): array;
 
 
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null): bool;
+    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool;
 
 
     /**
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return static
      * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null): static;
+    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static;
 
 
     /**
@@ -93,12 +95,11 @@ interface AnchorInterface extends SpanInterface
     /**
      * Returns the manually specified required rights to render this Anchor object
      *
-     * @param bool $reload
-     * @param bool $order
+     * @param bool $use_cache
      *
      * @return RightsInterface
      */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface;
+    public function getRightsObject(bool $use_cache = true): RightsInterface;
 
 
     /**

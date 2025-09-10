@@ -336,17 +336,17 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     {
         if ($this->o_iterator) {
             // Get the cache key from the Iterator object
-            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->o_iterator->getCacheKeySeed()], force_single_line: true);
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->o_iterator->getCacheKeySeed()], force_single_line: true);
         }
 
         if ($this instanceof SelectedInterface) {
             // This resource element contains a single or multiple selected value
-            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->getId(), $this->getName(), $this->getSelected()], force_single_line: true);
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getId(), $this->getName(), $this->getSelected()], force_single_line: true);
         }
 
         if ($this instanceof ValueInterface) {
             // This resource element contains a single value
-            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', $this->getId(), $this->getName(), $this->getValue()], force_single_line: true);
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getId(), $this->getName(), $this->getValue()], force_single_line: true);
         }
 
         // This object can't be cached

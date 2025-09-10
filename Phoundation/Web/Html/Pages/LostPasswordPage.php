@@ -30,6 +30,7 @@ class LostPasswordPage extends Page
         // This page must build its own body
         // Set page meta-data
         Response::setPageTitle(tr('Request a new password'));
+        Response::setHeaderTitle(tr('Request a new password'));
 
         parent::__construct($name);
     }

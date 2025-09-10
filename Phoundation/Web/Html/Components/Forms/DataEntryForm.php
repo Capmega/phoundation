@@ -38,6 +38,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 
@@ -137,7 +138,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function getCacheKeySeed(): ?string
     {
-        return PROJECT . '#DataEntryForm#' . static::class . '#' . Json::encode(['render', $this->o_data_entry?->getCacheKey(), $this->source], force_single_line: true);
+        return PROJECT . '#DataEntryForm#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getName(), $this->getId(), $this->o_data_entry?->getIdentifier()], force_single_line: true);
     }
 
 

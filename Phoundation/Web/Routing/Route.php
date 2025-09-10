@@ -1366,7 +1366,7 @@ class Route
                         // TODO What is going on here? Redirects to URL, but only domain is used? Wut?
                         throw new UnderConstructionException(tr('GET Query redirect rules are under construction'));
                         // Redirect to URL without query
-                        $domain = Url::new()->getDomain();
+                        $domain = Url::new()->getHost();
                         $domain = Strings::until($domain, '?');
 
                         Log::warning(ts('Matched route ":route" allows GET key ":key" as redirect to URL without query', [
