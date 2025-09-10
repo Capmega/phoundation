@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Stringable;
 
 
@@ -95,14 +96,34 @@ trait TraitDataIteratorSections
 
 
     /**
-     * Sets the actual section for the specified section key
+     * Sets the specified section value for the specified key
      *
-     * @param Stringable|string|null $section
-     * @param string|null            $key
+     * @param RenderInterface|string $value
+     * @param string                 $key
+     * @param bool                   $skip_null_values
      *
      * @return static
      */
-    public function addToSection(Stringable|string|null $section, ?string $key = null): static
+    public function setSection(RenderInterface|string $value, string $key, bool $skip_null_values = true): static
+    {
+        if ($value instanceof RenderInterface) {
+            $value = $value->render();
+        }
+
+        $this->getSectionsObject()->set($value, $key, $skip_null_values);
+        return $this;
+    }
+
+
+    /**
+     * Adds the specified section to the specified section
+     *
+     * @param RenderInterface|string|null $section
+     * @param string|null                 $key
+     *
+     * @return static
+     */
+    public function addToSection(RenderInterface|string|null $section, ?string $key = null): static
     {
         $key     = get_null($key);
         $section = $this->getSection($section) . $section;
