@@ -55,6 +55,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\EnvironmentNotExistsException;
@@ -683,7 +684,7 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
         define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
@@ -2073,92 +2074,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns an array with project version information
-     *
-     * @param bool $string
-     *
-     * @return array|string
-     */
-    public static function getProjectVersions(bool $string = false): array|string
-    {
-        $return = [
-            'project name'                    => Core::getProjectName(),
-            'project version'                 => Core::getProjectVersion(),
-            'phoundation framework version'   => Core::PHOUNDATION_VERSION,
-            'phoundation database version'    => Version::getString(Libraries::getMaximumVersion()),
-            'phoundation minimum php version' => Core::PHP_MINIMUM_VERSION,
-        ];
-
-        if ($string) {
-            $return = Arrays::equalizeKeySizes($return);
-            $return = Arrays::capitalizeKeys($return);
-            $return = Arrays::implodeWithKeys($return, PHP_EOL, ': ');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns project version
-     *
-     * @return string
-     */
-    public static function getProjectVersion(): string
-    {
-        static $version;
-
-        if (empty($version)) {
-            // Get the project version
-            try {
-                $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/version')));
-
-                if (!strlen($version)) {
-                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/project/version file'));
-                }
-
-                if (!is_version($version)) {
-                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project/version file', [
-                        ':version' => $version,
-                    ]));
-                }
-
-                return $version;
-
-            } catch (Throwable $e) {
-                Core::$failed = true;
-
-                if ($e instanceof OutOfBoundsException) {
-                    throw $e;
-                }
-
-                // Project file is not readable
-                if (!is_readable(DIRECTORY_ROOT . 'config/project/version')) {
-                    if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
-                        // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
-                        // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
-                        throw new CoreException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
-                    }
-
-                    // The file doesn't exist, that is good. Go to setup mode
-                    Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
-
-                    Core::startPlatform();
-                    Core::$state = 'setup';
-
-                    throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
-                        ':path' => DIRECTORY_ROOT . 'config/project/version',
-                    ]));
-                }
-            }
-        }
-
-        return $version;
-    }
-
-
-    /**
      * Returns true if the Core is running in failed state
      *
      * @return bool
@@ -2781,136 +2696,6 @@ class Core implements CoreInterface
         }
 
         return null;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectName(): string
-    {
-        return PROJECT;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(PROJECT));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.short-name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectShortSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getProjectShortName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.owner.name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getClientName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.owner.short-name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientShortSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getClientShortName()));
-        }
-
-        return $return;
     }
 
 
@@ -3721,7 +3506,7 @@ class Core implements CoreInterface
                 'platform'              => PLATFORM,
                 'session_id'            => Session::getUUID(),
                 'ip'                    => Session::getIpAddress(),
-                'project_version'       => Core::getProjectVersion(),
+                'project_version'       => Project::getVersion(),
                 'database_version'      => $connected                    ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
                 'user'                  => ($connected and $initialized) ? Session::getUserObject()->getLogId() : 'system',
                 'command'               => PLATFORM_CLI                  ? CliCommand::getCommandsString()      : null,
@@ -3751,7 +3536,7 @@ class Core implements CoreInterface
                     'data'     => $e->getData(),
                 ],
                 'project'               => (defined('PROJECT') ? PROJECT : null),
-                'project_version'       => Core::getProjectVersion(),
+                'project_version'       => Project::getVersion(),
                 'session_id'            => Session::getUUID(),
                 'ip'                    => Session::getIpAddress(),
                 'database_version'      => null,

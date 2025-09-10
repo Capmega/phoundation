@@ -54,6 +54,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
@@ -1938,7 +1939,7 @@ return 'under construction';
 
             // Process command line system arguments if we have no exception so far
             if ($argv['version']) {
-                Log::cli(Core::getProjectVersions(true));
+                Log::cli(Project::getVersions(true));
                 Core::setScriptState();
                 $exit = 0;
             }

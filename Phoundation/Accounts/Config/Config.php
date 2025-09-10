@@ -33,7 +33,7 @@
  * specified, a ConfigPathDoesNotExistsException will be thrown
  *
  * To improve configuration reliability, it is very much recommended to use one of the datatype sensitive Config::get()
- * calls. These calls will throw exceptions if the value for the specified configuration path does not match the
+ * calls. These calls will throw exceptions if the value for the specified configuration path doesn't match the
  * expected datatype. Current datatype sensitive configuration get calls are:
  *
  * Config::getBoolean(string|array $path, ?bool $default = null): bool
@@ -47,6 +47,7 @@
  * Config::getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null): array
  * Config::getString(string|array $path, string|null $default = null): string
  * Config::getBoolString(string|array $path, string|bool|null $default = null): string|bool
+ * .... And various more that still require documenting
  *
  * Config will ALWAYS read in the production environment file for the requested section, after which it will read the
  * file for the current environment. The file for the current environment only needs to contain configuration keys

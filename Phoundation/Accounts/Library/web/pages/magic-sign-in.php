@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Web\Html\Components\Anchor;
@@ -90,7 +91,7 @@ if (Request::isPostRequestMethod()) {
             ]);
 
             $mail->Subject = tr('[:project] Lost password request', [
-                ':project' => config()->getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
+                ':project' => Project::getFullName() . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
             ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
@@ -138,8 +139,8 @@ Response::setPageTitle(tr('Request a new password'));
         <div class="card card-outline card-info">
             <div class="card-header text-center">
                 <?=
-                    Anchor::new(config()->getString('project.customer-url', 'https://phoundation.org'))
-                          ->setContent(config()->getString('project.owner.label', '<span>Phoun</span>dation'), false)
+                    Anchor::new(Project::getOwnerUrl())
+                          ->setContent(Project::getOwnerLabel(), false)
                           ->setClass('h1')
                 ?>
             </div>
@@ -149,7 +150,7 @@ Response::setPageTitle(tr('Request a new password'));
                 <form action="<?= Url::newCurrent() ?>" method="post">
                     <?php Csrf::getHiddenElement() ?>
                     <?php
-                    if (Session::supports('email')) {
+                    if ($o_component->getEnabled('email')) {
                         ?>
                         <div class="input-group mb-3">
                             <input type="email" name="email" id="email" class="form-control"
