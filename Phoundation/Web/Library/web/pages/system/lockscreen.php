@@ -83,7 +83,7 @@ throw new PageNotFoundException(tr('The lock screen is under construction and no
         ?>
     </div>
     <div class="lockscreen-footer text-center">
-        <?= Project::getCopyright() ?>
+        <?= Project::getCopyrightString() ?>
 
     </div>
 </div>

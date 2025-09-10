@@ -30,7 +30,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\ValueInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
-
+use Phoundation\Web\Requests\Request;
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
 {

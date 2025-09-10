@@ -34,6 +34,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\PhoPath;
@@ -62,6 +63,7 @@ use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Stringable;
 use Throwable;
+
 
 class Response implements ResponseInterface
 {
@@ -253,8 +255,8 @@ class Response implements ResponseInterface
         Response::addHttpHeaders(config()->get('web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
 
         // Add required page headers
-        Response::addMetaToPageHeaders(Response::getCharset()                                                                , 'character_set');
-        Response::addMetaToPageHeaders(config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'character_set');
+        Response::addConfiguredHeadDataAttribute();
+        Response::setCharset(Response::getCharset());
     }
 
 
@@ -481,7 +483,7 @@ class Response implements ResponseInterface
             static::$header_title = get_null((string) $header_title);
 
             if (!static::$page_title) {
-                static::$page_title = config()->get('project.name', 'Phoundation') . ' - ' . $header_title;
+                static::$page_title = Project::getFullName() . ' - ' . $header_title;
             }
         }
     }
@@ -552,13 +554,16 @@ class Response implements ResponseInterface
     /**
      * Sets the page viewport
      *
+     * This method will try to set the specified viewport header. If no viewport was specified, it will try to use the viewport from configuration path
+     * "web.viewport". If that was not set, it will default to viewport "width=device-width, initial-scale=1, shrink-to-fit=no"
+     *
      * @param string|null $viewport
      *
      * @return void
      */
     public static function setViewport(?string $viewport): void
     {
-        Response::addMetaToPageHeaders($viewport, 'viewport');
+        Response::addMetaToPageHeaders($viewport ?? config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'viewport');
     }
 
 
@@ -1179,6 +1184,19 @@ class Response implements ResponseInterface
         }
 
         return static::$o_head_data_attributes;
+    }
+
+
+    /**
+     * Adds the specified data attribute to the head tag
+     *
+     * @return void
+     */
+    protected static function addConfiguredHeadDataAttribute(): void
+    {
+        foreach (config()->getArray('web.headers.meta.default', ['robots' => 'noindex,nofollow']) as $key => $value) {
+            Response::addMetaToPageHeaders($value, $key);
+        }
     }
 
 

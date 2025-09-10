@@ -29,6 +29,7 @@ use Phoundation\Data\Traits\TraitDataObjectRights;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -1188,7 +1189,7 @@ class Url implements UrlInterface
         // Apply special variables
         // Form the CDN URL
         if (!$extension) {
-            $url  = Strings::ensureBeginsWith($url, Core::getProjectSeoName() . '/');
+            $url  = Strings::ensureBeginsWith($url, Project::getSeoFullName() . '/');
 
         } else {
             $url  = Strings::ensureBeginsWith($url, 'templates' . '/');

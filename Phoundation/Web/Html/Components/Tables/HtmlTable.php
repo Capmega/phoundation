@@ -957,12 +957,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Renders the data attributes for this cell
      *
-     * @param int    $row_id
-     * @param string $column
+     * @param string|float|int|null $row_id
+     * @param string                $column
      *
      * @return string|null
      */
-    protected function renderCellData(int $row_id, string $column): ?string
+    protected function renderCellData(string|float|int|null $row_id, string $column): ?string
     {
         if (array_key_exists($row_id, $this->data_source)) {
             $cell_data = [];
