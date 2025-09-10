@@ -1183,9 +1183,11 @@ class Session implements SessionInterface
         // Initialize the session for the user
         Session::initializeUser();
 
-        Log::success(ts('Created new session ":session" for user ":user"', [
-            ':session' => session_id(),
-            ':user'    => static::getUserObject()->getLogId(),
+        Log::success(ts('Created new session ":session" for IP ":ip" with user ":user" from HTTP referrer ":referrer"', [
+            ':session'  => session_id(),
+            ':ip'       => Session::getIpAddress(),
+            ':user'     => static::getUserObject()->getLogId(),
+            ':referrer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
         ]));
 
         // Initialize the session

@@ -331,8 +331,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
      */
     public function load(IdentifierInterface|array|int|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        parent::load($identifier, $on_null_identifier, $on_not_exists);
-        return $this->ensureFile();
+        return parent::load($identifier, $on_null_identifier, $on_not_exists)->ensureFile();
     }
 
 

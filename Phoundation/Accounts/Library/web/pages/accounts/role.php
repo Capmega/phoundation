@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Roles\Role;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -168,8 +169,7 @@ $o_rights_card = Card::new()
                      ->setContent($o_role->getRightsHtmlDataEntryForm())
                      ->setForm(Form::new()
                                    ->setAction('#')
-                                   ->setRequestMethod(EnumHttpRequestMethod::post))
-                     ->render();
+                                   ->setRequestMethod(EnumHttpRequestMethod::post));
 
 
 // Set page meta data
@@ -185,5 +185,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_role_card    . $o_rights_card        . isset_get($o_users_card), EnumDisplaySize::nine)
+           ->addGridColumn($o_role_card     . $o_rights_card        . isset_get($o_users_card), EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card                           , EnumDisplaySize::three);
