@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Cache;
 
 use Phoundation\Cache\Exception\CacheInvalidException;
+use Phoundation\Cache\Exception\CacheKeysInvalidException;
 use Phoundation\Cache\Exception\CacheNotFoundException;
 use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Log\Log;
@@ -63,18 +64,19 @@ class LocalCache
         if ($sub_key === null) {
             $value = &static::$cache[$sub_key];
             unset(static::$cache[$sub_key]);
-            Log::warning(ts('Local cache delete key ":key"', [':key' => $key]), 2);
 
+            Log::warning(ts('Local cache delete key ":key"', [':key' => $key]), 2);
             return $value;
         }
 
         if (array_key_exists($key, static::$cache)) {
             $section = &static::$cache[$key];
+
             if (array_key_exists($sub_key, $section)) {
                 $value = $section[$sub_key];
                 unset($section[$sub_key]);
-                Log::warning(ts('Local cache delete key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
 
+                Log::warning(ts('Local cache delete key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
                 return $value;
             }
         }
@@ -186,10 +188,14 @@ class LocalCache
                 $sub_key = (string) $sub_key;
 
                 if (!is_array(static::$cache[$key])) {
-                    throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" as ":key" is a non array value by itself', [
+                    throw CacheInvalidException::new(tr('Cannot access LocalCache keys ":key, :sub_key" as key ":key" is a non array value by itself', [
                         ':key'     => $key,
                         ':sub_key' => $sub_key
-                    ]));
+                    ]))->setData([
+                        'key'     => $key,
+                        'sub_key' => $sub_key,
+                        'value'   => static::$cache[$key]
+                    ]);
                 }
 
                 if (array_key_exists($sub_key, static::$cache[$key])) {
@@ -201,7 +207,7 @@ class LocalCache
                 if ($datatype) {
                     // Validate datatype
                     if (gettype($return) !== $datatype) {
-                        throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" because the datatype is invalid, expected ":datatype" but got ":type"', [
+                        throw new CacheInvalidException(tr('Cannot access LocalCache keys ":key, :sub_key" because the datatype is invalid, expected ":datatype" but got ":type"', [
                             ':key'      => $key,
                             ':sub_key'  => $sub_key,
                             ':datatype' => $datatype,
@@ -291,10 +297,14 @@ class LocalCache
             $sub_key = (string) $sub_key;
 
             if (!is_array($section)) {
-                throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" as ":key" is a non array value by itself', [
+                throw CacheInvalidException::new(tr('Cannot access LocalCache keys ":key, :sub_key" as key ":key" is a non array value by itself', [
                     ':key'     => $key,
                     ':sub_key' => $sub_key
-                ]));
+                ]))->setData([
+                    'key'     => $key,
+                    'sub_key' => $sub_key,
+                    'value'   => $section
+                ]);
             }
 
             if (array_key_exists($sub_key, $section)) {
@@ -329,23 +339,23 @@ class LocalCache
     /**
      * Stores the specified value in the cache with the given key / sub_key and will return the value
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $sub_key
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $sub_key
      *
      * @return mixed
      */
-    public static function set(mixed $value, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): mixed
+    public static function set(mixed $value, Stringable|string|float|int $key, Stringable|string|float|int $sub_key): mixed
     {
-        if (!LocalCache::checkKeys($key, $sub_key)) {
-            return false;
-        }
-
         $key = (string) $key;
 
-        if ($sub_key === null) {
-            static::$cache[$key] = $value;
-            return $value;
+        if (empty($sub_key)) {
+            throw CacheKeysInvalidException::new(tr('Cannot set LocalCache data with key ":key", the required subkey was empty', [
+                ':key' => $key
+            ]))->setData([
+                'key'   => $key,
+                'value' => $value
+            ]);
         }
 
         if (!array_key_exists($key, static::$cache)) {

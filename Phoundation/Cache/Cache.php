@@ -363,7 +363,7 @@ class Cache extends Database implements CacheInterface
      */
     public static function clearAll(bool $force = false): bool
     {
-        Log::action(ts('Clearing all caches'), 2);
+        Log::action(ts('Clearing all caches'), 3);
 
         Cache::new(EnumCacheGroups::autosuggest)->clear();
         Cache::new(EnumCacheGroups::dataentries)->clear();
@@ -372,7 +372,7 @@ class Cache extends Database implements CacheInterface
         Cache::new(EnumCacheGroups::html)->clear();
         Cache::new('cache')->clear();
 
-        Log::action(ts('Clearing all file caches'), 2);
+        Log::action(ts('Clearing all file caches'), 3);
 
         PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
                ->delete();
@@ -384,7 +384,7 @@ class Cache extends Database implements CacheInterface
         }
 
         // Clear web cache, but rebuild (clear & build) command cache as we will ALWAYS need commands available
-        Log::action(ts('Rebuilding system caches'), 2);
+        Log::action(ts('Rebuilding system caches'), 3);
 
         Libraries::rebuildWebCache();
         Libraries::rebuildHooksCache();
@@ -539,7 +539,7 @@ class Cache extends Database implements CacheInterface
 
             Log::success($this->log(ts('Found cache entry for key ":key"', [
                 ':key' => $key,
-            ])), 2);
+            ])), 3);
 
             static::$cache_hits++;
             return Poad::new($return)->getObject($process_headers_footers);
