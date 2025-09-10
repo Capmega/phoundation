@@ -46,6 +46,25 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 class DefinitionFactory
 {
     /**
+     * Tracks the element count tracker
+     *
+     * @var int $count
+     */
+    protected static int $count = 0;
+
+
+    /**
+     * Sets the element count tracker back to 0
+     *
+     * @return void
+     */
+    public static function resetElementCounter(): void
+    {
+        static::$count = 0;
+    }
+
+
+    /**
      * Returns a Definition object for any database id
      *
      * @param string|null $column
@@ -2098,7 +2117,7 @@ class DefinitionFactory
     public static function newDivider(?string $column = null): DefinitionInterface
     {
         if (!$column) {
-            $column = 'divider-' . Strings::getUuid();
+            $column = 'divider-' . (static::$count++);
         }
 
         return Definition::new($column)

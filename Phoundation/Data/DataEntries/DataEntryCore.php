@@ -119,6 +119,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 use TypeError;
@@ -841,6 +842,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaDefinitions(): static
     {
+        // Reset the element counter to ensure a predeictable count for counted elements
+        DefinitionFactory::resetElementCounter();
+
         $o_definitions = Definitions::new($this)
                                   ->setTable(static::getTable());
 
@@ -1726,7 +1730,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
     {
         if ($identifier) {
-            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode(['identifier' => $identifier, 'columns' => $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
+            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode([Request::getUrl(), $identifier, $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
         }
 
         // There is no identifier, meaning that this object is not cacheable
