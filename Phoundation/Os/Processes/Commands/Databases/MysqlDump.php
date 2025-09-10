@@ -21,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
@@ -396,7 +397,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         if (!$file) {
             // Generate default file
-            $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
+            $file  = Project::getSeoFullName() . '/mysql/' . Project::getSeoFullName();
             $file .= PhoDateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
             $file  = new PhoFile($file);
 
