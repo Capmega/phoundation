@@ -64,6 +64,8 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -637,6 +639,30 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ':count' => $this->test_count
             ]));
         }
+
+        $this->test_count         = PHP_INT_MIN;
+        $this->content_test_count = PHP_INT_MIN;
+        return $this;
+    }
+
+
+    /**
+     * This method will allow skipping validation of data at the cost of an Incident report
+     *
+     * @return static
+     */
+    public function skipValidation(): static
+    {
+        Incident::new()
+                ->setSeverity(EnumSeverity::medium)
+                ->setType('validation')
+                ->setTitle(tr('Validation was skipped'))
+                ->setBody(tr('Validation was skipped for the key ":key" during validation of a ":object" object', [
+                    ':key'    => $this->selected_field,
+                    ':object' => get_class_or_datatype($this->getDataEntryObject())
+                ]))
+                ->setNotifyRoles('developer')
+                ->save();
 
         $this->test_count         = PHP_INT_MIN;
         $this->content_test_count = PHP_INT_MIN;

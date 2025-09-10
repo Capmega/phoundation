@@ -3102,14 +3102,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $o_validator->isInteger();
                                     }))
 
-                    ->add(DefinitionFactory::newDate('birthdate')
+                    ->add(DefinitionFactory::newDateTime('birthdate')
                                            ->setLabel(tr('Birthdate'))
                                            ->setCliColumn('-b,--birthdate')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isDate()
-                                                         ->isBefore(PhoDateTime::new(), true);
+                                               $o_validator->sanitizeToDateTime()
+                                                           ->isBefore(PhoDateTime::new(), true)
+                                                           ->sanitizeTransform(function ($value, $source, $o_validator) {
+                                                               return $value?->format('Y-m-d');
+                                                           });
                                            }))
 
                     ->add(DefinitionFactory::newPhone()

@@ -502,13 +502,14 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * Returns the path
      *
      * @param PhoPathInterface|string|null $from
+     * @param bool                         $from_required
      * @param bool                         $remove_terminating_slash
      *
      * @return string
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $remove_terminating_slash = false): string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false, bool $remove_terminating_slash = false): string
     {
-        $path = parent::getSource($from);
+        $path = parent::getSource($from, $from_required);
 
         if ($remove_terminating_slash) {
             if ($path === '/') {

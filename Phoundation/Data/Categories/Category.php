@@ -141,7 +141,7 @@ class Category extends DataEntry implements CategoryInterface
         $o_definitions->add(Definition::new('parents_id')
                                       ->setOptional(true)
                                       ->setElement(EnumElement::select)
-                                      ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                      ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)

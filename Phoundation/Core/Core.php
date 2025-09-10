@@ -683,7 +683,7 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . '/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
         define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
@@ -3821,5 +3821,71 @@ class Core implements CoreInterface
     public static function setUnitTestMode(bool $mode): void
     {
         Core::$unit_test_mode = $mode;
+    }
+
+
+    /**
+     * Return ini INTEGER for the specified key path
+     *
+     * @param string $key
+     *
+     * @return int
+     */
+    public static function getIniInteger(string $key): int
+    {
+        $return = ini_get($key);
+
+        if ($return and is_numeric_integer($return)) {
+            return (int) $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an integer value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
+    }
+
+
+    /**
+     * Return ini STRING for the specified key path
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function getIniString(string $key): string
+    {
+        $return = ini_get($key);
+
+        if ($return) {
+            return $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an string value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
+    }
+
+
+    /**
+     * Return ini BOOLEAN for the specified key path
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function getIniBoolean(string $key): bool
+    {
+        $return = ini_get($key);
+
+        if (!is_empty($return)) {
+            return (bool) $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an boolean value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
     }
 }

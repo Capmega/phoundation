@@ -184,11 +184,11 @@ class Emails extends DataIterator implements EmailsInterface
 
         $emails = [];
         $post   = Validator::pick()
-                           ->select('emails')->isOptional()->sanitizeForceArray()
+                           ->select('emails')->isOptional()->sanitizeForceArray()->skipValidation()
                            ->validate($require_clean_source);
 
         // Parse and sub validate
-        if (isset($post['emails'])) {
+        if ($post['emails']) {
             foreach ($post['emails'] as $email) {
                 // Command line specified emails will have a EMAIL|TYPE|DESCRIPTION string format instead of an array
                 if (!is_array($email)) {
@@ -225,7 +225,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             foreach ($diff['add'] as $email) {
                 if ($email) {
-                    $this->add(Email::new()
+                    $this->add(Email::new(null)
                                     ->apply(false, $emails[$email])
                                     ->setUsersId($this->o_parent->getId())
                                     ->save());
@@ -239,11 +239,6 @@ class Emails extends DataIterator implements EmailsInterface
                      ->setUsersId($this->o_parent->getId())
                      ->save();
             }
-        }
-
-        // Clear source if required
-        if ($require_clean_source) {
-            PostValidator::new()->noArgumentsLeft();
         }
 
         return $this;

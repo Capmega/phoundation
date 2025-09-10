@@ -18,7 +18,6 @@ namespace Phoundation\Web\Html\Components\Forms;
 
 use PDOStatement;
 use Phoundation\Core\Libraries\Library;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
@@ -363,7 +362,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Build the form elements unless a component or content was specified manually
-                    if (!$o_definition->getContent()) {
+                    if (!$o_definition->getOutput()) {
                         switch ($o_definition->getElement()) {
                             case EnumElement::input:
                                 if (!$o_definition->getInputType()) {
@@ -579,15 +578,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
                         }
 
-                    } elseif ($o_definition->getContent()) {
-                        if (is_callable($o_definition->getContent())) {
+                    } elseif ($o_definition->getOutput()) {
+                        if (is_callable($o_definition->getOutput())) {
                             // Component will be generated in a callback
                             if ($o_definition->getHidden()) {
                                 $this->o_rows->add($o_definition, InputHidden::new()
                                                                              ->setName($field_name)
                                                                              ->setValue(Strings::force($source[$column], ' - ')));
                             } else {
-                                $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
+                                $o_component = $o_definition->getOutput()($o_definition, $column, $field_name, $source);
 
                                 if ($o_component) {
                                     if (!is_string($o_component)) {
@@ -609,7 +608,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                         } else {
                             // Component has been defined directly
-                            $this->o_rows->add($o_definition, $o_definition->getContent());
+                            $this->o_rows->add($o_definition, $o_definition->getOutput());
                         }
 
 //                    } elseif (is_callable($o_definition->getContent())) {
@@ -638,7 +637,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     } else {
                         // Content has already been rendered, display it
-                        $this->o_rows->add($o_definition, $o_definition->getContent());
+                        $this->o_rows->add($o_definition, $o_definition->getOutput());
                     }
 
                 } catch (Throwable $e) {

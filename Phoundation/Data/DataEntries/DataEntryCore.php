@@ -1437,6 +1437,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Connector classes can't be cached!
             if (!is_a($this, Connector::class)) {
                 // Try loading the DataEntry object from cache
+                // TODO This is not working correctly, if we return a different dataentry it may cause issues with parent::load() in overriding methods, etc... Fix this!
                 $o_data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache());
 
                 if ($o_data_entry) {
@@ -3280,8 +3281,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->copyValuesToSource($data_source, true, false, true);
 
         } else {
-            // Validate data and copy data into the source array
-            $data_source = $this->validateSource($data_source, $require_clean_source, true);
+            try {
+                // Validate data and copy data into the source array
+                $data_source = $this->validateSource($data_source, $require_clean_source, true);
+
+            } catch (DataEntryNotInitializedException $e) {
+                throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                    ':class' => static::class
+                ]), $e);
+            }
 
             if ($this->debug) {
                 Log::dump('VALIDATED DATA', echo_header: false);
@@ -3355,6 +3363,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This data entry won't validate data, just continue.
             return $o_validator->getSource();
         }
+
+        $this->checkDefinitionsObject(action: 'validation');
 
         // Set what prefix to use
         $prefix = $use_prefix ? $this->getDefinitionsObject()->getPrefix() : null;
@@ -4048,7 +4058,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $o_element_definition                             = $value->getDefinitionObject()->setContent($value);
+        $o_element_definition                             = $value->getDefinitionObject()->setOutput($value);
         $this->source[$o_element_definition->getColumn()] = null;
 
         try {
@@ -4890,6 +4900,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                      ->saveToGlobalCache($this->getCacheKey())
                      ->setTableState();
             }
+
+        } catch (DataEntryNotInitializedException $e) {
+            throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                ':class' => static::class
+            ]), $e);
 
         } catch (SqlContstraintDuplicateEntryException $e) {
             // The unique identifier for the entry being added already exists

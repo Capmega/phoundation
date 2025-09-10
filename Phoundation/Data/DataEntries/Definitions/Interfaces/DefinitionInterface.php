@@ -511,7 +511,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return RenderInterface|callable|string|null
      */
-    public function getContent(): RenderInterface|callable|string|null;
+    public function getOutput(): RenderInterface|callable|string|null;
 
 
     /**
@@ -522,7 +522,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
+    public function setOutput(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**

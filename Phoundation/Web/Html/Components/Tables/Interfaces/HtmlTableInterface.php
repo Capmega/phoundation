@@ -91,14 +91,6 @@ interface HtmlTableInterface extends ResourceElementInterface
      *
      * @return IteratorInterface
      */
-    public function getColumnDataAttributes(): IteratorInterface;
-
-
-    /**
-     * Returns the column's data attributes
-     *
-     * @return IteratorInterface
-     */
     public function getAnchorDataAttributes(): IteratorInterface;
 
 

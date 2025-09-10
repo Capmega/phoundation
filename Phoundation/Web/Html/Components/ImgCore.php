@@ -817,9 +817,9 @@ class ImgCore extends SpanCore implements ImgInterface
      *
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
-        return parent::renderAttributesArray()
+        return parent::renderAttributesIteratorObject()
                      ->appendSource([
                          'src' => $this->src,
                          'alt' => $this->alt,

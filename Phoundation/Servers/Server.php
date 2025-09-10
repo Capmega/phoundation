@@ -742,7 +742,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The category for this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -764,7 +764,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The service provider where this server is hosted'))
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -786,7 +786,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The customer using this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -809,7 +809,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The country where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -832,7 +832,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The state where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -853,7 +853,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('--cities-id CITIES-ID')
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)

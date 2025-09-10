@@ -6,6 +6,7 @@ namespace Phoundation\Web\Html\Components\Interfaces;
 
 use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Web\Html\Components\ResourceElementCore;
 
 interface ResourceElementInterface extends ElementInterface
 {
@@ -129,7 +130,7 @@ interface ResourceElementInterface extends ElementInterface
      *
      * @return static
      */
-    public function setDataSource(array $data_source): static;
+    public function setDataAttributesSource(array $data_source): static;
 
 
     /**
@@ -139,7 +140,7 @@ interface ResourceElementInterface extends ElementInterface
      *       then add the specified keys to each option where the value matches the id
      * @return array
      */
-    public function getDataSource(): array;
+    public function getDataAttributesSource(): array;
 
 
     /**
@@ -156,4 +157,15 @@ interface ResourceElementInterface extends ElementInterface
      * @return string|null
      */
     public function renderBody(): ?string;
+
+    /**
+     * Returns the source for "data-*" attributes where the data key matches the source key
+     *
+     * @param string|float|int|null $value
+     * @param string                $key
+     * @param int                   $row_id
+     *
+     * @return ResourceElementCore
+     */
+    public function addToDataAttributes(string|float|int|null $value, string $key, int $row_id): static;
 }
