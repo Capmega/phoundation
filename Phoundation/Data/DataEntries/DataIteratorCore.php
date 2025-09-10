@@ -60,6 +60,7 @@ use Phoundation\Web\Html\Components\Tables\HtmlTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
+use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -1381,7 +1382,7 @@ throw new ObsoleteException();
      */
     public function getCacheKeySeed(): ?string
     {
-        return PROJECT . '#DataIterator#' . static::class . '#' . Json::encode([static::getTableState() . '-' . $this->getQueryHash()], force_single_line: true);
+        return PROJECT . '#DataIterator#' . static::class . '#' . Json::encode([Request::getUrl(), static::getTableState(), $this->getQueryHash()], force_single_line: true);
     }
 
 

@@ -1607,36 +1607,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Generates and returns a unique cache key for the specified identifer / columns
-     *
-     * @param array|false|null $identifier
-     * @param array|null       $columns
-     *
-     * @return string|null
-     */
-    public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
-    {
-        if ($identifier) {
-            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode(['identifier' => $identifier, 'columns' => $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
-        }
-
-        // There is no identifier, meaning that this object is not cacheable
-        return null;
-    }
-
-
-    /**
-     * Returns a unique cache key for this DataEntry object
-     *
-     * @return string|null
-     */
-    public function getCacheKeySeed(): ?string
-    {
-        return static::generateCacheKeySeed($this->identifier, $this->columns);
-    }
-
-
-    /**
      * Tries to load (and return) this DataEntry object data from the cache layer instead of the database
      *
      * @param string|null $cache_key
@@ -1668,7 +1638,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 if (Log::passesThreshold(3)) {
                     Log::success(ts('Local cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
-//                    Log::printr($data_entry->getSourceUnprocessed(), 2, echo_header: false);
                 }
 
                 return $data_entry->setIsLoadedFromLocalCache();
@@ -1684,7 +1653,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                     if (Log::passesThreshold(3)) {
                         Log::success(ts('Global cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
-//                        Log::printr($data_entry->getSourceUnprocessed(), 2, echo_header: false);
                     }
 
                     // We didn't have this DataEntry in local cache, so save it there for future use
@@ -1739,10 +1707,40 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Cache the DataEntry and update table state if local cache is enabled and this DataEntry didn't come from local cache
         if ($this->getUseLocalCache()) {
-            LocalCache::set($this, static::class, $this->getCacheKey());
+            LocalCache::set($this, static::class, $cache_key);
         }
 
         return $this;
+    }
+
+
+    /**
+     * Generates and returns a unique cache key for the specified identifer / columns
+     *
+     * @param array|false|null $identifier
+     * @param array|null       $columns
+     *
+     * @return string|null
+     */
+    public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
+    {
+        if ($identifier) {
+            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode(['identifier' => $identifier, 'columns' => $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
+        }
+
+        // There is no identifier, meaning that this object is not cacheable
+        return null;
+    }
+
+
+    /**
+     * Returns a unique cache key for this DataEntry object
+     *
+     * @return string|null
+     */
+    public function getCacheKeySeed(): ?string
+    {
+        return static::generateCacheKeySeed($this->identifier, $this->columns);
     }
 
 

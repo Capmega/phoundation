@@ -23,6 +23,7 @@ use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
+
 trait TraitDataObjectRights
 {
     /**

@@ -4977,7 +4977,7 @@ throw new ObsoleteException();
             }
 
             if ($url->isValid()) {
-                if ($url->hasDomain($domain)) {
+                if ($url->hasHost($domain)) {
                     // Now we're good!
                     return;
 
