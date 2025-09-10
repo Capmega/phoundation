@@ -180,7 +180,7 @@ class Arrays extends Utils
             $source = [];
         }
 
-        if (really_empty($needles)) {
+        if (is_empty($needles)) {
             // No needles specified
             return;
         }
@@ -1807,7 +1807,7 @@ class Arrays extends Utils
     {
         $return = [];
 
-        if (really_empty($needles)) {
+        if (is_empty($needles)) {
             return $return;
         }
 
@@ -4326,7 +4326,7 @@ class Arrays extends Utils
      */
     protected static function prepareNeedles(IteratorInterface|Stringable|array|string|int|null $needles, array $flags): array
     {
-        if (really_empty($needles)) {
+        if (is_empty($needles)) {
             if (!$flags['skip_null_needles']) {
                 throw new OutOfBoundsException(tr('No needles specified'));
             }
