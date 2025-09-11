@@ -35,7 +35,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setLabel(tr('Type'))
                                                         ->setSize(6)
                                                         ->setElement(EnumElement::select)
-                                                        ->setDataSource([]))
+                                                        ->setSource([]))
                                           ->add(Definition::new('filter[]')
                                                         ->setLabel(tr('Filter'))
                                                         ->setSize(6));

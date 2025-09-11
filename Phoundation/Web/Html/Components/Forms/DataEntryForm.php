@@ -305,7 +305,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     // Select default element
                     if (!$o_definition->getElement()) {
-                        if ($o_definition->getDataSource()) {
+                        if ($o_definition->getSource()) {
                             // Default element for form items with a source is "select"
                             // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
                             $o_definition->setElement(EnumElement::select);
@@ -373,16 +373,16 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 }
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    if (!is_array($o_definition->getDataSource())) {
-                                        if (!is_string($o_definition->getDataSource())) {
-                                            if ($o_definition->getDataSource() instanceof Stringable) {
+                                if ($o_definition->getSource()) {
+                                    if (!is_array($o_definition->getSource())) {
+                                        if (!is_string($o_definition->getSource())) {
+                                            if ($o_definition->getSource() instanceof Stringable) {
                                                 // This is a Stringable object
-                                                $o_definition->setDataSource((string)$o_definition->getDataSource());
+                                                $o_definition->setSource((string)$o_definition->getSource());
 
                                             } else {
                                                 // The Only possibility left is instanceof PDOStatement
-                                                $o_definition->setDataSource(sql()->getColumn($o_definition->getDataSource(), $execute));
+                                                $o_definition->setSource(sql()->getColumn($o_definition->getSource(), $execute));
                                             }
                                         }
                                     }
@@ -420,7 +420,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                                  ->setAutoComplete(false)
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
-                                                                                 ->setSourceUrl($o_definition->getDataSource())
+                                                                                 ->setSourceUrl($o_definition->getSource())
                                                                                  ->setVariables($o_definition->getVariables())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
@@ -463,8 +463,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                             case EnumElement::textarea:
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
+                                if ($o_definition->getSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
@@ -489,8 +489,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $element_class = Strings::capitalize($o_definition->getElement()->value);
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
+                                if ($o_definition->getSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
@@ -518,7 +518,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
                                 $o_component   = $element_class::new()
                                                                ->setDefinitionObject($o_definition)
-                                                               ->setSource($o_definition->getDataSource(), $execute)
+                                                               ->setSource($o_definition->getSource(), $execute)
                                                                ->setDisabled($o_definition->getDisabled() or $o_definition->getReadonly())
                                                                ->setReadOnly((bool)$o_definition->getReadonly())
                                                                ->setHidden($o_definition->getHidden())
@@ -535,7 +535,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
                                 $input = $element_class::new()
-                                                       ->setSource($o_definition->getDataSource());
+                                                       ->setSource($o_definition->getSource());
 
                                 $input->getButton()
                                       ->setMode(EnumDisplayMode::from($o_definition->getMode()))

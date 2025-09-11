@@ -237,7 +237,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-t,--type')
-                                    ->setDataSource([
+                                    ->setSource([
                                         'personal' => tr('Personal'),
                                         'business' => tr('Business'),
                                         'other'    => tr('Other'),

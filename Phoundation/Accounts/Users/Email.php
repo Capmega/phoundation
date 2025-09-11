@@ -205,7 +205,7 @@ class Email extends DataEntry implements EmailInterface
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-t,--type')
-                                    ->setDataSource([
+                                    ->setSource([
                                         'personal' => tr('Personal'),
                                         'business' => tr('Business'),
                                         'other'    => tr('Other'),

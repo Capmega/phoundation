@@ -75,7 +75,7 @@ trait TraitInputElement
     public static function newFromDataEntryDefinition(DefinitionInterface $o_definition): static
     {
         $element    = new static();
-        $attributes = $o_definition->getSource();
+        $attributes = $o_definition->getDefinitionSource();
 
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {

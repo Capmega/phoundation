@@ -723,7 +723,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setSize(4)
                                     ->setLabel(tr('Payment interval'))
                                     ->setCliColumn('-i,--interval POSITIVE-INTEGER')
-                                    ->setDataSource([
+                                    ->setSource([
                                         'hourly'     => tr('Hourly'),
                                         'daily'      => tr('Daily'),
                                         'weekly'     => tr('Weekly'),
@@ -876,7 +876,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setLabel(tr('Operating system'))
                                     ->setCliColumn('-o,--os-name OPERATING-SYSTEM-NAME')
                                     ->setCliAutoComplete(true)
-                                    ->setDataSource([
+                                    ->setSource([
                                         'debian'    => tr('Debian'),
                                         'ubuntu'    => tr('Ubuntu'),
                                         'redhat'    => tr('Redhat'),

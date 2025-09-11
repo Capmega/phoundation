@@ -88,7 +88,7 @@ class EmailAddressLinked extends DataEntry
 
                       ->add(Definition::new('type')
                                     ->setRender(false)
-                                    ->setDataSource([
+                                    ->setSource([
                                         'from' => tr('From'),
                                         'to'   => tr('To'),
                                         'cc'   => tr('Cc'),

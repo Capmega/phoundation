@@ -4078,15 +4078,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Apply specified definitions as well
             if ($o_definition instanceof DefinitionInterface) {
                 $o_definition->setColumn($o_element_definition->getColumn());
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($o_definition->getSource());
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($o_definition->getDefinitionSource());
 
             } else {
                 // Merge the specified definitions over the existing one
                 $o_definition = Arrays::removeKeys($o_definition, 'column');
-                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getSource();
+                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getDefinitionSource();
                 $rules        = array_merge($rules, $o_definition);
 
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($rules);
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($rules);
             }
         }
 

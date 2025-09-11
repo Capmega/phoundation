@@ -195,7 +195,7 @@ class Cache extends Database implements CacheInterface
                 return false;
             }
 
-            static::$enabled_cli = (config()->getBoolean('cache.web.enabled', false) and Cache::getEnabled());
+            static::$enabled_cli = (config()->getBoolean('cache.cli.enabled', false) and Cache::getEnabled());
         }
 
         return static::$enabled_cli;

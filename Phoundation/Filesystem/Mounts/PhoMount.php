@@ -512,7 +512,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                     ->add(Definition::new('filesystem')
                                     ->setOptional(true)
                                     ->setSize(4)
-                                    ->setDataSource([
+                                    ->setSource([
                                         ''             => tr('Auto detect'),
                                         'ext2'         => tr('EXT2'),
                                         'ext3'         => tr('EXT3'),

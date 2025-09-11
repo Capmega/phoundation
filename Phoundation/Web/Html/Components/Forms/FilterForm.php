@@ -200,7 +200,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
-                                                          ->setDataSource($this->states));
+                                                          ->setSource($this->states));
 
         // Auto apply
         $this->applyValidator(self::class);

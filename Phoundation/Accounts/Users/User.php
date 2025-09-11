@@ -3013,7 +3013,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-g,--gender')
-                                    ->setDataSource([
+                                    ->setSource([
                                         ''       => tr('Select a gender'),
                                         'male'   => tr('Male'),
                                         'female' => tr('Female'),
@@ -3277,7 +3277,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
-                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
+                                           ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))

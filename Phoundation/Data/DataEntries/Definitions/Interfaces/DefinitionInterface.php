@@ -85,7 +85,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array
      */
-    public function getSource(): array;
+    public function getDefinitionSource(): array;
 
 
     /**
@@ -96,7 +96,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+    public function setDefinitionSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**
@@ -714,7 +714,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null;
+    public function getSource(): array|PDOStatement|Stringable|string|null;
 
 
     /**
@@ -727,7 +727,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
+    public function setSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
 
 
     /**

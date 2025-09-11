@@ -1050,7 +1050,7 @@ class Definition implements DefinitionInterface
      *
      * @return array
      */
-    public function getSource(): array
+    public function getDefinitionSource(): array
     {
         return $this->source;
     }
@@ -1105,7 +1105,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
+    public function setDefinitionSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         throw new DefinitionException(ts('Setting class ":class" Definition object source directly is not supported', [
             ':class' => $this->o_data_entry ? get_class($this->o_data_entry) : 'N/A',
@@ -2787,7 +2787,7 @@ class Definition implements DefinitionInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null
+    public function getSource(): array|PDOStatement|Stringable|string|null
     {
         return get_safe_typed('array|PDOStatement|Stringable|string|null', $this->source, 'source');
     }
@@ -2803,7 +2803,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static
+    public function setSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static
     {
         $this->setKey($source, 'source');
 

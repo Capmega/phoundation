@@ -1002,7 +1002,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setLabel('Restrict to environment')
                                       ->setElement(EnumElement::select)
 // TODO This datasource should list all available environments straight from the ROOT/config/environments path
-                                      ->setDataSource([
+                                      ->setSource([
                                           'production' => tr('Production'),
                                           'trial'      => tr('Trial'),
                                           'local'      => tr('Local'),
@@ -1013,7 +1013,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setLabel('Connector type')
                                              ->setInputType(null)
                                              ->setElement(EnumElement::select)
-                                             ->setDataSource([
+                                             ->setSource([
                                                  'sql'       => tr('SQL'),
                                                  'memcached' => tr('Memcached'),
                                                  'mongodb'   => tr('MongoDB'),
@@ -1025,7 +1025,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setLabel('Driver')
                                              ->setInputType(null)
                                              ->setElement(EnumElement::select)
-                                             ->setDataSource([
+                                             ->setSource([
                                                  ''        => tr('Not specified'),
                                                  'mysql'   => tr('MySQL'),
                                                  'postgre' => tr('PostGRE'),
@@ -1141,7 +1141,7 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setInputType(EnumInputType::dbid)
                                       ->setLabel(tr('SSL Tunnel'))
                                       ->setOptional(true)
-                                      ->setDataSource([])
+                                      ->setSource([])
                                       ->setInputType(EnumInputType::select)
                                       ->setSize(2))
 

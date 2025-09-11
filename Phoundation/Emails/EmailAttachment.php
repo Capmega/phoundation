@@ -87,7 +87,7 @@ class EmailAttachment extends DataEntry
 
                     ->add(Definition::new('smtp_secure')
                                     ->setInputType(EnumInputType::text)
-                                    ->setDataSource(['tls' => tr('TLS')])
+                                    ->setSource(['tls' => tr('TLS')])
                                     ->setRender(false))
 
                     ->add(DefinitionFactory::newName()
