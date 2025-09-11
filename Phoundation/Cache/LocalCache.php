@@ -100,7 +100,7 @@ class LocalCache
     {
         $return = null;
 
-        if (Cache::isEnabled()) {
+        if (Cache::getEnabled()) {
             $return = static::get($key, $sub_key);
         }
 
@@ -137,7 +137,7 @@ class LocalCache
     {
         $return = null;
 
-        if (Cache::isEnabled()) {
+        if (Cache::getEnabled()) {
             $return = static::get($key, $sub_key);
         }
 
@@ -159,7 +159,7 @@ class LocalCache
             }
 
             // Place the entire list in cache, then use InstanceCache::get() to return value.
-            if (Cache::isEnabled()) {
+            if (Cache::getEnabled()) {
                 static::setList($return, $key);
                 return static::get($key, $sub_key, $exception);
             }
@@ -183,7 +183,7 @@ class LocalCache
      */
     public static function get(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null, bool $exception = false, ?string $datatype = null): mixed
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return null;
         }
 
@@ -293,7 +293,7 @@ class LocalCache
      */
     public static function exists(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): bool
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return false;
         }
 
@@ -352,7 +352,7 @@ class LocalCache
      */
     public static function getLastChecked(): mixed
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return null;
         }
 
@@ -415,7 +415,7 @@ class LocalCache
      */
     public static function getSectionSubCount(Stringable|string|float|int|null $key): int
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return -1;
         }
 
@@ -436,7 +436,7 @@ class LocalCache
      */
     public static function getSectionCount(): int
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return -1;
         }
 
@@ -451,7 +451,7 @@ class LocalCache
      */
     public static function getCount(): int
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return -1;
         }
 
@@ -472,7 +472,7 @@ class LocalCache
      */
     public static function getEfficiency(): float
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return -1;
         }
 
@@ -504,7 +504,7 @@ class LocalCache
      */
     public function getKeys(): array
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return [];
         }
 
@@ -522,7 +522,7 @@ class LocalCache
      */
     public function getSubKeys(Stringable|string|float|int|null $key, bool $exception = false): ?array
     {
-        if (!Cache::isEnabled()) {
+        if (!Cache::getEnabled()) {
             return null;
         }
 
