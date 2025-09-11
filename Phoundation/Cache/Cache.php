@@ -136,7 +136,11 @@ class Cache extends Database implements CacheInterface
         static $enabled = null;
 
         if ($enabled === null) {
-            $enabled = Core::isReady() and config()->getBoolean('cache.enabled', false) and static::$enabled;
+            if (!Core::isReady()) {
+                return false;
+            }
+
+            $enabled = (config()->getBoolean('cache.enabled', false) and static::$enabled);
         }
 
         return $enabled;
