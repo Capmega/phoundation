@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataStaticBooleanEnabled
+ * Trait TraitDataStaticBooleanEnabledweb
  *
  *
  *
@@ -17,14 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataStaticBooleanEnabled
+trait TraitDataStaticBooleanEnabledWeb
 {
     /**
      * Tracks the enabled flag
      *
-     * @var bool $enabled
+     * @var bool $enabled_web
      */
-    protected static ?bool $enabled = null;
+    protected static ?bool $enabled_web = null;
 
 
     /**
@@ -32,26 +32,26 @@ trait TraitDataStaticBooleanEnabled
      *
      * @return bool
      */
-    public static function getEnabled(): bool
+    public static function getEnabledWeb(): bool
     {
-        return static::$enabled;
+        return static::$enabled_web;
     }
 
 
     /**
      * Sets the enabled flag
      *
-     * @param bool|null $enabled
+     * @param bool|null $enabled_web
      *
      * @return void
      */
-    public static function setEnabled(?bool $enabled): void
+    public static function setEnabledWeb(?bool $enabled_web): void
     {
-        if ($enabled === null) {
+        if ($enabled_web === null) {
             // Don't modify the enabled flag, keep the default
             return;
         }
 
-        static::$enabled = $enabled;
+        static::$enabled_web = $enabled_web;
     }
 }

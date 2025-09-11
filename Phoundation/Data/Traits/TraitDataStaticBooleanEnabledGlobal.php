@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Trait TraitDataStaticBooleanEnabled
+ * Trait TraitDataStaticBooleanEnabledGlobal
  *
  *
  *
@@ -17,14 +17,14 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 
-trait TraitDataStaticBooleanEnabled
+trait TraitDataStaticBooleanEnabledGlobal
 {
     /**
      * Tracks the enabled flag
      *
-     * @var bool $enabled
+     * @var bool $enabled_global
      */
-    protected static ?bool $enabled = null;
+    protected static ?bool $enabled_global = null;
 
 
     /**
@@ -32,26 +32,26 @@ trait TraitDataStaticBooleanEnabled
      *
      * @return bool
      */
-    public static function getEnabled(): bool
+    public static function getEnabledGlobal(): bool
     {
-        return static::$enabled;
+        return static::$enabled_global;
     }
 
 
     /**
      * Sets the enabled flag
      *
-     * @param bool|null $enabled
+     * @param bool|null $enabled_global
      *
      * @return void
      */
-    public static function setEnabled(?bool $enabled): void
+    public static function setEnabledGlobal(?bool $enabled_global): void
     {
-        if ($enabled === null) {
+        if ($enabled_global === null) {
             // Don't modify the enabled flag, keep the default
             return;
         }
 
-        static::$enabled = $enabled;
+        static::$enabled_global = $enabled_global;
     }
 }

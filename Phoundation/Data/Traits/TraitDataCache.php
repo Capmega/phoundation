@@ -40,7 +40,7 @@ trait TraitDataCache
      */
     public function getUseCache(): bool
     {
-        if (Cache::isEnabled()) {
+        if (Cache::getEnabled()) {
             return $this->use_cache;
         }
 

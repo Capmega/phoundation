@@ -174,7 +174,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
 
         $this->is_loaded = (bool) $source;
-        $this->use_cache = Cache::isEnabled();
+        $this->use_cache = Cache::getEnabled();
     }
 
 

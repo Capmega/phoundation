@@ -357,7 +357,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        $this->use_cache = Cache::isEnabled();
+        $this->use_cache = Cache::getEnabled();
 
         if ($identifier === false) {
             // If the identifier is false, don't automatically initialize the DataEntry object
@@ -1791,7 +1791,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         LocalCache::delete('dataentries', $this->getCacheKey());
 
         // Cache the DataEntry and update table state
-        if (Cache::isEnabled()) {
+        if (Cache::getEnabled()) {
             // Connector objects CANNOT be cached
             if (!is_a($this, Connector::class)) {
                 cache('dataentries')->delete($this->getCacheKey());
@@ -5203,6 +5203,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
+                            ->setUseCache($this->getUseCache())
                             ->setDataEntryObject($this)
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
