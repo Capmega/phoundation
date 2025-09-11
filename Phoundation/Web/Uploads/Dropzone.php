@@ -753,7 +753,7 @@ class Dropzone implements DropzoneInterface
 //            'renameFile'            => $this->rename_file,
 //            'forceFallback'         => $this->force_fallback,
 
-        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . ')')->render();
+        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); phoundation.log("Setup dropzone with selector \"' . $this->selector . '\"")')->render();
     }
 
 
