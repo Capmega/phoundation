@@ -110,7 +110,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     {
         parent::__construct();
 
-        $this->cache = Cache::isEnabled();
+        $this->cache = Cache::getEnabled();
 
         if ($source instanceof IteratorInterface) {
             $this->setIteratorObject($source);
