@@ -26,12 +26,12 @@ use Phoundation\Databases\Sql\Limit;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0  => [
-            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
         ],
         null => [
-            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+            'word'   => 'SELECT `name` FROM `accounts_roles` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `accounts_roles` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
         ],
     ],
 ]);

@@ -1609,7 +1609,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function limitAutoComplete(): static
     {
-        $this->source = Arrays::limit($this->source, Limit::shellAutoCompletion());
+        $this->source = Arrays::limit($this->source, Limit::getShellAutoCompletion());
         return $this;
     }
 

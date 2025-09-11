@@ -121,13 +121,11 @@ class Url implements UrlInterface
     public function __toString(): string
     {
         // Empty URL's are considered absolute
-        if ($this->isAbsolute() or empty($this->source)) {
-            return (string) $this->getSource();
+        if ($this->source and !$this->isAbsolute()) {
+            $this->makeWww();
         }
 
-        throw new UrlNotAbsoluteException(tr('Cannot convert URL ":url" to string, it is not absolute', [
-            ':url' => $this->source,
-        ]));
+        return (string) $this->getSource();
     }
 
 

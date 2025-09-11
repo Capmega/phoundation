@@ -26,8 +26,8 @@ use Phoundation\Utils\Strings;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND `status` = "disabled" LIMIT ' . Limit::shellAutoCompletion(),
-            'noword' => 'SELECT `name` FROM `core_plugins` WHERE                       `status` = "disabled" LIMIT ' . Limit::shellAutoCompletion(),
+            'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND `status` = "disabled" LIMIT ' . Limit::getShellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `core_plugins` WHERE                       `status` = "disabled" LIMIT ' . Limit::getShellAutoCompletion(),
         ],
     ],
 ]);

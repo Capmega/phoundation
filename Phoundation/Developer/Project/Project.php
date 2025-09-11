@@ -1376,7 +1376,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         static $return;
 
         if (empty($return)) {
-            $return = config()->getString('project.name.full', config()->getString('project.name.short', PROJECT));
+            $return = Project::getOwnerName() . '_' . Project::getName();
         }
 
         return $return;
@@ -1405,12 +1405,12 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      *
      * @return string
      */
-    public static function getShortName(): string
+    public static function getName(): string
     {
         static $return;
 
         if (empty($return)) {
-            $return = config()->getString('project.name.short', config()->getString('project.name.full', PROJECT));
+            $return = config()->getString('project.name', PROJECT);
         }
 
         return $return;
@@ -1422,12 +1422,12 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      *
      * @return string
      */
-    public static function getSeoShortName(): string
+    public static function getSeoName(): string
     {
         static $return;
 
         if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Project::getShortName()));
+            $return = str_replace('_', '-', strtolower(Project::getName()));
         }
 
         return $return;
@@ -1473,12 +1473,12 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      *
      * @return string
      */
-    public static function getOwnerFullName(): string
+    public static function getOwnerName(): string
     {
         static $return;
 
         if (empty($return)) {
-            $return = config()->getString('project.owner.name.full', config()->getString('project.owner.name.short', 'Phoundation'));
+            $return = config()->getString('project.owner.name', 'Phoundation');
         }
 
         return $return;
@@ -1490,46 +1490,12 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      *
      * @return string
      */
-    public static function getSeoOwnerFullName(): string
+    public static function getSeoOwnerName(): string
     {
         static $return;
 
         if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Project::getOwnerFullName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the name for the owner of this project
-     *
-     * @return string
-     */
-    public static function getOwnerShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.owner.name.short', config()->getString('project.owner.name.full', 'Phoundation'));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the name for the owner of this project
-     *
-     * @return string
-     */
-    public static function getSeoOwnerShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Project::getOwnerShortName()));
+            $return = str_replace('_', '-', strtolower(Project::getOwnerName()));
         }
 
         return $return;
@@ -1590,7 +1556,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 ':year'     => Project::getCopyrightYear(),
                 ':url'      => Anchor::new(Project::getOwnerUrl())
                                      ->setTarget(EnumAnchorTarget::blank)
-                                     ->setContent(Project::getOwnerFullName())
+                                     ->setContent(Project::getOwnerName())
             ]);
         }
 
@@ -1599,7 +1565,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             ':year'     => Project::getCopyrightYear(),
             ':url'      => Anchor::new(Project::getOwnerUrl())
                                  ->setTarget(EnumAnchorTarget::blank)
-                                 ->setContent(Project::getOwnerFullName())
+                                 ->setContent(Project::getOwnerName())
         ]);
     }
 }

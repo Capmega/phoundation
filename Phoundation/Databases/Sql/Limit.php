@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql;
 
 
-
 class Limit
 {
     /**
@@ -27,8 +26,21 @@ class Limit
      *
      * @return int
      */
-    static function shellAutoCompletion(int $limit = 100_000): int
+    static function getShellAutoCompletion(int $limit = 100_000): int
     {
-        return config()->getInteger('shell.autocomplete.limit', $limit);
+        return config()->getInteger('autocomplete.shell.limit', $limit);
+    }
+
+
+    /**
+     * Returns the default limit for web auto-completion
+     *
+     * @param int $limit
+     *
+     * @return int
+     */
+    static function getWebAutosuggest(int $limit = 100): int
+    {
+        return config()->getInteger('autocomplete.web.ajax.limit', $limit);
     }
 }
