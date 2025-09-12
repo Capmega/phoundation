@@ -16,23 +16,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Library\Tests\Phoundation\Data\DataEntry;
 
-use PDOStatement;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\DataEntries\Tests\TestDataIterator;
+use Phoundation\Data\Exception\IteratorDataTypeNotAcceptedException;
 use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Json\Users;
-use PHPUnit\Event\TestData\TestData;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -267,10 +264,10 @@ class DataIteratorTest extends TestCase
 
         try {
             $test_data_iterator_2->append(null, 0, skip_null_values: false);
-            $this->fail('Expected OutOfBoundsException not thrown.');
+            $this->fail('Expected IteratorDataTypeNotAcceptedException not thrown.');
 
         } catch (Throwable $e) {
-            $this->assertInstanceOf(OutOfBoundsException::class, $e);
+            $this->assertInstanceOf(IteratorDataTypeNotAcceptedException::class, $e);
         }
 
         $test_data_iterator_2->append($test_data_entry);
@@ -682,6 +679,6 @@ class DataIteratorTest extends TestCase
         $test_data_entry_1  = TestDataEntry::new()->setName(Strings::getUuid())->save();
         $test_data_iterator = TestDataIterator::new()->add($test_data_entry_1);
 
-        $this->assertNull($test_data_iterator->getColumns());
+        $this->assertEquals($test_data_entry_1->getSourceKeys(), $test_data_iterator->getColumns());
     }
 }

@@ -22,7 +22,6 @@ use Phoundation\Data\DataEntries\Exception\DataEntryInvalidIdentifierException;
 use Phoundation\Data\DataEntries\Exception\DataEntryIsNewException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
-use Phoundation\Data\DataEntries\Exception\DataEntryNotInitializedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotSavedException;
 use Phoundation\Data\DataEntries\Tests\TestDataEntry;
 use Phoundation\Data\Enums\EnumLoadParameters;
@@ -195,9 +194,9 @@ class DataEntryTest extends TestCase
         // Failure with exception (name is required)
         try {
             TestDataEntry::new()->save();
-            $this->fail('Expected ValidationFailedException was not thrown');
+            $this->fail('Expected ValidationFailed was not thrown');
         } catch (Throwable $e) {
-            $this->assertInstanceOf(DataEntryNotInitializedException::class, $e);
+            $this->assertInstanceOf(ValidationFailedException::class, $e);
         }
     }
 
@@ -412,12 +411,16 @@ class DataEntryTest extends TestCase
         $test_entry_2->setSource($test_entry->getSource());
         $this->assertTrue($test_entry_2->isValidated());
 
+        // Test setting source with un-permitted column
+        $test_data_entry_4 = TestDataEntry::new()->setSource(['invalid_column' => 'value']);
+        $this->assertEmpty($test_data_entry_4->get('invalid_column', false));
+
         // Test setting source with non-existing column
         try {
-            TestDataEntry::new()->setSource(['invalid_column' => 'value']);
-            $this->fail('Expected DataEntryInvalidIdentifierException was not thrown');
+            TestDataEntry::new()->setAllowUnpermittedColumns(false)->setSource(['invalid_column' => 'value']);
+            $this->fail('Expected DataEntryColumnsNotDefinedException was not thrown');
         } catch (Throwable $e) {
-            $this->assertInstanceOf(DataEntryInvalidIdentifierException::class, $e);
+            $this->assertInstanceOf(DataEntryColumnsNotDefinedException::class, $e);
         }
     }
 
@@ -440,14 +443,6 @@ class DataEntryTest extends TestCase
         $test_entry_2 = TestDataEntry::new()->setName($name)->save();
         $test_entry_2->setSourceDirect($test_entry->getSource());
         $this->assertFalse($test_entry_2->isValidated());
-
-        // Test setting source with non-existing column AND no unique identifier
-        try {
-            TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value']);
-            $this->fail('Expected DataEntryInvalidIdentifierException was not thrown');
-        } catch (Throwable $e) {
-            $this->assertInstanceOf(DataEntryInvalidIdentifierException::class, $e);
-        }
     }
 
 
