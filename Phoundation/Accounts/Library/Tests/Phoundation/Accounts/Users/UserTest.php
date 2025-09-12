@@ -5,7 +5,7 @@
  *
  * This PHPUnit test class will test the \Phoundation\Accounts\Users\User Object
  *
- * @author    Harrison Macey <harrison@medinet.ca>
+ * @author    Harrison Macey <harrison@phoundation.org>
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -17,15 +17,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Library\Tests\Phoundation\Accounts\Users;
 
-use Phoundation\Accounts\Enums\EnumAuthenticationAction;
+
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Rights;
-use Phoundation\Accounts\Roles\Role;
 use Phoundation\Accounts\Roles\Roles;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
-use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Core\Log\Log;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
@@ -55,7 +52,7 @@ class UserTest extends TestCase
     public function testSave()
     {
         $unit_test_user = User::new();
-        $unit_test_user->loadOrThis(['email' => 'unittest@medinet.ca'])
+        $unit_test_user->loadOrThis(['email' => 'unittest@phoundation.org'])
                        ->setFirstNames('unit')
                        ->setLastNames('test')
                        ->setNotificationsEnabled(false)
@@ -77,7 +74,7 @@ class UserTest extends TestCase
         $this->assertEquals('system', $system_user->getStatus());
 
         // Try loading another user
-        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue((bool) $unit_test_user->getId());
     }
 
@@ -118,7 +115,7 @@ class UserTest extends TestCase
      */
     public function testGetSessionObject()
     {
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
 
         try {
             $user->getSessionObject();
@@ -145,7 +142,7 @@ class UserTest extends TestCase
             $this->assertInstanceOf(AccountsException::class, $e);
         }
 
-        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $o_rights       = $unit_test_user->getRightsObject();
         $this->assertInstanceOf(Rights::class, $o_rights);
     }
@@ -167,7 +164,7 @@ class UserTest extends TestCase
             $this->assertInstanceOf(AccountsException::class, $e);
         }
 
-        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $o_roles        = $unit_test_user->getRolesObject();
         $this->assertInstanceOf(Roles::class, $o_roles);
     }
@@ -180,7 +177,7 @@ class UserTest extends TestCase
      */
     public function testAddRoles()
     {
-        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $unit_test_user->addRoles('test');
 
         $o_rights = $unit_test_user->getRightsObject();
@@ -198,7 +195,7 @@ class UserTest extends TestCase
      */
     public function testRemoveRoles()
     {
-        $unit_test_user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $unit_test_user->addRoles('test');
 
         $this->assertContains('test', $unit_test_user->getRightsObject()->getSourceKeys());
@@ -225,23 +222,23 @@ class UserTest extends TestCase
         }
 
         // Test with single string
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasSomeRights('everybody'));
 
         // Test with single entry in array
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasSomeRights(['everybody']));
 
         // Test with one non-matching entry
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasSomeRights('god'));
 
         // Test with one matching and one non-matching entry in array
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasSomeRights(['everybody', 'god']));
 
         // Test with Right that doesn't exist
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasSomeRights('fail'));
     }
 
@@ -262,23 +259,23 @@ class UserTest extends TestCase
         }
 
         // Test with single string
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasAllRights('everybody'));
 
         // Test with single entry in array
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasAllRights(['everybody']));
 
         // Test with one non-matching entry
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights('god'));
 
         // Test with one matching and one non-matching entry in array
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights(['everybody', 'god']));
 
         // Test with Right that doesn't exist
-        $user = User::new()->load(['email' => 'unittest@medinet.ca']);
+        $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights('fail'));
     }
 }
