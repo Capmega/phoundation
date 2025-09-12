@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Uploads;
 
+use Phoundation\Core\Core;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataMimetypes;
@@ -177,6 +178,7 @@ class Dropzone implements DropzoneInterface
     {
         $this->setUrl(Url::newCurrent())
              ->setSelector($selector)
+             ->setMaxFiles($this->getMaxFilesDefault())
              ->setRequestMethod(EnumHttpRequestMethod::post)
              ->o_handler = $handler;
     }
@@ -334,6 +336,28 @@ class Dropzone implements DropzoneInterface
 
 
     /**
+     * Returns the default value for the maximum number of files that can be uploaded at once
+     *
+     * @return int|null
+     */
+    public function getMaxFilesDefault(): ?int
+    {
+        return config()->getInteger('web.uploads.max.uploads', Core::getIniInteger('max_file_uploads'));
+    }
+
+
+    /**
+     * Returns the default value for the maximum filesize PER file that can be uploaded
+     *
+     * @return int|null
+     */
+    public function getMaxFilesizeDefault(): ?int
+    {
+        return config()->getInteger('web.uploads.max.size', Core::getIniInteger('max_file_size'));
+    }
+
+
+    /**
      * Returns the maximum number of files that will be allowed to be uploaded
      *
      * @return int|null
@@ -376,7 +400,7 @@ class Dropzone implements DropzoneInterface
             if ($max_files > ini_get('max_file_uploads')) {
                 throw new PhpConfigurationException(tr('The max_files value ":value" is higher than the maximum allowed by PHP configuration of ":php"', [
                     ':value' => $this->max_files,
-                    'php'    => ini_get('max_file_uploads'),
+                    ':php'    => ini_get('max_file_uploads'),
                 ]));
             }
         }
@@ -424,7 +448,6 @@ class Dropzone implements DropzoneInterface
         }
 
         $this->parallel_uploads = $parallel_uploads;
-
         return $this;
     }
 
@@ -730,7 +753,7 @@ class Dropzone implements DropzoneInterface
 //            'renameFile'            => $this->rename_file,
 //            'forceFallback'         => $this->force_fallback,
 
-        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . ')')->render();
+        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); phoundation.log("Setup dropzone with selector \"' . $this->selector . '\"")')->render();
     }
 
 

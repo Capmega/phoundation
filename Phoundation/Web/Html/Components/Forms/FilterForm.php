@@ -141,7 +141,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
-                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
@@ -179,7 +179,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setSize(4)
                                                           ->setOptional(true)
                                                           ->setInputType(EnumInputType::dbid)
-                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               return Users::new()->getHtmlSelectOld()
                                                                                  ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                    FROM      `accounts_users`
@@ -200,7 +200,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
-                                                          ->setDataSource($this->states));
+                                                          ->setSource($this->states));
 
         // Auto apply
         $this->applyValidator(self::class);

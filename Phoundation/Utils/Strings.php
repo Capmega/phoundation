@@ -33,6 +33,7 @@ use StephenHill\Base58;
 use Stringable;
 use Throwable;
 
+
 class Strings extends Utils
 {
     /**
@@ -2713,7 +2714,7 @@ class Strings extends Utils
      */
     public static function removeCharacters(Stringable|string $source, Stringable|string|null $needles, bool $trim = true): string
     {
-        if (really_empty($needles)) {
+        if (is_empty($needles)) {
             return $source;
         }
 

@@ -567,7 +567,7 @@ class CliAutoComplete
      */
     public static function getLimit(): int
     {
-        return Limit::shellAutoCompletion();
+        return Limit::getShellAutoCompletion();
     }
 
 

@@ -172,11 +172,13 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns an array of rights that are required to render this Anchor object
      *
+     * @param bool $use_cache
+     *
      * @return array
      */
-    public function getRequiredRights(): array
+    public function getRights(bool $use_cache = true): array
     {
-        return $this->getHref()->getRequiredRights();
+        return $this->getHref()->getRights($use_cache);
     }
 
 
@@ -184,12 +186,13 @@ class Anchor extends SpanCore implements AnchorInterface
      * Returns true if the current session user (or the specified one) has access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null): bool
+    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
     {
-        return $this->getHref()->userHasAccess($o_user);
+        return $this->getHref()->userHasAccess($o_user, $use_cache);
     }
 
 
@@ -197,13 +200,13 @@ class Anchor extends SpanCore implements AnchorInterface
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return static
-     * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null): static
+    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
     {
-        $this->getHref()->checkUserAccess($o_user);
+        $this->getHref()->checkUserAccess($o_user, $use_cache);
         return $this;
     }
 
@@ -225,7 +228,7 @@ class Anchor extends SpanCore implements AnchorInterface
             return true;
         }
 
-        $has_required_rights = $o_user->getRightsObject()->hasAll($this->getRequiredRights());
+        $has_required_rights = $o_user->getRightsObject()->hasAll($this->getRights());
 
         if ($has_required_rights) {
             $this->has_required_rights = $o_user;
@@ -240,14 +243,13 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns the manually specified required rights to render this Anchor object
      *
-     * @param bool $reload
-     * @param bool $order
+     * @param bool $use_cache
      *
      * @return RightsInterface
      */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
+    public function getRightsObject(bool $use_cache = true): RightsInterface
     {
-        return $this->getHref()->getRightsObject($reload, $order);
+        return $this->getHref()->getRightsObject($use_cache);
     }
 
 
@@ -353,7 +355,7 @@ class Anchor extends SpanCore implements AnchorInterface
                 if (!Core::isProductionEnvironment()) {
                     Log::warning(tr('User ":user" does not have the required rights ":rights" to render the URL ":url"', [
                         ':user'   => Session::getUserObject()->getLogId(),
-                        ':rights' => $this->getRequiredRights(),
+                        ':rights' => $this->getRights(),
                         ':url'    => $this->getHref()->getSource()
                     ]));
                 }
@@ -377,7 +379,7 @@ class Anchor extends SpanCore implements AnchorInterface
                             ':href' => $this->getHref(),
                             ':user' => Session::getUserObject(),
                         ]))->setData([
-                            'required_rights' => $this->getRequiredRights(),
+                            'required_rights' => $this->getRights(),
                             'href'            => $this->getHref(),
                             'user'            => Session::getUserObject(),
                         ]);

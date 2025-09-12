@@ -306,13 +306,15 @@ $o_picture_card = Card::new()
 $o_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
-                       ->setContent(($o_user->isNew() ? '' : AnchorBlock::new(Url::new('/profiles/profile+' . $o_user->getId() . '.html')->makeWww(), tr('Profile page for this user'))) .
-                                                             AnchorBlock::new(Url::new('/accounts/password+' . $o_user->getId() . '.html')->makeWww(), tr('Change password for this user')) .
-                                                             AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Authentications for this user')) .
-                                                             AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Security incidents for this user')) .
-                                                             hr(AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles')) .
-                                                                AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights')) .
-                                                                AnchorBlock::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Manage sessions'))));
+                       ->setContent(($o_user->isNew() ? AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles')) .
+                                                        AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights'))
+                                                      : AnchorBlock::new(Url::new('/profiles/profile+' . $o_user->getId() . '.html')->makeWww(), tr('Profile page for this user')) .
+                                                        AnchorBlock::new(Url::new('/accounts/password+' . $o_user->getId() . '.html')->makeWww(), tr('Change password for this user')) .
+                                                        AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Authentications for this user')) .
+                                                        AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Security incidents for this user')) .
+                                                        AnchorBlock::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Manage sessions for this user')) .
+                                                        hr(AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles')) .
+                                                           AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights')))));
 
 
 // Build documentation
@@ -340,11 +342,11 @@ Response::setBreadcrumbs([
 return Grid::new()
             ->addGridColumn(GridColumn::new()
                             // The user card and all additional cards
-                                  ->addContent($o_user_card .
-                                               isset_get($o_roles_card) .
-                                               isset_get($o_rights_card) .
-                                               isset_get($o_emails_card) .
-                                               isset_get($o_phones_card))
-                                  ->setSize(9)
-                                  ->useForm(true))
+                                      ->addContent($o_user_card .
+                                                   isset_get($o_roles_card) .
+                                                   isset_get($o_rights_card) .
+                                                   isset_get($o_emails_card) .
+                                                   isset_get($o_phones_card))
+                                      ->setSize(9)
+                                      ->useForm(true))
             ->addGridColumn($o_picture_card . $o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

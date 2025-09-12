@@ -16,9 +16,11 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use Phoundation\Data\Traits\TraitDataNewTarget;
 use Phoundation\Security\Exception\SecurityException;
 
 
 class AccessDeniedException extends SecurityException
 {
+    use TraitDataNewTarget;
 }

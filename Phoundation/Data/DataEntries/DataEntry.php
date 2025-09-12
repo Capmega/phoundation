@@ -210,7 +210,6 @@ class DataEntry extends DataEntryCore
             $source = $source->getSource();
         }
 
-        $entry = new static(false);
-        return $entry->setSourceDirect($source, $execute, $filter_meta);
+        return (new static(false))->setSourceDirect($source, $execute, $filter_meta);
     }
 }

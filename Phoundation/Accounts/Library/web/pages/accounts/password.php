@@ -47,7 +47,10 @@ $password = $user->getPasswordObject();
 
 // Hide the "current" field as its not required for password updates by admin
 $o_definitions = $password->getDefinitionsObject();
-$o_definitions->get('current')->setRender(false);
+$o_definitions->setDefinitionRender('current'  , false)
+              ->setDefinitionRender('divider-0', false);
+
+
 
 
 // Validate POST and submit

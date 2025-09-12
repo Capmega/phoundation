@@ -52,7 +52,7 @@ try {
                 $o_validator->isImage('jpg,png')->isSmallerThan('10MB')
                     ->validate();
             })
-            ->setFunction(function(PhoUploadedFileInterface $file) use ($user) {
+            ->setFileCallback(function(PhoUploadedFileInterface $file) use ($user) {
                 // Set this image as the profile image
                 ProfileImage::newFromImageFile(new ImageFile($file))
                             ->setUserObject($user)

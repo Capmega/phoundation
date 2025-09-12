@@ -373,10 +373,11 @@ class PhoPathCore implements PhoPathInterface
      * Returns the path
      *
      * @param PhoPathInterface|string|null $from
+     * @param bool                         $from_required
      *
      * @return string
      */
-    public function getSource(PhoPathInterface|string|null $from = null): string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string
     {
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);
@@ -392,11 +393,11 @@ class PhoPathCore implements PhoPathInterface
 
             return match ($from) {
                 null       => $return,
-                'commands' => Strings::from($return, DIRECTORY_COMMANDS),
-                'data'     => Strings::from($return, DIRECTORY_DATA),
-                'root'     => Strings::from($return, DIRECTORY_ROOT),
-                'web'      => Strings::from($return, DIRECTORY_WEB),
-                default    => Strings::from($return, $from),
+                'commands' => Strings::from($return, DIRECTORY_COMMANDS, needle_required: $from_required),
+                'data'     => Strings::from($return, DIRECTORY_DATA    , needle_required: $from_required),
+                'root'     => Strings::from($return, DIRECTORY_ROOT    , needle_required: $from_required),
+                'web'      => Strings::from($return, DIRECTORY_WEB     , needle_required: $from_required),
+                default    => Strings::from($return, $from             , needle_required: $from_required),
             };
         }
 
@@ -1273,7 +1274,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
 
-        $path = $this->getAbsolute();
+        $path = $this->getAbsolute(must_exist: false);
 
         // Delete all specified patterns
         // Execute the rm command

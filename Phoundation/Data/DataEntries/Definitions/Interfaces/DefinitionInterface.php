@@ -85,7 +85,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array
      */
-    public function getSource(): array;
+    public function getDefinitionSource(): array;
 
 
     /**
@@ -96,7 +96,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+    public function setDefinitionSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**
@@ -511,7 +511,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return RenderInterface|callable|string|null
      */
-    public function getContent(): RenderInterface|callable|string|null;
+    public function getOutput(): RenderInterface|callable|string|null;
 
 
     /**
@@ -522,7 +522,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
+    public function setOutput(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
@@ -714,7 +714,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null;
+    public function getSource(): array|PDOStatement|Stringable|string|null;
 
 
     /**
@@ -727,7 +727,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
+    public function setSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
 
 
     /**

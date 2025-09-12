@@ -619,7 +619,7 @@ class Request implements RequestInterface
         $url = array_get_safe($_SERVER, 'HTTP_REFERER');
 
         if ($url) {
-            return Url::new($url)->checkDomain($allowed_domain);
+            return Url::new($url)->checkHost($allowed_domain);
         }
 
         if ($default) {
@@ -629,7 +629,7 @@ class Request implements RequestInterface
             }
 
             // Use the specified referrer
-            return Url::new($default)->checkDomain($allowed_domain)->makeWww();
+            return Url::new($default)->checkHost($allowed_domain)->makeWww();
         }
 
         // We got nothing...
@@ -664,7 +664,7 @@ class Request implements RequestInterface
 
 
     /**
-     * Return the URL for this page
+     * Returns the URL for this page
      *
      * @param bool $no_queries
      *
@@ -672,15 +672,62 @@ class Request implements RequestInterface
      */
     public static function getUrl(bool $no_queries = false): string
     {
-        if (PLATFORM_WEB) {
-            return $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Request::getUri($no_queries);
+        static $url_queries, $url_noqueries;
+
+        if ($no_queries) {
+            if (empty($url_noqueries)) {
+                if (PLATFORM_WEB) {
+                    $url_noqueries = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Request::getUri($no_queries);
+
+                } else {
+                    // This is a command line process, things like the request scheme are not available!
+                    $url_noqueries = config()->getString('web.domains.primary.web');
+                    $url_noqueries = str_replace(':LANGUAGE', Session::getLanguage(), $url_noqueries);
+                }
+            }
+
+            return $url_noqueries;
         }
 
-        // This is a command line process, things like the request scheme are not available!
-        $url = config()->getString('web.domains.primary.web');
-        $url = str_replace(':LANGUAGE', Session::getLanguage(), $url);
+        if (empty($url_queries)) {
+            if (PLATFORM_WEB) {
+                $url_queries = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . Request::getUri($no_queries);
 
-        return $url;
+            } else {
+                // This is a command line process, things like the request scheme are not available!
+                $url_queries = config()->getString('web.domains.primary.web');
+                $url_queries = str_replace(':LANGUAGE', Session::getLanguage(), $url_queries);
+            }
+        }
+
+        return $url_queries;
+    }
+
+
+    /**
+     * Returns the Url object for this page
+     *
+     * @param bool $no_queries
+     *
+     * @return UrlInterface
+     */
+    public static function getUrlObject(bool $no_queries = false): UrlInterface
+    {
+        static $url_queries, $url_noqueries;
+
+        if ($no_queries) {
+            if (empty($url_noqueries)) {
+                $url_noqueries = Url::new(Request::getUrl($no_queries));
+            }
+
+            return $url_noqueries;
+        }
+
+        if (empty($url_queries)) {
+            $url_queries = Url::new(Request::getUrl($no_queries));
+        }
+
+        return $url_queries;
     }
 
 
@@ -1393,13 +1440,11 @@ class Request implements RequestInterface
         if (static::$request_type !== EnumRequestTypes::unknown) {
             $fail = true;
 
-            // We already have a request type determined, so we already have an appropriate response object initialized
-            // as well. We cannot just change from generating a web page to returning an API output, for example, so
-            // check if the change is allowed
+            // We already have a request type determined, so we already have an appropriate response object initialized as well. We can't just change from
+            // generating a web page to returning an API output, for example, so check if the change is allowed
             switch ($request_type) {
                 case static::$request_type:
-                    // The new request type matches the initial request type, we can continue. The response won't be
-                    // reset, so we are done here
+                    // The new request type matches the initial request type, we can continue. The response won't be reset, so we're done here
                     return;
 
                 case EnumRequestTypes::system:
@@ -1568,7 +1613,7 @@ class Request implements RequestInterface
                 case EnumRequestTypes::html:
                     if (!Request::getSystem()) {
                         // Check if the user has access to the requested page, then check if the user should be force redirected
-                        Request::hasRightsOrRedirect(static::$o_parameters->getRequiredRightsForPath((string) static::$o_target));
+                        Request::hasRightsOrRedirect(Request::getUrlObject()->getRights());
                         Response::checkForceRedirect();
                     }
 
@@ -1577,7 +1622,7 @@ class Request implements RequestInterface
                 case EnumRequestTypes::ajax:
                     if (!Request::getSystem()) {
                         // Check if the user has access to the requested page
-                        Request::hasRightsOrRedirect(static::$o_parameters->getRequiredRightsForPath((string) static::$o_target));
+                        Request::hasRightsOrRedirect(Request::getUrlObject()->getRights());
                     }
 
                     break;

@@ -93,7 +93,7 @@ class Page extends DataEntry implements PageInterface
 //`is_template` tinyint DEFAULT NULL,
         $o_definitions->add(DefinitionFactory::newParentsId()
                                              ->setElement(EnumElement::select)
-                                             ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                             ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
                                                            ->getHtmlSelectOld()
                                                            ->setName($key)

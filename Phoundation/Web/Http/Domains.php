@@ -80,7 +80,7 @@ class Domains
             $domain = Request::getDomain();
 
         } else {
-            $domain = Url::new($domain)->getDomain();
+            $domain = Url::new($domain)->getHost();
         }
 
         $this->domain = strtolower($domain);
@@ -204,7 +204,7 @@ class Domains
         if (!static::$primary_web_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_web_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['web']))->getDomain();
+            static::$primary_web_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['web']))->getHost();
 
             if (!static::$primary_web_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
@@ -232,7 +232,7 @@ class Domains
         if (!static::$primary_cdn_domain) {
             // Build cache
             static::loadConfiguration();
-            static::$primary_cdn_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['cdn']))->getDomain();
+            static::$primary_cdn_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['cdn']))->getHost();
 
             if (!static::$primary_cdn_domain) {
                 // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet

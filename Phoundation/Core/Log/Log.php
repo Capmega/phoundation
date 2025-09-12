@@ -18,6 +18,7 @@ namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
+use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -1583,10 +1584,14 @@ class Log implements LogInterface
                 static::toAlternateLog('Failed to log message because: ' . $g->getMessage());
             }
 
+        } catch (ConfigParseFailedException $f) {
+            // If configuration parsing failed, just throw that exception as adding that logging failed would just confuse people about the issue
+            throw $e;
+
         } catch (Throwable $f) {
             // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
             // we won't stand for!
-            throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files')
+            throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files', $e)
                               ->addData(['original exception' => $e]);
         }
 

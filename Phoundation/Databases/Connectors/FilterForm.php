@@ -55,7 +55,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                         ->setElement(EnumElement::select)
                                                         ->setValue(isset_get($this->source['status']))
                                                         ->setKey(true, 'auto_submit')
-                                                        ->setDataSource($this->states))
+                                                        ->setSource($this->states))
 
                                         ->add($connector->getDefinitionsObject()
                                                         ->get('type'));

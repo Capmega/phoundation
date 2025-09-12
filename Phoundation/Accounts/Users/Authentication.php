@@ -464,7 +464,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
     {
         // Ensure status will be limited to the defined possible states
         $o_definitions->removeKeys('meta-divider')
-                      ->get('status')->setDataSource(static::getStatuses());
+                      ->get('status')->setSource(static::getStatuses());
 
         $o_definitions->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
@@ -506,21 +506,21 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                       ->setDisabled(true)
                                       ->setOptional(true)
                                       ->setSize(4)
-                                      ->setDataSource(static::getActions()))
+                                      ->setSource(static::getActions()))
 
                       ->add(Definition::new('platform')
                                       ->setLabel(tr('Platform'))
                                       ->setDisabled(true)
                                       ->setOptional(true)
                                       ->setSize(4)
-                                      ->setDataSource(static::getPlatforms()))
+                                      ->setSource(static::getPlatforms()))
 
                       ->add(Definition::new('method')
                                       ->setLabel(tr('Method'))
                                       ->setDisabled(true)
                                       ->setOptional(true)
                                       ->setSize(4)
-                                      ->setDataSource(static::getMethods()))
+                                      ->setSource(static::getMethods()))
 
                       ->add(DefinitionFactory::newDatabaseId('timezones_id')
                                              ->setLabel(tr('Timezone'))

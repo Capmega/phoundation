@@ -119,6 +119,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 use TypeError;
@@ -356,7 +357,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        $this->use_cache = Cache::isEnabled();
+        $this->use_cache = Cache::getEnabled();
 
         if ($identifier === false) {
             // If the identifier is false, don't automatically initialize the DataEntry object
@@ -841,6 +842,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaDefinitions(): static
     {
+        // Reset the element counter to ensure a predeictable count for counted elements
+        DefinitionFactory::resetElementCounter();
+
         $o_definitions = Definitions::new($this)
                                   ->setTable(static::getTable());
 
@@ -1437,6 +1441,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Connector classes can't be cached!
             if (!is_a($this, Connector::class)) {
                 // Try loading the DataEntry object from cache
+                // TODO This is not working correctly, if we return a different dataentry it may cause issues with parent::load() in overriding methods, etc... Fix this!
                 $o_data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache());
 
                 if ($o_data_entry) {
@@ -1607,36 +1612,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Generates and returns a unique cache key for the specified identifer / columns
-     *
-     * @param array|false|null $identifier
-     * @param array|null       $columns
-     *
-     * @return string|null
-     */
-    public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
-    {
-        if ($identifier) {
-            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode(['identifier' => $identifier, 'columns' => $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
-        }
-
-        // There is no identifier, meaning that this object is not cacheable
-        return null;
-    }
-
-
-    /**
-     * Returns a unique cache key for this DataEntry object
-     *
-     * @return string|null
-     */
-    public function getCacheKeySeed(): ?string
-    {
-        return static::generateCacheKeySeed($this->identifier, $this->columns);
-    }
-
-
-    /**
      * Tries to load (and return) this DataEntry object data from the cache layer instead of the database
      *
      * @param string|null $cache_key
@@ -1668,7 +1643,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 if (Log::passesThreshold(3)) {
                     Log::success(ts('Local cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
-//                    Log::printr($data_entry->getSourceUnprocessed(), 2, echo_header: false);
                 }
 
                 return $data_entry->setIsLoadedFromLocalCache();
@@ -1684,7 +1658,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                     if (Log::passesThreshold(3)) {
                         Log::success(ts('Global cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
-//                        Log::printr($data_entry->getSourceUnprocessed(), 2, echo_header: false);
                     }
 
                     // We didn't have this DataEntry in local cache, so save it there for future use
@@ -1739,10 +1712,40 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Cache the DataEntry and update table state if local cache is enabled and this DataEntry didn't come from local cache
         if ($this->getUseLocalCache()) {
-            LocalCache::set($this, static::class, $this->getCacheKey());
+            LocalCache::set($this, static::class, $cache_key);
         }
 
         return $this;
+    }
+
+
+    /**
+     * Generates and returns a unique cache key for the specified identifer / columns
+     *
+     * @param array|false|null $identifier
+     * @param array|null       $columns
+     *
+     * @return string|null
+     */
+    public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
+    {
+        if ($identifier) {
+            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode([Request::getUrl(), $identifier, $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
+        }
+
+        // There is no identifier, meaning that this object is not cacheable
+        return null;
+    }
+
+
+    /**
+     * Returns a unique cache key for this DataEntry object
+     *
+     * @return string|null
+     */
+    public function getCacheKeySeed(): ?string
+    {
+        return static::generateCacheKeySeed($this->identifier, $this->columns);
     }
 
 
@@ -1788,7 +1791,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         LocalCache::delete('dataentries', $this->getCacheKey());
 
         // Cache the DataEntry and update table state
-        if (Cache::isEnabled()) {
+        if (Cache::getEnabled()) {
             // Connector objects CANNOT be cached
             if (!is_a($this, Connector::class)) {
                 cache('dataentries')->delete($this->getCacheKey());
@@ -3282,8 +3285,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $this->copyValuesToSource($data_source, true, false, true);
 
         } else {
-            // Validate data and copy data into the source array
-            $data_source = $this->validateSource($data_source, $require_clean_source, true);
+            try {
+                // Validate data and copy data into the source array
+                $data_source = $this->validateSource($data_source, $require_clean_source, true);
+
+            } catch (DataEntryNotInitializedException $e) {
+                throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                    ':class' => static::class
+                ]), $e);
+            }
 
             if ($this->debug) {
                 Log::dump('VALIDATED DATA', echo_header: false);
@@ -3357,6 +3367,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This data entry won't validate data, just continue.
             return $o_validator->getSource();
         }
+
+        $this->checkDefinitionsObject(action: 'validation');
 
         // Set what prefix to use
         $prefix = $use_prefix ? $this->getDefinitionsObject()->getPrefix() : null;
@@ -4050,7 +4062,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $o_element_definition                             = $value->getDefinitionObject()->setContent($value);
+        $o_element_definition                             = $value->getDefinitionObject()->setOutput($value);
         $this->source[$o_element_definition->getColumn()] = null;
 
         try {
@@ -4066,15 +4078,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Apply specified definitions as well
             if ($o_definition instanceof DefinitionInterface) {
                 $o_definition->setColumn($o_element_definition->getColumn());
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($o_definition->getSource());
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($o_definition->getDefinitionSource());
 
             } else {
                 // Merge the specified definitions over the existing one
                 $o_definition = Arrays::removeKeys($o_definition, 'column');
-                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getSource();
+                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getDefinitionSource();
                 $rules        = array_merge($rules, $o_definition);
 
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($rules);
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($rules);
             }
         }
 
@@ -4893,6 +4905,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                      ->setTableState();
             }
 
+        } catch (DataEntryNotInitializedException $e) {
+            throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                ':class' => static::class
+            ]), $e);
+
         } catch (SqlContstraintDuplicateEntryException $e) {
             // The unique identifier for the entry being added already exists
             throw new DataEntryExistsException(tr('Cannot save ":class" DataEntry, another entry with the unique column ":column" value ":value" for this object already exists', [
@@ -5186,6 +5203,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
+                            ->setUseCache($this->getUseCache())
                             ->setDataEntryObject($this)
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)

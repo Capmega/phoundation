@@ -21,6 +21,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
@@ -140,7 +141,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDatabases(array|string $databases): static
     {
         $this->databases = Arrays::force($databases);
-
         return $this;
     }
 
@@ -172,7 +172,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDisableKeys(bool $disable_keys): static
     {
         $this->disable_keys = $disable_keys;
-
         return $this;
     }
 
@@ -200,7 +199,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setRoutines(bool $routines): static
     {
         $this->routines = $routines;
-
         return $this;
     }
 
@@ -228,7 +226,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setEvents(bool $events): static
     {
         $this->events = $events;
-
         return $this;
     }
 
@@ -254,7 +251,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setCreateDatabases(bool $create_databases): static
     {
         $this->create_databases = $create_databases;
-
         return $this;
     }
 
@@ -308,7 +304,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setExtendedInsert(bool $extended_insert): static
     {
         $this->extended_insert = $extended_insert;
-
         return $this;
     }
 
@@ -336,7 +331,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setComments(bool $comments): static
     {
         $this->comments = $comments;
-
         return $this;
     }
 
@@ -362,7 +356,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setDumpDate(bool $dump_date): static
     {
         $this->dump_date = $dump_date;
-
         return $this;
     }
 
@@ -388,7 +381,6 @@ class MysqlDump extends Command implements MysqlDumpInterface
     public function setGzip(bool $gzip): static
     {
         $this->gzip = $gzip;
-
         return $this;
     }
 
@@ -405,7 +397,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
     {
         if (!$file) {
             // Generate default file
-            $file  = Core::getProjectSeoName() . '/mysql/' . Core::getProjectSeoName();
+            $file  = Project::getSeoFullName() . '/mysql/' . Project::getSeoFullName();
             $file .= PhoDateTime::new()->format('Ymd-His') . '.sql' . ($this->gzip ? '.gz' : null);
             $file  = new PhoFile($file);
 

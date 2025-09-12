@@ -28,7 +28,7 @@ interface UploadHandlerInterface
      *
      * @return callable
      */
-    public function getFunction(): callable;
+    public function getFileCallback(): callable;
 
     /**
      * Sets the handler function for this file
@@ -37,7 +37,7 @@ interface UploadHandlerInterface
      *
      * @return static
      */
-    public function setFunction(callable $function): static;
+    public function setFileCallback(callable $function): static;
 
     /**
      * Clears all currently existing validation functions for this definition

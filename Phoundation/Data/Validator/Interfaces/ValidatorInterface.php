@@ -1459,11 +1459,18 @@ interface ValidatorInterface extends IteratorBaseInterface
     public function valueExists(mixed $value, bool $strict = true): bool;
 
     /**
-     * Makes the current field a boolean value
+     * Makes the current field a datetime value
      *
-     * This method ensures that the specified array key is a boolean
+     * This method ensures that the specified array key is a datetime
      *
      * @return static
      */
     public function sanitizeToDateTime(): static;
+
+    /**
+     * This method will allow skipping validation of data at the cost of an Incident report
+     *
+     * @return static
+     */
+    public function skipValidation(): static;
 }

@@ -16,22 +16,43 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
+use Phoundation\Developer\Project\Project;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
 class SignInPage extends Page
 {
     /**
-     * LostPasswordPage class constructor
+     * Renders and returns the HTML for this object
      *
-     * @param string|null $name
+     * @return string|null
      */
-    public function __construct(?string $name = null) {
+    public function render(): ?string
+    {
         // This page must build its own body
         // Set page meta-data
         Response::setRenderMainWrapper(false);
         Response::setPageTitle(tr('Please sign in'));
 
-        parent::__construct($name);
+        $this->setSection(Anchor::new(Project::getOwnerUrl())
+                                ->setClass('h1')
+                                ->setContent(Project::getOwnerLabel(), false)
+                                ->setRenderRightsFail(EnumAnchorRenderRightsFail::full), 'card-header')
+             ->setSection(Anchor::new(Url::new('lost-password'))
+                                ->setContent(tr('text-center'))
+                                ->setContent(tr('I forgot my password'))
+                                ->setRenderRightsFail(EnumAnchorRenderRightsFail::full), 'lost-password');
+
+        $this->setEnabled(true, 'email')
+             ->setEnabled(true, 'copyright')
+             ->setEnabled(true, 'lost-password');
+
+        $this->setUrl(Url::new('lost-password')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email'), 'lost-password')
+             ->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                              , 'image-background');
+
+        return parent::render();
     }
 }

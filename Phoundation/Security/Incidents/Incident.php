@@ -593,7 +593,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setSize(6)
                                     ->setMaxLength(6)
-                                    ->setDataSource([
+                                    ->setSource([
                                         EnumSeverity::notice->value  => tr('Notice'),
                                         EnumSeverity::low->value     => tr('Low'),
                                         EnumSeverity::medium->value  => tr('Medium'),

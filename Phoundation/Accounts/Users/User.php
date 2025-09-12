@@ -90,6 +90,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -841,8 +842,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
                         ->setMessage(tr('The multi-factor authentication for your account :account on the website :website has been updated. If this was not you, please contact the administrator at :email.', [
                             ':account' => Session::getUserObject()->getEmail(),
-                            ':website' => config()->getString('project.name' , 'Phoundation'),
-                            ':email'   => config()->getString('project.email', 'webmaster@' . Domains::getPrimaryWeb()),
+                            ':website' => Project::getFullName(),
+                            ':email'   => Project::getEmail(),
                         ]))
                         ->save()
                         ->send();
@@ -1073,13 +1074,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
             $this->notify()
                  ?->setTitle(tr('An account has been created for you on :project', [
-                     ':project' => config()->getString('project.name', 'Phoundation')
+                     ':project' => Project::getFullName()
                  ]))
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
                      ':link'    => Anchor::new($key->getUrl(), tr('here')),
                      ':user'    => Session::getUserObject()->getDisplayName(),
-                     ':project' => config()->getString('project.name', 'Phoundation'),
+                     ':project' => Project::getFullName(),
                  ]))
                  ->save()
                  ->send();
@@ -1100,7 +1101,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         $this->notify()?->setTitle(tr('Your :project account has been modified', [
-                            ':project' => config()->getString('project.name', 'Phoundation')
+                            ':project' => Project::getFullName()
                         ]))
                         ->setMessage($message)
                         ->save()
@@ -3012,7 +3013,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-g,--gender')
-                                    ->setDataSource([
+                                    ->setSource([
                                         ''       => tr('Select a gender'),
                                         'male'   => tr('Male'),
                                         'female' => tr('Female'),
@@ -3102,14 +3103,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                         $o_validator->isInteger();
                                     }))
 
-                    ->add(DefinitionFactory::newDate('birthdate')
+                    ->add(DefinitionFactory::newDateTime('birthdate')
                                            ->setLabel(tr('Birthdate'))
                                            ->setCliColumn('-b,--birthdate')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isDate()
-                                                         ->isBefore(PhoDateTime::new(), true);
+                                               $o_validator->sanitizeToDateTime()
+                                                           ->isBefore(PhoDateTime::new(), true)
+                                                           ->sanitizeTransform(function ($value, $source, $o_validator) {
+                                                               return $value?->format('Y-m-d');
+                                                           });
                                            }))
 
                     ->add(DefinitionFactory::newPhone()
@@ -3273,7 +3277,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
-                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
+                                           ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))

@@ -45,7 +45,7 @@ trait TraitDataEntryAccountType
 
         if ($account_type) {
             if (is_string($account_type)) {
-                $account_type = EnumAccountType::from($account_type)->value;
+                $account_type = EnumAccountType::from($account_type);
             }
 
             $account_type = $account_type->value;

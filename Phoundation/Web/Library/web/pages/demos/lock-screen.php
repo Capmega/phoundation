@@ -38,8 +38,8 @@ Response::setRenderMainWrapper(false);
 <div class="lockscreen-wrapper card card-outline card-info">
     <div class="card-header text-center">
         <div class="lockscreen-logo">
-            <?= AnchorBlock::new(config()->getString('project.customer-url', 'https://phoundation.org'))
-                           ->setContent(config()->getString('project.owner.label', '<span>Medi</span>web'), false)
+            <?= AnchorBlock::new(Project::getOwnerUrl())
+                           ->setContent(Project::getOwnerLabel(), false)
                            ->setClass('h1') .
                 tr('Screen is locked');
             ?>
@@ -91,7 +91,7 @@ Response::setRenderMainWrapper(false);
             ?>
         </div>
         <div class="lockscreen-footer text-center">
-            <?= Project::getCopyright() ?>
+            <?= Project::getCopyrightString() ?>
         </div>
     </div>
 </div>

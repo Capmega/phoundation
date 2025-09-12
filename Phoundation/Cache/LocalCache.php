@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Cache;
 
 use Phoundation\Cache\Exception\CacheInvalidException;
+use Phoundation\Cache\Exception\CacheKeysInvalidException;
 use Phoundation\Cache\Exception\CacheNotFoundException;
 use Phoundation\Cache\Traits\TraitCacheStatistics;
 use Phoundation\Core\Log\Log;
@@ -63,18 +64,19 @@ class LocalCache
         if ($sub_key === null) {
             $value = &static::$cache[$sub_key];
             unset(static::$cache[$sub_key]);
-            Log::warning(ts('Local cache delete key ":key"', [':key' => $key]), 2);
 
+            Log::warning(ts('Local cache delete key ":key"', [':key' => $key]), 2);
             return $value;
         }
 
         if (array_key_exists($key, static::$cache)) {
             $section = &static::$cache[$key];
+
             if (array_key_exists($sub_key, $section)) {
                 $value = $section[$sub_key];
                 unset($section[$sub_key]);
-                Log::warning(ts('Local cache delete key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
 
+                Log::warning(ts('Local cache delete key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
                 return $value;
             }
         }
@@ -96,7 +98,11 @@ class LocalCache
      */
     public static function getOrGenerate(callable $callback, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): mixed
     {
-        $return = static::get($key, $sub_key);
+        $return = null;
+
+        if (Cache::getEnabled()) {
+            $return = static::get($key, $sub_key);
+        }
 
         if ($return === null) {
             // Entry doesn't exist, generate it now
@@ -129,7 +135,11 @@ class LocalCache
      */
     public static function getOrGenerateFromList(callable $callback, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key, bool $exception = false, ?string $datatype = null): mixed
     {
-        $return = static::get($key, $sub_key);
+        $return = null;
+
+        if (Cache::getEnabled()) {
+            $return = static::get($key, $sub_key);
+        }
 
         if ($return === null) {
             // Entry doesn't exist, generate the list now, the entry SHOULD be in there somewhere
@@ -149,8 +159,12 @@ class LocalCache
             }
 
             // Place the entire list in cache, then use InstanceCache::get() to return value.
-            static::set($return, $key);
-            return static::get($key, $sub_key, $exception);
+            if (Cache::getEnabled()) {
+                static::setList($return, $key);
+                return static::get($key, $sub_key, $exception);
+            }
+
+            return array_get_safe($return, $sub_key);
         }
 
         return $return;
@@ -169,6 +183,10 @@ class LocalCache
      */
     public static function get(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null, bool $exception = false, ?string $datatype = null): mixed
     {
+        if (!Cache::getEnabled()) {
+            return null;
+        }
+
         static::$cache_lookups++;
 
         $return = null;
@@ -186,10 +204,14 @@ class LocalCache
                 $sub_key = (string) $sub_key;
 
                 if (!is_array(static::$cache[$key])) {
-                    throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" as ":key" is a non array value by itself', [
+                    throw CacheInvalidException::new(tr('Cannot access LocalCache keys ":key, :sub_key" as key ":key" is a non array value by itself', [
                         ':key'     => $key,
                         ':sub_key' => $sub_key
-                    ]));
+                    ]))->setData([
+                        'key'     => $key,
+                        'sub_key' => $sub_key,
+                        'value'   => static::$cache[$key]
+                    ]);
                 }
 
                 if (array_key_exists($sub_key, static::$cache[$key])) {
@@ -201,7 +223,7 @@ class LocalCache
                 if ($datatype) {
                     // Validate datatype
                     if (gettype($return) !== $datatype) {
-                        throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" because the datatype is invalid, expected ":datatype" but got ":type"', [
+                        throw new CacheInvalidException(tr('Cannot access LocalCache keys ":key, :sub_key" because the datatype is invalid, expected ":datatype" but got ":type"', [
                             ':key'      => $key,
                             ':sub_key'  => $sub_key,
                             ':datatype' => $datatype,
@@ -213,7 +235,7 @@ class LocalCache
                 static::$cache_hits++;
 
                 if (Log::isReady()) {
-                    Log::success(ts('Local cache hit for key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
+                    Log::success(ts('Local cache hit (get) for key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
                 }
 
                 return $return;
@@ -271,6 +293,10 @@ class LocalCache
      */
     public static function exists(Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): bool
     {
+        if (!Cache::getEnabled()) {
+            return false;
+        }
+
         static::$cache_lookups++;
 
         if (!LocalCache::checkKeys($key, $sub_key)) {
@@ -282,7 +308,7 @@ class LocalCache
 
             if ($sub_key === null) {
                 if (Log::isReady()) {
-                    Log::success(ts('Local cache hit for key ":key"', [':key' => $key]), 2);
+                    Log::success(ts('Local cache hit (exists) for key ":key"', [':key' => $key]), 2);
                 }
 
                 return true;
@@ -291,10 +317,14 @@ class LocalCache
             $sub_key = (string) $sub_key;
 
             if (!is_array($section)) {
-                throw new CacheInvalidException(tr('Cannot access cache keys ":key, :sub_key" as ":key" is a non array value by itself', [
+                throw CacheInvalidException::new(tr('Cannot access LocalCache keys ":key, :sub_key" as key ":key" is a non array value by itself', [
                     ':key'     => $key,
                     ':sub_key' => $sub_key
-                ]));
+                ]))->setData([
+                    'key'     => $key,
+                    'sub_key' => $sub_key,
+                    'value'   => $section
+                ]);
             }
 
             if (array_key_exists($sub_key, $section)) {
@@ -303,7 +333,7 @@ class LocalCache
                 static::$cache_hits++;
 
                 if (Log::isReady()) {
-                    Log::success(ts('Local cache hit for key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
+                    Log::success(ts('Local cache (exists) hit for key ":key / :sub_key"', [':key' => $key, ':sub_key' => $sub_key]), 2);
                 }
 
                 return true;
@@ -322,6 +352,10 @@ class LocalCache
      */
     public static function getLastChecked(): mixed
     {
+        if (!Cache::getEnabled()) {
+            return null;
+        }
+
         return static::$last_checked;
     }
 
@@ -329,23 +363,23 @@ class LocalCache
     /**
      * Stores the specified value in the cache with the given key / sub_key and will return the value
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|float|int|null $sub_key
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $sub_key
      *
      * @return mixed
      */
-    public static function set(mixed $value, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): mixed
+    public static function set(mixed $value, Stringable|string|float|int $key, Stringable|string|float|int $sub_key): mixed
     {
-        if (!LocalCache::checkKeys($key, $sub_key)) {
-            return false;
-        }
-
         $key = (string) $key;
 
-        if ($sub_key === null) {
-            static::$cache[$key] = $value;
-            return $value;
+        if (empty($sub_key)) {
+            throw CacheKeysInvalidException::new(tr('Cannot set LocalCache data with key ":key", the required subkey was empty', [
+                ':key' => $key
+            ]))->setData([
+                'key'   => $key,
+                'value' => $value
+            ]);
         }
 
         if (!array_key_exists($key, static::$cache)) {
@@ -353,6 +387,21 @@ class LocalCache
         }
 
         static::$cache[$key][(string) $sub_key] = $value;
+        return $value;
+    }
+
+
+    /**
+     * Stores the specified value in the cache with the given key / sub_key and will return the value
+     *
+     * @param mixed                       $value
+     * @param Stringable|string|float|int $key
+     *
+     * @return mixed
+     */
+    protected static function setList(mixed $value, Stringable|string|float|int $key): mixed
+    {
+        static::$cache[(string) $key] = $value;
         return $value;
     }
 
@@ -366,6 +415,10 @@ class LocalCache
      */
     public static function getSectionSubCount(Stringable|string|float|int|null $key): int
     {
+        if (!Cache::getEnabled()) {
+            return -1;
+        }
+
         if (array_key_exists($key, static::$cache)) {
             return count(static::$cache[$key]);
         }
@@ -383,6 +436,10 @@ class LocalCache
      */
     public static function getSectionCount(): int
     {
+        if (!Cache::getEnabled()) {
+            return -1;
+        }
+
         return count(static::$cache);
     }
 
@@ -394,6 +451,10 @@ class LocalCache
      */
     public static function getCount(): int
     {
+        if (!Cache::getEnabled()) {
+            return -1;
+        }
+
         $count = 0;
 
         foreach (static::$cache as $value) {
@@ -411,6 +472,10 @@ class LocalCache
      */
     public static function getEfficiency(): float
     {
+        if (!Cache::getEnabled()) {
+            return -1;
+        }
+
         // Avoid division by 0
         if (static::$cache_lookups) {
             return (static::$cache_hits / static::$cache_lookups) * 100;
@@ -439,6 +504,10 @@ class LocalCache
      */
     public function getKeys(): array
     {
+        if (!Cache::getEnabled()) {
+            return [];
+        }
+
         return array_keys(static::$cache);
     }
 
@@ -453,6 +522,10 @@ class LocalCache
      */
     public function getSubKeys(Stringable|string|float|int|null $key, bool $exception = false): ?array
     {
+        if (!Cache::getEnabled()) {
+            return null;
+        }
+
         if (!array_key_exists($key, static::$cache)) {
             return array_keys(static::$cache);
         }

@@ -241,7 +241,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      */
     public function __toString(): string
     {
-        return $this->getPoadString();
+        return $this->getPoadString(true);
     }
 
 
