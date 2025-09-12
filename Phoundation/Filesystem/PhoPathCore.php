@@ -1274,7 +1274,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
 
-        $path = $this->getAbsolute();
+        $path = $this->getAbsolute(must_exist: false);
 
         // Delete all specified patterns
         // Execute the rm command
