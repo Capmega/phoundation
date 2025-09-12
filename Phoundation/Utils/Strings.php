@@ -33,6 +33,7 @@ use StephenHill\Base58;
 use Stringable;
 use Throwable;
 
+
 class Strings extends Utils
 {
     /**
