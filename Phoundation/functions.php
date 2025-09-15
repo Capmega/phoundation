@@ -24,6 +24,7 @@ use Phoundation\Cache\Cache;
 use Phoundation\Cache\Enums\EnumCacheGroups;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
@@ -73,6 +74,33 @@ function is_empty(mixed $value): bool
     }
 
     return false;
+}
+
+
+/**
+ * Returns a realpath() version from the specified path, but ensures it will return an existing directory
+ *
+ * @param string $path
+ *
+ * @return string
+ */
+function realpath_safe(string $path): string
+{
+    $return = realpath($path);
+
+    if ($return) {
+        return $path . '/';
+    }
+
+    if (file_exists($path)) {
+        throw new CoreException(tr('The function realpath() for path ":path" failed for unknown reasons', [
+            ':path' => $path
+        ]));
+    }
+
+    throw new CoreException(tr('Cannot get realpath() for path ":path", it does not exist', [
+        ':path' => $path
+    ]));
 }
 
 
