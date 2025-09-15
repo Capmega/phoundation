@@ -89,7 +89,11 @@ function realpath_safe(string $path): string
     $return = realpath($path);
 
     if ($return) {
-        return $path . '/';
+        if (is_dir($path)) {
+            return $path . '/';
+        }
+
+        return $path;
     }
 
     if (file_exists($path)) {
