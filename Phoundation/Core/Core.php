@@ -418,7 +418,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , realpath_safe(DIRECTORY_DATA . 'content/cdn') . '/');
+        define('DIRECTORY_CDN'        , realpath_safe(DIRECTORY_DATA . 'content/cdn'));
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -426,8 +426,8 @@ class Core implements CoreInterface
         define('DIRECTORY_WEB'        , DIRECTORY_SYSTEM . 'cache/system/web/');
         define('DIRECTORY_CRON'       , DIRECTORY_SYSTEM . 'cache/system/cron/');
         define('DIRECTORY_TESTS'      , DIRECTORY_SYSTEM . 'cache/system/Tests/');
-        define('DIRECTORY_PLUGINS'    , realpath_safe(DIRECTORY_ROOT . 'Plugins') . '/');
-        define('DIRECTORY_PHOUNDATION', realpath_safe(__DIR__ . '/..') . '/');
+        define('DIRECTORY_PLUGINS'    , realpath_safe(DIRECTORY_ROOT . 'Plugins'));
+        define('DIRECTORY_PHOUNDATION', realpath_safe(__DIR__ . '/..'));
     }
 
 
