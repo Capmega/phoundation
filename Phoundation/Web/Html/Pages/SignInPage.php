@@ -18,6 +18,7 @@ namespace Phoundation\Web\Html\Pages;
 
 use Phoundation\Developer\Project\Project;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -39,7 +40,8 @@ class SignInPage extends Page
 
         $this->setSection(Anchor::new(Project::getOwnerUrl())
                                 ->setClass('h1')
-                                ->setContent(Project::getOwnerLabel(), false)
+                                ->setContent(Img::new('logos/large.jpg')
+                                                ->setAlt(tr(':owner logo', [':owner' => Project::getOwnerName()])), false)
                                 ->setRenderRightsFail(EnumAnchorRenderRightsFail::full), 'card-header')
              ->setSection(Anchor::new(Url::new('lost-password'))
                                 ->setContent(tr('text-center'))

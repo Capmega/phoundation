@@ -2009,7 +2009,12 @@ class Url implements UrlInterface
      */
     public function getRightsExceptions(): array
     {
-        return config()->getArray('security.web.pages.rights.exceptions', ['>/sign-key.', '>/sign-in.', '>/sign-out.', '>/force-password-update.', '>/lost-password.', '>/public/']);
+        return config()->getArray('security.web.pages.rights.exceptions', [
+            '>/sign-',
+            '>/force-password-update.',
+            '>/lost-password.',
+            '>/public/'
+        ]);
     }
 
 
