@@ -18,7 +18,6 @@ namespace Phoundation\Developer\Project;
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
-use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
@@ -1377,6 +1376,23 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
         if (empty($return)) {
             $return = Project::getOwnerName() . '_' . Project::getName();
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getHumanReadableFullName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = Strings::capitalize(Project::getOwnerName()) . ' ' . Strings::capitalize(Project::getName());
         }
 
         return $return;
