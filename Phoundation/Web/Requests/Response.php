@@ -483,7 +483,7 @@ class Response implements ResponseInterface
             static::$header_title = get_null((string) $header_title);
 
             if (!static::$page_title) {
-                static::$page_title = Project::getFullName() . ' - ' . $header_title;
+                static::$page_title = Project::getHumanReadableFullName() . ' - ' . $header_title;
             }
         }
     }
