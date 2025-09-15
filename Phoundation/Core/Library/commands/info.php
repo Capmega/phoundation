@@ -73,7 +73,7 @@ $templates = Libraries::listLibraries(false, false, true);
 Log::cli(CliColor::apply(Strings::size(tr('Framework name:'), 30), 'white') . ' ' . 'PHOUNDATION');
 Log::cli(CliColor::apply(Strings::size(tr('Framework version:'), 30), 'white') . ' ' . Core::PHOUNDATION_VERSION);
 Log::cli(CliColor::apply(Strings::size(tr('Database version:'), 30), 'white') . ' ' . Version::getString(Libraries::getMaximumVersion()));
-Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 30), 'white') . ' ' . Project::getFullName());
+Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 30), 'white') . ' ' . Project::getHumanReadableFullName());
 Log::cli(CliColor::apply(Strings::size(tr('Project version:'), 30), 'white') . ' ' . Project::getVersion());
 Log::cli(CliColor::apply(Strings::size(tr('PHP required minimum version:'), 30), 'white') . ' ' . Core::PHP_MINIMUM_VERSION);
 Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 30), 'white') . ' ' . PLATFORM);
