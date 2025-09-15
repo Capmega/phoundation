@@ -74,11 +74,11 @@ class Audio extends PhoFile
     {
         if (config()->getBoolean('audio.local.enabled', true)) {
             if (!defined('NOAUDIO') or !NOAUDIO) {
-                $directory = new PhoDirectory(DIRECTORY_CDN . LANGUAGE . '/phoundation/audio', PhoRestrictions::newDataObject());
+                $directory = new PhoDirectory(DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/audio', PhoRestrictions::newDataObject());
 
                 if (!$directory->exists()) {
                     // No language / project specific audio directory found, fall back to english / phoundation
-                    $directory = new PhoDirectory(DIRECTORY_CDN . '/en/phoundation/audio', PhoRestrictions::newDataObject());
+                    $directory = new PhoDirectory(DIRECTORY_CDN . 'en/' . Project::getSeoFullName() . '/audio', PhoRestrictions::newDataObject());
                 }
 
                 try {
