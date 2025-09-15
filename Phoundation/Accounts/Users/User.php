@@ -960,7 +960,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
                     try {
-                        $o_roles->add(Role::new()->load($role));
+                        $o_roles->add(Role::new()->loadOrThis($role)->save());
 
                     } catch (DataEntryNotExistsException $e) {
                         // Oh noes! This default role does not exist!

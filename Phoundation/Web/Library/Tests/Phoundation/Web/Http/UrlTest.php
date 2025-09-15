@@ -32,4 +32,25 @@ class UrlTest extends TestCase
         $url = Url::newCurrent();
         $this->assertEquals('http://tracking.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
     }
+
+    /**
+     * Tests Url::new()
+     *
+     * @return void
+     */
+    public function testNew()
+    {
+        $url_1 = Url::new();
+        $this->assertNull($url_1->getSource());
+
+        $url_2 = Url::new('test');
+        $this->assertEquals('test', $url_2->getSource());
+
+        $domain = 'http://tracking.medinet.ca.local';
+        $url_3 = Url::new($domain);
+        $this->assertEquals($domain, $url_3->getSource());
+
+        $url_4 = Url::new($url_3);
+        $this->assertEquals($domain, $url_4->getSource());
+    }
 }
