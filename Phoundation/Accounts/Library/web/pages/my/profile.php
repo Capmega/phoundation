@@ -164,8 +164,8 @@ $relevant = Card::new()
                 ->setContent(AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
                              AnchorBlock::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics')) .
                              AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
-                             AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')));
-                           //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')) .
+                             AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')) .
+                             hr(AnchorBlock::new(Url::new('/profiles/profile+' . $user->getId(false) . '.html')->makeWww(), tr('My public profile page'))));
 
 
 // Build documentation
