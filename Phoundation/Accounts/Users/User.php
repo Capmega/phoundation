@@ -842,7 +842,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
                         ->setMessage(tr('The multi-factor authentication for your account :account on the website :website has been updated. If this was not you, please contact the administrator at :email.', [
                             ':account' => Session::getUserObject()->getEmail(),
-                            ':website' => Project::getFullName(),
+                            ':website' => Project::getHumanReadableFullName(),
                             ':email'   => Project::getEmail(),
                         ]))
                         ->save()
@@ -1074,13 +1074,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
             $this->notify()
                  ?->setTitle(tr('An account has been created for you on :project', [
-                     ':project' => Project::getFullName()
+                     ':project' => Project::getHumanReadableFullName()
                  ]))
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
                      ':link'    => Anchor::new($key->getUrl(), tr('here')),
                      ':user'    => Session::getUserObject()->getDisplayName(),
-                     ':project' => Project::getFullName(),
+                     ':project' => Project::getHumanReadableFullName(),
                  ]))
                  ->save()
                  ->send();
@@ -1101,7 +1101,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         $this->notify()?->setTitle(tr('Your :project account has been modified', [
-                            ':project' => Project::getFullName()
+                            ':project' => Project::getHumanReadableFullName()
                         ]))
                         ->setMessage($message)
                         ->save()
@@ -2577,7 +2577,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function notify(): ?NotificationInterface
     {
         if ($this->notifications_enabled) {
-            return Notification::new()->setUserObject($this);
+            // On non-production environments, the user must have the right ENVIRONMENT (as in, whatever the environment name is) to be able to receive
+            // notifications
+            if (Core::isProductionEnvironment() or $this->hasAllRights(ENVIRONMENT)) {
+                return Notification::new()->setUserObject($this);
+            }
         }
 
         return null;

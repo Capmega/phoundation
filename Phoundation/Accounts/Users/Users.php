@@ -550,7 +550,7 @@ class Users extends DataIterator implements UsersInterface
             // Filter out test, developer, and demo users
             $this->getQueryBuilderObject()
                  ->addJoin('LEFT JOIN `accounts_users_rights`
-                            ON        `accounts_users_rights`.`name` IN ("developer", "test", "demo")
+                            ON        `accounts_users_rights`.`name` IN ("developer", "' . ENVIRONMENT . '")
                               AND     `accounts_users_rights`.`users_id` = `accounts_users`.`id`')
                 ->addWhere('`accounts_users_rights`.`name` IS NULL');
         }
