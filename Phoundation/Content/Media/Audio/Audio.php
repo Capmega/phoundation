@@ -19,6 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataLogLevel;
 use Phoundation\Data\Traits\TraitDataSignal;
 use Phoundation\Data\Traits\TraitDataTimeout;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -51,7 +52,7 @@ class Audio extends PhoFile
     public function __construct(Stringable|string|null $source = null, bool|PhoRestrictionsInterface|null $restrictions = null, bool|Stringable|string|null $absolute_prefix = false)
     {
         if (!$source instanceof PhoPathInterface) {
-            $source = PhoFile::new($source, $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_CDN . LANGUAGE . '/phoundation/audio'), DIRECTORY_CDN . LANGUAGE . '/phoundation/audio');
+            $source = PhoFile::new($source, $restrictions ?? PhoRestrictions::newReadonlyObject(DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/audio'), DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/audio');
         }
 
         parent::__construct($source, $restrictions, $absolute_prefix);
