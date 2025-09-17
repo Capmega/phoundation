@@ -198,8 +198,8 @@ class SqlDataEntry implements SqlDataEntryInterface
                         $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $update = $this->o_data_entry->getSqlColumns(false);
-                    $insert = $this->o_data_entry->getSqlColumns(true);
+                    $update = $this->o_data_entry->getSqlSource(false);
+                    $insert = $this->o_data_entry->getSqlSource(true);
 
                     // With these queries always do add the id column
                     $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
@@ -212,14 +212,14 @@ class SqlDataEntry implements SqlDataEntryInterface
                         $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
                     }
 
-                    $insert = $this->o_data_entry->getSqlColumns(true);
+                    $insert = $this->o_data_entry->getSqlSource(true);
                     $insert = Arrays::prepend($insert, $this->id_column, $random_id);
 
                     return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
                 }
 
                 // EXISTING ENTRY, UPDATE
-                return $this->update($this->o_data_entry->getSqlColumns(false), $comments, $this->o_data_entry->getDiff());
+                return $this->update($this->o_data_entry->getSqlSource(false), $comments, $this->o_data_entry->getDiff());
 
             } catch (SqlException $e) {
                 if ($e->getCode() !== 1062) {
@@ -370,7 +370,7 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         // Log meta_id action
         if ($this->o_data_entry->isMetaColumn('meta_id')) {
-            if ($this->meta_enabled) {
+            if ($this->getMetaEnabled()) {
                 Meta::get($row['meta_id'])
                     ->action($meta_action, $comments, $diff);
             }
@@ -552,7 +552,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         }
 
         // Update the meta data
-        if ($this->meta_enabled) {
+        if ($this->getMetaEnabled()) {
             Meta::get($entry->getMetaId(), false)
                 ->action(tr('Changed status'), $comments, Json::encode([
                     'status' => $status,
@@ -562,9 +562,11 @@ class SqlDataEntry implements SqlDataEntryInterface
         // Update the row status
         $this->sql->setDebug($this->debug)
                          ->query('UPDATE `' . $this->table . '`
-                                  SET     `status`                   = :status
+                                  SET     `status`                   = :status,
+                                          `meta_state`               = :meta_state
                                   WHERE   `' . $this->id_column . '` = :' . $this->id_column, [
                                       ':status'              => $status,
+                                      ':meta_state'          => $entry->getMetaState(),
                                       ':' . $this->id_column => $entry->getId(),
                          ]);
 

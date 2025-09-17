@@ -52,10 +52,10 @@ abstract class Input extends Element implements InputInterface, ValueInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
         $this->o_attributes = $this->renderInputAttributes()->appendSource($this->o_attributes);
-        return parent::renderAttributesArray();
+        return parent::renderAttributesIteratorObject();
     }
 
 
@@ -87,6 +87,7 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     {
         // Copy data used for input controls
         return parent::setDefinitionObject($o_definition)
+                     ->setRequired($o_definition->getRequired(false))
                      ->setHidden($o_definition->getHidden())
                      ->setAutoSubmit($o_definition->getAutoSubmit());
     }

@@ -28,6 +28,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -36,6 +37,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Roles extends DataIterator implements RolesInterface
 {
     /**
@@ -43,8 +45,9 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(RoleInterface::class)
-             ->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
+        parent::__construct($source);
+
+        $this->getQueryBuilderObject()->addSelect('`accounts_roles`.`id`, 
                                                    `accounts_roles`.`seo_name`, 
                                                    `accounts_roles`.`description`,
                                                    CONCAT(
@@ -61,11 +64,9 @@ class Roles extends DataIterator implements RolesInterface
                                                  ON   `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
                                       ->addJoin('JOIN `accounts_rights`
                                                  ON   `accounts_rights`.`id`             = `accounts_roles_rights`.`rights_id`')
-                                      ->addWhere('`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted"')
+                                      ->addWhere('(`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted")')
                                       ->addGroupBy('`accounts_roles`.`id`')
                                       ->addOrderBy('`accounts_roles`.`name`');
-
-        parent::__construct($source);
     }
 
 
@@ -312,7 +313,7 @@ class Roles extends DataIterator implements RolesInterface
         }
 
         if (is_array($needles)) {
-            // Add multiple rights
+            // Remove multiple rights
             foreach ($needles as $needle) {
                 $this->removeKeys($needle, $strict);
             }
@@ -332,8 +333,14 @@ class Roles extends DataIterator implements RolesInterface
                     'roles_id' => $o_role->getId(),
                 ]);
 
+                $o_rights = $o_role->getRightsObject();
+
+                // Delete this role from the internal list
+                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
+
                 // Remove the rights related to this role
-                foreach ($o_role->getRightsObject() as $o_right) {
+                foreach ($o_rights as $o_right) {
+
                     // Ensure this right isn't also given by another role
                     foreach ($o_right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
@@ -344,9 +351,6 @@ class Roles extends DataIterator implements RolesInterface
 
                     $this->o_parent->getRightsObject()->removeKeys($o_right, $strict);
                 }
-
-                // Delete this role from the internal list
-                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
 
             } elseif ($this->o_parent instanceof RightInterface) {
                 Log::action(ts('Removing role ":role" from right ":right"', [
@@ -415,12 +419,12 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * Load the data for this "roles" list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if ($this->o_parent) {
             if ($this->o_parent instanceof UserInterface) {
@@ -428,33 +432,12 @@ class Roles extends DataIterator implements RolesInterface
                                                    ON  `accounts_users_roles`.`users_id` = :users_id
                                                   AND  `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`', [
                     ':users_id' => $this->o_parent->getId(),
-                                    ]);
-
-
-//                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`,
-//                                                    `accounts_roles`.*,
-//                                                    CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
-//                                             FROM   `accounts_users_roles`
-//                                             JOIN   `accounts_roles`
-//                                             ON     `accounts_users_roles`.`roles_id`  = `accounts_roles`.`id`
-//                                             WHERE  `accounts_users_roles`.`users_id` = :users_id', [
-//                    ':users_id' => $this->parent->getId(),
-//                ]);
+                ]);
 
             } elseif ($this->o_parent instanceof RightInterface) {
                 $this->o_query_builder->addWhere('`accounts_roles_rights`.`rights_id` = :rights_id', [
                     ':rights_id' => $this->o_parent->getId(),
-                                    ]);
-
-//                $this->source = sql()->list('SELECT `accounts_roles`.`seo_name` AS `key`,
-//                                                    `accounts_roles`.*,
-//                                                    CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) AS `name`
-//                                             FROM   `accounts_roles_rights`
-//                                             JOIN   `accounts_roles`
-//                                             ON     `accounts_roles_rights`.`roles_id`  = `accounts_roles`.`id`
-//                                             WHERE  `accounts_roles_rights`.`rights_id` = :rights_id', [
-//                    ':rights_id' => $this->parent->getId(),
-//                ]);
+                ]);
             }
         }
 

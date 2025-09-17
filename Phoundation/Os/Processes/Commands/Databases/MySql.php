@@ -111,6 +111,8 @@ class MySql extends Command
     /**
      * Imports the specified MySQL dump file into the specified database
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     *
      * @param PhoFileInterface $file
      */
     public function import(PhoFileInterface $file): void
@@ -133,7 +135,7 @@ class MySql extends Command
                      ->addArguments([
                          '-h',  $this->o_connector->getHostname(),
                          '-u',  $this->o_connector->getUsername(),
-                         '-p' . $this->o_connector->getPassword(),
+                         '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
                          '-B',  $this->o_connector->getDatabase(),
                      ]);
 
@@ -348,7 +350,7 @@ class MySql extends Command
     protected function getInstanceConfigForDatabase(string $database): array
     {
         return config()->getArray('databases.connectors.' . $database);
-        foreach (Sql::getConnectors() as $connector) {
+        foreach (Sql::getConnectorsObject() as $connector) {
 
         }
     }

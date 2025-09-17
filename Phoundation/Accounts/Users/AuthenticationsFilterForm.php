@@ -42,7 +42,7 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
                                             ->setOptional(true)
                                             ->setElement(EnumElement::select)
                                             ->setKey(true, 'auto_submit')
-                                            ->setDataSource(Authentication::getFilterActions()));
+                                            ->setSource(Authentication::getFilterActions()));
 
         // Auto apply
         $this->applyValidator(self::class);
@@ -63,24 +63,24 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $builder
+     * @param QueryBuilderInterface $o_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
     {
-        if ($this->apply_filters->keyExists('action') and $this->o_definitions->isRendered('action', false)) {
+        if ($this->o_applied_filters->keyExists('action') and $this->o_definitions->isRendered('action', false)) {
             if ($this->getAction()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`action` = :action', [':action' => $this->getAction()]
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`action` = :action', [':action' => $this->getAction()]
                 );
             }
         }
 
-        $this->apply_filters->removeKeys([
+        $this->o_applied_filters->removeKeys([
             'action',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($builder);
+        return parent::applyFiltersToQueryBuilder($o_builder);
     }
 }

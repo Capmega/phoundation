@@ -90,11 +90,13 @@ class Redis implements RedisInterface
             throw new PhpModuleNotAvailableException(tr('The PHP module "redis" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php-redis; sudo phpenmod redis" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'));
         }
 
-        if (!$connector || is_string($connector)) {
-            $connector = new(Connector::new($connector));
-        }
+        if ($connector) {
+            if (is_string($connector)) {
+                $connector = Connector::new($connector);
+            }
 
-        $this->setConnectorObject($connector);
+            $this->setConnectorObject($connector);
+        }
 
         if ($connect) {
             $this->connect();
@@ -188,7 +190,7 @@ class Redis implements RedisInterface
      */
     public static function new(ConnectorInterface|string|null $connector = null, bool $connect = true): static
     {
-        return new static($connector);
+        return new static($connector, $connect);
     }
 
 

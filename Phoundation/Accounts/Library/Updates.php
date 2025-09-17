@@ -22,6 +22,7 @@ use Phoundation\Accounts\Roles\Role;
 use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Seo;
 
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -31,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.2';
+        return '0.10.0';
     }
 
 
@@ -1310,6 +1311,37 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             if (!$table->indexExists('update_password')) {
                 $table->alter()->addIndex('KEY `update_password` (`update_password`)');
             }
+
+        })->addUpdate('0.10.0', function () {
+            // Add support for session state
+            $o_table = sql()->getSchemaObject()->getTableObject('accounts_users');
+
+            if (!$o_table->columnExists('session_state')) {
+                $o_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
+            }
+
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'accounts_authentications',
+                'accounts_compromised_passwords',
+                'accounts_configurations',
+                'accounts_emails',
+                'accounts_groups',
+                'accounts_old_passwords',
+                'accounts_password_resets',
+                'accounts_phones',
+                'accounts_profile_images',
+                'accounts_push_notifications',
+                'accounts_rights',
+                'accounts_roles',
+                'accounts_roles_rights',
+                'accounts_settings',
+                'accounts_signin_keys',
+                'accounts_user_sessions',
+                'accounts_users',
+                'accounts_users_rights',
+                'accounts_users_roles',
+            ]);
         });
     }
 }

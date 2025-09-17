@@ -12,21 +12,29 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
+// No get parameters allowed
+GetValidator::new()->validate();
+
+
 // Set page meta data
 Response::setHeaderTitle(tr('My reports page'));
 Response::setBreadcrumbs([
-   Anchor::new('/', tr('Home')),
-   Anchor::new('' , tr('Reports')),
+   Breadcrumb::new('/', tr('Home')),
+   Breadcrumb::new('' , tr('Reports')),
 ]);
 
+
+// Return the card
 return Card::new()
            ->setTitle(tr('Reports available to me'))
-           ->setContent(Anchor::new(Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww(), tr('Review & submit')) .
-                        Anchor::new(Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww(), tr('My summary report'), '<hr>') .
-                        Anchor::new(Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww(), tr('My detailed report'), '<br>'));
+           ->setContent(AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww(), tr('Review & submit')) .
+                        AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/summary.html')->makeWww(), tr('My summary report')) .
+                        AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww(), tr('My detailed report')));

@@ -20,10 +20,13 @@ use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Core\Core;
+use Phoundation\Core\Log\Log;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Enums\EnumAnchorRenderEmpty;
 use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
@@ -47,15 +50,36 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     protected EnumAnchorRenderRightsFail $render_rights_fail = EnumAnchorRenderRightsFail::not;
 
+    /**
+     * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
+     *
+     * @var EnumAnchorRenderEmpty $render_empty
+     */
+    protected EnumAnchorRenderEmpty $render_empty = EnumAnchorRenderEmpty::not;
+
+    /**
+     * Tracks if rights should be checked before rendering
+     *
+     * @var bool $auto_check_rights
+     */
+    protected bool $auto_check_rights = true;
+
+    /**
+     * Cache that tracks if the current user has the required rights
+     *
+     * @var UserInterface|false $has_required_rights
+     */
+    protected UserInterface|false $has_required_rights = false;
+
 
     /**
      * Form class constructor
      *
-     * @param string|null                                $content
-     * @param RenderInterface|array|callable|string|null $before_content
-     * @param UrlInterface|string|null                   $o_href
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param RenderInterface|array|callable|string|null     $before_content
+     * @param UrlInterface|string|null                       $o_href
      */
-    public function __construct(UrlInterface|string|null $o_href = null, ?string $content = null, RenderInterface|array|callable|string|null $before_content = null)
+    public function __construct(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null)
     {
         // Execute the ElementCore TraitElementAttributes constructor
         parent::___construct();
@@ -71,13 +95,13 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns a new static class
      *
-     * @param UrlInterface|string|null                   $o_href
-     * @param Stringable|string|null                     $content
-     * @param RenderInterface|array|callable|string|null $before_content
+     * @param UrlInterface|string|null                       $o_href
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param RenderInterface|array|callable|string|null     $before_content
      *
      * @return static
      */
-    public static function new(UrlInterface|string|null $o_href = null, Stringable|string|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
+    public static function new(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
     {
         return new static($o_href, $content, $before_content);
     }
@@ -98,10 +122,11 @@ class Anchor extends SpanCore implements AnchorInterface
      * Sets the href for this anchor
      *
      * @param UrlInterface|string|null $o_href
+     * @param bool                     $reset_rights_cache
      *
      * @return static
      */
-    public function setHref(UrlInterface|string|null $o_href): static
+    public function setHref(UrlInterface|string|null $o_href, bool $reset_rights_cache = true): static
     {
         $o_href = Url::new($o_href)->makeWww();
 
@@ -110,6 +135,10 @@ class Anchor extends SpanCore implements AnchorInterface
 
         // Also set the href object itself, and mark that we have to re-update the rights
         $this->o_href = $o_href;
+
+        if ($reset_rights_cache) {
+            $this->has_required_rights = false;
+        }
 
         return $this;
     }
@@ -143,11 +172,13 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns an array of rights that are required to render this Anchor object
      *
+     * @param bool $use_cache
+     *
      * @return array
      */
-    public function getRequiredRights(): array
+    public function getRights(bool $use_cache = true): array
     {
-        return $this->getHref()->getRequiredRights();
+        return $this->getHref()->getRights($use_cache);
     }
 
 
@@ -155,12 +186,13 @@ class Anchor extends SpanCore implements AnchorInterface
      * Returns true if the current session user (or the specified one) has access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null): bool
+    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
     {
-        return $this->getHref()->userHasAccess($o_user);
+        return $this->getHref()->userHasAccess($o_user, $use_cache);
     }
 
 
@@ -168,13 +200,13 @@ class Anchor extends SpanCore implements AnchorInterface
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return static
-     * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null): static
+    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
     {
-        $this->getHref()->checkUserAccess($o_user);
+        $this->getHref()->checkUserAccess($o_user, $use_cache);
         return $this;
     }
 
@@ -183,26 +215,41 @@ class Anchor extends SpanCore implements AnchorInterface
      * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
      *
      * @param UserInterface|null $o_user
+     * @param bool               $force
      *
      * @return bool
      */
-    public function hasRequiredRights(?UserInterface $o_user = null): bool
+    public function hasRequiredRights(?UserInterface $o_user = null, bool $force = false): bool
     {
-        return ($o_user ?? Session::getUserObject())->getRightsObject()->hasAll($this->getRequiredRights());
+        $o_user = $o_user ?? Session::getUserObject();
+
+        if (!$force and $this->has_required_rights and ($this->has_required_rights === $o_user)) {
+            //  We already know this user has access to the required rights, return cached response
+            return true;
+        }
+
+        $has_required_rights = $o_user->getRightsObject()->hasAll($this->getRights());
+
+        if ($has_required_rights) {
+            $this->has_required_rights = $o_user;
+            return true;
+        }
+
+        $this->has_required_rights = false;
+        return false;
     }
 
 
     /**
      * Returns the manually specified required rights to render this Anchor object
      *
-     * @param bool $reload
-     * @param bool $order
+     * @param bool $use_cache
      *
      * @return RightsInterface
      */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
+    public function getRightsObject(bool $use_cache = true): RightsInterface
     {
-        return $this->getHref()->getRightsObject($reload, $order);
+        return $this->getHref()->getRightsObject($use_cache);
     }
 
 
@@ -274,34 +321,69 @@ class Anchor extends SpanCore implements AnchorInterface
 
 
     /**
+     * Returns if the rights should be checked automatically on rendering
+     *
+     * @return bool
+     */
+    public function getAutoCheckRights(): bool
+    {
+        return $this->auto_check_rights;
+    }
+
+
+    /**
+     * Sets if the rights should be checked automatically on rendering
+     *
+     * @param bool $check_rights
+     *
+     * @return Anchor
+     */
+    public function setAutoCheckRights(bool $check_rights): static
+    {
+        $this->auto_check_rights = $check_rights;
+        return $this;
+    }
+
+
+    /**
      * @inheritDoc
      */
     public function render(): ?string
     {
-        if (!$this->hasRequiredRights()) {
-            switch ($this->render_rights_fail) {
-                case EnumAnchorRenderRightsFail::no_url:
-                    // Continue rendering the anchor, but without URL by converting it to a <span>
-                    $this->setHref(null);
-                    // no break
+        if ($this->auto_check_rights) {
+            if (!$this->hasRequiredRights()) {
+                if (!Core::isProductionEnvironment()) {
+                    Log::warning(tr('User ":user" does not have the required rights ":rights" to render the URL ":url"', [
+                        ':user'   => Session::getUserObject()->getLogId(),
+                        ':rights' => $this->getRights(),
+                        ':url'    => $this->getHref()->getSource()
+                    ]));
+                }
 
-                case EnumAnchorRenderRightsFail::full:
-                    // Continue rendering this anchor as normal.
-                    break;
+                switch ($this->render_rights_fail) {
+                    case EnumAnchorRenderRightsFail::no_url:
+                        // Continue rendering the anchor, but without URL by converting it to a <span>
+                        $this->setHref(null);
+                        // no break
 
-                case EnumAnchorRenderRightsFail::not:
-                    // Don't render the anchor at all
-                    return null;
+                    case EnumAnchorRenderRightsFail::full:
+                        // Continue rendering this anchor as normal.
+                        break;
 
-                case EnumAnchorRenderRightsFail::fail:
-                    throw AccessDeniedException::new(tr('Cannot render anchor for URL ":url", the user ":user" does not have the required rights to access this URL', [
-                        ':href' => $this->getHref(),
-                        ':user' => Session::getUserObject(),
-                    ]))->setData([
-                        'required_rights' => $this->getRequiredRights(),
-                        'href'            => $this->getHref(),
-                        'user'            => Session::getUserObject(),
-                    ]);
+                    case EnumAnchorRenderRightsFail::not:
+                        // Don't render the anchor at all
+                        return null;
+
+                    case EnumAnchorRenderRightsFail::fail:
+                        throw AccessDeniedException::new(tr('Cannot render anchor for URL ":url", the user ":user" does not have the required rights to access this URL', [
+                            ':href' => $this->getHref(),
+                            ':user' => Session::getUserObject(),
+                        ]))->setData([
+                            'required_rights' => $this->getRights(),
+                            'href'            => $this->getHref(),
+                            'user'            => Session::getUserObject(),
+                        ]);
+                }
             }
         }
 
@@ -314,9 +396,18 @@ class Anchor extends SpanCore implements AnchorInterface
             $this->setElement('span')->addClass('anchor');
 
         } else {
-            if (empty($this->content)) {
-                // This Anchor contains a URL but no text content to display. Use the URL as content instead
-                $this->setContent($this->o_href->getSource());
+            if (is_empty($this->content)) {
+                switch ($this->render_empty) {
+                    case EnumAnchorRenderEmpty::not:
+                        return null;
+
+                    case EnumAnchorRenderEmpty::url:
+                        // This Anchor contains a URL but no text content to display. Use the URL as content instead
+                        $this->setContent($this->o_href->getSource());
+                        break;
+
+                    case EnumAnchorRenderEmpty::empty:
+                }
             }
         }
 

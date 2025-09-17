@@ -26,7 +26,9 @@ use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Traits\TraitMethodHasRendered;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
+use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 use Phoundation\Web\Html\Pages\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -123,9 +125,17 @@ class SystemHttpErrorPage extends Page
             $this->source = $renderer_class::new($this)->render();
 
         } else {
-            $sign_out = Session::isGuest() ? null : '<p>' . tr('Click :here to sign out', [
-                ':here' => '<a href="' . Url::new('sign-out')->makeWww() . '">here</a>'
-            ]) . '</p>';
+            if (Session::isGuest()) {
+                $sign_out =  '<p>' . tr('Click :here to sign in', [
+                                         ':here' => Anchor::new(Url::new('sign-out'), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)
+                                     ]) .
+                             '</p>';
+            } else {
+                $sign_out =  '<p>' . tr('Click :here to sign out', [
+                                         ':here' => Anchor::new(Url::new('sign-out'), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)
+                                     ]) .
+                             '</p>';
+            }
 
             // TODO Get rid of this hard coded stuff
             switch ($this->name) {
@@ -138,7 +148,7 @@ class SystemHttpErrorPage extends Page
                                                       <h3><i class="fas fa-exclamation-triangle text-:type"></i> :h3</h3>
     
                                                       <p>:p</p>
-                                                      <p>' . tr('Click :here to go to the index page', [':here' => '<a href="' . Url::newCurrentDomainRootUrl() . '">here</a>']) . '</p>' .
+                                                      <p>' . tr('Click :here to go to the index page', [':here' => Anchor::new(Url::newCurrentDomainRootUrl(), tr('here'))->setRenderRightsFail(EnumAnchorRenderRightsFail::full)]) . '</p>' .
                                                       $sign_out;
 
                     if (Session::isUser()) {

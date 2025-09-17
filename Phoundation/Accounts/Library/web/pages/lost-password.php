@@ -18,6 +18,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Core;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -25,6 +26,7 @@ use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Pages\LostPasswordPage;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -88,14 +90,11 @@ if (Request::isPostRequestMethod()) {
         $mail->Port = "25";
 
         // Build email
+        $mail->Subject = tr('Lost password request');
         $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
             ':user' => $user->getDisplayName(),
-            ':here' => tr('<a href=":url">here</a>', [':url' => $key->getUrl()]),
+            ':here' => Anchor::new($key->getUrl(), tr('here')),
             ':alt'  => $key->getUrl(),
-        ]);
-
-        $mail->Subject = tr('[:project] Lost password request', [
-            ':project' => config()->getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
         ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
@@ -107,7 +106,7 @@ if (Request::isPostRequestMethod()) {
             $mail->addAddress($user->getEmail(), $user->getDisplayName());
         }
 
-        $mail->setFrom('no-reply@medinet.ca', 'Medinet no-reply');
+        $mail->setFrom(config()->getString('email.from.email'), config()->getString('email.from.name', 'Your Phoundation project') . ' (no-reply)' . (Core::isProductionEnvironment() ? null : ' (' . ENVIRONMENT . ')'));
 
         if (!$mail->send()) {
             throw new PhoException($mail->ErrorInfo);
@@ -127,6 +126,9 @@ if (Request::isPostRequestMethod()) {
                 ->save();
 
         Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
+
+    } catch (CsrfValidationFailedException) {
+        Response::getFlashMessagesObject()->addWarning(tr('The submission failed a security check, please try again'));
 
     } catch (ValidationFailedException) {
         Response::getFlashMessagesObject()->addWarning(tr('Please specify a valid email'));
@@ -148,6 +150,10 @@ if (Request::isPostRequestMethod()) {
                 ->save();
     }
 }
+
+
+// Set page meta data
+Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
 
 // Render and return the page

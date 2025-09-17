@@ -17,17 +17,19 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
+
 // Set page meta data
 Response::setHeaderTitle(tr('Employees'));
 Response::setBreadcrumbs([
-   Anchor::new('/'             , tr('Home')),
-   Anchor::new('/profiles.html', tr('Profiles')),
-   Anchor::new(''              , tr('Employees')),
+   Breadcrumb::new('/'             , tr('Home')),
+   Breadcrumb::new('/profiles.html', tr('Profiles')),
+   Breadcrumb::new(''              , tr('Employees')),
 ]);
 
 
@@ -57,8 +59,9 @@ $template = '   <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch 
                         <a href="#" class="btn btn-sm bg-teal">
                           <i class="fas fa-comments"></i>
                         </a>
-                        <a href="' . Url::new('profiles/profile+:id.html')->makeWww() . '" class="btn btn-sm btn-primary">
-                          <i class="fas fa-user"></i> View Profile
+                        ' . Anchor::new(Url::new('profiles/profile+:id.html'))
+                                  ->setContent('<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                  ->setClass('btn btn-sm btn-primary') . '
                         </a>
                       </div>
                     </div>
@@ -93,6 +96,6 @@ foreach ($users as $user) {
 
 
 // Build card
-echo $card = Card::new()
+echo $o_card = Card::new()
                  ->setContent('<div class="row">' . $content . '</div>')
                  ->render();

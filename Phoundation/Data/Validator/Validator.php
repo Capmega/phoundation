@@ -48,6 +48,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateTime;
@@ -63,6 +64,8 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -541,6 +544,20 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * Sets the currently selected value
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setSelectedValue(mixed $value): static
+    {
+        $this->selected_value = $value;
+        return $this;
+    }
+
+
+    /**
      * Returns the currently selected field
      *
      * @return mixed
@@ -622,6 +639,30 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ':count' => $this->test_count
             ]));
         }
+
+        $this->test_count         = PHP_INT_MIN;
+        $this->content_test_count = PHP_INT_MIN;
+        return $this;
+    }
+
+
+    /**
+     * This method will allow skipping validation of data at the cost of an Incident report
+     *
+     * @return static
+     */
+    public function skipValidation(): static
+    {
+        Incident::new()
+                ->setSeverity(EnumSeverity::medium)
+                ->setType('validation')
+                ->setTitle(tr('Validation was skipped'))
+                ->setBody(tr('Validation was skipped for the key ":key" during validation of a ":object" object', [
+                    ':key'    => $this->selected_field,
+                    ':object' => get_class_or_datatype($this->getDataEntryObject())
+                ]))
+                ->setNotifyRoles('developer')
+                ->save();
 
         $this->test_count         = PHP_INT_MIN;
         $this->content_test_count = PHP_INT_MIN;
@@ -1042,17 +1083,16 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         }
 
         $failure = [
-            'hard'      => $hard,
-            'label'     => $field,
-            'column'    => $field,
-            'value'     => $this->selected_value,
-            'message'   => $failure
+            'hard'    => $hard,
+            'label'   => $field,
+            'column'  => $field,
+            'value'   => $this->selected_value,
+            'message' => $failure
         ];
 
-        if ($this->getDefinitionsObject()) {
-            $failure['datatype']  = $this->getDefinitionsObject()->get($field)->getDatatype();
-            $failure['maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxLength();
-
+        if ($this->getDefinitionsObject()?->keyExists($field)) {
+            $failure['required_datatype']  = $this->getDefinitionsObject()->get($field)->getDatatype();
+            $failure['required_maxlength'] = $this->getDefinitionsObject()->get($field)->getMaxLength();
         }
 
         // Store the failure
@@ -1522,15 +1562,15 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $o_definition = $this->getDataEntryObject()?->getDefinitionsObject()?->get($column);
 
             if ($failure['hard']) {
-                if (array_key_exists('datatype', $failure)) {
+                if (array_key_exists('required_datatype', $failure)) {
                     // Force datatype
-                    switch ($failure['datatype']) {
+                    switch ($failure['required_datatype']) {
                         case 'string':
                             $this->source[$column] = (string) $this->source[$column];
 
-                            if (array_key_exists('maxlength', $failure)) {
+                            if (array_key_exists('required_maxlength', $failure)) {
                                 // Force maxlength
-                                $this->source[$column] = substr((string) $this->source[$column], 0, $failure['maxlength'] - 1);
+                                $this->source[$column] = substr((string) $this->source[$column], 0, $failure['required_maxlength'] - 1);
                             }
 
                             break;
@@ -3820,16 +3860,16 @@ throw new ObsoleteException();
      * @todo Add locale support, see https://www.php.net/manual/en/book.intl.php and
      *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      *
-     * @param array|string|null $formats
+     * @param EnumDateTimeWidth $width
      *
      * @return static
      */
-    public function isDateTime(array|string|null $formats = null): static
+    public function isDateTime(EnumDateTimeWidth $width = EnumDateTimeWidth::default): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($formats) {
+        return $this->validateValues(function (&$value) use ($width) {
             // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
@@ -3840,11 +3880,8 @@ throw new ObsoleteException();
             }
 
             // Ensure we have formats to work with
-            if (!$formats) {
-                // Default to a number of acceptable formats
-                $formats = PhoDateTimeFormats::getSupportedPhp();
-            }
-
+            // Default to a number of acceptable formats
+            $formats = PhoDateTimeFormats::getSupportedPhp($width);
             $formats = Arrays::force($formats, null);
 
             // If the datetime has milliseconds or microseconds, then remove those
@@ -3967,7 +4004,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            $cards = [
+            $o_cards = [
                 'Amex Card'          => '^3[47][0-9]{13}$',
                 'BCGlobal'           => '^(6541|6556)[0-9]{12}$',
                 'Carte Blanche Card' => '^389[0-9]{11}$',
@@ -3986,7 +4023,7 @@ throw new ObsoleteException();
                 'Visa Master Card'   => '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$',
             ];
 
-            foreach ($cards as $regex) {
+            foreach ($o_cards as $regex) {
                 if (preg_match($regex, $value)) {
                     return;
                 }
@@ -4966,7 +5003,7 @@ throw new ObsoleteException();
             }
 
             if ($url->isValid()) {
-                if ($url->hasDomain($domain)) {
+                if ($url->hasHost($domain)) {
                     // Now we're good!
                     return;
 
@@ -5569,33 +5606,6 @@ throw new ObsoleteException();
                 }
 
                 $value = PhoDateTime::new($value);
-            }
-        });
-    }
-
-
-    /**
-     * Makes the current field a boolean value
-     *
-     * This method ensures that the specified array key is a boolean
-     *
-     * @return static
-     */
-    public function sanitizeToDate(): static
-    {
-        $this->test_count++;
-
-        return $this->validateValues(function (&$value) {
-            if (!$this->hasOptionalValue($value)) {
-                $this->isDate();
-
-                if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
-                    return;
-                }
-
-throw new UnderConstructionException(tr('The PhoDate class is still under construction, so is Validator::sanitizeToDate()'));
-                $value = PhoDate::new($value);
             }
         });
     }
@@ -6767,7 +6777,7 @@ throw new UnderConstructionException(tr('The PhoDate class is still under constr
 
 
     /**
-     * Requires that the specified value is empty
+     * Requires that the specified value is NOT empty
      *
      * @param mixed  $value
      * @param string $failure

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Interfaces;
 
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Stringable;
 
 
@@ -36,21 +37,23 @@ interface ValueInterface
      *
      * @return static
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static;
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static;
 
     /**
      * Returns the HTML "null_display" element attribute
      *
-     * @return Stringable|string|float|int|null
+     * @return string|null
      */
-    public function getNullDisplay(): Stringable|string|float|int|null;
+    public function getNullDisplay(): string|null;
+
 
     /**
      * Set the HTML "null_display" element attribute
      *
-     * @param Stringable|string|float|int|null $null_display
+     * @param RenderInterface|string|float|int|null $value
+     * @param bool                                  $make_safe
      *
      * @return static
      */
-    public function setNullDisplay(Stringable|string|float|int|null $null_display): static;
+    public function setNullDisplay(RenderInterface|string|float|int|null $value, bool $make_safe = false): static;
 }

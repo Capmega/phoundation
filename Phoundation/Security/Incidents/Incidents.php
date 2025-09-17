@@ -53,7 +53,7 @@ class Incidents extends DataIterator
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'code';
+        return null;
     }
 
 

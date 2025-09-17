@@ -134,7 +134,9 @@ class RoutingParametersList
                 throw RouteException::new(tr('Routing regular expression pattern ":regex" failed with error ":e"', [
                     ':e'     => $e->getMessage(),
                     ':regex' => $pattern,
-                ]), $e)->addData(['failed_pattern' => $pattern]);
+                ]), $e)->addData([
+                    'failed_pattern' => $pattern
+                ]);
             }
 
             $parameters->setMatches($matches)->setUri($uri);
@@ -150,6 +152,7 @@ class RoutingParametersList
 
             return $parameters;
         }
+
         if (!isset($parameters)) {
             throw new RouteException(tr('Cannot find routing parameters for target ":target", no routing parameters available', [
                 ':target' => $uri,
@@ -159,13 +162,15 @@ class RoutingParametersList
         // Use default template
         $parameters->setUri($uri);
 
-        Log::action(ts('Using default parameters ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
-            ':system'    => ($system ? ' system' : ''),
-            ':uri'       => $uri,
-            ':directory' => $parameters->getRootDirectory(),
-            ':template'  => $parameters->getTemplate(),
-            ':pattern'   => $pattern,
-        ]));
+        if (Log::passesThreshold(2)) {
+            Log::action(ts('Using default parameters ":pattern" with template ":template" and directory ":directory" for:system page from URI ":uri"', [
+                ':system'    => ($system ? ' system' : ''),
+                ':uri'       => $uri,
+                ':directory' => $parameters->getRootDirectory(),
+                ':template'  => $parameters->getTemplate(),
+                ':pattern'   => $pattern,
+            ]), 2);
+        }
 
         return $parameters;
     }

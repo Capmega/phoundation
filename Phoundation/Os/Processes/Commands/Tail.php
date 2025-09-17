@@ -55,7 +55,7 @@ class Tail extends Command
             return $this->cached_command_line;
         }
 
-        $this->addArgument($this->file);
+        $this->addArgument($this->o_file);
 
         return parent::getFullCommandLine($background);
     }

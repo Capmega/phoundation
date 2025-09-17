@@ -21,7 +21,7 @@ use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Accounts\Users\Locale\Language\Language;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -34,6 +34,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\PhoPath;
@@ -46,7 +47,7 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
-use Phoundation\Web\Html\Components\Widgets\Breadcrumbs;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumbs;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\BreadcrumbsInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -62,6 +63,7 @@ use Phoundation\Web\Requests\Interfaces\ResponseInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Stringable;
 use Throwable;
+
 
 class Response implements ResponseInterface
 {
@@ -94,14 +96,14 @@ class Response implements ResponseInterface
     protected static int $http_code = 200;
 
     /**
-     * Tracks if static::sendHeaders() sent headers already or not.
+     * Tracks if Response::sendHeaders() sent headers already or not.
      *
      * @note IMPORTANT: Since flush() and ob_flush() will NOT lock headers until the buffers are actually flushed, and
      *                  they will neither actually flush the buffers as long as the process is running AND the buffers
      *                  are not full yet, weird things can happen. With a buffer of 4096 bytes (typically), echo 100
-     *                  characters, and then execute static::sendHeaders(), then ob_flush() and flush() and
+     *                  characters, and then execute Response::sendHeaders(), then ob_flush() and flush() and
      *                  headers_sent() will STILL be false, and REMAIN false until the buffer has reached 4096
-     *                  characters OR the process ends. This variable just keeps track if static::sendHeaders() has been
+     *                  characters OR the process ends. This variable just keeps track if Response::sendHeaders() has been
      *                  executed (and it won't execute again), but headers might still be sent out manually. This is
      *                  rather messed up, because it really shows as if information was sent, the buffers are flushed,
      *                  yet nothing is actually flushed, so the headers are also not sent. This is just messed up PHP.
@@ -253,8 +255,8 @@ class Response implements ResponseInterface
         Response::addHttpHeaders(config()->get('web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
 
         // Add required page headers
-        Response::addMetaToPageHeaders(Response::getCharset()                                                                , 'character_set');
-        Response::addMetaToPageHeaders(config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'character_set');
+        Response::addConfiguredHeadDataAttribute();
+        Response::setCharset(Response::getCharset());
     }
 
 
@@ -265,7 +267,7 @@ class Response implements ResponseInterface
      */
     public static function initialize(): void
     {
-        static::getInstance();
+        Response::getInstance();
     }
 
 
@@ -368,7 +370,7 @@ class Response implements ResponseInterface
      */
     public static function getClass(string $section, ?string $default = null): ?string
     {
-        return isset_get(static::$page_classes[$section], $default);
+        return array_get_safe(static::$page_classes, $section, $default);
     }
 
 
@@ -396,7 +398,7 @@ class Response implements ResponseInterface
      */
     public static function setBreadcrumbs(BreadcrumbsInterface|array|null $bread_crumbs = null): void
     {
-        if (!$bread_crumbs) {
+        if (empty($bread_crumbs)) {
             static::$bread_crumbs = new Breadcrumbs();
 
         } elseif(is_array($bread_crumbs)) {
@@ -481,7 +483,7 @@ class Response implements ResponseInterface
             static::$header_title = get_null((string) $header_title);
 
             if (!static::$page_title) {
-                static::$page_title = config()->get('project.name', 'Phoundation') . ' - ' . $header_title;
+                static::$page_title = Project::getHumanReadableFullName() . ' - ' . $header_title;
             }
         }
     }
@@ -552,13 +554,16 @@ class Response implements ResponseInterface
     /**
      * Sets the page viewport
      *
+     * This method will try to set the specified viewport header. If no viewport was specified, it will try to use the viewport from configuration path
+     * "web.viewport". If that was not set, it will default to viewport "width=device-width, initial-scale=1, shrink-to-fit=no"
+     *
      * @param string|null $viewport
      *
      * @return void
      */
     public static function setViewport(?string $viewport): void
     {
-        Response::addMetaToPageHeaders($viewport, 'viewport');
+        Response::addMetaToPageHeaders($viewport ?? config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'viewport');
     }
 
 
@@ -583,7 +588,7 @@ class Response implements ResponseInterface
                 ], $url);
 
             } else {
-                $url = static::versionFile($url, 'img');
+                $url = Response::versionFile($url, 'img');
 
                 // Unknown (likely remote?) link
                 Response::addLinkToPageHeaders([
@@ -616,28 +621,29 @@ class Response implements ResponseInterface
      */
     public static function versionFile(string $url, string $type): string
     {
-        static $minified;
+        static $minified = null;
 
         // Ensure the extension is stripped
-        $url = Strings::until($url, '.' . $url);
+        // Ensure anything before templates/ is stripped
+        $url = Strings::untilReverse($url, '.' . $type);
+        $url = Strings::until($url, '.min');
+        $url = Strings::from($url, 'templates/');
 
-        // Should we load the minified version? This is optional as long as the file itself doesn't have .min specified
-        // TODO move this to Url class into its own method "makeMinified()" or something that will attach .min to it.
-        if (str_ends_with($url, '.min')) {
-            if (!isset($minified)) {
-                // All files are minified or none are
-                $minified = (config()->get('web.minified', true) ? '.min' : '');
-            }
+        if ($minified === null) {
+            // All files are minified or none are
+            $minified = (config()->get('web.cdn.resources.minified', true) ? '.min' : '');
         }
 
-        if (config()->getBoolean('cache.version-files', true)) {
-            // Determine the absolute file path
-            // then get timestamp and inject it into the given file
-            $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/' . $type . '/' . $url . $minified . $type;
-            $url  = Strings::untilReverse($url, '.') . '.v' . filectime($file) . '.' . Strings::fromReverse($url, '.');
+        // Determine the absolute file path
+        $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type;
+
+        if (config()->getBoolean('web.cdn.resources.versioning', true)) {
+            // Return URL with timestamp injected into the given file
+            return $url . '-v' . filectime($file) . $minified . '.' . $type;
         }
 
-        return $url;
+        // Return URL without an injected timestamp
+        return $url . $minified . '.' . $type;
     }
 
 
@@ -690,7 +696,7 @@ class Response implements ResponseInterface
     public static function setHttpHeaders(IteratorInterface|array $http_headers): void
     {
         static::$http_headers = new Iterator($http_headers);
-        static::addHttpHeaders($http_headers);
+        Response::addHttpHeaders($http_headers);
     }
 
 
@@ -704,7 +710,7 @@ class Response implements ResponseInterface
      */
     public static function addHttpHeaders(IteratorInterface|array|string $http_headers, ?string $key = null): void
     {
-        $o_headers = static::getHttpHeaders();
+        $o_headers = Response::getHttpHeaders();
 
         if (is_string($http_headers)) {
             $o_headers->add(($key ? Strings::ensureEndsWith($key, ':') : null) . $http_headers);
@@ -717,10 +723,10 @@ class Response implements ResponseInterface
                 }
 
                 if ($key) {
-                    static::addHttpHeaders($value, $key);
+                    Response::addHttpHeaders($value, $key);
 
                 } else {
-                    static::addHttpHeaders($value, $header);
+                    Response::addHttpHeaders($value, $header);
                 }
             }
         }
@@ -822,7 +828,7 @@ class Response implements ResponseInterface
      */
     public static function addPageHeader(EnumHeaderFooterType|string $type, RenderInterface|IteratorInterface|array|string|int|float|null $value, ?string $key = null, bool $prefix = false): void
     {
-        $type = static::getHeaderTypePrefix($type);
+        $type = Response::getHeaderTypePrefix($type);
 
         if ($prefix) {
             static::$page_headers = array_merge([$type . $key => $value], static::$page_headers);
@@ -872,7 +878,7 @@ class Response implements ResponseInterface
      */
     public static function addPageFooter(EnumHeaderFooterType|string $type, RenderInterface|IteratorInterface|array|string|int|float|null $value, ?string $key = null, bool $prefix = false): void
     {
-        $type = static::getHeaderTypePrefix($type);
+        $type = Response::getHeaderTypePrefix($type);
 
         if ($prefix) {
             static::$page_footers = array_merge([$type . $key => $value], static::$page_footers);
@@ -974,7 +980,7 @@ class Response implements ResponseInterface
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.js');
                 $url = Strings::ensureEndsNotWith($url, '.min');
-                $url = static::versionFile($url, 'js');
+                $url = Response::versionFile($url, 'js');
             }
 
             $scripts[$url] = [
@@ -985,10 +991,10 @@ class Response implements ResponseInterface
 
         // Add scripts to header or footer
         if ($header) {
-            static::addPageHeaders(EnumHeaderFooterType::javascript, $scripts, $prefix);
+            Response::addPageHeaders(EnumHeaderFooterType::javascript, $scripts, $prefix);
 
         } else {
-            static::addPageFooters(EnumHeaderFooterType::javascript, $scripts, $prefix);
+            Response::addPageFooters(EnumHeaderFooterType::javascript, $scripts, $prefix);
         }
     }
 
@@ -1011,7 +1017,7 @@ class Response implements ResponseInterface
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.css');
                 $url = Strings::ensureEndsNotWith($url, '.min');
-                $url = static::versionFile($url, 'css');
+                $url = Response::versionFile($url, 'css');
             }
 
             $scripts[$url] = [
@@ -1020,7 +1026,7 @@ class Response implements ResponseInterface
             ];
         }
 
-        static::addPageHeaders(EnumHeaderFooterType::link, $scripts, $prefix);
+        Response::addPageHeaders(EnumHeaderFooterType::link, $scripts, $prefix);
     }
 
 
@@ -1075,7 +1081,7 @@ class Response implements ResponseInterface
      */
     public static function getPageHeadersFootersCount(): int
     {
-        return static::getPageHeadersCount() + static::getPageFootersCount();
+        return Response::getPageHeadersCount() + Response::getPageFootersCount();
     }
 
 
@@ -1112,12 +1118,12 @@ class Response implements ResponseInterface
     {
         $return = Request::getPageObject()?->renderHtmlHeaders(static::$doctype);
 
-        if (static::getPageTitle()) {
+        if (Response::getPageTitle()) {
             $return .= '<title>' . (Core::isProductionEnvironment() ? null : '(' . ENVIRONMENT . ') ') . static::$page_title . '</title>' . PHP_EOL;
         }
 
         foreach (static::$page_headers as $key => $value) {
-            $return .= static::renderHtmlHeaderOrFooter($value, $key);
+            $return .= Response::renderHtmlHeaderOrFooter($value, $key);
         }
 
         static::$html_headers_sent = true;
@@ -1133,7 +1139,7 @@ class Response implements ResponseInterface
      */
     public static function renderHeadTag(): ?string
     {
-        return '<head' . static::renderHtmlHeadTagData() . '>';
+        return '<head' . Response::renderHtmlHeadTagData() . '>';
     }
 
 
@@ -1144,7 +1150,7 @@ class Response implements ResponseInterface
      */
     public static function renderHtmlHeadTagData(): ?string
     {
-        $data = static::getHeadDataAttributes(false);
+        $data = Response::getHeadDataAttributes(false);
 
         if (!$data) {
             return null;
@@ -1184,6 +1190,19 @@ class Response implements ResponseInterface
     /**
      * Adds the specified data attribute to the head tag
      *
+     * @return void
+     */
+    protected static function addConfiguredHeadDataAttribute(): void
+    {
+        foreach (config()->getArray('web.headers.meta.default', ['robots' => 'noindex,nofollow']) as $key => $value) {
+            Response::addMetaToPageHeaders($value, $key);
+        }
+    }
+
+
+    /**
+     * Adds the specified data attribute to the head tag
+     *
      * @param Stringable|string|float|int|null $value
      * @param Stringable|string|float|int|null $key
      *
@@ -1191,7 +1210,7 @@ class Response implements ResponseInterface
      */
     public static function addHeadDataAttribute(Stringable|string|float|int|null $value, Stringable|string|float|int|null $key): void
     {
-        static::getHeadDataAttributes()->add($value, $key);
+        Response::getHeadDataAttributes()->add($value, $key);
     }
 
 
@@ -1203,12 +1222,12 @@ class Response implements ResponseInterface
      */
     public static function renderHtmlFooters(): ?string
     {
-        Log::warning('TODO Reminder: static::buildFooters() should be upgraded to using Javascript / Css objects');
+        Log::warning('TODO Reminder: Response::buildFooters() should be upgraded to using Javascript / Css objects');
 
         $return = '';
 
         foreach (static::$page_footers as $key => $value) {
-            $return .= static::renderHtmlHeaderOrFooter($value, $key);
+            $return .= Response::renderHtmlHeaderOrFooter($value, $key);
         }
 
 //        foreach (static::$page_footers as $footer) {
@@ -1266,7 +1285,7 @@ class Response implements ResponseInterface
     public static function getLanguage(): LanguageInterface
     {
         if (empty(static::$language_code)) {
-            static::$language = Language::new()->load(static::getLanguageCode());
+            static::$language = Language::new()->load(Response::getLanguageCode());
         }
 
         return static::$language;
@@ -1339,7 +1358,7 @@ class Response implements ResponseInterface
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
                     // We're at a different page. Should we redirect to the specified page?
-                    if (!static::skipRedirect()) {
+                    if (!Response::skipRedirect()) {
                         // No, it's not, redirect!
                         Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUserObject()
@@ -1354,7 +1373,7 @@ class Response implements ResponseInterface
                             $redirect->addRedirect($current);
                         }
 
-                        static::redirect($redirect);
+                        Response::redirect($redirect);
                     }
 
                     Log::warning(ts('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
@@ -1385,7 +1404,7 @@ class Response implements ResponseInterface
      */
     public static function getRedirect(Stringable|string $redirect): ?string
     {
-        if (static::skipRedirect($redirect)) {
+        if (Response::skipRedirect($redirect)) {
             Log::warning(ts('Skipping redirect to ":redirect" as it is now allowed', [
                 ':redirect' => $redirect,
             ]));
@@ -1444,7 +1463,7 @@ class Response implements ResponseInterface
      */
     public static function signOut(?callable $callback_after_signout = null, UrlInterface|string|false|null $redirect = null): void
     {
-        $session_redirect   = Session::getPreviousPage();
+        $session_redirect = Session::getPreviousPage();
 
         // Sign out and get the user that just signed out
         $user     = Session::signOut();
@@ -1477,7 +1496,7 @@ class Response implements ResponseInterface
                                     ->addRedirect($previous)
                                     ->addQueries('email=' . $user->getEmail());
 
-        static::redirect($redirect);
+        Response::redirect($redirect);
     }
 
 
@@ -1589,7 +1608,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        static::setHttpCode($http_code);
+        Response::setHttpCode($http_code);
 
         if ($reason_warning) {
             Log::warning(ts('Redirecting because: :reason', [':reason' => $reason_warning]));
@@ -1633,8 +1652,8 @@ class Response implements ResponseInterface
         if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necesary
-                static::setHttpCode(304);
-                static::sendHttpHeaders();
+                Response::setHttpCode(304);
+                Response::sendHttpHeaders();
                 exit();
             }
         }
@@ -1647,12 +1666,12 @@ class Response implements ResponseInterface
      * Send all the specified HTTP headers
      *
      * @note The number of sent bytes does NOT include the bytes sent for the HTTP response code header
-     * @return int The number of bytes sent. -1 if static::sendHeaders() was called for the second time.
+     * @return int The number of bytes sent. -1 if Response::sendHeaders() was called for the second time.
      * @throws PageNotFoundException
      */
     protected static function sendHttpHeaders(): int
     {
-        if (static::httpHeadersSent(true)) {
+        if (Response::httpHeadersSent(true)) {
             // Headers already sent
             return -1;
         }
@@ -1661,15 +1680,15 @@ class Response implements ResponseInterface
             $length = 0;
 
             // Set correct headers
-            http_response_code(static::getHttpCode());
+            http_response_code(Response::getHttpCode());
 
             // Send all available headers
-            foreach (static::getHttpHeaders() as $header) {
+            foreach (Response::getHttpHeaders() as $header) {
                 $length += strlen($header);
                 header($header);
             }
 
-            switch (static::getHttpCode()) {
+            switch (Response::getHttpCode()) {
                 case 200:
                     // no break
                 case 301:
@@ -1698,7 +1717,7 @@ class Response implements ResponseInterface
                         ->setException($e)
                         ->setTitle(tr('Failed to send headers to client'))
                         ->send();
-            // static::sendHeaders() itself crashed. Since static::sendHeaders() would send out http 500, and since it
+            // Response::sendHeaders() itself crashed. Since Response::sendHeaders() would send out http 500, and since it
             // crashed, it no longer can do this, send out the http 500 here.
             try {
                 http_response_code(500);
@@ -1789,17 +1808,17 @@ class Response implements ResponseInterface
                 // ????
                 if (isset(static::$page_headers)) {
                     // TODO All this here makes zero sense? We're sending HTTP headers, but caching? Go over this, fix!
-                    // Only cache if there are headers. If static::buildHeaders() returned null this means that the headers
+                    // Only cache if there are headers. If Response::buildHeaders() returned null this means that the headers
                     // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
-                    $length = static::sendHttpHeaders();
+                    $length = Response::sendHttpHeaders();
                     Log::success(ts('Cached ":length" bytes of HTTP to client', [':length' => $length]), 3);
                 }
 
                 // Filter output out for certain HTTP codes, then send headers & output
-                static::clearOutputForHttpCodesAndMethods();
-                static::generateHttpHeaders();
-                static::sendHttpHeaders();
-                static::sendOutput();
+                Response::clearOutputForHttpCodesAndMethods();
+                Response::generateHttpHeaders();
+                Response::sendHttpHeaders();
+                Response::sendOutput();
             }
         }
 
@@ -1841,7 +1860,7 @@ class Response implements ResponseInterface
     public static function setOutput(?string $output): void
     {
         ob_clean();
-        static::addOutput($output);
+        Response::addOutput($output);
     }
 
 
@@ -1854,17 +1873,17 @@ class Response implements ResponseInterface
     {
         // 304 requests indicate the browser to use its local cache, send nothing
         // 429 Tell the client that it made too many requests, send nothing
-        switch (static::getHttpCode()) {
+        switch (Response::getHttpCode()) {
             case 304:
                 // no break
             case 429:
-                static::clean();
+                Response::clean();
                 break;
 
             default:
                 if (strtoupper($_SERVER['REQUEST_METHOD']) === 'HEAD') {
                     // HEAD request; do not send any HTML whatsoever
-                    static::clean();
+                    Response::clean();
                 }
         }
     }
@@ -1889,7 +1908,7 @@ class Response implements ResponseInterface
      */
     protected static function generateHttpHeaders(): ?array
     {
-        if (static::httpHeadersSent()) {
+        if (Response::httpHeadersSent()) {
             return null;
         }
 
@@ -1900,7 +1919,7 @@ class Response implements ResponseInterface
         header_remove('Pragma');
 
         // Create ETAG, possibly send out HTTP304 if the client sent matching ETAG
-        static::cacheEtag();
+        Response::cacheEtag();
 
         // What to do with the PHP signature?
         switch (Core::getExposePhp()) {
@@ -2000,7 +2019,7 @@ class Response implements ResponseInterface
         }
 
         // Add cache headers and store headers in the object headers list
-        return static::addHttpCacheHeaders($headers);
+        return Response::addHttpCacheHeaders($headers);
     }
 
 
@@ -2099,17 +2118,17 @@ class Response implements ResponseInterface
             // Send download headers and send the $html payload
             FileResponse::new(Request::getTargetObject(), PhoRestrictions::newWeb())
                         ->setAttachment(true)
-                        ->setData(static::getOutput())
+                        ->setData(Response::getOutput())
                         ->setFilename(basename(Request::getTargetObject()->getSource()))
                         ->send();
         }
 
         // Track data sizes
-        $length             = static::getOutputLength();
+        $length             = Response::getOutputLength();
         static::$bytes_sent += $length;
 
         // Send the page to the client
-        echo static::getOutput();
+        echo Response::getOutput();
 
         // Log how much we sent
         if ($length) {
@@ -2118,7 +2137,7 @@ class Response implements ResponseInterface
             ]), 4);
 
         } else {
-            Log::warning(ts('Warning: page generated no output for client, sent 0 bytes'));
+            Log::warning(ts('Page generated no output for client, sent "0" bytes'));
         }
     }
 
@@ -2184,7 +2203,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        InstanceCache::logStatistics();
+        LocalCache::logStatistics();
         Cache::logStatistics();
         Sql::logStatistics();
 
@@ -2301,6 +2320,6 @@ class Response implements ResponseInterface
      */
     public static function hasEncoding(string $encoding): bool
     {
-        return static::getEncoding() === $encoding;
+        return Response::getEncoding() === $encoding;
     }
 }

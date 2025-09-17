@@ -18,6 +18,7 @@ use Phoundation\Accounts\Config\Exception\ConfigPathDoesNotExistsException;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Notifications\Exception\NotificationsException;
@@ -96,12 +97,12 @@ try {
         $mail->setFrom($from->getEmail(), $from->getDisplayName());
 
     } else {
-        $mail->setFrom(config()->getString('email.from.email'), config()->getString('email.from.name', 'Your Phoundation project'));
+        $mail->setFrom(config()->getString('email.from.email'), config()->getString('email.from.name', 'Your Phoundation project') . ' (no-reply)' . (Core::isProductionEnvironment() ? null : ' (' . ENVIRONMENT . ')'));
     }
 
 } catch (ConfigPathDoesNotExistsException $e) {
     // Phoundation isn't properly configured
-    Log::error(ts('Cannot send email because the email.from.email and or email.from.name are not correctly configured'), 10);
+    Log::error(ts('Cannot send email because the configuration paths "email.from.email" and or "email.from.name" are not correctly configured'), 10);
 }
 
 if (!$mail->send()) {

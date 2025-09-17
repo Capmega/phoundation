@@ -32,7 +32,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.6.0';
+        return '0.8.0';
     }
 
 
@@ -479,6 +479,15 @@ class Updates extends Libraries\Updates
 
             // Notify the Libraries class that as of now, vendors are supported in core_versions!
             Libraries\Libraries::supportsVendors(true);
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'core_languages',
+                'core_plugins',
+                'core_templates',
+                'core_versions',
+            ]);
         });
     }
 }

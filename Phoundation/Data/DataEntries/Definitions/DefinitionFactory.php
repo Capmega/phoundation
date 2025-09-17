@@ -46,6 +46,25 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 class DefinitionFactory
 {
     /**
+     * Tracks the element count tracker
+     *
+     * @var int $count
+     */
+    protected static int $count = 0;
+
+
+    /**
+     * Sets the element count tracker back to 0
+     *
+     * @return void
+     */
+    public static function resetElementCounter(): void
+    {
+        static::$count = 0;
+    }
+
+
+    /**
      * Returns a Definition object for any database id
      *
      * @param string|null $column
@@ -57,7 +76,7 @@ class DefinitionFactory
         return Definition::new($column)
                          ->setOptional(true)
                          ->setInputType(EnumInputType::dbid)
-                         ->setSize(3);
+                         ->setSize(4);
     }
 
 
@@ -72,7 +91,7 @@ class DefinitionFactory
     public static function newCategoriesId(?string $column = 'categories_id', ?array $filters = null): DefinitionInterface
     {
         return DefinitionFactory::newDatabaseId($column)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Categories::new()
                                                      ->getHtmlSelectOld()
                                                      ->setName($key)
@@ -89,8 +108,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `categories` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$categories_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$categories_id'
                                               ]);
                                 });
     }
@@ -126,8 +145,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('categories_id', 'SELECT `id` 
                                                                               FROM   `categories` 
                                                                               WHERE  `name` = :name 
-                                                                                AND  `status` IS NULL', [
-                                                                                    ':name' => '$categories_name'
+                                                                              AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                  ':name' => '$categories_name'
                                        ]);
                          });
     }
@@ -144,7 +163,7 @@ class DefinitionFactory
     public static function newServersId(?string $column = 'servers_id', ?array $filters = null): DefinitionInterface
     {
         return DefinitionFactory::newDatabaseId($column)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Servers::new()
                                                   ->getHtmlSelectOld()
                                                   ->setName($key)
@@ -161,8 +180,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `servers` 
                                                                WHERE  `id` = :id
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$servers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$servers_id'
                                               ]);
                                 });
     }
@@ -198,7 +217,7 @@ class DefinitionFactory
                                        ->setColumnFromQuery('servers_id', 'SELECT `id` 
                                                                            FROM   `servers` 
                                                                            WHERE  `name` = :name 
-                                                                             AND  `status` IS NULL', [
+                                                                           AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                  ':id' => '$servers_name'
                                        ]);
                          });
@@ -250,7 +269,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Companies::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -267,7 +286,7 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_companies` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                      ':id' => '$companies_id'
                                               ]);
                                 });
@@ -304,7 +323,7 @@ class DefinitionFactory
                                        ->setColumnFromQuery('companies_id', 'SELECT `id` 
                                                                              FROM   `business_companies` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                    ':name' => '$companies_name'
                                        ]);
                          });
@@ -323,7 +342,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Languages::new()
                                                     ->getHtmlSelectOld(key_column: 'id')
                                                     ->setName($key)
@@ -340,7 +359,12 @@ class DefinitionFactory
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->orColumn('languages_name')
                                               ->isDbId()
-                                              ->isQueryResult('SELECT `id` FROM `core_languages` WHERE `id` = :id AND `status` IS NULL', [':id' => '$languages_id']);
+                                              ->isQueryResult('SELECT `id` 
+                                                               FROM   `core_languages` 
+                                                               WHERE  `id` = :id 
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$languages_id'
+                                              ]);
                                 });
     }
 
@@ -377,8 +401,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('languages_id', 'SELECT `id` 
                                                                              FROM   `core_languages` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                           ':name' => '$languages_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':name' => '$languages_name'
                                        ]);
                          });
     }
@@ -416,8 +440,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('languages_id', 'SELECT `id` 
                                                                              FROM   `core_languages` 
                                                                              WHERE  `code_639_1` = :code 
-                                                                               AND  `status` IS NULL', [
-                                           ':code' => '$languages_code'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$languages_code'
                                        ]);
                          });
     }
@@ -435,7 +459,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Providers::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -452,8 +476,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_providers` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$providers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$providers_id'
                                               ]);
                                 });
     }
@@ -488,8 +512,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('providers_id', 'SELECT `id` 
                                                                              FROM   `business_providers` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':code' => '$providers_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$providers_name'
                                        ]);
                          });
     }
@@ -507,7 +531,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setOptional(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Customers::new()
                                                     ->getHtmlSelectOld()
                                                     ->setName($key)
@@ -524,8 +548,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `business_customers` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$customers_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$customers_id'
                                               ]);
                                 });
     }
@@ -560,8 +584,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('customers_id', 'SELECT `id` 
                                                                              FROM   `business_customers` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':id' => '$customers_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':id' => '$customers_name'
                                        ]);
                          });
     }
@@ -579,7 +603,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Timezones::new()->getHtmlSelectObject()
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
@@ -634,8 +658,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('timezones_id', 'SELECT `id` 
                                                                              FROM   `geo_timezones` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                   ':name' => '$timezones_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':name' => '$timezones_name'
                                        ]);
                          });
     }
@@ -671,9 +695,9 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('timezones_id', 'SELECT `id` 
                                                                              FROM   `geo_timezones` 
-                                                                             WHERE  `code` = :code 
-                                                                               AND  `status` IS NULL', [
-                                           ':code' => '$timezones_name'
+                                                                             WHERE  `code` = :code
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$timezones_name'
                                        ]);
                          });
     }
@@ -693,7 +717,7 @@ class DefinitionFactory
                                 ->setOptional(true)
                                 ->setElement(EnumElement::select)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Countries::new()->getHtmlSelectObject()
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
@@ -711,8 +735,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_countries` 
                                                                WHERE  `id` = :id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id' => '$countries_id'
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$countries_id'
                                               ]);
                                 });
     }
@@ -749,8 +773,8 @@ class DefinitionFactory
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
                                                                              WHERE  `name` = :name 
-                                                                               AND  `status` IS NULL', [
-                                                                                ':name' => '$countries_name'
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                   ':name' => '$countries_name'
                                        ]);
                          });
     }
@@ -786,9 +810,9 @@ class DefinitionFactory
                                        ->isCode()
                                        ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                              FROM   `geo_countries` 
-                                                                             WHERE  `code` = :code 
-                                                                               AND  `status` IS NULL', [
-                                                                                ':code' => '$countries_code'
+                                                                             WHERE  `code` = :code
+                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                 ':code' => '$countries_code'
                                        ]);
                          });
     }
@@ -806,7 +830,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return Country::new($source['countries_id'])
                                                   ->getHtmlStatesSelect($key)
                                                   ->setName($key)
@@ -825,10 +849,10 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_states` 
                                                                WHERE  `id`           = :id 
-                                                                 AND  `countries_id` = :countries_id 
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id'           => '$states_id',
-                                                                     ':countries_id' => '$countries_id',
+                                                               AND    `countries_id` = :countries_id 
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id'           => '$states_id',
+                                                                   ':countries_id' => '$countries_id',
                                               ]);
                                 });
     }
@@ -865,10 +889,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('states_id', 'SELECT `name` 
                                                                           FROM   `geo_states` 
                                                                           WHERE  `name`         = :name 
-                                                                            AND  `countries_id` = :countries_id 
-                                                                            AND  `status` IS NULL', [
-                                                                           ':name'         => '$states_name',
-                                                                           ':countries_id' => '$countries_id',
+                                                                          AND    `countries_id` = :countries_id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':name'         => '$states_name',
+                                                                              ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -905,10 +929,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('states_id', 'SELECT `code` 
                                                                           FROM   `geo_states` 
                                                                           WHERE  `code`         = :code 
-                                                                            AND  `countries_id` = :countries_id 
-                                                                            AND  `status` IS NULL', [
-                                                                               ':code'         => '$states_code',
-                                                                               ':countries_id' => '$countries_id',
+                                                                          AND    `countries_id` = :countries_id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':code'         => '$states_code',
+                                                                              ':countries_id' => '$countries_id',
                                        ]);
                          });
     }
@@ -926,7 +950,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setInputType(EnumInputType::number)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters) {
                                     return State::new($source['states_id'])
                                                 ->getHtmlCitiesSelect($key)
                                                 ->setName($key)
@@ -944,11 +968,11 @@ class DefinitionFactory
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `geo_cities` 
-                                                               WHERE  `id` = :id 
-                                                                 AND  `states_id`  = :states_id    
-                                                                 AND  `status` IS NULL', [
-                                                                     ':id'        => '$cities_id',
-                                                                     ':states_id' => '$states_id',
+                                                               WHERE  `id`        = :id 
+                                                               AND    `states_id` = :states_id    
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id'        => '$cities_id',
+                                                                   ':states_id' => '$states_id',
                                               ]);
                                 });
     }
@@ -984,10 +1008,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('cities_id', 'SELECT `name` 
                                                                           FROM   `geo_cities` 
                                                                           WHERE  `name`      = :name 
-                                                                            AND  `states_id` = :states_id    
-                                                                            AND  `status` IS NULL', [
-                                                                                ':name'      => '$cities_name',
-                                                                                ':states_id' => '$states_id',
+                                                                          AND    `states_id` = :states_id    
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':name'      => '$cities_name',
+                                                                              ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -1023,10 +1047,10 @@ class DefinitionFactory
                                        ->setColumnFromQuery('cities_id', 'SELECT `code` 
                                                                           FROM   `geo_cities` 
                                                                           WHERE  `code`      = :code 
-                                                                            AND  `states_id` = :states_id    
-                                                                            AND  `status` IS NULL', [
-                                                                           ':code'      => '$cities_code',
-                                                                           ':states_id' => '$states_id',
+                                                                          AND    `states_id` = :states_id    
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':code'      => '$cities_code',
+                                                                              ':states_id' => '$states_id',
                                        ]);
                          });
     }
@@ -1047,7 +1071,7 @@ class DefinitionFactory
                                 ->setInputType(EnumInputType::dbid)
                                 ->setSize(3)
                                 ->setCliAutoComplete(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
                                     return Users::new()
                                                 ->getHtmlSelectOld()
                                                 ->setId($column)
@@ -1079,7 +1103,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setRender(false)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setCliAutoComplete(true);
     }
 
@@ -1152,7 +1176,7 @@ class DefinitionFactory
                                 ->setInputType(EnumInputType::dbid)
                                 ->setSize(3)
                                 ->setCliAutoComplete(true)
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) use ($filters, $column) {
                                     return Roles::new()
                                                 ->getHtmlSelectOld()
                                                 ->setId($column)
@@ -1166,8 +1190,8 @@ class DefinitionFactory
                                               ->isQueryResult('SELECT `id` 
                                                                FROM   `accounts_roles` 
                                                                WHERE  `id` = :id 
-                                                                 AND `status` IS NULL', [
-                                                                     ':id' => '$' . $column
+                                                               AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   ':id' => '$' . $column
                                               ]);
                                 });
     }
@@ -1263,7 +1287,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setSize(3)
-                         ->setMaxLength(20)
+                         ->setMaxLength(32)
                          ->setLabel(tr('Date time'));
     }
 
@@ -1825,7 +1849,7 @@ class DefinitionFactory
                          ->setContainsData(false)
                          ->setElement(EnumElement::input)
                          ->setInputType(EnumInputType::button)
-                         ->setLabel(tr(' '))
+                         ->setLabel(tr('Button'))
                          ->setSize(1);
     }
 
@@ -1862,14 +1886,14 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(3)
+                                ->setSize(4)
                                 ->setLabel(tr('Created by'))
                                 ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
                                 })
-                                ->setContent(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
                                     if ($o_definition->getDataEntryObject()->isNew()) {
                                         // This is a new DataEntry object, so the creator is.. Well, you!
                                         return InputText::new()
@@ -1908,10 +1932,74 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
+    }
+
+
+    /**
+     * Returns a Definition object for modified_by
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newModifiedBy(?string $column = 'modified_by'): DefinitionInterface
+    {
+        return DefinitionFactory::newDatabaseId($column)
+                                ->setDisabled(true)
+                                ->setSize(4)
+                                ->setLabel(tr('Last modified by'))
+                                ->setTooltip(tr('This column contains the user who last modified this object. Other users may have made earlier edits to this object, that information may be found in the object\'s meta data'))
+                                ->setInputType(EnumInputType::dbid)
+                                ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                    $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
+                                })
+                                ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
+                                    if ($o_definition->getDataEntryObject()->isNew()) {
+                                        // This is a new DataEntry object, so the creator is.. Well, you!
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(Session::getUserObject()->getDisplayName());
+                                    }
+
+                                    // This is modified by a user or by the system user
+                                    if ($source[$key]) {
+                                        return InputText::new()
+                                                        ->setDisabled(true)
+                                                        ->addClasses('text-center')
+                                                        ->setValue(User::new()->load($source[$key])->getDisplayName());
+                                    }
+
+                                    return InputText::new()
+                                                    ->setDisabled(true)
+                                                    ->addClasses('text-center')
+                                                    ->setContent(tr('System'));
+                                });
+    }
+
+
+    /**
+     * Returns a Definition object for modified_on
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newModifiedOn(?string $column = 'modified_on'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setDisabled(true)
+                         ->setInputType(EnumInputType::datetime_local)
+                         ->setDbNullInputType(EnumInputType::text)
+                         ->addClasses('text-center')
+                         ->setSize(4)
+                         ->setMaxLength(20)
+                         ->setTooltip(tr('This column contains the exact date / time when this object was last modified'))
+                         ->setLabel(tr('Last modified'));
     }
 
 
@@ -1995,7 +2083,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::text)
                          ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
                          ->addClasses('text-center')
-                         ->setSize(3)
+                         ->setSize(4)
                          ->setMaxLength(32)
                          ->setLabel(tr('Status'));
     }
@@ -2029,7 +2117,7 @@ class DefinitionFactory
     public static function newDivider(?string $column = null): DefinitionInterface
     {
         if (!$column) {
-            $column = 'divider-' . Strings::getUuid();
+            $column = 'divider-' . (static::$count++);
         }
 
         return Definition::new($column)

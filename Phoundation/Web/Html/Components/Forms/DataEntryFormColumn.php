@@ -79,7 +79,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         $o_definition = $this->o_definition;
 
         // Add marker to all labels that are obligatory
-        if (!$o_definition->getOptional()) {
+        if (!$o_definition->getOptional() and !$o_definition->getReadOnly() and !$o_definition->getDisabled()) {
             $o_definition->setLabel('* ' . $o_definition->getLabel());
         }
 

@@ -29,9 +29,12 @@ use Phoundation\Data\Traits\TraitDataObjectRights;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
+use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Arrays;
@@ -41,16 +44,18 @@ use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Exception\UrlException;
+use Phoundation\Web\Http\Exception\UrlNotAbsoluteException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
-use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
 
 class Url implements UrlInterface
 {
-    use TraitDataObjectRights;
+    use TraitDataObjectRights {
+        getRightsObject as protected __getRightsObject;
+    }
 
 
     /**
@@ -74,13 +79,27 @@ class Url implements UrlInterface
      */
     protected bool $encoded = false;
 
+    /**
+     * Tracks the components for this URL
+     *
+     * @var array|null $parsed_url
+     */
+    protected ?array $parsed_url = null;
+
+    /**
+     * Tracks if the URL is absolute or not
+     *
+     * @var bool|null $is_absolute
+     */
+    protected ?bool $is_absolute = null;
+
 
     /**
      * Url class constructor
      *
-     * @param Stringable|string|int|null $source
+     * @param UrlInterface|string|int|null $source
      */
-    protected function __construct(Stringable|string|int|null $source = null)
+    protected function __construct(UrlInterface|string|int|null $source = null)
     {
         if ($source instanceof UrlInterface) {
             // Copy URL data from the specified source into this URL object
@@ -89,7 +108,7 @@ class Url implements UrlInterface
 
         } else {
             // If the specified was a non UrlInterface stringable object, convert to string and use
-            $this->setSource((string) $source);
+            $this->setSource($source);
         }
     }
 
@@ -101,6 +120,11 @@ class Url implements UrlInterface
      */
     public function __toString(): string
     {
+        // Empty URL's are considered absolute
+        if ($this->source and !$this->isAbsolute()) {
+            $this->makeWww();
+        }
+
         return (string) $this->getSource();
     }
 
@@ -108,11 +132,11 @@ class Url implements UrlInterface
     /**
      * Returns a new Url object
      *
-     * @param Stringable|string|int|null $source
+     * @param UrlInterface|string|int|null $source
      *
      * @return static
      */
-    public static function new(Stringable|string|int|null $source = null): static
+    public static function new(UrlInterface|string|int|null $source = null): static
     {
         return new static($source);
     }
@@ -286,25 +310,24 @@ class Url implements UrlInterface
      * Apply predefined URL names
      *
      * @param Stringable|string|int|null $url
-     * @param EnumRequestTypes|null      $request_type
      *
      * @return static
      */
-    public static function newConfigured(Stringable|string|int|null $url, ?EnumRequestTypes $request_type = null): static
+    public static function newConfigured(Stringable|string|int|null $url): static
     {
         $url        = (string) $url;
         $configured = match (Strings::until($url, '.html')) {
-            'index'   , 'dashboard' => config()->getString('web.pages.index'        , '/index'),
-            'sign-in' , 'signin'    => config()->getString('web.pages.sign-in'      , '/sign-in'),
-            'sign-up' , 'signup'    => config()->getString('web.pages.sign-up'      , '/sign-up'),
-            'sign-out', 'signout'   => config()->getString('web.pages.sign-out'     , '/sign-out'),
-            'sign-key', 'signkey'   => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
-            'profile'               => config()->getString('web.pages.profile'      , '/my/profile'),
-            'settings'              => config()->getString('web.pages.settings'     , '/my/settings'),
-            'mfa-create'            => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
-            'mfa-verify'            => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
-            'lost-password'         => config()->getString('web.pages.password.lost', '/lost-password'),
-            default                 => config()->getString('web.pages.' . $url      , '')
+            'index'        , 'dashboard' => config()->getString('web.pages.index'        , '/index'),
+            'sign-in'      , 'signin'    => config()->getString('web.pages.sign-in'      , '/sign-in'),
+            'sign-up'      , 'signup'    => config()->getString('web.pages.sign-up'      , '/sign-up'),
+            'sign-out'     , 'signout'   => config()->getString('web.pages.sign-out'     , '/sign-out'),
+            'sign-key'     , 'signkey'   => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
+            'profile'                    => config()->getString('web.pages.profile'      , '/my/profile'),
+            'settings'                   => config()->getString('web.pages.settings'     , '/my/settings'),
+            'mfa-create'                 => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
+            'mfa-verify'                 => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
+            'lost-password'              => config()->getString('web.pages.password.lost', '/lost-password'),
+            default                      => config()->getString('web.pages.' . $url      , '')
         };
 
         if ($configured) {
@@ -453,6 +476,64 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns true if the current URL for this object is absolute (has a scheme and host), false otherwise
+     *
+     * @return bool
+     */
+    public function isAbsolute(): bool
+    {
+        if ($this->is_absolute === null) {
+            if (!$this->canMakeAbsolute()) {
+                // Links that can't be made absolute (#, mailto:, etc) are considered already absolute
+                $this->is_absolute = true;
+
+            } else {
+                $parsed            = $this->getParsed();
+                $this->is_absolute = !(empty($parsed['scheme']) and empty($parsed['host']));
+            }
+        }
+
+        return $this->is_absolute;
+    }
+
+
+    /**
+     * Returns true if this URL can be transformed into www, cdn, image url, etc.
+     *
+     * @return bool
+     */
+    public function canMakeAbsolute(): bool
+    {
+        if (empty($this->source)) {
+            // This is a NULL URL, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, '#')) {
+            // This is a valid but "do nothing" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'mailto:')) {
+            // This is a valid "mailto" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'tel:')) {
+            // This is a valid "tel:" link, don't do anything
+            return false;
+        }
+
+        if (str_starts_with($this->source, 'javascript:')) {
+            // This is a valid "javascript:" link, don't do anything
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * Returns a complete web URL
      *
      * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
@@ -462,8 +543,8 @@ class Url implements UrlInterface
      */
     public function makeWww(bool $use_configured_root = false): static
     {
-        if (empty($this->source)) {
-            // This is a NULL URL, don't do anything
+        if (!$this->canMakeAbsolute()) {
+            // This URL can't be made into something else
             return $this;
         }
 
@@ -490,6 +571,11 @@ class Url implements UrlInterface
      */
     public function makeCdn(?string $extension = null): static
     {
+        if (!$this->canMakeAbsolute()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         return $this->renderCdn($extension);
     }
 
@@ -533,6 +619,11 @@ class Url implements UrlInterface
      */
     protected function makeJson(string $type, bool $use_configured_root = false): static
     {
+        if (!$this->canMakeAbsolute()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         if (empty($this->source)) {
             throw new OutOfBoundsException(tr('No URL specified'));
         }
@@ -578,6 +669,11 @@ class Url implements UrlInterface
     public function makeImg(): static
     {
         if ($this->isValid()) {
+            return $this;
+        }
+
+        if (!$this->canMakeAbsolute()) {
+            // This URL can't be made into something else
             return $this;
         }
 
@@ -672,7 +768,7 @@ class Url implements UrlInterface
         // Auto cloak URL's?
         try {
             if ($this->source) {
-                if (Domains::getConfigurationKey($this->getDomain(), 'cloaked', false)) {
+                if (Domains::getConfigurationKey($this->getHost(), 'cloaked', false)) {
                     $this->cloak();
                 }
             }
@@ -690,6 +786,17 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns the source URL of this URL object
+     *
+     * @return string|int|null
+     */
+    public function getSourceUnprocessed(): string|int|null
+    {
+        return $this->source;
+    }
+
+
+    /**
      * Sets the source URL of this URL object
      *
      * @param UrlInterface|string|int|null $source
@@ -699,6 +806,9 @@ class Url implements UrlInterface
     public function setSource(UrlInterface|string|int|null $source): static
     {
         $source = get_null(trim((string) $source));
+
+        $this->parsed_url  = null;
+        $this->is_absolute = null;
 
         if ($source === null) {
             $this->source = null;
@@ -724,32 +834,223 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the domain for the specified URL, NULL if the URL is invalid
+     * Returns the components for the current URL.
      *
-     * @return string|null
+     * Possible components are:
+     *
+     * scheme   (http, https, etc)
+     * host     (Domain / host name / IP address)
+     * port     port (very optional)
+     * user     user (very optional)
+     * pass     password (very optional)
+     * path     The URL path
+     * query    (After the ?)
+     * fragment (After the #)
+     *
+     * @note Depending on the current URL, not all components may be available
+     *
+     * @note will return NULL if the current source is empty
+     *
+     * @return array|null
      */
-    public function getDomain(): ?string
+    public function getParsed(): ?array
     {
-        if ($this->source) {
-            $data = parse_url($this->source);
+        if (empty($this->parsed_url)) {
+            if (empty($this->source)) {
+                return [];
+            }
 
-            if (!$data) {
-                throw new OutOfBoundsException(tr('Failed to parse url ":url" to fetch domain', [
+            $parsed_url = parse_url($this->source);
+
+            if ($parsed_url === false) {
+                // parse_url() failed to parse the source URL of this object
+                Log::warning(ts('Failed to parse url ":url"', [
                     ':url' => $this->source,
                 ]));
             }
 
-            $domain = isset_get($data['host']);
+            $this->parsed_url = $parsed_url;
+        }
 
-            if ($domain === null) {
-                // Since there is no domain, assume we need the current domain
-                return Domains::getCurrent();
+        return $this->parsed_url;
+    }
+
+
+    /**
+     * Returns the components for the current URL.
+     *
+     * Possible components are:
+     *
+     * scheme   (http, https, etc)
+     * host     (Domain / host name / IP address)
+     * port     port (very optional)
+     * user     user (very optional)
+     * pass     password (very optional)
+     * path     The URL path
+     * query    (After the ?)
+     * fragment (After the #)
+     *
+     * @note Depending on the current URL, not all components may be available
+     *
+     * @note will return NULL if the current source is empty
+     *
+     * @param string $section
+     *
+     * @return string|int|null
+     */
+    public function getParsedSection(string $section): string|int|null
+    {
+        if (!in_array($section, ['scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment'])) {
+            throw new OutOfBoundsException(tr('Cannot return parsed section ":section", only sections "scheme", "host", "port", "user", "pass", "path", "query", "fragment" cam be returned', [
+                ':section' => $section,
+            ]));
+        }
+
+        return array_get_safe($this->getParsed(), $section);
+    }
+
+
+    /**
+     * Returns the scheme part of the current URL
+     *
+     * @note Will return NULL if the scheme is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getScheme(): ?string
+    {
+        return array_get_safe($this->getParsed(), 'scheme');
+    }
+
+
+    /**
+     * Returns the user part of the current URL
+     *
+     * @note Will return NULL if the user is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getUser(): ?string
+    {
+        return array_get_safe($this->getParsed(), 'user');
+    }
+
+
+    /**
+     * Returns the password part of the current URL
+     *
+     * @note Will return NULL if the password is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getPassword(): ?string
+    {
+        return array_get_safe($this->getParsed(), 'pass');
+    }
+
+
+    /**
+     * Returns the host for the current URL
+     *
+     * @note Will return NULL if the host is not specified, empty, or invalid
+     *
+     * @param bool $default_domain_is_current
+     *
+     * @return string|null
+     */
+    public function getHost(bool $default_domain_is_current = true): ?string
+    {
+        if ($this->source) {
+            $host = $this->getParsedSection('host');
+
+            if ($host === null) {
+                if ($default_domain_is_current) {
+                    // Since there is no domain, assume we need the current domain
+                    return Domains::getCurrent();
+                }
             }
 
-            return $domain;
+            return get_null((string) $host);
         }
 
         return null;
+    }
+
+
+    /**
+     * Returns the port part of the current URL
+     *
+     * @note Will return NULL if the port is not specified, empty, or invalid
+     *
+     * @return int|null
+     */
+    public function getPort(): ?int
+    {
+        return get_null((int) array_get_safe($this->getParsed(), 'port'));
+    }
+
+
+    /**
+     * Returns the path part of the current URL
+     *
+     * @note Will return NULL if the host is not specified, empty, or invalid
+     *
+     * @param bool $skip_language
+     *
+     * @return string|null
+     */
+    public function getPath(bool $skip_language = false): ?string
+    {
+        $return = array_get_safe($this->getParsed(), 'path');
+
+        if ($skip_language) {
+            $return = Strings::ensureBeginsNotWith($return, '/');
+            $return = '/' . Strings::from($return, '/');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the file part of the current URL
+     *
+     * @note Will return NULL if the host is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getFile(): ?string
+    {
+        $return = $this->getPath();
+        $return = Strings::fromReverse($return, '/');
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the path part of the current URL
+     *
+     * @note Will return NULL if the query is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getQuery(): ?string
+    {
+        return array_get_safe($this->getParsed(), 'query');
+    }
+
+
+    /**
+     * Returns the fragment part of the current URL
+     *
+     * @note Will return NULL if the fragment is not specified, empty, or invalid
+     *
+     * @return string|null
+     */
+    public function getFragment(): ?string
+    {
+        return array_get_safe($this->getParsed(), 'fragment');
     }
 
 
@@ -829,6 +1130,7 @@ class Url implements UrlInterface
 
         // Build the URL
         $base  = Url::getBase($use_configured_root);
+        $url   = $url->getSourceUnprocessed();
         $url   = Strings::ensureBeginsNotWith($url, '/');
         $url   = $prefix . $url;
         $url   = str_replace(':LANGUAGE', Session::getLanguage(), $base . $url);
@@ -871,6 +1173,11 @@ class Url implements UrlInterface
             throw new OutOfBoundsException(tr('No URL specified'));
         }
 
+        if (!$this->canMakeAbsolute()) {
+            // This URL can't be made into something else
+            return $this;
+        }
+
         if (static::isValidUrl($url)) {
             // TODO Add check that the URL is local! If its not local, how can we verify its a CDN URL?
             return $this;
@@ -880,7 +1187,7 @@ class Url implements UrlInterface
         // Apply special variables
         // Form the CDN URL
         if (!$extension) {
-            $url  = Strings::ensureBeginsWith($url, Core::getProjectSeoName() . '/');
+            $url  = Strings::ensureBeginsWith($url, Project::getSeoFullName() . '/');
 
         } else {
             $url  = Strings::ensureBeginsWith($url, 'templates' . '/');
@@ -892,7 +1199,7 @@ class Url implements UrlInterface
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
         $url  = Strings::ensureBeginsNotWith($url, '/');
-        $url .= static::addExtension($extension);
+        $url  = static::addExtension($url, $extension);
 
         $this->source = $base . $url;
 
@@ -922,10 +1229,10 @@ class Url implements UrlInterface
         }
 
         try {
-            return (string) static::newConfigured($url);
+            return static::newConfigured($url)->getSourceUnprocessed();
 
         } catch (UrlConfiguredUrlNotFoundException) {
-            // This was not a configured URL
+            // This wasn't a configured URL
             return $url;
         }
     }
@@ -940,10 +1247,11 @@ class Url implements UrlInterface
      */
     protected static function applyVariables(string $url): string
     {
-        $url = str_replace(':PROTOCOL', Request::getProtocol(), $url);
-        $url = str_replace(':DOMAIN'  , Domains::getCurrent(), $url);
+        $url = str_replace(':PROTOCOL', Request::getProtocol()     , $url);
+        $url = str_replace(':DOMAIN'  , Domains::getCurrent()      , $url);
         $url = str_replace(':PORT'    , (string) Request::getPort(), $url);
-        return str_replace(':LANGUAGE', Session::getLanguage(), $url);
+
+        return str_replace(':LANGUAGE', Session::getLanguage()     , $url);
     }
 
 
@@ -963,21 +1271,29 @@ class Url implements UrlInterface
     /**
      * Returns the extension for the URL
      *
+     * @param string      $url
      * @param string|null $extension
      *
      * @return string|null
      */
-    protected static function addExtension(?string $extension): ?string
+    protected static function addExtension(string $url, ?string $extension): ?string
     {
-        if (!$extension) {
-            return $extension;
+        if (empty($extension)) {
+            return $url;
         }
 
-        if (config()->get('web.minify', true)) {
-            return '.min.' . $extension;
+        if (config()->get('web.cdn.resources.minified', true)) {
+            $extension = '.min.' . $extension;
+
+        } else {
+            $extension = '.' . $extension;
         }
 
-        return '.' . $extension;
+        if (str_ends_with($url, $extension)) {
+            return $url;
+        }
+
+        return $url . $extension;
     }
 
 
@@ -995,7 +1311,7 @@ class Url implements UrlInterface
         Log::notice(ts('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
-                                 WHERE `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
+                           WHERE       `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
 
         Log::success(ts('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
@@ -1021,6 +1337,8 @@ class Url implements UrlInterface
         $remove_keys = Arrays::force($remove_keys);
 
         foreach ($queries as $query) {
+            $query = Strings::ensureBeginsNotWith($query, 'amp;');
+            // TODO why does this show as "amp;" after Arrays::force()
             if (empty($query)) {
                 continue;
             }
@@ -1325,7 +1643,7 @@ class Url implements UrlInterface
          * Do language mapping, but only if routemap has been set
          */
         // :TODO: This will fail when using multiple CDN servers (WHY?)
-        if (!empty(config()->get('locale.language.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+        if (!empty(config()->get('locale.languages.supported', [])) and ($this->url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
             if ($this->url_params['from_language'] !== 'en') {
                 /*
                  * Translate the current non-English URL to English first
@@ -1438,7 +1756,7 @@ class Url implements UrlInterface
     public function getDomainType(bool $check_sub_domains = true): ?string
     {
         // Get all domain names and check if its primary or subdomain of those.
-        $url_domain = $this->getDomain();
+        $url_domain = $this->getHost();
         $domains    = config()->get('web.domains');
 
         foreach ($domains as $domain) {
@@ -1612,23 +1930,23 @@ class Url implements UrlInterface
     /**
      * Returns true if the current URL has the specified domain
      *
-     * @param EnumDomainAllowed|string|null $domain
+     * @param EnumDomainAllowed|string|null $host
      *
      * @return bool
      */
-    public function hasDomain(EnumDomainAllowed|string|null $domain = null): bool
+    public function hasHost(EnumDomainAllowed|string|null $host = null): bool
     {
-        if ($domain === null) {
+        if ($host === null) {
             return true;
         }
 
-        if ($domain instanceof EnumDomainAllowed) {
-            switch ($domain) {
+        if ($host instanceof EnumDomainAllowed) {
+            switch ($host) {
                 case EnumDomainAllowed::any:
                     break;
 
                 case EnumDomainAllowed::current:
-                    $domain = Url::newCurrentDomainRootUrl()->getDomain();
+                    $host = Url::newCurrentDomainRootUrl()->getHost();
                     break;
 
                 case EnumDomainAllowed::whitelist:
@@ -1636,26 +1954,26 @@ class Url implements UrlInterface
             }
         }
 
-        return $domain === parse_url($this->source, PHP_URL_HOST);
+        return $host === $this->getHost();
     }
 
 
     /**
      * Returns static if the URL domain matches the specified domain. Throws an exception if URL does not match
      *
-     * @param EnumDomainAllowed|string $domain
+     * @param EnumDomainAllowed|string $host
      *
      * @return static
      */
-    public function checkDomain(EnumDomainAllowed|string $domain): static
+    public function checkHost(EnumDomainAllowed|string $host): static
     {
-        if ($this->hasDomain($domain)) {
+        if ($this->hasHost($host)) {
             return $this;
         }
 
-        throw UrlException::new(tr('The URL ":source" does not match the specified domain ":domain"', [
+        throw UrlException::new(tr('The URL ":source" does not match the required host ":host"', [
             ':source' => $this->source,
-            ':domain' => $domain,
+            ':host'   => $host,
         ]));
     }
 
@@ -1663,33 +1981,100 @@ class Url implements UrlInterface
     /**
      * Returns the rights required by any user to view this URL using the current routing parameters
      *
+     * @param bool $use_cache
+     *
      * @return array
      */
-    public function getRequiredRights(): array
+    public function getRights(bool $use_cache = true): array
     {
-        if (Request::hasRoutingParameters()) {
-            return array_merge(Request::getRoutingParametersObject()->getRights(), $this->parseRights(), $this->getRightsObject()->getSourceKeys());
+        return $this->getRightsObject($use_cache)?->getSource() ?? [];
+    }
+
+
+    /**
+     * Gets a list of configured minimum rights to access any page
+     *
+     * @return array
+     */
+    public function getMimimumRights(): array
+    {
+        return config()->getArray('security.web.pages.rights.minimum', []);
+    }
+
+
+    /**
+     * Gets a list of configured files that are exempt from rights checks (and as such, accessible by the guest user)
+     *
+     * @return array
+     */
+    public function getRightsExceptions(): array
+    {
+        return config()->getArray('security.web.pages.rights.exceptions', [
+            '>/sign-',
+            '>/force-password-update.',
+            '>/lost-password.',
+            '>/public/'
+        ]);
+    }
+
+
+    /**
+     * Returns the Rights object containing the rights required by any user to view this URL using the current routing parameters
+     *
+     * @param bool $use_cache
+     *
+     * @return RightsInterface
+     */
+    public function getRightsObject(bool $use_cache = true): RightsInterface
+    {
+        if (empty($this->o_rights) or !$use_cache) {
+            $this->o_rights = RightsBySeoName::new()->setParentObject($this);
+
+            if ($this->source) {
+                // Only check rights on local URL's. This means only URL's without host, or with internal / configured hosts
+                $host  = $this->getHost();
+                $check = (empty($host) or Domains::isConfigured($host));
+
+                if ($check) {
+                    $parsed = $this->parseRights();
+
+                    if ($parsed === null) {
+                        // No rights are required at all, we can ignore minimum rights
+                        return $this->o_rights;
+                    }
+
+                    // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
+                    $this->o_rights->setSource(array_merge($this->getMimimumRights(),
+                                                           $parsed,
+                                                           $this->o_rights?->getSourceKeys() ?? []));
+                }
+            }
         }
 
-        return array_merge($this->parseRights(), $this->getRightsObject()->getSourceKeys());
+        return $this->o_rights;
     }
 
 
     /**
      * Parses the rights required from the URL
      *
-     * @return array
+     * @return array|null
      */
-    protected function parseRights(): array
+    protected function parseRights(): ?array
     {
         if ($this->source) {
-            $url = parse_url($this->source, PHP_URL_PATH);
+            if ($this->hasRightsException()) {
+                // No rights are required at all
+                return null;
+            }
 
-            if (preg_match_all('/^\/\w{2}\/(.+?)\/[^\/]+\.\w+$/', $url, $matches)) {
-                $rights = $matches[1][0];
-                $rights = explode('/', $rights);
+            $path = $this->getPath();
 
-                return $rights;
+            if ($path) {
+                // Filter out the rights from the given URL
+                if (preg_match_all('/^\/?\w{2}\/(.+?)\/[^\/]+(?:\.\w+)?$/', $path, $matches)) {
+                    return explode('/', $matches[1][0]);
+                }
             }
 
             // No rights found in the URL
@@ -1700,15 +2085,80 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns true if the current session user (or the specified one) has access to this URL
-     *
-     * @param UserInterface|null $o_user
+     * Returns true if the current URL for this object is exempt from rights checks according to the configuration path "security.web.pages.rights.exceptions"
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null): bool
+    public function hasRightsException(): bool
     {
-        return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRequiredRights());
+        $path = $this->getPath(true);
+        $path = Strings::untilReverse($path, '.') . '.';
+
+        foreach ($this->getRightsExceptions() as $exception) {
+            switch (substr($exception, 0, 1)) {
+                case '=':
+                    if ($path === substr($exception, 1)) {
+                        // No rights are required at all
+                        return true;
+                    }
+
+                    break;
+
+                case '>':
+                    if (str_starts_with($path, substr($exception, 1))) {
+                        // No rights are required at all
+                        return true;
+                    }
+
+                    break;
+
+                case '<':
+                    if (str_ends_with($path, substr($exception, 1))) {
+                        // No rights are required at all
+                        return true;
+                    }
+
+                    break;
+
+                case '*':
+                    try {
+                        if (preg_match(substr($exception, 1), $path)) {
+                            // No rights are required at all
+                            return true;
+                        }
+
+                    } catch (PhpException $e) {
+                        throw new RegexException(tr('Failed to execute regular expression ":regex"', [
+                            ':regex' => substr($exception, 1),
+                        ]), $e);
+                    }
+
+                    break;
+
+                default:
+                    throw new OutOfBoundsException(tr('Cannot parse URL rights exception ":exception", it must start with "<" or ">" or "$". Please check your configuration path "security.web.pages.rights.exceptions"', [
+                        ':exception' => $exception,
+                    ]));
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the current session user (or the specified one) has access to this URL
+     *
+     * @param UserInterface|null $o_user
+     * @param bool               $use_cache
+     *
+     * @return bool
+     */
+    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
+    {
+        $basename = Strings::fromReverse($this->source, '/');
+
+        return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
     }
 
 
@@ -1716,13 +2166,13 @@ class Url implements UrlInterface
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
      * @param UserInterface|null $o_user
+     * @param bool               $use_cache
      *
      * @return static
-     * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null): static
+    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
     {
-        if ($this->userHasAccess($o_user)) {
+        if ($this->userHasAccess($o_user, $use_cache)) {
             return $this;
         }
 
@@ -1744,23 +2194,5 @@ class Url implements UrlInterface
     public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
     {
         return Anchor::new($this, $content)->setTarget($o_target);
-    }
-
-
-    /**
-     * Returns the roles for this user
-     *
-     * @param bool $reload
-     * @param bool $order
-     *
-     * @return RightsInterface
-     */
-    public function getRightsObject(bool $reload = false, bool $order = false): RightsInterface
-    {
-        if (empty($this->o_rights) or $reload) {
-            $this->o_rights = RightsBySeoName::new()->setParentObject($this);
-        }
-
-        return $this->o_rights;
     }
 }

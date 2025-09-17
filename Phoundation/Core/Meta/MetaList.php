@@ -21,6 +21,7 @@ use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Tables\HtmlDataTable;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
@@ -98,7 +99,7 @@ class MetaList
             unset($row['created_by']);
 
             if (Url::new($row['source'])->isValid()) {
-                $row['source'] = '<a href = "' . $row['source'] . '">' . $row['source'] . '</a>';
+                $row['source'] = Anchor::new($row['source'], $row['source']);
             }
 
             if (isset_get($row['data']['to'])) {

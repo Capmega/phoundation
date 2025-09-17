@@ -17,7 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Project;
 
 use Phoundation\Accounts\Users\User;
+use Phoundation\Core\Core;
+use Phoundation\Core\Exception\ProjectException;
+use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
+use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -54,6 +58,9 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Enums\EnumAnchorTarget;
+use Phoundation\Web\Http\Domains;
 use Throwable;
 
 
@@ -64,13 +71,6 @@ class Project implements ProjectInterface
         __construct as protected ___construct;
     }
 
-
-    /**
-     * The project name
-     *
-     * @var string $name
-     */
-    protected static string $name;
 
     /**
      * The local environment for this project
@@ -335,17 +335,6 @@ class Project implements ProjectInterface
 
         // Get the environment and remove all environment specific data
         return Environment::get(static::$name, $environment)->remove();
-    }
-
-
-    /**
-     * Returns the project name
-     *
-     * @return string
-     */
-    public static function getName(): string
-    {
-        return static::$name;
     }
 
 
@@ -1292,5 +1281,307 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 }
             }
         }
+    }
+
+
+    /**
+     * Returns the general email for this project
+     *
+     * @return string
+     */
+    public static function getVersion(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            // Get the project version
+            try {
+                $return = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/version')));
+
+                if (!strlen($return)) {
+                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/project/version file'));
+                }
+
+                if (!is_version($return)) {
+                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project/version file', [
+                        ':version' => $return,
+                    ]));
+                }
+
+                return $return;
+
+            } catch (Throwable $e) {
+                if ($e instanceof OutOfBoundsException) {
+                    throw $e;
+                }
+
+                // Project file is not readable
+                if (!is_readable(DIRECTORY_ROOT . 'config/project/version')) {
+                    if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
+                        // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
+                        // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
+                        // won't be able to work our way around this.
+                        throw new ProjectException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
+                    }
+
+                    // The file doesn't exist, that is good. Go to setup mode
+                    Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
+
+                    throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
+                        ':path' => DIRECTORY_ROOT . 'config/project/version',
+                    ]));
+                }
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns an associative array (or formatted string) with project version information
+     *
+     * @param bool $string If true, will return the versions list in a formatted string instead of an associative array
+     *
+     * @return array|string
+     */
+    public static function getVersions(bool $string = false): array|string
+    {
+        $return = [
+            'project name'                    => Project::getFullName(),
+            'project version'                 => Project::getVersion(),
+            'phoundation framework version'   => Core::PHOUNDATION_VERSION,
+            'phoundation database version'    => Version::getString(Libraries::getMaximumVersion()),
+            'phoundation minimum php version' => Core::PHP_MINIMUM_VERSION,
+        ];
+
+        if ($string) {
+            $return = Arrays::equalizeKeySizes($return);
+            $return = Arrays::capitalizeKeys($return);
+            $return = Arrays::implodeWithKeys($return, PHP_EOL, ': ');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getFullName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = Project::getOwnerName() . '_' . Project::getName();
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getHumanReadableFullName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = Strings::capitalize(Project::getOwnerName()) . ' ' . Strings::capitalize(Project::getName());
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getSeoFullName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Project::getFullName()));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.name', PROJECT);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for this project
+     *
+     * @return string
+     */
+    public static function getSeoName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Project::getName()));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the general email for this project
+     *
+     * @return string
+     */
+    public static function getEmail(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.email', 'webmaster@' . Domains::getPrimaryWeb());
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the URL for the owner of this project
+     *
+     * @return string
+     */
+    public static function getOwnerUrl(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.owner.url', 'https://phoundation.org');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for the owner of this project
+     *
+     * @return string
+     */
+    public static function getOwnerName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.owner.name', 'Phoundation');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for the owner of this project
+     *
+     * @return string
+     */
+    public static function getSeoOwnerName(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = str_replace('_', '-', strtolower(Project::getOwnerName()));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the name for the owner of this project
+     *
+     * @return string
+     */
+    public static function getOwnerLabel(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getString('project.owner.name.label', '<span>Phoun</span>dation');
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the copyright year for this project
+     *
+     * @return int
+     */
+    public static function getCopyrightYear(): int
+    {
+        static $return;
+
+        if (empty($return)) {
+            $return = config()->getPositiveInteger('project.copyright.year', 2025);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns a basic copyright message
+     *
+     * @param bool      $multi_line
+     * @param bool|null $html
+     *
+     * @return string
+     */
+    public static function getCopyrightString(bool $multi_line = false, ?bool $html = null): string
+    {
+        if ($html === null) {
+            $html = PLATFORM_WEB;
+        }
+
+        if ($html) {
+            return tr('Copyright © :year <b>:url</b> ' . ($multi_line ? '<br/>' : null) . '<small>:reserved</small>', [
+                ':reserved' => tr('All rights reserved'),
+                ':year'     => Project::getCopyrightYear(),
+                ':url'      => Anchor::new(Project::getOwnerUrl())
+                                     ->setTarget(EnumAnchorTarget::blank)
+                                     ->setContent(Project::getOwnerName())
+            ]);
+        }
+
+        return tr('Copyright © :year :url ' . ($multi_line ? PHP_EOL : null) . ':reserved', [
+            ':reserved' => tr('All rights reserved'),
+            ':year'     => Project::getCopyrightYear(),
+            ':url'      => Anchor::new(Project::getOwnerUrl())
+                                 ->setTarget(EnumAnchorTarget::blank)
+                                 ->setContent(Project::getOwnerName())
+        ]);
     }
 }

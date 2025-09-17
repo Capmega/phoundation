@@ -21,15 +21,14 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Interfaces\IteratorBaseInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
-use Phoundation\Date\PhoDateTime;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
-use UnitEnum;
 
 
 interface ValidatorInterface extends IteratorBaseInterface
@@ -63,6 +62,15 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return mixed
      */
     public function getSelectedValue(): mixed;
+
+    /**
+     * Sets the currently selected value
+     *
+     * @param mixed $value
+     *
+     * @return static
+     */
+    public function setSelectedValue(mixed $value): static;
 
     /**
      * Allow the validator to check each element in a list of values.
@@ -548,10 +556,14 @@ interface ValidatorInterface extends IteratorBaseInterface
      * Validates that the selected field is a date time field
      *
      * @note Regex taken from https://code.oursky.com/regex-date-currency-and-time-accurate-data-extraction/
+     * @todo Add locale support, see https://www.php.net/manual/en/book.intl.php and
+     *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
+     *
+     * @param EnumDateTimeWidth $width
+     *
      * @return static
      */
-    public function isDateTime(): static;
-
+    public function isDateTime(EnumDateTimeWidth $width = EnumDateTimeWidth::default): static;
 
     /**
      * Validates that the selected field is in the past
@@ -1396,4 +1408,69 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return array
      */
     public function getFailures(): array;
+
+    /**
+     * Returns the first key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getFirstKey(): Stringable|string|float|int|null;
+
+    /**
+     * Returns the last key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getLastKey(): Stringable|string|float|int|null;
+
+    /**
+     * Returns the first element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): mixed;
+
+    /**
+     * Returns the last element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): mixed;
+
+    /**
+     * Returns if the specified key exists or not
+     *
+     * @param Stringable|string|int $key
+     *
+     * @return bool
+     */
+    public function keyExists(Stringable|string|int $key): bool;
+
+    /**
+     * Returns if the specified value exists in this Iterator or not
+     *
+     * @note Wrapper for IteratorCore::exists()
+     *
+     * @param mixed $value
+     * @param bool  $strict
+     *
+     * @return bool
+     */
+    public function valueExists(mixed $value, bool $strict = true): bool;
+
+    /**
+     * Makes the current field a datetime value
+     *
+     * This method ensures that the specified array key is a datetime
+     *
+     * @return static
+     */
+    public function sanitizeToDateTime(): static;
+
+    /**
+     * This method will allow skipping validation of data at the cost of an Incident report
+     *
+     * @return static
+     */
+    public function skipValidation(): static;
 }

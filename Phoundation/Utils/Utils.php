@@ -17,6 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Utils;
 
 
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
+
 class Utils
 {
     /**
@@ -85,4 +90,53 @@ class Utils
      * If specified, will ensure all keys have the same size
      */
     const int EQUALIZE_KEY_SIZES = 16;
+
+
+    /**
+     * Process the given array and matches the specified needles with the source values and return the requested result
+     *
+     * @param int                                                $action
+     * @param DataIteratorInterface|array                        $source
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param int                                                $flags
+     * @param string|null                                        $column
+     *
+     * @return array
+     */
+    protected static function matchValues(int $action, DataIteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags, ?string $column = null): array
+    {
+        $flags   = Arrays::decodeMatchFlags($flags, true);
+        $needles = Arrays::prepareNeedles($needles, $flags);
+
+        if ($source instanceof DataIteratorInterface) {
+            $source = $source->getSource();
+        }
+
+        // Execute matching
+        return match ($flags['match_mode']) {
+            'full'     => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return (($flags['strict'] and ($value === $needle)) or ($value == $needle));
+            }),
+
+            'regex'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return preg_match($needle, $value);
+            }),
+
+            'contains' => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_contains($value, $needle);
+            }),
+
+            'start'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_starts_with($value, $needle);
+            }),
+
+            'end'      => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+                return str_ends_with($value, $needle);
+            }),
+
+            default    => throw new OutOfBoundsException(tr('Unknown match mode ":mode" specified', [
+                ':mode' => $flags['match_mode']
+            ])),
+        };
+    }
 }

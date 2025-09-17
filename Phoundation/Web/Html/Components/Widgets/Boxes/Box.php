@@ -170,7 +170,7 @@ abstract class Box extends Widget
      *
      * @return static
      */
-    public function setValue(string $value, bool $make_safe = true): static
+    public function setValue(string $value, bool $make_safe = false): static
     {
         if ($make_safe) {
             $this->value = Html::safe($value);

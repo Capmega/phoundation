@@ -18,12 +18,9 @@ namespace Phoundation\Web\Html\Components;
 
 use PDOStatement;
 use Phoundation\Cache\Cache;
-use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataConnector;
-use Phoundation\Data\Traits\TraitDataDataIterator;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataIterator;
 use Phoundation\Data\Traits\TraitMethodEnsureArrayString;
@@ -34,7 +31,6 @@ use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
 use Phoundation\Web\Html\Exception\HtmlException;
 use Phoundation\Web\Html\Traits\TraitInputElement;
 use Phoundation\Web\Requests\Request;
-
 
 abstract class ResourceElementCore extends ElementCore implements ResourceElementInterface
 {
@@ -114,7 +110,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     {
         parent::__construct();
 
-        $this->cache = Cache::isEnabled();
+        $this->cache = Cache::getEnabled();
 
         if ($source instanceof IteratorInterface) {
             $this->setIteratorObject($source);
@@ -188,7 +184,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return bool
      */
-    public function getCache(): bool
+    public function getUseCache(): bool
     {
         return $this->cache;
     }
@@ -201,7 +197,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return static
      */
-    public function setCache(bool $cache): static
+    public function setUseCache(bool $cache): static
     {
         $this->cache = $cache;
         return $this;
@@ -300,11 +296,31 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * Returns the source for "data-*" attributes where the data key matches the source key
      *
+     * @param string|float|int|null $value
+     * @param string                $key
+     * @param int                   $row_id
+     * @param string                $column
+     *
+     * @return ResourceElementCore
+     */
+    public function addToDataAttributes(string|float|int|null $value, string $key, int $row_id, string $column = ''): static
+    {
+        $this->data_source[$row_id][$column] = [
+            $key => $value
+        ];
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the source for "data-*" attributes where the data key matches the source key
+     *
      * @note The format should be as follows: [id => [key => value, key => value], id => [...] ...] This format will
      *       then add the specified keys to each option where the value matches the id
      * @return array
      */
-    public function getDataSource(): array
+    public function getDataAttributesSource(): array
     {
         return $this->data_source;
     }
@@ -320,7 +336,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      *
      * @return static
      */
-    public function setDataSource(array $data_source): static
+    public function setDataAttributesSource(array $data_source): static
     {
         $this->data_source = $data_source;
         return $this;
@@ -330,25 +346,23 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
     /**
      * Generates and returns a unique cache key for this DataEntry object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
         if ($this->o_iterator) {
-            // Get cache key from DataEntry object
-            return 'ResourceElement-' . $this->o_iterator->getCacheKeySeed('-render') . $append_string;
+            // Get the cache key from the Iterator object
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->o_iterator->getCacheKeySeed()], force_single_line: true);
         }
 
         if ($this instanceof SelectedInterface) {
             // This resource element contains a single or multiple selected value
-            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . Json::encode($this->getSelected()) . '-render' . $append_string;
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getId(), $this->getName(), $this->getSelected()], force_single_line: true);
         }
 
         if ($this instanceof ValueInterface) {
             // This resource element contains a single value
-            return 'ResourceElement-' . static::class . '-' . $this->getId() . '-' . $this->getName() . '-' . $this->getValue() . '-render' . $append_string;
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getId(), $this->getName(), $this->getValue()], force_single_line: true);
         }
 
         // This object can't be cached
@@ -383,17 +397,4 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      * @return string|null
      */
     abstract public function renderBody(): ?string;
-
-
-    /**
-     * Add the system arguments to the arguments list
-     *
-     * @note The system attributes (id, name, class, tabindex, autofocus, readonly, disabled) will overwrite those same
-     *       values that were added as general attributes using Element::getAttributes()->add()
-     * @return IteratorInterface
-     */
-    protected function renderAttributesArray(): IteratorInterface
-    {
-        return parent::renderAttributesArray();
-    }
 }

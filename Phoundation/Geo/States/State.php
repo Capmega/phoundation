@@ -111,9 +111,11 @@ class State extends DataEntry implements StateInterface
     {
         return InputSelect::new()
                           ->setConnectorObject($this->getConnectorObject())
-                          ->setSourceQuery('SELECT `id`, `name` 
-                                            FROM  `geo_cities` 
-                                            WHERE `states_id` = :states_id AND `status` IS NULL ORDER BY `name`', [
+                          ->setSourceQuery('SELECT   `id`, `name` 
+                                            FROM     `geo_cities` 
+                                            WHERE    `states_id` = :states_id 
+                                            AND     (`status` IS NULL OR `status` != "deleted")
+                                            ORDER BY `name`', [
                                                 ':states_id' => $this->getId(false),
                           ])
                           ->setName($name)

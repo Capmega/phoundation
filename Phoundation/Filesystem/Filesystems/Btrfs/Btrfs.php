@@ -46,14 +46,12 @@ class Btrfs
 
     /**
      * @param PhoPathInterface|null $o_path
-     * @param string|null           $prefix
-     * @param bool                  $must_exist
      *
      * @return $this
      */
-    public function setPathObject(?PhoPathInterface $o_path, ?string $prefix = null, bool $must_exist = true): static
+    public function setPathObject(?PhoPathInterface $o_path): static
     {
-        return $this->__setPathObject($o_path, $prefix, $must_exist)
+        return $this->__setPathObject($o_path)
                     ->setProcessObject(Process::new('btrfs', $o_path?->getDirectoryObject())
                                               ->setSudo(true));
     }

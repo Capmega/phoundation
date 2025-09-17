@@ -227,7 +227,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setLabel(tr('Timezone'))
                                                  ->setHelpGroup(tr('Location information'))
                                                  ->setHelpText(tr('The timezone name where this user resides'))
-                                                 ->setDataSource([
+                                                 ->setSource([
                                                  ])
                                                  ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                      $o_validator->columnExists(tr('The specified timezone does not exist'), table: 'geo_timezones');
@@ -241,7 +241,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->addProperty('security.web.sessions.auto.sign-out.value', 'configuration_path')
                                                  ->setLabel(tr('Automatically sign-out'))
                                                  ->setHelpText(tr('Here you can specify if you wish the system to sign you out automatically after X amount of seconds. Specify 0 to never automatically sign out'))
-                                                 ->setDataSource(Arrays::convertToTimeDifference(config()->getArray('security.web.sessions.auto.sign-out.list', [
+                                                 ->setSource(Arrays::convertToTimeDifference(config()->getArray('security.web.sessions.auto.sign-out.list', [
                                                      0, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
                                                  ]), tr('Off'))))
 
@@ -253,7 +253,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->addProperty('web.display.mode', 'configuration_path')
                                                  ->setLabel(tr('Display mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be in dark mode, light mode, or use whatever your system uses'))
-                                                 ->setDataSource([
+                                                 ->setSource([
                                                      'dark'  => tr('Dark'),
 //                                                     'auto'  => tr('System'),
                                                      'light' => tr('Light'),
@@ -267,7 +267,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->addProperty('web.display.compact', 'configuration_path')
                                                  ->setLabel(tr('Compact mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be more compact, or not. If the user interface is more compact, you will scroll less, but it may be harder to click correctly'))
-                                                 ->setDataSource([
+                                                 ->setSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                  ])
@@ -283,7 +283,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->addProperty('web.interface.user.menu.open', 'configuration_path')
                                                  ->setLabel(tr('Open menu after sign-in'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user menu to be open or not when you sign in'))
-                                                 ->setDataSource([
+                                                 ->setSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                                  ])
@@ -299,7 +299,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->addProperty('web.interface.accordion.auto.open', 'configuration_path')
                                                  ->setLabel(tr('Auto open roster accordion'))
                                                  ->setHelpText(tr('Here you can specify if you wish the patient roster accordion to automatically open the first entry, or not'))
-                                                 ->setDataSource([
+                                                 ->setSource([
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                                  ])

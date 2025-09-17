@@ -24,6 +24,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
@@ -66,14 +67,14 @@ $system    = Libraries::listLibraries(true, false, false);
 $plugins   = Libraries::listLibraries(false, true, false);
 $templates = Libraries::listLibraries(false, false, true);
 
-//$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Core::getVersion('framework'));
-//$project_status   = version_compare(config()->get('project.version')  , Core::getVersion('project'));
+//$framework_status = version_compare(Core::FRAMEWORKCODEVERSION, Project::getVersion('framework'));
+//$project_status   = version_compare(Project::getVersion()  , Project::getVersion('project'));
 
 Log::cli(CliColor::apply(Strings::size(tr('Framework name:'), 30), 'white') . ' ' . 'PHOUNDATION');
 Log::cli(CliColor::apply(Strings::size(tr('Framework version:'), 30), 'white') . ' ' . Core::PHOUNDATION_VERSION);
 Log::cli(CliColor::apply(Strings::size(tr('Database version:'), 30), 'white') . ' ' . Version::getString(Libraries::getMaximumVersion()));
-Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 30), 'white') . ' ' . Core::getProjectName());
-Log::cli(CliColor::apply(Strings::size(tr('Project version:'), 30), 'white') . ' ' . Core::getProjectVersion());
+Log::cli(CliColor::apply(Strings::size(tr('Project name:'), 30), 'white') . ' ' . Project::getHumanReadableFullName());
+Log::cli(CliColor::apply(Strings::size(tr('Project version:'), 30), 'white') . ' ' . Project::getVersion());
 Log::cli(CliColor::apply(Strings::size(tr('PHP required minimum version:'), 30), 'white') . ' ' . Core::PHP_MINIMUM_VERSION);
 Log::cli(CliColor::apply(Strings::size(tr('Current platform:'), 30), 'white') . ' ' . PLATFORM);
 Log::cli(CliColor::apply(Strings::size(tr('Environment:'), 30), 'white') . ' ' . ENVIRONMENT);

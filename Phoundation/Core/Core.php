@@ -42,7 +42,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Modes\Interfaces\ModeInterface;
 use Phoundation\Core\Modes\Mode;
-use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
@@ -55,6 +55,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\EnvironmentNotExistsException;
@@ -68,9 +69,11 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Commands\Free;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\FlashMessage;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Exception\Http404Exception;
@@ -86,6 +89,7 @@ use Phoundation\Web\Requests\Restrictions\Exception\RequestMethodRestrictionsExc
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Throwable;
+
 
 class Core implements CoreInterface
 {
@@ -156,7 +160,7 @@ class Core implements CoreInterface
     protected static bool $ready = false;
 
     /**
-     * Keep track of system state
+     * Tracks system state
      *
      * Can be one of:
      *
@@ -171,6 +175,23 @@ class Core implements CoreInterface
      * @var string|null $state
      */
     protected static ?string $state = null;
+
+    /**
+     * Tracks system state when Core::exit() was called
+     *
+     * Can be one of:
+     *
+     * NULL        The system state has not yet been defined
+     * boot        The system Core is booting, no configuration available yet
+     * startup     The system Core is starting up
+     * script      The script execution is now running
+     * maintenance The System is in maintenance state
+     * setup       The system is in setup state
+     * shutdown    The system is shutting down after normal script execution
+     *
+     * @var string|null $state
+     */
+    protected static ?string $state_on_exit = null;
 
     /**
      * Keep track of system error state. If true, system is in error
@@ -397,7 +418,7 @@ class Core implements CoreInterface
 
         define('DIRECTORY_DATA'       , $data . '/');
         define('DIRECTORY_SYSTEM'     , DIRECTORY_DATA   . 'system/');
-        define('DIRECTORY_CDN'        , realpath(DIRECTORY_DATA . 'content/cdn') . '/');
+        define('DIRECTORY_CDN'        , realpath_safe(DIRECTORY_DATA . 'content/cdn'));
         define('DIRECTORY_PUBTMP'     , DIRECTORY_CDN    . 'tmp/');
         define('DIRECTORY_TMP'        , DIRECTORY_SYSTEM . 'tmp/');
         define('DIRECTORY_COMMANDS'   , DIRECTORY_SYSTEM . 'cache/system/commands/');
@@ -405,7 +426,8 @@ class Core implements CoreInterface
         define('DIRECTORY_WEB'        , DIRECTORY_SYSTEM . 'cache/system/web/');
         define('DIRECTORY_CRON'       , DIRECTORY_SYSTEM . 'cache/system/cron/');
         define('DIRECTORY_TESTS'      , DIRECTORY_SYSTEM . 'cache/system/Tests/');
-        define('DIRECTORY_PHOUNDATION', realpath(__DIR__ . '/..') . '/');
+        define('DIRECTORY_PLUGINS'    , realpath_safe(DIRECTORY_ROOT . 'Plugins'));
+        define('DIRECTORY_PHOUNDATION', realpath_safe(__DIR__ . '/..'));
     }
 
 
@@ -662,7 +684,7 @@ class Core implements CoreInterface
                 break;
         }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . '/' . LANGUAGE . '/' . Core::getProjectSeoName() . '/');
+        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
         define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
     }
 
@@ -681,16 +703,12 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function exit(Throwable|int $exit_code = 0, ?string $exit_message = null, bool $sig_kill = false, bool $direct_exit = false): never
     {
+        // Track system state on exit
+        static::$state_on_exit = Core::getState();
+
         if (Core::isReady()) {
             if (Log::passesThreshold(2) or Log::getVerbose()) {
                 Log::warning(ts('Core->exit() was called'), 10);
-            }
-        }
-
-        if (!Core::isReady()) {
-            if (!Core::$error_state) {
-                // Exit was initiated before Core was ready! Do NOT use tr(), the functions file likely has not been loaded
-                throw new CoreException('Exit with code "' . $exit_code . '" and message "' . $exit_message . '" was called before system was ready');
             }
         }
 
@@ -867,10 +885,12 @@ class Core implements CoreInterface
                         ':function' => $function,
                     ]));
                 }
+
             } catch (Throwable $e) {
                 Notification::new()
-                    ->setException($e)
-                    ->send(true);
+                            ->setException($e)
+                            ->send(true);
+
                 throw $e;
             }
         }
@@ -934,26 +954,33 @@ class Core implements CoreInterface
     {
         // Only cleanup if the Config object has an environment set
         if (config()->getEnvironment()) {
-            if (sql(connect: false)->isConnected()) {
-                Log::action(ts('Performing exit cleanup'), 2);
+            switch (Core::getStateOnExit()) {
+                case 'boot':
+                    Log::warning('Not performing exit cleanup because system exited during boot state', 4);
+                    break;
 
-                // Flush the metadata
-                Meta::flush();
+                case 'script':
+                    if (sql(connect: false)->isConnected()) {
+                        Log::action(ts('Performing exit cleanup'), 2);
 
-                // Stop time measuring here
-                Core::$timer->stop();
+                        // Flush the metadata
+                        Meta::flush();
 
-                // Log debug information?
-                if (Debug::isEnabled() and Debug::printStatistics()) {
-                    // Only when auto complete is not active!
-                    if (!CliAutoComplete::isActive()) {
-                        Core::logDebug();
+                        // Stop time measuring here
+                        Core::$timer->stop();
+
+                        // Log debug information?
+                        if (Debug::isEnabled() and Debug::printStatistics()) {
+                            // Only when auto complete is not active!
+                            if (!CliAutoComplete::isActive()) {
+                                Core::logDebug();
+                            }
+                        }
+
+                        // Cleanup
+                        Session::exit();
+                        PhoDirectory::removeTemporary();
                     }
-                }
-
-                // Cleanup
-                Session::exit();
-                PhoDirectory::removeTemporary();
             }
         }
 
@@ -1034,12 +1061,15 @@ class Core implements CoreInterface
      */
     #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
     {
+        // In case of uncaught exceptions, all logging must be turned on
+        Log::enable();
+
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
         Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
 
         // Track state
-        $state             = Core::$state;
+        $state             = Core::getState();
         Core::$error_state = true;
 
         // We MAY not have an environment yet, tell configuration that it can just return default values from here on.
@@ -1047,7 +1077,15 @@ class Core implements CoreInterface
         // When on commandline, ring an alarm to notify the user
         Config::allowNoEnvironment();
         Core::ensureDefines();
-        Core::playUncaughtExceptionAudio($e);
+
+        switch ($state) {
+            case 'boot':
+                Log::warning('Not playing exception audio because system exited during boot state', 4);
+                break;
+
+            default:
+                Core::playUncaughtExceptionAudio($e);
+        }
 
         // When in CLI auto complete mode, log and display a standard exception message
         if (CliAutoComplete::isActive()) {
@@ -1279,15 +1317,21 @@ class Core implements CoreInterface
 
 
     /**
-     * Set the language for this request
+     * Apply the specified or configured locale
+     *
+     * @param string|null $locale
      *
      * @return void
+     * @todo REWRITE THIS MESS!
+     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
      */
-    public static function setLanguage(): void
+    public static function setLanguageLocale(?string $locale = null): void
     {
+        // Setup locale and character encoding
+        // TODO Check this mess!
         try {
             if (PLATFORM_WEB) {
-                $supported = config()->get('locale.language.supported', [
+                $supported = config()->get('locale.languages.supported', [
                     'en',
                     'es',
                 ]);
@@ -1299,63 +1343,29 @@ class Core implements CoreInterface
                     $language = Strings::until($url, '/');
 
                     if (!in_array($language, $supported, true)) {
-                        $language = config()->get('languages.default', 'en');
                         Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => $language,
+                            ':language' => config()->get('locale.languages.default', 'en'),
                         ]));
                     }
 
                 } else {
-                    $language = config()->get('languages.default', 'en');
+                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
                 }
 
             } else {
-                $language = config()->get('languages.default', 'en');
+                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
             }
 
-            define('LANGUAGE', $language);
-            define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
-
-            // Ensure $_SESSION['language'] available
-            if (empty($_SESSION['language'])) {
-                $_SESSION['language'] = LANGUAGE;
-            }
-
-        } catch (Throwable $e) {
-            // Language selection failed
-            if (!defined('LANGUAGE')) {
-                define('LANGUAGE', 'en');
-            }
-
-            throw new OutOfBoundsException(tr('Language selection failed'), $e);
-        }
-    }
-
-
-    /**
-     * Apply the specified or configured locale
-     *
-     * @param string|null $locale
-     *
-     * @return void
-     * @todo REWRITE THIS MESS!
-     * @todo MOVE THIS METHOD TO PHOLOCALE CLASS
-     */
-    public static function setLocale(?string $locale = null): void
-    {
-        // Setup locale and character encoding
-        // TODO Check this mess!
-        try {
-            $language = not_empty($locale, config()->get('locale.language.default', 'en'));
-
-            if (config()->get('locale.language.default', ['en']) and config()->exists('locale.language.supported.' . $language)) {
+            if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
+            // TODO Don't access $_SESSION data like this directly, get it from Session class methods instead
             define('LANGUAGE', $language);
             define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
-            $_SESSION['language'] = $language;
+            $_SESSION['language'] = LANGUAGE;
+            $_SESSION['locale']   = LOCALE;
 
         } catch (Throwable $e) {
             // Language selection failed
@@ -1363,7 +1373,13 @@ class Core implements CoreInterface
                 define('LANGUAGE', 'en');
             }
 
-            $e = new CoreException('Language selection failed', $e);
+            // Language selection failed
+            if (!defined('LOCALE')) {
+                define('LOCALE', 'en_US');
+            }
+
+            // Store an incident for this issue
+            Incident::new(new CoreException('Language / Locale selection failed, falling back to "EN_US"', $e))->save();
         }
 
         // Setup locale and character encoding
@@ -1391,7 +1407,7 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('locale.language.default', 'en');
+            $language = config()->get('locale.languages.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
@@ -2058,92 +2074,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns an array with project version information
-     *
-     * @param bool $string
-     *
-     * @return array|string
-     */
-    public static function getProjectVersions(bool $string = false): array|string
-    {
-        $return = [
-            'project name'                    => Core::getProjectName(),
-            'project version'                 => Core::getProjectVersion(),
-            'phoundation framework version'   => Core::PHOUNDATION_VERSION,
-            'phoundation database version'    => Version::getString(Libraries::getMaximumVersion()),
-            'phoundation minimum php version' => Core::PHP_MINIMUM_VERSION,
-        ];
-
-        if ($string) {
-            $return = Arrays::equalizeKeySizes($return);
-            $return = Arrays::capitalizeKeys($return);
-            $return = Arrays::implodeWithKeys($return, PHP_EOL, ': ');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns project version
-     *
-     * @return string
-     */
-    public static function getProjectVersion(): string
-    {
-        static $version;
-
-        if (empty($version)) {
-            // Get the project version
-            try {
-                $version = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/version')));
-
-                if (!strlen($version)) {
-                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/project/version file'));
-                }
-
-                if (!is_version($version)) {
-                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project/version file', [
-                        ':version' => $version,
-                    ]));
-                }
-
-                return $version;
-
-            } catch (Throwable $e) {
-                Core::$failed = true;
-
-                if ($e instanceof OutOfBoundsException) {
-                    throw $e;
-                }
-
-                // Project file is not readable
-                if (!is_readable(DIRECTORY_ROOT . 'config/project/version')) {
-                    if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
-                        // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
-                        // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
-                        throw new CoreException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
-                    }
-
-                    // The file doesn't exist, that is good. Go to setup mode
-                    Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
-
-                    Core::startPlatform();
-                    Core::$state = 'setup';
-
-                    throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
-                        ':path' => DIRECTORY_ROOT . 'config/project/version',
-                    ]));
-                }
-            }
-        }
-
-        return $version;
-    }
-
-
-    /**
      * Returns true if the Core is running in failed state
      *
      * @return bool
@@ -2263,6 +2193,28 @@ class Core implements CoreInterface
     public static function getState(): ?string
     {
         return Core::$state;
+    }
+
+
+    /**
+     * Returns Core system state at the moment that Core::exit() was called
+     *
+     * Can be one of
+     *
+     * setup    System is in setup mode
+     * startup  System is starting up
+     * script   Script execution is now running
+     * shutdown System is shutting down after normal script execution
+     * error    System is processing an uncaught exception and will die soon
+     * phperror System encountered a PHP error, which (typically, but not always) will end un an uncaught exception,
+     *          switching system state to "error"
+     *
+     * @return string|null
+     */
+    #[ExpectedValues(values: [null, 'setup', 'startup', 'script', 'shutdown', 'maintenance'])]
+    public static function getStateOnExit(): ?string
+    {
+        return Core::$state_on_exit;
     }
 
 
@@ -2748,136 +2700,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectName(): string
-    {
-        return PROJECT;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(PROJECT));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.short-name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getProjectShortSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getProjectShortName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.owner.name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getClientName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientShortName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = config()->getString('project.owner.short-name');
-        }
-
-        return $return;
-    }
-
-
-    /**
-     * Returns the SEO optimized version of the project name
-     *
-     * @return string
-     */
-    public static function getClientShortSeoName(): string
-    {
-        static $return;
-
-        if (empty($return)) {
-            $return = str_replace('_', '-', strtolower(Core::getClientShortName()));
-        }
-
-        return $return;
-    }
-
-
-    /**
      * Returns current state of Core error handling
      *
      * @return bool
@@ -3270,7 +3092,7 @@ class Core implements CoreInterface
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
             static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
-        } catch (Http409Exception | DataEntryAlreadyExistsException $e) {
+        } catch (Http409Exception | DataEntryExistsException $e) {
             static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
@@ -3300,7 +3122,7 @@ class Core implements CoreInterface
 
             } else {
                 // System database is not available, we cannot send or store notifications!
-                Log::error('Not sending notification for this uncaught exception, the system database is not available', 10);
+                Log::error('Not sending notification for this uncaught exception, the system database connection is not available', 10);
             }
 
         } catch (OutOfBoundsException $f) {
@@ -3322,13 +3144,12 @@ class Core implements CoreInterface
                     header('Content-Type: text/html', true);
                 }
 
-                if (method_exists($e, 'getMessages')) {
+                Log::error($e->getMessage(), 10);
+
+                if ($e instanceof PhoException) {
                     foreach ($e->getMessages() as $message) {
                         Log::error($message, 10);
                     }
-
-                } else {
-                    Log::error($e->getMessage(), 10);
                 }
 
                 Core::exit(1, tr('System startup exception. Please check your DIRECTORY_ROOT/data/log directory or application or webserver error log files, or enable the first line in the exception handler file for more information'));
@@ -3462,7 +3283,8 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        <a href="' . Url::new('signout')->makeWww() . '">Sign out</a>
+                                        ' . Anchor::new(Url::new('signout')->makeWww(), tr('Sign out'))
+                                                  ->setClass('btn btn-sm btn-primary') . '
                                     </td>
                                 </tr>
                             </tbody>
@@ -3684,7 +3506,7 @@ class Core implements CoreInterface
                 'platform'              => PLATFORM,
                 'session_id'            => Session::getUUID(),
                 'ip'                    => Session::getIpAddress(),
-                'project_version'       => Core::getProjectVersion(),
+                'project_version'       => Project::getVersion(),
                 'database_version'      => $connected                    ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
                 'user'                  => ($connected and $initialized) ? Session::getUserObject()->getLogId() : 'system',
                 'command'               => PLATFORM_CLI                  ? CliCommand::getCommandsString()      : null,
@@ -3714,7 +3536,7 @@ class Core implements CoreInterface
                     'data'     => $e->getData(),
                 ],
                 'project'               => (defined('PROJECT') ? PROJECT : null),
-                'project_version'       => Core::getProjectVersion(),
+                'project_version'       => Project::getVersion(),
                 'session_id'            => Session::getUUID(),
                 'ip'                    => Session::getIpAddress(),
                 'database_version'      => null,
@@ -3784,5 +3606,71 @@ class Core implements CoreInterface
     public static function setUnitTestMode(bool $mode): void
     {
         Core::$unit_test_mode = $mode;
+    }
+
+
+    /**
+     * Return ini INTEGER for the specified key path
+     *
+     * @param string $key
+     *
+     * @return int
+     */
+    public static function getIniInteger(string $key): int
+    {
+        $return = ini_get($key);
+
+        if ($return and is_numeric_integer($return)) {
+            return (int) $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an integer value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
+    }
+
+
+    /**
+     * Return ini STRING for the specified key path
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function getIniString(string $key): string
+    {
+        $return = ini_get($key);
+
+        if ($return) {
+            return $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an string value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
+    }
+
+
+    /**
+     * Return ini BOOLEAN for the specified key path
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function getIniBoolean(string $key): bool
+    {
+        $return = ini_get($key);
+
+        if (!is_empty($return)) {
+            return (bool) $return;
+        }
+
+        throw new OutOfBoundsException(tr('The ini key ":key" should hold an boolean value but has ":value" instead', [
+            ':key'   => $key,
+            ':value' => $return,
+        ]));
     }
 }

@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mimetypes;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Filesystem\Mimetypes\Exception\FilesystemMimetypeNotSupported;
 

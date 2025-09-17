@@ -7,6 +7,7 @@ namespace Phoundation\Data\Interfaces;
 use Countable;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -26,7 +27,6 @@ interface ArraySourceInterface extends ArraySourceMethodsInterface, PoadInterfac
      * @return mixed
      */
     public function getSourceKeys(): array;
-
 
     /**
      * Sets the source

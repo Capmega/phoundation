@@ -86,9 +86,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Returns the filters that (still) have to be applied
      *
-     * @var IteratorInterface $apply_filters
+     * @var IteratorInterface $o_applied_filters
      */
-    protected IteratorInterface $apply_filters;
+    protected IteratorInterface $o_applied_filters;
 
     /**
      * Tracks if special users should be filtered out
@@ -141,11 +141,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
-                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
-                                                                      $this->source[$key] = PhoDateTime::new($source[0])->format(EnumDateFormat::user_date, true) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date, true);
+                                                                      $this->source[$key] = PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date);
                                                                   }
                                                               }
 
@@ -159,6 +159,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                    ->setValue($this->source[$key]);
                                                           })
                                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                              if (empty($o_validator->getSelectedValue())) {
+                                                                  $source = $this->getDateRangeDefault();
+                                                                  $o_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date));
+                                                              }
+
                                                               $o_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
                                                           }))
 
@@ -174,7 +179,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setSize(4)
                                                           ->setOptional(true)
                                                           ->setInputType(EnumInputType::dbid)
-                                                          ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                                               return Users::new()->getHtmlSelectOld()
                                                                                  ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                    FROM      `accounts_users`
@@ -195,7 +200,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
-                                                          ->setDataSource($this->states));
+                                                          ->setSource($this->states));
 
         // Auto apply
         $this->applyValidator(self::class);
@@ -456,26 +461,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns the start date, if selected
+     * Returns the start date, if available
      *
-     * @param string|null $timezone
-     *
-     * @return PhoDateTimeInterface|null
+     * @return string|null
      */
-    public function getStartDate(?string $timezone = 'user'): ?PhoDateTimeInterface
+    public function getStartDate(): ?string
     {
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range'      , false);
-            $split = parent::get('date_range_split', false);
-
-            if ($range and $split) {
-                $return = PhoDateTime::new($split[0], $timezone)->getBeginningOfDay();
-
-            } else {
-                $return = null;
-            }
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? $return[0] : null);
         }
 
         return $return;
@@ -483,26 +479,57 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns the stop date, if selected
+     * Returns the start date, if available
      *
      * @param string|null $timezone
      *
      * @return PhoDateTimeInterface|null
      */
-    public function getStopDate(?string $timezone = 'user'): ?PhoDateTimeInterface
+    public function getStartDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface
     {
         static $return;
 
         if (!isset($return)) {
-            $range = parent::get('date_range'      , false);
-            $split = parent::get('date_range_split', false);
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? PhoDateTime::new($return[0], $timezone)->getBeginningOfDay() : null);
+        }
 
-            if ($range and $split) {
-                $return = PhoDateTime::new($split[1], $timezone)->getEndOfDay();
+        return $return;
+    }
 
-            } else {
-                $return = null;
-            }
+
+    /**
+     * Returns the stop date, if available
+     *
+     * @return string|null
+     */
+    public function getStopDate(): ?string
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? $return[1] : null);
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the stop date object, if available
+     *
+     * @param string|null $timezone
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getStopDateObject(?string $timezone = 'user'): ?PhoDateTimeInterface
+    {
+        static $return;
+
+        if (!isset($return)) {
+            $return = parent::get('date_range_split', false);
+            $return = ($return ? PhoDateTime::new($return[1], $timezone)->getEndOfDay() : null);
         }
 
         return $return;
@@ -575,13 +602,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      *
      * @return Iterator|null
      */
-    public function getApplyFilters(): ?IteratorInterface
+    public function getAppliedFiltersObject(): ?IteratorInterface
     {
-        if (empty($this->apply_filters)) {
+        if (empty($this->o_applied_filters)) {
             return null;
         }
 
-        return $this->apply_filters;
+        return $this->o_applied_filters;
     }
 
 
@@ -595,21 +622,27 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
+        // Local objects for faster lookups
+        $o_definitions        = $this->o_definitions;
         $require_clean_source = $require_clean_source ?? $this->require_clean_source;
 
         // Auto apply
         if ($class === static::class) {
-            $o_validator = $this->selectValidator()->setDefinitionsObject($this->o_definitions);
+            $o_validator = $this->selectValidator()->setDefinitionsObject($o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
-            foreach ($this->o_definitions as $column => $o_definition) {
+            foreach ($o_definitions as $column => $o_definition) {
 //if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
+
+                if ($o_definition->getDefault()) {
+                    $o_validator->set($o_definition->getDefault(), $column);
+                }
             }
 
             // Validate buttons too
-            if ($this->o_definitions->hasButtons()) {
-                foreach ($this->o_definitions->getButtons() as $button) {
+            if ($o_definitions->hasButtons()) {
+                foreach ($o_definitions->getButtonsObject() as $button) {
                     $o_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
@@ -624,7 +657,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
 
             // Generate a list of all available filters so that we can tick them off one by one when we apply them later
-            $this->apply_filters = new Iterator($this->o_definitions->getKeyIndices());
+            $this->o_applied_filters = new Iterator($o_definitions->getKeyIndices());
         }
 
         return $this;
@@ -634,47 +667,51 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $builder
+     * @param QueryBuilderInterface $o_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
     {
-        if ($this->apply_filters->keyExists('status') and $this->o_definitions->isRendered('status', false)) {
+        // Local objects for faster lookups
+        $o_definitions     = $this->o_definitions;
+        $o_applied_filters = $this->o_applied_filters;
+
+        if ($o_applied_filters->keyExists('status') and $o_definitions->isRendered('status', false)) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
                 if ($this->getStatus() !== 'all') {
-                    $builder->addWhere(
-                        SqlQueries::is('`' . $builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $builder->getExecuteByReference())
+                    $o_builder->addWhere(
+                        SqlQueries::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
                     );
                 }
             }
         }
 
-        if ($this->apply_filters->keyExists('date_range') and $this->o_definitions->isRendered('date_range', false)) {
-            if ($this->getStartDate()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDate()->format(EnumDateFormat::mysql_datetime)]
+        if ($o_applied_filters->keyExists('date_range') and $o_definitions->isRendered('date_range', false)) {
+            if ($this->getStartDateObject()) {
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
-            if ($this->getStopDate()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDate()->format(EnumDateFormat::mysql_datetime)]
+            if ($this->getStopDateObject()) {
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }
 
-        if ($this->apply_filters->keyExists('users_id') and $this->o_definitions->isRendered('users_id', false)) {
+        if ($o_applied_filters->keyExists('users_id') and $o_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
-                $builder->addWhere(
-                    '`' . $builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                $o_builder->addWhere(
+                    '`' . $o_builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
                 );
             }
         }
 
-        $this->apply_filters->removeKeys([
+        $o_applied_filters->removeKeys([
             'status',
             'date_range',
             'users_id',

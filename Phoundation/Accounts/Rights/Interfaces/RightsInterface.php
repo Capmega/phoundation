@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Accounts\Rights\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Stringable;
@@ -43,12 +44,12 @@ interface RightsInterface extends DataIteratorInterface
     /**
      * Load the data for this rights list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static;
 
     /**
      * Save the data for this "rights" list in the database

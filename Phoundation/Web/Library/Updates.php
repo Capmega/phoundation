@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Library;
 
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -26,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.41';
+        return '0.8.1';
     }
 
 
@@ -159,6 +160,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.41', function () {
             sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`error`', '`error` int(11) NULL DEFAULT NULL');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'web_non200_urls',
+                'web_routing_iplists',
+                'web_uploads',
+            ]);
+
+        })->addUpdate('0.8.1', function () {
+            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`tmp_name`', '`tmp_name` varchar(255) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`type`'    , '`type`     varchar(128) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`size`'    , '`size`     bigint       NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`hash`'    , '`hash`     varchar(128) NULL DEFAULT NULL');
         });
     }
 }

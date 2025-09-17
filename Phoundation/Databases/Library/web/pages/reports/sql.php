@@ -18,7 +18,8 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\FilterForm;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -36,7 +37,7 @@ Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
 
 // Build users filter card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('SQL query filter')
                     ->setContent($filters)
@@ -81,31 +82,31 @@ $results_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/reports.html')->makeWww(), tr('Reports')));
+$o_relevant_card = Card::new()
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new(Url::new('/reports.html')->makeWww(), tr('Reports')));
 
 
 // Build documentation
-$documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('<p>This manual query report generator allows you to generate any type of report manually by typing the query</p>
-                                        <p>The query interface does NOT allow for insert or update queries</p>
-                                        <p>Query results containing columns with password information will be automatically filtered</p>');
+$o_documentation_card = Card::new()
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('<p>This manual query report generator allows you to generate any type of report manually by typing the query</p>
+                                          <p>The query interface does NOT allow for insert or update queries</p>
+                                          <p>Query results containing columns with password information will be automatically filtered</p>');
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('SQL report'));
 Response::setBreadcrumbs([
-    Anchor::new('/'            , tr('Home')),
-    Anchor::new('/reports.html', tr('Reports')),
-    Anchor::new(''             , tr('SQL report')),
+    Breadcrumb::new('/'            , tr('Home')),
+    Breadcrumb::new('/reports.html', tr('Reports')),
+    Breadcrumb::new(''             , tr('SQL report')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $results_card      , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card   . $results_card        , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

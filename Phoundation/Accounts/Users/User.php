@@ -20,8 +20,6 @@ namespace Phoundation\Accounts\Users;
 use DateTimeInterface;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Exception\AccountsException;
-use Phoundation\Accounts\Rights\Interfaces\RightInterface;
-use Phoundation\Accounts\Rights\Right;
 use Phoundation\Accounts\Rights\RightsBySeoName;
 use Phoundation\Accounts\Roles\Interfaces\RoleInterface;
 use Phoundation\Accounts\Roles\Interfaces\RolesInterface;
@@ -46,6 +44,8 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
+use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Core\Core;
@@ -90,6 +90,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
@@ -104,6 +105,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -205,6 +207,13 @@ class User extends DataEntry implements UserInterface
      * @var bool $notifications_enabled
      */
     protected bool $notifications_enabled = true;
+
+    /**
+     * Tracks session state data
+     *
+     * @var SessionStateInterface $state
+     */
+    protected SessionStateInterface $state;
 
 
     /**
@@ -347,12 +356,12 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      * Returns a single user object for a single user that has the specified alternate email address.
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         try {
             // Intercept loading "system" user
@@ -360,7 +369,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 return $this->initSystemUser();
             }
 
-            $user = parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            $user = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
             if ($this->identifier === ['email' => 'guest']) {
@@ -393,13 +402,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 $user = sql()->getRow('SELECT `users_id`, `verified_on`
                                        FROM   `accounts_emails` 
                                        WHERE  `email` = :email 
-                                         AND  `status` IS NULL', [
+                                       AND    `status` IS NULL', [
                     ':email' => $this->identifier['email'],
                 ]);
 
                 if ($user) {
                     if ($user['verified_on'] or !config()->getBoolean('security.accounts.identify.email.verification.required', true)) {
-                        $user = static::new()->setMetaEnabled($this->meta_enabled)
+                        $user = static::new()->setMetaEnabled($this->getMetaEnabled())
                                              ->setIgnoreDeleted($this->ignore_deleted)
                                              ->load($user['users_id']);
 
@@ -833,8 +842,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
                         ->setMessage(tr('The multi-factor authentication for your account :account on the website :website has been updated. If this was not you, please contact the administrator at :email.', [
                             ':account' => Session::getUserObject()->getEmail(),
-                            ':website' => config()->getString('project.name' , 'Phoundation'),
-                            ':email'   => config()->getString('project.email', 'webmaster@' . Domains::getPrimaryWeb()),
+                            ':website' => Project::getHumanReadableFullName(),
+                            ':email'   => Project::getEmail(),
                         ]))
                         ->save()
                         ->send();
@@ -875,7 +884,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-Log::backtrace();
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
@@ -952,7 +960,7 @@ Log::backtrace();
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
                     try {
-                        $o_roles->add(Role::new()->load($role));
+                        $o_roles->add(Role::new()->loadOrThis($role)->save());
 
                     } catch (DataEntryNotExistsException $e) {
                         // Oh noes! This default role does not exist!
@@ -1066,14 +1074,13 @@ Log::backtrace();
 
             $this->notify()
                  ?->setTitle(tr('An account has been created for you on :project', [
-                     ':project' => config()->getString('project.name', 'Phoundation')
+                     ':project' => Project::getHumanReadableFullName()
                  ]))
                  ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
                      ':url'     => $key->getUrl(),
                      ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                     ':user'    => Session::getUserObject()
-                                          ->getDisplayName(),
-                     ':project' => config()->getString('project.name', 'Phoundation'),
+                     ':user'    => Session::getUserObject()->getDisplayName(),
+                     ':project' => Project::getHumanReadableFullName(),
                  ]))
                  ->save()
                  ->send();
@@ -1094,7 +1101,7 @@ Log::backtrace();
         }
 
         $this->notify()?->setTitle(tr('Your :project account has been modified', [
-                            ':project' => config()->getString('project.name', 'Phoundation')
+                            ':project' => Project::getHumanReadableFullName()
                         ]))
                         ->setMessage($message)
                         ->save()
@@ -1529,6 +1536,45 @@ Log::backtrace();
 
 
     /**
+     * Returns the SessionState object for this user
+     *
+     * @return SessionStateInterface
+     */
+    public function getSessionStateObject(): SessionStateInterface
+    {
+        if (empty($this->state)) {
+            $this->state =  new SessionState($this);
+        }
+
+        return $this->state;
+    }
+
+
+    /**
+     * Returns the session_state for this user
+     *
+     * @return string|null
+     */
+    public function getSessionState(): ?string
+    {
+        return $this->getTypesafe('string', 'session_state');
+    }
+
+
+    /**
+     * Sets the session_state for this user
+     *
+     * @param string|null $session_state
+     *
+     * @return static
+     */
+    public function setSessionState(?string $session_state): static
+    {
+        return $this->set($session_state, 'session_state');
+    }
+
+
+    /**
      * Returns the update_password for this user
      *
      * @return DateTimeInterface|null
@@ -1558,7 +1604,7 @@ Log::backtrace();
             // Update password immediately
             $date_time = new PhoDateTime('1970');
 
-        } elseif ($date_time) {
+        } elseif ($date_time instanceof DateTimeInterface) {
             $date_time = $date_time->getTimestamp();
         }
 
@@ -1675,7 +1721,7 @@ Log::backtrace();
      */
     public function getFingerprintObject(): ?DateTimeInterface
     {
-        return PhoDateTime::newNull($this->getFingerprint());
+        return PhoDateTime::newOrNull($this->getFingerprint());
     }
 
 
@@ -2347,7 +2393,7 @@ Log::backtrace();
                                             ->load();
 
         $entry  = DataEntryForm::new()->setRenderContentsOnly(true);
-        $select = $roles->getHtmlSelectOld()->setCache(true)
+        $select = $roles->getHtmlSelectOld()
                         ->setNotSelectedLabel(null)
                         ->setMultiple(true)
                         ->setName($name)
@@ -2531,7 +2577,11 @@ Log::backtrace();
     public function notify(): ?NotificationInterface
     {
         if ($this->notifications_enabled) {
-            return Notification::new()->setUserObject($this);
+            // On non-production environments, the user must have the right ENVIRONMENT (as in, whatever the environment name is) to be able to receive
+            // notifications
+            if (Core::isProductionEnvironment() or $this->hasAllRights(ENVIRONMENT)) {
+                return Notification::new()->setUserObject($this);
+            }
         }
 
         return null;
@@ -2568,14 +2618,14 @@ Log::backtrace();
      */
     public function hasRoles(RolesInterface|RoleInterface|Stringable|string $roles): bool
     {
-        $result = true;
+        $result = false;
         $roles  = Arrays::force($roles);
 
         foreach ($roles as $role) {
             $exists = $this->getRolesObject()->keyExists($role);
 
             if ($exists) {
-                $result = false;
+                $result = true;
                 break;
             }
         }
@@ -2640,7 +2690,12 @@ Log::backtrace();
 
         parent::__construct(false);
 
-        $this->loadOrThis(['email' => 'guest']);
+        $o_user = $this->loadOrThis(['email' => 'guest']);
+
+        if ($o_user !== $this) {
+            $this->setSource($o_user->getSourceUnprocessed())
+                 ->setObjectState($o_user->getObjectState());
+        }
 
         $this->source['redirect'] = null;
         $this->source['email']    = 'guest';
@@ -2648,7 +2703,7 @@ Log::backtrace();
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // Guest user doesn't yet exist, save it now. Since guest user MAY be created automatically by guest itself
             // we will NOT save the created_by column (making created_by the system user)
             $this->setMetaColumns([
                 'id',
@@ -2831,32 +2886,41 @@ Log::backtrace();
                                       ->setInputType(EnumInputType::number))
 
                       ->add(Definition::new('last_sign_in')
+                                      ->setOptional(true)
+                                      ->setDisabled(true)
+                                      ->setRender(function() { return !$this->isNew(); })
+                                      ->setInputType(EnumInputType::datetime_local)
+                                      ->setDbNullInputType(EnumInputType::text)
+                                      ->addClasses('text-center')
+                                      ->setSize(3)
+                                      ->setNullDisplay(tr('Never signed yet'))
+                                      ->setLabel('Last sign in'))
+
+                    ->add(Definition::new('update_password')
                                     ->setOptional(true)
                                     ->setDisabled(true)
                                     ->setRender(function() { return !$this->isNew(); })
                                     ->setInputType(EnumInputType::datetime_local)
-                                    ->setDbNullInputType(EnumInputType::text)
                                     ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setNullDisplay(tr('Never signed yet'))
-                                    ->setLabel('Last sign in'))
+                                    ->setSize(2)
+                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newNumber('sign_in_count')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Sign in count')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Sign in count')))
 
                     ->add(DefinitionFactory::newNumber('authentication_failures')
-                                    ->setOptional(true, 0)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setMin(0)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Authentication failures')))
+                                           ->setOptional(true, 0)
+                                           ->setDisabled(true)
+                                           ->setRender(function() { return !$this->isNew(); })
+                                           ->setMin(0)
+                                           ->addClasses('text-center')
+                                           ->setSize(2)
+                                           ->setLabel(tr('Authentication failures')))
 
                     ->add(Definition::new('locked_until')
                                     ->setOptional(true)
@@ -2868,15 +2932,6 @@ Log::backtrace();
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setLabel(tr('Locked until')))
-
-                    ->add(Definition::new('update_password')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Password last updated on')))
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {
@@ -2962,7 +3017,7 @@ Log::backtrace();
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-g,--gender')
-                                    ->setDataSource([
+                                    ->setSource([
                                         ''       => tr('Select a gender'),
                                         'male'   => tr('Male'),
                                         'female' => tr('Female'),
@@ -2997,7 +3052,12 @@ Log::backtrace();
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_id')
                                                          ->isEmail()
-                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` FROM `accounts_users` WHERE `email` = :email AND `status` IS NULL', [':email' => '$leaders_email']);
+                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` 
+                                                                                             FROM   `accounts_users` 
+                                                                                             WHERE  `email` = :email 
+                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                 ':email' => '$leaders_email'
+                                                         ]);
                                            }))
 
                     ->add(DefinitionFactory::newUsersId('leaders_id')
@@ -3008,7 +3068,12 @@ Log::backtrace();
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->orColumn('leaders_email')
                                                          ->isDbId()
-                                                         ->isQueryResult('SELECT `id` FROM `accounts_users` WHERE `id` = :id AND `status` IS NULL', [':id' => '$leaders_id']);
+                                                         ->isQueryResult('SELECT `id` 
+                                                                          FROM   `accounts_users` 
+                                                                          WHERE  `id` = :id 
+                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                              ':id' => '$leaders_id'
+                                                         ]);
                                            }))
 
                     ->add(Definition::new('is_leader')
@@ -3042,14 +3107,17 @@ Log::backtrace();
                                         $o_validator->isInteger();
                                     }))
 
-                    ->add(DefinitionFactory::newDate('birthdate')
+                    ->add(DefinitionFactory::newDateTime('birthdate')
                                            ->setLabel(tr('Birthdate'))
                                            ->setCliColumn('-b,--birthdate')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The birthdate for this user'))
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isDate()
-                                                         ->isBefore(PhoDateTime::new(), true);
+                                               $o_validator->sanitizeToDateTime()
+                                                           ->isBefore(PhoDateTime::new(), true)
+                                                           ->sanitizeTransform(function ($value, $source, $o_validator) {
+                                                               return $value?->format('Y-m-d');
+                                                           });
                                            }))
 
                     ->add(DefinitionFactory::newPhone()
@@ -3213,7 +3281,7 @@ Log::backtrace();
                     ->add(DefinitionFactory::newUrl('redirect')
                                            // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
                                            ->setSize(4)
-                                           ->setDataSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
+                                           ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
                                            ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
@@ -3248,6 +3316,9 @@ Log::backtrace();
                                            ->setSize(6)
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
+
+                    ->add(DefinitionFactory::newData('session_state')
+                                           ->setRender(false))
 
                     ->add(DefinitionFactory::newCode('verification_code')
                                            ->setOptional(true)

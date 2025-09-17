@@ -24,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataUrl;
 use Phoundation\Data\Tree;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\TreeViewerInterface;
@@ -91,7 +92,7 @@ class TreeViewer extends Widget implements TreeViewerInterface
             throw new OutOfBoundsException(tr('Cannot render tree viewer, no HTML id specified'));
         }
 
-        Response::loadJavaScript('templates/mdb/js/plugins/treeview.min');
+        Response::loadJavaScript('mdb/js/plugins/treeview.min');
 
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML
@@ -134,12 +135,16 @@ class TreeViewer extends Widget implements TreeViewerInterface
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                $return .= '<li><a class="not-a-link">' . $key . '</a>' . $this->renderHtml($value, true) . '</li>';
+                $return .= '<li>
+                                ' . Anchor::new()->setClass('not-a-link')->setContent($key) . $this->renderHtml($value, true) . '
+                            </li>';
 
             } else {
                 if ($this->url) {
                     $url    = str_replace(':ID', (string) $key, $this->url);
-                    $return .= '<li><a href="' . $url . '">' . Html::safe($value) . '</a></li>';
+                    $return .= '<li>
+                                    ' . Anchor::new($url, $value) . '
+                                </li>';
 
                 } else {
                     $return .= '<li>' . $value . '</li>';

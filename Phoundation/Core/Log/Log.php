@@ -18,6 +18,7 @@ namespace Phoundation\Core\Log;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
+use Phoundation\Accounts\Config\Exception\ConfigParseFailedException;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -42,6 +43,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Requests\Request;
 use Stringable;
@@ -105,6 +107,11 @@ class Log implements LogInterface
      * Keeps track of the LOG FAILURE status
      */
     protected static bool $failed = false;
+
+    /**
+     * Keeps track of the LOG object being ready
+     */
+    protected static bool $ready = false;
 
     /**
      * The current threshold level of the log class. The higher this value, the less will be logged
@@ -189,6 +196,13 @@ class Log implements LogInterface
      * @var bool $newline_done
      */
     protected static bool $newline_done = true;
+
+    /**
+     * Tracks the time fraction to use for log entries. Must be one of "v" (milliseconds, default), or "u" (microseconds), or "none" for no timestamp
+     *
+     * @var string
+     */
+    protected static string $precision;
 
 
     /**
@@ -412,6 +426,19 @@ class Log implements LogInterface
         if (php_sapi_name() !== 'cli') {
             flush();
         }
+    }
+
+
+    /**
+     * Returns true if the Log object is ready for logging operations.
+     *
+     * @note The Log class CAN already log before its ready (output would go to the system log file instead)
+     *
+     * @return bool
+     */
+    public static function isReady(): bool
+    {
+        return static::$ready;
     }
 
 
@@ -724,7 +751,7 @@ class Log implements LogInterface
      */
     public static function success(mixed $messages = null, int $threshold = 6, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'success', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'success', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -756,6 +783,11 @@ class Log implements LogInterface
 
         if (static::$init) {
             // Don't log anything while locked, initializing, or while dealing with a Log internal failure
+            // Check if we passed the log threshold. If not, discard the message
+            if (!static::passesThreshold($threshold)) {
+                return false;
+            }
+
             if (static::$screen_enabled and static::$file_enabled) {
                 foreach (Arrays::force($messages, null) as $message) {
                     if ($message instanceof Throwable) {
@@ -775,7 +807,7 @@ class Log implements LogInterface
 
                         if ($message->getPrevious()) {
                             static::toAlternateLog('Phoundation: previous exception : ');
-                            static::write($message->getPrevious());
+                            Log::write($message->getPrevious());
                         }
 
                     } else {
@@ -809,7 +841,7 @@ class Log implements LogInterface
                 $success = true;
 
                 foreach ($messages as $message) {
-                    $success = ($success and static::write($message, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen));
+                    $success = ($success and Log::write($message, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen));
                 }
 
                 static::$lock = false;
@@ -896,26 +928,52 @@ class Log implements LogInterface
             // Build message prefix
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
-                // Build the log message with the default prefix
-                $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.v') . ' ' .
-                          ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                          Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                          Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                switch (Log::getPrecision()) {
+                    case 'none':
+                        // Build the log message with the default prefix
+                        $prefix = ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                        break;
+
+                    default:
+                        // Build the log message with the default prefix
+                        $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.' . Log::getPrecision()) . ' ' .
+                                  ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
+                }
 
             } else {
                 $prefix = $echo_prefix;
             }
 
             // Write the log message to screen and file
-            static::writeMessage($prefix, $messages, $echo_prefix, $echo_screen, $threshold);
+            Log::writeMessage($prefix, $messages, $echo_prefix, $echo_screen, $threshold);
+
             static::$lock         = false;
             static::$newline_done = $echo_newline;
 
             return true;
 
         } catch (Throwable $e) {
-            return static::writeExceptionHandler($e, $messages, $threshold);
+            return Log::writeExceptionHandler($e, $messages, $threshold);
         }
+    }
+
+
+    /**
+     * Returns the time fraction to use for log entry timestamps. Must be one of "v" (milliseconds, default), or "u" (microseconds", or "none" for no timestamp
+     *
+     * @return string
+     */
+    #[ExpectedValues(values: ['u', 'v', 'none'])] public static function getPrecision(): string
+    {
+        if (empty(static::$precision)) {
+            static::$precision = config()->getInArray('log.timestamps.precision', ['u', 'v', 'none'], 'v');
+        }
+
+        return static::$precision;
     }
 
 
@@ -976,6 +1034,8 @@ class Log implements LogInterface
                         ':threshold' => static::$threshold,
                     ]), 3);
                 }
+
+                static::$ready = true;
             }
 
         } catch (Throwable $e) {
@@ -999,7 +1059,7 @@ class Log implements LogInterface
      */
     public static function information(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1017,7 +1077,25 @@ class Log implements LogInterface
      */
     public static function warning(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'warning', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'warning', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+    }
+
+
+    /**
+     * Write a developer message in the log file
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return bool
+     */
+    public static function developer(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        return Log::write($messages, 'warning', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1054,7 +1132,45 @@ class Log implements LogInterface
             $message = 'Object {' . get_class($object) . '}';
         }
 
-        return static::write($message, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($message, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+    }
+
+
+    /**
+     * Logs current memory usage
+     *
+     * @param int         $threshold
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return bool
+     */
+
+    public static function memoryUsage(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        return Log::printr(tr('Memory usage :usage :location', [
+            ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_usage()),
+            ':location'  => static::getSourceCodeLocationText(include_class_and_file: false)
+        ]), $threshold, $echo_prefix, $echo_screen, false);
+    }
+
+
+    /**
+     * Logs peak memory usage
+     *
+     * @param int         $threshold
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     *
+     * @return bool
+     */
+
+    public static function memoryUsagePeak(int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        return Log::printr(tr('Peak memory usage :usage :location', [
+            ':usage'     => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
+            ':location'  => static::getSourceCodeLocationText(include_class_and_file: false)
+        ]), $threshold, $echo_prefix, $echo_screen, false);
     }
 
 
@@ -1098,19 +1214,21 @@ class Log implements LogInterface
             }
 
             // Log the initial exception message
-            static::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
-            static::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
-            static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
-            static::write(tr('Command   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            $has_logged = static::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
+            Log::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            Log::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
+            Log::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            Log::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
+            Log::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            Log::write(get_class($exception), $class, $threshold, true, true, false, $echo_screen);
+            Log::write(tr('Command   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+
+            $has_logged = Log::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
-            static::logExceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
-            static::logExceptionData($exception, $threshold, $clean, $echo_newline, $echo_screen);
-            static::logPreviousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            Log::exceptionMessages($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            Log::exceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            Log::exceptionData($exception, $threshold, $clean, $echo_newline, $echo_screen);
+            Log::previousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             if ($exception instanceof PhoException) {
                 $exception->hasBeenLogged($has_logged);
@@ -1118,11 +1236,42 @@ class Log implements LogInterface
 
         } else {
             // NULL exception
-            static::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
-            static::write('NULL (a.k.a. There is no exception)', 'error', $threshold, true, true, false, $echo_screen);
+            Log::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
+            Log::write('NULL (a.k.a. There is no exception)', 'error', $threshold, true, true, false, $echo_screen);
         }
 
         return true;
+    }
+
+
+    /**
+     * Logs additional exception messages, if available
+     *
+     * @param Throwable|null $exception
+     * @param string|null    $class
+     * @param int            $threshold
+     * @param bool           $clean
+     * @param bool           $echo_newline
+     * @param string|bool    $echo_prefix
+     * @param bool           $echo_screen
+     *
+     * @return bool
+     */
+    protected static function exceptionMessages(?Throwable $exception, ?string $class = null, int $threshold = 9, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
+    {
+        if ($exception instanceof PhoException) {
+            $messages = $exception->getMessages();
+
+            if ($messages) {
+                foreach ($messages as $message) {
+                    Log::write($message, $class, $threshold, false, true, true, $echo_screen);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -1208,13 +1357,13 @@ class Log implements LogInterface
      *
      * @return void
      */
-    protected static function logExceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $echo_newline = true, bool $echo_screen = true): void
+    protected static function exceptionData(Throwable $exception, int $threshold = 10, bool $clean = true, bool $echo_newline = true, bool $echo_screen = true): void
     {
         if ($exception instanceof PhoException) {
             $data = $exception->getData();
 
             if ($data) {
-                static::write(tr('Data      : '), 'information', $threshold, false, echo_screen: $echo_screen);
+                Log::write(tr('Data      : '), 'information', $threshold, false, echo_screen: $echo_screen);
 
                 if ($exception->isWarning()) {
                     if (($exception instanceof ValidationFailedException) or !static::$verbose) {
@@ -1240,7 +1389,7 @@ class Log implements LogInterface
                     } else {
                         // Log warning data as individual lines for easier read
                         foreach (Arrays::force($data, null) as $line) {
-                            static::write(get_null(var_export($line, true)) ?? '-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
+                            Log::write(get_null(var_export($line, true)) ?? '-', 'debug', $threshold, false, $echo_newline, false, $echo_screen);
                         }
                     }
 
@@ -1256,14 +1405,14 @@ class Log implements LogInterface
                             }
                         }
 
-                        static::write($key . ': '                                , 'error', $threshold, false, false, false, $echo_screen);
-                        static::write((get_null(var_export($value, true)) ?? '-'), 'debug', $threshold, false, true , false, $echo_screen);
+                        Log::write($key . ': '                                , 'error', $threshold, false, false, false, $echo_screen);
+                        Log::write((get_null(var_export($value, true)) ?? '-'), 'debug', $threshold, false, true , false, $echo_screen);
                     }
                 }
 
             } else {
-                static::write(tr('Data      : '), 'information', $threshold, false, false        , false, $echo_screen);
-                static::write('-'               , 'debug'      , $threshold, false, $echo_newline, false, $echo_screen);
+                Log::write(tr('Data      : '), 'information', $threshold, false, false        , false, $echo_screen);
+                Log::write('-'               , 'debug'      , $threshold, false, $echo_newline, false, $echo_screen);
             }
         }
     }
@@ -1282,18 +1431,18 @@ class Log implements LogInterface
      *
      * @return void
      */
-    protected static function logExceptionTrace(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
+    protected static function exceptionTrace(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
     {
         // Warning exceptions do not need to show the extra messages, trace, or data or previous exception
         if ($class == 'error') {
             // Log the backtrace
-            static::write(tr('Backtrace :'), 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            Log::write(tr('Backtrace :'), 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             if ($exception->getTrace()) {
-                static::writeTrace($exception->getTrace(), $threshold, class: $class, echo_screen: $echo_screen);
+                Log::writeTrace($exception->getTrace(), $threshold, class: $class, echo_screen: $echo_screen);
 
             } else {
-                static::write('-', 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+                Log::write('-', 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
             }
         }
     }
@@ -1314,7 +1463,7 @@ class Log implements LogInterface
      *
      * @return void
      */
-    protected static function logPreviousException(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
+    protected static function previousException(Throwable $exception, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): void
     {
         // Log all previous exceptions as well
         $previous = $exception->getPrevious();
@@ -1325,7 +1474,7 @@ class Log implements LogInterface
                 $previous->hasBeenLogged(false);
             }
 
-            static::write('Previous exception: ', 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+            Log::write('Previous exception: ', 'information', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             static::exception($previous, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
         }
     }
@@ -1365,7 +1514,7 @@ class Log implements LogInterface
             }
 
             foreach ($lines as $line) {
-                static::write($line, $class, $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+                Log::write($line, $class, $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
             }
 
             return count($lines);
@@ -1397,7 +1546,7 @@ class Log implements LogInterface
      */
     public static function error(mixed $messages = null, int $threshold = 7, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'error', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'error', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1435,10 +1584,14 @@ class Log implements LogInterface
                 static::toAlternateLog('Failed to log message because: ' . $g->getMessage());
             }
 
+        } catch (ConfigParseFailedException $f) {
+            // If configuration parsing failed, just throw that exception as adding that logging failed would just confuse people about the issue
+            throw $e;
+
         } catch (Throwable $f) {
             // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
             // we won't stand for!
-            throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files')
+            throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files', $e)
                               ->addData(['original exception' => $e]);
         }
 
@@ -1461,7 +1614,7 @@ class Log implements LogInterface
      */
     public static function notice(mixed $messages = null, int $threshold = 3, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'notice', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'notice', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1489,7 +1642,7 @@ class Log implements LogInterface
                     $messages = print_r($messages, true);
                 }
 
-                return static::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+                return Log::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             case 'json':
                 return static::json($messages, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
@@ -1518,7 +1671,7 @@ class Log implements LogInterface
     {
         $messages = Json::encode($messages, JSON_PRETTY_PRINT|JSON_BIGINT_AS_STRING);
 
-        return static::write($messages, 'notice', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'notice', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1584,14 +1737,41 @@ class Log implements LogInterface
         }
 
         if ($echo_header) {
-            static::logDebugHeader('DEBUG', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('DEBUG', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages) and (!is_numeric($messages))) {
             $messages = '-';
         }
 
-        return static::write(Strings::log($messages, ensure_visible: true), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write(Strings::log($messages, ensure_visible: true), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+    }
+
+
+    /**
+     * Write a debug message in the log file
+     *
+     * @param mixed       $messages
+     * @param int         $threshold
+     * @param bool        $clean
+     * @param bool        $echo_newline
+     * @param string|bool $echo_prefix
+     * @param bool        $echo_screen
+     * @param bool        $echo_header
+     *
+     * @return bool
+     */
+    public static function dump(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
+    {
+        if ($echo_header) {
+            Log::logDebugHeader('DEBUG', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+        }
+
+        if (empty($messages) and (!is_numeric($messages))) {
+            $messages = '-';
+        }
+
+        return Log::write(Strings::log($messages, ensure_visible: true), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1618,6 +1798,7 @@ class Log implements LogInterface
      * Write a debug header message in the log file
      *
      * @param string      $keyword
+     * @param string      $datatype
      * @param int         $trace
      * @param int         $threshold
      * @param bool        $echo_screen
@@ -1627,25 +1808,53 @@ class Log implements LogInterface
      */
     protected static function logDebugHeader(string $keyword, string $datatype, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
     {
-        // Get the class, method, file and line data.
-        $class    = Debug::currentClass($trace);
-        $function = Debug::currentFunction($trace);
-        $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
-        $line     = Debug::currentLine($trace);
-
-        if ($class) {
-            // Add class - method separator
-            $class .= '::';
-        }
-
-        return static::write(tr('Showing debug ":datatype" data with ":keyword" ":class:function()" in ":file@:line"', [
+        return Log::write(tr('Showing debug ":datatype" data with ":keyword" at :location', [
             ':keyword'  => $keyword,
-            ':class'    => $class,
-            ':function' => $function,
-            ':file'     => $file,
-            ':line'     => $line,
+            ':location' => static::getSourceCodeLocationText($trace - 1),
             ':datatype' => $datatype,
         ]), 'debug', $threshold, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+    }
+
+
+    /**
+     * Returns a text indicating location in code
+     *
+     * @param int  $trace
+     * @param bool $include_class_and_file
+     *
+     * @return string
+     */
+    protected static function getSourceCodeLocationText(int $trace = 1, bool $include_class_and_file = true): string
+    {
+        // Get the class, method, file and line data.
+        $file = Debug::currentFile($trace);
+        $file = Strings::from($file, DIRECTORY_ROOT);
+        $file = Strings::from($file, DIRECTORY_WEB);
+        $file = Strings::from($file, DIRECTORY_COMMANDS);
+        $file = Strings::from($file, DIRECTORY_PLUGINS);
+        $line = Debug::currentLine($trace);
+
+        if ($include_class_and_file) {
+            $class    = Debug::currentClass($trace);
+            $function = Debug::currentFunction($trace);
+
+            if ($class) {
+                // Add class - method separator
+                $class .= '::';
+            }
+
+            return tr('":class:function()" in ":file@:line"', [
+                ':class'    => $class,
+                ':function' => $function,
+                ':file'     => $file,
+                ':line'     => $line,
+            ]);
+        }
+
+        return tr('at ":file@:line"', [
+            ':file' => $file,
+            ':line' => $line,
+        ]);
     }
 
 
@@ -1659,7 +1868,7 @@ class Log implements LogInterface
      */
     public static function deprecated(int $threshold = 8, bool $echo_screen = true): bool
     {
-        return static::logDebugHeader('DEPRECATED', 'N/A', 1, $threshold, echo_screen: $echo_screen);
+        return Log::logDebugHeader('DEPRECATED', 'N/A', 1, $threshold, echo_screen: $echo_screen);
     }
 
 
@@ -1680,13 +1889,13 @@ class Log implements LogInterface
     public static function hex(mixed $messages = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('HEX', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('HEX', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         $messages = Strings::force($messages, PHP_EOL);
 
-               static::write(Strings::interleave($messages, '  ', chunk_size: 1), 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
-        return static::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+               Log::write(Strings::interleave($messages, '  ', chunk_size: 1), 'debug', $threshold, false, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write(Strings::interleave(bin2hex($messages), ' ', chunk_size: 2), 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -1710,7 +1919,7 @@ class Log implements LogInterface
         $file     = Strings::from(Debug::currentFile($trace), DIRECTORY_ROOT);
         $line     = Debug::currentLine($trace);
 
-        return static::write(tr(':message in :file@:line', [
+        return Log::write(tr(':message in :file@:line', [
             ':message'  => trim('CHECKPOINT ' . $messages),
             ':file'     => $file,
             ':line'     => $line,
@@ -1731,7 +1940,7 @@ class Log implements LogInterface
      */
     public static function table(array $key_value, int $indent = 4, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
+        return Log::write(Strings::getKeyValueTable($key_value, PHP_EOL, ': ', $indent), 'debug', $threshold, false, false, $echo_prefix, $echo_screen);
     }
 
 
@@ -1748,10 +1957,10 @@ class Log implements LogInterface
     public static function vardump(mixed $messages = null, int $threshold = 10, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('VARDUMP', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('VARDUMP', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
-        return static::write(Debug::dump($messages, 100), 'debug', $threshold, false, echo_screen: $echo_screen);
+        return Log::write(Debug::dump($messages, 100), 'debug', $threshold, false, echo_screen: $echo_screen);
     }
 
 
@@ -1777,10 +1986,10 @@ class Log implements LogInterface
         }
 
         if ($echo_header) {
-            static::logDebugHeader('BACKTRACE', 'N/A', 1, $threshold, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
+            Log::logDebugHeader('BACKTRACE', 'N/A', 1, $threshold, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
         }
 
-        static::writeTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
+        Log::writeTrace($backtrace, $threshold, $display, echo_screen: $echo_screen, echo_prefix: $echo_prefix);
     }
 
 
@@ -1812,7 +2021,7 @@ class Log implements LogInterface
     public static function printr(mixed $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('PRINTR', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('PRINTR', get_class_or_datatype($messages), 3, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages)) {
@@ -1832,7 +2041,7 @@ class Log implements LogInterface
             ksort($messages);
         }
 
-        return static::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+        return Log::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1850,7 +2059,7 @@ class Log implements LogInterface
     public static function printJson(mixed $messages = null, int $threshold = 10, string|bool $echo_prefix = true, bool $echo_screen = true, bool $echo_header = true): bool
     {
         if ($echo_header) {
-            static::logDebugHeader('PRINTR', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
+            Log::logDebugHeader('PRINTR', get_class_or_datatype($messages), 1, $threshold, echo_screen: $echo_screen);
         }
 
         if (empty($messages)) {
@@ -1874,7 +2083,7 @@ class Log implements LogInterface
             $messages = Json::encode($messages, JSON_BIGINT_AS_STRING | JSON_PRETTY_PRINT);
         }
 
-        return static::write($messages, 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
+        return Log::write($messages, 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);
     }
 
 
@@ -1896,7 +2105,7 @@ class Log implements LogInterface
         $query = SqlQueries::renderQueryString($query, $execute, true);
         $query = Strings::ensureEndsWith($query, ';');
 
-        return static::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write('SQL QUERY: ' . $query, 'debug', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 
@@ -2000,7 +2209,7 @@ class Log implements LogInterface
      */
     public static function action(mixed $messages = null, int $threshold = 5, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
-        return static::write($messages, 'action', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+        return Log::write($messages, 'action', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
     }
 
 

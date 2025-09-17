@@ -38,6 +38,22 @@ use Stringable;
 interface DefinitionInterface extends BeforeAfterContentInterface
 {
     /**
+     * Returns the render_required_for_new flag for this column
+     *
+     * @return bool
+     */
+    public function getRenderHtmlRequiredAttributeForNew(): bool;
+
+    /**
+     * Sets the render_required_for_new flag for this column
+     *
+     * @param bool|null $value
+     *
+     * @return static
+     */
+    public function setRenderHtmlRequiredAttributeForNew(?bool $value): static;
+
+    /**
      * Sets if this column should ignore validation
      *
      * @param bool $no_validation
@@ -69,7 +85,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array
      */
-    public function getSource(): array;
+    public function getDefinitionSource(): array;
 
 
     /**
@@ -80,7 +96,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
+    public function setDefinitionSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static;
 
 
     /**
@@ -446,12 +462,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Sets static value for this column
      *
-     * @param RenderInterface|callable|string|float|int|bool|null $value
-     * @param bool                                                $only_when_new = false
+     * @param Stringable|callable|string|float|int|bool|null $value
+     * @param bool                                           $only_when_new = false
      *
      * @return static
      */
-    public function setValue(RenderInterface|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
+    public function setValue(Stringable|callable|string|float|int|bool|null $value, bool $only_when_new = false): static;
 
 
     /**
@@ -495,18 +511,18 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return RenderInterface|callable|string|null
      */
-    public function getContent(): RenderInterface|callable|string|null;
+    public function getOutput(): RenderInterface|callable|string|null;
 
 
     /**
      * Sets the HTML component to be used for this column
      *
-     * @param RenderInterface|callable|string|null $value
-     * @param bool                                 $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function setContent(RenderInterface|callable|string|null $value, bool $make_safe = false): static;
+    public function setOutput(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
@@ -698,7 +714,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return array|PDOStatement|Stringable|string|null
      */
-    public function getDataSource(): array|PDOStatement|Stringable|string|null;
+    public function getSource(): array|PDOStatement|Stringable|string|null;
 
 
     /**
@@ -711,7 +727,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    public function setDataSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
+    public function setSource(array|PDOStatement|Stringable|string|null $source, bool $strict = false): static;
 
 
     /**
@@ -789,9 +805,20 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * Returns if this column is optional or not
      *
      * @note Defaults to false
+     *
+     * @note If the column is not optional (so it is required) and the render_html_required_attribute_for_new flag is set in this
+     *       Definition, it may still be set to optional if a couple of criteria is met:
+     *          - the column is required
+     *          - the object in the column is new
+     *          - the flag for "get_render_html_required_attribute_for_new" is false
+     *       If all of these criteria are met, this method will return true, or just if the column isn't required to
+     *       begin with.
+     *
+     * @param bool $get_real_value
+     *
      * @return bool
      */
-    public function getOptional(): bool;
+    public function getOptional(bool $get_real_value = true): bool;
 
 
     /**
@@ -799,9 +826,12 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note Is the exact opposite of Definition::getOptional()
      * @note Defaults to true
+     *
+     * @param bool $get_real_value
+     *
      * @return bool
      */
-    public function getRequired(): bool;
+    public function getRequired(bool $get_real_value = true): bool;
 
 
     /**
@@ -810,11 +840,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @note Defaults to false
      *
      * @param bool|null $value
-     * @param mixed     $initial_default
+     * @param mixed     $default
      *
      * @return static
      */
-    public function setOptional(?bool $value, mixed $initial_default = null): static;
+    public function setOptional(?bool $value, mixed $default = null): static;
 
 
     /**

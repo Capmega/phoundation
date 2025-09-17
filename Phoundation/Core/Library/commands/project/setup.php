@@ -87,7 +87,7 @@ if (isset($create)) {
     $config['project'] = Cli::readInput('Please specify the project name:', 'Phoundation');
 
 } else {
-    $config['project'] = Project::getName();
+    $config['project'] = Project::getFullName();
 }
 
 $config['environment']    = Cli::readInput('Please specify the environment you wish to set up:', 'local');

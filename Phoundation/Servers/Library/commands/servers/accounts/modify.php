@@ -26,8 +26,8 @@ use Phoundation\Servers\SshAccount;
 CliDocumentation::setAutoComplete(SshAccount::getAutoComplete([
                                                                   'positions' => [
                                                                       0 => [
-                                                                          'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                                                          'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                          'word'   => 'SELECT `name` FROM `ssh_accounts` WHERE `name` LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+                                                                          'noword' => 'SELECT `name` FROM `ssh_accounts` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
                                                                       ],
                                                                   ],
                                                               ]));

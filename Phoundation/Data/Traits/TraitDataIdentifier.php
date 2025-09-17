@@ -50,6 +50,37 @@ trait TraitDataIdentifier
 
 
     /**
+     * Returns a normalized array $identifier from all possible identifier types
+     *
+     * @param IdentifierInterface|array|string|int|false|null $identifier
+     *
+     * @return array
+     */
+    public static function normalizeIdentifier(IdentifierInterface|array|string|int|false|null $identifier): array
+    {
+        // Ensure $identifier is either NULL or a key => value array
+        if ($identifier instanceof DataEntryInterface) {
+            return $identifier->getIdentifier();
+        }
+
+        if ($identifier instanceof DataIteratorInterface) {
+            return $identifier->getSource();
+        }
+
+        if (is_numeric($identifier)) {
+            return [static::getIdColumn() => $identifier];
+        }
+
+        if (is_string($identifier)) {
+            return [static::getUniqueColumn() => $identifier];
+
+        }
+
+        return get_null($identifier);
+    }
+
+
+    /**
      * Sets a DataEntry type identifier
      *
      * Valid identifier values can be one of the following:
@@ -68,13 +99,15 @@ trait TraitDataIdentifier
     {
         if ($identifier) {
             if ($this->identifier) {
-                $e = new DataEntryDoubleIdentifierSpecifiedException(tr('Cannot set identifier ":new" for DataEntry object of class ":class", it already has identifier ":identifier" specified', [
+                Incident::new(DataEntryDoubleIdentifierSpecifiedException::new(tr('Cannot set identifier ":new" for DataEntry object of class ":class", it already has identifier ":identifier" specified', [
                     ':new'        => $identifier,
                     ':identifier' => $this->identifier,
                     ':class'      => $this::class,
-                ]));
-
-                Incident::new($e)->save()->throw();
+                ]))->setData([
+                    'new'        => $identifier,
+                    'identifier' => $this->identifier,
+                    ':class'      => $this::class,
+                ]))->save()->throw();
             }
 
             if ($this->isNotNew()) {
@@ -83,34 +116,17 @@ trait TraitDataIdentifier
                     ':class'      => $this::class,
                     ':identifier' => $identifier,
                 ]))->setData([
-                                 'class'      => $this::class,
-                                 'identifier' => $identifier,
-                                 'source'     => $this->source
-                             ]);
-            }
-
-            // Ensure $identifier is either NULL or a key => value array
-            if ($identifier instanceof DataEntryInterface) {
-                $identifier = $identifier->getIdentifier();
-
-            } elseif ($identifier instanceof DataIteratorInterface) {
-                $identifier =  $identifier->getSource();
-
-            } elseif (is_numeric($identifier)) {
-                $identifier = [static::getIdColumn() => $identifier];
-
-            } elseif (is_string($identifier)) {
-                $identifier = [static::getUniqueColumn() => $identifier];
-
-            } else {
-                $identifier = get_null($identifier);
+                    'class'      => $this::class,
+                    'identifier' => $identifier,
+                    'source'     => $this->source
+                ]);
             }
 
             // Set the identifier
-            $this->cache_key  = null;
-            $this->identifier = $identifier;
+            $this->identifier = static::normalizeIdentifier($identifier);
         }
 
+        $this->cache_key = null;
         return $this;
     }
 }

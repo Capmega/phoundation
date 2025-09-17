@@ -20,7 +20,8 @@ use Phoundation\Accounts\Users\AuthenticationsFilterForm;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -32,7 +33,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters      = AuthenticationsFilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Authentication filters')
                     ->setContent($filters);
@@ -41,19 +42,20 @@ $filters_card = Card::new()
 // Build the authentication table
 $authentications = Authentications::new()->setFilterFormObject($filters);
 $authentications->getQueryBuilderObject()->addJoin('LEFT JOIN `accounts_users` ON `accounts_authentications`.`created_by` = `accounts_users`.`id`')
-                                   ->addSelect('`accounts_authentications`.`id`')
-                                   ->addSelect('`accounts_authentications`.`created_on`')
-                                   ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
-                                   ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('No matched account') . '") AS `user`')
-                                   ->addSelect('`accounts_authentications`.`ip_address`')
-                                   ->addSelect('`accounts_authentications`.`account`')
-                                   ->addSelect('`accounts_authentications`.`action`')
-                                   ->addSelect('`accounts_authentications`.`method`');
+                                         ->addSelect('`accounts_authentications`.`id`')
+                                         ->addSelect('`accounts_authentications`.`created_on`')
+                                         ->addSelect('IFNULL(`accounts_authentications`.`status`, "Ok") AS `status`')
+                                         ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('No matched account') . '") AS `user`')
+                                         ->addSelect('`accounts_authentications`.`ip_address`')
+                                         ->addSelect('`accounts_authentications`.`account`')
+                                         ->addSelect('`accounts_authentications`.`action`')
+                                         ->addSelect('`accounts_authentications`.`method`');
+$authentications->load();
 
 
 // Build the "authentications" card
 $authentications_card = Card::new()
-                            ->setTitle('Authentications')
+                            ->setTitle(tr('Authentications (:count)', [':count' => $authentications->getCount()]))
                             ->setSwitches('reload')
                             ->setContent($authentications->getHtmlDataTableObject([
                                                              'id'         => tr('ID'),
@@ -74,16 +76,18 @@ $authentications_card = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('<a href="' . Url::new('/security/incidents.html')->makeWww()
-                                                                                    ->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()   : '')
-                                                                                    ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')  . '">' . tr('Incidents management') . '</a>');
+                     ->setContent(AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries($filters->getUsersId() ? 'users_id=' . $filters->getUsersId() : '')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Incidents management')) .
+                                  AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Non-200 URL\'s management')) .
+                                  hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                     AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
+                                     AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -92,13 +96,13 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Authentications management'));
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/security.html', tr('Security')),
-    Anchor::new(''              , tr('Authentications management')),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/security.html', tr('Security')),
+    Breadcrumb::new(''              , tr('Authentications management')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $authentications_card, EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card  , EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card . $authentications_card, EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card  , EnumDisplaySize::three);

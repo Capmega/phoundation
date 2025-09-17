@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.0.7';
+        return '0.8.0';
     }
 
 
@@ -415,6 +415,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('geo_features')->alter()->changeColumn('name', '`name` varchar(128) NULL DEFAULT NULL,')
                                                                              ->addColumn('`seo_name` varchar(128) NULL DEFAULT NULL,', 'AFTER `name`')
                                                                              ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'geo_timezones',
+                'geo_continents',
+                'geo_countries',
+                'geo_states',
+                'geo_counties',
+                'geo_features',
+                'geo_cities',
+            ]);
         });
     }
 }

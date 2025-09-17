@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
@@ -23,9 +24,9 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Mailbox'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'          , tr('Home')),
-   Anchor::new('/demos.html', tr('Demos')),
-   Anchor::new(''           , tr('Mailbox')),
+   Breadcrumb::new('/'          , tr('Home')),
+   Breadcrumb::new('/demos.html', tr('Demos')),
+   Breadcrumb::new(''           , tr('Mailbox')),
 ]);
 
 ?>
@@ -33,9 +34,11 @@ Response::setBreadcrumbs([
 <section class="content">
     <div class="row">
         <div class="col-md-3">
-            <a href="<?= Url::new('/demos/compose.html')->makeWww(); ?>"
-               class="btn btn-primary btn-block mb-3">Compose</a>
-
+            <?=
+                Anchor::new(Url::new('/demos/compose.html'))
+                      ->setContent(tr('Compose'))
+                      ->setClass('btn btn-primary btn-block mb-3')
+            ?>
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Folders</h3>
@@ -49,31 +52,39 @@ Response::setBreadcrumbs([
                 <div class="card-body p-0">
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item active">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-inbox"></i> Inbox
-                                <span class="badge bg-primary float-right">12</span>
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="fas fa-inbox"></i> ' . tr('Inbox') . '<span class="badge bg-primary float-right">12</span>')
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-envelope"></i> Sent
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="far fa-envelope"></i> ' . tr('Sent'))
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-file-alt"></i> Drafts
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                    ->setContent('<i class="far fa-file-alt"></i> ' . tr('Drafts'))
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-filter"></i> Junk
-                                <span class="badge bg-warning float-right">65</span>
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="fas fa-filter"></i> ' . tr('Junk') . '<span class="badge bg-warning float-right">65</span>')
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-trash-alt"></i> Trash
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="fas fa-trash-alt"></i> ' . tr('Trash') . '<span class="badge bg-danger float-right">10</span>')
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                     </ul>
                 </div>
@@ -93,21 +104,25 @@ Response::setBreadcrumbs([
                 <div class="card-body p-0">
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-circle text-danger"></i>
-                                Important
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="far fa-circle text-danger"></i> ' . tr('Important'))
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-circle text-warning"></i> Promotions
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="far fa-circle text-warning"></i> ' . tr('Promotions'))
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="far fa-circle text-primary"></i>
-                                Social
-                            </a>
+                            <?=
+                                Anchor::new(Url::new('#'))
+                                      ->setContent('<i class="far fa-circle text-primary"></i> ' . tr('Social'))
+                                      ->setClass('nav-link')
+                            ?>
                         </li>
                     </ul>
                 </div>
@@ -179,9 +194,15 @@ Response::setBreadcrumbs([
                                         <label for="check1"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
-                                        Olaf Oostenbrink</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                    Anchor::new(Url::new('/demos/read-mail.html'))
+                                          ->setContent('Sven Olaf Oostenbrink')
+                                    ?>
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -196,8 +217,13 @@ Response::setBreadcrumbs([
                                     </div>
                                 </td>
                                 <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
-                                        Henrichsen</a></td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Corey Henrichsen')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -211,9 +237,15 @@ Response::setBreadcrumbs([
                                         <label for="check3"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
-                                        Henrichsen</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Corey Henrichsen')
+                                    ?>
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -227,9 +259,16 @@ Response::setBreadcrumbs([
                                         <label for="check4"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Kate
-                                        Culter</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Kate Culter')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -243,9 +282,16 @@ Response::setBreadcrumbs([
                                         <label for="check5"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Doug
-                                        Poulin</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Doug Poulin')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -259,9 +305,15 @@ Response::setBreadcrumbs([
                                         <label for="check6"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
-                                        Henrichsen</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Corey Henrichsen')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -275,9 +327,16 @@ Response::setBreadcrumbs([
                                         <label for="check7"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dana
-                                        Alderson</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Dana Alderson')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -291,9 +350,16 @@ Response::setBreadcrumbs([
                                         <label for="check8"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dana
-                                        Alderson</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Dana Alderson')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -307,9 +373,16 @@ Response::setBreadcrumbs([
                                         <label for="check9"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Dianne
-                                        Hrisook</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Dianne Hrisook')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -323,9 +396,16 @@ Response::setBreadcrumbs([
                                         <label for="check10"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Doug
-                                        Poulin</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Doug Poulin')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -339,9 +419,16 @@ Response::setBreadcrumbs([
                                         <label for="check11"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Kate
-                                        Culter</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Kate Culter')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -355,9 +442,16 @@ Response::setBreadcrumbs([
                                         <label for="check12"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
-                                        Olaf Oostenbrink</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Sven Olaf Oostenbrink')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -371,9 +465,16 @@ Response::setBreadcrumbs([
                                         <label for="check13"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star-o text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Sven
-                                        Olaf Oostenbrink</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star-o text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Sven Olaf Oostenbrink')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -387,9 +488,16 @@ Response::setBreadcrumbs([
                                         <label for="check14"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
-                                        Henrichsen</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Corey Henrichsen')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>
@@ -403,9 +511,16 @@ Response::setBreadcrumbs([
                                         <label for="check15"></label>
                                     </div>
                                 </td>
-                                <td class="mailbox-star"><a href="#"><i class="fas fa-star text-warning"></i></a></td>
-                                <td class="mailbox-name"><a href="<?= Url::new('/demos/read-mail.html')->makeWww(); ?>">Corey
-                                        Henrichsen</a></td>
+                                <td class="mailbox-star">
+                                    <a href="#"><i class="fas fa-star text-warning"></i></a>
+                                </td>
+                                <td class="mailbox-name">
+                                    <?=
+                                        Anchor::new(Url::new('/demos/read-mail.html'))
+                                              ->setContent('Corey Henrichsen')
+                                    ?>
+
+                                </td>
                                 <td class="mailbox-subject"><b>Tracker system rocks!</b> - Trying to find a solution to
                                     this problem...
                                 </td>

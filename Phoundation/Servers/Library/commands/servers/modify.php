@@ -24,8 +24,8 @@ use Phoundation\Servers\Server;
 CliDocumentation::setAutoComplete(Server::getAutoComplete([
                                                               'positions' => [
                                                                   0 => [
-                                                                      'word'   => 'SELECT `hostname` FROM `servers` WHERE `hostname` LIKE :word AND `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
-                                                                      'noword' => 'SELECT `hostname` FROM `servers` WHERE `status` IS NULL LIMIT ' . Limit::shellAutoCompletion(),
+                                                                      'word'   => 'SELECT `hostname` FROM `servers` WHERE `hostname` LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+                                                                      'noword' => 'SELECT `hostname` FROM `servers` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
                                                                   ],
                                                               ],
                                                           ]));

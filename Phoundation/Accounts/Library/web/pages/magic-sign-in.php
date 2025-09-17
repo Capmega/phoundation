@@ -22,8 +22,10 @@ use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -84,12 +86,12 @@ if (Request::isPostRequestMethod()) {
             // Build email
             $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
                 ':user' => $user->getDisplayName(),
-                ':here' => tr('<a href=":url">here</a>', [':url' => $key->getUrl()]),
+                ':here' => Anchor::new($key->getUrl(), tr('here')),
                 ':alt'  => $key->getUrl(),
             ]);
 
             $mail->Subject = tr('[:project] Lost password request', [
-                ':project' => config()->getString('project.name', 'Phoundation') . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
+                ':project' => Project::getHumanReadableFullName() . ((ENVIRONMENT === 'production') ? ' - ' . strtoupper(ENVIRONMENT) : ''),
             ]);
 
 //        $mail->SMTPDebug = SMTP::DEBUG_SERVER;
@@ -136,8 +138,11 @@ Response::setPageTitle(tr('Request a new password'));
         <!-- /.login-logo -->
         <div class="card card-outline card-info">
             <div class="card-header text-center">
-                <a href="<?= config()->getString('project.customer-url', 'https://phoundation.org'); ?>"
-                   class="h1"><?= config()->getString('project.owner.label', '<span>Phoun</span>dation'); ?></a>
+                <?=
+                    Anchor::new(Project::getOwnerUrl())
+                          ->setContent(Project::getOwnerLabel(), false)
+                          ->setClass('h1')
+                ?>
             </div>
             <div class="card-body">
                 <p class="login-box-msg"><?= tr('Please provide your email address and we will send you a link which you can use to login directly') ?></p>
@@ -145,7 +150,7 @@ Response::setPageTitle(tr('Request a new password'));
                 <form action="<?= Url::newCurrent() ?>" method="post">
                     <?php Csrf::getHiddenElement() ?>
                     <?php
-                    if (Session::supports('email')) {
+                    if ($o_component->getEnabled('email')) {
                         ?>
                         <div class="input-group mb-3">
                             <input type="email" name="email" id="email" class="form-control"
@@ -166,9 +171,11 @@ Response::setPageTitle(tr('Request a new password'));
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <a class="btn btn-outline-secondary btn-block" href="<?= Url::new('/sign-in.html')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email') ?>">
-                                    <?= tr('Back to sign in') ?>
-                                </a>
+                                <?=
+                                    Anchor::new(Url::new('/sign-in.html')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email'))
+                                          ->setContent(tr('Back to sign in'))
+                                          ->setClass('btn btn-outline-secondary btn-block')
+                                ?>
                             </div>
                         </div>
                         <?php

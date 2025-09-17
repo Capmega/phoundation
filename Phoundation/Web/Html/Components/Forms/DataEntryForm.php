@@ -37,8 +37,10 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
+
 
 class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 {
@@ -131,13 +133,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
     /**
      * Returns the cache key for this DataEntryForm object
      *
-     * @param String|null $append_string
-     *
      * @return string|null
      */
-    public function getCacheKeySeed(?String $append_string = null): ?string
+    public function getCacheKeySeed(): ?string
     {
-        return 'DataEntryForm-' . ($this->o_data_entry?->getCacheKey() ?? (static::class . Json::encode($this->source))) . '-render' . $append_string;
+        return PROJECT . '#DataEntryForm#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getName(), $this->getId(), $this->o_data_entry?->getIdentifier()], force_single_line: true);
     }
 
 
@@ -305,7 +305,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     // Select default element
                     if (!$o_definition->getElement()) {
-                        if ($o_definition->getDataSource()) {
+                        if ($o_definition->getSource()) {
                             // Default element for form items with a source is "select"
                             // TODO CHECK THIS! WHAT IF SOURCE IS A SINGLE STRING?
                             $o_definition->setElement(EnumElement::select);
@@ -362,7 +362,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     // Build the form elements unless a component or content was specified manually
-                    if (!$o_definition->getContent()) {
+                    if (!$o_definition->getOutput()) {
                         switch ($o_definition->getElement()) {
                             case EnumElement::input:
                                 if (!$o_definition->getInputType()) {
@@ -373,16 +373,16 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 }
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    if (!is_array($o_definition->getDataSource())) {
-                                        if (!is_string($o_definition->getDataSource())) {
-                                            if ($o_definition->getDataSource() instanceof Stringable) {
+                                if ($o_definition->getSource()) {
+                                    if (!is_array($o_definition->getSource())) {
+                                        if (!is_string($o_definition->getSource())) {
+                                            if ($o_definition->getSource() instanceof Stringable) {
                                                 // This is a Stringable object
-                                                $o_definition->setDataSource((string)$o_definition->getDataSource());
+                                                $o_definition->setSource((string)$o_definition->getSource());
 
                                             } else {
                                                 // The Only possibility left is instanceof PDOStatement
-                                                $o_definition->setDataSource(sql()->getColumn($o_definition->getDataSource(), $execute));
+                                                $o_definition->setSource(sql()->getColumn($o_definition->getSource(), $execute));
                                             }
                                         }
                                     }
@@ -402,7 +402,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $o_component   = match ($o_definition->getInputType()) {
                                     EnumInputType::number       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setStep($o_definition->getStep())
@@ -411,7 +410,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::date         => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMin($o_definition->getMin())
                                                                                  ->setMax($o_definition->getMax())
                                                                                  ->setName($field_name)
@@ -419,24 +417,21 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     EnumInputType::auto_suggest => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setAutoComplete(false)
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
-                                                                                 ->setSourceUrl($o_definition->getDataSource())
+                                                                                 ->setSourceUrl($o_definition->getSource())
                                                                                  ->setVariables($o_definition->getVariables())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::select       => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue($source[$column]),
 
                                     EnumInputType::checkbox     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
                                                                                  ->setValue('1')
                                                                                  ->setChecked((bool)$source[$column]),
@@ -447,6 +442,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                          ->setHidden($o_definition->getHidden())
                                                                          ->setValue($o_definition->getValue()),
 
+                                    // TODO This should be using ->setDefinitionObject($o_definition)!
                                     EnumInputType::hidden       => $element_class::new()
                                                                                  ->setRequired($o_definition->getRequired())
                                                                                  ->setName($field_name)
@@ -454,7 +450,6 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                                     default                     => $element_class::new()
                                                                                  ->setDefinitionObject($o_definition)
-                                                                                 ->setRequired($o_definition->getRequired())
                                                                                  ->setMinLength($o_definition->getMinLength())
                                                                                  ->setMaxLength($o_definition->getMaxLength())
                                                                                  ->setAutoComplete($o_definition->getAutoComplete())
@@ -468,8 +463,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                             case EnumElement::textarea:
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
+                                if ($o_definition->getSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
@@ -494,8 +489,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $element_class = Strings::capitalize($o_definition->getElement()->value);
 
                                 // If we have a source query specified, then get the actual value from the query
-                                if ($o_definition->getDataSource()) {
-                                    $source[$column] = sql()->getColumn($o_definition->getDataSource(), $execute);
+                                if ($o_definition->getSource()) {
+                                    $source[$column] = sql()->getColumn($o_definition->getSource(), $execute);
                                 }
 
                                 // Get the class for this element and ensure the library file is loaded
@@ -523,7 +518,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputSelect');
                                 $o_component   = $element_class::new()
                                                                ->setDefinitionObject($o_definition)
-                                                               ->setSource($o_definition->getDataSource(), $execute)
+                                                               ->setSource($o_definition->getSource(), $execute)
                                                                ->setDisabled($o_definition->getDisabled() or $o_definition->getReadonly())
                                                                ->setReadOnly((bool)$o_definition->getReadonly())
                                                                ->setHidden($o_definition->getHidden())
@@ -540,7 +535,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 // Get the class for this element and ensure the library file is loaded
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\InputMultiButtonText');
                                 $input = $element_class::new()
-                                                       ->setSource($o_definition->getDataSource());
+                                                       ->setSource($o_definition->getSource());
 
                                 $input->getButton()
                                       ->setMode(EnumDisplayMode::from($o_definition->getMode()))
@@ -583,15 +578,15 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 ]));
                         }
 
-                    } elseif ($o_definition->getContent()) {
-                        if (is_callable($o_definition->getContent())) {
+                    } elseif ($o_definition->getOutput()) {
+                        if (is_callable($o_definition->getOutput())) {
                             // Component will be generated in a callback
                             if ($o_definition->getHidden()) {
                                 $this->o_rows->add($o_definition, InputHidden::new()
                                                                              ->setName($field_name)
                                                                              ->setValue(Strings::force($source[$column], ' - ')));
                             } else {
-                                $o_component = $o_definition->getContent()($o_definition, $column, $field_name, $source);
+                                $o_component = $o_definition->getOutput()($o_definition, $column, $field_name, $source);
 
                                 if ($o_component) {
                                     if (!is_string($o_component)) {
@@ -613,7 +608,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                         } else {
                             // Component has been defined directly
-                            $this->o_rows->add($o_definition, $o_definition->getContent());
+                            $this->o_rows->add($o_definition, $o_definition->getOutput());
                         }
 
 //                    } elseif (is_callable($o_definition->getContent())) {
@@ -642,7 +637,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     } else {
                         // Content has already been rendered, display it
-                        $this->o_rows->add($o_definition, $o_definition->getContent());
+                        $this->o_rows->add($o_definition, $o_definition->getOutput());
                     }
 
                 } catch (Throwable $e) {

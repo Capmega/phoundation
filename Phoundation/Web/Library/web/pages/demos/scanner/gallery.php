@@ -16,23 +16,24 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
 // Load required JavaScript & CSS libraries
-Response::loadJavaScript('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavaScript('templates/adminlte/plugins/filterizr/jquery.filterizr');
-Response::loadCss('templates/adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadCss('adminlte/plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-    Anchor::new('/'                  , tr('Home')),
-    Anchor::new('/demos.html'        , tr('Demos')),
-    Anchor::new('/demos/scanner.html', tr('Scanner')),
-    Anchor::new(''                   , tr('Gallery')),
+    Breadcrumb::new('/'                  , tr('Home')),
+    Breadcrumb::new('/demos.html'        , tr('Demos')),
+    Breadcrumb::new('/demos/scanner.html', tr('Scanner')),
+    Breadcrumb::new(''                   , tr('Gallery')),
 ]);
 
 
@@ -98,8 +99,11 @@ echo Script::new()
                                         $number = (random_int(1, 14) * 2);
 
                                         echo '  <div class="filtr-item col-sm-2" data-category="' . $color . '" data-sort="' . $colors[$color] . ' sample">
-                                                    <a href="' . Url::new('scanner/output' . $number . '.jpg')->makeImg() . '" data-toggle="lightbox" data-title="sample 1 - ' . $colors[$color] . '">
-                                                        <img src="' . Url::new('scanner/output' . $number . '.jpg')->makeImg() . '" class="img-fluid mb-2" alt="' . $colors[$color] . ' sample"/>
+                                                    ' . Anchor::new(Url::new('scanner/output' . $number . '.jpg')->makeImg())
+                                                              ->setContent('<img src="' . Url::new('scanner/output' . $number . '.jpg')->makeImg() . '" class="img-fluid mb-2" alt="' . $colors[$color] . ' sample"/>')
+                                                              ->addData('lightbox', 'toggle')
+                                                              ->addData('sample 1 - ' . $colors[$color], 'title') . '
+                                                       
                                                     </a>
                                                 </div>';
                                     }

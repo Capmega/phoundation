@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input;
 
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Utils\Strings;
 
@@ -184,7 +185,7 @@ class InputTextArea extends InputText
      *       Element::getAttributes()->set()
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
         $return = [
             'cols' => $this->cols,
@@ -192,7 +193,22 @@ class InputTextArea extends InputText
         ];
 
         // Merge the system values over the set attributes
-        return parent::renderAttributesArray()
+        return parent::renderAttributesIteratorObject()
                      ->appendSource($this->o_attributes, $return);
+    }
+
+
+    /**
+     * Set the DataEntry Definition on this element
+     *
+     * @param DefinitionInterface|null $o_definition
+     *
+     * @return static
+     */
+    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    {
+        // Copy data used for input controls
+        return parent::setDefinitionObject($o_definition)
+                     ->setContent($o_definition->getContent());
     }
 }

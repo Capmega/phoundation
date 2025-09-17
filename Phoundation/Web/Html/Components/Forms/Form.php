@@ -284,7 +284,7 @@ class Form extends Element implements FormInterface
      *       values that were added as general attributes using Element::getAttributes()->add()
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
         // These are obligatory
         $return = [
@@ -306,7 +306,7 @@ class Form extends Element implements FormInterface
         }
 
         // Merge the system values over the set attributes
-        return parent::renderAttributesArray()
+        return parent::renderAttributesIteratorObject()
                      ->appendSource($this->o_attributes, $return);
     }
 

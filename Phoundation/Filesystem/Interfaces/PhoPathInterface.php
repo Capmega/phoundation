@@ -103,14 +103,16 @@ interface PhoPathInterface extends Stringable
      */
     public function getStream(): mixed;
 
+
     /**
      * Returns the path
      *
      * @param PhoPathInterface|string|null $from
+     * @param bool                         $from_required
      *
      * @return string
      */
-    public function getSource(PhoPathInterface|string|null $from = null): string;
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string;
 
     /**
      * Returns true if this object is the specified path

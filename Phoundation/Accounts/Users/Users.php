@@ -28,6 +28,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidParentException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -47,20 +48,9 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 class Users extends DataIterator implements UsersInterface
 {
-    /**
-     * Users class constructor
-     *
-     * @param IteratorInterface|array|string|PDOStatement|null $source
-     */
-    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
-        $this->setAcceptedDataTypes(UserInterface::class);
-
-        parent::__construct($source);
-    }
-
-
     /**
      * Returns the table name used by this object
      *
@@ -257,11 +247,7 @@ class Users extends DataIterator implements UsersInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        if ($this->o_parent and (($this->o_parent instanceof RoleInterface) or ($this->o_parent instanceof RightInterface))) {
-            return $this->removeValues($keys, strict: $strict);
-        }
-
-        return parent::removeKeys($keys, $strict);
+        return $this->removeValues($keys, strict: $strict);
     }
 
 
@@ -320,9 +306,6 @@ class Users extends DataIterator implements UsersInterface
 
                 // Remove user from the internal list
                 parent::removeKeys($o_user->getUniqueColumnValue(), $strict);
-
-            } else {
-                parent::removeValues($needles, $column, $strict);
             }
         }
 
@@ -567,7 +550,7 @@ class Users extends DataIterator implements UsersInterface
             // Filter out test, developer, and demo users
             $this->getQueryBuilderObject()
                  ->addJoin('LEFT JOIN `accounts_users_rights`
-                            ON        `accounts_users_rights`.`name` IN ("developer", "test", "demo")
+                            ON        `accounts_users_rights`.`name` IN ("developer", "' . ENVIRONMENT . '")
                               AND     `accounts_users_rights`.`users_id` = `accounts_users`.`id`')
                 ->addWhere('`accounts_users_rights`.`name` IS NULL');
         }
@@ -579,12 +562,12 @@ class Users extends DataIterator implements UsersInterface
     /**
      * Load the data for this users list into the object
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         if (empty($this->query) and empty($this->o_query_builder)) {
             if ($this->o_parent) {

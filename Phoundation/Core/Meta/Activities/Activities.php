@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Meta\Activities;
 
+use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
@@ -106,13 +107,14 @@ class Activities extends IteratorCore
     /**
      * Returns a new activities object
      *
-     * @param ArraySourceInterface|array|string|null $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string|null $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, ?array $execute = null): static
     {
-        return static::new()->setSource($source);
+        return static::new()->setSource($source, $execute);
     }
 
 
@@ -225,7 +227,11 @@ class Activities extends IteratorCore
     protected function checkEmpty(int $meta_id, ?DataEntryInterface $object): void
     {
         if (empty($this->source)) {
-            $exists = sql()->getRow('SELECT `id` FROM `meta` WHERE `id` = :id', [':id' => $meta_id]);
+            $exists = sql()->getRow('SELECT `id` 
+                                     FROM   `meta` 
+                                     WHERE  `id` = :id', [
+                ':id' => $meta_id
+            ]);
 
             if (!$exists) {
                 if (empty($object)) {
@@ -251,9 +257,9 @@ class Activities extends IteratorCore
     public function render(): ?string
     {
         if (empty($this->render)) {
-            foreach ($this as $activity) {
-                if (!$this->hide_reads or !$activity->isAction('read')) {
-                    $this->render .= $activity->render();
+            foreach ($this as $o_activity) {
+                if (!$this->hide_reads or !$o_activity->isAction('read')) {
+                    $this->render .= $o_activity->render();
                 }
             }
         }

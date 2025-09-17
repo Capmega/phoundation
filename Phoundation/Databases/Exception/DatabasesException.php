@@ -34,15 +34,17 @@ class DatabasesException extends PhoException
 
 
     /**
-     * Adds the connector object information to a DatabasesException
+     * Sets the connector object information for the DatabasesException
      *
-     * @param ConnectorInterface|null $connector
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $connector): static
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
     {
-        return $this->addData($connector, 'connector');
+        return $this->addData($o_connector, 'connector')
+                    ->addData($database, 'database');
     }
 
 

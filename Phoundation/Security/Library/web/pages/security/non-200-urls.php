@@ -14,7 +14,8 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -28,18 +29,22 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Non200Urls filters')
                ->setContent($filters)
                ->useForm(true);
 
 
+// Get a list of the URL's
+$urls = Non200Urls::new()->load();
+
+
 // Build "urls" table
 $urls_card = Card::new()
-                 ->setTitle('Security Non-200 URL\'s')
+                 ->setTitle(tr('Non-200 URL\'s (:count)', [':count' => $urls->getCount()]))
                  ->setSwitches('reload')
-                 ->setContent(Non200Urls::new()->getHtmlDataTableObject()
+                 ->setContent($urls->getHtmlDataTableObject()
                      ->setRowUrl('/security/non-200-url+:ROW.html'))
                  ->useForm(true);
 
@@ -49,29 +54,33 @@ $urls_card->getForm()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent('');
+                     ->setContent(AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Authentications management')) .
+                                  AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Incidents management')) .
+                                  hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                     AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
+                                     AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
 
 
 // Build documentation
-$documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+$o_documentation_card = Card::new()
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Set page meta data
 Response::setHeaderTitle(tr('Non HTTP-200 URL\'s'));
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/security.html', tr('Security')),
-    Anchor::new(''              , tr('Non HTTP-200 URL\'s')),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/security.html', tr('Security')),
+    Breadcrumb::new(''              , tr('Non HTTP-200 URL\'s')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card . $urls_card          , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card . $urls_card              , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

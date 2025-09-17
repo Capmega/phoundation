@@ -40,6 +40,7 @@ use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionPostAndSignoutException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Accounts\Users\User;
@@ -367,7 +368,7 @@ class Session implements SessionInterface
                     static::$domain = sql()->getColumn('SELECT `domain` 
                                                         FROM   `whitelabels` 
                                                         WHERE  `domain` = :domain 
-                                                          AND  `status` IS NULL', [
+                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
                                                               ':domain' => $_SERVER['HTTP_HOST']
                     ]);
 
@@ -589,14 +590,16 @@ class Session implements SessionInterface
                 Core::writeRegister(403, 'page_show');
 
             } else {
-                if (!is_writable(session_save_path())) {
-                    throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
-                        ':directory' => session_save_path(),
-                        ':platform'  => PLATFORM,
-                    ]), $e);
+                if (str_starts_with(session_save_path(), '/')) {
+                    if (!is_writable(session_save_path())) {
+                        throw new SessionException(tr('Session startup failed because the session directory ":directory" is not writable for platform ":platform"', [
+                            ':directory' => session_save_path(),
+                            ':platform'  => PLATFORM,
+                        ]), $e);
+                    }
                 }
 
-                throw new SessionException(tr('Session startup failed'), $e);
+                throw new SessionException(tr('Session startup failed, see previous exception why'), $e);
             }
         }
     }
@@ -1180,9 +1183,11 @@ class Session implements SessionInterface
         // Initialize the session for the user
         Session::initializeUser();
 
-        Log::success(ts('Created new session ":session" for user ":user"', [
-            ':session' => session_id(),
-            ':user'    => static::getUserObject()->getLogId(),
+        Log::success(ts('Created new session ":session" for IP ":ip" with user ":user" from HTTP referrer ":referrer"', [
+            ':session'  => session_id(),
+            ':ip'       => Session::getIpAddress(),
+            ':user'     => static::getUserObject()->getLogId(),
+            ':referrer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
         ]));
 
         // Initialize the session
@@ -1258,13 +1263,13 @@ class Session implements SessionInterface
                 // TODO Add support for session users. For now we return the system user
                 if (Request::isRequestType(EnumRequestTypes::api)) {
                     $busy = false;
-                    return User::newSystem();
+                    return static::getSystemUserObject();
                 }
 
                 throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
-            $return = User::newSystem();
+            $return = static::getSystemUserObject();
 
         } elseif (!empty($_SESSION['user']['impersonate_id'])) {
             // We can return impersonated user IF exists
@@ -1643,6 +1648,30 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the user for this session
+     *
+     * @return UserInterface
+     */
+    protected static function getSystemUserObject(): UserInterface
+    {
+        // Return the system user
+        if (static::$user) {
+            if (!static::$user->isSystem()) {
+                static::$user = null;
+            }
+        }
+
+        if (empty(static::$user)) {
+            // There is no user, this is a system session
+            static::$user = User::newSystem();
+        }
+
+        // Return from cache
+        return static::$user;
+    }
+
+
+    /**
      * Validate sign in data
      *
      * @param ValidatorInterface|null $o_validator
@@ -1690,7 +1719,7 @@ class Session implements SessionInterface
     public static function getLanguage(string $default = 'en'): string
     {
         if (empty(static::$language)) {
-            static::setLanguage();
+            Session::setLanguage();
         }
 
         return static::$language ?? $default;
@@ -1705,7 +1734,7 @@ class Session implements SessionInterface
     protected static function setLanguage(): string
     {
         // Check what languages are accepted by the client (in order of importance) and see if we support any of those
-        $supported_languages = Arrays::force(config()->get('locale.language.supported', []));
+        $supported_languages = Arrays::force(config()->get('locale.languages.supported', []));
         $requested_languages = Request::acceptsLanguages();
 
         foreach ($requested_languages as $requested_language) {
@@ -1717,7 +1746,7 @@ class Session implements SessionInterface
         }
 
         // No supported language found, set the default language
-        return config()->getString('languages.default', 'en');
+        return config()->getString('locale.languages.default', 'en');
     }
 
 
@@ -2678,8 +2707,20 @@ class Session implements SessionInterface
     {
         if ($time) {
             $_SESSION['auto_signed_out'] = $time;
+
         } else {
             $_SESSION['auto_signed_out'] = time();
         }
+    }
+
+
+    /**
+     * Returns session State object
+     *
+     * @return SessionStateInterface
+     */
+    public static function getStateObject(): SessionStateInterface
+    {
+        return static::getUserObject()->getSessionStateObject();
     }
 }

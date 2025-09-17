@@ -16,17 +16,19 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('Projects'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'          , tr('Home')),
-   Anchor::new('/demos.html', tr('Demos')),
-   Anchor::new(''           , tr('Projects')),
+   Breadcrumb::new('/'          , tr('Home')),
+   Breadcrumb::new('/demos.html', tr('Demos')),
+   Breadcrumb::new(''           , tr('Projects')),
 ]);
 
 ?>
@@ -136,17 +138,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-success">Success</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -202,21 +203,18 @@ Response::setBreadcrumbs([
                         <span class="badge badge-warning">Delayed</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
-                            <i class="fas fa-trash">
-                            </i>
-                            Delete
+                            <i class="fas fa-trash"> </i> Delete
                         </a>
                     </td>
                 </tr>
@@ -277,17 +275,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-warning">behind schedule</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -361,17 +358,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-danger">Failed</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -436,17 +432,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-info">Planned</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -520,17 +515,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-success">Success</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -586,17 +580,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-success">Success</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -661,17 +654,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-success">Success</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>
@@ -745,17 +737,16 @@ Response::setBreadcrumbs([
                         <span class="badge badge-success">Success</span>
                     </td>
                     <td class="project-actions text-right">
-                        <a class="btn btn-primary btn-sm"
-                           href="<?= Url::new('demos/project-detail.html')->makeWww(); ?>">
-                            <i class="fas fa-folder">
-                            </i>
-                            View
-                        </a>
-                        <a class="btn btn-info btn-sm" href="<?= Url::new('demos/project-edit.html')->makeWww(); ?>">
-                            <i class="fas fa-pencil-alt">
-                            </i>
-                            Edit
-                        </a>
+                        <?=
+                            Anchor::new(Url::new('demos/project-detail.html'))
+                                  ->setContent('<i class="fas fa-folder"> </i> ' . tr('View'))
+                                  ->setClass('btn btn-primary btn-sm')
+                        ?>
+                        <?=
+                            Anchor::new(Url::new('demos/project-edit.html'))
+                                  ->setContent('<i class="fas fa-pencil-alt"> </i> ' . tr('Edit'))
+                                  ->setClass('btn btn-info btn-sm')
+                        ?>
                         <a class="btn btn-danger btn-sm" href="#">
                             <i class="fas fa-trash">
                             </i>

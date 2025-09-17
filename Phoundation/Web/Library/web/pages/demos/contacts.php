@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -24,9 +25,9 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Contacts'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'          , tr('Home')),
-   Anchor::new('/demos.html', tr('Demos')),
-   Anchor::new(''           , tr('Contacts')),
+   Breadcrumb::new('/'          , tr('Home')),
+   Breadcrumb::new('/demos.html', tr('Demos')),
+   Breadcrumb::new(''           , tr('Contacts')),
 ]);
 
 ?>
@@ -74,10 +75,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -119,10 +118,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -164,10 +161,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -209,10 +204,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -250,10 +243,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -295,10 +286,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -337,55 +326,8 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
-                    <div class="card bg-light d-flex flex-fill">
-                        <div class="card-header text-muted border-bottom-0">
-                            Digital Strategist
-                        </div>
-                        <div class="card-body pt-0">
-                            <div class="row">
-                                <div class="col-7">
-                                    <h2 class="lead"><b>Nicole Pearson</b></h2>
-                                    <p class="text-muted text-sm"><b>About: </b> Web Designer / UX / Graphic Artist /
-                                        Coffee Lover </p>
-                                    <ul class="ml-4 mb-0 fa-ul text-muted">
-                                        <li class="small"><span class="fa-li"><i
-                                                        class="fas fa-lg fa-building"></i></span> Address: Demo Street
-                                            123, Demo City 04312, NJ
-                                        </li>
-                                        <li class="small"><span class="fa-li"><i class="fas fa-lg fa-phone"></i></span>
-                                            Phone #: + 800 - 12 12 23 52
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-5 text-center">
-                                    <?= Session::getUserObject()
-                                               ->getProfilePictureFileObject()
-                                                   ->getImgObject()
-                                                       ->setSrc(Url::new('img/profiles/default.png')->makeImg())
-                                                       ->setClass('img-circle img-fluid')
-                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
-                                                       ->render() ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <div class="text-right">
-                                <a href="#" class="btn btn-sm bg-teal">
-                                    <i class="fas fa-comments"></i>
-                                </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
-                                </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>
@@ -427,10 +369,51 @@ Response::setBreadcrumbs([
                                 <a href="#" class="btn btn-sm bg-teal">
                                     <i class="fas fa-comments"></i>
                                 </a>
-                                <a href="<?= Url::new('demos/profile.html')->makeWww(); ?>"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-user"></i> View Profile
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch flex-column">
+                    <div class="card bg-light d-flex flex-fill">
+                        <div class="card-header text-muted border-bottom-0">
+                            Digital Strategist
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="row">
+                                <div class="col-7">
+                                    <h2 class="lead"><b>Nicole Pearson</b></h2>
+                                    <p class="text-muted text-sm"><b>About: </b> Web Designer / UX / Graphic Artist /
+                                        Coffee Lover </p>
+                                    <ul class="ml-4 mb-0 fa-ul text-muted">
+                                        <li class="small"><span class="fa-li"><i
+                                                        class="fas fa-lg fa-building"></i></span> Address: Demo Street
+                                            123, Demo City 04312, NJ
+                                        </li>
+                                        <li class="small"><span class="fa-li"><i class="fas fa-lg fa-phone"></i></span>
+                                            Phone #: + 800 - 12 12 23 52
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-5 text-center">
+                                    <?= Session::getUserObject()
+                                               ->getProfilePictureFileObject()
+                                                   ->getImgObject()
+                                                       ->setSrc(Url::new('img/profiles/default.png')->makeImg())
+                                                       ->setClass('img-circle img-fluid')
+                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                       ->render() ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="text-right">
+                                <a href="#" class="btn btn-sm bg-teal">
+                                    <i class="fas fa-comments"></i>
                                 </a>
+                                <?= Anchor::new(Url::new('demos/profile.html')->makeWww(), '<i class="fas fa-user"></i> ' . tr('View Profile'))
+                                          ->setClass('btn btn-sm btn-primary'); ?>
                             </div>
                         </div>
                     </div>

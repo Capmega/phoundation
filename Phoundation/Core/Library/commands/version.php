@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-
+use Phoundation\Developer\Project\Project;
 
 CliDocumentation::setUsage('./pho version');
 
@@ -30,4 +30,4 @@ ARGUMENTS
 -');
 
 
-Log::cli(Core::getProjectVersions(true));
+Log::cli(Project::getVersions(true));

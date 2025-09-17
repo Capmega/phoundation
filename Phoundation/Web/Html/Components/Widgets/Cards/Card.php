@@ -26,11 +26,11 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
-use Phoundation\Web\Html\Traits\TraitObjectTopButtons;
 use Stringable;
 
 
@@ -124,7 +124,7 @@ class Card extends Widget
      *
      * @return ButtonsInterface
      */
-    public function getButtons(): ButtonsInterface
+    public function getButtonsObject(): ButtonsInterface
     {
         if (empty($this->buttons)) {
             $this->buttons = new Buttons();
@@ -141,7 +141,7 @@ class Card extends Widget
      *
      * @return static
      */
-    public function setButtons(ButtonsInterface|ButtonInterface|null $buttons): static
+    public function setButtonsObject(ButtonsInterface|ButtonInterface|null $buttons): static
     {
         if ($buttons) {
             if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
@@ -480,7 +480,7 @@ class Card extends Widget
     /**
      * @inheritDoc
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($content !== null) {
             if (!empty($this->tabs)) {
@@ -492,7 +492,7 @@ class Card extends Widget
             $this->addClass('form');
 
             if ($content->getDefinitionsObject()?->hasButtons()) {
-                $this->setButtons($content->getDefinitionsObject()->getButtons());
+                $this->setButtonsObject($content->getDefinitionsObject()->getButtons());
             }
 
         } elseif ($content instanceof HtmlTableInterface) {

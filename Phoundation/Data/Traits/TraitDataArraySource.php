@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\NotExistsException;
@@ -91,11 +92,12 @@ trait TraitDataArraySource
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param ArraySourceInterface|array|string $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         if ($source instanceof ArraySourceInterface) {
             if (!is_a($source, static::class)) {
@@ -111,7 +113,7 @@ trait TraitDataArraySource
         }
 
         $entry = new static(null);
-        return $entry->setSource($source);
+        return $entry->setSource($source, $execute);
     }
 
 
@@ -121,6 +123,17 @@ trait TraitDataArraySource
      * @return array
      */
     public function getSource(): array
+    {
+        return $this->source;
+    }
+
+
+    /**
+     * Returns the source without processing any data first
+     *
+     * @return array
+     */
+    public function getSourceUnprocessed(): array
     {
         return $this->source;
     }
@@ -401,5 +414,98 @@ trait TraitDataArraySource
     {
         $this->source = Arrays::removeValues($this->source, $needles, $column, $strict);
         return $this;
+    }
+
+
+    /**
+     * Returns the first key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getFirstKey(): Stringable|string|float|int|null
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return array_key_first($this->source);
+    }
+
+
+    /**
+     * Returns the last key contained in this object without changing the internal pointer
+     *
+     * @return Stringable|string|float|int|null
+     */
+    public function getLastKey(): Stringable|string|float|int|null
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return array_key_last($this->source);
+    }
+
+
+    /**
+     * Returns the first element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getFirstValue(): mixed
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return $this->ensureObject(array_key_first($this->source));
+    }
+
+
+    /**
+     * Returns the last element contained in this object without changing the internal pointer
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getLastValue(): mixed
+    {
+        if (empty($this->source)) {
+            return null;
+        }
+
+        return $this->ensureObject(array_key_last($this->source));
+    }
+
+
+    /**
+     * Returns if the specified key exists or not
+     *
+     * @param Stringable|string|int $key
+     *
+     * @return bool
+     */
+    public function keyExists(Stringable|string|int $key): bool
+    {
+        if (is_object($key)) {
+            $key = (string) $key;
+        }
+
+        return array_key_exists($key, $this->source);
+    }
+
+
+    /**
+     * Returns if the specified value exists in this Iterator or not
+     *
+     * @note Wrapper for IteratorCore::exists()
+     *
+     * @param mixed $value
+     * @param bool  $strict
+     *
+     * @return bool
+     */
+    public function valueExists(mixed $value, bool $strict = true): bool
+    {
+        return in_array($value, $this->source, $strict);
     }
 }

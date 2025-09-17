@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Interfaces;
 
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
+use Phoundation\Data\Interfaces\ContentObjectInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Span;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-interface ElementAttributesInterface
+
+interface ElementAttributesInterface extends ContentObjectInterface
 {
     /**
      * Returns the HTML id element attribute
@@ -258,9 +260,9 @@ interface ElementAttributesInterface
     /**
      * Returns the extra element attribute code
      *
-     * @return string
+     * @return string|null
      */
-    public function getExtraAttributes(): string;
+    public function getExtraAttributes(): ?string;
 
     /**
      * Sets all the extra element attribute code
@@ -280,42 +282,27 @@ interface ElementAttributesInterface
      */
     public function addExtraAttributes(Stringable|string|null $extra): static;
 
+
     /**
      * Appends the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
+
 
     /**
      * Prepends the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
-
-    /**
-     * Returns the content of the element to display
-     *
-     * @return Stringable|string|float|int|null
-     */
-    public function getContent(): Stringable|string|float|int|null;
-
-    /**
-     * Sets the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
     /**
      * Returns the height of the element to display
@@ -597,31 +584,16 @@ interface ElementAttributesInterface
      */
     public function getNullDisplay(): Stringable|string|float|int|null;
 
+
     /**
      * Set the HTML "null_display" element attribute
      *
-     * @param Stringable|string|float|int|null $null_display
+     * @param RenderInterface|string|float|int|null $value
+     * @param bool                                  $make_safe
      *
      * @return static
      */
-    public function setNullDisplay(Stringable|string|float|int|null $null_display): static;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public function setNullDisplay(RenderInterface|string|float|int|null $value, bool $make_safe = false): static;
 
     /**
      * Returns if this input element has after content
@@ -686,4 +658,20 @@ interface ElementAttributesInterface
      * @return static
      */
     public function addBeforeContent(RenderInterface|array|callable|string|null $before_content): static;
+
+    /**
+     * Returns the HTML title element attribute
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string;
+
+    /**
+     * Sets the HTML title element attribute
+     *
+     * @param string|null $title
+     *
+     * @return static
+     */
+    public function setTitle(?string $title): static;
 }

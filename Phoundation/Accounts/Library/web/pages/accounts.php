@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Reports accounts
+ * /accounts
  *
- * This is the main reports index page showing all available reports pages
+ * This is the main accounts menu page
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -15,7 +15,8 @@
 declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Layouts\Grid;
@@ -36,20 +37,20 @@ Response::setPageTitle(tr('Accounts portal'));
 Response::setHeaderTitle(tr('Accounts portal'));
 Response::setDescription(tr(''));
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Accounts')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('Accounts')),
 ]);
 
 
 // Build link cards
-$card = Card::new()
+$o_card = Card::new()
             ->setTitle(tr('Accounts management'))
-            ->setContent(Anchor::new('/accounts/users.html'   , tr('Manage users')) .
-                         Anchor::new('/accounts/roles.html'   , tr('Manage roles')   , '<br>') .
-                         Anchor::new('/accounts/rights.html'  , tr('Manage rights')  , '<br>') .
-                         Anchor::new('/accounts/sessions.html', tr('Manage sessions'), '<hr>'));
+            ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
+                         AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
+                         AnchorBlock::new('/accounts/rights.html'  , tr('Manage rights')) .
+                         hr(AnchorBlock::new('/accounts/sessions.html', tr('Manage sessions'))));
 
 
 // Render and return the grid
 return Grid::new()
-           ->addGridColumn($card, EnumDisplaySize::twelve);
+           ->addGridColumn($o_card, EnumDisplaySize::twelve);

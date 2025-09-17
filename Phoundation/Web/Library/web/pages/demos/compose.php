@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -25,10 +26,10 @@ use Phoundation\Web\Requests\Response;
 Response::setHeaderTitle(tr('Compose mail'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([
-   Anchor::new('/'                  , tr('Home')),
-   Anchor::new('/demos.html'        , tr('Demos')),
-   Anchor::new('/demos/mailbox.html', tr('Mailbox')),
-   Anchor::new(''                   , tr('Compose mail')),
+   Breadcrumb::new('/'                  , tr('Home')),
+   Breadcrumb::new('/demos.html'        , tr('Demos')),
+   Breadcrumb::new('/demos/mailbox.html', tr('Mailbox')),
+   Breadcrumb::new(''                   , tr('Compose mail')),
 ]);
 
 Response::loadCss('/adminlte/plugins/summernote/summernote-bs4');
@@ -44,9 +45,8 @@ echo Script::new()
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3">
-                <a href="<?= Url::new('/demos/mailbox.html')->makeWww(); ?>" class="btn btn-primary btn-block mb-3">Back
-                    to Inbox</a>
-
+                <?= Anchor::new(Url::new('/demos/mailbox.html')->makeWww(), tr('Back to inbox'))
+                          ->setClass('btn btn-primary btn-block mb-3'); ?>
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Folders</h3>

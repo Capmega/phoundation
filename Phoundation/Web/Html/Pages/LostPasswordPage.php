@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
@@ -30,6 +31,10 @@ class LostPasswordPage extends Page
         // This page must build its own body
         // Set page meta-data
         Response::setPageTitle(tr('Request a new password'));
+        Response::setHeaderTitle(tr('Request a new password'));
+
+        $this->setUrl(Url::new('sign-in')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email'), 'back-to-sign-in');
+        $this->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                        , 'image-background');
 
         parent::__construct($name);
     }

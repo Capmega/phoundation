@@ -16,8 +16,9 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Security\Incidents\Incident;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -36,11 +37,11 @@ $get = GetValidator::new()
 // Build the page content
 $incident = Incident::new()->load($get['id']);
 $form     = $incident->getHtmlDataEntryFormObject();
-$card     = Card::new()
+$o_card     = Card::new()
                 ->setTitle($incident->getTitle())
                 ->setMaximizeSwitch(true)
                 ->setContent($form)
-                ->setButtons(Buttons::new()->addButton(
+                ->setButtonsObject(Buttons::new()->addButton(
                     tr('Back'), EnumDisplayMode::secondary,
                     Url::newPrevious('/security/incidents.html')->addQueries(
                         $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
@@ -49,15 +50,19 @@ $card     = Card::new()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
-                                   Anchor::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
+                                  AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
+                                  AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Non-200 URL\'s management')) .
+                                  hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                     AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
+                                     AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
@@ -66,19 +71,19 @@ $documentation_card = Card::new()
 // Set page meta data
 $url = Url::new('/security/incidents.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
-)->getSource();
+);
 
 Response::setHeaderTitle(tr('Incident'));
 Response::setHeaderSubTitle($incident->getDisplayId());
 Response::setBreadcrumbs([
-    Anchor::new('/'             , tr('Home')),
-    Anchor::new('/security.html', tr('Security')),
-    Anchor::new($url            , tr('Incidents management')),
-    Anchor::new(''              , $incident->getDisplayId()),
+    Breadcrumb::new('/'             , tr('Home')),
+    Breadcrumb::new('/security.html', tr('Security')),
+    Breadcrumb::new($url            , tr('Incidents management')),
+    Breadcrumb::new(''              , $incident->getDisplayId()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($card                               , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_card                               , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

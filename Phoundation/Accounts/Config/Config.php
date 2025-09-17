@@ -33,7 +33,7 @@
  * specified, a ConfigPathDoesNotExistsException will be thrown
  *
  * To improve configuration reliability, it is very much recommended to use one of the datatype sensitive Config::get()
- * calls. These calls will throw exceptions if the value for the specified configuration path does not match the
+ * calls. These calls will throw exceptions if the value for the specified configuration path doesn't match the
  * expected datatype. Current datatype sensitive configuration get calls are:
  *
  * Config::getBoolean(string|array $path, ?bool $default = null): bool
@@ -47,6 +47,7 @@
  * Config::getArray(string|array $path, array|null $default = null, array|string|null $require_keys = null): array
  * Config::getString(string|array $path, string|null $default = null): string
  * Config::getBoolString(string|array $path, string|bool|null $default = null): string|bool
+ * .... And various more that still require documenting
  *
  * Config will ALWAYS read in the production environment file for the requested section, after which it will read the
  * file for the current environment. The file for the current environment only needs to contain configuration keys
@@ -575,6 +576,46 @@ class Config implements ConfigInterface
             ':value' => $return,
         ]))->addData([
             'value'      => $return,
+            'value_type' => gettype($return)
+        ]);
+    }
+
+
+    /**
+     * Return configuration INTEGER for the specified key path
+     *
+     * @note Will throw a ConfigException if a non-integer value is returned
+     *
+     * @param string|array                   $path                     The configuration path for which the value should be returned
+     * @param IteratorInterface|array|string $in_array                 The values in which the configured value must lie
+     * @param string|float|int|null          $default                  The default value to return if the configuration path doesn't
+     *                                                                 exist. If not specified, or NULL, an exception will be thrown when
+     *                                                                 the path doesn't exist
+     * @param bool                           $allow_user_configuration If true will allow user configuration to override system
+     *                                                                 configuration
+     * @param bool                           $use_cache                If true will allow user configuration to be stored in and read from
+     *                                                                 cache
+     *
+     * @return string|float|int                                        The value for the requested path
+     *
+     */
+    public function getInArray(string|array $path, IteratorInterface|array|string $in_array, string|float|int|null $default = null, bool $allow_user_configuration = false, bool $use_cache = true): string|float|int
+    {
+        $in_array = Arrays::force($in_array);
+        $return   = $this->get($path, $default, $allow_user_configuration, $use_cache);
+
+        if (in_array($return, $in_array)) {
+            return $return;
+        }
+
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" should be one of ":in" but has value ":value" instead', [
+            ':path'  => $path,
+            ':value' => $return,
+            ':in'    => Strings::force($in_array),
+        ]))->addData([
+            'path'       => $path,
+            'value'      => $return,
+            'must_be_in' => $in_array,
             'value_type' => gettype($return)
         ]);
     }

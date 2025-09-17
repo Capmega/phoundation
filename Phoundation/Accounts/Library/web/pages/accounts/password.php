@@ -21,8 +21,9 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordNotChangedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -46,7 +47,10 @@ $password = $user->getPasswordObject();
 
 // Hide the "current" field as its not required for password updates by admin
 $o_definitions = $password->getDefinitionsObject();
-$o_definitions->get('current')->setRender(false);
+$o_definitions->setDefinitionRender('current'  , false)
+              ->setDefinitionRender('divider-0', false);
+
+
 
 
 // Validate POST and submit
@@ -87,31 +91,31 @@ $buttons = Buttons::new()
 
 
 // Build the user form
-$card = Card::new()
+$o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
             ->setContent($password->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the password card
 $column = GridColumn::new()
-                    ->addContent($card->render())
+                    ->addContent($o_card->render())
                     ->setSize(9)
                     ->useForm(true);
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
-                                  Anchor::new('/accounts/roles.html'                      , tr('Manage roles') , '<hr>') .
-                                  Anchor::new('/accounts/rights.html'                     , tr('Manage rights'), '<br>'));
+                     ->setContent(AnchorBlock::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
+                                  AnchorBlock::new('/accounts/roles.html'                      , tr('Manage roles')) .
+                                  AnchorBlock::new('/accounts/rights.html'                     , tr('Manage rights')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -123,15 +127,15 @@ $documentation_card = Card::new()
 Response::setHeaderTitle(tr('Change password'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                                         , tr('Home')),
-    Anchor::new('/accounts.html'                            , tr('Accounts')),
-    Anchor::new('/accounts/users.html'                      , tr('Users')),
-    Anchor::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
-    Anchor::new(''                                          , tr('Modify password'))
+    Breadcrumb::new('/'                                         , tr('Home')),
+    Breadcrumb::new('/accounts.html'                            , tr('Accounts')),
+    Breadcrumb::new('/accounts/users.html'                      , tr('Users')),
+    Breadcrumb::new('/accounts/user+' . $user->getId() . '.html', $user->getDisplayName()),
+    Breadcrumb::new(''                                          , tr('Modify password'))
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

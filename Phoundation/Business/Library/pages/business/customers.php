@@ -16,7 +16,8 @@ declare(strict_types=1);
 
 use Phoundation\Business\Customers\Customers;
 use Phoundation\Business\Customers\FilterForm;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -31,7 +32,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build customers filter card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                ->setTitle('Customers filters')
                ->setCollapseSwitch(true)
                ->setContent($filters->render())
@@ -53,16 +54,16 @@ $customers_card->getForm()
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setCollapseSwitch(true)
-                     ->setContent(Anchor::new(Url::new('/business/providers.html')->makeWww(), tr('Providers management')) .
-                                  Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/business/providers.html')->makeWww(), tr('Providers management')) .
+                                  AnchorBlock::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setCollapseSwitch(true)
@@ -72,12 +73,12 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Customers'));
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Customers')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('Customers')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $customers_card    , EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card . $customers_card    , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

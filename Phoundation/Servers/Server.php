@@ -511,7 +511,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('categories_id')
-                                                  ->setColumnFromQuery('categories_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$categories_name']);
+                                                  ->setColumnFromQuery('categories_id', 'SELECT `id` 
+                                                                                         FROM   `categories` 
+                                                                                         WHERE  `name` = :name 
+                                                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                             ':name' => '$categories_name'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('providers_name')
@@ -524,7 +529,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('providers_id')
-                                                  ->setColumnFromQuery('providers_id', 'SELECT `id` FROM `business_providers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$providers_name']);
+                                                  ->setColumnFromQuery('providers_id', 'SELECT `id` 
+                                                                                        FROM `business_providers`
+                                                                                        WHERE `name` = :name 
+                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                            ':name' => '$providers_name'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('customers_name')
@@ -537,7 +547,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('customers_id')
-                                                  ->setColumnFromQuery('customers_id', 'SELECT `id` FROM `business_customers` WHERE `name` = :name AND `status` IS NULL', [':name' => '$customers_name']);
+                                                  ->setColumnFromQuery('customers_id', 'SELECT `id` 
+                                                                                        FROM   `business_customers` 
+                                                                                        WHERE  `name` = :name 
+                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                            ':name' => '$customers_name'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('countries_name')
@@ -552,7 +567,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('countries_id')
-                                                  ->setColumnFromQuery('countries_id', 'SELECT `id` FROM `geo_countries` WHERE `name` = :name AND `status` IS NULL', [':name' => '$countries_name']);
+                                                  ->setColumnFromQuery('countries_id', 'SELECT `id` 
+                                                                                        FROM   `geo_countries` 
+                                                                                        WHERE  `name` = :name 
+                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                            ':name' => '$countries_name'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('states_name')
@@ -567,7 +587,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('states_id')
-                                                  ->setColumnFromQuery('states_id', 'SELECT `id` FROM `geo_states` WHERE `name` = :name AND `status` IS NULL', [':name' => '$states_name']);
+                                                  ->setColumnFromQuery('states_id', 'SELECT `id` 
+                                                                                     FROM   `geo_states` 
+                                                                                     WHERE  `name` = :name 
+                                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                         ':name' => '$states_name'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('cities_name')
@@ -582,7 +607,12 @@ class Server extends DataEntry implements ServerInterface
                                     ])
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('cities_id')
-                                                  ->setColumnFromQuery('cities_id', 'SELECT `id` FROM `geo_cities` WHERE `name` = :name AND `status` IS NULL', [':name' => '$cities_name']);
+                                                  ->setColumnFromQuery('cities_id', 'SELECT `id` 
+                                                                                     FROM   `geo_cities` 
+                                                                                     WHERE  `name` = :name 
+                                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                         ':name' => '$cities_name'
+                                                  ]);
                                     }))
 
                     ->add(DefinitionFactory::newName()
@@ -618,8 +648,11 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliAutoComplete(function ($word) { return SshAccounts::new()->keepMatchingAutocompleteValues($word); })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('ssh_accounts_id')
-                                                    ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` FROM `ssh_accounts` WHERE `name` = :name AND `status` IS NULL', [
-                                                        ':name' => '$ssh_account'
+                                                    ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` 
+                                                                                             FROM   `ssh_accounts` 
+                                                                                             WHERE  `name` = :name 
+                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                 ':name' => '$ssh_account'
                                                     ]);
                                     }))
 
@@ -630,8 +663,11 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The unique hostname for this server'))
                                     ->setCliAutoComplete(function ($word) { return SshAccounts::new()->keepMatchingAutocompleteValues($word); })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isQueryResult('SELECT `id` FROM `ssh_accounts` WHERE `id` = :id AND `status` IS NULL', [
-                                            ':id' => '$ssh_accounts_id'
+                                        $o_validator->isQueryResult('SELECT `id` 
+                                                                     FROM   `ssh_accounts` 
+                                                                     WHERE  `id` = :id 
+                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                         ':id' => '$ssh_accounts_id'
                                         ]);
                                     }))
 
@@ -687,7 +723,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setSize(4)
                                     ->setLabel(tr('Payment interval'))
                                     ->setCliColumn('-i,--interval POSITIVE-INTEGER')
-                                    ->setDataSource([
+                                    ->setSource([
                                         'hourly'     => tr('Hourly'),
                                         'daily'      => tr('Daily'),
                                         'weekly'     => tr('Weekly'),
@@ -706,7 +742,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The category for this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -714,7 +750,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('categories_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':name' => '$categories_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `categories` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$categories_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('providers_id')
@@ -723,7 +764,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setHelpText(tr('The service provider where this server is hosted'))
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -731,7 +772,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('providers_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `business_providers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$providers_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `business_providers` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$providers_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('customers_id')
@@ -740,7 +786,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setInputType(EnumInputType::dbid)
                                     ->setHelpText(tr('The customer using this server'))
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -748,7 +794,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('customers_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `business_customers` WHERE `id` = :id AND `status` IS NULL', [':name' => '$customers_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `business_customers` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$customers_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('countries_id')
@@ -758,7 +809,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The country where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -766,7 +817,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('countries_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', [':name' => '$countries_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `geo_countries` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$countries_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('states_id')
@@ -776,7 +832,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setElement(EnumElement::select)
                                     ->setHelpGroup(tr('Location'))
                                     ->setHelpText(tr('The state where this server is hosted'))
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -784,7 +840,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('states_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', [':name' => '$states_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `geo_states` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$states_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('cities_id')
@@ -792,7 +853,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setCliColumn('--cities-id CITIES-ID')
                                     ->setInputType(EnumInputType::dbid)
                                     ->setElement(EnumElement::select)
-                                    ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                    ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -800,7 +861,12 @@ class Server extends DataEntry implements ServerInterface
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('cities_name')
-                                                  ->isColumnFromQuery('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', [':name' => '$cities_id']);
+                                                  ->isColumnFromQuery('SELECT `id` 
+                                                                       FROM   `geo_cities` 
+                                                                       WHERE  `id` = :id 
+                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                           ':name' => '$cities_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('os_name')
@@ -810,7 +876,7 @@ class Server extends DataEntry implements ServerInterface
                                     ->setLabel(tr('Operating system'))
                                     ->setCliColumn('-o,--os-name OPERATING-SYSTEM-NAME')
                                     ->setCliAutoComplete(true)
-                                    ->setDataSource([
+                                    ->setSource([
                                         'debian'    => tr('Debian'),
                                         'ubuntu'    => tr('Ubuntu'),
                                         'redhat'    => tr('Redhat'),

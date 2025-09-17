@@ -47,7 +47,7 @@ interface FlashMessageInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function setTitle(?string $title, bool $make_safe = true): static;
+    public function setTitle(?string $title, bool $make_safe = false): static;
 
 
     /**

@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataContent;
 use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataProperties;
@@ -46,6 +47,7 @@ use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
+
 trait TraitElementAttributes
 {
     use TraitMethodHasRendered;
@@ -55,9 +57,10 @@ trait TraitElementAttributes
         setDefinitionObject as protected __setDefinitionObject;
         getDefinitionObject as protected __getDefinitionObject;
     }
-    use TraitDataScripts;
+    use TraitDataContent;
     use TraitDataReadonly;
     use TraitDataDisabled;
+    use TraitDataScripts;
 
 
     /**
@@ -175,16 +178,16 @@ trait TraitElementAttributes
     /**
      * Extra attributes or element content can be added through the "extra" variable
      *
-     * @var string $extra_attributes
+     * @var string|null $extra_attributes
      */
-    protected string $extra_attributes = '';
+    protected ?string $extra_attributes = null;
 
     /**
      * The element content
      *
-     * @var string|null $content
+     * @var RenderInterface|string|float|int|null $content
      */
-    protected ?string $content = null;
+    protected RenderInterface|string|float|int|null $content = null;
 
     /**
      * The element height
@@ -235,6 +238,34 @@ trait TraitElementAttributes
      */
     protected Stringable|string|float|int|null $null_display = null;
 
+    /**
+     * Tracks the title attribute for the element
+     *
+     * @var string|null $title
+     */
+    protected ?string $title = null;
+
+    /**
+     * Tracks the type attribute for the element
+     *
+     * @var string|null $type
+     */
+    protected ?string $type = null;
+
+    /**
+     * Tracks the role attribute for the element
+     *
+     * @var string|null $role
+     */
+    protected ?string $role = null;
+
+    /**
+     * Tracks the style attribute for the element
+     *
+     * @var string|null $style
+     */
+    protected ?string $style = null;
+
 
     /**
      * Class constructor
@@ -277,6 +308,120 @@ trait TraitElementAttributes
             }
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML title element attribute
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+
+    /**
+     * Sets the HTML title element attribute
+     *
+     * @param string|null $title
+     *
+     * @return static
+     */
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML type element attribute
+     *
+     * @return string|null
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+
+    /**
+     * Sets the HTML type element attribute
+     *
+     * @param string|null $type
+     *
+     * @return static
+     */
+    public function setType(?string $type): static
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML role element attribute
+     *
+     * @return string|null
+     */
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+
+    /**
+     * Sets the HTML role element attribute
+     *
+     * @param string|null $role
+     *
+     * @return static
+     */
+    public function setRole(?string $role): static
+    {
+        $this->role = $role;
+        return $this;
+    }
+
+
+    /**
+     * Returns the HTML style element attribute
+     *
+     * @return string|null
+     */
+    public function getStyle(): ?string
+    {
+        return $this->style;
+    }
+
+
+    /**
+     * Sets the HTML style element attribute
+     *
+     * @param string|null $style
+     *
+     * @return static
+     */
+    public function setStyle(?string $style): static
+    {
+        $this->style = $style;
+        return $this;
+    }
+
+
+    /**
+     * Adds to the HTML style element attribute
+     *
+     * @param string|null $style
+     *
+     * @return static
+     */
+    public function addStyle(?string $style): static
+    {
+        $this->style .= $style;
         return $this;
     }
 
@@ -719,7 +864,7 @@ trait TraitElementAttributes
      */
     public function clearExtraAttributes(): static
     {
-        $this->extra_attributes = '';
+        $this->extra_attributes = null;
         return $this;
     }
 
@@ -727,9 +872,9 @@ trait TraitElementAttributes
     /**
      * Returns the extra element attribute code
      *
-     * @return string
+     * @return string|null
      */
-    public function getExtraAttributes(): string
+    public function getExtraAttributes(): ?string
     {
         return $this->extra_attributes;
     }
@@ -744,7 +889,7 @@ trait TraitElementAttributes
      */
     public function setExtraAttributes(?string $extra): static
     {
-        $this->extra_attributes = '';
+        $this->extra_attributes = null;
         return $this->addExtraAttributes($extra);
     }
 
@@ -760,87 +905,6 @@ trait TraitElementAttributes
     {
         $this->extra_attributes .= $extra;
         return $this;
-    }
-
-
-    /**
-     * Appends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if (is_object($content)) {
-            // This object is Stringable so it can be converted to string.
-            // If it is a RenderableInterface, it will automatically render
-            $content   = (string) $content;
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content .= $content;
-
-        return $this;
-    }
-
-
-    /**
-     * Prepends the specified content to the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        if ($content instanceof Stringable) {
-            // This object is Stringable so it can be converted to string.
-            // If it is a RenderableInterface, it will automatically render
-            $content   = (string) $content;
-            $make_safe = false;
-        }
-
-        if ($make_safe) {
-            $content = Html::safe($content);
-        }
-
-        $this->content = $content . $this->content;
-
-        return $this;
-    }
-
-
-    /**
-     * Returns the content of the element to display
-     *
-     * @return Stringable|string|float|int|null
-     */
-    public function getContent(): Stringable|string|float|int|null
-    {
-        return $this->content ?? $this->null_display;
-    }
-
-
-    /**
-     * Sets the content of the element
-     *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
-     *
-     * @return static
-     */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = false): static
-    {
-        $this->content = null;
-
-        return $this->appendContent($content, $make_safe);
     }
 
 
@@ -1243,7 +1307,6 @@ trait TraitElementAttributes
                  ->setAfterContent($o_definition->getAfterContent())
                  ->setBeforeContent($o_definition->getBeforeContent())
                  ->setVisible($o_definition->getVisible())
-                 ->setRequired($o_definition->getRequired())
                  ->addClasses($o_definition->getClasses())
                  ->setDataObject($o_definition->getData())
                  ->setAriaObject($o_definition->getAria())
@@ -1499,9 +1562,9 @@ trait TraitElementAttributes
     /**
      * Returns the HTML "null_display" element attribute
      *
-     * @return Stringable|string|float|int|null
+     * @return string|null
      */
-    public function getNullDisplay(): Stringable|string|float|int|null
+    public function getNullDisplay(): string|null
     {
         return $this->null_display;
     }
@@ -1510,14 +1573,14 @@ trait TraitElementAttributes
     /**
      * Set the HTML "null_display" element attribute
      *
-     * @param Stringable|string|float|int|null $null_display
+     * @param RenderInterface|string|float|int|null $value
+     * @param bool                                  $make_safe
      *
      * @return static
      */
-    public function setNullDisplay(Stringable|string|float|int|null $null_display): static
+    public function setNullDisplay(RenderInterface|string|float|int|null $value, bool $make_safe = false): static
     {
-        $this->null_display = $null_display;
-
+        $this->null_display = Html::safe($value, $make_safe, true);
         return $this;
     }
 }

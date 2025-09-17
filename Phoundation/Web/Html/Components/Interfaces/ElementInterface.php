@@ -33,23 +33,23 @@ interface ElementInterface extends ComponentInterface, ElementAttributesInterfac
     /**
      * Adds the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function appendContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function appendContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**
      * Adds the specified content to the content of the element
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      */
-    public function prependContent(Stringable|string|float|int|null $content, bool $make_safe = false): static;
+    public function prependContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static;
 
 
     /**

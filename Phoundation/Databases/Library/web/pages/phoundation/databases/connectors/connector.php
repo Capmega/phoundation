@@ -21,9 +21,10 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -184,25 +185,25 @@ $connector_card = Card::new()
                       ->setMaximizeSwitch(true)
                       ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
                       ->setContent($connector->getHtmlDataEntryFormObject())
-                      ->setButtons(Buttons::new()
-                                          ->addButton(isset_get($save))
-                                          ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
-                                          ->addButton(isset_get($test))
-                                          ->addButton(isset_get($audit))
-                                          ->addButton(isset_get($delete))
-                                          ->addButton(isset_get($lock))
-                                          ->addButton(isset_get($impersonate)));
+                      ->setButtonsObject(Buttons::new()
+                                                ->addButton(isset_get($save))
+                                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
+                                                ->addButton(isset_get($test))
+                                                ->addButton(isset_get($audit))
+                                                ->addButton(isset_get($delete))
+                                                ->addButton(isset_get($lock))
+                                                ->addButton(isset_get($impersonate)));
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -215,15 +216,15 @@ Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->g
 Response::setHeaderTitle(tr('Connector'));
 Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadcrumbs([
-    Anchor::new('/'                                                , tr('Home')),
-    Anchor::new('/system-administration.html'                      , tr('System administration')),
-    Anchor::new('/phoundation/databases.html'                      , tr('Databases')),
-    Anchor::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
-    Anchor::new(''                                                 , $connector->getDisplayName()),
+    Breadcrumb::new('/'                                                , tr('Home')),
+    Breadcrumb::new('/system-administration.html'                      , tr('System administration')),
+    Breadcrumb::new('/phoundation/databases.html'                      , tr('Databases')),
+    Breadcrumb::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
+    Breadcrumb::new(''                                                 , $connector->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($connector_card                     , EnumDisplaySize::nine, true)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

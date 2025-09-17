@@ -43,17 +43,20 @@ declare(strict_types=1);
 
 namespace Phoundation\Exception;
 
+use PDOStatement;
 use Phoundation\Cli\CliAutoComplete;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
-use Phoundation\Data\Interfaces\PoadInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitMethodsPoad;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Exception\Interfaces\PhoExceptionInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Notifications\Notification;
 use Phoundation\Security\Incidents\EnumSeverity;
@@ -66,7 +69,7 @@ use RuntimeException;
 use Throwable;
 
 
-class PhoException extends RuntimeException implements PoadInterface
+class PhoException extends RuntimeException implements PhoExceptionInterface
 {
     use TraitMethodsPoad;
 
@@ -238,7 +241,7 @@ class PhoException extends RuntimeException implements PoadInterface
      */
     public function __toString(): string
     {
-        return $this->getPoadString();
+        return $this->getPoadString(true);
     }
 
 
@@ -428,13 +431,26 @@ class PhoException extends RuntimeException implements PoadInterface
 
 
     /**
-     * Import exception data and return this as an exception
+     * Compatibility wrapper method
      *
-     * @param ArraySourceInterface|array|string $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
      *
      * @return static
      */
-    public static function newFromSource(ArraySourceInterface|array|string $source): static
+    public static function newFromSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static
+    {
+        return static::newFromSource($source);
+    }
+
+
+    /**
+     * Import exception data and return this as an exception
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     *
+     * @return static
+     */
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static
     {
         try {
             if (is_string($source)) {
@@ -450,12 +466,16 @@ class PhoException extends RuntimeException implements PoadInterface
                     return $return;
                 }
 
-                // The specified POAD does not contain a PhoException compatible object but something entirely different
+                // The specified POAD doesn't contain a PhoException compatible object but something entirely different
                 throw PhoException::new(tr('Failed to import exception object from POAD (Phoundation Object Array Data) source, decoded POAD data does not contain a valid exception object'))
                                   ->addData([
                                       'source'  => $source,
                                       'decoded' => $return
                                   ]);
+            }
+
+            if (array_get_safe($source,'previous')) {
+                $previous = static::newFromSource(array_get_safe($source,'previous'));
             }
 
             $source['class'] = isset_get($source['class'], PhoException::class);
@@ -465,7 +485,7 @@ class PhoException extends RuntimeException implements PoadInterface
                 $source['class'] = PhoException::class;
             }
 
-            $e = new $source['class']($source['message']);
+            $e = new $source['class']($source['message'], isset_get($previous));
             $e->setCode(isset_get($source['code']));
             $e->setData(isset_get($source['data']));
             $e->setWarning((bool) isset_get($source['warning']));

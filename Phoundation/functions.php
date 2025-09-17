@@ -21,8 +21,10 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Config\Interfaces\ConfigInterface;
 use Phoundation\Cache\Cache;
+use Phoundation\Cache\Enums\EnumCacheGroups;
 use Phoundation\Cache\Interfaces\CacheInterface;
 use Phoundation\Core\Core;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Interfaces\FloatableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
@@ -52,6 +54,59 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Request;
+
+
+/**
+ * Improved version of PHP's empty that makes slightly more sense
+ *
+ * @param mixed $value
+ *
+ * @return bool
+ */
+function is_empty(mixed $value): bool
+{
+    if (empty($value)) {
+        if ($value === '0') {
+            return false;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+
+/**
+ * Returns a realpath() version from the specified path, but ensures it will return an existing directory
+ *
+ * @param string $path
+ *
+ * @return string
+ */
+function realpath_safe(string $path): string
+{
+    $return = realpath($path);
+
+    if ($return) {
+        if (is_dir($path)) {
+            return $path . '/';
+        }
+
+        return $path;
+    }
+
+    if (file_exists($path)) {
+        throw new CoreException(tr('The function realpath() for path ":path" failed for unknown reasons', [
+            ':path' => $path
+        ]));
+    }
+
+    throw new CoreException(tr('Cannot get realpath() for path ":path", it does not exist', [
+        ':path' => $path
+    ]));
+}
+
 
 /**
  * Returns the value for the Nth array key
@@ -823,13 +878,6 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
                 case 'null':
                     if (is_null($variable)) {
-                        return $variable;
-                    }
-
-                    break;
-
-                case 'datetime':
-                    if ($variable instanceof DateTimeInterface) {
                         return $variable;
                     }
 
@@ -1704,15 +1752,14 @@ function execute_hook(string $__file, HookInterface $o_hook): mixed
 /**
  * Returns the system cache object
  *
- * @param string      $connector
- * @param string|null $database
- * @param bool        $allow_alternate_connector
+ * @param EnumCacheGroups|string $connector
+ * @param bool                   $allow_alternate_connector
  *
  * @return CacheInterface
  */
-function cache(string $connector, ?string $database = null, bool $allow_alternate_connector = true): CacheInterface
+function cache(EnumCacheGroups|string $connector, bool $allow_alternate_connector = true): CacheInterface
 {
-    return new Cache($connector, $database, $allow_alternate_connector);
+    return Databases::getCache($connector, $allow_alternate_connector);
 }
 
 
@@ -1987,7 +2034,7 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
  *
  * @return string
  */
-function  get_class_or_datatype(mixed $value): string
+function get_class_or_datatype(mixed $value): string
 {
     $type = gettype($value);
 
@@ -1997,6 +2044,21 @@ function  get_class_or_datatype(mixed $value): string
 
     return $type;
 }
+
+
+/**
+ * Retuns the datatype of the value or, if the value is an object, the class of the specified object
+ *
+ * @param mixed  $value
+ * @param string $class_or_datatype
+ *
+ * @return bool
+ */
+function has_class_or_datatype(mixed $value, string $class_or_datatype): bool
+{
+    return get_class_or_datatype($value) === $class_or_datatype;
+}
+
 
 
 /**
@@ -2328,29 +2390,6 @@ function logmsg(string $file = 'syslog'): LogInterface
     return Log::toFile($file);
 }
 
-
-/**
- * Returns true if the specified value is truly empty.
- *
- * @note This function is a wrapper around PHP's empty() language construct but it will not consider "0" empty as that
- *       particular string is, you know, not empty
- *
- * @param mixed $value
- *
- * @return bool
- */
-function really_empty(mixed &$value): bool
-{
-    if (empty($value)) {
-        if ($value === '0') {
-            return false;
-        }
-
-        return true;
-    }
-
-    return false;
-}
 
 /**
  * Returns the number of references to the specified variable

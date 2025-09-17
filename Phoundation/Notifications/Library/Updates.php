@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.1.1';
+        return '0.8.0';
     }
 
 
@@ -92,6 +92,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.1.1', function () {
             // Fix notifications table details column
             sql()->getSchemaObject()->getTableObject('notifications')->alter()->modifyColumn('details', 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'notifications',
+            ]);
         });
     }
 }

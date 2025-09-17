@@ -17,10 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Library;
 
-use Phoundation\Core\Log\Log;
-use Phoundation\Filesystem\Mimetypes\PhoMimetype;
 use Phoundation\Filesystem\Mimetypes\PhoMimetypesInit;
-use Phoundation\Utils\Arrays;
 
 
 class Updates extends \Phoundation\Core\Libraries\Updates
@@ -32,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.4.0';
+        return '0.8.0';
     }
 
 
@@ -187,6 +184,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_filesystem_user_files_uploads_id` FOREIGN KEY (`uploads_id`) REFERENCES `web_uploads` (`id`) ON DELETE CASCADE,
                     CONSTRAINT `fk_filesystem_user_files_shared_from_id` FOREIGN KEY (`shared_from_id`) REFERENCES `filesystem_user_files` (`id`) ON DELETE CASCADE,
                 ')->create();
+
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'filesystem_mounts',
+                'filesystem_requirements',
+                'filesystem_mimetypes',
+                'filesystem_user_files',
+            ]);
         });
     }
 }

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Routing\Interfaces;
 
-use Phoundation\Accounts\Rights\Right;
-use Phoundation\Accounts\Rights\Rights;
+use Phoundation\Accounts\Rights\Interfaces\RightInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 
@@ -35,62 +34,6 @@ interface RoutingParametersInterface
      * @return static
      */
     public function setTemplate(string $template): static;
-
-
-    /**
-     * Returns what rights are required to access the specified target by specified rights and required directory rights
-     *
-     * @param string $target
-     *
-     * @return array
-     */
-    public function getRequiredRights(string $target): array;
-
-
-    /**
-     * Returns if (and from what directory onwards) rights should be taken from the directories automatically for each
-     * page
-     *
-     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
-     * the specified directory, and each subsequent directory below it until the file itself will be a required right
-     * for the user to access that page
-     *
-     * @return string|null
-     */
-    public function getRequireDirectoryRights(): ?string;
-
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @return array|null
-     */
-    public function getRightsExceptions(): ?array;
-
-
-    /**
-     * Returns filename exceptions to required directory rights
-     *
-     * @param array|string $exceptions
-     *
-     * @return static
-     */
-    public function setRightsExceptions(array|string $exceptions): static;
-
-
-    /**
-     * Sets if (and from what directory onwards) rights should be taken from the directories automatically for each page
-     *
-     * If set, rights required to access a page would depend on each directory in its directory. The last directory in
-     * the specified directory, and each subsequent directory below it until the file itself will be a required right
-     * for the user to access that page
-     *
-     * @param string            $require_directory_rights
-     * @param array|string|null $rights_exceptions
-     *
-     * @return static
-     */
-    public function setRequireDirectoryRights(string $require_directory_rights, array|string|null $rights_exceptions = null): static;
 
 
     /**
@@ -217,44 +160,4 @@ interface RoutingParametersInterface
      * @return static
      */
     public function setSystemPagesOnly(bool $system_pages_only): static;
-
-
-    /**
-     * Returns the required rights to access this page
-     *
-     * @return array
-     */
-    public function getRights(): array;
-
-
-    /**
-     * Sets the required rights to access this page
-     *
-     * @note Rights may be specified as a string, array, Right object, or Rights list. All should work fine
-     *
-     * @param Rights|Right|array|string|null $rights
-     *
-     * @return static
-     */
-    public function setRights(Rights|Right|array|string|null $rights): static;
-
-
-    /**
-     * Adds multiple required rights to access this page
-     *
-     * @param Rights|Right|array|string|null $rights
-     *
-     * @return static
-     */
-    public function addRights(Rights|Right|array|string|null $rights): static;
-
-
-    /**
-     * Adds a required right to access this page
-     *
-     * @param Right|string|null $right
-     *
-     * @return static
-     */
-    public function add(Right|string|null $right): static;
 }

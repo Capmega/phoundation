@@ -141,7 +141,7 @@ class Category extends DataEntry implements CategoryInterface
         $o_definitions->add(Definition::new('parents_id')
                                       ->setOptional(true)
                                       ->setElement(EnumElement::select)
-                                      ->setContent(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                      ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -153,7 +153,12 @@ class Category extends DataEntry implements CategoryInterface
                                         // Ensure parents_id exists and that its or parent
                                         $o_validator->orColumn('parent')
                                                   ->isDbId()
-                                                  ->isQueryResult('SELECT `id` FROM `categories` WHERE `id` = :id AND `status` IS NULL', [':id' => '$parents_id']);
+                                                  ->isQueryResult('SELECT `id` 
+                                                                   FROM   `categories` 
+                                                                   WHERE  `id` = :id 
+                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       ':id' => '$parents_id'
+                                                  ]);
                                     }))
 
                     ->add(Definition::new('parent')
@@ -174,7 +179,12 @@ class Category extends DataEntry implements CategoryInterface
                                         // Ensure parent exists and that its or parents_id
                                         $o_validator->orColumn('parents_id')
                                                   ->isName(64)
-                                                  ->setColumnFromQuery('parents_id', 'SELECT `id` FROM `categories` WHERE `name` = :name AND `status` IS NULL', [':name' => '$parent']);
+                                                  ->setColumnFromQuery('parents_id', 'SELECT `id` 
+                                                                                      FROM   `categories` 
+                                                                                      WHERE  `name` = :name 
+                                                                                      AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                          ':name' => '$parent'
+                                                  ]);
                                     }))
 
                     ->add(DefinitionFactory::newName()

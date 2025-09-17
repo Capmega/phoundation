@@ -125,9 +125,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries;
 
+use PDOStatement;
 use Phoundation\Data\DataEntries\Exception\DataEntryBadException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 
 
 class DataEntry extends DataEntryCore
@@ -139,8 +142,17 @@ class DataEntry extends DataEntryCore
      *
      * @return static
      */
-    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): static
+    public static function new(IdentifierInterface|array|string|int|false|null $identifier = false): DataEntryInterface
     {
+        if ($identifier) {
+            // Can we get a cached version of this?
+            $data_entry = static::loadFromCache(static::generateCacheKeySeed(static::normalizeIdentifier($identifier), null), true, true);
+
+            if ($data_entry) {
+                return $data_entry;
+            }
+        }
+
         return new static($identifier);
     }
 
@@ -148,11 +160,13 @@ class DataEntry extends DataEntryCore
     /**
      * Returns a new DataEntry object from the specified array source
      *
-     * @param ArraySourceInterface|array|string $source
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
      *
      * @return static
      */
-    public static function newFromSourceDirect(ArraySourceInterface|array|string $source): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         if ($source instanceof ArraySourceInterface) {
             if (!is_a($source, static::class)) {
@@ -167,7 +181,35 @@ class DataEntry extends DataEntryCore
             $source = $source->getSource();
         }
 
-        $entry = new static(null);
-        return $entry->setSourceDirect($source);
+        $entry = new static(false);
+        return $entry->setSource($source, $execute, $filter_meta);
+    }
+
+
+    /**
+     * Returns a new DataEntry object from the specified array source
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
+     *
+     * @return static
+     */
+    public static function newFromSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
+    {
+        if ($source instanceof ArraySourceInterface) {
+            if (!is_a($source, static::class)) {
+                throw new DataEntryBadException(
+                    tr('The specified source ":source" must be either an array or an instance of ":static"', [
+                        ':static' => static::class,
+                        ':source' => $source::class,
+                    ])
+                );
+            }
+
+            $source = $source->getSource();
+        }
+
+        return (new static(false))->setSourceDirect($source, $execute, $filter_meta);
     }
 }

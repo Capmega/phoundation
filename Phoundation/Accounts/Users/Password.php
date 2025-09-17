@@ -43,28 +43,6 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 class Password extends DataEntry implements PasswordInterface
 {
     /**
-     * DataEntry class constructor
-     *
-     * @param IdentifierInterface|array|string|int|false|null $identifier
-     */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
-    {
-        if (!$identifier) {
-            throw new OutOfBoundsException(tr('Cannot instantiate Password object, a valid user ID is required'));
-        }
-
-        // TODO Should this constructor not pass all variables to the parent:: call?
-        if (User::notExists($identifier)) {
-            throw new OutOfBoundsException(tr('Cannot instantiate Password object, the specified user ID ":id" does not exist', [
-                ':id' => $identifier,
-            ]));
-        }
-
-        parent::__construct($identifier);
-    }
-
-
-    /**
      * Returns the table name used by this object
      *
      * @return string|null

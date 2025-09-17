@@ -18,8 +18,9 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -44,6 +45,7 @@ $user->getDefinitionsObject()->setRenderMeta(false)
                              ->setDefinitionSize('keywords'               , 3)
                              ->setDefinitionSize('url'                    , 6)
                              ->setDefinitionSize('phone'                  , 6)
+                             ->setDefinitionRender('update_password'      , false)
                              ->setDefinitionRender('locked_until'         , false)
                              ->setDefinitionRender('username'             , false)
                              ->setDefinitionRender('nickname'             , false)
@@ -128,16 +130,16 @@ $buttons = Buttons::new()->addButton('Save', right: true);
 
 
 // Build the "user" form
-$card = Card::new()
+$o_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('My profile information'))
             ->setContent($user->getHtmlDataEntryFormObject())
-            ->setButtons($buttons);
+            ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-                    ->addContent($card->render())
+                    ->addContent($o_card->render())
                     ->setSize(9)
                     ->useForm(true);
 
@@ -159,11 +161,11 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent(Anchor::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
-                             Anchor::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics'), '<br>') .
-                             Anchor::new(Url::new('/my/password.html')->makeWww(), tr('Change my password'), '<br>') .
-                             Anchor::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication'), '<br>'));
-                           //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>') .
+                ->setContent(AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
+                             AnchorBlock::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics')) .
+                             AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
+                             AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')) .
+                             hr(AnchorBlock::new(Url::new('/profiles/profile+' . $user->getId(false) . '.html')->makeWww(), tr('My public profile page'))));
 
 
 // Build documentation
@@ -178,12 +180,12 @@ $documentation = Card::new()
 Response::setHeaderTitle(tr('My profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('My profile')),
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('My profile')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($picture . '<br>' . $relevant . '<br>' . $documentation, EnumDisplaySize::three);
+           ->addGridColumn($picture . $relevant . $documentation, EnumDisplaySize::three);

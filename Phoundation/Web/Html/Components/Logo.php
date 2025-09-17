@@ -45,7 +45,7 @@ class Logo extends Img
     public function getAlt(): ?string
     {
         return parent::getAlt() ?? tr('Logo for :project', [
-            ':project' => config()->getString('project.name', 'Phoundation'),
+            ':project' => Project::getName(),
         ]);
     }
 }

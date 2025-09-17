@@ -17,9 +17,10 @@ declare(strict_types=1);
 use Phoundation\Business\Providers\Provider;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -69,7 +70,7 @@ $provider_card = Card::new()
                      ->setCollapseSwitch(true)
                      ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
                      ->setContent($provider->getHtmlDataEntryFormObject()->render())
-                     ->setButtons($buttons);
+                     ->setButtonsObject($buttons);
 
 
 // Build the grid column with a form containing the provider and roles cards
@@ -91,8 +92,8 @@ $picture = Card::new()
 $relevant = Card::new()
                 ->setMode(EnumDisplayMode::info)
                 ->setTitle(tr('Relevant links'))
-                ->setContent(Anchor::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
-                             Anchor::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management'), '<br>'));
+                ->setContent(AnchorBlock::new(Url::new('/business/customers.html')->makeWww(), tr('Customers management')) .
+                             AnchorBlock::new(Url::new('/business/companies.html')->makeWww(), tr('Companies management')));
 
 
 // Build documentation
@@ -108,9 +109,9 @@ $documentation = Card::new()
 Response::setHeaderTitle(tr('Provider'));
 Response::setHeaderSubTitle($provider->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'                        , tr('Home')),
-    Anchor::new('/business/providers.html' , tr('Providers')),
-    Anchor::new(''                         , $provider->getDisplayName()),
+    Breadcrumb::new('/'                        , tr('Home')),
+    Breadcrumb::new('/business/providers.html' , tr('Providers')),
+    Breadcrumb::new(''                         , $provider->getDisplayName()),
 ]);
 
 

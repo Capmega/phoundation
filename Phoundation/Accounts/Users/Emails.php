@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\Interfaces\EmailsInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -34,6 +35,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
+
 
 class Emails extends DataIterator implements EmailsInterface
 {
@@ -113,12 +115,12 @@ class Emails extends DataIterator implements EmailsInterface
     /**
      * Returns an Emails Iterator object with emails for the specified user.
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         $this->o_parent = User::new()->load($this->o_parent);
         $this->execute  = [':users_id' => $this->o_parent->getId()];
@@ -182,11 +184,11 @@ class Emails extends DataIterator implements EmailsInterface
 
         $emails = [];
         $post   = Validator::pick()
-                           ->select('emails')->isOptional()->sanitizeForceArray()
+                           ->select('emails')->isOptional()->sanitizeForceArray()->skipValidation()
                            ->validate($require_clean_source);
 
         // Parse and sub validate
-        if (isset($post['emails'])) {
+        if ($post['emails']) {
             foreach ($post['emails'] as $email) {
                 // Command line specified emails will have a EMAIL|TYPE|DESCRIPTION string format instead of an array
                 if (!is_array($email)) {
@@ -223,7 +225,7 @@ class Emails extends DataIterator implements EmailsInterface
 
             foreach ($diff['add'] as $email) {
                 if ($email) {
-                    $this->add(Email::new()
+                    $this->add(Email::new(null)
                                     ->apply(false, $emails[$email])
                                     ->setUsersId($this->o_parent->getId())
                                     ->save());
@@ -237,11 +239,6 @@ class Emails extends DataIterator implements EmailsInterface
                      ->setUsersId($this->o_parent->getId())
                      ->save();
             }
-        }
-
-        // Clear source if required
-        if ($require_clean_source) {
-            PostValidator::new()->noArgumentsLeft();
         }
 
         return $this;

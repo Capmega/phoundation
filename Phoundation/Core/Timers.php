@@ -20,6 +20,7 @@ namespace Phoundation\Core;
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Interfaces\TimersInterface;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -76,9 +77,14 @@ class Timers implements TimersInterface
      */
     public static function new(string $group, string $label = '', bool $start = true): TimerInterface
     {
-        static::ensureGroup($group);
+        $o_timer = Timer::new($label, $start);
 
-        return static::$timers[$group][] = Timer::new($label, $start);
+        if (Debug::isEnabled()) {
+            static::ensureGroup($group);
+            static::$timers[$group][] = $o_timer;
+        }
+
+        return $o_timer;
     }
 
 

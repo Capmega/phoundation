@@ -30,7 +30,7 @@ use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cache\Cache;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Cli\CliColor;
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Content\Documents\SpreadSheet;
@@ -44,7 +44,7 @@ use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\Enums\EnumStateMismatchHandling;
-use Phoundation\Data\DataEntries\Exception\DataEntryAlreadyExistsException;
+use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnDefinitionInvalidException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
@@ -95,6 +95,7 @@ use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Connectors\Connector;
+use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
@@ -118,6 +119,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Requests\Request;
 use Stringable;
 use Throwable;
 use TypeError;
@@ -249,9 +251,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Query builder to create the load query
      *
-     * @var QueryBuilder|null
+     * @var QueryBuilderInterface|null
      */
-    protected ?QueryBuilder $query_builder = null;
+    protected ?QueryBuilderInterface $query_builder = null;
 
     /**
      * If true, all data will be validated before it is saved
@@ -299,25 +301,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected ?bool $allow_modified_destruct = null;
 
     /**
-     * Tracks if this object was loaded from cache
-     *
-     * @var bool $is_loaded_from_cache
-     */
-    protected bool $is_loaded_from_cache = false;
-
-    /**
      * Tracks the handling of NULL identifiers
      *
-     * @var EnumLoadParameters $on_load_null_identifier
+     * @var EnumLoadParameters $on_null_identifier
      */
-    protected EnumLoadParameters $on_load_null_identifier = EnumLoadParameters::exception;
+    protected EnumLoadParameters $on_null_identifier = EnumLoadParameters::exception;
 
     /**
      * Tracks the handling of identifier not found
      *
-     * @var EnumLoadParameters $on_load_not_exists
+     * @var EnumLoadParameters $on_not_exists
      */
-    protected EnumLoadParameters $on_load_not_exists = EnumLoadParameters::exception;
+    protected EnumLoadParameters $on_not_exists = EnumLoadParameters::exception;
 
     /**
      * Tracks columns that aren't defined but permitted anyway
@@ -333,6 +328,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected bool $allow_unpermitted_columns = true;
 
+    /**
+     * Tracks the various flags with meta information about this DataEntry object
+     *
+     * @var array|false[]
+     */
+    protected array $flags = [
+        'is_loaded_from_cache'        => false,
+        'is_loaded_from_local_cache'  => false,
+        'is_loaded_from_global_cache' => false,
+    ];
+
 
     /**
      * DataEntry class constructor
@@ -346,22 +352,40 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                    FALSE, the object will NOT initialize, and the
      *                                                                    DataEntry::initialize() method must be called
      *                                                                    separately.
-     * @param EnumLoadParameters|null                         $on_load_null_identifier
-     * @param EnumLoadParameters|null                         $on_load_not_exists
+     * @param EnumLoadParameters|null                         $on_null_identifier
+     * @param EnumLoadParameters|null                         $on_not_exists
      */
-    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null)
+    public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        $this->cache = Cache::isEnabled();
+        $this->use_cache = Cache::getEnabled();
 
         if ($identifier === false) {
-            // If the identifier is false, do NOT automatically initialize the DataEntry object
+            // If the identifier is false, don't automatically initialize the DataEntry object
+            $this->ready();
             return;
         }
 
         // Initialize the DataEntry object
-        $this->setOnLoadNullIdentifier($on_load_null_identifier)
-             ->setOnLoadNotExists($on_load_not_exists)
-             ->initialize(($identifier === null) ? false : $identifier);
+        $this->setOnLoadNullIdentifier($on_null_identifier)
+             ->setOnLoadNotExists($on_not_exists);
+
+        if ($identifier) {
+            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
+            $o_data_entry = $this->load($identifier, $on_null_identifier, $on_not_exists);
+
+            if ($o_data_entry !== $this) {
+                // DataEntry::load() returned a cached DataEntry object instead of $this, so copy the contents
+                $this->setSourceDirect($o_data_entry->getSource())
+                     ->setObjectState($o_data_entry->getObjectState());
+            }
+
+        } elseif ($identifier === null) {
+            // Pre-initialize the DataEntry object
+            $this->initialize(false)
+                 ->copyMetaDataToSource()
+                 ->copyValuesToSource([], false)
+                 ->ready();
+        }
     }
 
 
@@ -394,6 +418,43 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Initializes this DataEntry object with a unique code or ID column.
+     *
+     * Checks the source for a value in the unique identifier column. If that is not found, checks for a value in the
+     * ID column. If neither of these are found, throws an exception.
+     *
+     * @param array $source
+     *
+     * @return static
+     */
+    protected function initializeFromSource(array $source): static
+    {
+        $unique_column = static::getUniqueColumn();
+
+        if ($unique_column) {
+            // This DataEntry object has a unique column defined. Does the source have it too for initialization?
+            $unique_column_value = array_get_safe($source, $unique_column);
+
+            if ($unique_column_value) {
+                return $this->initialize($unique_column_value);
+            }
+        }
+
+        // Either this DataEntry has no unique column, or the source doesn't have the specified unique column.
+        // Try the ID column instead
+        $id_column       = static::getIdColumn();
+        $id_column_value = array_get_safe($source, $id_column);
+
+        if ($id_column_value) {
+            // This source has a correct ID column, initialize with that.
+            return $this->initialize($id_column_value);
+        }
+
+        return $this->initialize(false);
+    }
+
+
+    /**
      * Initializes this DataEntry object
      *
      * @param IdentifierInterface|array|string|int|false|null $identifier  The unique identifier for the data for this
@@ -406,39 +467,38 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function initialize(IdentifierInterface|array|string|int|false|null $identifier = false): static
     {
         if ($this->debug) {
-            Log::debug('INITIALIZING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
+            Log::dump('INITIALIZING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
         }
 
         // Set the identifier
         $this->setIdentifier($identifier)
-            ->is_initializing_source = true;
+             ->ensureMetaColumns()
+             ->is_initializing_source = true;
 
+        // Set up the definitions for this object and initialize meta-data
+        $this->setMetaDefinitions()
+             ->setDefinitionsObject($this->o_definitions)
+             ->columns_filter_on_insert = [static::getIdColumn()];
+
+        $this->is_initialized = true;
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that the meta columns for this DataEntry object have been defined
+     *
+     * @return static
+     */
+    protected function ensureMetaColumns(): static
+    {
         // Set meta_columns for this class
         if (empty($this->meta_columns)) {
             $this->meta_columns = static::getDefaultMetaColumns();
         }
 
-        // Set up the definitions for this object and initialize meta-data
-        $this->setMetaDefinitions()
-             ->setDefinitionsObject($this->o_definitions)
-             ->setMetaData()
-            ->columns_filter_on_insert = [static::getIdColumn()];
-
-        $this->is_initialized = true;
-
-        if ($identifier) {
-            // An identifier was specified, load data immediately using DataEntry::load() (Data MUST exist!)
-            return $this->load(null);
-        }
-
-        if ($identifier === false) {
-            // Don't initialize the object source
-            return $this->ready();
-        }
-
-        // Pre-initialize the DataEntry object
-        return $this->copyValuesToSource([], false)
-                    ->ready();
+        return $this;
     }
 
 
@@ -449,21 +509,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getOnLoadNullIdentifier(): ?EnumLoadParameters
     {
-        return $this->on_load_null_identifier;
+        return $this->on_null_identifier;
     }
 
 
     /**
      * Sets the handling of NULL identifiers
      *
-     * @param EnumLoadParameters|null $on_load_null_identifier
+     * @param EnumLoadParameters|null $on_null_identifier
      *
      * @return static
      */
-    public function setOnLoadNullIdentifier(?EnumLoadParameters $on_load_null_identifier): static
+    public function setOnLoadNullIdentifier(?EnumLoadParameters $on_null_identifier): static
     {
-        if ($on_load_null_identifier) {
-            $this->on_load_null_identifier = $on_load_null_identifier;
+        if ($on_null_identifier) {
+            $this->on_null_identifier = $on_null_identifier;
         }
 
         return $this;
@@ -477,21 +537,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getOnLoadNotExists(): ?EnumLoadParameters
     {
-        return $this->on_load_not_exists;
+        return $this->on_not_exists;
     }
 
 
     /**
      * Sets the handling of identifier not found
      *
-     * @param EnumLoadParameters|null $on_load_not_exists
+     * @param EnumLoadParameters|null $on_not_exists
      *
      * @return static
      */
-    public function setOnLoadNotExists(?EnumLoadParameters $on_load_not_exists): static
+    public function setOnLoadNotExists(?EnumLoadParameters $on_not_exists): static
     {
-        if ($on_load_not_exists) {
-            $this->on_load_not_exists = $on_load_not_exists;
+        if ($on_not_exists) {
+            $this->on_not_exists = $on_not_exists;
         }
 
         return $this;
@@ -563,8 +623,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function loadIdentifier(string $action): static
     {
-        $this->checkIdentifier($action)
-             ->loadFromDatabase();
+        $this->loadFromDatabase();
 
         if ($this->isNew()) {
             // Source is still empty, so nothing was loaded from database (or, SQL table doesn't exist, also possible!)
@@ -617,6 +676,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             'id',
             'created_on',
             'created_by',
+            'modified_on',
+            'modified_by',
             'meta_id',
             'status',
             'meta_state',
@@ -781,6 +842,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function setMetaDefinitions(): static
     {
+        // Reset the element counter to ensure a predeictable count for counted elements
+        DefinitionFactory::resetElementCounter();
+
         $o_definitions = Definitions::new($this)
                                   ->setTable(static::getTable());
 
@@ -791,7 +855,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::dbid)
                                                 ->addClasses('text-center')
-                                                ->setSize(3)
+                                                ->setSize(4)
                                                 ->setCliAutoComplete(true)
                                                 ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
                                                 ->setLabel(tr('Database ID')));
@@ -803,6 +867,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 case 'created_by':
                     $o_definitions->add(DefinitionFactory::newCreatedBy());
+                    break;
+
+                case 'modified_on':
+                    $o_definitions->add(DefinitionFactory::newModifiedOn());
+                    break;
+
+                case 'modified_by':
+                    $o_definitions->add(DefinitionFactory::newModifiedBy());
                     break;
 
                 case 'meta_id':
@@ -925,7 +997,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getLogId(): string
     {
-        return ($this->getId(false) ?? ts('N/A')) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-');
+        return ($this->getId(false) ?? ts('N/A')) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string|int', static::getUniqueColumn()) : '-');
     }
 
 
@@ -957,7 +1029,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns the value of the unique column
+     * Sets the value of the unique column
      *
      * @param mixed $value
      * @param bool  $force
@@ -1023,7 +1095,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static
     {
         if ($this->debug) {
-            Log::debug('TRY SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+            Log::dump('TRY SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
         // Make sure that definitions are available or give a clear error on what is going on
@@ -1075,7 +1147,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 return $this;
             }
 
-            if ($value === null) {
+            if (is_empty($value)) {
                 // Apply default values
                 if ($this->isNew()) {
                     $value = $o_definition->getInitialDefault() ?? $o_definition->getDefault();
@@ -1087,7 +1159,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 if ($value === null) {
                     if ($skip_null_values) {
                         if ($this->debug) {
-                            Log::debug('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', SKIPPING NULL VALUE', 10, echo_header: false);
+                            Log::dump('NOT SETTING "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ', SKIPPING NULL VALUE', 10, echo_header: false);
                         }
 
                         return $this;
@@ -1095,7 +1167,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 if ($this->debug) {
-                    Log::debug('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . '"', 10, echo_header: false);
+                    Log::dump('USE DEFAULT VALUE "' . Strings::log($value) . '" FOR FIELD "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . '"', 10, echo_header: false);
                 }
             }
         }
@@ -1108,12 +1180,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($this->debug) {
-                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS MODIFIED FROM "' . array_get_safe($this->source, $key) . '" [' . gettype(array_get_safe($this->source, $key)) . '] TO "' . $value . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
+                Log::dump('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS MODIFIED FROM "' . array_get_safe($this->source, $key) . '" [' . gettype(array_get_safe($this->source, $key)) . '] TO "' . Strings::force($value) . '" [' . gettype($value) . '], MARKED MODIFIED: ' . Strings::fromBoolean($this->is_modified), 10, echo_header: false);
             }
 
         } else {
             if ($this->debug) {
-                Log::debug('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS NOT MODIFIED', 10, echo_header: false);
+                Log::dump('FIELD "' . Strings::fromReverse(static::class, '\\') . '::' . $key . '" WAS NOT MODIFIED', 10, echo_header: false);
             }
         }
 
@@ -1223,16 +1295,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * (MUST exist in the database)
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      * @param array|string                              $columns
      *
      * @return static
      */
-    public function loadColumns(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null, array|string $columns = 'id'): static
+    public function loadColumns(IdentifierInterface|array|string|int|null $identifier, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null, array|string $columns = 'id'): static
     {
         return $this->setColumns($columns)
-                    ->load($identifier, $on_load_null_identifier, $on_load_not_exists);
+                    ->load($identifier, $on_null_identifier, $on_not_exists);
     }
 
 
@@ -1260,7 +1332,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                           or a string value which will convert to
      *                                                                           [unique_column => string_value]]
      *
-     * @param EnumLoadParameters|null                   $on_load_null_identifier Specifies how this load method will
+     * @param EnumLoadParameters|null                   $on_null_identifier      Specifies how this load method will
      *                                                                           handle the specified identifier being
      *                                                                           NULL. Options are:
      *                                                                           EnumLoadParameters::exception: Throws a
@@ -1274,7 +1346,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                                           Defaults to
      *                                                                           EnumLoadParameters::exception
      *
-     * @param EnumLoadParameters|null                   $on_load_not_exists      Specifies how this load method will
+     * @param EnumLoadParameters|null                   $on_not_exists           Specifies how this load method will
      *                                                                           handle the specified identifier not
      *                                                                           existing in the database. Options are:
      *                                                                           EnumLoadParameters::exception: Throws a
@@ -1290,14 +1362,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @return static|null
      *
      * @throws DataEntryNoIdentifierSpecifiedException Thrown when the specified identifier is empty and
-     *                                                 $on_load_null_identifier is set to EnumLoadParameters::exception
+     *                                                 $on_null_identifier is set to EnumLoadParameters::exception
      * @throws DataEntryNotExistsException             Thrown when the specified identifier doesn't exist and
-     *                                                 $on_load_not_exists is set to EnumLoadParameters::exception
+     *                                                 $on_not_exists is set to EnumLoadParameters::exception
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         if ($this->debug) {
-            Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '"', 10, echo_header: false);
+            Log::dump('LOAD METHOD CALLED FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($identifier ?? $this->identifier, force_single_line: true) . '"', 10, echo_header: false);
         }
 
         if ($this->is_loaded) {
@@ -1319,11 +1391,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This already is a DataEntry object, no need to create one. Validate that this is the same class
             if (($identifier instanceof static) or is_subclass_of(static::class, get_class($identifier))) {
                 // The identifier is the same as this, or extended this. Copy its source inside this object
-                return $this->setOnLoadNullIdentifier($on_load_null_identifier)
-                            ->setOnLoadNotExists($on_load_not_exists)
+                return $this->setOnLoadNullIdentifier($on_null_identifier)
+                            ->setOnLoadNotExists($on_not_exists)
                             ->setIdentifier($identifier->getIdentifier())
-                            ->setSource($identifier->getSource(false, false))
-                            ->ready(true);
+                            ->setSourceDirect($identifier->getSourceUnprocessed())
+                            ->setObjectState($identifier->getObjectState());
             }
 
             throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
@@ -1337,19 +1409,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Set the identifier and event handling modifiers
-        $this->setOnLoadNullIdentifier($on_load_null_identifier)
-             ->setOnLoadNotExists($on_load_not_exists)
+        $this->setOnLoadNullIdentifier($on_null_identifier)
+             ->setOnLoadNotExists($on_not_exists)
              ->setIdentifier($identifier)
              ->is_initializing_source = true;
 
-        if (empty($this->connector)) {
-            // Use the default connector for this DataEntry object
-            $this->setConnectorObject(static::getDefaultConnectorObject());
-        }
-
         if (empty($this->identifier)) {
             // Oh noes, no identifier specified!
-            switch ($this->on_load_null_identifier) {
+            switch ($this->on_null_identifier) {
                 case EnumLoadParameters::null:
                     return null;
 
@@ -1357,14 +1424,39 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     return $this;
 
                 case EnumLoadParameters::exception:
-                    // Execute DataEntryCore::checkIdentifier(), it will cause the required exception
-                    $this->checkIdentifier('load');
+                    throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load ":class" DataEntry object, it has no identifier specified', [
+                        ':class'  => static::class,
+                    ]))->addData([
+                        'class'  => static::class,
+                    ]);
             }
         }
 
-        if ($this->loadFromCache()) {
-            // This DataEntry was found in the cache, all is done!
-            return $this->ready(true);
+        if (empty($this->connector)) {
+            // Use the default connector for this DataEntry object
+            $this->setConnectorObject(static::getDefaultConnectorObject());
+        }
+
+        if ($this->getUseCache()) {
+            // Connector classes can't be cached!
+            if (!is_a($this, Connector::class)) {
+                // Try loading the DataEntry object from cache
+                // TODO This is not working correctly, if we return a different dataentry it may cause issues with parent::load() in overriding methods, etc... Fix this!
+                $o_data_entry = static::loadFromCache($this->getCacheKey(), $this->getUseLocalCache(), $this->getUseGlobalCache());
+
+                if ($o_data_entry) {
+                    // This DataEntry was found in the cache, all is done!
+                    return $o_data_entry->setIsLoaded()
+                                        ->ready(true);
+                }
+
+                if ($this->debug) {
+                    Log::dump('CACHE MISS FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($identifier ?? $this->identifier, force_single_line: true) . '"', 10, echo_header: false);
+                }
+            }
+
+        } elseif ($this->debug) {
+            Log::dump('SKIPPED CACHE FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($identifier ?? $this->identifier, force_single_line: true) . '"', 10, echo_header: false);
         }
 
         try {
@@ -1374,37 +1466,32 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // This entry exists in the database, yay! Is it not deleted, though?
             if ($this->isDeleted()) {
                 if ($this->debug) {
-                    Log::debug('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
+                    Log::dump('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
                 }
 
                 $this->processDeleted();
             }
 
-            return $this->saveToCache()
+            return $this->saveToLocalCache($this->getCacheKey())
+                        ->saveToGlobalCache($this->getCacheKey())
                         ->ready(true);
 
         } catch (DataEntryNotExistsException $e) {
-            switch ($this->on_load_not_exists) {
+            // Handle entry not exist exceptions, depending on the $this->on_not_exists setting
+            switch ($this->on_not_exists) {
                 case EnumLoadParameters::null:
                     return null;
 
                 case EnumLoadParameters::this:
-                    return $this->initializeSource($identifier)
-                                ->ready(true);
+                    return $this->initializeSource($identifier)->ready(true);
 
                 case EnumLoadParameters::exception:
                     throw $e;
             }
-        }
 
-        // Static analyzers sometimes don't catch on that we can never get here, this is just for those that can't see
-        // the obvious
-        throw DataEntryException::new(tr('The load method for DataEntry ":class" failed', [
-            ':class' => $this::class,
-        ]))->addData([
-            'class'      => $this::class,
-            'identifier' => $this->getIdentifier(),
-        ]);
+            // The exception throwing here is because PHPstorm's static analyzer fails -as is tradition- to see that the switch (above) would catch everything.
+            throw $e;
+        }
     }
 
 
@@ -1413,13 +1500,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        return $this->load($identifier, EnumLoadParameters::null, $on_load_not_exists);
+        return $this->load($identifier, EnumLoadParameters::null, $on_not_exists);
     }
 
 
@@ -1428,13 +1515,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * object
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static
      */
-    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_not_exists = null): static
+    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): static
     {
-        return $this->load($identifier, EnumLoadParameters::this, $on_load_not_exists);
+        return $this->load($identifier, EnumLoadParameters::this, $on_not_exists);
     }
 
 
@@ -1443,13 +1530,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_null_identifier
      *
      * @return static|null
      */
-    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static
     {
-        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::this);
+        return $this->load($identifier, $on_null_identifier, EnumLoadParameters::this);
     }
 
 
@@ -1458,13 +1545,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * identifier was specified
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
+     * @param EnumLoadParameters|null                   $on_null_identifier
      *
      * @return static|null
      */
-    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null): ?static
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static
     {
-        return $this->load($identifier, $on_load_null_identifier, EnumLoadParameters::null);
+        return $this->load($identifier, $on_null_identifier, EnumLoadParameters::null);
     }
 
 
@@ -1525,105 +1612,169 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Generates and returns a unique cache key for this DataEntry object
+     * Tries to load (and return) this DataEntry object data from the cache layer instead of the database
      *
-     * @param String|null $append_string
+     * @param string|null $cache_key
+     * @param bool        $local
+     * @param bool        $global
      *
-     * @return string|null
+     * @return DataEntryInterface|null
      */
-    public function getCacheKeySeed(?string $append_string = null): ?string
+    protected static function loadFromCache(?string $cache_key, bool $local, bool $global): ?DataEntryInterface
     {
-        return 'DataEntry-' . static::class . '-' . Json::encode($this->identifier, JSON_BIGINT_AS_STRING) . '-' . Json::encode($this->columns, JSON_BIGINT_AS_STRING) . '-' . $this->getQueryHash() . ($append_string ? '-' . $append_string : null);
-    }
-
-
-    /**
-     * Tries to load this DataEntry object data from the cache layer instead of the database
-     *
-     * @return bool
-     */
-    protected function loadFromCache(): bool
-    {
-        if (is_a($this, Connector::class)) {
-            // Connectors are non-cacheable because they would cause endless loops
-            return false;
+        if (empty($cache_key)) {
+            // No cache key? Nothing to check in cache
+            return null;
         }
 
-        if (!Cache::isEnabled()) {
-            // Caching is disabled for everything
-            return false;
+        if (!$local and $global) {
+            // Caching is disabled for this object
+            return null;
         }
 
-        if (!$this->cache) {
-            // Caching is disabled for this DataEntry object
-            return false;
+        if (Log::passesThreshold(3)) {
+            Log::action(ts('Searching cache for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
         }
 
-        $this->checkIdentifier('cache-load');
+        if ($local) {
+            if (LocalCache::exists(static::class, $cache_key)) {
+                // Cached entry exists, get it!
+                $data_entry = LocalCache::getLastChecked();
 
-        if (!InstanceCache::exists('dataentries', $this->getCacheKey())) {
-            $data_entry = cache('dataentries')->get($this->getCacheKey());
+                if (Log::passesThreshold(3)) {
+                    Log::success(ts('Local cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
+                }
+
+                return $data_entry->setIsLoadedFromLocalCache();
+            }
+        }
+
+        if ($global) {
+            $data_entry = cache('dataentries')->get($cache_key);
 
             if ($data_entry) {
                 if ($data_entry instanceof DataEntryInterface) {
                     // Found it in external cache!
 
-                    if ($this->debug) {
-                        Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN GLOBAL CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
-                        Log::printr($data_entry->getSourceUnfiltered(), 10, echo_header: false);
+                    if (Log::passesThreshold(3)) {
+                        Log::success(ts('Global cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
                     }
 
-                    $this->is_loaded_from_cache = true;
-                    $this->source               = $data_entry->getSource(false, false);
-                    return true;
+                    // We didn't have this DataEntry in local cache, so save it there for future use
+                    return $data_entry->saveToLocalCache($cache_key)
+                                      ->setIsLoadedFromGlobalCache();
                 }
 
-                throw DataEntryInvalidCacheException::new(tr('Failed to load ":class" DataEntry with identifier ":identifier" from cache, cache returned invalid non DataEntry object', [
-                    ':class'      => static::class,
-                    ':identifier' => $this->identifier
+                throw DataEntryInvalidCacheException::new(tr('Failed to load DataEntry object with key ":key" from cache, cache returned invalid non DataEntry object', [
+                    ':key'   => $cache_key
                 ]))->setData([
-                    'data_entry' => $data_entry
+                    'invalid_data' => $data_entry
                 ]);
             }
-
-            return false;
         }
 
-        // Cached entry exists, get it!
-        $data_entry = InstanceCache::getLastChecked();
+        if (Log::passesThreshold(3)) {
+            if ($global or $local) {
+                Log::warning(ts('Cache miss for DataEntry object with key ":key"', [
+                        ':key'   => static::class . ' / ' . $cache_key]
+                ), 3);
 
-        // Only use cached entries that aren't modified!
-        if ($data_entry->isModified()) {
-            return false;
+            } else {
+                Log::warning(ts('No cache used for DataEntry object with key ":key" because global and local cache have been disabled', [
+                    ':key'   => static::class . ' / ' . $cache_key
+                ]), 3);
+            }
         }
 
-        if ($this->debug) {
-            Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN INSTANCE CACHE WITH KEY "' . $this->getCacheKey() . '"', 10, echo_header: false);
-            Log::debug($this->getCacheKeySeed());
-            Log::printr($data_entry->getSourceUnfiltered(), 10, echo_header: false);
-        }
-
-        $this->is_loaded_from_cache = true;
-        $this->source               = $data_entry->getSource(false, false);
-        return true;
+        return null;
     }
 
 
     /**
      * Saves this DataEntry object to cache
      *
+     * @param string|null $cache_key
+     *
      * @return static
      */
-    protected function saveToCache(): static
+    protected function saveToLocalCache(?string $cache_key): static
     {
-        InstanceCache::set($this, 'dataentries', $this->getCacheKey());
+        if (empty($cache_key)) {
+            return $this;
+        }
 
-        // Cache the dataentry and update table state
-        if (!is_a($this, Connector::class)) {
-            if (Cache::isEnabled()) {
-                // Connector objects CANNOT be cached
-                cache('dataentries')->set($this, $this->getCacheKey());
-            }
+        if (Log::passesThreshold(2)) {
+            Log::action(tr('Saving DataEntry ":class" object to local cache with key ":key"', [
+                ':class' => static::class,
+                ':key'   => static::class . ' / ' . $cache_key,
+            ]), 2);
+        }
+
+        // Cache the DataEntry and update table state if local cache is enabled and this DataEntry didn't come from local cache
+        if ($this->getUseLocalCache()) {
+            LocalCache::set($this, static::class, $cache_key);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Generates and returns a unique cache key for the specified identifer / columns
+     *
+     * @param array|false|null $identifier
+     * @param array|null       $columns
+     *
+     * @return string|null
+     */
+    public static function generateCacheKeySeed(array|false|null $identifier, ?array $columns): ?string
+    {
+        if ($identifier) {
+            return PROJECT . '#DataEntry#' . static::class . '#' . Json::encode([Request::getUrl(), $identifier, $columns], JSON_BIGINT_AS_STRING, force_single_line: true);
+        }
+
+        // There is no identifier, meaning that this object is not cacheable
+        return null;
+    }
+
+
+    /**
+     * Returns a unique cache key for this DataEntry object
+     *
+     * @return string|null
+     */
+    public function getCacheKeySeed(): ?string
+    {
+        return static::generateCacheKeySeed($this->identifier, $this->columns);
+    }
+
+
+    /**
+     * Saves this DataEntry object to cache
+     *
+     * @param string|null $cache_key
+     *
+     * @return static
+     */
+    protected function saveToGlobalCache(?string $cache_key): static
+    {
+        if (empty($cache_key)) {
+            return $this;
+        }
+
+        if (is_a($this, Connector::class)) {
+            // Connectors are non-cacheable because they will cause endless loops when cached
+            return $this;
+        }
+        if (Log::passesThreshold(2)) {
+            Log::action(tr('Saving DataEntry ":class" object to global cache with key ":key"', [
+                ':class' => static::class,
+                ':key'   => $cache_key,
+            ]), 2);
+        }
+        // Cache the DataEntry and update table state if global cache is enabled and this DataEntry didn't come from global cache
+        if ($this->getUseGlobalCache()) {
+            cache('dataentries')->set($this, $cache_key);
         }
 
         return $this;
@@ -1637,13 +1788,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     protected function removeFromCache(): static
     {
-        InstanceCache::delete('dataentries', $this->getCacheKey());
+        LocalCache::delete('dataentries', $this->getCacheKey());
 
-        // Cache the dataentry and update table state
-        if (!is_a($this, Connector::class)) {
-            if (Cache::isEnabled()) {
-                // Connector objects CANNOT be cached
+        // Cache the DataEntry and update table state
+        if (Cache::getEnabled()) {
+            // Connector objects CANNOT be cached
+            if (!is_a($this, Connector::class)) {
                 cache('dataentries')->delete($this->getCacheKey());
+                LocalCache::delete(static::class, $this->getCacheKey());
                 $this->setTableState();
             }
         }
@@ -1952,7 +2104,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return array
      */
-    public function getSourceUnfiltered(): array
+    public function getSourceUnprocessed(): array
     {
         return $this->source;
     }
@@ -1986,10 +2138,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         continue;
                     }
 
-                    $method = $this->convertColumnToMethod($column, 'get');
+                    // Columns that aren't virtual can just be copied directly
+                    // Don't process columns that will not render
+                    if ($o_definition->getVirtual() and $o_definition->getRender()) {
+                        // Try to resolve this column using the get method for that column
+                        $method = $this->convertColumnToMethod($column, 'get');
 
-                    if (method_exists(static::class, $method)) {
-                        $source[$column] = $this->$method();
+                        if (method_exists(static::class, $method)) {
+                            $source[$column] = $this->$method();
+
+                        } else {
+                            $source[$column] = $value;
+                        }
 
                     } else {
                         $source[$column] = $value;
@@ -2016,21 +2176,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
-        // Initialize the object
-        if (!$this->is_initialized) {
-            $this->initialize(false);
-        }
-
-        $this->is_initializing_source = true;
-        $this->is_loading             = true;
-        $this->source                 = [];
+        $this->ensureMetaColumns();
+        $this->is_loading = true;
+        $this->source     = [];
 
         if ($source) {
             $source = $this->prepareSource($source, $execute, $filter_meta);
 
+            // Initialize the object
+            if (!$this->is_initialized) {
+                $this->initializeFromSource($source);
+            }
+
             if (!$filter_meta) {
                 // Load meta data too
-                $this->setMetaData($source);
+                $this->copyMetaDataToSource($source);
             }
 
             // Load data with object init
@@ -2055,24 +2215,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
-        // Initialize the object
-        if (!$this->is_initialized) {
-            $this->initialize(false);
-        }
-
         // Mark the data in this object as unvalidated because this loading bypassed validation!
-        $this->is_initializing_source = true;
-        $this->is_loading             = true;
-        $this->is_validated           = false;
-        $this->source                 = [];
-
+        $this->is_loading   = true;
+        $this->is_validated = false;
+        $this->source       = [];
 
         if ($source) {
             $source = $this->prepareSource($source, $execute, $filter_meta);
 
-            if (!$filter_meta) {
-                // Load meta data too
-                $this->setMetaData($source);
+            // Initialize the object
+            if (!$this->is_initialized) {
+                $this->initializeFromSource($source);
             }
 
             // Load data directly
@@ -2112,6 +2265,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
+        if ($filter_meta) {
+            // Remove meta columns from the given source
+            $source = Arrays::removeKeys($source, $this->meta_columns);
+        }
+
         return $source;
     }
 
@@ -2128,7 +2286,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Can only load from configuration if the configuration path is available
         if ($path) {
             if ($this->debug) {
-                Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM CONFIGURATION', 10, echo_header: false);
+                Log::dump('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM CONFIGURATION', 10, echo_header: false);
             }
 
             // This DataEntry supports loading from configuration. Identifier arrays may ONLY contain one column!
@@ -2149,7 +2307,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 if ($source) {
                     if ($this->debug) {
-                        Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IN CONFIGURATION', 10, echo_header: false);
+                        Log::dump('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IN CONFIGURATION', 10, echo_header: false);
                     }
 
                     if ($this->columns) {
@@ -2163,7 +2321,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object, specified identifier ":identifier" does not exist', [
+        throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object because the specified identifier ":identifier" does not exist', [
             ':class'      => static::getClassName(),
             ':identifier' => Json::encode($this->identifier),
         ]))->addData([
@@ -2233,32 +2391,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function loadFromDatabase(): static
     {
         if ($this->debug) {
-            Log::debug('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM DATABASE', 10, echo_header: false);
+            Log::dump('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM DATABASE', 10, echo_header: false);
         }
 
         $this->is_loading = true;
         $this->cache_key  = null;
 
-        // TODO This may no longer be necessary with the upgraded setIdentifier() which already ensures identifier internally is an array!
-        if (is_array($this->identifier)) {
-            if ((!empty($this->columns)) and (count($this->identifier) > 1)) {
-                throw UnderConstructionException::new(tr('Sorry, DataEntry->loadColumns() does not yet support array identifiers'));
-            }
-
-            // Filter on multiple columns, multi column filter always pretends filtered column was id column
-            static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);
-
-        } elseif ($this->identifier) {
-            // For single column queries, determine the column that should be used
-            $column  = static::determineColumn($this->identifier);
-            $where   = '`' . static::getTable() . '`.`' . $column . '` = :identifier';
-            $execute = [':identifier' => $this->identifier];
-
-        } else {
-            // For single column queries, determine the column that should be used
-            $where   = null;
-            $execute = null;
+        if ((!empty($this->columns)) and (count($this->identifier) > 1)) {
+            throw UnderConstructionException::new(tr('Sorry, DataEntry->loadColumns() does not yet support array identifiers'));
         }
+
+        // Filter on multiple columns, multi column filter always pretends filtered column was id column
+        static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);
 
         try {
             $this->executeQueryAndLoadData($where, $execute);
@@ -2289,35 +2433,35 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         try {
             // Get the data using the query builder
-            $query = $this->getQueryBuilderObject()
-                          ->setDebug($this->debug)
-                          ->setMetaEnabled($this->meta_enabled)
-                          ->setConnectorObject($this->getConnectorObject())
-                          ->addWhere($where, $execute);
+            $o_query = $this->getQueryBuilderObject()
+                            ->setDebug($this->debug)
+                            ->setMetaEnabled($this->getMetaEnabled())
+                            ->setConnectorObject($this->getConnectorObject())
+                            ->addWhere($where, $execute);
 
             // Generate columns that will be selected
             if ($this->identifier) {
                 if ($this->columns) {
                     // Add SQL SELECT for each specified column
                     foreach ($this->columns as $column) {
-                        $query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . SqlQueries::ensureQuotes($column));
+                        $o_query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . SqlQueries::ensureQuotes($column));
                     }
 
                 } else {
                     // Load all columns
-                    $query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . '.*');
+                    $o_query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . '.*');
                 }
             }
 
-            $source = $query->get();
+            $source = $o_query->get();
 
             if ($source) {
                 if ($this->debug) {
-                    Log::debug('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN DATABASE', 10, echo_header: false);
+                    Log::dump('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN DATABASE', 10, echo_header: false);
                 }
 
                 // If data was found, store all data in the object
-                $this->setMetaData($source)
+                $this->copyMetaDataToSource($source)
                      ->copyValuesToSource($source, false);
             }
 
@@ -2517,14 +2661,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($this->columns and !array_key_exists($key, $this->columns)) {
             // Don't copy this column
-            Log::debug(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
-                ':key' => $key,
-            ]), echo_header: false);
+            if ($this->debug) {
+                Log::dump(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
+                    ':key' => $key,
+                ]), echo_header: false);
+            }
+
             return false;
         }
 
         if ($this->debug) {
-            Log::debug(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
+            Log::dump(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
                 ':key' => $key,
             ]), echo_header: false);
         }
@@ -2579,6 +2726,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 unset($source[$key]);
 
             } elseif (empty($this->source[$key])) {
+                // TODO THIS SHOULD (and is??) BE DONE IN DataEntryCore::set()
                 // This is empty in the specified source and empty in the internal source,default it
                 if ($this->isNew()) {
                     // This is a new (unsaved) object, apply initial default
@@ -2620,7 +2768,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setColumnValueWithObjectSetter($value, $key, $directly, $o_definition);
 
             } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
-                $this->handleCopyValuesToSourceExceptions($e, $source, $value, $key);
+                $this->handleCopyValuesToSourceExceptions($e, $source, $value, $key, $force);
             }
         }
 
@@ -2646,11 +2794,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param array                                               $source
      * @param mixed                                               $value
      * @param Stringable|string|float|int                         $key
+     * @param bool                                                $force
      *
-     * @return never
+     * @return void
      */
-    protected function handleCopyValuesToSourceExceptions(TypeError | DataEntryException | DataEntryTypeException $e, array $source, mixed $value, Stringable|string|float|int $key): never
+    protected function handleCopyValuesToSourceExceptions(TypeError | DataEntryException | DataEntryTypeException $e, array $source, mixed $value, Stringable|string|float|int $key, bool $force): void
     {
+        if ($e instanceof DataEntryTypeException) {
+            if ($force) {
+                // Type errors with forced copy values means that we're working with an untrusted source and datatype
+                // mismatch may happen, but we'll ignore it. Forced feeding!
+                return;
+            }
+        }
+
         if (!is_string($key)) {
             throw DataEntryColumnDefinitionInvalidException::new(tr('Detected invalid column definition while copying new source data, Definition column name ":column" of ":class" DataEntry class is invalid, it should be a string', [
                 ':class'  => $this::class,
@@ -2764,7 +2921,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 if ($this->getDefinitionsObject()->get($column)->getContainsData()) {
                     if ($this->debug) {
-                        Log::debug('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
+                        Log::dump('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . get_class_or_datatype($value) . ']"', 10, echo_header: false);
                     }
 
                     $this->$method($value);
@@ -2872,16 +3029,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Sets all meta-data for this data entry at once with an array of information
      *
-     * @param ?array $data
+     * @param ?array $source
      * @param bool   $directly
      *
      * @return static
      */
-    protected function setMetaData(?array $data = null, bool $directly = false): static
+    protected function copyMetaDataToSource(?array $source = null, bool $directly = false): static
     {
         $this->checkDefinitionsObject();
 
-        if ($data === null) {
+        if ($source === null) {
             // No data specified, all columns should be null
             $this->source = Arrays::setKeys($this->meta_columns, null, $this->source);
 
@@ -2889,7 +3046,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Reset meta columns
             try {
                 foreach ($this->meta_columns as $column) {
-                    $this->setColumnValueWithObjectSetter(array_get_safe($data, $column), $column, $directly, $this->getDefinitionsObject()->get($column));
+                    $this->setColumnValueWithObjectSetter(array_get_safe($source, $column), $column, $directly, $this->getDefinitionsObject()->get($column));
                 }
 
             } catch (TypeError | DataEntryException | DataEntryTypeException $e) {
@@ -2897,7 +3054,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     ':class'  => static::class,
                 ]), $e)
                 ->setData([
-                    'source' => $data
+                    'source' => $source
                 ]);
             }
         }
@@ -3113,26 +3270,33 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::debug('APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
-            Log::debug('CURRENT DATA', 10         , echo_header: false);
-            Log::vardump($this->source            , echo_header: false);
-            Log::debug('UNVALIDATED NEW DATA'     , echo_header: false);
-            Log::vardump($data_source->getSource(), echo_header: false);
+            Log::dump(($force ? 'FORCE ' : null) . 'APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
+            Log::dump('CURRENT DATA'                                                                             , 10, echo_header: false);
+            Log::vardump($this->source                                                                               , echo_header: false);
+            Log::dump('UNVALIDATED NEW DATA'                                                                         , echo_header: false);
+            Log::vardump($force ? $data_source->getBackup() : $data_source->getSource()                              , echo_header: false);
         }
 
         // Get the source array from the validator into the DataEntry object
         if ($force) {
             // Force was used, but the object will now be in readonly mode, so we can save failed data
             // Validate data and copy data into the source array
-            $data_source = $this->doNotValidate($data_source, $require_clean_source);
-            $this->copyValuesToSource($data_source, true, true);
+            $data_source = $this->doNotValidate($data_source, $require_clean_source, $force);
+            $this->copyValuesToSource($data_source, true, false, true);
 
         } else {
-            // Validate data and copy data into the source array
-            $data_source = $this->validateSource($data_source, $require_clean_source, true);
+            try {
+                // Validate data and copy data into the source array
+                $data_source = $this->validateSource($data_source, $require_clean_source, true);
+
+            } catch (DataEntryNotInitializedException $e) {
+                throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                    ':class' => static::class
+                ]), $e);
+            }
 
             if ($this->debug) {
-                Log::debug('VALIDATED DATA', echo_header: false);
+                Log::dump('VALIDATED DATA', echo_header: false);
                 Log::vardump($data_source, echo_header: false);
             }
 
@@ -3145,7 +3309,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_applying = false;
 
         if ($this->debug) {
-            Log::debug('SOURCE AFTER APPLYING', echo_header: false);
+            Log::dump('SOURCE AFTER APPLYING', echo_header: false);
             Log::vardump($this->source, echo_header: false);
         }
 
@@ -3158,13 +3322,20 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
+     * @param bool               $force
      *
      * @return array
      */
-    protected function doNotValidate(ValidatorInterface $o_validator, bool $require_clean_source): array
+    protected function doNotValidate(ValidatorInterface $o_validator, bool $require_clean_source, bool $force = false): array
     {
         $return = [];
-        $source = $o_validator->getSource();
+
+        if ($force) {
+            $source = $o_validator->getBackup();
+        } else {
+            $source = $o_validator->getSource();
+        }
+
         $prefix = $this->getDefinitionsObject()->getPrefix();
 
         foreach ($source as $key => $value) {
@@ -3186,27 +3357,30 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param ValidatorInterface $o_validator
      * @param bool               $require_clean_source
-     * @param bool               $external
+     * @param bool               $use_prefix
      *
      * @return array
      */
-    protected function validateSource(ValidatorInterface $o_validator, bool $require_clean_source, bool $external): array
+    protected function validateSource(ValidatorInterface $o_validator, bool $require_clean_source, bool $use_prefix): array
     {
         if (!$this->validate) {
             // This data entry won't validate data, just continue.
             return $o_validator->getSource();
         }
 
-        $prefix = $this->getDefinitionsObject()->getPrefix();
+        $this->checkDefinitionsObject(action: 'validation');
+
+        // Set what prefix to use
+        $prefix = $use_prefix ? $this->getDefinitionsObject()->getPrefix() : null;
 
         // Set ID so that the array validator can do unique lookups, etc.
         // Tell the validator what table this DataEntry is using and get the column prefix so that the validator knows
         // what columns to select
         $o_validator->setDataEntryObject($this)
-                  ->setDefinitionsObject($this->o_definitions)
-                  ->setPrefix($prefix)
-                  ->setMetaColumns($this->getMetaColumns())
-                  ->setTable(static::getTable());
+                    ->setDefinitionsObject($this->o_definitions)
+                    ->setPrefix($prefix)
+                    ->setMetaColumns($this->getMetaColumns())
+                    ->setTable(static::getTable());
 
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->o_definitions as $column => $o_definition) {
@@ -3219,13 +3393,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 continue;
             }
 
-            if (!array_key_exists($column, $o_validator->getSource()) and $external) {
-                // External data does not apply defaults, if the column doesn't exist, skip it
-                continue;
-            }
+// TODO Remove support for whatever this is. If there is some requirement to permit an incomplete dataset (i.e., columns
+// TODO that are required are missing) then this should be done with  a separate proprty that can be set by ONLY the
+// TODO dataentry that implements this
+//            if (!array_key_exists($column, $o_validator->getSource()) and $external) {
+//                // External data does not apply defaults, if the column doesn't exist, skip it
+//                continue;
+//            }
 
             if ($this->debug) {
-                Log::debug('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "'  . $this->get($column). ' ['  . gettype($this->get($column)). ']"', echo_header: false);
+                Log::dump('VALIDATING COLUMN "' . static::class . ' > ' . $column . '" WITH VALUE "' . $this->get($column) . ' ['  . gettype($this->get($column)) . ']"', echo_header: false);
             }
 
             try {
@@ -3245,7 +3422,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         try {
             // Execute the validate method to get the results of the validation
             $source             = $o_validator->setPermitValidationFailures($this->getPermitValidationFailures())
-                                            ->validate($require_clean_source);
+                                              ->validate($require_clean_source);
             $this->is_validated = true;
 
             if (!$this->hasPermitValidationFailures(EnumSoftHard::none)) {
@@ -3261,7 +3438,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } catch (ValidationFailedException $e) {
             if ($this->debug) {
-                Log::debug('FAILED VALIDATION OF "' . static::class . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
+                Log::dump('FAILED VALIDATION OF "' . static::class . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
                 Log::printr($e->getData(), echo_header: false);
             }
 
@@ -3281,7 +3458,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::debug('DATA AFTER VALIDATION:', echo_header: false);
+            Log::dump('DATA AFTER VALIDATION:', echo_header: false);
             Log::printr($source, echo_header: false);
         }
 
@@ -3504,9 +3681,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
      * object, as long as it exists in the database.
      *
-     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
+     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they cannot be stored in the database.
+     * readonly mode automatically as they can't be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -3682,7 +3859,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return bool
      *
-     * @throws OutOfBoundsException|DataEntryAlreadyExistsException
+     * @throws OutOfBoundsException|DataEntryExistsException
      */
     public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $throw_exception = false): bool
     {
@@ -3697,7 +3874,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             // Exists and is not deleted
             if ($throw_exception) {
-                throw DataEntryAlreadyExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
+                throw DataEntryExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier,
                 ]));
@@ -3885,7 +4062,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static
     {
         // Render the specified element directly into the definition. Remove the specified column from this source (overwrite, basically)
-        $o_element_definition                             = $value->getDefinitionObject()->setContent($value);
+        $o_element_definition                             = $value->getDefinitionObject()->setOutput($value);
         $this->source[$o_element_definition->getColumn()] = null;
 
         try {
@@ -3901,15 +4078,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Apply specified definitions as well
             if ($o_definition instanceof DefinitionInterface) {
                 $o_definition->setColumn($o_element_definition->getColumn());
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($o_definition->getSource());
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($o_definition->getDefinitionSource());
 
             } else {
                 // Merge the specified definitions over the existing one
                 $o_definition = Arrays::removeKeys($o_definition, 'column');
-                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getSource();
+                $rules        = $this->getDefinitionsObject()->get($o_element_definition->getColumn())->getDefinitionSource();
                 $rules        = array_merge($rules, $o_definition);
 
-                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setSource($rules);
+                $this->getDefinitionsObject()->get($o_element_definition->getColumn())->setDefinitionSource($rules);
             }
         }
 
@@ -4257,13 +4434,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 $this->checkReadonly('set-status "' . $status . '"')
-                     ->saveToCache()
+                     ->saveToLocalCache($this->getCacheKey())
+                     ->saveToGlobalCache($this->getCacheKey())
                      ->source['status'] = $status;
 
                 $this->changes[] = 'status';
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
+                    $this->updateMetaState();
+
                     SqlDataEntry::new(sql($this->o_connector), $this)
                                 ->setDebug($this->debug)
                                 ->setStatus($status, $comments);
@@ -4302,7 +4482,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]));
         }
 
-        if ($this->meta_enabled) {
+        if ($this->getMetaEnabled()) {
             if (!$this->hasMetaColumn('meta_id')) {
                 throw new DataEntryMetaException(tr('Cannot erase ":class" DataEntry object, it has meta enabled, but no meta_id column', [
                     ':class' => static::class,
@@ -4484,6 +4664,99 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns the users_id that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     *
+     * @return int|null
+     */
+    public function getModifiedBy(): ?int
+    {
+        return $this->getTypesafe('int', 'modified_by');
+    }
+
+
+    /**
+     * Returns the user object that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     *
+     * @return UserInterface|null
+     */
+    public function getModifiedByObject(): ?UserInterface
+    {
+        $modified_by = $this->getTypesafe('int', 'modified_by');
+
+        if ($modified_by === null) {
+            return null;
+        }
+
+        return new User($modified_by);
+    }
+
+
+    /**
+     * Sets the modified_by field for this DataEntry object
+     *
+     * @param int|null $modified_by
+     *
+     * @return static
+     */
+    protected function setModifiedBy(?int $modified_by): static
+    {
+        return $this->set($modified_by, 'modified_by');
+    }
+
+
+    /**
+     * Returns the modified on value in integer format
+     *
+     * @note Returns NULL if this class has no support for modified_on information or has not been written to disk yet
+     *
+     * @return string|int|null
+     */
+    public function getModifiedOn(): string|int|null
+    {
+        return $this->getTypesafe('string|int', 'modified_on');
+    }
+
+
+    /**
+     * Returns the object that last modified this data entry
+     *
+     * @note Returns NULL if this class has no support for modified_by information or has not been written to disk yet
+     * @return PhoDateTimeInterface|null
+     */
+    public function getModifiedOnObject(): ?PhoDateTimeInterface
+    {
+        $modified_on = $this->getTypesafe('string', 'modified_on');
+
+        if ($modified_on === null) {
+            return null;
+        }
+
+        return new PhoDateTime($modified_on);
+    }
+
+
+    /**
+     * Sets the modified_on field for this DataEntry object
+     *
+     * @param string|int|null $modified_on
+     *
+     * @return static
+     */
+    protected function setModifiedOn(string|int|null $modified_on): static
+    {
+        if (is_int($modified_on)) {
+            $modified_on = PhoDateTime::new($modified_on)->format(EnumDateFormat::mysql_datetime);
+        }
+
+        return $this->set($modified_on, 'modified_on');
+    }
+
+
+    /**
      * Returns the meta-information for this entry
      *
      * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
@@ -4622,9 +4895,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        if ($this->saveBecauseModified($force)) {
-            // Object must ALWAYS be validated before writing! Validate data and write it to the database.
-            $this->validate($skip_validation)->write($force, $comments)->saveToCache()->setTableState();
+        try {
+            if ($this->saveBecauseModified($force)) {
+                // Object must ALWAYS be validated before writing! Validate data and write it to the database.
+                $this->validate($skip_validation)
+                     ->write($force, $comments)
+                     ->saveToLocalCache($this->getCacheKey())
+                     ->saveToGlobalCache($this->getCacheKey())
+                     ->setTableState();
+            }
+
+        } catch (DataEntryNotInitializedException $e) {
+            throw DataEntryNotInitializedException::new(tr('Cannot save, the ":class" object has not been initialized and has no Definitions object set', [
+                ':class' => static::class
+            ]), $e);
+
+        } catch (SqlContstraintDuplicateEntryException $e) {
+            // The unique identifier for the entry being added already exists
+            throw new DataEntryExistsException(tr('Cannot save ":class" DataEntry, another entry with the unique column ":column" value ":value" for this object already exists', [
+                ':class'  => static::class,
+                ':column' => $e->getDataKey('column'),
+                ':value'  => $e->getDataKey('value'),
+            ]), $e);
         }
 
         return $this;
@@ -4648,7 +4940,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Not new, nothing changed, no forcing, so there is no reason to save
         if ($this->debug) {
-            Log::debug('NOT SAVING IN DB, NOTHING CHANGED FOR "' . static::class . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
+            Log::dump('NOT SAVING IN DB, NOTHING CHANGED FOR "' . static::class . '" ID "' . $this->getLogId() . '"', 10, echo_header: false);
         }
 
         return false;
@@ -4673,7 +4965,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Debug this specific entry?
         if ($this->debug) {
-            Log::debug('SAVING DATA ENTRY "' . static::class . '" WITH ID "' . $this->getLogId() . '"', 10, echo_header: false);
+            Log::dump('SAVING DATA ENTRY "' . static::class . '" WITH ID "' . $this->getLogId() . '"', 10, echo_header: false);
             sql($this->o_connector)->setDebug($this->debug);
         }
 
@@ -4694,6 +4986,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         // Write the list, if exists
         $this->list?->save();
+
+        // Update the identifier to a databse ID based identifier
+        if (empty($this->identifier)) {
+            $this->identifier = ['id' => $this->getId()];
+        }
 
         // Done!
         $this->is_modified =  false;
@@ -4746,21 +5043,50 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getObjectState(): array
     {
         return [
-            'id'                     => $this->getId(false),
-            'is_saved'               => $this->is_saved,
-            'is_new'                 => $this->isNew(),
-            'is_created'             => $this->is_created,
-            'is_modified'            => $this->is_modified,
-            'is_validated'           => $this->is_validated,
-            'is_loading'             => $this->is_loading,
-            'is_loaded'              => $this->is_loaded,
-            'is_loaded_from_cache'   => $this->is_loaded_from_cache,
-            'is_initializing_source' => $this->is_initializing_source,
-            'is_initialized'         => $this->is_initialized,
-            'previous_id'            => $this->previous_id,
-            'id_lower_limit'         => $this->id_lower_limit,
-            'id_upper_limit'         => $this->id_upper_limit,
+            'id'                          => $this->getId(false),
+            'is_saved'                    => $this->is_saved,
+            'is_new'                      => $this->isNew(),
+            'is_created'                  => $this->is_created,
+            'is_modified'                 => $this->is_modified,
+            'is_validated'                => $this->is_validated,
+            'is_loading'                  => $this->is_loading,
+            'is_loaded'                   => $this->is_loaded,
+            'is_loaded_from_cache'        => $this->flags['is_loaded_from_cache'],
+            'is_loaded_from_local_cache'  => $this->flags['is_loaded_from_local_cache'],
+            'is_loaded_from_global_cache' => $this->flags['is_loaded_from_global_cache'],
+            'is_initializing_source'      => $this->is_initializing_source,
+            'is_initialized'              => $this->is_initialized,
+            'previous_id'                 => $this->previous_id,
+            'id_lower_limit'              => $this->id_lower_limit,
+            'id_upper_limit'              => $this->id_upper_limit,
         ];
+    }
+
+
+    /**
+     * Sets the state variables for this object
+     *
+     * @param array $state_array
+     *
+     * @return static
+     */
+    public function setObjectState(array $state_array): static
+    {
+        $this->is_saved                             = $state_array['is_saved'];
+        $this->is_created                           = $state_array['is_created'];
+        $this->is_modified                          = $state_array['is_modified'];
+        $this->is_validated                         = $state_array['is_validated'];
+        $this->is_loading                           = $state_array['is_loading'];
+        $this->is_loaded                            = $state_array['is_loaded'];
+        $this->flags['is_loaded_from_cache']        = $state_array['is_loaded_from_cache'];
+        $this->flags['is_loaded_from_local_cache']  = $state_array['is_loaded_from_local_cache'];
+        $this->flags['is_loaded_from_global_cache'] = $state_array['is_loaded_from_global_cache'];
+        $this->is_initialized                       = $state_array['is_initialized'];
+        $this->previous_id                          = $state_array['previous_id'];
+        $this->id_lower_limit                       = $state_array['id_lower_limit'];
+        $this->id_upper_limit                       = $state_array['id_upper_limit'];
+
+        return $this;
     }
 
 
@@ -4771,32 +5097,31 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return array
      */
-    public function getSqlColumns(bool $insert): array
+    public function getSqlSource(bool $insert): array
     {
         $return = [];
 
         // Run over all definitions and generate a data column
         foreach ($this->o_definitions as $column => $o_definition) {
-            if ($insert) {
-                // We're about to insert
-                if (in_array($column, $this->columns_filter_on_insert)) {
-                    if ($o_definition->isMeta()) {
-                        continue;
-                    }
-                }
-            }
-
-            $column = $o_definition->getColumn();
-
             if ($o_definition->getVirtual()) {
                 // This is a virtual column, ignore it.
                 continue;
             }
 
+            if ($insert) {
+                // We're about to insert, make sure to filter columns that aren't allowed for the first insert
+                if (in_array($column, $this->columns_filter_on_insert)) {
+                    continue;
+                }
+            }
+
+            $column = $o_definition->getColumn();
+
+            // TODO The next line should and AFAIK IS applied during validation, what is it doing here? DELETE!
             // Apply definition default
             $return[$column] = array_get_safe($this->source, $column) ?? $o_definition->getDefault();
 
-            // Ensure value is string, float, int, or NULL
+            // Ensure values are scalar for the SQL query
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
                 if (is_enum($return[$column])) {
                     $return[$column] = $return[$column]->value;
@@ -4808,22 +5133,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $return[$column] = Json::ensureEncoded($return[$column]);
                 }
             }
-
-            // Apply definition prefix and postfix only if they are not empty
-            $prefix = $o_definition->getPrefix();
-            $suffix = $o_definition->getSuffix();
-
-            if ($prefix) {
-                $return[$column] = $prefix . $return[$column];
-            }
-
-            if ($suffix) {
-                $return[$column] .= $suffix;
-            }
         }
 
         if ($this->debug) {
-            Log::debug('DATA SENT TO SQL FOR "' . static::class . '"', 10, echo_header: false);
+            Log::dump('DATA SENT TO SQL FOR "' . static::class . '"', 10, echo_header: false);
             Log::vardump($return, echo_header: false);
         }
 
@@ -4848,7 +5161,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             } else {
                 // The data in this object hasn't been validated yet! Do so now...
                 if ($this->debug) {
-                    Log::debug('VALIDATING "' . static::class . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
+                    Log::dump('VALIDATING "' . static::class . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
                 }
 
                 // Gather data that required validation
@@ -4890,6 +5203,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
+                            ->setUseCache($this->getUseCache())
                             ->setDataEntryObject($this)
                             ->setSource($this->source)
                             ->setReadonly($this->readonly)
@@ -4907,6 +5221,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getSpreadSheet(): SpreadSheetInterface
     {
         return new SpreadSheet($this);
+    }
+
+
+    /**
+     * Updates the meta_state column with a random value
+     *
+     * @return static
+     */
+    protected function updateMetaState(): static
+    {
+        $this->setMetaState(Strings::getRandom(16));
+        return $this;
     }
 
 
@@ -5000,36 +5326,77 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function isLoadedFromCache(): bool
     {
-        return $this->is_loaded_from_cache;
+        return $this->flags['is_loaded_from_cache'];
     }
 
 
     /**
-     * Checks that this DataEntry object has an identifier
+     * Returns true if this DataEntry object was loaded from cache
      *
-     * @param string $action
+     * @return bool
+     */
+    public function isLoadedFromLocalCache(): bool
+    {
+        return $this->flags['is_loaded_from_local_cache'];
+    }
+
+
+    /**
+     * Returns true if this DataEntry object was loaded from cache
+     *
+     * @return bool
+     */
+    public function isLoadedFromGlobalCache(): bool
+    {
+        return $this->flags['is_loaded_from_global_cache'];
+    }
+
+
+    /**
+     * Sets the flag that this DataEntry object was loaded from local cache
      *
      * @return static
-     *
-     * @throws DataEntryNoIdentifierSpecifiedException
      */
-    protected function checkIdentifier(string $action): static
+    public function setIsLoadedFromLocalCache(): static
     {
-        if (empty($this->identifier)) {
-            if (!$this->getQueryBuilderObject(false)) {
-                throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot perform action ":action" on ":class" class DataEntry object, it has no identifier specified', [
-                    ':action' => $action,
-                    ':class'  => $this::class,
-                ]))->addData([
-                    'action' => $action,
-                    'class'  => static::getClassName(),
-                ]);
-            }
-
-            // We don't have an identifier to load, but we do have a QueryBuilder object setup, we can use that.
-            $this->identifier = null;
-        }
-
+        $this->flags['is_loaded_from_cache']       = true;
+        $this->flags['is_loaded_from_local_cache'] = true;
         return $this;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object was loaded from cache
+     *
+     * @return static
+     */
+    public function setIsLoadedFromGlobalCache(): static
+    {
+        $this->flags['is_loaded_from_cache']        = true;
+        $this->flags['is_loaded_from_global_cache'] = true;
+        return $this;
+    }
+
+
+    /**
+     * Sets the flag that this DataEntry object was loaded from global cache
+     *
+     * @return static
+     */
+    public function setIsLoaded(): static
+    {
+        $this->is_loaded = true;
+        return $this;
+    }
+
+
+    /**
+     * Returns an integer unique identifier for this DataEntry object
+     *
+     * @return int
+     */
+    public function getUniqueObjectIdentifier(): int
+    {
+        return spl_object_id($this);
     }
 }

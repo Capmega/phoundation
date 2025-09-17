@@ -20,6 +20,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Stringable;
@@ -60,7 +61,7 @@ class Button extends Input implements ButtonInterface
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = true): static
+    public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????
@@ -96,13 +97,13 @@ class Button extends Input implements ButtonInterface
     /**
      * Set the content for this button
      *
-     * @param Stringable|string|float|int|null $content
-     * @param bool                             $make_safe
+     * @param RenderInterface|callable|string|float|int|null $content
+     * @param bool                                           $make_safe
      *
      * @return static
      * @todo add documentation for when button is floating as it is unclear what is happening there
      */
-    public function setContent(Stringable|string|float|int|null $content, bool $make_safe = true): static
+    public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
             // What does this do?????????????

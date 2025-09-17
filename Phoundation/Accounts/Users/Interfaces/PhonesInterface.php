@@ -6,6 +6,7 @@ namespace Phoundation\Accounts\Users\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -26,11 +27,12 @@ interface PhonesInterface extends DataIteratorInterface
     /**
      * Returns a Phones Iterator object with phones for the specified user.
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
-     * @throws SqlMultipleResultsException | NotExistsException
+     * @throws SqlMultipleResultsException
+     * @throws NotExistsException
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static;
 }

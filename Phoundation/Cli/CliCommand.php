@@ -28,7 +28,7 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Config\Config;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
-use Phoundation\Cache\InstanceCache;
+use Phoundation\Cache\LocalCache;
 use Phoundation\Cli\Exception\CliArgumentsException;
 use Phoundation\Cli\Exception\CliAutoCompleteException;
 use Phoundation\Cli\Exception\CliCommandException;
@@ -54,6 +54,7 @@ use Phoundation\Databases\Sql\Sql;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoTime;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\EnvironmentException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
@@ -301,7 +302,7 @@ class CliCommand
             $parameters = CliCommand::start();
 
         } catch (Throwable $e) {
-            echo 'CLI startup failed with the following exception:' . PHP_EOL;
+            echo 'Phoundation CLI startup failed with the following exception:' . PHP_EOL;
             throw $e;
         }
 
@@ -778,7 +779,14 @@ class CliCommand
         } else {
             // Give a "success!" sound for normally executed commands (so NOT auto complete actions!)
             if (!CliAutoComplete::isActive()) {
-                Success::new()->playLocal(true);
+                switch (Core::getStateOnExit()) {
+                    case 'boot':
+                        Log::warning('Not playing exit notification sound because system exited during boot state', 4);
+                        break;
+
+                    default:
+                        Success::new()->playLocal(true);
+                }
 
                 if ($exit_message) {
                     Log::success($exit_message, 8);
@@ -795,7 +803,7 @@ class CliCommand
         }
 
         if (!CliAutoComplete::isActive()) {
-            InstanceCache::logStatistics();
+            LocalCache::logStatistics();
             Cache::logStatistics();
             Sql::logStatistics();
 
@@ -1844,7 +1852,7 @@ return 'under construction';
             Log::setVerbose($argv['verbose']);
 
             // Set requested language
-            Core::writeRegister($argv['language'] ?? config()->getString('languages.default', 'en'), 'system', 'language');
+            Core::writeRegister($argv['language'] ?? config()->getString('locale.languages.default', 'en'), 'system', 'language');
 
             if ($argv['auto_complete']) {
                 // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
@@ -1915,8 +1923,7 @@ return 'under construction';
 
             // Set required locale.
             // Set language and locale
-            Core::setLanguage();
-            Core::setLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
+            Core::setLanguageLocale($argv['locale'] ?? config()->getString('locale.default', 'en-ca'));
 
             // Prepare for unicode usage
             if (Response::hasEncoding('UTF-8')) {
@@ -1932,7 +1939,7 @@ return 'under construction';
 
             // Process command line system arguments if we have no exception so far
             if ($argv['version']) {
-                Log::cli(Core::getProjectVersions(true));
+                Log::cli(Project::getVersions(true));
                 Core::setScriptState();
                 $exit = 0;
             }

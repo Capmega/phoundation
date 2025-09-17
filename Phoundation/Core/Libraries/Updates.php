@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Updates class
+ * Class Updates
  *
  * This is the prototype Init class that contains the basic methods for all other Init classes in all other libraries
  *
@@ -20,7 +20,6 @@ use Phoundation\Core\Libraries\Exception\LibraryInvalidVendorException;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\Validate;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,6 +28,7 @@ use Phoundation\Exception\UnexpectedValueException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Utils\Strings;
+
 
 abstract class Updates implements UpdatesInterface
 {
@@ -598,5 +598,47 @@ abstract class Updates implements UpdatesInterface
         throw new UnexpectedValueException(tr('Php version_compare() gave the unexpected output ":output"', [
             ':output' => $result,
         ]));
+    }
+
+
+    /**
+     * Ensures that the specified tables have modified_on and modified_by columns
+     *
+     * @param array $tables
+     *
+     * @return static
+     */
+    public function ensureModifiedColumns(array $tables): static
+    {
+        foreach ($tables as $table) {
+            $o_table = sql()->getSchemaObject()->getTableObject($table);
+
+            if ($o_table->columnExists('created_on') and $o_table->columnExists('created_by')) {
+                if (!$o_table->columnExists('modified_on')) {
+                    $o_table->alter()->addColumn('`modified_on` datetime NULL DEFAULT NULL,', 'AFTER `created_by`');
+                }
+
+                if (!$o_table->indexExists('modified_on')) {
+                    $o_table->alter()->addIndex('KEY `modified_on` (`modified_on`)');
+                }
+
+                if (!$o_table->columnExists('modified_by')) {
+                    $o_table->alter()
+                            ->addColumn('`modified_by` bigint NULL DEFAULT NULL,', 'AFTER `modified_on`');
+                }
+
+                if (!$o_table->indexExists('modified_by')) {
+                    $o_table->alter()
+                            ->addIndex('KEY `modified_by` (`modified_by`)');
+                }
+
+                if (!$o_table->foreignKeyExists('fk_' . $table . '_modified_by')) {
+                    $o_table->alter()
+                            ->addForeignKey('CONSTRAINT `fk_' . $table . '_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+                }
+            }
+        }
+
+        return $this;
     }
 }

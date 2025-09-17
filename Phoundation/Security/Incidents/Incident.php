@@ -223,7 +223,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ->setSeverity($exception->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
                      ->setBody(get_null(implode(PHP_EOL, $exception->getMessages())) ?? $exception->getMessage())
                      ->setDetails([
-                         'exception' => $exception->getPoadString(true),
+                         'exception' => $exception->getSource(),
                          'data'      => $exception->getData(),
                          'details'   => Core::getProcessDetails(),
                          'backtrace' => $exception->getTrace(),
@@ -525,7 +525,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      *
      * @return static
      */
-    #[NoReturn] public function throw(?string $exception = null, bool $non_production_environment_only = false): static
+    public function throw(?string $exception = null, bool $non_production_environment_only = false): static
     {
         if ($non_production_environment_only and Core::isProductionEnvironment()) {
             // We're on a production environment and can continue after registering the incident
@@ -556,7 +556,11 @@ class Incident extends DataEntryCore implements IncidentInterface
         }
 
         throw $exception::new($this->getTitle())
-                        ->addData(['details' => $this->getDetails()]);
+                        ->addMessages($this->getBody())
+                        ->addData([
+                            'data'    => $this->getData(),
+                            'details' => $this->getDetails()
+                        ]);
     }
 
 
@@ -589,7 +593,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setReadonly(true)
                                     ->setSize(6)
                                     ->setMaxLength(6)
-                                    ->setDataSource([
+                                    ->setSource([
                                         EnumSeverity::notice->value  => tr('Notice'),
                                         EnumSeverity::low->value     => tr('Low'),
                                         EnumSeverity::medium->value  => tr('Medium'),

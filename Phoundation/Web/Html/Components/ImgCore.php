@@ -115,7 +115,7 @@ class ImgCore extends SpanCore implements ImgInterface
 
         if ($lazy_load) {
             $this->addClasses('lazy');
-            Response::loadJavaScript('templates/phoundation/jquery/lazyload/jquery.lazyload');
+            Response::loadJavaScript('phoundation/jquery/lazyload/jquery.lazyload');
         }
 
         $this->lazy_load = $lazy_load;
@@ -817,9 +817,9 @@ class ImgCore extends SpanCore implements ImgInterface
      *
      * @return IteratorInterface
      */
-    protected function renderAttributesArray(): IteratorInterface
+    protected function renderAttributesIteratorObject(): IteratorInterface
     {
-        return parent::renderAttributesArray()
+        return parent::renderAttributesIteratorObject()
                      ->appendSource([
                          'src' => $this->src,
                          'alt' => $this->alt,

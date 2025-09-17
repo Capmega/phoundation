@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\Interfaces\PhoneInterface;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
@@ -36,6 +37,9 @@ use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Sanitize;
 use Phoundation\Utils\Arrays;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Stringable;
@@ -92,15 +96,15 @@ class Phone extends DataEntry implements PhoneInterface
      *       "PossibleDataEntryVariable is DataEntry::new(PossibleDataEntryVariable)"
      *
      * @param IdentifierInterface|array|string|int|null $identifier
-     * @param EnumLoadParameters|null                   $on_load_null_identifier
-     * @param EnumLoadParameters|null                   $on_load_not_exists
+     * @param EnumLoadParameters|null                   $on_null_identifier
+     * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
      */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_load_null_identifier = null, ?EnumLoadParameters $on_load_not_exists = null): ?static
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
         try {
-            return parent::load($identifier, $on_load_null_identifier, $on_load_not_exists);
+            return parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException|DataEntryDeletedException $e) {
             throw new PhoneNotExistsException($e);
@@ -218,6 +222,11 @@ class Phone extends DataEntry implements PhoneInterface
                       ->add(DefinitionFactory::newUsersId()
                                            ->setRender(false))
 
+                      ->add(DefinitionFactory::newUsersEmail('users_email')
+                                             ->setOptional(true)
+                                             ->setVirtual(true)
+                                             ->setRender(false))
+
                       ->add(DefinitionFactory::newPhone()
                                            ->setSize(4)
                                            ->setOptional(true)
@@ -228,7 +237,7 @@ class Phone extends DataEntry implements PhoneInterface
                                     ->setElement(EnumElement::select)
                                     ->setSize(3)
                                     ->setCliColumn('-t,--type')
-                                    ->setDataSource([
+                                    ->setSource([
                                         'personal' => tr('Personal'),
                                         'business' => tr('Business'),
                                         'other'    => tr('Other'),
@@ -263,11 +272,19 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
 
                     ->add(DefinitionFactory::newButton('delete')
-                                           ->setInputType(EnumInputType::submit)
                                            ->setSize(2)
+                                           ->setOptional(true)
+                                           ->setVirtual(true)
                                            ->setLabel(tr('Delete'))
-                                           ->addClasses('btn btn-outline-warning')
-                                           ->setContent(tr('Delete')))
+                                           ->setOutput(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
+                                               return Button::new()
+                                                            ->setButtonType(EnumButtonType::submit)
+                                                            ->setBlock(true)
+                                                            ->setMode(EnumDisplayMode::danger)
+                                                            ->setOutlined(true)
+                                                            ->setValue('delete_' . $source['id'])
+                                                            ->setContent(tr('Delete'));
+                                           }))
 
                     ->add(DefinitionFactory::newDescription()
                                            ->setHelpText(tr('The description for this phone')));

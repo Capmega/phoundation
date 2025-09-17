@@ -245,7 +245,7 @@ class Poad
                     return Arrays::removeKeys($this->source['source'], 'auto_decode');
                 }
 
-                return $this->source['class']::newFromSource($this->source['source']);
+                return $this->source['class']::newFromSourceDirect($this->source['source']);
 
             case EnumPoadTypes::compound->value:
                 $return = null;

@@ -18,8 +18,6 @@ declare(strict_types=1);
 namespace Phoundation\Network\Library;
 
 
-use Phoundation\Core\Log\Log;
-
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -29,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.3.0';
+        return '0.8.0';
     }
 
 
@@ -213,7 +211,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                               ->addForeignKey('CONSTRAINT `fk_network_tests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT');
             }
 
-
+        })->addUpdate('0.8.0', function () {
+            // Add support for modified_on and modified_by
+            $this->ensureModifiedColumns([
+                'network_curl_cache',
+                'network_meta',
+                'network_tests',
+            ]);
         });
     }
 }

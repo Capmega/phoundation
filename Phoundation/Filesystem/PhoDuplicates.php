@@ -64,7 +64,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
      */
     public function __construct(?PhoDirectoryInterface $parent_directory, IteratorInterface|array|string|PDOStatement|null $source = null)
     {
-        $this->setAcceptedDataTypes(PhoFilesInterface::class);
+        $this->setAcceptedDataTypes(PhoFile::class);
         $this->parent_directory = $parent_directory;
         parent::__construct($source);
     }

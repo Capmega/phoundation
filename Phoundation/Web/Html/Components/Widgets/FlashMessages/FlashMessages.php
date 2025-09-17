@@ -181,10 +181,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
                     return $this->addWarning($message->getMessage(), $title);
                 }
+
+            } else {
+                // These are full on error exceptions or PHP exceptions
+                return $this->addException(tr('Something did not function correctly on our side, please try again later or contact your IT department'));
             }
 
-            // These are full on error exceptions or PHP exceptions
-            return $this->addException(tr('Something did not function correctly on our side, please try again later or contact your IT department'));
+            $message = $message->getMessage();
         }
 
         if (!$title) {
@@ -195,7 +198,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
         }
 
         if (!($message instanceof FlashMessageInterface)) {
-            // The message was not specified as a flash message, treat it as a string and make a flash message out of it
+            // The message wasn't specified as a flash message, treat it as a string and make a flash message out of it
             $message = FlashMessage::new()
                                    ->setAutoClose($auto_close)
                                    ->setMessage((string) $message)

@@ -19,8 +19,9 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Notifications\FilterForm;
 use Phoundation\Notifications\Notifications;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -37,7 +38,7 @@ GetValidator::new()->validate();
 
 // Build incidents "filter" card
 $filters      = FilterForm::new();
-$filters_card = Card::new()
+$o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Notifications filters')
                     ->setContent($filters)
@@ -79,29 +80,29 @@ $table->getAnchorDataAttributes()->add(':ROW', 'id');
 
 
 // Build "notifications" card
-$notifications_card = Card::new()
+$o_notifications_card = Card::new()
                      ->setTitle('Active notifications')
                      ->setSwitches('reload')
                      ->setContent($table)
                      ->useForm(true)
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Mark all as read')));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Mark all as read')));
 
-$notifications_card->getForm()
+$o_notifications_card->getForm()
                    ->setAction(Url::newCurrent())
                    ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
-                                  Anchor::new(Url::new('/notifications/test.html')->makeWww(), tr('Send me a test notification'), '<br>'));
+                     ->setContent(AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
+                                  AnchorBlock::new(Url::new('/notifications/test.html')->makeWww(), tr('Send me a test notification')));
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -110,12 +111,12 @@ $documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadcrumbs([
-    Anchor::new('/', tr('Home')),
-    Anchor::new('' , tr('Notifications'))
+    Breadcrumb::new('/', tr('Home')),
+    Breadcrumb::new('' , tr('Notifications'))
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($filters_card  . $notifications_card, EnumDisplaySize::nine)
-           ->addGridColumn($relevant_card . $documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card . $o_notifications_card, EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Filesystem\PhoFiles;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoUploadedFileInterface;
+use Phoundation\Filesystem\PhoUploadedFile;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
@@ -37,7 +38,14 @@ class UploadHandler implements UploadHandlerInterface
      *
      * @var mixed|null
      */
-    protected mixed $function = null;
+    protected mixed $file_callback = null;
+
+    /**
+     * The code to be called when all files are finished processing
+     *
+     * @var mixed|null
+     */
+    protected mixed $finished_callback = null;
 
     /**
      * Validations to execute to ensure
@@ -94,7 +102,7 @@ class UploadHandler implements UploadHandlerInterface
     {
         if (empty($this->files)) {
             $this->files = new PhoFiles();
-            $this->files->setAcceptedDataTypes(PhoUploadedFileInterface::class)
+            $this->files->setAcceptedDataTypes(PhoUploadedFile::class)
                         ->getRestrictionsObject()
                             ->addDirectory(DIRECTORY_TMP, true)
                             ->addDirectory('/tmp/', true);
@@ -135,9 +143,9 @@ class UploadHandler implements UploadHandlerInterface
      *
      * @return callable
      */
-    public function getFunction(): callable
+    public function getFileCallback(): callable
     {
-        return $this->function;
+        return $this->file_callback;
     }
 
 
@@ -148,15 +156,42 @@ class UploadHandler implements UploadHandlerInterface
      *
      * @return static
      */
-    public function setFunction(callable $function): static
+    public function setFileCallback(callable $function): static
     {
         Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::upload);
 
-        $this->function = $function;
+        $this->file_callback = $function;
 
         return $this;
     }
 
+    /**
+     * Returns the handler function for this file
+     *
+     * @return callable
+     */
+    public function getFinishedCallback(): callable
+    {
+        return $this->finished_callback;
+    }
+
+
+    /**
+     * Sets the handler function for this file
+     *
+     * @param callable $function
+     *
+     * @return static
+     */
+    public function setFinishedCallback(callable $function): static
+    {
+        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::upload);
+
+        $this->finished_callback = $function;
+
+        return $this;
+    }
+    
 
     /**
      * Clears all currently existing validation functions for this definition
@@ -220,7 +255,6 @@ class UploadHandler implements UploadHandlerInterface
         ]));
 
         $this->validate($file);
-
         if (!$this->hasBeenValidated()) {
             throw new ValidationFailedException(tr('Cannot start processing for file ":file" with mimetype ":mimetype", the file has not been validated', [
                 ':file'     => $file->getSource(),
@@ -228,8 +262,8 @@ class UploadHandler implements UploadHandlerInterface
             ]));
         }
 
-        if ($this->function) {
-            ($this->function)($file);
+        if ($this->file_callback) {
+            ($this->file_callback)($file);
         }
 
         $this->getFiles()->add($file);

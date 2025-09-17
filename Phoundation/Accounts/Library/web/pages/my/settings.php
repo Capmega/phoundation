@@ -17,8 +17,9 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
-use Phoundation\Web\Html\Components\Anchor;
+use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
@@ -56,25 +57,25 @@ if (Request::isPostRequestMethod()) {
 $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
-                     ->setButtons(Buttons::new()
-                                         ->addButton(tr('Save'), right: true)
-                                         ->addButton(isset_get($delete))
-                                         ->addButton(isset_get($audit)));
+                     ->setButtonsObject(Buttons::new()
+                                               ->addButton(tr('Save'), right: true)
+                                               ->addButton(isset_get($delete))
+                                               ->addButton(isset_get($audit)));
 
 
 // Build relevant links
-$relevant_card = Card::new()
+$o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
-                     ->setContent(Anchor::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
-                                  Anchor::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics'), '<br>') .
-                                  Anchor::new(Url::new('/my/password.html')->makeWww(), tr('Change my password'), '<br>') .
-                                  Anchor::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication'), '<br>'));
-                                //Anchor::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history'), '<br>') .
+                     ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
+                                  AnchorBlock::new(Url::new('/my/favorite-diagnostics.html')->makeWww(), tr('Manage my favorite diagnostics')) .
+                                  AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
+                                  AnchorBlock::new(Url::new('/mfa/create.html')->makeWww()->addRedirect(Url::newCurrent()), tr('Setup multi factor authentication')));
+                                //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')) .
 
 
 // Build documentation
-$documentation_card = Card::new()
+$o_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
@@ -84,13 +85,13 @@ $documentation_card = Card::new()
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([
-    Anchor::new('/'               , tr('Home')),
-    Anchor::new('/my/profile.html', tr('My profile')),
-    Anchor::new(''                , tr('My settings')),
+    Breadcrumb::new('/'               , tr('Home')),
+    Breadcrumb::new('/my/profile.html', tr('My profile')),
+    Breadcrumb::new(''                , tr('My settings')),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card                               , EnumDisplaySize::nine, true)
-            ->addGridColumn($relevant_card . '<br>' . $documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($settings_card                          , EnumDisplaySize::nine, true)
+            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

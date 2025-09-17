@@ -8,6 +8,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -226,12 +227,12 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Load the id list from the database
      *
-     * @param array|string|int|null $identifiers
-     * @param bool                  $like
+     * @param IdentifierInterface|array|string|int|null $identifiers
+     * @param bool                                      $like
      *
      * @return static
      */
-    public function load(array|string|int|null $identifiers = null, bool $like = false): static;
+    public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static;
 
 
     /**
@@ -249,11 +250,11 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface|UrlInterface|RenderInterface|null $o_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
+    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $o_parent): static;
 
 
     /**
@@ -331,12 +332,12 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface $o_connector
-     * @param string|null        $database
+     * @param ConnectorInterface|null $o_connector
+     * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(ConnectorInterface $o_connector, ?string $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object
@@ -382,16 +383,14 @@ interface DataIteratorInterface extends IteratorInterface
      */
     public function getDisabled(): bool;
 
-
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool $disabled
      *
      * @return static
      */
-    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static;
+    public function setDisabled(bool $disabled): static;
 
     /**
      * Returns the number of entries that have been modified
@@ -420,4 +419,20 @@ interface DataIteratorInterface extends IteratorInterface
      * @todo Add support for specifying which column should be the identifier column instead of only id_column or unique_column
      */
     public function loadForAutocomplete(?string $word = null, ?string $column = null): static;
+
+    /**
+     * Returns if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @return bool
+     */
+    public function getKeysAreUniqueColumn(): bool;
+
+    /**
+     * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setKeysAreUniqueColumn(bool $value): static;
 }
