@@ -646,10 +646,6 @@ class Session implements SessionInterface
             }
         }
 
-        if (config()->getBoolean('web.sessions.check-referrer', true)) {
-            ini_set('session.referer_check', static::$domain);
-        }
-
         if (Debug::isEnabled() or !config()->getBoolean('cache.http.enabled', true)) {
             ini_set('session.cache_limiter', 'nocache');
 
