@@ -657,10 +657,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ->setSeverity(EnumSeverity::medium)
                 ->setType('validation')
                 ->setTitle(tr('Validation was skipped'))
-                ->setBody(tr('Validation was skipped for the key ":key" during validation of a ":object" object', [
+                ->setBody(tr('Validation was requested to be skipped for the key ":key" during validation (with DataEntry object ":object")', [
                     ':key'    => $this->selected_field,
                     ':object' => get_class_or_datatype($this->getDataEntryObject())
                 ]))
+                ->setDetails([
+                    'url' => Request::getUrl()
+                ])
                 ->setNotifyRoles('developer')
                 ->save();
 
