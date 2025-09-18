@@ -1131,14 +1131,15 @@ class Request implements RequestInterface
     /**
      * Returns if this request is a GET method
      *
+     * @param bool $strict
+     *
      * @return bool
      */
-    public static function isGetRequestMethod(): bool
+    public static function isGetRequestMethod(bool $strict = true): bool
     {
         // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
         Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
-
-        return Request::isRequestMethod(EnumHttpRequestMethod::get) or Request::isRequestMethod(EnumHttpRequestMethod::post);
+        return Request::isRequestMethod(EnumHttpRequestMethod::get, $strict) or Request::isRequestMethod(EnumHttpRequestMethod::post);
     }
 
 
@@ -1160,19 +1161,22 @@ class Request implements RequestInterface
      * Returns if this request is the specified method
      *
      * @param EnumHttpRequestMethod $method
+     * @param bool                  $strict
      *
      * @return bool
      */
-    public static function isRequestMethod(EnumHttpRequestMethod $method): bool
+    public static function isRequestMethod(EnumHttpRequestMethod $method, bool $strict = true): bool
     {
-        if ($method === EnumHttpRequestMethod::upload) {
-            // Upload isn't a real method, its POST
-            $method = EnumHttpRequestMethod::post;
-        }
+        if (!$strict) {
+            if ($method === EnumHttpRequestMethod::upload) {
+                // Upload isn't a real method, its POST
+                $method = EnumHttpRequestMethod::post;
+            }
 
-        if ($method === EnumHttpRequestMethod::head) {
-            // HEAD is GET without a return body, treat it like GET
-            $method = EnumHttpRequestMethod::get;
+            if ($method === EnumHttpRequestMethod::head) {
+                // HEAD is GET without a return body, treat it like GET
+                $method = EnumHttpRequestMethod::get;
+            }
         }
 
         return Request::getRequestMethod() === $method;
