@@ -19,7 +19,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
-k
+
 
 CliDocumentation::setUsage('./pho cache dump values -c connector');
 
