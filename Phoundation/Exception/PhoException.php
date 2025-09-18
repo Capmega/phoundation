@@ -65,6 +65,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
+use Phoundation\Web\Html\Components\P;
 use RuntimeException;
 use Throwable;
 
@@ -419,7 +420,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      *
      * @return static|null
      */
-    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static
+    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?Throwable
     {
         if ($source === null) {
             // Nothing to import, there is no exception
@@ -437,7 +438,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      *
      * @return static
      */
-    public static function newFromSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static
+    public static function newFromSourceDirect(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): Throwable
     {
         return static::newFromSource($source);
     }
@@ -448,9 +449,9 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      *
      * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
      *
-     * @return static
+     * @return Throwable
      */
-    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static
+    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): Throwable
     {
         try {
             if (is_string($source)) {
@@ -485,13 +486,15 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                 $source['class'] = PhoException::class;
             }
 
-            $e = new $source['class']($source['message'], isset_get($previous));
-            $e->setCode(isset_get($source['code']));
-            $e->setData(isset_get($source['data']));
-            $e->setWarning((bool) isset_get($source['warning']));
-            $e->addMessages(isset_get($source['messages']));
+            if (is_a($source['class'], PhoException::class, true)) {
+                return $source['class']::new($source['message'], isset_get($previous))
+                                       ->setCode(isset_get($source['code']))
+                                       ->setData(isset_get($source['data']))
+                                       ->setWarning((bool) isset_get($source['warning']))
+                                       ->addMessages(isset_get($source['messages']));
+            }
 
-            return $e;
+            return new $source['class']($source['message'], isset_get($source['code'], 0), isset_get($previous));
 
         } catch (Throwable $e) {
             throw PhoException::new(tr('Failed to generate exception object from import data'), $e)

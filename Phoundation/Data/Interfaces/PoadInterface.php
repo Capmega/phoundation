@@ -32,23 +32,4 @@ interface PoadInterface
      * @return string
      */
     public function getPoadString(): string;
-
-
-    /**
-     * Returns a new DataEntry object from the specified array source
-     *
-     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
-     *
-     * @return static
-     */
-    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static;
-
-    /**
-     * Returns a new DataEntry object from the specified array source or null
-     *
-     * @param ArraySourceInterface|array|string|null $source
-     *
-     * @return PoadInterface|null
-     */
-    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static;
 }
