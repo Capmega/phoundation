@@ -873,7 +873,7 @@ class Request implements RequestInterface
      *
      * @param EnumRequestTypes $type The call type you wish to compare to
      *
-     * @return bool This function will return true if $type matches core::callType, or false if it does not.
+     * @return bool This function will return true if $type matches core::callType, or false if it doesn't.
      */
     public static function isRequestType(EnumRequestTypes $type): bool
     {
