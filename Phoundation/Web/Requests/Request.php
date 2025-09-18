@@ -1165,6 +1165,16 @@ class Request implements RequestInterface
      */
     public static function isRequestMethod(EnumHttpRequestMethod $method): bool
     {
+        if ($method === EnumHttpRequestMethod::upload) {
+            // Upload isn't a real method, its POST
+            $method = EnumHttpRequestMethod::post;
+        }
+
+        if ($method === EnumHttpRequestMethod::head) {
+            // HEAD is GET without a return body, treat it like GET
+            $method = EnumHttpRequestMethod::get;
+        }
+
         return Request::getRequestMethod() === $method;
     }
 
