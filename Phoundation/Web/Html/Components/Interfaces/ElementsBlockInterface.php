@@ -10,7 +10,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
-interface ElementsBlockInterface extends ComponentInterface, ElementAttributesInterface, IteratorInterface
+interface ElementsBlockInterface extends ComponentInterface, ElementAttributesInterface, IteratorInterface, ContentInterface
 {
     /**
      * Sets the content of the element to display

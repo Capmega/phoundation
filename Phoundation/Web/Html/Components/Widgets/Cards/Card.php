@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
+use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCenter;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
@@ -117,6 +119,19 @@ class Card extends Widget
      * @var string|null $header_title_tag
      */
     protected ?string $header_title_tag = null;
+
+
+    /**
+     * Card class constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
+        parent::__construct($source);
+
+        // By default, cards won't render if they have no content
+        $this->render_on_empty_content = false;
+    }
 
 
     /**

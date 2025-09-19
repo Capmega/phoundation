@@ -32,6 +32,7 @@ use Phoundation\Web\Html\Traits\TraitElementAttributes;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
+
 abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockInterface
 {
     use TraitElementAttributes {
@@ -98,6 +99,13 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      */
     public function render(): ?string
     {
+        if (empty($this->content)) {
+            if (!$this->render_on_empty_content) {
+                // Don't render components that have no content
+                return null;
+            }
+        }
+
         if ($this->render_contents_only) {
             return $this->content;
         }
