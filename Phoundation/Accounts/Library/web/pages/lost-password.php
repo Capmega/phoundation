@@ -86,12 +86,11 @@ if (Request::isPostRequestMethod()) {
 //        $mail->Password = 'kzusumqvavzfmyml';
 //        $mail->Port = "587";
 
-        $mail->Host = "10.10.0.9";
-        $mail->Port = "25";
-
         // Build email
+        $mail->Host    = '10.10.0.9';
+        $mail->Port    = '25';
         $mail->Subject = tr('Lost password request');
-        $mail->Body = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
+        $mail->Body    = tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
             ':user' => $user->getDisplayName(),
             ':here' => Anchor::new($key->getUrl(), tr('here')),
             ':alt'  => $key->getUrl(),
@@ -125,7 +124,7 @@ if (Request::isPostRequestMethod()) {
                 ->setNotifyRoles('security')
                 ->save();
 
-        Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists'));
+        Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists. Please check your spam folder in case you haven\'t received it.'));
 
     } catch (CsrfValidationFailedException) {
         Response::getFlashMessagesObject()->addWarning(tr('The submission failed a security check, please try again'));
