@@ -46,7 +46,7 @@ Response::setBreadcrumbs([
 $o_card = Card::new()
             ->setTitle(tr('Security management'))
             ->setContent(AnchorBlock::new('/security/authentications.html', tr('Authentications management')) .
-                         AnchorBlock::new('/security/incidents.html', tr('Incidents management')) .
+                         AnchorBlock::new('/reports/security/incidents.html', tr('Incidents management')) .
                          AnchorBlock::new('/security/non-200-urls.html', tr('Non-200 URL\'s management')));
 
 
