@@ -1601,7 +1601,7 @@ class Request implements RequestInterface
             static::$stack_level++;
 
         } catch (FileNotExistException $e) {
-            Request::processFileNotFound($e, $target);
+            Request::processFileNotFoundException($e, $target);
         }
 
         if (PLATFORM_CLI) {
@@ -1701,16 +1701,8 @@ class Request implements RequestInterface
      * @return never
      * @throws FileNotExistException
      */
-    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, PhoFileInterface|string $target): never
+    #[NoReturn] protected static function processFileNotFoundException(FileNotExistException $e, PhoFileInterface|string $target): never
     {
-        if (static::$stack_level >= 0) {
-            Log::warning(ts('Sub target ":target" does not exist, displaying 500 page instead', [
-                ':target' => $target,
-            ]));
-
-            throw $e;
-        }
-
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
             // don't, hard fail because this method will normally execute a system page, and we just saw those don't
@@ -1718,6 +1710,14 @@ class Request implements RequestInterface
             throw new SystemPageNotFoundException(tr('The requested system page ":page" does not exist', [
                 ':page' => $target,
             ]));
+        }
+
+        if (static::$stack_level >= 0) {
+            Log::warning(ts('Sub target ":target" does not exist, displaying 500 page instead', [
+                ':target' => $target,
+            ]));
+
+            throw $e;
         }
 
         Log::warning(ts('Main target ":target" does not exist, displaying 404 page instead', [
