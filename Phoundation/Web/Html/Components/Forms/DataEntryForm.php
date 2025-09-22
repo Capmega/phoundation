@@ -440,7 +440,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                     EnumInputType::submit       => Button::new()
                                                                          ->setDefinitionObject($o_definition)
                                                                          ->setHidden($o_definition->getHidden())
-                                                                         ->setValue($o_definition->getValue()),
+                                                                         ->setValue($o_definition->getValue())
+                                                                         ->setContent($o_definition->getContent()),
 
                                     // TODO This should be using ->setDefinitionObject($o_definition)!
                                     EnumInputType::hidden       => $element_class::new()
@@ -486,6 +487,9 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 // no break;
 
                             case EnumElement::span:
+                                // no break;
+
+                            case EnumElement::label:
                                 $element_class = Strings::capitalize($o_definition->getElement()->value);
 
                                 // If we have a source query specified, then get the actual value from the query
