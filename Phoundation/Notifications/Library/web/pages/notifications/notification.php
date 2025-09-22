@@ -85,7 +85,7 @@ $o_relevant_card = Card::new()
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
                                   AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
-                                  hr(AnchorBlock::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
+                                  hr(AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww(), tr('Security incidents'))));
 
 
 // Build documentation
