@@ -167,8 +167,8 @@ class PostValidator extends Validator
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static {
-        Request::checkPostRequestMethod('set POST value');
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
+    {
         static::$post[$key] = $value;
         return $this;
     }

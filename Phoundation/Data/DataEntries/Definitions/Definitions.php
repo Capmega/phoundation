@@ -550,9 +550,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     /**
      * Returns the first Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getFirstValue(): DefinitionInterface
+    #[ReturnTypeWillChange] public function getFirstValue(): ?DefinitionInterface
     {
         return $this->source[array_key_first($this->source)];
     }
@@ -561,9 +561,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     /**
      * Returns the last Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getLastValue(): DefinitionInterface
+    #[ReturnTypeWillChange] public function getLastValue(): ?DefinitionInterface
     {
         return $this->source[array_key_last($this->source)];
     }

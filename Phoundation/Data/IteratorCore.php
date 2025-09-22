@@ -105,7 +105,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     use TraitDataDisabled {
         setDisabled as protected __setDisabled;
     }
-    use TraitDataExceptionOnGet;
 
 
     /**

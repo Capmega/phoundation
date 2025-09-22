@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Core\Libraries;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Exception\LibraryInvalidVendorException;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Exception\DoubleVersionException;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\UnexpectedValueException;
@@ -461,17 +463,21 @@ abstract class Updates implements UpdatesInterface
 
         if (Libraries::supportsVendors()) {
             sql()->insert('core_versions', [
-                'vendor'   => $this->vendor,
-                'library'  => $this->library,
-                'version'  => Version::getInteger($version),
-                'comments' => $comments,
+                'vendor'              => $this->vendor,
+                'library'             => $this->library,
+                'version'             => Version::getInteger($version),
+                'project_version'     => Version::getInteger(Project::getVersion()),
+                'phoundation_version' => Version::getInteger(Core::PHOUNDATION_VERSION),
+                'comments'            => $comments,
             ]);
 
         } else {
             sql()->insert('core_versions', [
-                'library'  => $this->library,
-                'version'  => Version::getInteger($version),
-                'comments' => $comments,
+                'library'             => $this->library,
+                'version'             => Version::getInteger($version),
+                'project_version'     => Version::getInteger(Project::getVersion()),
+                'phoundation_version' => Version::getInteger(Core::PHOUNDATION_VERSION),
+                'comments'            => $comments,
             ]);
         }
     }
@@ -540,8 +546,8 @@ abstract class Updates implements UpdatesInterface
             return (bool) sql()->getColumn('SELECT `version`
                                             FROM   `core_versions`
                                             WHERE  `vendor`  = :vendor
-                                              AND  `library` = :library
-                                              AND  `version` = :version', [
+                                            AND    `library` = :library
+                                            AND    `version` = :version', [
                 ':vendor'  => $this->vendor,
                 ':library' => $this->library,
                 ':version' => $version,
@@ -551,7 +557,7 @@ abstract class Updates implements UpdatesInterface
         return (bool) sql()->getColumn('SELECT `version`
                                         FROM   `core_versions`
                                         WHERE  `library` = :library
-                                          AND  `version` = :version', [
+                                        AND    `version` = :version', [
             ':library' => $this->library,
             ':version' => $version,
         ]);
