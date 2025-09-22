@@ -1870,7 +1870,7 @@ class DefinitionFactory
                          ->setVirtual(true)
                          ->setElement(EnumElement::input)
                          ->setInputType(EnumInputType::submit)
-                         ->setLabel(tr(' '))
+                         ->setLabel(' ')
                          ->setSize(1);
     }
 
