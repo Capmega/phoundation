@@ -122,7 +122,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function setTest(bool $test): static
     {
         $this->test = $test;
-
         return $this;
     }
 
@@ -136,8 +135,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @return static
      */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static {
-        Request::checkPostRequestMethod('set ARGV value');
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
+    {
         static::$argv[$key] = $value;
         return $this;
     }
