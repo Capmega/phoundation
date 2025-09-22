@@ -160,7 +160,7 @@ class Memcached implements MemcachedInterface
 
             Incident::new()
                     ->setException(isset_get($e))
-                    ->setUrl(Url::new('security/incidents.html')->makeWww())
+                    ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                     ->setNotifyRoles('developer')
                     ->setTitle(tr('Memcached server not available'))
                     ->setBody(tr('Failed to connect to all ":count" memcached servers', [

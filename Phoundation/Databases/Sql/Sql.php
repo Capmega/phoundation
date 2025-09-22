@@ -677,7 +677,7 @@ class Sql implements SqlInterface
 //        global $argv;
 //
 //        Notification::new()
-//            ->setUrl(Url::new('security/incidents.html')->makeWww())
+//            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
 //            ->setMode(EnumDisplayMode::exception)
 //            ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
 //                SQL STATE ERROR : "' . $error[0] . '"
