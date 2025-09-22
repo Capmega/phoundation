@@ -40,7 +40,7 @@ class InputNumeric extends InputText
      */
     public function getMax(): float|int|null
     {
-        return $this->o_attributes->get('max', false);
+        return $this->o_attributes->get('max');
     }
 
 
@@ -64,7 +64,7 @@ class InputNumeric extends InputText
      */
     public function getMin(): float|int|null
     {
-        return $this->o_attributes->get('min', false);
+        return $this->o_attributes->get('min');
     }
 
 
@@ -88,7 +88,7 @@ class InputNumeric extends InputText
      */
     public function getStep(): float|int|null
     {
-        return $this->o_attributes->get('step', false);
+        return $this->o_attributes->get('step');
     }
 
 

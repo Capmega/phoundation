@@ -370,7 +370,7 @@ class Response implements ResponseInterface
      */
     public static function getClass(string $section, ?string $default = null): ?string
     {
-        return array_get(static::$page_classes, $section, $default);
+        return array_get_safe(static::$page_classes, $section, $default);
     }
 
 
@@ -523,7 +523,7 @@ class Response implements ResponseInterface
      */
     public static function getCharset(): ?string
     {
-        return array_get(static::$page_headers, 'meta-character_set');
+        return array_get_safe(static::$page_headers, 'meta-character_set');
     }
 
 
@@ -547,7 +547,7 @@ class Response implements ResponseInterface
      */
     public static function getViewport(): ?string
     {
-        return array_get(static::$page_headers, 'meta-viewport');
+        return array_get_safe(static::$page_headers, 'meta-viewport');
     }
 
 
@@ -1959,7 +1959,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get(static::$page_headers, 'meta/character_set', Response::getEncoding()));
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get_safe(static::$page_headers, 'meta/character_set', Response::getEncoding()));
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 
@@ -1972,14 +1972,14 @@ class Response implements ResponseInterface
             }
         }
 
-        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // Add noindex, nofollow and nosnipped headers for non-production environments and non-normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->get('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->getBoolean('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
         // CORS headers
-        if (config()->get('security.web.cors', true) or static::$cors) {
+        if (config()->getBoolean('security.web.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
             static::$cors = array_merge(Arrays::force(config()->get('web.cors', [])), static::$cors);
@@ -1991,7 +1991,8 @@ class Response implements ResponseInterface
                             // Origin is allowed from all subdomains
                             $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                             $length = strlen(isset_get($_SESSION['domain']));
-                            if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
+
+                            if (substr($origin, -$length, $length) === array_get_safe($_SESSION, 'domain')) {
                                 // Sub domain matches. Since CORS does not support sub domains, just show the
                                 // current sub domain.
                                 $value = $_SERVER['HTTP_ORIGIN'];
@@ -2002,7 +2003,9 @@ class Response implements ResponseInterface
                                 $value = '';
                             }
                         }
-                    // no break
+
+                        // no break
+
                     case 'methods':
                         // no break
                     case 'headers':

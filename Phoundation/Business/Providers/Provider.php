@@ -147,7 +147,7 @@ class Provider extends DataEntry implements ProviderInterface
                       ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->isFalse(function ($value, $source) {
-                                                   Provider::exists(['name' => $value], array_get($source, 'id'));
+                                                   Provider::exists(['name' => $value], array_get_safe($source, 'id'));
                                                }, tr('already exists'));
                                            }))
                     ->add(DefinitionFactory::newSeoName())

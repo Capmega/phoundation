@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -55,6 +56,14 @@ $o_user->getDefinitionsObject()->setRenderMeta(!$o_user->isNew())
                                ->setDefinitionRender('is_leader'       , false)
                                ->setDefinitionRender('priority'        , false)
                                ->setDefinitionRender('data'            , false);
+
+
+// Users cannot modify themselves unless they're god level users
+if (Session::getUserObject()->getId() === $get['id']) {
+    if (!$o_user->hasAllRights('god')) {
+        $o_user->setReadonly(true);
+    }
+}
 
 
 if ($o_user->isNotNew()) {

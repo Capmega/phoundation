@@ -182,7 +182,7 @@ class Cli
 
                         // Display all row cells
                         foreach ($headers as $column => $label) {
-                            $value = array_get($row, $column);
+                            $value = array_get_safe($row, $column);
 
                             if ($column === 'status') {
                                 $value = DataEntry::getHumanReadableStatus($value);

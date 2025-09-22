@@ -85,11 +85,11 @@ class FunctionCall implements FunctionCallInterface
 
         $trace = static::$backtrace[$offset];
 
-        $this->file      = array_get($trace, 'file');
-        $this->line      = array_get($trace, 'line', -1);
-        $this->function  = array_get($trace, 'function');
-        $this->class     = array_get($trace, 'class');
-        $this->arguments = new Iterator(array_get($trace, 'args'));
+        $this->file      = array_get_safe($trace, 'file');
+        $this->line      = array_get_safe($trace, 'line', -1);
+        $this->function  = array_get_safe($trace, 'function');
+        $this->class     = array_get_safe($trace, 'class');
+        $this->arguments = new Iterator(array_get_safe($trace, 'args'));
     }
 
 

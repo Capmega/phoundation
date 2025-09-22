@@ -97,7 +97,7 @@ class DefinitionFactory
                                                      ->setName($key)
                                                      ->setReadonly($o_definition->getReadonly())
                                                      ->setDisabled($o_definition->getDisabled())
-                                                     ->setSelected(array_get($source, $key));
+                                                     ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(6)
                                 ->setLabel(tr('Category'))
@@ -169,7 +169,7 @@ class DefinitionFactory
                                                   ->setName($key)
                                                   ->setReadonly($o_definition->getReadonly())
                                                   ->setDisabled($o_definition->getDisabled())
-                                                  ->setSelected(array_get($source, $key));
+                                                  ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(6)
                                 ->setLabel(tr('Server'))
@@ -275,7 +275,7 @@ class DefinitionFactory
                                                     ->setName($key)
                                                     ->setReadonly($o_definition->getReadonly())
                                                     ->setDisabled($o_definition->getDisabled())
-                                                    ->setSelected(array_get($source, $key));
+                                                    ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(6)
                                 ->setLabel(tr('Company'))
@@ -348,7 +348,7 @@ class DefinitionFactory
                                                     ->setName($key)
                                                     ->setReadonly($o_definition->getReadonly())
                                                     ->setDisabled($o_definition->getDisabled())
-                                                    ->setSelected(array_get($source, $key));
+                                                    ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(3)
                                 ->setCliColumn('--languages-id')
@@ -465,7 +465,7 @@ class DefinitionFactory
                                                     ->setName($key)
                                                     ->setReadonly($o_definition->getReadonly())
                                                     ->setDisabled($o_definition->getDisabled())
-                                                    ->setSelected(array_get($source, $key));
+                                                    ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(6)
                                 ->setLabel(tr('Provider'))
@@ -537,7 +537,7 @@ class DefinitionFactory
                                                     ->setName($key)
                                                     ->setReadonly($o_definition->getReadonly())
                                                     ->setDisabled($o_definition->getDisabled())
-                                                    ->setSelected(array_get($source, $key));
+                                                    ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(6)
                                 ->setLabel(tr('Customer'))
@@ -608,7 +608,7 @@ class DefinitionFactory
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
                                                            ->setDisabled($o_definition->getDisabled())
-                                                           ->setSelected(array_get($source, $key));
+                                                           ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setCliColumn('--timezones-id TIMEZONE-DATABASE-ID')
                                 ->setCliAutoComplete(true)
@@ -722,7 +722,7 @@ class DefinitionFactory
                                                            ->setName($key)
                                                            ->setReadonly($o_definition->getReadonly())
                                                            ->setDisabled($o_definition->getDisabled())
-                                                           ->setSelected(array_get($source, $key));
+                                                           ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(3)
                                 ->setCliColumn('--countries-id COUNTRY-DATABASE-ID')
@@ -836,7 +836,7 @@ class DefinitionFactory
                                                   ->setName($key)
                                                   ->setReadonly($o_definition->getReadonly())
                                                   ->setDisabled($o_definition->getDisabled())
-                                                  ->setSelected(array_get($source, $key));
+                                                  ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(3)
                                 ->setCliColumn('--states-id STATE-DATABASE-ID')
@@ -956,7 +956,7 @@ class DefinitionFactory
                                                 ->setName($key)
                                                 ->setReadonly($o_definition->getReadonly())
                                                 ->setDisabled($o_definition->getDisabled())
-                                                ->setSelected(array_get($source, $key));
+                                                ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->setSize(3)
                                 ->setCliColumn('--cities-id CITY-DATABASE-ID')
@@ -1078,7 +1078,7 @@ class DefinitionFactory
                                                 ->setName($column)
                                                 ->setReadonly($o_definition->getReadonly())
                                                 ->setDisabled($o_definition->getDisabled())
-                                                ->setSelected(array_get($source, $key));
+                                                ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) use ($column) {
                                     $o_validator->isDbId()
@@ -1183,7 +1183,7 @@ class DefinitionFactory
                                                 ->setName($column)
                                                 ->setReadonly($o_definition->getReadonly())
                                                 ->setDisabled($o_definition->getDisabled())
-                                                ->setSelected(array_get($source, $key));
+                                                ->setSelected(array_get_safe($source, $key));
                                 })
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) use ($column) {
                                     $o_validator->isDbId()

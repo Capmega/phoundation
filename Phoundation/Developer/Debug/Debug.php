@@ -189,7 +189,7 @@ class Debug
             }
 
             if ($short_files) {
-                $value['file'] = Strings::from(Strings::from(array_get($value, 'file'), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
+                $value['file'] = Strings::from(Strings::from(array_get_safe($value, 'file'), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
             }
 
             foreach ($remove_keys as $section) {
@@ -490,7 +490,7 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return array_get(array_get($backtrace, $trace + 1), 'line', $default);
+        return array_get_safe(array_get_safe($backtrace, $trace + 1), 'line', $default);
     }
 
 
@@ -884,25 +884,25 @@ class Debug
             $line = [];
 
             if (isset($step['class'])) {
-                if (array_get($step, 'class') === 'Closure') {
+                if (array_get_safe($step, 'class') === 'Closure') {
                     // Log the closure call
                     $line['call'] = '{closure}';
 
                 } else {
                     // Log the class method call
-                    $line['call'] = array_get($step, 'class') . array_get($step, 'type') . array_get($step, 'function') . '()';
+                    $line['call'] = array_get_safe($step, 'class') . array_get_safe($step, 'type') . array_get_safe($step, 'function') . '()';
                 }
 
             } elseif (isset($step['function'])) {
                 // Log the function call
-                $line['call'] = array_get($step, 'function') . '()';
+                $line['call'] = array_get_safe($step, 'function') . '()';
             }
 
             // Log the file@line information
             if (isset($step['file'])) {
                 // Remove DIRECTORY_ROOT from the filenames for clarity
                 if (array_key_exists('line', $step)) {
-                    $line['location'] = Strings::from(array_get($step, 'file'), DIRECTORY_ROOT) . '@' . array_get($step, 'line');
+                    $line['location'] = Strings::from(array_get_safe($step, 'file'), DIRECTORY_ROOT) . '@' . array_get_safe($step, 'line');
 
                 } else {
                     $line['location'] = 'UNKNOWN';
@@ -971,9 +971,7 @@ class Debug
      */
     public static function currentClass(int $trace = 0, ?string $default = '-'): ?string
     {
-        $backtrace = debug_backtrace();
-
-        return array_get(array_get($backtrace, $trace + 1), 'class', $default);
+        return array_get_safe(array_get_safe(debug_backtrace(), $trace + 1), 'class', $default);
     }
 
 
@@ -986,9 +984,7 @@ class Debug
      */
     public static function currentArguments(int $trace = 0): IteratorInterface
     {
-        $backtrace = debug_backtrace();
-
-        return new Iterator(array_get(array_get($backtrace, $trace + 1), 'args'));
+        return new Iterator(array_get_safe(array_get_safe(debug_backtrace(), $trace + 1), 'args'));
     }
 
 
@@ -1002,9 +998,7 @@ class Debug
      */
     public static function currentFunction(int $trace = 0, ?string $default = '-'): ?string
     {
-        $backtrace = debug_backtrace();
-
-        return array_get(array_get($backtrace, $trace + 1), 'function', $default);
+        return array_get_safe(array_get_safe(debug_backtrace(), $trace + 1), 'function', $default);
     }
 
 
@@ -1033,13 +1027,15 @@ class Debug
     public static function dieIn(int $count, ?string $message = null): void
     {
         static $counter = 1;
+
         if (!$message) {
             $message = tr('Terminated process because die counter reached "%count%"');
         }
+
         if ($counter++ >= $count) {
             // Ensure that the shutdown function doesn't try to show the 404 page
             Core::removeShutdownCallback('route[postprocess]');
-            exit(Strings::ensureEndsWith(str_replace('%count%', $count, $message), PHP_EOL));
+            exit(Strings::ensureEndsWith(str_replace('%count%', (string) $count, $message), PHP_EOL));
         }
     }
 
@@ -1056,8 +1052,8 @@ class Debug
         if (static::$counter === null) {
             static::$counter = new DebugCounter();
         }
-        static::$counter->select($counter);
 
+        static::$counter->select($counter);
         return static::$counter;
     }
 
@@ -1074,8 +1070,8 @@ class Debug
     {
         if ($a['time'] > $b['time']) {
             return -1;
-
         }
+
         if ($a['time'] < $b['time']) {
             return 1;
         }
@@ -1115,8 +1111,10 @@ class Debug
                         ':class' => get_class($query),
                     ]));
                 }
+
                 $query = $query->queryString;
             }
+
             foreach ($execute as $key => $value) {
                 if (is_string($value)) {
                     $value = addslashes($value);
@@ -1135,17 +1133,21 @@ class Debug
                             ':value' => $value,
                         ]));
                     }
+
                     $query = str_replace($key, $value, $query);
                 }
             }
         }
+
         if ($return_only) {
             return $query;
         }
+
         if (empty(Core::readRegister('debug', 'clean'))) {
             $query = str_replace(PHP_EOL, ' ', $query);
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
+
         // Debug::enabled() already logs the query, don't log it again
         if (!Debug::isEnabled()) {
             Log::printr(Strings::ensureEndsWith($query, ';'));
@@ -1173,15 +1175,19 @@ class Debug
         if (!Debug::isEnabled()) {
             return [];
         }
+
         $filters = Arrays::force($filters);
         $trace   = [];
+
         foreach (debug_backtrace() as $key => $value) {
             if ($skip_own and ($key <= 1)) {
                 continue;
             }
+
             foreach ($filters as $filter) {
                 unset($value[$filter]);
             }
+
             $trace[] = $value;
         }
 
@@ -1199,28 +1205,31 @@ class Debug
         if (!Debug::isEnabled()) {
             return '';
         }
-        $enabled = config()->get('debug.bar.enabled', false);
+
+        $enabled = config()->getBoolean('debug.bar.enabled', false);
+
         if ($enabled === false) {
             return null;
         }
+
         if ($enabled === 'limited') {
-            if (
-                empty($_SESSION['user']['id']) or !Session::getUserObject()
-                                                          ->hasAllRights("debug")
-            ) {
+            if (empty($_SESSION['user']['id']) or !Session::getUserObject()->hasAllRights("debug")) {
                 /*
                  * Only show debug bar to authenticated users with "debug" right
                  */
                 return null;
             }
+
         } elseif ($enabled !== true) {
             throw new CoreException(tr('Unknown configuration option ":option" specified. Please specify true, false, or "limited"', [
-                ':option' => config()->get('debug.bar', false),
+                ':option' => config()->getBoolean('debug.bar', false),
             ]));
         }
+
         // Add debug bar javascript directly to the footer, as this debug bar is added AFTER html_generate_js() and so
         // won't be processed anymore
         Html::prependToFooter(html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });'));
+
         // Setup required variables
         usort($core->register['debug_queries'], 'debug_bar_sort');
         $usage = getrusage();
@@ -1244,6 +1253,7 @@ class Debug
                             </tr>
                         </thead>
                         <tbody>';
+
         // Add query statistical data ordered by slowest queries first
         foreach ($core->register['debug_queries'] as $query) {
             $html .= '      <tr>
@@ -1252,8 +1262,10 @@ class Debug
                             <td>' . $query['query'] . '</td>
                         </tr>';
         }
+
         $html .= '          </tbody>
                     </table>';
+
         // Show some basic statistics
         $html .= '      <table style="width:100%">
                         <thead>
@@ -1280,6 +1292,7 @@ class Debug
                             </tr>
                         </tbody>
                     </table>';
+
         // Show all included files
         $html .= '      <table style="width:100%">
                         <thead>

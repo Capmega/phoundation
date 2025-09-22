@@ -28,6 +28,7 @@ use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataTable;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Traits\TraitObjectButtons;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -325,13 +326,14 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * Returns the specified column
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return DefinitionInterface|null
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): ?DefinitionInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?DefinitionInterface
     {
-        return parent::get($key, $exception);
+        return parent::get($key, $default, $exception);
     }
 
 
@@ -345,7 +347,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function hideDefinition(Stringable|string|float|int $key, bool $exception = true): static
     {
-        $this->get($key, $exception)
+        $this->get($key, exception: $exception)
              ->setHidden(true);
 
         return $this;
@@ -362,7 +364,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function showDefinition(Stringable|string|float|int $key, bool $exception = true): static
     {
-        $this->get($key, $exception)
+        $this->get($key, exception: $exception)
              ->setHidden(false);
 
         return $this;
@@ -380,7 +382,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function modifyDefinition(Stringable|string|float|int $key, array $key_values, bool $exception = true): static
     {
-        $o_definition = $this->get($key, $exception);
+        $o_definition = $this->get($key, exception: $exception);
 
         foreach ($key_values as $key => $value) {
             $o_definition->set($value, $key);
@@ -400,7 +402,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function isRendered(Stringable|string|float|int $key, bool $exception = true): bool
     {
-        return (bool) $this->get($key, $exception)?->getRender();
+        return (bool) $this->get($key, exception: $exception)?->getRender();
     }
 
 
@@ -428,7 +430,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionRender(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)->setRender($render);
+        $this->get($key, exception: $exception)->setRender($render);
         return $this;
     }
 
@@ -444,7 +446,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionDisplay(Stringable|string|float|int $key, bool $render, bool $exception = true): static
     {
-        $this->get($key, $exception)->setDisplay($render);
+        $this->get($key, exception: $exception)->setDisplay($render);
         return $this;
     }
 
@@ -460,7 +462,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionSize(Stringable|string|float|int $key, int $size, bool $exception = true): static
     {
-        $this->get($key, $exception)->setSize($size);
+        $this->get($key, exception: $exception)->setSize($size);
         return $this;
     }
 
@@ -476,7 +478,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionLabel(Stringable|string|float|int $key, ?string $value, bool $exception = true): static
     {
-        $this->get($key, $exception)->setLabel($value);
+        $this->get($key, exception: $exception)->setLabel($value);
         return $this;
     }
 
@@ -492,7 +494,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionReadonly(Stringable|string|float|int $key, bool $readonly, bool $exception = true): static
     {
-        $this->get($key, $exception)->setReadonly($readonly);
+        $this->get($key, exception: $exception)->setReadonly($readonly);
         return $this;
     }
 
@@ -508,7 +510,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function setDefinitionDisabled(Stringable|string|float|int $key, bool $disabled, bool $exception = true): static
     {
-        $this->get($key, $exception)->setDisabled($disabled);
+        $this->get($key, exception: $exception)->setDisabled($disabled);
         return $this;
     }
 
@@ -524,7 +526,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
         $columns = $this->getDataEntryObject()?->getMetaColumns();
 
         foreach ($columns as $column) {
-            $render = ($render or $this->get($column, false)?->getRender());
+            $render = ($render or $this->get($column)?->getRender());
         }
 
         return $this->render_meta and $render;

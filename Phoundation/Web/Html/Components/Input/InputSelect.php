@@ -214,7 +214,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getMultiple(): bool
     {
-        return (bool) $this->o_attributes->get('multiple', false);
+        return (bool) $this->o_attributes->get('multiple');
     }
 
 
@@ -262,7 +262,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getSearch(): bool
     {
-        return (bool) $this->o_attributes->get('search', false);
+        return (bool) $this->o_attributes->get('search');
     }
 
 
@@ -286,7 +286,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getClearButton(): bool
     {
-        return (bool) $this->o_attributes->get('clear_button', false);
+        return (bool) $this->o_attributes->get('clear_button', exception: false);
     }
 
 
@@ -310,7 +310,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getCustomContent(): ?string
     {
-        return $this->o_attributes->get('custom_content', false);
+        return $this->o_attributes->get('custom_content');
     }
 
 
@@ -334,7 +334,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete', false));
+        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
     }
 
 

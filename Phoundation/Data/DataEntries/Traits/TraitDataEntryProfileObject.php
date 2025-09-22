@@ -20,7 +20,7 @@ use Plugins\Phoundation\Hardware\Devices\Interfaces\ProfileInterface;
 use Plugins\Phoundation\Hardware\Devices\Profile;
 
 
-trait TraitDataEntryProfile
+trait TraitDataEntryProfileObject
 {
     /**
      * Setup virtual configuration for Profiles

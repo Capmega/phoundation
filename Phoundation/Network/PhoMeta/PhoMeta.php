@@ -120,7 +120,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
             $source['data'] = Json::ensureDecoded($source['data']);
 
         } catch (Throwable $e) {
-            if (array_get($source, 'data') === null) {
+            if (array_get_safe($source, 'data') === null) {
              // Encountered empty string
 
             } else {
@@ -299,7 +299,7 @@ class PhoMeta extends DataEntry implements PhoMetaInterface
     public function getTest(): ?PhoMetaTestInterface
     {
         $data = $this->getData(true);
-        $test = array_get($data,'test');
+        $test = array_get_safe($data,'test');
 
         if ($test) {
             if (is_string($test)) {

@@ -926,12 +926,8 @@ class Core implements CoreInterface
         if (!$exit_code) {
             $level = random_int(0, 100);
 
-            if (config()->get('system.shutdown', false)) {
-                if (!is_array(config()->get('system.shutdown', false))) {
-                    throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
-                }
-
-                foreach (config()->get('system.shutdown', false) as $name => $parameters) {
+            if (config()->getArrayBoolean('system.shutdown', false)) {
+                foreach (config()->getArrayBoolean('system.shutdown') as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
                         Log::notice(ts('Executing periodical shutdown function ":function()"', [
                             ':function' => $name,
@@ -2967,7 +2963,7 @@ class Core implements CoreInterface
                 if ($e->getDataKey('failures')) {
                     foreach ($e->getDataKey('failures') as $failure) {
                         if (is_array($failure)) {
-                            Log::printr(array_get($failure, 'message', $failure), 10, echo_header: false);
+                            Log::printr(array_get_safe($failure, 'message', $failure), 10, echo_header: false);
 
                         } else {
                             Log::printr($failure, 10, echo_header: false);

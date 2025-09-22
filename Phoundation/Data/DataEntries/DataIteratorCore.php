@@ -626,11 +626,12 @@ throw new ObsoleteException();
      * Returns the entry with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {

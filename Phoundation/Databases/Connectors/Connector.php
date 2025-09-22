@@ -883,11 +883,11 @@ class Connector extends DataEntry implements ConnectorInterface
                 }
 
                 // Ensure that all configured attributes are uppercase
-                $configuration['attributes'] = Arrays::convertKeysToUppercase(array_get($configuration, 'attributes', []));
+                $configuration['attributes'] = Arrays::convertKeysToUppercase(array_get_safe($configuration, 'attributes', []));
 
                 // Apply MySQL specific requirements that always apply
                 $configuration['attributes']['PDO::MYSQL_ATTR_USE_BUFFERED_QUERY'] = (bool) $this->getBuffered();
-                $configuration['attributes']['PDO::ATTR_PERSISTENT']               = (array_get($configuration['attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
+                $configuration['attributes']['PDO::ATTR_PERSISTENT']               = (array_get_safe($configuration['attributes'], 'PDO::ATTR_PERSISTENT', false) or $configuration['persistent']);
                 $configuration['attributes']['PDO::MYSQL_ATTR_INIT_COMMAND']       = $command;
                 $configuration['attributes']['PDO::ATTR_ERRMODE']                  = PDO::ERRMODE_EXCEPTION;
                 $configuration['attributes']['PDO::ATTR_CASE']                     = PDO::CASE_LOWER;

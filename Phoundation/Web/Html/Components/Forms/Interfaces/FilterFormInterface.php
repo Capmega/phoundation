@@ -4,23 +4,25 @@ namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
+use ReturnTypeWillChange;
 use Stringable;
 
 
 interface FilterFormInterface extends DataEntryFormInterface
 {
     /**
-     * Returns value for the specified key
+     * Returns only the specified key from the source of this DataEntry
      *
-     * @note This is the standard Iterator::getSourceKey, but here $exception is by default false
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): mixed;
-
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Returns the date range mounting id

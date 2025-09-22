@@ -112,7 +112,7 @@ class InputTextArea extends InputText
      */
     public function getMinLength(): ?int
     {
-        return $this->o_attributes->get('minlength', false);
+        return $this->o_attributes->get('minlength');
     }
 
 
@@ -136,7 +136,7 @@ class InputTextArea extends InputText
      */
     public function getMaxLength(): ?int
     {
-        return $this->o_attributes->get('maxlength', false);
+        return $this->o_attributes->get('maxlength');
     }
 
 
@@ -160,7 +160,7 @@ class InputTextArea extends InputText
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete', false));
+        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
     }
 
 

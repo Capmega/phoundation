@@ -151,7 +151,7 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function getTarget(): ?EnumAnchorTarget
     {
-        return $this->o_attributes->get('target', false);
+        return $this->o_attributes->get('target', exception: false);
     }
 
 

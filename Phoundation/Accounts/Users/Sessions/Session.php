@@ -266,7 +266,7 @@ class Session implements SessionInterface
      */
     public static function getOriginalIpAddress(): ?string
     {
-        return array_get($_SESSION, 'first_ip');
+        return array_get_safe($_SESSION, 'first_ip');
     }
 
 
@@ -380,12 +380,13 @@ class Session implements SessionInterface
 
                         Response::redirect(PROTOCOL . Request::getDomain());
                     }
+
                     break;
 
                 default:
-                    if (is_array(config()->get('web.domains.whitelabels', false))) {
+                    if (config()->getArrayBoolean('web.domains.whitelabels', false)) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(static::$domain, config()->getArrayBoolean('web.domains.whitelabels', false), true)) {
+                        if (!in_array(static::$domain, config()->getArray('web.domains.whitelabels'), true)) {
                             Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -397,7 +398,7 @@ class Session implements SessionInterface
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if (static::$domain !== config()->get('web.domains.whitelabels', false)) {
+                        if (static::$domain !== config()->getArrayBoolean('web.domains.whitelabels', false)) {
                             Log::warning(ts('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -454,11 +455,11 @@ class Session implements SessionInterface
     public static function get(string|float|int $key, string|float|int|null $sub_key = null): mixed
     {
         if ($sub_key) {
-            $section = array_get($_SESSION, $key);
+            $section = array_get_safe($_SESSION, $key);
 
             if (is_array($section)) {
                 // Key exists and is an array, yay!
-                return array_get($section, $sub_key);
+                return array_get_safe($section, $sub_key);
             }
 
             if ($section === null) {
@@ -473,7 +474,7 @@ class Session implements SessionInterface
             ]));
         }
 
-        return array_get($_SESSION, $key);
+        return array_get_safe($_SESSION, $key);
     }
 
 
@@ -831,7 +832,7 @@ class Session implements SessionInterface
     {
         $_SESSION['ip'] = Session::getIpAddress();
 
-        if ($_SESSION['ip'] !== array_get($_SESSION, 'first_ip')) {
+        if ($_SESSION['ip'] !== array_get_safe($_SESSION, 'first_ip')) {
             // IP mismatch? What to do here? configurable actions!
             // TODO Implement
         }
@@ -845,7 +846,7 @@ class Session implements SessionInterface
      */
     protected static function processSessionDomains(): void
     {
-        if (array_get($_SESSION, 'domain') !== static::$domain) {
+        if (array_get_safe($_SESSION, 'domain') !== static::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
             // TODO Implement
         }
@@ -871,9 +872,9 @@ class Session implements SessionInterface
                     throw new SessionException(tr('Failed cloaked URL strict checking, no cloaked URL users_id registered'));
                 }
 
-                if ($core->register['url_cloak_users_id'] !== array_get(array_get($_SESSION, 'user', []), 'id')) {
+                if ($core->register['url_cloak_users_id'] !== array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
                     throw new AccessDeniedException(tr('Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', [
-                        ':session_users_id' => array_get(array_get($_SESSION, 'user', []), 'id'),
+                        ':session_users_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
                         ':cloak_users_id'   => $core->register['url_cloak_users_id'],
                     ]));
                 }
@@ -995,7 +996,7 @@ class Session implements SessionInterface
      */
     public static function getAutoSignOutSubmitSelector(): ?string
     {
-        return array_get($_SESSION, 'auto_sign_out_submit_selector');
+        return array_get_safe($_SESSION, 'auto_sign_out_submit_selector');
     }
 
 
@@ -1187,7 +1188,7 @@ class Session implements SessionInterface
             ':session'  => session_id(),
             ':ip'       => Session::getIpAddress(),
             ':user'     => static::getUserObject()->getLogId(),
-            ':referrer' => array_get($_SERVER, 'HTTP_REFERER'),
+            ':referrer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
         ]));
 
         // Initialize the session
@@ -1276,7 +1277,7 @@ class Session implements SessionInterface
             // Return impersonated user
             if (empty(static::$impersonated_user)) {
                 // Load impersonated user into cache variable
-                static::$impersonated_user = static::loadUser(array_get(array_get($_SESSION, 'user', []), 'impersonate_id'));
+                static::$impersonated_user = static::loadUser(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'));
             }
 
             $return = static::$impersonated_user;
@@ -1325,7 +1326,7 @@ class Session implements SessionInterface
 
         } catch (DataEntryNotExistsException) {
             Log::warning(ts('The session user ":id" does not exist, removing session entry and dropping to guest user', [
-                ':id' => array_get(array_get($_SESSION, 'user', []), 'id'),
+                ':id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
             ]));
 
         } catch (DataEntryStatusException $e) {
@@ -1334,7 +1335,7 @@ class Session implements SessionInterface
         } catch (Throwable $e) {
             Log::warning(ts('Failed to fetch user ":user" for session with ":e", removing session entry and dropping to guest user', [
                 ':e'    => $e->getMessage(),
-                ':user' => array_get(array_get($_SESSION, 'user', []), 'id'),
+                ':user' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
             ]));
         }
 
@@ -1541,19 +1542,19 @@ class Session implements SessionInterface
     {
         global $_SESSION;
 
-        $users_id = array_get(array_get($_SESSION, 'user', []), 'id');
+        $users_id = array_get_safe(array_get_safe($_SESSION, 'user', []), 'id');
 
         if (isset($_SESSION['init'])) {
             // Conserve init data and flash messages
-            $messages = array_get($_SESSION, 'flash_messages');
-            $display  = array_get($_SESSION, 'display');
+            $messages = array_get_safe($_SESSION, 'flash_messages');
+            $display  = array_get_safe($_SESSION, 'display');
 
             $_SESSION = [
-                'domain'          => array_get($_SESSION, 'domain'),
-                'init'            => array_get($_SESSION, 'init'),
-                'first_ip'        => array_get($_SESSION, 'first_ip'),
-                'first_domain'    => array_get($_SESSION, 'first_domain'),
-                'previous_page'   => array_get($_SESSION, 'previous_page'),
+                'domain'          => array_get_safe($_SESSION, 'domain'),
+                'init'            => array_get_safe($_SESSION, 'init'),
+                'first_ip'        => array_get_safe($_SESSION, 'first_ip'),
+                'first_domain'    => array_get_safe($_SESSION, 'first_domain'),
+                'previous_page'   => array_get_safe($_SESSION, 'previous_page'),
             ];
 
             if ($messages) {
@@ -1627,7 +1628,7 @@ class Session implements SessionInterface
         // Return the real user
         if (empty(static::$user)) {
             // User object doesn't yet exist
-            if (array_get(array_get($_SESSION, 'user', []), 'id')) {
+            if (array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
                 static::$user = static::loadUser($_SESSION['user']['id']);
 
             } else {
@@ -1831,7 +1832,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-double')
                           ->save();
 
@@ -1856,7 +1857,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('impersonation-not-allowed')
                           ->save();
 
@@ -1880,7 +1881,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-self')
                           ->save();
 
@@ -1904,7 +1905,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-god')
                           ->save();
 
@@ -1933,7 +1934,7 @@ class Session implements SessionInterface
         Authentication::new()
                       ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                       ->setAction(EnumAuthenticationAction::startimpersonation)
-                      ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                      ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                       ->save();
 
         // Register an incident
@@ -1956,7 +1957,7 @@ class Session implements SessionInterface
         Notification::new()
                     ->setUrl(Url::new('profiles/profile+' . $original_user->getId() . '.html')->makeWww())
                     ->setMode(EnumDisplayMode::warning)
-                    ->setUsersId(array_get(array_get($_SESSION, 'user', []), 'impersonate_id'))
+                    ->setUsersId(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'))
                     ->setTitle(tr('Your account was impersonated'))
                     ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
                         ':user' => $original_user->getLogId(),
@@ -2109,9 +2110,9 @@ class Session implements SessionInterface
                 // This session was impersonation a user. Don't sign out, stop impersonating
                 try {
                     // We're impersonating a user, return to the original user.
-                    $url            = array_get($_SESSION['user'], 'impersonate_url');
-                    $users_id       = array_get($_SESSION['user'], 'id');
-                    $impersonate_id = array_get($_SESSION['user'], 'impersonate_id');
+                    $url            = array_get_safe($_SESSION['user'], 'impersonate_url');
+                    $users_id       = array_get_safe($_SESSION['user'], 'id');
+                    $impersonate_id = array_get_safe($_SESSION['user'], 'impersonate_id');
 
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
@@ -2158,7 +2159,7 @@ class Session implements SessionInterface
                     Authentication::new()
                                   ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
-                                  ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                                  ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                                   ->setStatus('failed')
                                   ->save();
 
@@ -2166,12 +2167,12 @@ class Session implements SessionInterface
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
                             ->setTitle(tr('User impersonation failure', [
-                                ':id'             => array_get(array_get($_SESSION, 'user', []), 'id'),
-                                ':impersonate_id' => array_get(array_get($_SESSION, 'user', []), 'impersonate_id'),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
                             ]))
                             ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
-                                ':id'             => array_get(array_get($_SESSION, 'user', []), 'id'),
-                                ':impersonate_id' => array_get(array_get($_SESSION, 'user', []), 'impersonate_id'),
+                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
+                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
                             ]))
                             ->save();
                 }
@@ -2180,7 +2181,7 @@ class Session implements SessionInterface
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->save();
 
             Incident::new()
@@ -2200,7 +2201,7 @@ class Session implements SessionInterface
 
             Authentication::new()
                           ->setAction(EnumAuthenticationAction::signout)
-                          ->setCreatedBy(array_get(array_get($_SESSION, 'user', []), 'id'))
+                          ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('failed')
                           ->save();
 
@@ -2346,7 +2347,7 @@ class Session implements SessionInterface
      */
     public static function getPagesLoadedForThisSession(): int
     {
-        return array_get($_SESSION, 'pages_loaded_this_session', 0);
+        return array_get_safe($_SESSION, 'pages_loaded_this_session', 0);
     }
 
 
@@ -2357,7 +2358,7 @@ class Session implements SessionInterface
      */
     public static function isFirstPage(): bool
     {
-        return array_get($_SESSION, 'pages_loaded_this_session', 0) === 1;
+        return array_get_safe($_SESSION, 'pages_loaded_this_session', 0) === 1;
     }
 
 
@@ -2368,7 +2369,7 @@ class Session implements SessionInterface
      */
     public static function getLastActivityTimestamp(): ?float
     {
-        return array_get($_SESSION, 'last_activity');
+        return array_get_safe($_SESSION, 'last_activity');
     }
 
 
@@ -2440,7 +2441,7 @@ class Session implements SessionInterface
                                              ->select('__auto_sign_out_submit_code')->isOptional()->isCode()
                                              ->validate(false);
 
-                        if (array_get($post, '__auto_sign_out_submit_code')) {
+                        if (array_get_safe($post, '__auto_sign_out_submit_code')) {
                             static::autoSubmit($auto_sign_out, $post);
                             return;
                         }
@@ -2470,22 +2471,22 @@ class Session implements SessionInterface
     protected static function autoSubmit(?int $auto_sign_out, array $post): void
     {
         // This is an attempt at post-and-sign-out!
-        if ($post['__auto_sign_out_submit_code'] !== array_get($_SESSION, 'auto_sign_out_submit_code')) {
+        if ($post['__auto_sign_out_submit_code'] !== array_get_safe($_SESSION, 'auto_sign_out_submit_code')) {
             throw SessionPostAndSignoutException::new(ts('Cannot perform post-and-sign-out, the client specified auto_sign_out_submit_code ":code" is not authorized', [
                 ':code' => $post['__auto_sign_out_submit_code'],
             ]))->addData([
-                'session auto_sign_out_submit_code'  => array_get($_SESSION, 'auto_sign_out_submit_code'),
+                'session auto_sign_out_submit_code'  => array_get_safe($_SESSION, 'auto_sign_out_submit_code'),
                 'client __auto_sign_out_submit_code' => $post['__auto_sign_out_submit_code'],
             ]);
         }
 
-        if (array_get($_SESSION, 'auto_sign_out_submit_file') !== Request::getTargetObject()->getSource()) {
+        if (array_get_safe($_SESSION, 'auto_sign_out_submit_file') !== Request::getTargetObject()->getSource()) {
             throw SessionPostAndSignoutException::new(ts('Cannot perform post-and-sign-out on page ":page", the client specified auto_sign_out_submit_code ":code" is only authorized on page ":authorized"', [
                 ':code'       => $post['__auto_sign_out_submit_code'],
                 ':page'       => Request::getTargetObject()->getRootname(),
                 ':authorized' => $_SESSION['auto_sign_out_submit_file'],
             ]))->addData([
-                'session_auto_sign_out_submit_file' => array_get($_SESSION, 'auto_sign_out_submit_file'),
+                'session_auto_sign_out_submit_file' => array_get_safe($_SESSION, 'auto_sign_out_submit_file'),
                 'current_file'                      => Request::getTargetObject()->getSource(),
             ]);
         }
@@ -2495,7 +2496,7 @@ class Session implements SessionInterface
         ]));
 
         // If a submit button was specified, then setup PostValidator for this.
-        if (array_get($_SESSION, 'auto_sign_out_submit_button_value')) {
+        if (array_get_safe($_SESSION, 'auto_sign_out_submit_button_value')) {
             PostValidator::new()->set(Session::get('auto_sign_out_submit_button_value'), Session::get('auto_sign_out_submit_button_name'));
         }
 
@@ -2512,7 +2513,7 @@ class Session implements SessionInterface
      */
     public static function getAutoSignOutSubmitCode(): ?string
     {
-        return array_get($_SESSION, 'auto_sign_out_submit_code');
+        return array_get_safe($_SESSION, 'auto_sign_out_submit_code');
     }
 
 
@@ -2523,7 +2524,7 @@ class Session implements SessionInterface
      */
     public static function getAutoSignOutTimestamp(): ?float
     {
-        return array_get($_SESSION, 'auto_sign_out');
+        return array_get_safe($_SESSION, 'auto_sign_out');
     }
 
 
@@ -2612,8 +2613,8 @@ class Session implements SessionInterface
     {
         // Ensure the session exists!
         $session['data']          = UserSession::new($session['identifier'], false)->getSource();
-        $session['user']          = User::new()->loadNull(array_get(array_get($session['data'], 'user'), 'id'));
-        $session['last_activity'] = array_get($session['data'], 'last_activity') ?? array_get($session, 'stop') ?? array_get($session, 'start');
+        $session['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
+        $session['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'stop') ?? array_get_safe($session, 'start');
         $session['last_activity'] = PhoDateTime::new($session['last_activity']);
         $session['start']         = PhoDateTime::new($session['start']);
         $session['stop']          = PhoDateTime::new($session['stop']);
@@ -2692,7 +2693,7 @@ class Session implements SessionInterface
      */
     public static function getAutoSignedOut(): ?int
     {
-        return array_get($_SESSION, 'auto_signed_out');
+        return array_get_safe($_SESSION, 'auto_signed_out');
     }
 
 

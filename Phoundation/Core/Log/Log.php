@@ -1374,7 +1374,7 @@ class Log implements LogInterface
 
                                 foreach ($line as $column) {
                                     if (is_array($column)) {
-                                        $columns[] = array_get($column, 'message');
+                                        $columns[] = array_get_safe($column, 'message');
                                     }
                                 }
 

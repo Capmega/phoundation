@@ -145,7 +145,7 @@ class Category extends DataEntry implements CategoryInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(array_get($source, $key));
+                                                         ->setSelected(array_get_safe($source, $key));
                                     })
                                       ->setSize(6)
                                       ->setLabel(tr('Parent category'))
@@ -190,7 +190,7 @@ class Category extends DataEntry implements CategoryInterface
                     ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->isFalse(function ($value, $source) {
-                                                   Category::exists(['name' => $value], array_get($source, 'id'));
+                                                   Category::exists(['name' => $value], array_get_safe($source, 'id'));
                                                }, tr('already exists'));
                                            }))
 

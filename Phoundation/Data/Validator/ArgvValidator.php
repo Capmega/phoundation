@@ -131,12 +131,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      * Sets the specified ARGV submit data value
      *
      * @param array|string                $value
-     * @param float|Stringable|int|string $key
+     * @param Stringable|string|float|int $key
      * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, float|Stringable|int|string $key, bool $skip_null_values = true): static {
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static {
         Request::checkPostRequestMethod('set ARGV value');
         static::$argv[$key] = $value;
         return $this;

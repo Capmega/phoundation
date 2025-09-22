@@ -475,11 +475,11 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                                   ]);
             }
 
-            if (array_get($source,'previous')) {
-                $previous = static::newFromSource(array_get($source,'previous'));
+            if (array_get_safe($source,'previous')) {
+                $previous = static::newFromSource(array_get_safe($source,'previous'));
             }
 
-            $source['class'] = array_get($source, 'class', PhoException::class);
+            $source['class'] = array_get_safe($source, 'class', PhoException::class);
 
             // Import data, check for old Phoundation\Exception\Exception class!
             if ($source['class'] === 'Phoundation\Exception\Exception') {
@@ -488,13 +488,13 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
 
             if (is_a($source['class'], PhoException::class, true)) {
                 return $source['class']::new($source['message'], isset_get($previous))
-                                       ->setCode(array_get($source, 'code'))
-                                       ->setData(array_get($source, 'data'))
-                                       ->setWarning((bool) array_get($source, 'warning'))
-                                       ->addMessages(array_get($source, 'messages'));
+                                       ->setCode(array_get_safe($source, 'code'))
+                                       ->setData(array_get_safe($source, 'data'))
+                                       ->setWarning((bool) array_get_safe($source, 'warning'))
+                                       ->addMessages(array_get_safe($source, 'messages'));
             }
 
-            return new $source['class']($source['message'], array_get($source, 'code', 0), isset_get($previous));
+            return new $source['class']($source['message'], array_get_safe($source, 'code', 0), isset_get($previous));
 
         } catch (Throwable $e) {
             throw PhoException::new(tr('Failed to generate exception object from import data'), $e)
@@ -588,7 +588,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      */
     public function getDataKey(string|int $key): mixed
     {
-        return array_get($this->data, $key);
+        return array_get_safe($this->data, $key);
     }
 
 
@@ -645,7 +645,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
     public function getDataMatch(array|string $needles, int $options = Utils::MATCH_ALL | Utils::MATCH_CONTAINS | Utils::MATCH_CASE_INSENSITIVE, string|float|int|null $key = null): array
     {
         if ($key) {
-            return Arrays::keepMatchingValues(array_get($this->data, $key, []), $needles, $options);
+            return Arrays::keepMatchingValues(array_get_safe($this->data, $key, []), $needles, $options);
         }
 
         return Arrays::keepMatchingValues($this->data, $needles, $options);
@@ -973,7 +973,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                 return $trace;
             }
 
-            if (array_get($value, 'function') === 'execute_page') {
+            if (array_get_safe($value, 'function') === 'execute_page') {
                 $next = true;
             }
 
@@ -1045,7 +1045,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      */
     public function getFixes(): ?array
     {
-        return array_get($this->data, 'fixes');
+        return array_get_safe($this->data, 'fixes');
     }
 
 

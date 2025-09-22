@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Panels\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use ReturnTypeWillChange;
 use Stringable;
+
 
 interface PanelsInterface extends IteratorInterface
 {
@@ -18,5 +20,5 @@ interface PanelsInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    public function get(float|Stringable|int|string $key, bool $exception = true): ?PanelInterface;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?PanelInterface;
 }

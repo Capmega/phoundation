@@ -20,6 +20,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelInterface;
 use Phoundation\Web\Html\Components\Widgets\Panels\Interfaces\PanelsInterface;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -47,8 +48,8 @@ class Panels extends Iterator implements PanelsInterface
     /**
      * @inheritDoc
      */
-    public function get(float|Stringable|int|string $key, bool $exception = true): ?PanelInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?PanelInterface
     {
-        return parent::get($key, $exception);
+        return parent::get($key, $default< $exception);
     }
 }

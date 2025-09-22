@@ -248,7 +248,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     if ($o_definition->getPreRenderFunctions()) {
-                        $source[$column] = $this->executePreRenderFunctions($o_definition, $source, array_get($source, $column));
+                        $source[$column] = $this->executePreRenderFunctions($o_definition, $source, array_get_safe($source, $column));
                     }
 
                     if ($o_definition->isMeta()) {
@@ -299,7 +299,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                         $execute = [];
 
                         foreach ($items as $item) {
-                            $execute[':' . $item] = array_get($source, $item);
+                            $execute[':' . $item] = array_get_safe($source, $item);
                         }
                     }
 
@@ -318,11 +318,11 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     if ($o_definition->getDisplayCallback()) {
                         // Execute the specified callback on the data before displaying it
-                        $source[$column] = $o_definition->getDisplayCallback()(array_get($source, $column), $source);
+                        $source[$column] = $o_definition->getDisplayCallback()(array_get_safe($source, $column), $source);
                     }
 
                     // Set default value and override key entry values if value is null
-                    if (array_get($source, $column) === null) {
+                    if (array_get_safe($source, $column) === null) {
                         if ($o_definition->getNullElement()) {
                             $o_definition->setElement($o_definition->getNullElement());
                         }
@@ -478,7 +478,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                ->setMaxLength($o_definition->getMaxLength())
                                                                ->setRows($o_definition->getRows())
                                                                ->setName($field_name)
-                                                               ->setContent(array_get($source, $column));
+                                                               ->setContent(array_get_safe($source, $column));
 
                                 $this->o_rows->add($o_definition, $o_component);
                                 break;
@@ -502,7 +502,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 $o_component   = $element_class::new()
                                                                ->setDefinitionObject($o_definition)
                                                                ->setName($field_name)
-                                                               ->setContent(array_get($source, $column));
+                                                               ->setContent(array_get_safe($source, $column));
 
                                 $this->o_rows->add($o_definition, $o_component);
                                 break;
@@ -529,7 +529,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                                ->setName($field_name)
                                                                ->setAutoComplete($o_definition->getAutoComplete())
                                                                ->setAutoSubmit($o_definition->getAutoSubmit())
-                                                               ->setSelected(array_get($source, $column))
+                                                               ->setSelected(array_get_safe($source, $column))
                                                                ->setAutoFocus($o_definition->getAutoFocus());
 
                                 $this->o_rows->add($o_definition, $o_component);
@@ -550,7 +550,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                                      ->setHidden($o_definition->getHidden())
                                                      ->setName($field_name)
                                                      ->setValue($source[$column])
-                                                     ->setContent(array_get($source, $column))
+                                                     ->setContent(array_get_safe($source, $column))
                                                      ->setAutoFocus($o_definition->getAutoFocus());
 
                                 $this->o_rows->add($o_definition, $o_component);

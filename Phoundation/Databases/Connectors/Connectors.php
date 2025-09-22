@@ -27,6 +27,7 @@ use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Seo;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -152,25 +153,24 @@ class Connectors extends DataIterator implements ConnectorsInterface
 
 
     /**
-     * Returns the connector with the specified identifier
+     * Returns only the specified key from the source of this DataEntry
      *
-     * @note  If the specified connector doesn't yet exist, this method will try to load it automatically
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
+     * @param mixed                       $default
      * @param bool                        $exception
      *
      * @return mixed
-     * @todo Improve accessing "cached" connectors! We always request "just the connector" by its name, like "system" yet we want a connector that is using the
-     *       right database. Maybe have a connector for each database used, i.e. a "USE DATABASE" should use a new connector or something? Think about how to
-     *       do this best
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         if (empty($key)) {
             throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
         }
 
-        $o_connector = parent::get($key, $exception);
+        $o_connector = parent::get($key, $default, $exception);
 
         if (empty($o_connector)) {
             // This connector doesn't exist in the source yet.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
 use Phoundation\Developer\Versioning\Git\RemoteRepository;
+use ReturnTypeWillChange;
 use Stringable;
 
 interface RemoteRepositoriesInterface
@@ -24,10 +25,11 @@ interface RemoteRepositoriesInterface
     /**
      * Returns the specified repository
      *
-     * @param Stringable|string|float|int
-     * @param bool $exception
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return RemoteRepository|null
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 }

@@ -271,7 +271,7 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getMenu(): ?MenuInterface
     {
-        return array_get($this->source, 'menu');
+        return array_get_safe($this->source, 'menu');
     }
 
 

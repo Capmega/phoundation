@@ -88,5 +88,5 @@ $sessions = Sessions::addData($sessions)->uasort(function ($a, $b) {
 
 // Display sessions
 foreach ($sessions as $identifier => $session) {
-    Log::cli(Strings::size($session['user']?->getLogId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . (array_get($session, 'last_activity')?->setTimezone('user') ?? '-'));
+    Log::cli(Strings::size($session['user']?->getLogId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . (array_get_safe($session, 'last_activity')?->setTimezone('user') ?? '-'));
 }

@@ -154,13 +154,13 @@ class DataEntryTest extends TestCase
 
         // Return null if no value set
         $entry->clear();
-        $value = $entry->get($test_key, false);
+        $value = $entry->get($test_key);
         $this->assertNull($value, '`get()` should return the specified value');
 
         // Failure without exception
         $entry->clear();
         $test_key_invalid = 'test-get-value-invalid';
-        $value = $entry->get($test_key_invalid, false);
+        $value = $entry->get($test_key_invalid);
         $this->assertNull($value, 'get() should return the specified value');
 
         // Failure with exception
@@ -358,12 +358,12 @@ class DataEntryTest extends TestCase
         $test_entry = TestDataEntry::new()->setName(Strings::getUuid())->setTestColumn('test_value')->save();
         $test_source = $test_entry->getSource();
 
-        $this->assertEquals('test_value', array_get($test_source, 'test_column'));
-        $this->assertTrue((bool) array_get($test_source, 'id'));
+        $this->assertEquals('test_value', array_get_safe($test_source, 'test_column'));
+        $this->assertTrue((bool) array_get_safe($test_source, 'id'));
 
         $test_source_2 = $test_entry->getSource(true);
-        $this->assertEquals('test_value', array_get($test_source_2, 'test_column'));
-        $this->assertNull(array_get($test_source_2, 'id'));
+        $this->assertEquals('test_value', array_get_safe($test_source_2, 'test_column'));
+        $this->assertNull(array_get_safe($test_source_2, 'id'));
 
         $test_entry_2 = TestDataEntry::new();
         $this->assertArrayNotHasKey('id', $test_entry_2->getSource());
@@ -413,7 +413,7 @@ class DataEntryTest extends TestCase
 
         // Test setting source with un-permitted column
         $test_data_entry_4 = TestDataEntry::new()->setSource(['invalid_column' => 'value']);
-        $this->assertEmpty($test_data_entry_4->get('invalid_column', false));
+        $this->assertEmpty($test_data_entry_4->get('invalid_column'));
 
         // Test setting source with non-existing column
         try {
@@ -436,7 +436,7 @@ class DataEntryTest extends TestCase
 
         // Test setting source with non-existing column
         $test_entry = TestDataEntry::new()->setSourceDirect(['invalid_column' => 'value', 'seo_name' => $name]);
-        $this->assertEquals('value', $test_entry->get('invalid_column', false));
+        $this->assertEquals('value', $test_entry->get('invalid_column'));
         $this->assertFalse($test_entry->isValidated());
 
         // Test setting source and validating

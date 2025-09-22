@@ -143,9 +143,9 @@ class PhoDate
                 break;
 
             default:
-                if (config()->get('formats.date.' . $requested_format, false)) {
+                if (config()->getString('formats.date.' . $requested_format)) {
                     // Use predefined format
-                    $format = config()->get('formats.date.' . $requested_format, false);
+                    $format = config()->get('formats.date.' . $requested_format);
 
                 } else {
                     // Use custom format

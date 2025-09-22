@@ -302,7 +302,7 @@ class SystemRequest implements SystemRequestInterface
 
         } catch (Throwable $g) {
             // Even this failed? Try to log to the system log as a last ditch effort
-            Log::toAlternateLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . array_get($variables, 'code') . '" page, and the "' . array_get($variables, 'code') . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
+            Log::toAlternateLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . array_get_safe($variables, 'code') . '" page, and the "' . array_get_safe($variables, 'code') . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
             Log::toAlternateLog($e->getMessage());
             Log::toAlternateLog($f->getMessage());
             Log::toAlternateLog($g->getMessage());
@@ -356,12 +356,12 @@ class SystemRequest implements SystemRequestInterface
         Log::warning(ts('Found no applicable routes or webserver called for 404, testing for hacks'));
 
         // Test the URI for known hacks. If so, apply configured response
-        if (config()->get('web.route.known-hacks', false)) {
+        if (config()->getArrayBoolean('web.route.known-hacks', false)) {
             Log::warning(ts('Applying known hacking rules'));
 
             foreach (config()->get('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore
-                static::try($hacks['regex'], array_get($hacks, 'url'), array_get($hacks, 'flags'));
+                static::try($hacks['regex'], array_get_safe($hacks, 'url'), array_get_safe($hacks, 'flags'));
             }
         }
 

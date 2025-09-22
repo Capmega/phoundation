@@ -73,7 +73,7 @@ class SessionState implements SessionStateInterface
      */
     public function getSource(): array
     {
-        return array_get($_SESSION, 'state', []);
+        return array_get_safe($_SESSION, 'state', []);
     }
 
 
@@ -124,10 +124,10 @@ class SessionState implements SessionStateInterface
      */
     protected function getForPage(Stringable|string|float|int $key, string $page, bool $exception = false): ?string
     {
-        $return = array_get($_SESSION['state'], $page);
+        $return = array_get_safe($_SESSION['state'], $page);
 
         if ($return) {
-            $return = array_get($return, $key);
+            $return = array_get_safe($return, $key);
 
             if ($return) {
                 return $return;

@@ -212,7 +212,7 @@ class Device extends PhoFile
             $device = Strings::fromReverse($mount, '-');
             $status = $this->luksGetStatus($device);
 
-            if ($status->get('loop', false) === $path) {
+            if ($status->keyHasValue('loop', $path, exception: false)) {
                 return true;
             }
         }

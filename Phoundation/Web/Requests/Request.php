@@ -616,7 +616,7 @@ class Request implements RequestInterface
      */
     public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
-        $url = array_get($_SERVER, 'HTTP_REFERER');
+        $url = array_get_safe($_SERVER, 'HTTP_REFERER');
 
         if ($url) {
             return Url::new($url)->checkHost($allowed_domain);
@@ -901,16 +901,17 @@ class Request implements RequestInterface
 
 
     /**
-     * Returns the value for the specified data key, if exist. If not, the default value will be returned
+     * Returns the value for the specified data key, if it exist. If not, the default value will be returned
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool                        $exception
      *
      * @return mixed
      */
-    public static function get(string $key, mixed $default = null): mixed
+    public static function get(Stringable|string|float|int $key, mixed $default = null, bool $exception = true): mixed
     {
-        return static::$source?->get($key, false) ?? $default;
+        return static::$source?->get($key, $default, $exception);
     }
 
 
@@ -1034,7 +1035,7 @@ class Request implements RequestInterface
         $page = Session::getDefaultPage();
 
         if ($page) {
-            if (array_get($_SERVER, 'SCRIPT_URI') === $page) {
+            if (array_get_safe($_SERVER, 'SCRIPT_URI') === $page) {
                 // The current location is the default page, we're good
                 return;
             }
@@ -1975,7 +1976,7 @@ class Request implements RequestInterface
      */
     public static function getHeader(string $name, bool $exception = false): ?string
     {
-        return Request::getHeaders()->get($name, $exception);
+        return Request::getHeaders()->get($name, exception: $exception);
     }
 
 

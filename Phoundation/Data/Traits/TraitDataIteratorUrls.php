@@ -91,7 +91,7 @@ trait TraitDataIteratorUrls
      */
     public function getUrl(Stringable|string $key, bool $exception = false, Stringable|string|null $default = null): UrlInterface|string|null
     {
-        return $this->getUrlsObject()->get($key, $exception) ?? $default;
+        return $this->getUrlsObject()->get($key, exception: $exception) ?? $default;
     }
 
 

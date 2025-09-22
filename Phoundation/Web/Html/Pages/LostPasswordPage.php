@@ -33,7 +33,7 @@ class LostPasswordPage extends Page
         Response::setPageTitle(tr('Request a new password'));
         Response::setHeaderTitle(tr('Request a new password'));
 
-        $this->setUrl(Url::new('sign-in')->makeWww()->addRedirect(array_get($get, 'redirect'))->addQuery(array_get($get, 'email'), 'email'), 'back-to-sign-in');
+        $this->setUrl(Url::new('sign-in')->makeWww()->addRedirect(array_get_safe($get, 'redirect'))->addQuery(array_get_safe($get, 'email'), 'email'), 'back-to-sign-in');
         $this->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                        , 'image-background');
 
         parent::__construct($name);

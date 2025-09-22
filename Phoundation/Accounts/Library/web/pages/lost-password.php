@@ -138,11 +138,11 @@ if (Request::isPostRequestMethod()) {
                 ->setSeverity(EnumSeverity::low)
                 ->setType(tr('Non existing user lost password request'))
                 ->setTitle(tr('A lost password request was made for email ":email" but this account does not exist on this system for the environment ":environment"', [
-                    ':email'       => array_get($post, 'email'),
+                    ':email'       => array_get_safe($post, 'email'),
                     ':environment' => ENVIRONMENT,
                 ]))
                 ->setDetails([
-                    'email'       => array_get($post, 'email'),
+                    'email'       => array_get_safe($post, 'email'),
                     'environment' => ENVIRONMENT,
                 ])
                 ->setNotifyRoles('security')

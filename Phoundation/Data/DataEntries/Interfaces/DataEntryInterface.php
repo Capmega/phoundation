@@ -23,6 +23,7 @@ use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 
@@ -407,6 +408,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      */
     public function getProtectedColumns(): array;
 
+
     /**
      * Returns only the specified key from the source of this DataEntry
      *
@@ -414,11 +416,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return array
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Sets the value for the specified data key

@@ -456,8 +456,8 @@ class Sql implements SqlInterface
                                                      ->setQuery($query)
                                                      ->setExecute($execute)
                                                      ->setMessage($message)
-                                                     ->setSqlState(get_null($state ?? array_get($error, 0)))
-                                                     ->setDriverState(array_get($error, 1)));
+                                                     ->setSqlState(get_null($state ?? array_get_safe($error, 0)))
+                                                     ->setDriverState(array_get_safe($error, 1)));
         }
     }
 

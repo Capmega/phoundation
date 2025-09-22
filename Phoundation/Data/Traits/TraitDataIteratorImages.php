@@ -91,7 +91,7 @@ trait TraitDataIteratorImages
      */
     public function getImage(Stringable|string $key, bool $exception = false, Stringable|string|null $default = null): UrlInterface|string|null
     {
-        return $this->getImagesObject()->get($key, $exception) ?? $default;
+        return $this->getImagesObject()->get($key, exception: $exception) ?? $default;
     }
 
 

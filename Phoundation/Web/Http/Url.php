@@ -442,7 +442,7 @@ class Url implements UrlInterface
             ]));
         }
 
-        if (array_get($get, 'redirect')) {
+        if (array_get_safe($get, 'redirect')) {
             // Use the redirect URL
             $url = $get['redirect'];
 
@@ -906,7 +906,7 @@ class Url implements UrlInterface
             ]));
         }
 
-        return array_get($this->getParsed(), $section);
+        return array_get_safe($this->getParsed(), $section);
     }
 
 
@@ -919,7 +919,7 @@ class Url implements UrlInterface
      */
     public function getScheme(): ?string
     {
-        return array_get($this->getParsed(), 'scheme');
+        return array_get_safe($this->getParsed(), 'scheme');
     }
 
 
@@ -932,7 +932,7 @@ class Url implements UrlInterface
      */
     public function getUser(): ?string
     {
-        return array_get($this->getParsed(), 'user');
+        return array_get_safe($this->getParsed(), 'user');
     }
 
 
@@ -945,7 +945,7 @@ class Url implements UrlInterface
      */
     public function getPassword(): ?string
     {
-        return array_get($this->getParsed(), 'pass');
+        return array_get_safe($this->getParsed(), 'pass');
     }
 
 
@@ -986,7 +986,7 @@ class Url implements UrlInterface
      */
     public function getPort(): ?int
     {
-        return get_null((int) array_get($this->getParsed(), 'port'));
+        return get_null((int) array_get_safe($this->getParsed(), 'port'));
     }
 
 
@@ -1001,7 +1001,7 @@ class Url implements UrlInterface
      */
     public function getPath(bool $skip_language = false): ?string
     {
-        $return = array_get($this->getParsed(), 'path');
+        $return = array_get_safe($this->getParsed(), 'path');
 
         if ($skip_language) {
             $return = Strings::ensureBeginsNotWith($return, '/');
@@ -1037,7 +1037,7 @@ class Url implements UrlInterface
      */
     public function getQuery(): ?string
     {
-        return array_get($this->getParsed(), 'query');
+        return array_get_safe($this->getParsed(), 'query');
     }
 
 
@@ -1050,7 +1050,7 @@ class Url implements UrlInterface
      */
     public function getFragment(): ?string
     {
-        return array_get($this->getParsed(), 'fragment');
+        return array_get_safe($this->getParsed(), 'fragment');
     }
 
 
@@ -1521,7 +1521,7 @@ class Url implements UrlInterface
      */
     public function addThisPageQueries(): static
     {
-        return $this->addQueries(explode('&', array_get($_SERVER, 'QUERY_STRING')));
+        return $this->addQueries(explode('&', array_get_safe($_SERVER, 'QUERY_STRING')));
     }
 
 

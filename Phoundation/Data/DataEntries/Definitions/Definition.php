@@ -1060,11 +1060,12 @@ class Definition implements DefinitionInterface
      * Returns the entry with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
@@ -1090,7 +1091,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
         $this->source[$key] = $value;
         return $this;
@@ -1783,7 +1784,7 @@ class Definition implements DefinitionInterface
      */
     public function getKey(string $key): mixed
     {
-        return array_get($this->source, $key);
+        return array_get_safe($this->source, $key);
     }
 
 
@@ -3329,7 +3330,7 @@ class Definition implements DefinitionInterface
     {
         $this->ensureElement(EnumElement::textarea);
 
-        if (array_get($this->source, 'element') !== EnumElement::textarea) {
+        if (array_get_safe($this->source, 'element') !== EnumElement::textarea) {
             throw new OutOfBoundsException(tr('Cannot define rows for column ":column", the element is a ":element" but should be a "textarea', [
                 ':column'  => $this->getColumn(),
                 ':element' => $this->source['element']->value,
@@ -3347,7 +3348,7 @@ class Definition implements DefinitionInterface
      */
     public function getDefault(): mixed
     {
-        $return = array_get($this->source, 'default');
+        $return = array_get_safe($this->source, 'default');
 
         if (is_callable($return)) {
             $return = $return();
@@ -3377,7 +3378,7 @@ class Definition implements DefinitionInterface
      */
     public function getInitialDefault(): mixed
     {
-        $return = array_get($this->source, 'initial_default');
+        $return = array_get_safe($this->source, 'initial_default');
 
         if (is_callable($return)) {
             $return = $return();
@@ -3775,14 +3776,14 @@ class Definition implements DefinitionInterface
      */
     protected function validateProcessEmptyValues(ValidatorInterface $o_validator, string $column): void
     {
-        if (!$o_validator->get($column, false)) {
+        if (!$o_validator->get($column)) {
             // If this column is empty, should it be NULL?
             if ($this->getForceNull()) {
                 $o_validator->set(null, $column);
             }
 
             // If this column is NULL, should it have a default value?
-            if ($o_validator->get($column, false) === null) {
+            if ($o_validator->get($column) === null) {
                 $o_validator->set($this->getNullDefault(), $column);
             }
         }
@@ -3830,7 +3831,7 @@ class Definition implements DefinitionInterface
 
         // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
         // If the user submitted it, they're messing around, don't allow it!
-        if ($o_validator->get($column, false)) {
+        if ($o_validator->get($column)) {
             // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...

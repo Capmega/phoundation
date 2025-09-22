@@ -239,7 +239,7 @@ class Phones extends DataIterator implements PhonesInterface
                     continue;
                 }
 
-                $phones[array_get($phone, 'phone')] = $phone;
+                $phones[array_get_safe($phone, 'phone')] = $phone;
             }
 
             // Get a list of what we should add and remove and apply this

@@ -240,7 +240,7 @@ class Poad
         // Yay, all required fields are there! Check datatype to see how to handle this
         switch ($this->source['datatype']) {
             case EnumPoadTypes::object->value:
-                if (array_get($this->source, 'auto_decode', true) === false) {
+                if (array_get_safe($this->source, 'auto_decode', true) === false) {
                     // POAD object contains instruction to NOT automatically decode
                     return Arrays::removeKeys($this->source['source'], 'auto_decode');
                 }

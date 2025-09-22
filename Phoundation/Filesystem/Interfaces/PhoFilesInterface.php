@@ -141,7 +141,7 @@ interface PhoFilesInterface extends IteratorInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?PhoPathInterface;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?PhoPathInterface;
 
     /**
      * @inheritDoc

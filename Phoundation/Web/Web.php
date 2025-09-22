@@ -156,7 +156,7 @@ class Web
 //            $return = Strings::until($return, '?');
 //        }
 //
-//        if ($allow_cloak and config()->get('web.url.cloaking.enabled', false)) {
+//        if ($allow_cloak and config()->getBoolean('web.url.cloaking.enabled', false)) {
 //            // Cloak the URL before returning it
 //            $return = Url::cloak($return);
 //        }

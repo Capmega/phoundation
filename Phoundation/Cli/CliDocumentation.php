@@ -48,7 +48,7 @@ class CliDocumentation
     {
         global $argv;
 
-        if (array_get($argv, 'help')) {
+        if (array_get_safe($argv, 'help')) {
             Log::information(ts('Command help:'), 9);
             Log::notice(trim($help), 10, false);
 
@@ -71,7 +71,7 @@ class CliDocumentation
     {
         global $argv;
 
-        if (array_get($argv, 'usage')) {
+        if (array_get_safe($argv, 'usage')) {
             Log::information(ts('Command usage:'), 9, echo_prefix: false);
             Log::notice(trim($usage) . PHP_EOL, 10, false, echo_prefix: false);
 
@@ -93,8 +93,8 @@ class CliDocumentation
     {
         try {
             if (CliAutoComplete::isActive()) {
-                CliAutoComplete::processCommandPositions(array_get($o_definitions, 'positions'));
-                CliAutoComplete::processCommandArguments(array_get($o_definitions, 'arguments'));
+                CliAutoComplete::processCommandPositions(array_get_safe($o_definitions, 'positions'));
+                CliAutoComplete::processCommandArguments(array_get_safe($o_definitions, 'arguments'));
                 exit();
             }
 
