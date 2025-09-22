@@ -5,6 +5,9 @@
  *
  * This class can manage worker processes running in the background
  *
+ * .....
+ *
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -154,7 +157,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Sets the minimum number of workers required
      *
-     * @param int $minimum
+     * @param int|null $minimum
      *
      * @return static
      */

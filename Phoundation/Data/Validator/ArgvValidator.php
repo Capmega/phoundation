@@ -122,7 +122,6 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function setTest(bool $test): static
     {
         $this->test = $test;
-
         return $this;
     }
 

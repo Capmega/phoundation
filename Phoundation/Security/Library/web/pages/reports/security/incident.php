@@ -43,7 +43,7 @@ $o_card     = Card::new()
                 ->setContent($form)
                 ->setButtonsObject(Buttons::new()->addButton(
                     tr('Back'), EnumDisplayMode::secondary,
-                    Url::newPrevious('/security/incidents.html')->addQueries(
+                    Url::newPrevious('/reports/security/incidents.html')->addQueries(
                         $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
                     ),
                     true));
@@ -54,7 +54,7 @@ $o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
-                                  AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
+                                  AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
                                   AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Non-200 URL\'s management')) .
                                   hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
                                      AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
@@ -69,7 +69,7 @@ $o_documentation_card = Card::new()
 
 
 // Set page meta data
-$url = Url::new('/security/incidents.html')->makeWww()->addQueries(
+$url = Url::new('/reports/security/incidents.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 );
 

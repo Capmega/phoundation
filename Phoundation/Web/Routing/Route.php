@@ -1897,7 +1897,7 @@ class Route
     {
         Log::notice(ts('*POSSIBLE HACK ATTEMPT DETECTED*'));
         Notification::new()
-            ->setUrl(Url::new('security/incidents.html')->makeWww())
+            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
             ->setMode(EnumDisplayMode::exception)
             ->setCode('hack')
             ->setRoles('security')

@@ -559,7 +559,7 @@ class Session implements SessionInterface
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
-                                ->setUrl(Url::new('security/incidents.html')->makeWww())
+                                ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::warning)
                                 ->setCode('configuration')
                                 ->setRoles('developer')

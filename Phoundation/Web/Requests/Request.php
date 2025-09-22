@@ -493,7 +493,7 @@ class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                            ->setUrl(Url::new('security/incidents.html')->makeWww())
+                            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                             ->setMode(EnumDisplayMode::warning)
                             ->setCode('unsupported-languages-requested')
                             ->setRoles('developer')
@@ -1138,9 +1138,13 @@ class Request implements RequestInterface
      */
     public static function isGetRequestMethod(bool $strict = true): bool
     {
-        // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
-        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
-        return Request::isRequestMethod(EnumHttpRequestMethod::get, $strict) or Request::isRequestMethod(EnumHttpRequestMethod::post);
+        if (PLATFORM_WEB) {
+            // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
+            Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
+            return Request::isRequestMethod(EnumHttpRequestMethod::get, $strict) or Request::isRequestMethod(EnumHttpRequestMethod::post);
+        }
+
+        return false;
     }
 
 
@@ -1151,10 +1155,13 @@ class Request implements RequestInterface
      */
     public static function isPostRequestMethod(): bool
     {
-        // As soon as we inquire about the request method being POST, Phoundation will assume that POST is allowed
-        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
+        if (PLATFORM_WEB) {
+            // As soon as we inquire about the request method being POST, Phoundation will assume that POST is allowed
+            Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
+            return Request::isRequestMethod(EnumHttpRequestMethod::post);
+        }
 
-        return Request::isRequestMethod(EnumHttpRequestMethod::post);
+        return false;
     }
 
 
@@ -1187,11 +1194,15 @@ class Request implements RequestInterface
     /**
      * Returns the request method for this page
      *
-     * @return EnumHttpRequestMethod
+     * @return EnumHttpRequestMethod|null
      */
-    public static function getRequestMethod(): EnumHttpRequestMethod
+    public static function getRequestMethod(): ?EnumHttpRequestMethod
     {
-        return EnumHttpRequestMethod::from(strtolower($_SERVER['REQUEST_METHOD']));
+        if (PLATFORM_WEB) {
+            return EnumHttpRequestMethod::from(strtolower($_SERVER['REQUEST_METHOD']));
+        }
+
+        return null;
     }
 
 

@@ -20,6 +20,11 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Os\Tasks\Task;
+use Phoundation\Web\Html\Components\Forms\Form;
+use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Span;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -34,16 +39,17 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         // Set basic definitions
         $this->o_definitions
              ->add(Definition::new('severity')
-                 ->setLabel(tr('Severity'))
-                 ->setSize(4)
-                 ->setOptional(true)
-                 ->setInputType(EnumInputType::text)
-                 ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
-                     return Severities::new()->getHtmlSelectOld()
-                                             ->setAutoSubmit(true)
-                                             ->setName($field_name)
-                                             ->setSelected(isset_get($this->source[$key], 'medium'));
-                 }));
+                             ->setLabel(tr('Severity'))
+                             ->setSize(4)
+                             ->setOptional(true)
+                             ->setInputType(EnumInputType::text)
+                             ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                 return Severities::new()
+                                                  ->getHtmlSelectOld()
+                                                  ->setAutoSubmit(true)
+                                                  ->setName($field_name)
+                                                  ->setSelected(isset_get($this->source[$key], 'medium'));
+                             }));
 
         // Auto apply
         $this->applyValidator(self::class);
@@ -98,6 +104,34 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                 'severe' => ['severe'],
             };
         }
+
+        return $return;
+    }
+
+
+    /**
+     * Render this FilterForm
+     *
+     * @return string|null
+     */
+    public function render(): ?string
+    {
+        $return = parent::render();
+
+        $task_in_progress = (bool) Task::new()->loadNullOrNull(['name' => 'clearing incidents']);
+
+        $return .= Form::new()
+                       ->setRequestMethod(EnumHttpRequestMethod::post)
+                       ->setContent(Span::new()
+                                        ->setContent(Button::new()
+                                                           ->addClass('mr-2')
+                                                           ->setContent(tr('Clear incidents'))
+                                                           ->setDisabled($task_in_progress) .
+
+                                                     ($task_in_progress ? 'This task is already in progress'
+                                                                       : ''))
+
+                                        ->render());
 
         return $return;
     }
