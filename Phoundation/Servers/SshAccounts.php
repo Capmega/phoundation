@@ -120,7 +120,7 @@ class SshAccounts extends DataIterator
         foreach ($this->source as &$entry) {
             if (empty($entry['name'])) {
                 // Unnamed entries always default to username@hostname
-                $entry['name'] = array_get_safe($entry, 'username') . '@' . array_get_safe($entry, 'hostname');
+                $entry['name'] = array_get($entry, 'username') . '@' . array_get($entry, 'hostname');
             }
 
             if (array_key_exists('file', $entry)) {

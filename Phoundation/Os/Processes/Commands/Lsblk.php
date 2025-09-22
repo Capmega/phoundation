@@ -115,7 +115,7 @@ class Lsblk extends Command
             $data['parent']      = $parent;
             $data['mountpoints'] = Iterator::new()
                                            ->setSource($data['mountpoints']);
-            $children = isset_get($data['children']);
+            $children = array_get($data, 'children');
             unset($data['children']);
             $iterator->add($data, $data['name']);
             if ($children) {

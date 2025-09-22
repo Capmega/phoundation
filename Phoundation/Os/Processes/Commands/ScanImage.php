@@ -144,7 +144,7 @@ class ScanImage extends Command
                             // Okay, they are both, maybe a number with units? If so, split!
                             if (preg_match_all('/^(\d+)\s?(\w+)$/i', $value, $matches)) {
                                 $value          = $matches[1][0];
-                                $entry['units'] = not_empty($matches[2][0], isset_get($entry['units']));
+                                $entry['units'] = not_empty($matches[2][0], array_get($entry, 'units'));
 
                             } else {
                                 // Wut?

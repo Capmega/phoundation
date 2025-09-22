@@ -63,7 +63,7 @@ if (Request::isPostRequestMethod()) {
 
 
 // Email might be specified by GET or POST
-$get['email'] = isset_get($post['email']) ?? $get['email'];
+$get['email'] = array_get($post, 'email') ?? $get['email'];
 
 
 // Display the sign-in page

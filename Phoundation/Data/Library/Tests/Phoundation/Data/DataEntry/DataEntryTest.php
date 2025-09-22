@@ -358,12 +358,12 @@ class DataEntryTest extends TestCase
         $test_entry = TestDataEntry::new()->setName(Strings::getUuid())->setTestColumn('test_value')->save();
         $test_source = $test_entry->getSource();
 
-        $this->assertEquals('test_value', array_get_safe($test_source, 'test_column'));
-        $this->assertTrue((bool) array_get_safe($test_source, 'id'));
+        $this->assertEquals('test_value', array_get($test_source, 'test_column'));
+        $this->assertTrue((bool) array_get($test_source, 'id'));
 
         $test_source_2 = $test_entry->getSource(true);
-        $this->assertEquals('test_value', array_get_safe($test_source_2, 'test_column'));
-        $this->assertNull(array_get_safe($test_source_2, 'id'));
+        $this->assertEquals('test_value', array_get($test_source_2, 'test_column'));
+        $this->assertNull(array_get($test_source_2, 'id'));
 
         $test_entry_2 = TestDataEntry::new();
         $this->assertArrayNotHasKey('id', $test_entry_2->getSource());

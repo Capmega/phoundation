@@ -213,7 +213,7 @@ class UserSession implements UserSessionInterface
      */
     public function getSource(): array
     {
-        return array_get_safe($this->source, 'data');
+        return array_get($this->source, 'data');
     }
 
 

@@ -138,7 +138,7 @@ class Page extends Template
             $this->$method = [];
         }
 
-        if (array_get_safe($this->$method, $key)) {
+        if (array_get($this->$method, $key)) {
             return $this->$method[$key];
         }
 

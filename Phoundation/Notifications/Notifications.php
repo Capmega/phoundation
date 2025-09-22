@@ -86,7 +86,7 @@ class Notifications extends DataIterator implements NotificationsInterface
         ];
         $return = 1;
         foreach ($this->source as $entry) {
-            $priority = isset_get($list[isset_get($entry['mode'])]);
+            $priority = isset_get($list[array_get($entry, 'mode')]);
             if ($priority > $return) {
                 $return = $priority;
             }

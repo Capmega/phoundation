@@ -427,7 +427,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
  */
 function in_source(array $source, string|int $key): bool
 {
-    if (isset_get($source[$key])) {
+    if (array_get($source, $key)) {
         return true;
     }
 
@@ -508,7 +508,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
  *
  * @return mixed
  */
-function array_get_safe(?array $source, string|float|int|null $key, mixed $default = null): mixed
+function array_get(?array $source, string|float|int|null $key, mixed $default = null): mixed
 {
     if ($source) {
         if (array_key_exists($key, $source)) {
@@ -1959,7 +1959,7 @@ function function_was_called(string $function): bool
     // Scan trace for class and function match
     foreach (debug_backtrace() as $trace) {
         $trace['function'] = strtolower(trim((string) $trace['function']));
-        $trace['class']    = strtolower(trim((string) isset_get($trace['class'])));
+        $trace['class']    = strtolower(trim((string) array_get($trace, 'class')));
         $trace['class']    = Strings::fromReverse($trace['class'], '\\');
 
         if ($trace['function'] === $function) {

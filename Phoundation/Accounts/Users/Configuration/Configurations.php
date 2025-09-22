@@ -152,7 +152,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                 continue;
             }
 
-            $this->saveColumn(array_get_safe($this->source, $column), $column, $o_definition);
+            $this->saveColumn(array_get($this->source, $column), $column, $o_definition);
         }
 
         return $this;

@@ -1442,7 +1442,7 @@ class Arrays extends Utils
 
         foreach ($source1 as $key => $value) {
             if ($value === null) {
-                $source1[$key] = isset_get($source2[$key], $default);
+                $source1[$key] = array_get($source2, $key, $default);
                 $modified      = true;
             }
         }

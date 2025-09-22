@@ -210,7 +210,7 @@ class Emails extends DataIterator implements EmailsInterface
                     continue;
                 }
 
-                $emails[isset_get($email['email'])] = $email;
+                $emails[array_get($email, 'email')] = $email;
             }
 
             // Get a list of what we should add and remove and apply this

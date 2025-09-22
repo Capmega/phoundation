@@ -293,7 +293,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isGuest(): bool
     {
-        return array_get_safe($this->source, 'email') === 'guest';
+        return array_get($this->source, 'email') === 'guest';
     }
 
 
@@ -304,7 +304,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isSystem(): bool
     {
-        return (array_get_safe($this->source, 'email') === 'system');
+        return (array_get($this->source, 'email') === 'system');
     }
 
 

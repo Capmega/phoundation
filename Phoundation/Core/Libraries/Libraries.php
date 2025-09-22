@@ -95,12 +95,12 @@ class Libraries
         $connectors = config()->getArray('databases.connectors');
 
         foreach ($connectors as $connector => $configuration) {
-            switch (isset_get($configuration['driver'])) {
+            switch (array_get($configuration, 'driver')) {
                 case 'sql':
                     // no break
 
                 case 'mysql':
-                    if (($connector === 'system') or isset_get($configuration['init'])) {
+                    if (($connector === 'system') or array_get($configuration, 'init')) {
                         sql($connector, false)
                             ->getSchemaObject(false)
                             ->getDatabaseObject(use: false)

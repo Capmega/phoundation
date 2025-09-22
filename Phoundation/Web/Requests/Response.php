@@ -370,7 +370,7 @@ class Response implements ResponseInterface
      */
     public static function getClass(string $section, ?string $default = null): ?string
     {
-        return array_get_safe(static::$page_classes, $section, $default);
+        return array_get(static::$page_classes, $section, $default);
     }
 
 
@@ -523,7 +523,7 @@ class Response implements ResponseInterface
      */
     public static function getCharset(): ?string
     {
-        return array_get_safe(static::$page_headers, 'meta-character_set');
+        return array_get(static::$page_headers, 'meta-character_set');
     }
 
 
@@ -547,7 +547,7 @@ class Response implements ResponseInterface
      */
     public static function getViewport(): ?string
     {
-        return array_get_safe(static::$page_headers, 'meta-viewport');
+        return array_get(static::$page_headers, 'meta-viewport');
     }
 
 
@@ -1959,7 +1959,7 @@ class Response implements ResponseInterface
                 ]));
         }
 
-        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get_safe(static::$page_headers, 'meta/character_set', Response::getEncoding()));
+        $headers[] = 'Content-Type: ' . static::$content_type . '; charset=' . (array_get(static::$page_headers, 'meta/character_set', Response::getEncoding()));
         $headers[] = 'Content-Language: ' . LANGUAGE;
         $headers[] = 'Content-Length: ' . ob_get_length();
 

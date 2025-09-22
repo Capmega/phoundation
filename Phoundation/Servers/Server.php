@@ -746,7 +746,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['categories_id']));
+                                                         ->setSelected(array_get($source, 'categories_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('categories_name')
@@ -768,7 +768,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['providers_id']));
+                                                         ->setSelected(array_get($source, 'providers_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('providers_name')
@@ -790,7 +790,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['customers_id']));
+                                                         ->setSelected(array_get($source, 'customers_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('customers_name')
@@ -813,7 +813,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['countries_id']));
+                                                         ->setSelected(array_get($source, 'countries_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('countries_name')
@@ -836,7 +836,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['states_id']));
+                                                         ->setSelected(array_get($source, 'states_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('states_name')
@@ -857,7 +857,7 @@ class Server extends DataEntry implements ServerInterface
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
-                                                         ->setSelected(isset_get($source['cities_id']));
+                                                         ->setSelected(array_get($source, 'cities_id'));
                                     })
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->xorColumn('cities_name')

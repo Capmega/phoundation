@@ -2967,7 +2967,7 @@ class Core implements CoreInterface
                 if ($e->getDataKey('failures')) {
                     foreach ($e->getDataKey('failures') as $failure) {
                         if (is_array($failure)) {
-                            Log::printr(array_get_safe($failure, 'message', $failure), 10, echo_header: false);
+                            Log::printr(array_get($failure, 'message', $failure), 10, echo_header: false);
 
                         } else {
                             Log::printr($failure, 10, echo_header: false);

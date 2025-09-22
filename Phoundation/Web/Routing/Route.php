@@ -255,7 +255,7 @@ class Route
                 ':method' => static::$method,
                 ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                 ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
-                ':referer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
+                ':referer' => array_get($_SERVER, 'HTTP_REFERER'),
             ]), 9);
             Log::disable();
 
@@ -265,7 +265,7 @@ class Route
                 ':method'  => static::$method,
                 ':url'     => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                 ':client'  => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
-                ':referer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
+                ':referer' => array_get($_SERVER, 'HTTP_REFERER'),
             ]), 9);
         }
 

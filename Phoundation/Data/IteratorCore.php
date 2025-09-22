@@ -1435,7 +1435,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
             try {
                 foreach ($display_columns as $column) {
-                    $footers[$column] += get_numeric(isset_get($value[$column]));
+                    $footers[$column] += get_numeric(array_get($value, $column));
                 }
 
             } catch (Throwable $e) {

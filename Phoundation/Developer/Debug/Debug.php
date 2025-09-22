@@ -189,7 +189,7 @@ class Debug
             }
 
             if ($short_files) {
-                $value['file'] = Strings::from(Strings::from(isset_get($value['file']), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
+                $value['file'] = Strings::from(Strings::from(array_get($value, 'file'), DIRECTORY_ROOT), DIRECTORY_PHOUNDATION);
             }
 
             foreach ($remove_keys as $section) {
@@ -490,7 +490,7 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return isset_get($backtrace[$trace + 1]['line'], $default);
+        return array_get(array_get($backtrace, $trace + 1), 'line', $default);
     }
 
 
@@ -884,25 +884,25 @@ class Debug
             $line = [];
 
             if (isset($step['class'])) {
-                if (array_get_safe($step, 'class') === 'Closure') {
+                if (array_get($step, 'class') === 'Closure') {
                     // Log the closure call
                     $line['call'] = '{closure}';
 
                 } else {
                     // Log the class method call
-                    $line['call'] = array_get_safe($step, 'class') . array_get_safe($step, 'type') . array_get_safe($step, 'function') . '()';
+                    $line['call'] = array_get($step, 'class') . array_get($step, 'type') . array_get($step, 'function') . '()';
                 }
 
             } elseif (isset($step['function'])) {
                 // Log the function call
-                $line['call'] = array_get_safe($step, 'function') . '()';
+                $line['call'] = array_get($step, 'function') . '()';
             }
 
             // Log the file@line information
             if (isset($step['file'])) {
                 // Remove DIRECTORY_ROOT from the filenames for clarity
                 if (array_key_exists('line', $step)) {
-                    $line['location'] = Strings::from(array_get_safe($step, 'file'), DIRECTORY_ROOT) . '@' . array_get_safe($step, 'line');
+                    $line['location'] = Strings::from(array_get($step, 'file'), DIRECTORY_ROOT) . '@' . array_get($step, 'line');
 
                 } else {
                     $line['location'] = 'UNKNOWN';
@@ -973,7 +973,7 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return isset_get($backtrace[$trace + 1]['class'], $default);
+        return array_get(array_get($backtrace, $trace + 1), 'class', $default);
     }
 
 
@@ -988,7 +988,7 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return new Iterator(isset_get($backtrace[$trace + 1]['args']));
+        return new Iterator(array_get(array_get($backtrace, $trace + 1), 'args'));
     }
 
 
@@ -1004,7 +1004,7 @@ class Debug
     {
         $backtrace = debug_backtrace();
 
-        return isset_get($backtrace[$trace + 1]['function'], $default);
+        return array_get(array_get($backtrace, $trace + 1), 'function', $default);
     }
 
 

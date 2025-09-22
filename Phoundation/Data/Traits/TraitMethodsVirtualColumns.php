@@ -134,7 +134,7 @@ trait TraitMethodsVirtualColumns {
             $this->setVirtualObject($table);
         }
 
-        return array_get_safe($this->virtual_objects, $table);
+        return array_get($this->virtual_objects, $table);
     }
 
 
@@ -157,7 +157,7 @@ trait TraitMethodsVirtualColumns {
 
         if (empty($o_object)) {
             try {
-                $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
+                $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get($configuration, 'additional_filters'));
 
                 if (empty($identifier)) {
                     // There is no identifier for this object, meaning that all related columns are empty, so the requested object column will be empty also.

@@ -594,7 +594,7 @@ class JsonPage implements JsonPageInterface
         $data = static::fixJavascriptNumbers($data);
 
         // HTTP code MIGHT have been specified in the data. If so, we will forcibly use this in the JSON response
-        $http_code = isset_get($data['http_code']);
+        $http_code = array_get($data, 'http_code');
         unset($data['http_code']);
 
         // What kind of exposure are we going to give?

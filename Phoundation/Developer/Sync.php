@@ -270,7 +270,7 @@ class Sync
      */
     protected function executeHook(array|string $hooks): static
     {
-        if (array_get_safe($this->configuration, 'execute_hooks')) {
+        if (array_get($this->configuration, 'execute_hooks')) {
             Hook::new('system/sync')->execute($hooks);
         }
 

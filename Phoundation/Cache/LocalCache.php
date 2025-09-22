@@ -164,7 +164,7 @@ class LocalCache
                 return static::get($key, $sub_key, $exception);
             }
 
-            return array_get_safe($return, $sub_key);
+            return array_get($return, $sub_key);
         }
 
         return $return;
@@ -198,7 +198,7 @@ class LocalCache
 
         if (array_key_exists($key, static::$cache)) {
             if ($sub_key === null) {
-                $return = array_get_safe(static::$cache, $key);
+                $return = array_get(static::$cache, $key);
 
             } else {
                 $sub_key = (string) $sub_key;

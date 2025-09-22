@@ -97,7 +97,7 @@ class Page extends DataEntry implements PageInterface
                                                return Pages::new()
                                                            ->getHtmlSelectOld()
                                                            ->setName($key)
-                                                           ->setSelected(isset_get($source[$key]));
+                                                           ->setSelected(array_get($source, $key));
                                            })
                                              ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                // Ensure categories id exists and that its or category
@@ -144,7 +144,7 @@ class Page extends DataEntry implements PageInterface
                     ->add(DefinitionFactory::newName()
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                $o_validator->isFalse(function ($value, $source) {
-                                                   static::exists(['name' => $value], isset_get($source['id']));
+                                                   static::exists(['name' => $value], array_get($source, 'id'));
                                                }, tr('already exists'));
                                            }))
 

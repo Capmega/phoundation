@@ -658,7 +658,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             return array_get($row, $this->source);
         }
 
-        return array_get_safe($this->source, $row);
+        return array_get($this->source, $row);
     }
 
 
@@ -698,7 +698,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $first = true;
 
         foreach ($this->columns as $column) {
-            $value         = array_get_safe($row_values, $column);
+            $value         = array_get($row_values, $column);
             $made_checkbox = false;
 
             if ($first) {
@@ -707,7 +707,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 $first = false;
 
                 $params['htmlentities'] = !($this->process_entities or $made_checkbox);
-                $params['no_url']       = (array_get_safe($params, 'no_url', false) or $made_checkbox or !$value);
+                $params['no_url']       = (array_get($params, 'no_url', false) or $made_checkbox or !$value);
 
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
@@ -801,7 +801,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             $classes .= ' ' . $this->row_classes;
         }
 
-        if (array_get_safe($params, 'row_classes')) {
+        if (array_get($params, 'row_classes')) {
             $classes .= ' ' . $params['row_classes'];
         }
 
@@ -875,7 +875,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             $url = $this->row_url;
         }
 
-        if (array_get_safe($params, 'no_url')) {
+        if (array_get($params, 'no_url')) {
             $url = null;
         }
 
@@ -1021,7 +1021,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 }
             }
 
-            $o_anchor = array_get_safe($this->anchors, $url);
+            $o_anchor = array_get($this->anchors, $url);
 
             if (empty($o_anchor)) {
                 $o_anchor = Anchor::new($o_url)

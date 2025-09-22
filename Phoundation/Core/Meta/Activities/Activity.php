@@ -133,7 +133,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getAction(): string
     {
-        return array_get_safe($this->source, 'action', tr('Unknown'));
+        return array_get($this->source, 'action', tr('Unknown'));
     }
 
 
@@ -157,7 +157,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getComment(): string
     {
-        return array_get_safe($this->source, 'comment', tr('-'));
+        return array_get($this->source, 'comment', tr('-'));
     }
 
 
@@ -168,7 +168,7 @@ class Activity implements ActivityInterface, RenderInterface
      */
     public function getData(): array
     {
-        $data = array_get_safe($this->source, 'data');
+        $data = array_get($this->source, 'data');
 
         if ($data) {
             try {

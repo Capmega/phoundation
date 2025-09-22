@@ -616,7 +616,7 @@ class Request implements RequestInterface
      */
     public static function getReferer(string|bool $default = false, EnumDomainAllowed|string $allowed_domain = EnumDomainAllowed::current): ?UrlInterface
     {
-        $url = array_get_safe($_SERVER, 'HTTP_REFERER');
+        $url = array_get($_SERVER, 'HTTP_REFERER');
 
         if ($url) {
             return Url::new($url)->checkHost($allowed_domain);
@@ -1034,7 +1034,7 @@ class Request implements RequestInterface
         $page = Session::getDefaultPage();
 
         if ($page) {
-            if (array_get_safe($_SERVER, 'SCRIPT_URI') === $page) {
+            if (array_get($_SERVER, 'SCRIPT_URI') === $page) {
                 // The current location is the default page, we're good
                 return;
             }

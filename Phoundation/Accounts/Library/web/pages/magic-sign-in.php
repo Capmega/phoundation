@@ -154,7 +154,7 @@ Response::setPageTitle(tr('Request a new password'));
                         ?>
                         <div class="input-group mb-3">
                             <input type="email" name="email" id="email" class="form-control"
-                                   placeholder="<?= tr('Email address') ?>"<?= isset_get($get['email']) ? 'value="' . $get['email'] . '"' : '' ?>>
+                                   placeholder="<?= tr('Email address') ?>"<?= array_get($get, 'email') ? 'value="' . $get['email'] . '"' : '' ?>>
                             <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-envelope"></span>
@@ -172,7 +172,7 @@ Response::setPageTitle(tr('Request a new password'));
                         <div class="row">
                             <div class="col-12">
                                 <?=
-                                    Anchor::new(Url::new('/sign-in.html')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email'))
+                                    Anchor::new(Url::new('/sign-in.html')->makeWww()->addRedirect(array_get($get, 'redirect'))->addQuery(array_get($get, 'email'), 'email'))
                                           ->setContent(tr('Back to sign in'))
                                           ->setClass('btn btn-outline-secondary btn-block')
                                 ?>
