@@ -3248,9 +3248,9 @@ class Core implements CoreInterface
                                 <tr>
                                     <td colspan="2" class="center">
                                         ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
-                ':code' => $e->getCode(),
-                ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-            ]) . '
+                                                ':code' => $e->getCode(),
+                                                ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
+                                            ]) . '
                                     </td>
                                 </tr>
                                 <tr>
@@ -3279,7 +3279,8 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        ' . Anchor::new(Url::new('signout')->makeWww(), tr('Sign out'))
+                                        ' . Anchor::new('signout', tr('Sign out'))
+                                                  ->setAutoCheckRights(false)
                                                   ->setClass('btn btn-sm btn-primary') . '
                                     </td>
                                 </tr>
