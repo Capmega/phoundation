@@ -534,7 +534,7 @@ interface TaskInterface extends DataEntryInterface
      *
      * @return array|null
      */
-    public function getArguments(): ?array;
+    public function getArguments(): ?string;
 
 
     /**

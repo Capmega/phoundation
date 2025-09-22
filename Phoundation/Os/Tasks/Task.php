@@ -54,6 +54,7 @@ use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 
+
 class Task extends DataEntry implements TaskInterface
 {
     use TraitDataEntryDescription;
@@ -888,13 +889,26 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Sets arguments for this task
      *
-     * @param array|null $arguments
+     * @param array|string|null $arguments
      *
      * @return static
      */
-    public function setArguments(?array $arguments): static
+    public function setArguments(array|string|null $arguments): static
     {
-        return $this->set($arguments, 'arguments');
+        return $this->set(Strings::force($arguments, ' '), 'arguments');
+    }
+
+
+    /**
+     * Returns full command including sudo and the arguments for this task
+     *
+     * @return string|null
+     */
+    public function getFullCommand(): ?string
+    {
+        return ($this->getSudo() ? 'sudo' : '') . ' ' .
+                $this->getCommand()             . ' ' .
+                trim(Strings::removeCharacters($this->getArguments(), '"[]'));
     }
 
 
@@ -914,9 +928,9 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return array|null
      */
-    public function getArguments(): ?array
+    public function getArguments(): ?string
     {
-        return $this->getTypesafe('array', 'arguments');
+        return $this->getTypesafe('string', 'arguments');
     }
 
 
@@ -1453,7 +1467,11 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::array_json)
                                     ->setLabel('Arguments')
                                     ->setCliColumn('[-a,--arguments ARGUMENTS]')
-                                    ->setSize(4))
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isPrintable();
+                                        $o_validator->skipValidation();
+                                    }))
 
                     ->add(Definition::new('variables')
                                     ->setOptional(true)
@@ -1461,7 +1479,11 @@ class Task extends DataEntry implements TaskInterface
                                     ->setInputType(EnumInputType::array_json)
                                     ->setLabel('Argument variables')
                                     ->setCliColumn('[-v,--variables VARIABLES]')
-                                    ->setSize(4))
+                                    ->setSize(4)
+                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                        $o_validator->isPrintable();
+                                        $o_validator->skipValidation();
+                                    }))
 
                     ->add(Definition::new('environment_variables')
                                     ->setOptional(true)
@@ -1568,7 +1590,7 @@ class Task extends DataEntry implements TaskInterface
                                     ->setSize(4))
 
                     ->add(Definition::new('sudo')
-                                    ->setOptional(true, false)
+                                    ->setOptional(true)
                                     ->setLabel('Sudo required / command')
                                     ->setCliColumn('[-s,--sudo "string"]')
                                     ->setSize(6)
