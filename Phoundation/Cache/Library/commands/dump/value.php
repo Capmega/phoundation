@@ -36,15 +36,10 @@ ARGUMENTS
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
-        '-k,--key' => true,
-        '-c,--connector' => [
-            'word'   => function ($word) {
-                return Connectors::new()->load()->autoCompleteFind($word);
-            },
-            'noword' => function () {
-                return Connectors::new()->load()->autoCompleteFind();
-            }
-        ],
+        '-k,--key'       => true,
+        '-c,--connector' => function ($word) {
+                                return Connectors::new()->load()->autoCompleteFind($word);
+                            },
     ],
 ]);
 
