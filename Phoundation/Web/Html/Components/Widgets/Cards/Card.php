@@ -507,7 +507,7 @@ class Card extends Widget
             $this->addClass('form');
 
             if ($content->getDefinitionsObject()?->hasButtons()) {
-                $this->setButtonsObject($content->getDefinitionsObject()->getButtons());
+                $this->setButtonsObject($content->getDefinitionsObject()->getButtonsObject());
             }
 
         } elseif ($content instanceof HtmlTableInterface) {

@@ -76,17 +76,17 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Returns the first Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getFirstValue(): DefinitionInterface;
+    #[ReturnTypeWillChange] public function getFirstValue(): ?DefinitionInterface;
 
 
     /**
      * Returns the last Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getLastValue(): DefinitionInterface;
+    #[ReturnTypeWillChange] public function getLastValue(): ?DefinitionInterface;
 
 
     /**

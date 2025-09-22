@@ -26,6 +26,7 @@ use Phoundation\Core\Libraries\Interfaces\LibraryInterface;
 use Phoundation\Core\Libraries\Interfaces\UpdatesInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Plugins\Interfaces\PluginInterface;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -686,8 +687,8 @@ class Library implements LibraryInterface
         if (Libraries::supportsVendors()) {
             sql()->query('DELETE FROM `core_versions` 
                           WHERE       `vendor`  = :vendor 
-                            AND       `library` = :library 
-                            AND       `version` > :version', [
+                          AND         `library` = :library 
+                          AND         `version` > :version', [
                 ':vendor'  => $this->getVendor(),
                 ':library' => $this->getName(),
                 ':version' => $int_version,
@@ -706,7 +707,7 @@ class Library implements LibraryInterface
             $int_current = sql()->getColumn('SELECT MAX(`version`) 
                                              FROM   `core_versions` 
                                              WHERE  `vendor`  = :vendor 
-                                               AND  `library` = :library', [
+                                             AND    `library` = :library', [
                 ':vendor'  => $this->getVendor(),
                 ':library' => $this->getName(),
             ]);
@@ -727,17 +728,21 @@ class Library implements LibraryInterface
 
             if (Libraries::supportsVendors()) {
                 sql()->insert('core_versions', [
-                    'vendor'   => $this->vendor,
-                    'library'  => $this->library,
-                    'version'  => $int_version,
-                    'comments' => $comments,
+                    'vendor'              => $this->vendor,
+                    'library'             => $this->library,
+                    'version'             => $int_version,
+                    'project_version'     => Project::getVersion(),
+                    'phoundation_version' => Core::PHOUNDATION_VERSION,
+                    'comments'            => $comments,
                 ]);
 
             } else {
                 sql()->insert('core_versions', [
-                    'library'  => $this->library,
-                    'version'  => $int_version,
-                    'comments' => $comments,
+                    'library'             => $this->library,
+                    'version'             => $int_version,
+                    'project_version'     => Project::getVersion(),
+                    'phoundation_version' => Core::PHOUNDATION_VERSION,
+                    'comments'            => $comments,
                 ]);
             }
         }

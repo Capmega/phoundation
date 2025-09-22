@@ -751,7 +751,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function getHeaders(): IteratorInterface
     {
         if (empty($this->headers)) {
-            $this->headers = new Iterator();
+            $this->headers = Iterator::new()->setExceptionOnGet(false);
         }
 
         return $this->headers;
@@ -867,8 +867,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         // Add data-* in this option?
         $attributes  = '';
         $value       = (string) $value;
-        $url         = $this->getColumnUrls()->get($column, false);
-        $convert     = $this->getConvertColumns()->get($column, false);
+        $url         = $this->getColumnUrls()->get($column);
+        $convert     = $this->getConvertColumns()->get($column);
         $attributes .= $this->renderCellData($row_id, $column);
 
         if (empty($url)) {
@@ -932,7 +932,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function getColumnUrls(): IteratorInterface
     {
         if (empty($this->column_urls)) {
-            $this->column_urls = Iterator::new()->setAcceptedDataTypes(Url::class);
+            $this->column_urls = Iterator::new()->setAcceptedDataTypes(Url::class)
+                                                ->setExceptionOnGet(false);
         }
 
         return $this->column_urls;
@@ -947,7 +948,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function getConvertColumns(): IteratorInterface
     {
         if (empty($this->convert_columns)) {
-            $this->convert_columns = new Iterator();
+            $this->convert_columns = Iterator::new()->setExceptionOnGet(false);
         }
 
         return $this->convert_columns;

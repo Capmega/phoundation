@@ -19,10 +19,7 @@ namespace Phoundation\Data;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Traits\TraitDataArraySource;
-use Phoundation\Data\Traits\TraitDataExceptionOnGet;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -30,7 +27,6 @@ use Stringable;
 class EntryCore implements EntryInterface
 {
     use TraitDataArraySource;
-    use TraitDataExceptionOnGet;
 
 
     /**

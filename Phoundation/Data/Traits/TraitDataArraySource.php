@@ -31,6 +31,7 @@ use Stringable;
 trait TraitDataArraySource
 {
     use TraitMethodsPoad;
+    use TraitDataExceptionOnGet;
 
 
     /**
@@ -286,7 +287,7 @@ trait TraitDataArraySource
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        return array_get_safe($this->source, $key, $default, $exception);
+        return array_get_safe($this->source, $key, $default, $exception ?? $this->exception_on_get);
     }
 
 

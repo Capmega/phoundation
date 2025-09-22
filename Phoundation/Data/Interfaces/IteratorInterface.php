@@ -296,7 +296,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    public function getFirstValue(): mixed;
+    #[ReturnTypeWillChange] public function getFirstValue(): mixed;
 
 
     /**
@@ -304,7 +304,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    public function getLastValue(): mixed;
+    #[ReturnTypeWillChange] public function getLastValue(): mixed;
 
     /**
      * Clears all the internal content for this object
