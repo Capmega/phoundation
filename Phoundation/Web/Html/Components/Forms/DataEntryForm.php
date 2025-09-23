@@ -263,7 +263,8 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                             continue;
                         }
 
-                        $field_name = '';
+                        $field_name = null;
+                        $o_definition->setPrefix(null)->setColumn(null);
                     }
 
                     if (is_callable($o_definition->getRender(false))) {
@@ -283,6 +284,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     if ($o_definition->getDisabled() or $o_definition->getReadonly()) {
                         // This is an immutable column. Don't add a column names as users aren't supposed to submit this.
                         $field_name = '';
+                        $o_definition->setPrefix(null)->setColumn(null);
                     }
 
                     // Ensure security column values are never sent in the form
@@ -400,63 +402,64 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                                 // Build the component, depending on the input type
                                 $element_class = Library::includeClassFile('\\Phoundation\\Web\\Html\\Components\\Input\\Input' . $type);
                                 $o_component   = match ($o_definition->getInputType()) {
-                                    EnumInputType::number       => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setMin($o_definition->getMin())
-                                                                                 ->setMax($o_definition->getMax())
-                                                                                 ->setStep($o_definition->getStep())
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column]),
+                                    EnumInputType::number         => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setMin($o_definition->getMin())
+                                                                                   ->setMax($o_definition->getMax())
+                                                                                   ->setStep($o_definition->getStep())
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column]),
 
-                                    EnumInputType::date         => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setMin($o_definition->getMin())
-                                                                                 ->setMax($o_definition->getMax())
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column]),
+//                                    EnumInputType::datetime_local,
+                                    EnumInputType::date           => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setMin($o_definition->getMin())
+                                                                                   ->setMax($o_definition->getMax())
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column]),
 
-                                    EnumInputType::auto_suggest => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setAutoComplete(false)
-                                                                                 ->setMinLength($o_definition->getMinLength())
-                                                                                 ->setMaxLength($o_definition->getMaxLength())
-                                                                                 ->setSourceUrl($o_definition->getSource())
-                                                                                 ->setVariables($o_definition->getVariables())
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column]),
+                                    EnumInputType::auto_suggest  => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setAutoComplete(false)
+                                                                                   ->setMinLength($o_definition->getMinLength())
+                                                                                   ->setMaxLength($o_definition->getMaxLength())
+                                                                                   ->setSourceUrl($o_definition->getSource())
+                                                                                   ->setVariables($o_definition->getVariables())
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column]),
 
-                                    EnumInputType::select       => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column]),
+                                    EnumInputType::select         => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column]),
 
-                                    EnumInputType::checkbox     => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue('1')
-                                                                                 ->setChecked((bool)$source[$column]),
+                                    EnumInputType::checkbox       => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue('1')
+                                                                                   ->setChecked((bool)$source[$column]),
 
                                     EnumInputType::button,
-                                    EnumInputType::submit       => Button::new()
-                                                                         ->setDefinitionObject($o_definition)
-                                                                         ->setHidden($o_definition->getHidden())
-                                                                         ->setValue($o_definition->getValue())
-                                                                         ->setContent($o_definition->getContent()),
+                                    EnumInputType::submit         => Button::new()
+                                                                           ->setDefinitionObject($o_definition)
+                                                                           ->setHidden($o_definition->getHidden())
+                                                                           ->setValue($o_definition->getValue())
+                                                                           ->setContent($o_definition->getContent()),
 
                                     // TODO This should be using ->setDefinitionObject($o_definition)!
-                                    EnumInputType::hidden       => $element_class::new()
-                                                                                 ->setRequired($o_definition->getRequired())
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column]),
+                                    EnumInputType::hidden         => $element_class::new()
+                                                                                   ->setRequired($o_definition->getRequired())
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column]),
 
-                                    default                     => $element_class::new()
-                                                                                 ->setDefinitionObject($o_definition)
-                                                                                 ->setMinLength($o_definition->getMinLength())
-                                                                                 ->setMaxLength($o_definition->getMaxLength())
-                                                                                 ->setAutoComplete($o_definition->getAutoComplete())
-                                                                                 ->setAutoSubmit($o_definition->getAutoSubmit())
-                                                                                 ->setName($field_name)
-                                                                                 ->setValue($source[$column])
+                                    default                       => $element_class::new()
+                                                                                   ->setDefinitionObject($o_definition)
+                                                                                   ->setMinLength($o_definition->getMinLength())
+                                                                                   ->setMaxLength($o_definition->getMaxLength())
+                                                                                   ->setAutoComplete($o_definition->getAutoComplete())
+                                                                                   ->setAutoSubmit($o_definition->getAutoSubmit())
+                                                                                   ->setName($field_name)
+                                                                                   ->setValue($source[$column])
                                 };
 
                                 $this->o_rows->add($o_definition, $o_component);
