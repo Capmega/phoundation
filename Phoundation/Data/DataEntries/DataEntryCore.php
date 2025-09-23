@@ -856,7 +856,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                                                 ->setDisabled(true)
                                                 ->setInputType(EnumInputType::dbid)
                                                 ->addClasses('text-center')
-                                                ->setSize(3)
+                                                ->setSize(4)
                                                 ->setCliAutoComplete(true)
                                                 ->setTooltip(tr('This column contains the unique identifier for this object inside the database. It cannot be changed and is used to identify objects'))
                                                 ->setLabel(tr('Database ID')));
