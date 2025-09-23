@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Page reports/security/incidents
+ * Page /reports/security/incidents
  *
  *
  *
