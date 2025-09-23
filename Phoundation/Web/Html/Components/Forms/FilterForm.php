@@ -281,7 +281,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        $o_definition = $this->o_definitions->get($key, exception: $exception);
+        $o_definition = $this->o_definitions->get($key, exception: $exception ?? $this->exception_on_get);
 
         if (!$o_definition?->getRender()) {
             // NOTE: Non-rendered elements will always return null
