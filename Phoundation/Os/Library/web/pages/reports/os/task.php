@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Os\Tasks\Task;
-use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
@@ -37,13 +36,13 @@ $get = GetValidator::new()
 
 // Build the page content
 $o_task = Task::new()->load($get['id']);
-$form   = $o_task->getHtmlDataEntryFormObject();
 $o_card = Card::new()
               ->setTitle($o_task->getName())
               ->setMaximizeSwitch(true)
-              ->setContent($form)
+              ->setContent($o_task->getHtmlDataEntryFormObject())
               ->setButtonsObject(Buttons::new()->addButton(
-                  tr('Back'), EnumDisplayMode::secondary,
+                  tr('Back'),
+                  EnumDisplayMode::secondary,
                   Url::newPrevious('/reports/security/incidents.html')->addQueries(
                       $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
                   ),
@@ -52,31 +51,24 @@ $o_card = Card::new()
 
 // Build relevant links
 $o_relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent(AnchorBlock::new(Url::new('/security/authentications.html')
-                                                      ->makeWww()
-                                                      ->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
-                                  AnchorBlock::new(Url::new('/reports/security/incidents.html')
-                                                      ->makeWww()
-                                                      ->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
-                                  AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Non-200 URL\'s management')) .
-                                  hr(AnchorBlock::new(Url::new('/accounts/users.html')
-                                                         ->makeWww(), tr('Users management')) .
-                                     AnchorBlock::new(Url::new('/accounts/roles.html')
-                                                         ->makeWww(), tr('Roles management')) .
-                                     AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
+                                    AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Incidents management')) .
+                                    hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
+                                       AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
+                                       AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));
 
 
 // Build documentation
 $o_documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('This page shows the details of a single specific task. The information on this page cannot be modified');
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('This page shows the details of a single specific task. The information on this page cannot be modified');
 
 
 // Set page meta data
-$url = Url::new('/reports/os/tasks.html')->makeWww()->addQueries(
+$o_url = Url::new('/reports/os/tasks.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 );
 
@@ -85,7 +77,7 @@ Response::setHeaderSubTitle($o_task->getDisplayId());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'             , tr('Home')),
     Breadcrumb::new('/security.html', tr('Security')),
-    Breadcrumb::new($url            , tr('Task management')),
+    Breadcrumb::new($o_url          , tr('Task management')),
     Breadcrumb::new(''              , $o_task->getDisplayId()),
 ]);
 

@@ -36,11 +36,11 @@ trait TraitDataEntryException
     /**
      * Sets the exception for this object
      *
-     * @param Throwable|string|null $exception
+     * @param Throwable|array|string|null $exception
      *
      * @return static
      */
-    public function setException(Throwable|string|null $exception): static
+    public function setException(Throwable|array|string|null $exception): static
     {
         if (is_object($exception)) {
             if (!$exception instanceof PhoException) {

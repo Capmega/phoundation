@@ -80,7 +80,6 @@ $o_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww()->addQueries($filters->getUsersId() ? 'users_id=' . $filters->getUsersId() : '')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Incidents management')) .
-                                  AnchorBlock::new(Url::new('/security/non-200-urls.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Non-200 URL\'s management')) .
                                   hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
                                      AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
                                      AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));

@@ -158,20 +158,25 @@ class SystemRequest implements SystemRequestInterface
         } else {
             if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
                 if (!Core::getReadonly()) {
-                    try {
-                        Non200Url::new()
-                                 ->setPermitValidationFailures(EnumSoftHard::hard)
-                                 ->generate($http_code)
-                                 ->save();
-
-                    } catch (Throwable $f) {
-                        Incident::new($f)
-                                ->setType('database')
-                                ->setTitle('Failed to register non HTTP-200 URL')
-                                ->setLog(9)
-                                ->setNotifyRoles('developer')
-                                ->save();
-                    }
+                    Incident::new()
+                        ->setType('non-200-pages')
+                        ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
+                        ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
+                            ':http' => $http_code,
+                            ':url'  => Request::getUrlObject()
+                        ]))
+                        ->setDetails([
+                            'http'           => $http_code,
+                            'url'            => Request::getUrlObject(),
+                            'remote_ip'      => Route::getRemoteIp(),
+                            'request_method' => Route::getMethod(),
+                            'headers'        => Route::getHeaders(),
+                            'cookies'        => Route::getCookies(),
+                            'get'            => GetValidator::getBackup(),
+                            'post'           => Route::getPostData(),
+                        ])
+                        ->setNotifyRoles('developer')
+                        ->save();
                 }
 
                 Log::warning('Registered request as non HTTP-200 URL');

@@ -45,9 +45,8 @@ Response::setBreadcrumbs([
 // Build link cards
 $o_card = Card::new()
             ->setTitle(tr('Security management'))
-            ->setContent(AnchorBlock::new('/security/authentications.html', tr('Authentications management')) .
-                         AnchorBlock::new('/reports/security/incidents.html', tr('Incidents management')) .
-                         AnchorBlock::new('/security/non-200-urls.html', tr('Non-200 URL\'s management')));
+            ->setContent(AnchorBlock::new('/reports/security/authentications.html', tr('Authentications management')) .
+                         AnchorBlock::new('/reports/security/incidents.html', tr('Incidents management')));
 
 
 // Render and return the grid

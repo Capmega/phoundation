@@ -1886,7 +1886,7 @@ class DefinitionFactory
     {
         return DefinitionFactory::newDatabaseId($column)
                                 ->setDisabled(true)
-                                ->setSize(4)
+                                ->setSize(3)
                                 ->setLabel(tr('Created by'))
                                 ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
@@ -1932,7 +1932,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
                          ->addClasses('text-center')
-                         ->setSize(4)
+                         ->setSize(3)
                          ->setMaxLength(20)
                          ->setTooltip(tr('This column contains the exact date / time when this object was created'))
                          ->setLabel(tr('Created on'));
@@ -2083,7 +2083,7 @@ class DefinitionFactory
                          ->setInputType(EnumInputType::text)
                          ->setTooltip(tr('This column contains the current status of this object. A typical status is "Ok", but objects may also be "Deleted" or "In process", for example. Depending on their status, objects may be visible in tables, or not'))
                          ->addClasses('text-center')
-                         ->setSize(4)
+                         ->setSize(3)
                          ->setMaxLength(32)
                          ->setLabel(tr('Status'));
     }
