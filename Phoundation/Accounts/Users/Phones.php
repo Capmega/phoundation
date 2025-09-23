@@ -46,6 +46,7 @@ class Phones extends DataIterator implements PhonesInterface
         setParentObject as __setParent;
     }
 
+
     /**
      * Users class constructor
      */
@@ -54,8 +55,9 @@ class Phones extends DataIterator implements PhonesInterface
         $this->setQuery('SELECT   `accounts_phones`.*
                          FROM     `accounts_phones`
                          WHERE    `accounts_phones`.`users_id` = :users_id
-                           AND    `accounts_phones`.`status` IS NULL
+                         AND      `accounts_phones`.`status` IS NULL
                          ORDER BY `phone`');
+
         parent::__construct();
     }
 
@@ -96,7 +98,7 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|UrlInterface|RenderInterface|null $o_parent
      *
      * @return static
      */
