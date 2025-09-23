@@ -214,24 +214,14 @@ class Phones extends DataIterator implements PhonesInterface
 
                 // Pre-validate the phone number because we need the phone numbers sanitized for comparison later!
                 $phone = ArrayValidator::new($phone)
-                                       ->select('phone')
-                                       ->isOptional()
-                                       ->sanitizePhoneNumber()
-                                       ->select('delete')
-                                       ->isOptional()
-                                       ->sanitizeToBoolean()
-                                       ->select('account_type')
-                                       ->isOptional('other')
-                                       ->hasMaxCharacters(8)
-                                       ->sanitizeLowercase()
-                                       ->isInArray([
+                                       ->select('phone')->isOptional()->sanitizePhoneNumber()
+                                       ->select('delete')->isOptional()->sanitizeToBoolean()
+                                       ->select('account_type')->isOptional('other')->hasMaxCharacters(8)->sanitizeLowercase()->isInArray([
                                            'personal',
                                            'business',
                                            'other',
                                        ])
-                                       ->select('description')
-                                       ->isOptional()
-                                       ->isDescription()
+                                       ->select('description')->isOptional()->isDescription()
                                        ->validate();
 
                 // Ignore empty entries
