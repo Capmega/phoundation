@@ -42,6 +42,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
@@ -4081,5 +4082,24 @@ class Definition implements DefinitionInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Converts and returns the specified column name into a get or set method
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function getDataEntryMethodName(string $type): string
+    {
+        // Convert underscore to camelcase
+        $return = $this->getColumn();
+        $return = explode('_', $return);
+        $return = array_map('ucfirst', $return);
+        $return = implode('', $return);
+
+        return $type . ucfirst($return);
     }
 }

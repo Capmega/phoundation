@@ -2143,7 +2143,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     // Don't process columns that will not render
                     if ($o_definition->getVirtual() and $o_definition->getRender()) {
                         // Try to resolve this column using the get method for that column
-                        $method = $this->convertColumnToMethod($column, 'get');
+                        $method = $o_definition->getDataEntryMethodName('get');
 
                         if (method_exists(static::class, $method)) {
                             $source[$column] = $this->$method();
@@ -2906,13 +2906,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
          * 2) This method was called with the $directly flag
          * 3) If this specific column has no direct methods defined and updates directly
          */
-        if (!static::requireDefinitionsMethods() or $directly or $this->getDefinitionsObject()->get($column)?->getDirectUpdate()) {
+        if (!static::requireDefinitionsMethods() or $directly or $o_definition->getDirectUpdate()) {
             // Store data directly, bypassing the set method for this key
             $this->set($value, $column);
 
         } else {
             // Store this data through the set method to ensure datatype and filtering is done correctly
-            $method = $this->convertColumnToMethod($column, 'set');
+            $method = $o_definition->getDataEntryMethodName('set');
 
             if (!$o_definition->inputTypeIsScalar()) {
                 // This input type is not scalar and as such has been stored as a JSON array
@@ -2920,7 +2920,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             try {
-                if ($this->getDefinitionsObject()->get($column)->getContainsData()) {
+                if ($o_definition->getContainsData()) {
                     if ($this->debug) {
                         Log::dump('SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $column . '" using ' . Strings::fromReverse(static::class, '\\') . '::' . $method . '() ' . (method_exists($this, $method) ? '(exists)' : '(NOT exists)') . ' TO "' . Strings::log($value) . ' [' . get_class_or_datatype($value) . ']"', 10, echo_header: false);
                     }
@@ -3000,30 +3000,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public static function requireDefinitionsMethods(): bool
     {
         return true;
-    }
-
-
-    /**
-     * Converts and returns the specified column name into a get or set method
-     *
-     * @param string $column
-     * @param string $type
-     *
-     * @return string
-     */
-    protected function convertColumnToMethod(string $column, string $type): string
-    {
-        // Convert underscore to camelcase
-        // Remove the prefix from the column
-        if ($this->getDefinitionsObject()->getPrefix()) {
-            $column = Strings::from($column, $this->getDefinitionsObject()->getPrefix());
-        }
-
-        $return = explode('_', $column);
-        $return = array_map('ucfirst', $return);
-        $return = implode('', $return);
-
-        return $type . ucfirst($return);
     }
 
 
@@ -5099,7 +5075,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return array
      */
-    public function getSqlSource(bool $insert): array
+    public function getSourceForDatabase(bool $insert): array
     {
         $return = [];
 
@@ -5117,11 +5093,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
             }
 
+            // Determine the column to update and what DataEntry::getMETHOD() should be used
             $column = $o_definition->getColumn();
+            $method = $o_definition->getDataEntryMethodName('get');
 
-            // TODO The next line should and AFAIK IS applied during validation, what is it doing here? DELETE!
-            // Apply definition default
-            $return[$column] = array_get_safe($this->source, $column) ?? $o_definition->getDefault();
+            $return[$column] = $this->$method();
 
             // Ensure values are scalar for the SQL query
             if (($return[$column] !== null) and !is_scalar($return[$column])) {
