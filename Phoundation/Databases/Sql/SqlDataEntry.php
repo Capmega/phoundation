@@ -41,6 +41,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 
+
 class SqlDataEntry implements SqlDataEntryInterface
 {
     use TraitDataDataEntry {
@@ -191,68 +192,11 @@ class SqlDataEntry implements SqlDataEntryInterface
 
         while ($retry++ < $this->max_id_retries) {
             try {
-                // Write the entry
-                if ($this->insert_update) {
-                    // THIS OBJECT ALWAYS INSERT / UPDATES. Init the random table ID
-                    if ($this->random_id) {
-                        $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
-                    }
-
-                    $update = $this->o_data_entry->getSqlSource(false);
-                    $insert = $this->o_data_entry->getSqlSource(true);
-
-                    // With these queries always do add the id column
-                    $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
-                    return $this->insertUpdate($insert, $update, $comments, $this->o_data_entry->getDiff());
-                }
-
-                if ($this->o_data_entry->isNew()) {
-                    // NEW ENTRY, INSERT. Init the random table ID
-                    if ($this->random_id) {
-                        $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
-                    }
-
-                    $insert = $this->o_data_entry->getSqlSource(true);
-                    $insert = Arrays::prepend($insert, $this->id_column, $random_id);
-
-                    return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
-                }
-
-                // EXISTING ENTRY, UPDATE
-                return $this->update($this->o_data_entry->getSqlSource(false), $comments, $this->o_data_entry->getDiff());
+                return $this->writeEntry($comments);
 
             } catch (SqlException $e) {
-                if ($e->getCode() !== 1062) {
-                    // Some different error, keep throwing
-                    throw $e;
-                }
-
-                // Duplicate entry, which?
-                $column = $e->getMessage();
-                $column = Strings::until(Strings::fromReverse($column, 'key \''), '\'');
-                $column = Strings::from($column, '.');
-                $column = trim($column);
-
-                if ($column === $this->id_column) {
-                    // Duplicate ID, try with a different random number
-                    if (isset($insert)) {
-                        Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":row_id" encountered for insert in table ":table", retrying', [
-                            ':row_id' => $insert[$this->id_column],
-                            ':table'  => $this->table,
-                        ]));
-
-                    } else {
-                        Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry encountered for insert in table ":table", retrying', [
-                            ':table' => $this->table,
-                        ]));
-                    }
-                    continue;
-                }
-
-                // Duplicate another column, continue throwing
-                throw new SqlContstraintDuplicateEntryException(tr('Duplicate entry encountered for column ":column"', [
-                    ':column' => $column,
-                ]), $e);
+                $this->handleWriteException($e);
+                continue;
             }
         }
 
@@ -260,6 +204,93 @@ class SqlDataEntry implements SqlDataEntryInterface
         throw new SqlException(tr('Could not find a unique id in ":retries" retries', [
             ':retries' => $this->max_id_retries,
         ]));
+    }
+
+
+    /**
+     * Handles all SQL exceptions from the attempt to write the DataEntry to the database
+     *
+     * @param SqlException $e
+     *
+     * @return void
+     * @throws Exception
+     */
+    protected function handleWriteException(SqlException $e): void
+    {
+        if ($e->getCode() !== 1062) {
+            // Some different error, keep throwing
+            throw $e;
+        }
+
+        // Duplicate entry, which?
+        $column = $e->getMessage();
+        $column = Strings::until(Strings::fromReverse($column, 'key \''), '\'');
+        $column = Strings::from($column, '.');
+        $column = trim($column);
+
+        if ($column === $this->id_column) {
+            // Duplicate ID, try with a different random number
+            if (isset($insert)) {
+                Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":row_id" encountered for insert in table ":table", retrying', [
+                        ':row_id' => $insert[$this->id_column],
+                        ':table'  => $this->table,
+                    ]));
+
+            } else {
+                Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry encountered for insert in table ":table", retrying', [
+                        ':table' => $this->table,
+                    ]));
+            }
+
+            return;
+        }
+
+        // Duplicate another column, continue throwing
+        throw new SqlContstraintDuplicateEntryException(tr('Duplicate entry encountered for column ":column"', [
+            ':column' => $column,
+        ]), $e);
+    }
+
+
+    /**
+     * Writes the DataEntry data to the database
+     *
+     * @param string|null $comments
+     *
+     * @return array
+     * @throws Exception
+     */
+    protected function writeEntry(?string $comments): array
+    {
+        // Write the entry
+        if ($this->insert_update) {
+            // THIS OBJECT ALWAYS INSERT / UPDATES. Init the random table ID
+            if ($this->random_id) {
+                $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
+            }
+
+            $update = $this->o_data_entry->getSourceForDatabase(false);
+            $insert = $this->o_data_entry->getSourceForDatabase(true);
+
+            // With these queries always do add the id column
+            $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
+            return $this->insertUpdate($insert, $update, $comments, $this->o_data_entry->getDiff());
+        }
+
+        if ($this->o_data_entry->isNew()) {
+            // NEW ENTRY, INSERT. Init the random table ID
+            if ($this->random_id) {
+                $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
+            }
+
+            $insert = $this->o_data_entry->getSourceForDatabase(true);
+            $insert = Arrays::prepend($insert, $this->id_column, $random_id);
+
+            return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
+        }
+
+        // EXISTING ENTRY, UPDATE
+        return $this->update($this->o_data_entry->getSourceForDatabase(false), $comments, $this->o_data_entry->getDiff());
     }
 
 
