@@ -670,38 +670,39 @@ class Debug
                         $value = [
                             ''         => 'DataEntry object',
                             'class'    => get_class($value),
-                            'contents' => $value->getSource(),
+                            'source'   => $value->getSource(),
+                            'state'    => $value->getObjectState(),
                         ];
 
                     } else {
                         $value = [
-                            ''         => 'Entry object',
-                            'class'    => get_class($value),
-                            'contents' => $value->getSource(),
+                            ''       => 'Entry object',
+                            'class'  => get_class($value),
+                            'source' => $value->getSource(),
                         ];
                     }
 
                 } elseif ($value instanceof IteratorInterface) {
                     if ($value instanceof DataIteratorInterface) {
                         $value = [
-                            ''         => 'DataIterator object',
-                            'class'    => get_class($value),
-                            'contents' => $value->getSource(),
+                            ''       => 'DataIterator object',
+                            'class'  => get_class($value),
+                            'source' => $value->getSource(),
                         ];
 
                     } else {
                         $value = [
-                            ''         => 'Iterator object',
-                            'class'    => get_class($value),
-                            'contents' => $value->getSource(),
+                            ''       => 'Iterator object',
+                            'class'  => get_class($value),
+                            'source' => $value->getSource(),
                         ];
                     }
 
                 } else {
                     $value = [
-                        ''         => 'Arreable object',
-                        'class'    => get_class($value),
-                        'contents' => $value->getSource(),
+                        ''       => 'Arreable object',
+                        'class'  => get_class($value),
+                        'source' => $value->getSource(),
                     ];
                 }
                 // no break
