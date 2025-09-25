@@ -14,10 +14,15 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // Set page meta data

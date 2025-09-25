@@ -14,8 +14,13 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // Set page meta data
@@ -26,6 +31,8 @@ Response::setBreadcrumbs([
    Breadcrumb::new('/demos.html', tr('Demos')),
    Breadcrumb::new(''           , tr('Contact us')),
 ]);
+
+
 ?>
 <!-- Main content -->
 <section class="content">
