@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ResourceElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\ResourceElement;
 
 
@@ -306,4 +307,13 @@ interface InputSelectInterface extends ResourceElementInterface, BeforeAfterCont
      * @return static
      */
     public function setValueColumn(?string $value_column): static;
+
+    /**
+     * Sets if the element will auto submit
+     *
+     * @param ScriptInterface|bool $auto_submit
+     *
+     * @return static
+     */
+    public function setAutoSubmit(ScriptInterface|bool $auto_submit): static;
 }
