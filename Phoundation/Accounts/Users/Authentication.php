@@ -184,11 +184,11 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Returns the captcha_required for this authentication
      *
-     * @return int|bool|null
+     * @return bool|null
      */
-    public function getCaptchaRequired(): int|bool|null
+    public function getCaptchaRequired(): bool|null
     {
-        return $this->getTypesafe('string', 'captcha_required');
+        return (bool) $this->getTypesafe('bool', 'captcha_required');
     }
 
 
@@ -201,7 +201,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
      */
     public function setCaptchaRequired(int|bool|null $user_agent): static
     {
-        return $this->set($user_agent, 'captcha_required');
+        return $this->set((bool) $user_agent, 'captcha_required');
     }
 
 

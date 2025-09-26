@@ -157,26 +157,31 @@ class SystemRequest implements SystemRequestInterface
 
         } else {
             if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
+                // Don't register anything if we're in readonly mode
                 if (!Core::getReadonly()) {
-                    Incident::new()
-                        ->setType('non-200-pages')
-                        ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
-                        ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
-                            ':http' => $http_code,
-                            ':url'  => Request::getUrlObject()
-                        ]))
-                        ->setDetails([
-                            'http'           => $http_code,
-                            'url'            => Request::getUrlObject(),
-                            'remote_ip'      => Route::getRemoteIp(),
-                            'request_method' => Route::getMethod(),
-                            'headers'        => Route::getHeaders(),
-                            'cookies'        => Route::getCookies(),
-                            'get'            => GetValidator::getBackup(),
-                            'post'           => Route::getPostData(),
-                        ])
-                        ->setNotifyRoles('developer')
-                        ->save();
+                    // Don't register 404's on favicon requests
+                    if (!Route::isFaviconRequest()) {
+                        Incident::new()
+                                ->setType('non-200-pages')
+                                ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
+                                ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
+                                    ':http' => $http_code,
+                                    ':url'  => Request::getUrlObject()
+                                ]))
+                                ->setDetails([
+                                    'http'           => $http_code,
+                                    'url'            => Request::getUrlObject(),
+                                    'remote_ip'      => Route::getRemoteIp(),
+                                    'request_method' => Route::getMethod(),
+                                    'headers'        => Route::getHeaders(),
+                                    'cookies'        => Route::getCookies(),
+                                    'get'            => GetValidator::getBackup(),
+                                    'post'           => Route::getPostData(),
+                                    'session'        => Session::getSource(),
+                                ])
+                                ->setNotifyRoles('developer')
+                                ->save();
+                    }
                 }
 
                 Log::warning('Registered request as non HTTP-200 URL');
@@ -364,7 +369,7 @@ class SystemRequest implements SystemRequestInterface
         if (config()->getArrayBoolean('web.route.known-hacks', false)) {
             Log::warning(ts('Applying known hacking rules'));
 
-            foreach (config()->get('web.route.known-hacks') as $hacks) {
+            foreach (config()->getArray('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore
                 static::try($hacks['regex'], array_get_safe($hacks, 'url'), array_get_safe($hacks, 'flags'));
             }

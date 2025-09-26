@@ -928,7 +928,7 @@ throw new ObsoleteException();
      */
     public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
-        foreach ($this->source as $entry) {
+        foreach ($this as $entry) {
             $entry->setStatus($status, $comments, $auto_save);
         }
 

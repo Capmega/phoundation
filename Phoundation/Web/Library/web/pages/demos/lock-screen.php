@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
@@ -23,6 +24,11 @@ use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Html\Html;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
+
 
 // Set page meta data
 Response::setHeaderTitle(tr('Lock screen'));

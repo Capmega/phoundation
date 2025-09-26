@@ -356,6 +356,7 @@ class Config implements ConfigInterface
 
         // Is there a cached configuration available?
         $path = Strings::force($path, '.');
+        $path = str_replace('_', '-', $path);
 
         if ($use_cache and array_key_exists($path, $this->cache)) {
             return $this->cache[$path];

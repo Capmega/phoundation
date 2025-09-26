@@ -1649,4 +1649,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return Definition
      */
     public function setEventHandlers(?array $handlers): static;
+
+    /**
+     * Converts and returns the specified column name into a get or set method
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function getDataEntryMethodName(string $type): string;
 }
