@@ -461,23 +461,36 @@ abstract class Updates implements UpdatesInterface
             return;
         }
 
+        // vendor column was added in version 6000
         if (Libraries::supportsVendors()) {
-            sql()->insert('core_versions', [
-                'vendor'              => $this->vendor,
-                'library'             => $this->library,
-                'version'             => Version::getInteger($version),
-                'project_version'     => Version::getInteger(Project::getVersion()),
-                'phoundation_version' => Version::getInteger(Core::PHOUNDATION_VERSION),
-                'comments'            => $comments,
-            ]);
+            // phoundation_version and project_version columns were added in version 9000
+            if (Libraries::supportsPhoundationVersions()) {
+                // 9000 <= version
+                sql()->insert('core_versions', [
+                    'vendor'              => $this->vendor,
+                    'library'             => $this->library,
+                    'version'             => Version::getInteger($version),
+                    'project_version'     => Version::getInteger(Project::getVersion()),
+                    'phoundation_version' => Version::getInteger(Core::PHOUNDATION_VERSION),
+                    'comments'            => $comments,
+                ]);
+
+            } else {
+                // 6000 <= version < 9000
+                sql()->insert('core_versions', [
+                    'vendor'              => $this->vendor,
+                    'library'             => $this->library,
+                    'version'             => Version::getInteger($version),
+                    'comments'            => $comments,
+                ]);
+            }
 
         } else {
+            // version < 6000
             sql()->insert('core_versions', [
-                'library'             => $this->library,
-                'version'             => Version::getInteger($version),
-                'project_version'     => Version::getInteger(Project::getVersion()),
-                'phoundation_version' => Version::getInteger(Core::PHOUNDATION_VERSION),
-                'comments'            => $comments,
+                'library'  => $this->library,
+                'version'  => Version::getInteger($version),
+                'comments' => $comments,
             ]);
         }
     }
