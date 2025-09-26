@@ -31,24 +31,24 @@ $get = GetValidator::new()
                    ->validate();
 
 
-$meta  = MetaList::new($get['id']);
-$o_card  = Card::new()
-             ->setTitle('Registered activities')
-             ->setSwitches('reload,maximize')
-             ->setContent($meta->getHtmlDataTableObject([
-                 'created_on' => tr('Date / Time'),
-                 'user'       => tr('User'),
-                 'action'     => tr('Action'),
-                 'url'        => tr('URL'),
-                 'changes'    => tr('Changes')
-             ]));
+$o_meta = MetaList::new($get['id']);
+$o_card = Card::new()
+              ->setTitle('Registered activities')
+              ->setSwitches('reload,maximize')
+              ->setContent($o_meta->getHtmlDataTableObject([
+                  'created_on' => tr('Date / Time'),
+                  'user'       => tr('User'),
+                  'action'     => tr('Action'),
+                  'url'        => tr('URL'),
+                  'changes'    => tr('Changes')
+              ]));
 
 
 // Build documentation
-$documentation = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Documentation'))
-                     ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
+$o_documentation = Card::new()
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Documentation'))
+                       ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Set page meta data
@@ -63,4 +63,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($o_card         , EnumDisplaySize::nine)
-           ->addGridColumn($documentation, EnumDisplaySize::three);
+           ->addGridColumn($o_documentation, EnumDisplaySize::three);

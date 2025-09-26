@@ -102,7 +102,7 @@ class MetaList
                 $row['source'] = Anchor::new($row['source'], $row['source']);
             }
 
-            if (array_get_safe($row, 'data'['to'])) {
+            if (array_get_safe($row['data'], 'to')) {
                 foreach (['to', 'from',] as $section) {
                     unset($row['data'][$section]['id']);
                     unset($row['data'][$section]['created_by']);
@@ -120,7 +120,7 @@ class MetaList
 
                 unset($value);
 
-                if (array_get_safe($row, 'data'['from'])) {
+                if (array_get_safe($row['data'], 'from')) {
                     foreach ($row['data']['from'] as &$value) {
                         if ($value) {
                             $value = '<span class="danger">' . Html::safe($value) . '</span>';
