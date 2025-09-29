@@ -188,6 +188,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected array $anchors = [];
 
+    /**
+     * Tracks what content should be rendered if the cell is empty
+     *
+     * @var string $empty_cell
+     */
+    protected string $empty_cell = '-';
+
 
     /**
      * Table constructor
@@ -268,6 +275,31 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setHeaderText(?string $header_text): static
     {
         $this->header_text = $header_text;
+        return $this;
+    }
+
+
+    /**
+     * Returns what content should be rendered if the cell is empty
+     *
+     * @return string|null
+     */
+    public function getEmptyCell(): ?string
+    {
+        return $this->empty_cell;
+    }
+
+
+    /**
+     * Sets what content should be rendered if the cell is empty
+     *
+     * @param string|null $empty_cell
+     *
+     * @return static
+     */
+    public function setEmptyCell(?string $empty_cell): static
+    {
+        $this->empty_cell = $empty_cell;
         return $this;
     }
 
@@ -861,6 +893,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             // Default status label for when status is NULL
             $value = $this->null_status;
         }
+
+        $value = $value ?: $this->empty_cell;
 
         // Use row or column URL's?
         // Use column convert?
