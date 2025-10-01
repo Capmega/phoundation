@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components;
 
+use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
@@ -65,7 +66,7 @@ class Audio extends Element
      *
      * @return ?PhoFileInterface
      */
-    public function getFile(): ?PhoFileInterface
+    public function getFileObject(): ?PhoFileInterface
     {
         $file = $this->o_attributes->get('src', exception: false);
 
@@ -84,9 +85,9 @@ class Audio extends Element
      *
      * @return static
      */
-    public function setFile(PhoFileInterface $file): static
+    public function setFileObject(PhoFileInterface $file): static
     {
-        return $this->setAttribute($file->getFrom(DIRECTORY_CDN . LANGUAGE . '/phoundation/'), 'src');
+        return $this->setAttribute($file->getFrom(DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/'), 'src');
     }
 
 

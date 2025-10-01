@@ -123,7 +123,7 @@ class Audio extends PhoFile
                 case EnumRequestTypes::html:
                     Response::addHtmlToPageFooters(\Phoundation\Web\Html\Components\Audio::new()
                                                                                          ->addClasses($class)
-                                                                                         ->setFile($this)
+                                                                                         ->setFileObject($this)
                                                                                          ->render());
                     break;
 
