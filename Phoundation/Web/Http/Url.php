@@ -120,7 +120,7 @@ class Url implements UrlInterface
     public function __toString(): string
     {
         // Empty URL's are considered absolute
-        if ($this->source and !$this->isAbsolute()) {
+        if (!$this->isAbsolute()) {
             $this->makeWww();
         }
 
@@ -504,8 +504,8 @@ class Url implements UrlInterface
     public function canMakeAbsolute(): bool
     {
         if (empty($this->source)) {
-            // This is a NULL URL, don't do anything
-            return false;
+            // This is a NULL URL
+            return true;
         }
 
         if (str_starts_with($this->source, '#')) {
@@ -1109,7 +1109,8 @@ class Url implements UrlInterface
     {
         if (empty($this->source)) {
             // There is no URL to work with, we're done
-            return $this;
+            $this->source = Request::getUrl();
+            $extension    = '';
         }
 
         $url = $this->source;
@@ -1638,6 +1639,7 @@ class Url implements UrlInterface
     protected function mapLanguage($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
     {
         throw new UnderConstructionException('Url::domain() is GARBAGE! DO NOT USE');
+
         /*
          * Do language mapping, but only if routemap has been set
          */
