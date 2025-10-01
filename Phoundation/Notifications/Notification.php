@@ -999,9 +999,10 @@ FILES variables:
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->isJson();
-                                    }))
+                                    }));
 
-                    ->get('status')->setDefault('UNREAD');
+        $o_definitions->get('status')->setDefault('UNREAD');
+        $o_definitions->get('created_by')->setSize(3);
 
         return $this;
     }

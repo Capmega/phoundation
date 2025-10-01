@@ -52,6 +52,7 @@ if (Request::isPostRequestMethod()) {
                     ':notification' => $notification->getTitle()
                 ]));
         }
+
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessagesObject()->addMessage($e);
