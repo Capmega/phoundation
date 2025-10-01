@@ -399,6 +399,35 @@ class Url implements UrlInterface
      *
      * @return static
      */
+    public static function newPrimaryCdnDomainRootUrl(?string $language = null): string
+    {
+        if (empty($language)) {
+            $language = Session::getLanguage();
+        }
+
+        $return = config()->getString('web.domains.primary.cdn');
+        $return = str_replace(':LANGUAGE', $language, $return);
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function newPrimaryCdnDomainRootUrlObject(): static
+    {
+        return Url::newPrimaryCdnDomainRootUrl();
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
     public static function newPrimaryDomainRootUrl(): static
     {
         return Url::new(config()->getString('web.domains.primary.web'))->makeWww();
@@ -1074,23 +1103,22 @@ class Url implements UrlInterface
         if ($cloak) {
             // Found cloaking URL, update the created_on time so that it won't expire too soon
             sql()->query('UPDATE `url_cloaks` 
-                                SET    `created_on` = NOW() 
-                                WHERE  `url`        = :url', [
+                          SET    `created_on` = NOW() 
+                          WHERE  `url`        = :url', [
                 ':url' => $this->source,
             ]);
 
         } else {
             $cloak = Strings::getRandom(32);
+
             sql()->insert('url_cloaks', [
-                'created_by' => Session::getUserObject()
-                                       ->getId(),
+                'created_by' => Session::getUserObject()->getId(),
                 'cloak'      => $cloak,
                 'url'        => $this->source,
             ]);
         }
 
         $this->source = $cloak;
-
         return $this;
     }
 
@@ -1195,7 +1223,7 @@ class Url implements UrlInterface
 
         $url  = static::applyPredefined($url);
         $url  = static::applyVariables($url);
-        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
+        $base = Url::newPrimaryCdnDomainRootUrl();
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
         $url  = Strings::ensureBeginsNotWith($url, '/');
