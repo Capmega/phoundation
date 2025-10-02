@@ -3171,7 +3171,11 @@ class Core implements CoreInterface
                 showdie($e);
 
             case EnumRequestTypes::ajax:
-                if ($e->getWarning()) {
+                if ($e instanceof AccessDeniedException) {
+                    $e->setWarning(true);
+                    $message = tr('You do not have the required rights to access to the requested background resource. Please contact your system administrator to fix this');
+
+                } elseif ($e->getWarning()) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
 

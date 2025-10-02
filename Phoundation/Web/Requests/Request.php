@@ -58,6 +58,7 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Exception\RequestException;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
@@ -1385,7 +1386,7 @@ class Request implements RequestInterface
                     ])
                     ->setNotifyRoles('security')
                     ->save()
-                    ->throw();
+                    ->throw(AccessDeniedException::class);
         }
     }
 
@@ -1541,20 +1542,25 @@ class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        if ($e and (Debug::isEnabled() and $http_code > 0)) {
-            // In debug mode we don't show pretty pages, we dump all the exception data on screen
-            throw $e;
+        try {
+            if ($e and (Debug::isEnabled() and $http_code > 0)) {
+                // In debug mode we don't show pretty pages, we dump all the exception data on screen
+                throw $e;
+            }
+
+            static::$system_target = $http_code;
+            static::$is_system     = true;
+
+            if (!Session::hasStartedUp()) {
+                // Start session here because the reply will need it
+                Session::start();
+            }
+
+            SystemRequest::new()->execute(abs($http_code), $e, $message);
+
+        } catch (Throwable $e) {
+            throw new RequestException(tr('Failed to execute system page ":page"', [':page' => $http_code]), $e);
         }
-
-        static::$system_target = $http_code;
-        static::$is_system     = true;
-
-        if (!Session::hasStartedUp()) {
-            // Start session here because the reply will need it
-            Session::start();
-        }
-
-        SystemRequest::new()->execute(abs($http_code), $e, $message);
     }
 
 
