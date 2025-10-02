@@ -2517,7 +2517,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function lock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(PhoDateTime::new('2999/12/31 23:59:59'))
                     ->save()
@@ -2534,7 +2534,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function unlock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(null)
                     ->save()

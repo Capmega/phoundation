@@ -44,7 +44,9 @@ $get = GetValidator::new()
 
 
 // Get the requested user and modify form design
-$o_user = User::new()->loadThis($get['id']);
+$o_user = User::new()
+              ->setIgnoreDeleted(true)
+              ->loadThis($get['id']);
 $o_user->getDefinitionsObject()->setRenderMeta(!$o_user->isNew())
                                ->setDefinitionRender('latitude'        , false)
                                ->setDefinitionRender('longitude'       , false)
