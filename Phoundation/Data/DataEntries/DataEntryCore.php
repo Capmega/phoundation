@@ -644,15 +644,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function processDeleted(): void
     {
         // This entry has been deleted and can only be viewed by user with the "access_deleted" right
-        if (
-            $this->ignore_deleted or Session::getUserObject()
-                                            ->hasAllRights('access-deleted')
-        ) {
+        if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access-deleted')) {
             Log::warning(ts('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
                 ':class'      => static::class,
                 ':identifier' => $this->identifier,
                 ':log_id'     => $this->getLogId()
-            ]),          3);
+            ]), 3);
             return;
         }
 
