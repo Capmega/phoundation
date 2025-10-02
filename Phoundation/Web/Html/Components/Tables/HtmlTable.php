@@ -1071,7 +1071,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
 
             return $o_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
-                            ->setHref($anchor_url, false)
+                            ->setUrlObject($anchor_url, false)
                             ->setContent($value)
                             ->render();
         }

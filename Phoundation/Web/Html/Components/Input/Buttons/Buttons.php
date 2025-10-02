@@ -121,7 +121,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
                 default:
                     // This is a URL button, place an anchor with href instead
-                    $button->setAnchorUrl($type_or_url);
+                    $button->setUrlObject($type_or_url);
             }
         }
 

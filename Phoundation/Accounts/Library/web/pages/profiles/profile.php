@@ -98,7 +98,7 @@ if (Session::getUserObject()->hasAllRights(['accounts'])) {
                   ->setBlock(true)
                   ->setContent(tr('Edit'))
                   ->setContent(tr('Edit'))
-                  ->setAnchorUrl('/accounts/user+' . $user->getId() . '.html');
+                  ->setUrlObject('/accounts/user+' . $user->getId() . '.html');
 
     if ($user->canBeImpersonated()) {
         $impersonate = Button::new()

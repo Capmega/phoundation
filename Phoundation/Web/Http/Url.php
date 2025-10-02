@@ -526,6 +526,23 @@ class Url implements UrlInterface
 
 
     /**
+     * Ensures that the URL for this object is absolute
+     *
+     * @return static
+     */
+    public function ensureAbsolute(): static
+    {
+        if (!$this->isAbsolute()) {
+            if ($this->canMakeAbsolute()) {
+                $this->makeWww();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns true if this URL can be transformed into www, cdn, image url, etc.
      *
      * @return bool
@@ -2016,7 +2033,9 @@ class Url implements UrlInterface
      */
     public function getRights(bool $use_cache = true): array
     {
-        return $this->getRightsObject($use_cache)?->getSource() ?? [];
+        return $this->ensureAbsolute()
+                    ->getRightsObject($use_cache)
+                   ?->getSource() ?? [];
     }
 
 
@@ -2092,6 +2111,8 @@ class Url implements UrlInterface
     protected function parseRights(): ?array
     {
         if ($this->source) {
+            $this->ensureAbsolute();
+
             if ($this->hasRightsException()) {
                 // No rights are required at all
                 return null;
@@ -2101,8 +2122,10 @@ class Url implements UrlInterface
 
             if ($path) {
                 // Filter out the rights from the given URL
-                if (preg_match_all('/^\/?\w{2}\/(.+?)\/[^\/]+(?:\.\w+)?$/', $path, $matches)) {
-                    return explode('/', $matches[1][0]);
+                if (preg_match_all('/^\/?(?:\w{2}\/)?(?:(.+?)\/)?[^\/]+(?:\.\w+)?$/', $path, $matches)) {
+                    if ($matches[1][0]) {
+                        return explode('/', $matches[1][0]);
+                    }
                 }
             }
 
@@ -2185,8 +2208,6 @@ class Url implements UrlInterface
      */
     public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
     {
-        $basename = Strings::fromReverse($this->source, '/');
-
         return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
     }
 
@@ -2222,6 +2243,6 @@ class Url implements UrlInterface
      */
     public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
     {
-        return Anchor::new($this, $content)->setTarget($o_target);
+        return Anchor::new($this, $content)->setTargetObject($o_target);
     }
 }

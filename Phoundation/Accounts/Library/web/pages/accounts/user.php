@@ -71,7 +71,7 @@ if ($o_user->isNotNew()) {
     Request::getFileUploadHandlersObject()
            ->add(UploadHandler::new('image')
                               ->getDropZoneObject()
-                              ->setUrl(Url::new('accounts/user/image/upload+' . $o_user->getId())->makeAjax())
+                              ->setUrlObject(Url::new('accounts/user/image/upload+' . $o_user->getId())->makeAjax())
                               ->setSelector('#profile-picture-card')
                               ->setMaxFiles(0)
                               ->getHandlerObject())
@@ -227,7 +227,7 @@ if (!$o_user->isNew()) {
     $o_button_audit = Button::new()
                             ->setFloatRight(true)
                             ->setMode(EnumDisplayMode::information)
-                            ->setAnchorUrl('/audit/meta+' . $o_user->getMetaId() . '.html')
+                            ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html')
                             ->setFloatRight(true)
                             ->setContent(tr('Audit'))
                             ->setFloatRight(true);
@@ -257,7 +257,7 @@ if (!$o_user->isNew()) {
                         ->setTitle(tr('Edit roles for this user (:count)', [':count' => $o_user->getRolesObject()->getCount()]))
                         ->setContent($o_user->getRolesHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
-                                                  ->addButton(tr('Save'))
+                                                  ->addButton(isset_get($o_button_save))
                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_rights_card = Card::new()
@@ -287,7 +287,7 @@ if (!$o_user->isNew()) {
                          ->setTitle(tr('Additional email addresses for this user (:count)', [':count' => $o_user->getEmailsObject()->getCount()]))
                          ->setContent($o_user->getEmailsObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
-                                                   ->addButton(tr('Save'))
+                                                   ->addButton(isset_get($o_button_save))
                                                    ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_phones_card = Card::new()
@@ -296,7 +296,7 @@ if (!$o_user->isNew()) {
                          ->setTitle(tr('Additional phone numbers for this user (:count)', [':count' => $o_user->getPhonesObject()->getCount()]))
                          ->setContent($o_user->getPhonesObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
-                                                   ->addButton(tr('Save'))
+                                                   ->addButton(isset_get($o_button_save))
                                                    ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 }
 

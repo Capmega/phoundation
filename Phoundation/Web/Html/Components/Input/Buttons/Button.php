@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
@@ -23,11 +24,13 @@ use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
+use Phoundation\Web\Html\Traits\TraitUrlRightsRendering;
 use Stringable;
 
 
 class Button extends Input implements ButtonInterface
 {
+    use TraitUrlRightsRendering;
     use TraitButtonProperties {
         render as protected __render;
     }
@@ -154,7 +157,7 @@ class Button extends Input implements ButtonInterface
         if (empty($this->getValue())) {
             if ($this->isButtonType(EnumButtonType::submit)) {
                 if (empty($this->getContent())) {
-                    if (empty($this->getAnchorUrl())) {
+                    if (empty($this->getUrlObject())) {
                         // Value takes the content
                         throw new OutOfBoundsException(tr('Cannot render ":class" submit button object with name ":name", no value or anchor URL specified', [
                             ':name'  => $this->getName(),
@@ -166,6 +169,23 @@ class Button extends Input implements ButtonInterface
                     // By default, use the content as value
                     $this->setValue(strip_tags($this->getContent()));
                 }
+            }
+        }
+
+        // Should we render this URL at all?
+        if ($this->o_url) {
+            // Should we render this URL at all?
+            if (!$this->hasRenderRights()) {
+                return null;
+            }
+
+            if ($this->getUrlObject()->isEmpty()) {
+                if (empty($this->content)) {
+                    // This Anchor contains no URL nor text content to display. Render nothing instead
+                    return null;
+                }
+
+                $this->setElement('span')->addClass('anchor');
             }
         }
 

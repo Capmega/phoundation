@@ -18,7 +18,7 @@ namespace Phoundation\Network\Curl;
 
 use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
@@ -32,9 +32,11 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
+
 abstract class Curl implements CurlInterface
 {
-    use TraitDataUrl;
+    use TraitDataUrlObject;
+
 
     /**
      * The actual cURL interface

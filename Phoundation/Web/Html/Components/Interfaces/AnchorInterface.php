@@ -18,18 +18,18 @@ interface AnchorInterface extends SpanInterface
      *
      * @return UrlInterface|null
      */
-    public function getHref(): ?UrlInterface;
+    public function getUrlObject(): ?UrlInterface;
 
 
     /**
      * Sets the href for this anchor
      *
-     * @param UrlInterface|string|null $o_href
+     * @param UrlInterface|string|null $o_url
      * @param bool                     $reset_rights_cache
      *
      * @return static
      */
-    public function setHref(UrlInterface|string|null $o_href, bool $reset_rights_cache = true): static;
+    public function setUrlObject(UrlInterface|string|null $o_url, bool $reset_rights_cache = true): static;
 
 
     /**
@@ -37,7 +37,7 @@ interface AnchorInterface extends SpanInterface
      *
      * @return EnumAnchorTarget|null
      */
-    public function getTarget(): ?EnumAnchorTarget;
+    public function getTargetObject(): ?EnumAnchorTarget;
 
 
     /**
@@ -47,7 +47,7 @@ interface AnchorInterface extends SpanInterface
      *
      * @return static
      */
-    public function setTarget(?EnumAnchorTarget $o_target): static;
+    public function setTargetObject(?EnumAnchorTarget $o_target): static;
 
 
     /**
@@ -85,11 +85,11 @@ interface AnchorInterface extends SpanInterface
      * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
      *
      * @param UserInterface|null $o_user
-     * @param bool               $force
+     * @param bool               $cache
      *
      * @return bool
      */
-    public function hasRequiredRights(?UserInterface $o_user = null, bool $force = false): bool;
+    public function hasRequiredRights(?UserInterface $o_user = null, bool $cache = false): bool;
 
 
     /**

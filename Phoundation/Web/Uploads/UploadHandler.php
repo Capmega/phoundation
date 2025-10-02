@@ -80,7 +80,7 @@ class UploadHandler implements UploadHandlerInterface
     public function __construct(IteratorInterface|array|string|null $mimetypes = null)
     {
         $this->getDropZoneObject()->setMimetypes($mimetypes)
-                                  ->setUrl(Url::newCurrent());
+                                  ->setUrlObject(Url::newCurrent());
     }
 
 

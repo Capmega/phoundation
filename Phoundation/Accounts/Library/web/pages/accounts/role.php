@@ -89,7 +89,7 @@ if ($o_role->isNotNew()) {
     $o_audit = Button::new()
                      ->setFloatRight(true)
                      ->setMode(EnumDisplayMode::information)
-                     ->setAnchorUrl('/audit/meta+' . $o_role->getMetaId() . '.html')
+                     ->setUrlObject('/audit/meta+' . $o_role->getMetaId() . '.html')
                      ->setFloatRight(true)
                      ->setContent(tr('Audit'));
 

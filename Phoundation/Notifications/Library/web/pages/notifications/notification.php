@@ -65,7 +65,7 @@ if ($notification->getUrl()) {
     $go = Button::new()
                 ->setFloatRight(true)
                 ->setContent(tr('Go'))
-                ->setAnchorUrl($notification->getUrl());
+                ->setUrlObject($notification->getUrl());
 }
 
 // Build the "notification" form

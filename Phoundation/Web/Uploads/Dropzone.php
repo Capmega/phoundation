@@ -22,7 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataMimetypes;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Traits\TraitDataTimeout;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpConfigurationException;
@@ -32,7 +32,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\Interfaces\DropzoneInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 
@@ -40,7 +39,7 @@ use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 class Dropzone implements DropzoneInterface
 {
     use TraitStaticMethodNew;
-    use TraitDataUrl;
+    use TraitDataUrlObject;
     use TraitDataMimetypes;
     use TraitDataRequestMethod {
         setRequestMethod as protected __setRequestMethod;
@@ -177,7 +176,7 @@ class Dropzone implements DropzoneInterface
      */
     public function __construct(UploadHandlerInterface $handler, ?string $selector = null)
     {
-        $this->setUrl(Url::newCurrent())
+        $this->setUrlObject(Url::newCurrent())
              ->setSelector($selector)
              ->setMaxFiles($this->getMaxFilesDefault())
              ->setRequestMethod(EnumHttpRequestMethod::post)
@@ -699,7 +698,7 @@ class Dropzone implements DropzoneInterface
     public function render(): ?string
     {
         $options = $this->generateOptionsJson([
-            'url'                   => $this->url,
+            'url'                   => $this->o_url,
             'method'                => $this->request_method->value,
             'maxFiles'              => $this->max_files,
             'parallelUploads'       => $this->parallel_uploads,

@@ -31,17 +31,11 @@ $get = GetValidator::new()
                    ->validate();
 
 
-$o_meta = MetaList::new($get['id']);
+$o_meta = MetaList::new($get['id'])->getHtmlDataTableObject();
 $o_card = Card::new()
-              ->setTitle('Registered activities')
+              ->setTitle(tr('Registered activities for this object (:count)', [':count' => $o_meta->getCount()]))
               ->setSwitches('reload,maximize')
-              ->setContent($o_meta->getHtmlDataTableObject([
-                  'created_on' => tr('Date / Time'),
-                  'user'       => tr('User'),
-                  'action'     => tr('Action'),
-                  'url'        => tr('URL'),
-                  'changes'    => tr('Changes')
-              ]));
+              ->setContent($o_meta);
 
 
 // Build documentation

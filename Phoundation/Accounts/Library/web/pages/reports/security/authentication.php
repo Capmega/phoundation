@@ -78,7 +78,7 @@ if (!$authentication->isNew()) {
     $audit = Button::new()
                    ->setFloatRight(true)
                    ->setMode(EnumDisplayMode::information)
-                   ->setAnchorUrl('/audit/meta+' . $authentication->getMetaId() . '.html')
+                   ->setUrlObject('/audit/meta+' . $authentication->getMetaId() . '.html')
                    ->setContent(tr('Audit'))
                    ->setContent(tr('Audit'));
 

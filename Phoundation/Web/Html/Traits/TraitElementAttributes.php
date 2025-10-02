@@ -452,7 +452,7 @@ trait TraitElementAttributes
     {
         if ($o_anchor) {
             if ($o_anchor instanceof UrlInterface) {
-                $o_anchor = Anchor::new()->setHref($o_anchor);
+                $o_anchor = Anchor::new()->setUrlObject($o_anchor);
             }
 
             $this->o_anchor = $o_anchor->setChildElement($this);

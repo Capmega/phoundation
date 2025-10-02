@@ -1571,7 +1571,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 ':reserved' => tr('All rights reserved'),
                 ':year'     => Project::getCopyrightYear(),
                 ':url'      => Anchor::new(Project::getOwnerUrl())
-                                     ->setTarget(EnumAnchorTarget::blank)
+                                     ->setTargetObject(EnumAnchorTarget::blank)
                                      ->setContent(Project::getOwnerName())
             ]);
         }
@@ -1580,7 +1580,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             ':reserved' => tr('All rights reserved'),
             ':year'     => Project::getCopyrightYear(),
             ':url'      => Anchor::new(Project::getOwnerUrl())
-                                 ->setTarget(EnumAnchorTarget::blank)
+                                 ->setTargetObject(EnumAnchorTarget::blank)
                                  ->setContent(Project::getOwnerName())
         ]);
     }

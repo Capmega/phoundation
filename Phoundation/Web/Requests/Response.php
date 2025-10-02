@@ -623,8 +623,8 @@ class Response implements ResponseInterface
     {
         static $minified = null;
 
-        // Ensure the extension is stripped
-        // Ensure anything before templates/ is stripped
+        // Ensure the extension is stripped.
+        // Ensure anything before templates/ is stripped.
         $url = Strings::untilReverse($url, '.' . $type);
         $url = Strings::until($url, '.min');
         $url = Strings::from($url, 'templates/');
@@ -634,12 +634,10 @@ class Response implements ResponseInterface
             $minified = (config()->get('web.cdn.resources.minified', true) ? '.min' : '');
         }
 
-        // Determine the absolute file path
-        $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type;
-
+        // Return URL with timestamp injected into the given file
         if (config()->getBoolean('web.cdn.resources.versioning', true)) {
-            // Return URL with timestamp injected into the given file
-            return $url . '-v' . filectime($file) . $minified . '.' . $type;
+            // Determine the absolute file path
+            return $url . '-v' . filectime(DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type) . $minified . '.' . $type;
         }
 
         // Return URL without an injected timestamp

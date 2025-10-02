@@ -120,9 +120,9 @@ interface SignInKeyInterface extends DataEntryInterface
     /**
      * Sets the url
      *
-     * @param UrlInterface|string|null $url
+     * @param UrlInterface|string|null $o_url
      *
      * @return static
      */
-    public function setUrl(UrlInterface|string|null $url): static;
+    public function setUrlObject(UrlInterface|string|null $o_url): static;
 }

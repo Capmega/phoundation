@@ -332,7 +332,7 @@ class SystemRequest implements SystemRequestInterface
         $this->executePage([
             'code'    => 401,
             'title'   => tr('Unauthorized'),
-            'message' => tr('You need to login to access the specified resource'),
+            'message' => tr('You need to sign-in to be able to access the specified resource'),
         ]);
     }
 

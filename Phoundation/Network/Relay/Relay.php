@@ -115,7 +115,7 @@ class Relay
      */
     public function setUrl(UrlInterface|string|null $url): static
     {
-        $this->curl->setUrl($url);
+        $this->curl->setUrlObject($url);
 
         return $this;
     }
