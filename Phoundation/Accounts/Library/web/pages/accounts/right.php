@@ -40,7 +40,8 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$o_right = Right::new()->loadThis($get['id']);
+$o_right = Right::new()
+                ->loadThis($get['id']);
 
 
 // Validate POST and submit

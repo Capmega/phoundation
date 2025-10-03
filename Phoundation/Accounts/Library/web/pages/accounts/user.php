@@ -44,9 +44,7 @@ $get = GetValidator::new()
 
 
 // Get the requested user and modify form design
-$o_user = User::new()
-              ->setIgnoreDeleted(true)
-              ->loadThis($get['id']);
+$o_user = User::new()->loadThis($get['id']);
 $o_user->getDefinitionsObject()->setRenderMeta(!$o_user->isNew())
                                ->setDefinitionRender('latitude'        , false)
                                ->setDefinitionRender('longitude'       , false)
@@ -60,7 +58,7 @@ $o_user->getDefinitionsObject()->setRenderMeta(!$o_user->isNew())
                                ->setDefinitionRender('data'            , false);
 
 
-// Users cannot modify themselves unless they're god level users
+// Users cannot modify themselves unless they have the "god" right
 if (Session::getUserObject()->getId() === $get['id']) {
     if (!$o_user->hasAllRights('god')) {
         $o_user->setReadonly(true);
