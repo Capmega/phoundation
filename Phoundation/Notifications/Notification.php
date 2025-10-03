@@ -955,7 +955,7 @@ FILES variables:
                                             $largest = Arrays::getLongestKeyLength($details);
 
                                             foreach ($details as $key => $value) {
-                                                if ($value and !is_scalar($value)) {
+                                                if (!is_scalar($value)) {
                                                     $value = print_r($value, true);
                                                 }
 
