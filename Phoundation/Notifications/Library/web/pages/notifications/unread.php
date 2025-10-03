@@ -105,9 +105,9 @@ $o_documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadcrumbs([
-    Breadcrumb::new('/'                  , tr('Home')),
-    Breadcrumb::new('/notifications.html', tr('Notifications')),
-    Breadcrumb::new(''                   , tr('Unread'))
+    Breadcrumb::new('/'                      , tr('Home')),
+    Breadcrumb::new('/notifications/all.html', tr('Notifications')),
+    Breadcrumb::new(''                       , tr('Unread'))
 ]);
 
 
