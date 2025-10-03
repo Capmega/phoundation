@@ -116,22 +116,19 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function render(): ?string
     {
-        $return = parent::render();
+        // TODO Remove next line to implement support for clearing incidents
+        return parent::render();
 
         $task_in_progress = (bool) Task::new()->loadNullOrNull(['name' => 'clearing incidents']);
 
-        $return .= Form::new()
-                       ->setRequestMethod(EnumHttpRequestMethod::post)
-                       ->setContent(Span::new()
-                                        ->setContent(Button::new()
-                                                           ->addClass('mr-2')
-                                                           ->setContent(tr('Clear incidents'))
-                                                           ->setDisabled($task_in_progress) .
-
-                                                     ($task_in_progress ? 'This task is already in progress'
-                                                                       : ''))
-
-                                        ->render());
+        return parent::render() .
+               Form::new()
+                   ->setRequestMethod(EnumHttpRequestMethod::post)
+                   ->setContent(Span::new()
+                                    ->setContent(Button::new()
+                                                       ->addClass('mr-2')
+                                                       ->setContent(tr('Clear incidents'))
+                                                       ->setDisabled($task_in_progress) . ($task_in_progress ? 'This task is already in progress' : '')));
 
         return $return;
     }
