@@ -884,6 +884,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+        if (!$this->saveBecauseModified($force)) {
+            // THis user hasn't been modified, there is nothing to save!
+            return $this;
+        }
+
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
