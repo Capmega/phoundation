@@ -467,14 +467,16 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      */
     public function getDefinitionsObject(): ?DefinitionsInterface;
 
+
     /**
      * Returns true if this object has the specified status
      *
-     * @param string $status
+     * @param array|string|null $status
+     * @param bool              $strict
      *
      * @return bool
      */
-    public function hasStatus(string $status): bool;
+    public function hasStatus(array|string|null $status, bool $strict = true): bool;
 
     /**
      * Returns the name for this object that can be displayed

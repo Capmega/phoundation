@@ -2107,7 +2107,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlTable::new($this)
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
-                        ->setSource($this->source)
+                        ->setSource($this->getSource())
                         ->setRowCallbacks($this->row_callbacks)
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2127,7 +2127,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlDataTable::new($this)
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
-                            ->setSource($this->source)
+                            ->setSource($this->getSource())
                             ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2151,7 +2151,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return $class::new($this)
                      ->setId('iterator')
                      ->setName('iterator')
-                     ->setSource($this->source)
+                     ->setSource($this->getSource())
                      ->setKeyColumn($key_column)
                      ->setValueColumn($value_column);
     }
