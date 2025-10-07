@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.1';
+        return '0.9.0';
     }
 
 
@@ -174,6 +174,9 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`type`'    , '`type`     varchar(128) NULL DEFAULT NULL');
             sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`size`'    , '`size`     bigint       NULL DEFAULT NULL');
             sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`hash`'    , '`hash`     varchar(128) NULL DEFAULT NULL');
+
+        })->addUpdate('0.9.0', function () {
+            sql()->getSchemaObject()->getTableObject('web_non200_urls')->drop();
         });
     }
 }
