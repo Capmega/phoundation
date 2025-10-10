@@ -457,7 +457,6 @@ WantedBy=multi-user.target');
         ]));
 
         SystemCtl::new()
-                 ->setDebug(true)
                  ->setOsProcessName($this->getOsProcessName())
                  ->enable();
 
@@ -479,7 +478,6 @@ WantedBy=multi-user.target');
         ]));
 
         SystemCtl::new()
-                 ->setDebug(true)
                  ->setOsProcessName($this->getOsProcessName())
                  ->disable();
 
@@ -502,7 +500,6 @@ WantedBy=multi-user.target');
         ]));
 
         SystemCtl::new()
-                 ->setDebug(true)
                  ->setOsProcessName($this->getOsProcessName())
                  ->start();
 
