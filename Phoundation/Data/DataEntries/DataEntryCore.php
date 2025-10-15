@@ -4386,7 +4386,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if (static::getUniqueColumn()) {
                 // When deleting an entry, the unique column goes to NULL
-                $this->source[static::getUniqueColumn()] = null;
+                $this->set(null, static::getUniqueColumn())->save();
             }
 
             return $this->setStatus('deleted', $comments, $auto_save);
