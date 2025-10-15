@@ -168,6 +168,9 @@ class Libraries
             static::force();
         }
 
+        // Ensure non-standard FK key detection is disabled as current system database MIGHT have non standard keys for FKs
+        sql()->query('SET SESSION restrict_fk_on_non_standard_key=OFF;');
+
         // Wipe all temporary data and set the core in INIT mode
         try {
             Log::setVerbose(true);
@@ -210,9 +213,16 @@ class Libraries
 
             Log::setVerbose(VERBOSE);
 
+            // Re-enable non-standard FK key detection
+            sql()->query('SET SESSION restrict_fk_on_non_standard_key=ON;');
+
         } catch (Throwable $e) {
             // Something went wrong. Disable Log VERBOSE to avoid spamming the output Exception with extra lines
             Log::setVerbose(VERBOSE);
+
+            // Re-enable non-standard FK key detection
+            sql()->query('SET SESSION restrict_fk_on_non_standard_key=ON;');
+
             throw $e;
         }
     }
