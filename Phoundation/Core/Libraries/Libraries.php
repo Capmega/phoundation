@@ -152,6 +152,8 @@ class Libraries
     /**
      * Execute a complete systems initialization
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     *
      * @param bool        $system
      * @param bool        $plugins
      * @param bool        $templates
