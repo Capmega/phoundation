@@ -419,7 +419,7 @@ class UserSession implements UserSessionInterface
      */
     public static function stop(int $users_id, string $domain, string $ip, string $identifier): void
     {
-        sql()->setDebug(true)->update('accounts_user_sessions', [
+        sql()->update('accounts_user_sessions', [
             'stop' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)
         ], [
             'users_id'   => $users_id,
