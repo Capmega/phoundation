@@ -1340,19 +1340,19 @@ class Core implements CoreInterface
 
                     if (!in_array($language, $supported, true)) {
                         Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => config()->get('locale.languages.default', 'en'),
+                            ':language' => config()->getString('locale.languages.default', 'en'),
                         ]));
                     }
 
                 } else {
-                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
+                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));
                 }
 
             } else {
-                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
+                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));
             }
 
-            if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
+            if (config()->getString('locale.languages.default', 'en') and config()->exists('locale.languages.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
@@ -1403,14 +1403,14 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('locale.languages.default', 'en');
+            $language = config()->getString('locale.languages.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
             $country = strtoupper($_SESSION['location']['country']['code']);
 
         } else {
-            $country = config()->get('location.default-country', 'us');
+            $country = config()->getString('location.default-country', 'us');
         }
 
         // First set LC_ALL as a baseline, then each entry
