@@ -457,8 +457,15 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
             return PhoDateTimeFormats::cleanDateFormat($format, EnumDateTimeWidth::wide);
         }
 
-
-        return PhoDateTimeFormats::cleanDateFormat($return, $width);
+        return match ($format) {
+            EnumDateFormat::iso_date,
+            EnumDateFormat::system_date,
+            EnumDateFormat::mysql_date,
+            EnumDateFormat::iso_date_time,
+            EnumDateFormat::mysql_datetime,
+            EnumDateFormat::file            => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide, ' '),
+            default                         => PhoDateTimeFormats::cleanDateFormat($return, $width),
+        };
     }
 
 

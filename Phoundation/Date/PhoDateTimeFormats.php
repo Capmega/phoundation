@@ -284,7 +284,7 @@ class PhoDateTimeFormats
      *
      * @return string
      */
-    public static function cleanDateFormat(string $date, EnumDateTimeWidth $width): string
+    public static function cleanDateFormat(string $date, EnumDateTimeWidth $width, ?string $separator = null): string
     {
         switch (static::resolveDefaultWidth($width)) {
             case EnumDateTimeWidth::normal:
@@ -292,12 +292,12 @@ class PhoDateTimeFormats
                 // no break
 
             case EnumDateTimeWidth::wide:
-                $date = str_replace('>>DATETIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                $date = str_replace('>>DATETIMESEPARATOR<<', $separator ?? PhoDateTimeFormats::getConfiguredSeparator(), $date);
                 break;
 
             case EnumDateTimeWidth::compact:
                 $date = str_replace(' ', '', $date);
-                $date = str_replace('>>DATETIMESEPARATOR<<', PhoDateTimeFormats::getConfiguredSeparator(), $date);
+                $date = str_replace('>>DATETIMESEPARATOR<<', $separator ?? PhoDateTimeFormats::getConfiguredSeparator(), $date);
                 $date = str_replace([' ', '/', '\\', ':', '-', '_'], '', $date);
                 break;
         }
