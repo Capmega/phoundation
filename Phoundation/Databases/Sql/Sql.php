@@ -378,9 +378,9 @@ class Sql implements SqlInterface
 
         try {
             if (!$this->pdo) {
-                throw new SqlException(tr('Cannot execute query ":query", on instance ":instance", it is not connected to a server', [
-                    ':query'    => $query,
-                    ':instance' => $this->connector,
+                throw new SqlException(tr('Cannot execute query ":query", on connector ":connector", it is not connected to a server', [
+                    ':query'     => $query,
+                    ':connector' => $this->connector,
                 ]));
             }
 
