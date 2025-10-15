@@ -531,8 +531,8 @@ class Request implements RequestInterface
             // No accept language headers were specified
             $return = [
                 '1.0' => [
-                    'language' => config()->get('locale.languages.default', 'en'),
-                    'locale'   => Strings::cut(config()->get('locale.LC_ALL', 'US'), '_', '.'),
+                    'language' => config()->getString('locale.languages.default', 'en'),
+                    'locale'   => Strings::cut(config()->getString('locale.LC_ALL', 'US'), '_', '.'),
                 ],
             ];
 

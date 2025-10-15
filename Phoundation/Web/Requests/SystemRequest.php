@@ -25,6 +25,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
@@ -160,6 +161,7 @@ class SystemRequest implements SystemRequestInterface
                     // Don't register 404's on favicon requests
                     if (!Route::isFaviconRequest()) {
                         Incident::new()
+                                ->setSeverity(EnumSeverity::low)
                                 ->setType('failed-pages')
                                 ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
                                 ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
@@ -177,7 +179,7 @@ class SystemRequest implements SystemRequestInterface
                                     'post'           => Route::getPostData(),
                                     'session'        => Session::getSource(),
                                 ])
-                                ->setNotifyRoles('developer')
+                                ->setNotifyRoles(($http_code === 401) ? null : 'developer')
                                 ->save();
                     }
                 }
