@@ -30,6 +30,13 @@ trait TraitDataContent
      */
     protected RenderInterface|string|float|int|null $content = null;
 
+    /**
+     * Tracks if this object should render anything at all if the content is empty
+     *
+     * @var bool $render_on_empty_content
+     */
+    protected bool $render_on_empty_content = true;
+
 
     /**
      * Appends the specified content to the content of the element
@@ -91,6 +98,31 @@ trait TraitDataContent
     public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         $this->content = Html::safe($content, $make_safe);
+        return $this;
+    }
+
+
+    /**
+     * Returns if this object will be rendered when the content is empty
+     *
+     * @return bool
+     */
+    public function getRenderOnEmptyContent(): bool
+    {
+        return $this->render_on_empty_content;
+    }
+
+
+    /**
+     *  Sets if this object will be rendered when the content is empty
+     *
+     * @param bool $render_on_empty_content
+     *
+     * @return static
+     */
+    public function setRenderOnEmptyContent(bool $render_on_empty_content = true): static
+    {
+        $this->render_on_empty_content = $render_on_empty_content;
         return $this;
     }
 }

@@ -49,11 +49,37 @@ trait TraitDataEntryRestrictions
      */
     public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
     {
-        if (!$o_restrictions instanceof PhoRestrictionsInterface) {
-            $o_restrictions = PhoRestrictions::newFromImport($o_restrictions);
+        if ($o_restrictions) {
+            if (!$o_restrictions instanceof PhoRestrictionsInterface) {
+                $o_restrictions = PhoRestrictions::newFromImport($o_restrictions);
+            }
         }
 
-        return $this->set($o_restrictions->getPoadString(), 'restrictions')
+        return $this->set($o_restrictions?->getPoadString(), 'restrictions')
                     ->__setRestrictionsObject($o_restrictions);
+    }
+
+
+    /**
+     * Returns the restrictions for this object as a string
+     *
+     * @return string
+     */
+    public function getRestrictions(): string
+    {
+        return $this->getTypesafe('string', 'restrictions');
+    }
+
+
+    /**
+     * Sets the restrictions column for this object
+     *
+     * @param string|null $restrictions
+     *
+     * @return $this
+     */
+    public function setRestrictions(string|null $restrictions = null): static
+    {
+        return $this->setRestrictionsObject($restrictions);
     }
 }

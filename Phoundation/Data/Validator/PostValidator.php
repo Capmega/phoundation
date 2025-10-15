@@ -29,6 +29,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Requests\Request;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -161,13 +162,13 @@ class PostValidator extends Validator
      * Sets the specified POST submit data value
      *
      * @param array|string                $value
-     * @param float|Stringable|int|string $key
+     * @param Stringable|string|float|int $key
      * @param bool                        $skip_null_values
      *
      * @return static
      */
-    public function set(mixed $value, float|Stringable|int|string $key, bool $skip_null_values = true): static {
-        Request::checkPostRequestMethod('set POST value');
+    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
+    {
         static::$post[$key] = $value;
         return $this;
     }
@@ -454,9 +455,9 @@ class PostValidator extends Validator
     /**
      * @inheritDoc
      */
-    public function get(float|Stringable|int|string $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        return parent::get($key, $exception);
+        return parent::get($key, $default, $exception);
     }
 
 

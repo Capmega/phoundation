@@ -108,11 +108,11 @@ if ($argv['library']) {
 
     foreach ($types as $type) {
         if (empty($argv['type']) or ($argv['type'] === $type)) {
-            $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes(isset_get($statistics[$type]['total_statistics']['size'], 0));
+            $statistics[$type]['total_statistics']['size'] = Numbers::getHumanReadableBytes(array_get_safe($statistics, $type['total_statistics']['size'], 0));
 
             Log::cli(' ');
             Log::cli(CliColor::apply(tr('Statistics for ":type" libraries:', [':type' => $type]), 'information'));
-            Cli::displayForm(isset_get($statistics[$type]['total_statistics']), 0);
+            Cli::displayForm(array_get_safe($statistics, $type['total_statistics']), 0);
             Log::cli(' ');
         }
     }

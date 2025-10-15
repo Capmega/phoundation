@@ -91,7 +91,7 @@ trait TraitDataIteratorSections
      */
     public function getSection(string $key, bool $exception = false, ?string $default = null): ?string
     {
-        return $this->getSectionsObject()->get($key, $exception) ?? $default;
+        return $this->getSectionsObject()->get($key, exception: $exception) ?? $default;
     }
 
 

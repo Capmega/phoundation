@@ -52,6 +52,7 @@ if (Request::isPostRequestMethod()) {
                     ':notification' => $notification->getTitle()
                 ]));
         }
+
     } catch (ValidationFailedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessagesObject()->addMessage($e);
@@ -64,7 +65,7 @@ if ($notification->getUrl()) {
     $go = Button::new()
                 ->setFloatRight(true)
                 ->setContent(tr('Go'))
-                ->setAnchorUrl($notification->getUrl());
+                ->setUrlObject($notification->getUrl());
 }
 
 // Build the "notification" form
@@ -75,7 +76,7 @@ $notification_card = Card::new()
     ->setContent($notification->getHtmlDataEntryFormObject())
     ->setButtonsObject(Buttons::new()
                               ->addButton(tr('Mark unread'))
-                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/notifications/notifications.html'), true)
+                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/notifications/all.html'), true)
                               ->addButton(isset_get($go)));
 
 
@@ -85,7 +86,7 @@ $o_relevant_card = Card::new()
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
                                   AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
-                                  hr(AnchorBlock::new(Url::new('/security/incidents.html')->makeWww(), tr('Security incidents'))));
+                                  hr(AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww(), tr('Security incidents'))));
 
 
 // Build documentation
@@ -103,10 +104,10 @@ Response::setHeaderSubTitle($notification->getDisplayId());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                      , tr('Home')),
     Breadcrumb::new('/notifications/all.html', tr('Notifications')),
-    Breadcrumb::new(''                       , tr(':id [:title]'), [
+    Breadcrumb::new(''                       , tr(':id [:title]', [
         ':title' => $notification->getTitle(),
         ':id'    => $notification->getDisplayId()
-    ])
+    ]))
 ]);
 
 

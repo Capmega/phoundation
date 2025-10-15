@@ -14,12 +14,17 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Requests\Response;
 
 
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
+
+
 // Set page meta data
-Response::setHeaderTitle(tr('Package timeline'));
+Response::setHeaderTitle(tr('Audit timeline'));
 Response::setHeaderSubTitle(tr('demo'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'          , tr('Home')),

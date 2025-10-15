@@ -52,8 +52,8 @@ class SignInPage extends Page
              ->setEnabled(true, 'copyright')
              ->setEnabled(true, 'lost-password');
 
-        $this->setUrl(Url::new('lost-password')->makeWww()->addRedirect(isset_get($get['redirect']))->addQuery(isset_get($get['email']), 'email'), 'lost-password')
-             ->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                              , 'image-background');
+        $this->setUrl(Url::new('lost-password')->makeWww()->addRedirect($this->getGet('redirect'))->addQuery($this->getGet('email'), 'email'), 'lost-password')
+             ->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                          , 'image-background');
 
         return parent::render();
     }

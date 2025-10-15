@@ -106,7 +106,7 @@ abstract class ElementCore implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $auto_submit = $this->o_attributes->get('auto_submit', false);
+        $auto_submit = $this->o_attributes->get('auto_submit', exception: false);
 
         if ($auto_submit) {
             if (!is_object($auto_submit)) {

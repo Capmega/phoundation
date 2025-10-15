@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html\Pages;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
-
+use Stringable;
 
 class Page extends Template
 {
@@ -50,6 +50,36 @@ class Page extends Template
         }
 
         return [];
+    }
+
+
+    /**
+     * Returns the specified GET key
+     *
+     * @return array
+     */
+    public function getGet(Stringable|string|float|int $key, mixed $default = null, bool $exception = true): mixed
+    {
+        if (isset($this->get)) {
+            return array_get_safe($this->get, $key, $default, $exception);
+        }
+
+        return $default;
+    }
+
+
+    /**
+     * Returns the specified POST key
+     *
+     * @return array
+     */
+    public function getPost(Stringable|string|float|int $key, mixed $default = null, bool $exception = true): mixed
+    {
+        if (isset($this->post)) {
+            return array_get_safe($this->post, $key, $default, $exception);
+        }
+
+        return $default;
     }
 
 

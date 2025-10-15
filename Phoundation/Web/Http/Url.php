@@ -44,7 +44,6 @@ use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Exception\UrlException;
-use Phoundation\Web\Http\Exception\UrlNotAbsoluteException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Request;
@@ -121,7 +120,7 @@ class Url implements UrlInterface
     public function __toString(): string
     {
         // Empty URL's are considered absolute
-        if ($this->source and !$this->isAbsolute()) {
+        if (!$this->isAbsolute()) {
             $this->makeWww();
         }
 
@@ -400,6 +399,35 @@ class Url implements UrlInterface
      *
      * @return static
      */
+    public static function newPrimaryCdnDomainRootUrl(?string $language = null): string
+    {
+        if (empty($language)) {
+            $language = Session::getLanguage();
+        }
+
+        $return = config()->getString('web.domains.primary.cdn');
+        $return = str_replace(':LANGUAGE', $language, $return);
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
+    public static function newPrimaryCdnDomainRootUrlObject(): static
+    {
+        return Url::newPrimaryCdnDomainRootUrl();
+    }
+
+
+    /**
+     * Returns the root URL for the primary domain
+     *
+     * @return static
+     */
     public static function newPrimaryDomainRootUrl(): static
     {
         return Url::new(config()->getString('web.domains.primary.web'))->makeWww();
@@ -442,7 +470,7 @@ class Url implements UrlInterface
             ]));
         }
 
-        if (isset_get($get['redirect'])) {
+        if (array_get_safe($get, 'redirect')) {
             // Use the redirect URL
             $url = $get['redirect'];
 
@@ -498,6 +526,23 @@ class Url implements UrlInterface
 
 
     /**
+     * Ensures that the URL for this object is absolute
+     *
+     * @return static
+     */
+    public function ensureAbsolute(): static
+    {
+        if (!$this->isAbsolute()) {
+            if ($this->canMakeAbsolute()) {
+                $this->makeWww();
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns true if this URL can be transformed into www, cdn, image url, etc.
      *
      * @return bool
@@ -505,8 +550,8 @@ class Url implements UrlInterface
     public function canMakeAbsolute(): bool
     {
         if (empty($this->source)) {
-            // This is a NULL URL, don't do anything
-            return false;
+            // This is a NULL URL
+            return true;
         }
 
         if (str_starts_with($this->source, '#')) {
@@ -1075,23 +1120,22 @@ class Url implements UrlInterface
         if ($cloak) {
             // Found cloaking URL, update the created_on time so that it won't expire too soon
             sql()->query('UPDATE `url_cloaks` 
-                                SET    `created_on` = NOW() 
-                                WHERE  `url`        = :url', [
+                          SET    `created_on` = NOW() 
+                          WHERE  `url`        = :url', [
                 ':url' => $this->source,
             ]);
 
         } else {
             $cloak = Strings::getRandom(32);
+
             sql()->insert('url_cloaks', [
-                'created_by' => Session::getUserObject()
-                                       ->getId(),
+                'created_by' => Session::getUserObject()->getId(),
                 'cloak'      => $cloak,
                 'url'        => $this->source,
             ]);
         }
 
         $this->source = $cloak;
-
         return $this;
     }
 
@@ -1110,7 +1154,8 @@ class Url implements UrlInterface
     {
         if (empty($this->source)) {
             // There is no URL to work with, we're done
-            return $this;
+            $this->source = Request::getUrl();
+            $extension    = '';
         }
 
         $url = $this->source;
@@ -1195,7 +1240,7 @@ class Url implements UrlInterface
 
         $url  = static::applyPredefined($url);
         $url  = static::applyVariables($url);
-        $base = Domains::getConfigurationKey(Domains::getCurrent(), 'cdn', $_SERVER['REQUEST_SCHEME'] . '://cdn.' . Domains::getCurrent() . '/:LANGUAGE/', false);
+        $base = Url::newPrimaryCdnDomainRootUrl();
         $base = Strings::ensureEndsWith($base, '/');
         $base = str_replace(':LANGUAGE', Session::getLanguage(), $base);
         $url  = Strings::ensureBeginsNotWith($url, '/');
@@ -1639,6 +1684,7 @@ class Url implements UrlInterface
     protected function mapLanguage($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true): string
     {
         throw new UnderConstructionException('Url::domain() is GARBAGE! DO NOT USE');
+
         /*
          * Do language mapping, but only if routemap has been set
          */
@@ -1987,7 +2033,9 @@ class Url implements UrlInterface
      */
     public function getRights(bool $use_cache = true): array
     {
-        return $this->getRightsObject($use_cache)?->getSource() ?? [];
+        return $this->ensureAbsolute()
+                    ->getRightsObject($use_cache)
+                   ?->getSource() ?? [];
     }
 
 
@@ -2063,6 +2111,8 @@ class Url implements UrlInterface
     protected function parseRights(): ?array
     {
         if ($this->source) {
+            $this->ensureAbsolute();
+
             if ($this->hasRightsException()) {
                 // No rights are required at all
                 return null;
@@ -2072,8 +2122,10 @@ class Url implements UrlInterface
 
             if ($path) {
                 // Filter out the rights from the given URL
-                if (preg_match_all('/^\/?\w{2}\/(.+?)\/[^\/]+(?:\.\w+)?$/', $path, $matches)) {
-                    return explode('/', $matches[1][0]);
+                if (preg_match_all('/^\/?(?:\w{2}\/)?(?:(.+?)\/)?[^\/]+(?:\.\w+)?$/', $path, $matches)) {
+                    if ($matches[1][0]) {
+                        return explode('/', $matches[1][0]);
+                    }
                 }
             }
 
@@ -2156,8 +2208,6 @@ class Url implements UrlInterface
      */
     public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
     {
-        $basename = Strings::fromReverse($this->source, '/');
-
         return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
     }
 
@@ -2193,6 +2243,6 @@ class Url implements UrlInterface
      */
     public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
     {
-        return Anchor::new($this, $content)->setTarget($o_target);
+        return Anchor::new($this, $content)->setTargetObject($o_target);
     }
 }

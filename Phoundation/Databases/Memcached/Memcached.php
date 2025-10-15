@@ -25,7 +25,6 @@ use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Databases\Memcached\Interfaces\MemcachedInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -160,7 +159,7 @@ class Memcached implements MemcachedInterface
 
             Incident::new()
                     ->setException(isset_get($e))
-                    ->setUrl(Url::new('security/incidents.html')->makeWww())
+                    ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                     ->setNotifyRoles('developer')
                     ->setTitle(tr('Memcached server not available'))
                     ->setBody(tr('Failed to connect to all ":count" memcached servers', [

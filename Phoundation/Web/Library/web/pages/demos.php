@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Script;
@@ -23,6 +24,10 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // Required javascript
@@ -36,6 +41,8 @@ Response::loadCss('adminlte/plugins/daterangepicker/daterangepicker');
 Response::loadCss('adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4');
 Response::loadCss('https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css');
 
+
+// ???
 Script::new()
     ->setJavascriptWrapper(EnumJavascriptWrappers::window)
     ->setContent(' 
@@ -58,7 +65,7 @@ Response::setBreadcrumbs([
 
 echo Card::new()
          ->setTitle(tr('Demo page links'))
-         ->setContent(AnchorBlock::new(Url::new('/demos/timeline.html')->makeWww(), tr('Package timeline')) .
+         ->setContent(AnchorBlock::new(Url::new('/demos/timeline.html')->makeWww(), tr('Audit timeline')) .
                       AnchorBlock::new(Url::new('/demos/calendar.html')->makeWww(), tr('User calendar')) .
                       AnchorBlock::new(Url::new('/demos/contact-us.html')->makeWww(), tr('Contact us')) .
                       AnchorBlock::new(Url::new('/demos/contacts.html')->makeWww(), tr('Contacts')) .
@@ -74,7 +81,6 @@ echo Card::new()
                       AnchorBlock::new(Url::new('/demos/read-mail.html')->makeWww(), tr('Read mail')) .
                       AnchorBlock::new(Url::new('/demos/compose.html')->makeWww(), tr('Compose mail')) .
                       AnchorBlock::new(Url::new('/demos/scanner/gallery.html')->makeWww(), tr('Scanner gallery')))
-         ->render();
 ?>
     <div class="row">
         <div class="col-lg-3 col-6">

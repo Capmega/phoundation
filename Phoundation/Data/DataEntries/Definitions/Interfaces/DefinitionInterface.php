@@ -1371,15 +1371,17 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      */
     public function isColumn(?string $column): bool;
 
+
     /**
      * Returns the entry with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return DataEntry|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Sets the specified definition rule directly
@@ -1389,7 +1391,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @return static
      */
-    #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static;
+    public function set(mixed $value, Stringable|string|float|int $key): static;
 
     /**
      * Returns if this column contains data that should be processed
@@ -1647,4 +1649,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return Definition
      */
     public function setEventHandlers(?array $handlers): static;
+
+    /**
+     * Converts and returns the specified column name into a get or set method
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function getDataEntryMethodName(string $type): string;
 }

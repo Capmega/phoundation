@@ -72,15 +72,17 @@ interface UserSessionInterface
      */
     public function getStopObject(): PhoDateTimeInterface;
 
+
     /**
      *  Returns the value for the specified session user data key
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Sets the specified session user data key to the specified value

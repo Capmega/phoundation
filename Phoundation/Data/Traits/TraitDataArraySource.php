@@ -31,6 +31,7 @@ use Stringable;
 trait TraitDataArraySource
 {
     use TraitMethodsPoad;
+    use TraitDataExceptionOnGet;
 
 
     /**
@@ -271,7 +272,6 @@ trait TraitDataArraySource
     public function clear(): static
     {
         $this->source = [];
-
         return $this;
     }
 
@@ -280,26 +280,14 @@ trait TraitDataArraySource
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        // Does this entry exist?
-        if (array_key_exists($key, $this->source)) {
-            return $this->source[$key];
-        }
-
-        if ($exception) {
-            // The key does not exist
-            throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
-                ':key'   => $key,
-                ':class' => $this::class,
-            ]));
-        }
-
-        return null;
+        return array_get_safe($this->source, $key, $default, $exception ?? $this->exception_on_get);
     }
 
 

@@ -14,12 +14,17 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // Set page meta data
@@ -32,13 +37,14 @@ Response::setBreadcrumbs([
    Breadcrumb::new(''                   , tr('Compose mail')),
 ]);
 
+
+// Load required CSS and JavaScript
 Response::loadCss('/adminlte/plugins/summernote/summernote-bs4');
 Response::loadJavaScript('/adminlte/plugins/summernote/summernote-bs4');
 
 echo Script::new()
            ->setJavascriptWrapper(EnumJavascriptWrappers::dom_content)
-           ->setContent('$("#compose-textarea").summernote()')
-           ->render();
+           ->setContent('$("#compose-textarea").summernote()');
 ?>
 <!-- Main content -->
 <section class="content">

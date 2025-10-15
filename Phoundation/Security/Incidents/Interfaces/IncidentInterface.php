@@ -7,7 +7,7 @@ namespace Phoundation\Security\Incidents\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Security\Incidents\EnumSeverity;
-
+use Throwable;
 
 interface IncidentInterface
 {
@@ -85,4 +85,15 @@ interface IncidentInterface
      * @return static
      */
     public function throw(?string $exception = null, bool $non_production_environment_only = false): static;
+
+    /**
+     * Sets the exception for this incident
+     *
+     * @param Throwable|array|string|null $exception
+     * @param int                         $log
+     * @param array|string                $notify_roles
+     *
+     * @return static
+     */
+    public function setException(Throwable|array|string|null $exception, int $log = 10, array|string $notify_roles = 'developer'): static;
 }

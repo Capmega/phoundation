@@ -95,12 +95,12 @@ class Libraries
         $connectors = config()->getArray('databases.connectors');
 
         foreach ($connectors as $connector => $configuration) {
-            switch (isset_get($configuration['driver'])) {
+            switch (array_get_safe($configuration, 'driver')) {
                 case 'sql':
                     // no break
 
                 case 'mysql':
-                    if (($connector === 'system') or isset_get($configuration['init'])) {
+                    if (($connector === 'system') or array_get_safe($configuration, 'init')) {
                         sql($connector, false)
                             ->getSchemaObject(false)
                             ->getDatabaseObject(use: false)
@@ -1148,6 +1148,42 @@ class Libraries
                                                WHERE  `library` = "core"');
 
             if ($version >= 6000) {
+                // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
+                $true = true;
+            }
+        }
+
+        return $true;
+
+    }
+
+
+    /**
+     * Returns true when the system has initialized to the point that core_versions supports the project_version column
+     * and the phoundation_version column
+     *
+     * @param bool $force
+     *
+     * @return bool
+     */
+    public static function supportsPhoundationVersions(bool $force = false): bool
+    {
+        static $true = false;
+
+        if ($true) {
+            return true;
+        }
+
+        if ($force) {
+            // Some outside function just told us that as of now, vendors are supported!
+            $true = true;
+
+        } else {
+            $version = (int) sql()->getColumn('SELECT MAX(`version`) AS `version` 
+                                               FROM   `core_versions` 
+                                               WHERE  `library` = "core"');
+
+            if ($version >= 9000) {
                 // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
                 $true = true;
             }

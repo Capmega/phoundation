@@ -926,12 +926,8 @@ class Core implements CoreInterface
         if (!$exit_code) {
             $level = random_int(0, 100);
 
-            if (config()->get('system.shutdown', false)) {
-                if (!is_array(config()->get('system.shutdown', false))) {
-                    throw new OutOfBoundsException(tr('Invalid system.shutdown configuration, it should be an array'));
-                }
-
-                foreach (config()->get('system.shutdown', false) as $name => $parameters) {
+            if (config()->getArrayBoolean('system.shutdown', false)) {
+                foreach (config()->getArrayBoolean('system.shutdown') as $name => $parameters) {
                     if ($parameters['interval'] and ($level < $parameters['interval'])) {
                         Log::notice(ts('Executing periodical shutdown function ":function()"', [
                             ':function' => $name,
@@ -3175,7 +3171,11 @@ class Core implements CoreInterface
                 showdie($e);
 
             case EnumRequestTypes::ajax:
-                if ($e->getWarning()) {
+                if ($e instanceof AccessDeniedException) {
+                    $e->setWarning(true);
+                    $message = tr('You do not have the required rights to access to the requested background resource. Please contact your system administrator to fix this');
+
+                } elseif ($e->getWarning()) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
 
@@ -3252,9 +3252,9 @@ class Core implements CoreInterface
                                 <tr>
                                     <td colspan="2" class="center">
                                         ' . tr('An uncaught exception with code ":code" occurred in web page ":command". See the exception core dump below for more information on how to fix this issue', [
-                ':code' => $e->getCode(),
-                ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-            ]) . '
+                                                ':code' => $e->getCode(),
+                                                ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
+                                            ]) . '
                                     </td>
                                 </tr>
                                 <tr>
@@ -3283,7 +3283,8 @@ class Core implements CoreInterface
                                 </tr>
                                 <tr>
                                     <td colspan="2">
-                                        ' . Anchor::new(Url::new('signout')->makeWww(), tr('Sign out'))
+                                        ' . Anchor::new('signout', tr('Sign out'))
+                                                  ->setAutoCheckRights(false)
                                                   ->setClass('btn btn-sm btn-primary') . '
                                     </td>
                                 </tr>

@@ -296,7 +296,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    public function getFirstValue(): mixed;
+    #[ReturnTypeWillChange] public function getFirstValue(): mixed;
 
 
     /**
@@ -304,7 +304,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return mixed
      */
-    public function getLastValue(): mixed;
+    #[ReturnTypeWillChange] public function getLastValue(): mixed;
 
     /**
      * Clears all the internal content for this object
@@ -630,18 +630,19 @@ interface IteratorInterface extends IteratorBaseInterface
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Returns the random entry
      *
      * @return Stringable|string|int|null
      */
-    public function getRandomKey(): Stringable|string|int|null;
+    #[ReturnTypeWillChange] public function getRandomKey(): Stringable|string|int|null;
 
     /**
      * Returns a random entry
@@ -953,4 +954,32 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return static
      */
     public function keepMatchingAutocompleteValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null): static;
+
+    /**
+     * Returns true if the specified key has the specified value
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $value
+     * @param bool                        $strict
+     * @param bool                        $exception
+     *
+     * @return bool
+     */
+    public function keyHasValue(Stringable|string|float|int $key, mixed $value, bool $strict = true, bool $exception = true): bool;
+
+    /**
+     * Returns whether Iterator::get() calls should by default cause an exception when the requested key does not exist
+     *
+     * @return bool
+     */
+    public function getExceptionOnGet(): bool;
+
+    /**
+     * Returns whether Iterator::get() calls should by default cause an exception when the requested key does not exist
+     *
+     * @param bool $exception
+     *
+     * @return $this
+     */
+    public function setExceptionOnGet(bool $exception): static;
 }

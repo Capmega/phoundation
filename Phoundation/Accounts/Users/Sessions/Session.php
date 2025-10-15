@@ -380,12 +380,13 @@ class Session implements SessionInterface
 
                         Response::redirect(PROTOCOL . Request::getDomain());
                     }
+
                     break;
 
                 default:
-                    if (is_array(config()->get('web.domains.whitelabels', false))) {
+                    if (config()->getArrayBoolean('web.domains.whitelabels', false)) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(static::$domain, config()->getArrayBoolean('web.domains.whitelabels', false), true)) {
+                        if (!in_array(static::$domain, config()->getArray('web.domains.whitelabels'), true)) {
                             Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -397,7 +398,7 @@ class Session implements SessionInterface
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if (static::$domain !== config()->get('web.domains.whitelabels', false)) {
+                        if (static::$domain !== config()->getArrayBoolean('web.domains.whitelabels', false)) {
                             Log::warning(ts('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -558,7 +559,7 @@ class Session implements SessionInterface
 
                 if (!str_contains(static::$domain, $test)) {
                     Notification::new()
-                                ->setUrl(Url::new('security/incidents.html')->makeWww())
+                                ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::warning)
                                 ->setCode('configuration')
                                 ->setRoles('developer')

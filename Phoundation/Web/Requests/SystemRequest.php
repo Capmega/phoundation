@@ -20,7 +20,6 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -32,7 +31,6 @@ use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\SystemRequestInterface;
@@ -156,19 +154,29 @@ class SystemRequest implements SystemRequestInterface
             Log::warning('Not registering request as non HTTP-200 URL, invalid environment specified');
 
         } else {
-            if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
+            if (config()->getBoolean('security.web.monitor.urls.failed', true)) {
+                // Don't register anything if we're in readonly mode
                 if (!Core::getReadonly()) {
-                    try {
-                        Non200Url::new()
-                                 ->setPermitValidationFailures(EnumSoftHard::hard)
-                                 ->generate($http_code)
-                                 ->save();
-
-                    } catch (Throwable $f) {
-                        Incident::new($f)
-                                ->setType('database')
-                                ->setTitle('Failed to register non HTTP-200 URL')
-                                ->setLog(9)
+                    // Don't register 404's on favicon requests
+                    if (!Route::isFaviconRequest()) {
+                        Incident::new()
+                                ->setType('failed-pages')
+                                ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
+                                ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
+                                    ':http' => $http_code,
+                                    ':url'  => Request::getUrlObject()
+                                ]))
+                                ->setDetails([
+                                    'http'           => $http_code,
+                                    'url'            => Request::getUrlObject(),
+                                    'remote_ip'      => Route::getRemoteIp(),
+                                    'request_method' => Route::getMethod(),
+                                    'headers'        => Route::getHeaders(),
+                                    'cookies'        => Route::getCookies(),
+                                    'get'            => GetValidator::getBackup(),
+                                    'post'           => Route::getPostData(),
+                                    'session'        => Session::getSource(),
+                                ])
                                 ->setNotifyRoles('developer')
                                 ->save();
                     }
@@ -302,7 +310,7 @@ class SystemRequest implements SystemRequestInterface
 
         } catch (Throwable $g) {
             // Even this failed? Try to log to the system log as a last ditch effort
-            Log::toAlternateLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . isset_get($variables['code']) . '" page, and the "' . isset_get($variables['code']) . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
+            Log::toAlternateLog('SystemRequest::execute() failed with multiple exceptions, failed to show the "' . array_get_safe($variables, 'code') . '" page, and the "' . array_get_safe($variables, 'code') . '" template. Displaying hardcoded 500 page instead. See exception below for more information.');
             Log::toAlternateLog($e->getMessage());
             Log::toAlternateLog($f->getMessage());
             Log::toAlternateLog($g->getMessage());
@@ -322,7 +330,7 @@ class SystemRequest implements SystemRequestInterface
         $this->executePage([
             'code'    => 401,
             'title'   => tr('Unauthorized'),
-            'message' => tr('You need to login to access the specified resource'),
+            'message' => tr('You need to sign-in to be able to access the specified resource'),
         ]);
     }
 
@@ -356,12 +364,12 @@ class SystemRequest implements SystemRequestInterface
         Log::warning(ts('Found no applicable routes or webserver called for 404, testing for hacks'));
 
         // Test the URI for known hacks. If so, apply configured response
-        if (config()->get('web.route.known-hacks', false)) {
+        if (config()->getArrayBoolean('web.route.known-hacks', false)) {
             Log::warning(ts('Applying known hacking rules'));
 
-            foreach (config()->get('web.route.known-hacks') as $hacks) {
+            foreach (config()->getArray('web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method doesn't even exist anymore
-                static::try($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+                static::try($hacks['regex'], array_get_safe($hacks, 'url'), array_get_safe($hacks, 'flags'));
             }
         }
 

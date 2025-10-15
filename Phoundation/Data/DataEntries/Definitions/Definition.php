@@ -42,6 +42,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Interfaces\ScriptsInterface;
@@ -1060,11 +1061,12 @@ class Definition implements DefinitionInterface
      * Returns the entry with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
@@ -1090,7 +1092,7 @@ class Definition implements DefinitionInterface
      *
      * @return static
      */
-    #[ReturnTypeWillChange] public function set(mixed $value, Stringable|string|float|int $key): static
+    public function set(mixed $value, Stringable|string|float|int $key): static
     {
         $this->source[$key] = $value;
         return $this;
@@ -3775,14 +3777,14 @@ class Definition implements DefinitionInterface
      */
     protected function validateProcessEmptyValues(ValidatorInterface $o_validator, string $column): void
     {
-        if (!$o_validator->get($column, false)) {
+        if (!$o_validator->get($column)) {
             // If this column is empty, should it be NULL?
             if ($this->getForceNull()) {
                 $o_validator->set(null, $column);
             }
 
             // If this column is NULL, should it have a default value?
-            if ($o_validator->get($column, false) === null) {
+            if ($o_validator->get($column) === null) {
                 $o_validator->set($this->getNullDefault(), $column);
             }
         }
@@ -3830,7 +3832,7 @@ class Definition implements DefinitionInterface
 
         // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
         // If the user submitted it, they're messing around, don't allow it!
-        if ($o_validator->get($column, false)) {
+        if ($o_validator->get($column)) {
             // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...
@@ -4080,5 +4082,24 @@ class Definition implements DefinitionInterface
         }
 
         return $return;
+    }
+
+
+    /**
+     * Converts and returns the specified column name into a get or set method
+     *
+     * @param string $type
+     *
+     * @return string
+     */
+    public function getDataEntryMethodName(string $type): string
+    {
+        // Convert underscore to camelcase
+        $return = $this->getColumn();
+        $return = explode('_', $return);
+        $return = array_map('ucfirst', $return);
+        $return = implode('', $return);
+
+        return $type . ucfirst($return);
     }
 }

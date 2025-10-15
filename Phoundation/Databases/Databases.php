@@ -104,7 +104,7 @@ class Databases
         }
 
         // Connectors::get() will automatically load the required connector object if it isn't loaded yet
-        return static::getConnectorsObject()->get($connector, false);
+        return static::getConnectorsObject()->get($connector);
     }
 
 

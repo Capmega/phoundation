@@ -427,7 +427,7 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
  */
 function in_source(array $source, string|int $key): bool
 {
-    if (isset_get($source[$key])) {
+    if (array_get_safe($source, $key)) {
         return true;
     }
 
@@ -490,7 +490,6 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
 
     // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
     unset($variable);
-
     return $default;
 }
 
@@ -505,10 +504,11 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
  * @param array|null            $source
  * @param string|float|int|null $key
  * @param mixed                 $default (optional) The value to return in case the specified $variable did not exist or was NULL.*
+ * @param bool                  $exception
  *
  * @return mixed
  */
-function array_get_safe(?array $source, string|float|int|null $key, mixed $default = null): mixed
+function array_get_safe(?array $source, string|float|int|null $key, mixed $default = null, bool $exception = false): mixed
 {
     if ($source) {
         if (array_key_exists($key, $source)) {
@@ -518,6 +518,15 @@ function array_get_safe(?array $source, string|float|int|null $key, mixed $defau
 
             return $source[$key];
         }
+    }
+
+    if ($exception) {
+        throw OutOfBoundsException::new(tr('Cannot return key ":key", that key does not exist in the specified source array', [
+            ':key' => $key,
+        ]))->setData([
+            'key'    => $key,
+            'source' => $source,
+        ]);
     }
 
     return $default;
@@ -1959,7 +1968,7 @@ function function_was_called(string $function): bool
     // Scan trace for class and function match
     foreach (debug_backtrace() as $trace) {
         $trace['function'] = strtolower(trim((string) $trace['function']));
-        $trace['class']    = strtolower(trim((string) isset_get($trace['class'])));
+        $trace['class']    = strtolower(trim((string) array_get_safe($trace, 'class')));
         $trace['class']    = Strings::fromReverse($trace['class'], '\\');
 
         if ($trace['function'] === $function) {

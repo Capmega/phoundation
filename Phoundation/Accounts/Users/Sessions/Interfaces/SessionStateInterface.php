@@ -13,7 +13,7 @@ interface SessionStateInterface
      * @param Stringable|string|float|int                    $key
      * @param IteratorInterface|Stringable|array|string|null $pages
      *
-     * @return $this
+     * @return Stringable|string|float|int
      */
     public function get(Stringable|string|float|int $key, IteratorInterface|Stringable|array|string|null $pages = null): Stringable|string|float|int;
 
@@ -21,7 +21,9 @@ interface SessionStateInterface
     /**
      *
      *
+     * @param Stringable|string|float|int $value
      * @param Stringable|string|float|int $key
+     * @param Stringable|string|null      $page
      *
      * @return $this
      */

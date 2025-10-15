@@ -21,7 +21,7 @@ use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorNotExistsException;
 
 
-CliDocumentation::setUsage('./pho cache dump values -c dataentries');
+CliDocumentation::setUsage('./pho cache dump values -c connector');
 
 CliDocumentation::setHelp('This command will dump all currently cached keys for the specified cache to STDOUT.
 
@@ -33,14 +33,12 @@ ARGUMENTS
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
-        '-c,--connector' => [
-            'word'   => function ($word) {
-                return Connectors::new()->load()->autoCompleteFind($word);
-            },
-            'noword' => function () {
-                return Connectors::new()->load()->autoCompleteFind();
+        '-c,--connector' =>
+            function ($word) {
+                return Connectors::new()
+                                 ->load()
+                                 ->autoCompleteFind($word);
             }
-        ],
     ],
 ]);
 

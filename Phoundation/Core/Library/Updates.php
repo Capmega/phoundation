@@ -32,7 +32,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.9.0';
     }
 
 
@@ -490,6 +490,25 @@ class Updates extends Libraries\Updates
                 'core_templates',
                 'core_versions',
             ]);
+
+        })->addUpdate('0.9.0', function () {
+            $o_table = sql()->getSchemaObject()->getTableObject('core_versions');
+
+            if (!$o_table->columnExists('phoundation_version')) {
+                $o_table->alter()->addColumn('`phoundation_version` bigint NULL', 'AFTER `version`');
+            }
+
+            if (!$o_table->indexExists('phoundation_version')) {
+                $o_table->alter()->addIndex('KEY `phoundation_version` (`phoundation_version`)');
+            }
+
+            if (!$o_table->columnExists('project_version')) {
+                $o_table->alter()->addColumn('`project_version` bigint NULL', 'AFTER `version`');
+            }
+
+            if (!$o_table->indexExists('project_version')) {
+                $o_table->alter()->addIndex('KEY `project_version` (`project_version`)');
+            }
         });
     }
 }

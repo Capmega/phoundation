@@ -66,9 +66,9 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * The tooltip data information
      *
-     * @var IteratorInterface $data
+     * @var IteratorInterface $o_data
      */
-    protected IteratorInterface $data;
+    protected IteratorInterface $o_data;
 
     /**
      * Sets if the tooltip icon should be rendered before or after the object
@@ -88,8 +88,10 @@ class Tooltip extends Element implements TooltipInterface
     public function __construct(?string $content = null)
     {
         parent::__construct($content);
-        $this->data    = new Iterator();
+
+        $this->o_data  = new Iterator();
         $this->element = 'tooltip';
+
         // Set default values
         $this->setRenderBefore(config()->getBoolean('web.html.tooltips.icon.before', false, true))
              ->setPlacement(EnumTooltipPlacement::right)
@@ -108,8 +110,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setHtml(bool $html): static
     {
-        $this->data->set($html, 'html');
-
+        $this->o_data->set($html, 'html');
         return $this;
     }
 
@@ -129,9 +130,11 @@ class Tooltip extends Element implements TooltipInterface
                     throw OutOfBoundsException::new(tr('Cannot define combined tooltip triggers with EnumTooltipTrigger::manual'));
                 }
             }
+
             $trigger = $trigger->value;
         }
-        $this->data->set($triggers, 'trigger');
+
+        $this->o_data->set($triggers, 'trigger');
         unset($trigger);
 
         return $this;
@@ -147,8 +150,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setPlacement(EnumTooltipPlacement $placement): static
     {
-        $this->data->set($placement->value, 'placement');
-
+        $this->o_data->set($placement->value, 'placement');
         return $this;
     }
 
@@ -174,7 +176,6 @@ class Tooltip extends Element implements TooltipInterface
     public function setSourceElement(?ElementInterface $source_element): static
     {
         $this->source_element = $source_element;
-
         return $this;
     }
 
@@ -186,12 +187,13 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getTriggers(): array
     {
-        $triggers = $this->data->get('trigger', false);
+        $triggers = $this->o_data->get('trigger', exception: false);
+
         foreach ($triggers as &$trigger) {
             $trigger = EnumTooltipTrigger::from($trigger);
         }
-        unset($trigger);
 
+        unset($trigger);
         return $triggers;
     }
 
@@ -203,7 +205,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getTitle(): ?string
     {
-        return $this->data->get('title', false);
+        return $this->o_data->get('title', exception: false);
     }
 
 
@@ -216,7 +218,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setTitle(?string $title): static
     {
-        $this->data->set($title, 'title');
+        $this->o_data->set($title, 'title');
 
         return $this;
     }
@@ -229,7 +231,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getAnimation(): bool
     {
-        return (bool) $this->data->get('animation', false);
+        return (bool) $this->o_data->get('animation', exception: false);
     }
 
 
@@ -242,8 +244,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setAnimation(bool $animation): static
     {
-        $this->data->set($animation, 'animation');
-
+        $this->o_data->set($animation, 'animation');
         return $this;
     }
 
@@ -269,7 +270,6 @@ class Tooltip extends Element implements TooltipInterface
     public function setUseIcon(bool $use_icon): static
     {
         $this->use_icon = $use_icon;
-
         return $this;
     }
 
@@ -295,7 +295,6 @@ class Tooltip extends Element implements TooltipInterface
     public function setRenderBefore(bool $render_before): static
     {
         $this->render_before = $render_before;
-
         return $this;
     }
 
@@ -307,7 +306,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getContainer(): ?string
     {
-        return $this->data->get('container', false);
+        return $this->o_data->get('container', exception: false);
     }
 
 
@@ -320,8 +319,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setContainer(?string $container): static
     {
-        $this->data->set($container, 'container');
-
+        $this->o_data->set($container, 'container');
         return $this;
     }
 
@@ -334,7 +332,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getDelay(): ?int
     {
-        return $this->data->get('delay', false);
+        return $this->o_data->get('delay', exception: false);
     }
 
 
@@ -349,8 +347,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setDelay(?int $delay): static
     {
-        $this->data->set($delay, 'delay');
-
+        $this->o_data->set($delay, 'delay');
         return $this;
     }
 
@@ -362,7 +359,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getHtml(): bool
     {
-        return (bool) $this->data->get('html', false);
+        return (bool) $this->o_data->get('html', exception: false);
     }
 
 
@@ -373,7 +370,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getPlacement(): EnumTooltipPlacement
     {
-        return EnumTooltipPlacement::from($this->data->get('placement', false));
+        return EnumTooltipPlacement::from($this->o_data->get('placement', exception: false));
     }
 
 
@@ -384,7 +381,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getFallbackPlacements(): EnumTooltipPlacement
     {
-        return EnumTooltipPlacement::from($this->data->get('fallbackPlacements', false));
+        return EnumTooltipPlacement::from($this->o_data->get('fallbackPlacements', exception: false));
     }
 
 
@@ -397,8 +394,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setFallbackPlacements(EnumTooltipPlacement $placement): static
     {
-        $this->data->set($placement->value, 'fallbackPlacements');
-
+        $this->o_data->set($placement->value, 'fallbackPlacements');
         return $this;
     }
 
@@ -412,7 +408,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getTemplate(): string
     {
-        return $this->data->get('template', false) ?? '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
+        return $this->o_data->get('template', exception: false) ?? '<div class="tooltip" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>';
     }
 
 
@@ -425,8 +421,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setTemplate(string $template): static
     {
-        $this->data->set($template, 'template');
-
+        $this->o_data->set($template, 'template');
         return $this;
     }
 
@@ -438,7 +433,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getOffset(): ?int
     {
-        return $this->data->get('offset', false);
+        return $this->o_data->get('offset', exception: false);
     }
 
 
@@ -451,8 +446,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function setOffset(?int $delay): static
     {
-        $this->data->set($delay, 'offset');
-
+        $this->o_data->set($delay, 'offset');
         return $this;
     }
 
@@ -464,7 +458,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function getBoundary(): EnumTooltipBoundary|string
     {
-        $boundary = $this->data->get('boundary', false);
+        $boundary = $this->o_data->get('boundary', exception: false);
 
         if (!$boundary) {
             return EnumTooltipBoundary::scrollParent;
@@ -487,8 +481,7 @@ class Tooltip extends Element implements TooltipInterface
             $boundary = $boundary->value;
         }
 
-        $this->data->set($boundary, 'boundary');
-
+        $this->o_data->set($boundary, 'boundary');
         return $this;
     }
 
@@ -502,7 +495,7 @@ class Tooltip extends Element implements TooltipInterface
      */
     public function render(?string $render = null): ?string
     {
-        $this->data->set('tooltip', 'tooltip');
+        $this->o_data->set('tooltip', 'tooltip');
         $return = '';
 
         if (!static::$javascript_sent) {
@@ -526,7 +519,7 @@ class Tooltip extends Element implements TooltipInterface
                 throw new OutOfBoundsException(tr('Cannot render tooltip, neither "use icon" nor a source element were specified, where one of either is required'));
             }
 
-            $this->source_element->getDataObject()->addSource($this->data);
+            $this->source_element->getDataObject()->addSource($this->o_data);
         }
 
         if ($this->render_before) {
@@ -556,7 +549,8 @@ class Tooltip extends Element implements TooltipInterface
     protected function renderData(): string
     {
         $return = [];
-        foreach ($this->data as $key => $value) {
+
+        foreach ($this->o_data as $key => $value) {
             // Build data string
             if (is_array($value)) {
                 $value = '"' . implode(' ', $value) . '"';
@@ -596,7 +590,6 @@ class Tooltip extends Element implements TooltipInterface
     public function setIconHtml(?string $icon_html): static
     {
         $this->icon_html = $icon_html;
-
         return $this;
     }
 }

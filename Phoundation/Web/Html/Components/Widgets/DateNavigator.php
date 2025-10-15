@@ -230,7 +230,7 @@ class DateNavigator extends ElementsBlock
                           ->setMode(EnumDisplayMode::primary)
                           ->setBlock(true)
                           ->setContent(tr('>'))
-                          ->setAnchorUrl($this->next_link);
+                          ->setUrlObject($this->next_link);
 
         // Build the date selector
         return Grid::new()
@@ -243,7 +243,7 @@ class DateNavigator extends ElementsBlock
                                                                ->setBlock(true)
                                                                ->setContent(tr('<'))
                                                                ->setMode(EnumDisplayMode::primary)
-                                                               ->setAnchorUrl($this->prev_link)))
+                                                               ->setUrlObject($this->prev_link)))
 
                    ->addGridColumn(GridColumn::new()
                                              ->setSize(8)
@@ -266,7 +266,7 @@ class DateNavigator extends ElementsBlock
                                                                ->setBlock(true)
                                                                ->setContent(tr('>'))
                                                                ->setMode(EnumDisplayMode::primary)
-                                                               ->setAnchorUrl($this->next_link)))
+                                                               ->setUrlObject($this->next_link)))
 
                    ->render();
     }

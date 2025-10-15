@@ -8,7 +8,6 @@ use Phoundation\Data\DataEntries\Exception\DataEntryDisabledException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -61,11 +60,12 @@ interface DataIteratorInterface extends IteratorInterface
      * Returns the item with the specified identifier
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Sets the value for the specified key
@@ -213,7 +213,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return DataEntryInterface|null
      */
-    public function getFirstValue(): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function getFirstValue(): ?DataEntryInterface;
 
 
     /**
@@ -221,7 +221,7 @@ interface DataIteratorInterface extends IteratorInterface
      *
      * @return DataEntryInterface|null
      */
-    public function getLastValue(): ?DataEntryInterface;
+    #[ReturnTypeWillChange] public function getLastValue(): ?DataEntryInterface;
 
 
     /**

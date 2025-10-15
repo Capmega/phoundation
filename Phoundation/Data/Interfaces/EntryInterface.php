@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\Interfaces;
 
 use Phoundation\Data\EntryCore;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -44,11 +45,12 @@ interface EntryInterface extends ArraySourceInterface, CliFormInterface
      *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return array
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
 
     /**
@@ -61,4 +63,20 @@ interface EntryInterface extends ArraySourceInterface, CliFormInterface
      * @return static
      */
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = false): static;
+
+    /**
+     * Returns whether Iterator::get() calls should by default cause an exception when the requested key does not exist
+     *
+     * @return bool
+     */
+    public function getExceptionOnGet(): bool;
+
+    /**
+     * Returns whether Iterator::get() calls should by default cause an exception when the requested key does not exist
+     *
+     * @param bool $exception
+     *
+     * @return $this
+     */
+    public function setExceptionOnGet(bool $exception): static;
 }

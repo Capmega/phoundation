@@ -68,10 +68,11 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
      * Sets the specified request method to be required
      *
      * @param EnumHttpRequestMethod $method
+     * @param bool                  $strict
      *
      * @return static
      */
-    public function require(EnumHttpRequestMethod $method): static
+    public function require(EnumHttpRequestMethod $method, bool $strict = false): static
     {
         if ($method === EnumHttpRequestMethod::upload) {
             // UPLOAD isn't a real method, use POST request instead
@@ -99,7 +100,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
         if (isset($upload)) {
             $this->restrictions['upload'] = true;
 
-            if (Request::isRequestMethod($method)) {
+            if (Request::isRequestMethod($method, $strict)) {
                 if (!Request::getFileUploadHandlersObject()->hasUploadedFiles()) {
                     throw RequestMethodRestrictionsException::new(tr('Page ":page" request with method "POST" without file uploads has been restricted, this page only allows "POST" requests with file uploads', [
                         ':page' => Strings::from(Request::getTargetObject(), '/web/')
@@ -112,7 +113,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
         } else {
             $this->restrictions[$method_string] = true;
 
-            if (Request::isRequestMethod($method)) {
+            if (Request::isRequestMethod($method, $strict)) {
                 return $this;
             }
         }
@@ -129,15 +130,22 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
      * Sets the specified request method to be allowed
      *
      * @param EnumHttpRequestMethod $method
+     * @param bool                  $strict
      *
      * @return static
      */
-    public function allow(EnumHttpRequestMethod $method): static
+    public function allow(EnumHttpRequestMethod $method, bool $strict = false): static
     {
-        if ($method === EnumHttpRequestMethod::upload) {
-            // Upload isn't a real method
-            $method = EnumHttpRequestMethod::post;
-            $upload = true;
+        if (!$strict) {
+            if ($method === EnumHttpRequestMethod::upload) {
+                // Upload isn't a real method, its POST
+                $method = EnumHttpRequestMethod::post;
+            }
+
+            if ($method === EnumHttpRequestMethod::head) {
+                // HEAD is GET without a return body, treat it like GET
+                $method = EnumHttpRequestMethod::get;
+            }
         }
 
         $this->restrictions[$method->value] = true;
@@ -149,10 +157,11 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
      * Sets the specified request method to be restricted
      *
      * @param EnumHttpRequestMethod $method
+     * @param bool                  $strict
      *
      * @return static
      */
-    public function restrict(EnumHttpRequestMethod $method): static
+    public function restrict(EnumHttpRequestMethod $method, bool $strict = false): static
     {
         if ($method === EnumHttpRequestMethod::upload) {
             // Upload isn't a real method
@@ -163,7 +172,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
         $method_string = $method->value;
         $this->restrictions[$method_string] = false;
 
-        if (Request::isRequestMethod($method)) {
+        if (Request::isRequestMethod($method, $strict)) {
             if (isset($upload)) {
                 if (Request::getFileUploadHandlersObject()->hasUploadedFiles()) {
                     throw RequestMethodRestrictionsException::new(tr('Page ":page" request with method ":method" has been restricted, it does not permit ":allowed" requests with file uploads', [

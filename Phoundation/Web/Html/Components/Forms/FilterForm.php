@@ -268,27 +268,27 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Returns value for the specified key
+     * Returns only the specified key from the source of this DataEntry
      *
-     * @note This is the standard Iterator::get() call, but here $exception is by default false
-     *
-     * @note If the form element for the requested key is not rendering, no value will be returned!
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        $o_definition = $this->o_definitions->get($key, false);
+        $o_definition = $this->o_definitions->get($key, exception: $exception ?? $this->exception_on_get);
 
         if (!$o_definition?->getRender()) {
             // NOTE: Non-rendered elements will always return null
             return null;
         }
 
-        return parent::get($key, $exception);
+        return parent::get($key, $default, exception: false);
     }
 
 
@@ -296,13 +296,14 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * Returns value for the specified key whether the entry rendered or not
      *
      * @param Stringable|string|float|int $key
+     * @param mixed                       $default
      * @param bool                        $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, bool $exception = false): mixed
+    #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, mixed $default = null, bool $exception = false): mixed
     {
-        return parent::get($key, $exception);
+        return parent::get($key, $default, $exception);
     }
 
 
@@ -451,7 +452,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
         } else {
             // Only return the split date range if the date range itself is set too
-            if (parent::get('date_range', false)) {
+            if (parent::get('date_range', exception: false)) {
                 return $this->get('date_range_split');
             }
         }

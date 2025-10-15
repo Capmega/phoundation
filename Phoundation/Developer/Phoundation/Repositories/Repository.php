@@ -466,7 +466,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
         $this->checkVendorRepository();
 
         // Return the requested vendor
-        return $this->getVendors()->get($identifier, $exception);
+        return $this->getVendors()->get($identifier, exception: $exception);
     }
 
 

@@ -90,7 +90,7 @@ trait TraitDataIteratorEnabled
      */
     public function getEnabled(string $key, bool $exception = false, ?bool $default = null): bool
     {
-        return (bool) ($this->getEnabledsObject()->get($key, $exception) ?? $default);
+        return (bool) ($this->getEnabledsObject()->get($key, exception: $exception) ?? $default);
     }
 
 

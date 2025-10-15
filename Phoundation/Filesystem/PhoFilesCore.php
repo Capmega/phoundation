@@ -191,9 +191,9 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
     /**
      * @inheritDoc
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): ?PhoPathInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?PhoPathInterface
     {
-        return parent::get($key, $exception);
+        return parent::get($key, $default, $exception);
     }
 
 

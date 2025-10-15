@@ -46,6 +46,7 @@ class Phones extends DataIterator implements PhonesInterface
         setParentObject as __setParent;
     }
 
+
     /**
      * Users class constructor
      */
@@ -54,8 +55,9 @@ class Phones extends DataIterator implements PhonesInterface
         $this->setQuery('SELECT   `accounts_phones`.*
                          FROM     `accounts_phones`
                          WHERE    `accounts_phones`.`users_id` = :users_id
-                           AND    `accounts_phones`.`status` IS NULL
+                         AND      `accounts_phones`.`status` IS NULL
                          ORDER BY `phone`');
+
         parent::__construct();
     }
 
@@ -96,7 +98,7 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface $o_parent
+     * @param DataEntryInterface|UrlInterface|RenderInterface|null $o_parent
      *
      * @return static
      */
@@ -214,24 +216,14 @@ class Phones extends DataIterator implements PhonesInterface
 
                 // Pre-validate the phone number because we need the phone numbers sanitized for comparison later!
                 $phone = ArrayValidator::new($phone)
-                                       ->select('phone')
-                                       ->isOptional()
-                                       ->sanitizePhoneNumber()
-                                       ->select('delete')
-                                       ->isOptional()
-                                       ->sanitizeToBoolean()
-                                       ->select('account_type')
-                                       ->isOptional('other')
-                                       ->hasMaxCharacters(8)
-                                       ->sanitizeLowercase()
-                                       ->isInArray([
+                                       ->select('phone')->isOptional()->sanitizePhoneNumber()
+                                       ->select('delete')->isOptional()->sanitizeToBoolean()
+                                       ->select('account_type')->isOptional('other')->hasMaxCharacters(8)->sanitizeLowercase()->isInArray([
                                            'personal',
                                            'business',
                                            'other',
                                        ])
-                                       ->select('description')
-                                       ->isOptional()
-                                       ->isDescription()
+                                       ->select('description')->isOptional()->isDescription()
                                        ->validate();
 
                 // Ignore empty entries
@@ -239,7 +231,7 @@ class Phones extends DataIterator implements PhonesInterface
                     continue;
                 }
 
-                $phones[isset_get($phone['phone'])] = $phone;
+                $phones[array_get_safe($phone, 'phone')] = $phone;
             }
 
             // Get a list of what we should add and remove and apply this

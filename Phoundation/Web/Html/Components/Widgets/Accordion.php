@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Seo;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -28,7 +28,7 @@ use Stringable;
 
 class Accordion extends Widget implements AccordionInterface
 {
-    use TraitDataUrl;
+    use TraitDataUrlObject;
     use TraitDataRenderMethod;
 
 

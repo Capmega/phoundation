@@ -19,9 +19,8 @@ namespace Phoundation\Data;
 use Phoundation\Cli\Cli;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Traits\TraitDataArraySource;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
-use Phoundation\Utils\Json;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -115,13 +114,14 @@ class EntryCore implements EntryInterface
      *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return array
      */
-    public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        return isset_get($this->source[$key]);
+        return array_get_safe($this->source, $key, $default, $exception ?? $this->exception_on_get);
     }
 
 

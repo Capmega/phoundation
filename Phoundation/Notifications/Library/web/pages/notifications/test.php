@@ -21,6 +21,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
+
 // Create the notification, log it, and send it to this user.
 Notification::new()
             ->setUrl(Url::new('/index.html')->makeWww())
@@ -32,5 +33,6 @@ Notification::new()
             ->log()
             ->send();
 
+
 // Redirect to the "all notifications" page
-Response::redirect(Url::newPrevious('/notifications/notifications.html'));
+Response::redirect(Url::newPrevious('/notifications/all.html'));

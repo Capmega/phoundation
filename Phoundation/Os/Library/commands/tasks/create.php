@@ -26,7 +26,7 @@ CliDocumentation::setHelp(Task::getHelpText());
 
 
 // Create the new task
-$task = Task::new()->apply()->save();
+$task = Task::new(null)->apply()->save();
 
 
 // Done!

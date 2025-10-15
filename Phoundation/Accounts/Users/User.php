@@ -884,6 +884,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+        if (!$this->saveBecauseModified($force)) {
+            // THis user hasn't been modified, there is nothing to save!
+            return $this;
+        }
+
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
@@ -2517,7 +2522,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function lock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(PhoDateTime::new('2999/12/31 23:59:59'))
                     ->save()
@@ -2534,7 +2539,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function unlock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(null)
                     ->save()

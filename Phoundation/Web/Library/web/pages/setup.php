@@ -42,7 +42,7 @@ $get = GetValidator::new()
                    ->select('no_password_validation')->isOptional(false)->isBoolean()
                    ->validate();
 
-if (isset_get($get['no_password_validation'])) {
+if (array_get_safe($get, 'no_password_validation')) {
     Validator::disablePasswords();
 }
 
@@ -124,7 +124,7 @@ Response::setRenderMainWrapper(false);
                     <div class="mb-3">
                         <label for="admin_email">Administrator email address</label>
                         <input name="admin_email" type="email" class="form-control"
-                               placeholder="Administrator email address" value="<?= isset_get($post['admin_email']) ?>">
+                               placeholder="Administrator email address" value="<?= array_get_safe($post, 'admin_email') ?>">
                     </div>
                     <div class="mb-3">
                         <input name="admin_pass1" type="password" class="form-control"
@@ -136,39 +136,39 @@ Response::setRenderMainWrapper(false);
                     </div>
                     <div class="mb-3">
                         <input name="project" type="text" class="form-control" placeholder="Project name"
-                               value="<?= isset_get($post['project'], 'phoundation') ?>">
+                               value="<?= array_get_safe($post, 'project', 'phoundation') ?>">
                     </div>
                     <div class="mb-3">
                         <select name="environment" type="text" class="form-control">
                             <option value="">Select an environment</option>
-                            <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="local">Local
+                            <option<?= (array_get_safe($post, 'environment') ? ' selected' : null) ?> value="local">Local
                             </option>
-                            <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="public_trial">
+                            <option<?= (array_get_safe($post, 'environment') ? ' selected' : null) ?> value="public_trial">
                                 Public trial
                             </option>
-                            <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="private_trial">
+                            <option<?= (array_get_safe($post, 'environment') ? ' selected' : null) ?> value="private_trial">
                                 Private trial
                             </option>
-                            <option<?= (isset_get($post['environment']) ? ' selected' : null) ?> value="Production">
+                            <option<?= (array_get_safe($post, 'environment') ? ' selected' : null) ?> value="Production">
                                 Production
                             </option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <input name="domain" type="text" class="form-control" placeholder="Domain name"
-                               value="<?= isset_get($post['domain'], Request::getDomain()) ?>">
+                               value="<?= array_get_safe($post, 'domain', Request::getDomain()) ?>">
                     </div>
                     <div class="mb-3">
                         <input name="database_host" type="text" class="form-control" placeholder="Database host"
-                               value="<?= isset_get($post['database_host'], 'localhost') ?>">
+                               value="<?= array_get_safe($post, 'database_host', 'localhost') ?>">
                     </div>
                     <div class="mb-3">
                         <input name="database_name" type="text" class="form-control" placeholder="Database name"
-                               value="<?= isset_get($post['database_name'], 'phoundation') ?>">
+                               value="<?= array_get_safe($post, 'database_name', 'phoundation') ?>">
                     </div>
                     <div class="mb-3">
                         <input name="database_user" type="text" class="form-control" placeholder="Database user"
-                               value="<?= isset_get($post['database_user'], 'phoundation') ?>">
+                               value="<?= array_get_safe($post, 'database_user', 'phoundation') ?>">
                     </div>
                     <div class="mb-3">
                         <input name="database_pass1" type="password" class="form-control"

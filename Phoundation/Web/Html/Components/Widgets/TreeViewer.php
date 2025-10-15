@@ -20,7 +20,7 @@ use PDOStatement;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Interfaces\TreeInterface;
 use Phoundation\Data\Traits\TraitDataRenderMethod;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Data\Tree;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
@@ -29,14 +29,14 @@ use Phoundation\Web\Html\Components\Div;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Interfaces\TreeViewerInterface;
 use Phoundation\Web\Html\Enums\EnumWebRenderMethods;
-use Phoundation\Web\Html\Html;
 use Phoundation\Web\Requests\Response;
 
 
 class TreeViewer extends Widget implements TreeViewerInterface
 {
-    use TraitDataUrl;
+    use TraitDataUrlObject;
     use TraitDataRenderMethod;
+
 
     /**
      * TreeViewer class constructor

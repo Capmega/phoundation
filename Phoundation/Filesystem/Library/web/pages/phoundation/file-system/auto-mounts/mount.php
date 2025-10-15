@@ -118,7 +118,7 @@ if (!$mount->isNew()) {
         $audit = Button::new()
                        ->setFloatRight(true)
                        ->setMode(EnumDisplayMode::information)
-                       ->setAnchorUrl('/audit/meta+' . $mount->getMetaId() . '.html')
+                       ->setUrlObject('/audit/meta+' . $mount->getMetaId() . '.html')
                        ->setFloatRight(true)
                        ->setContent(tr('Audit'))
                        ->setContent(tr('Audit'));

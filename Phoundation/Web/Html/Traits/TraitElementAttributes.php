@@ -272,8 +272,8 @@ trait TraitElementAttributes
      */
     public function __construct()
     {
-        $this->o_classes    = new Iterator();
-        $this->o_attributes = new Iterator();
+        $this->o_classes    = Iterator::new();
+        $this->o_attributes = Iterator::new()->setExceptionOnGet(false);
     }
 
 
@@ -452,7 +452,7 @@ trait TraitElementAttributes
     {
         if ($o_anchor) {
             if ($o_anchor instanceof UrlInterface) {
-                $o_anchor = Anchor::new()->setHref($o_anchor);
+                $o_anchor = Anchor::new()->setUrlObject($o_anchor);
             }
 
             $this->o_anchor = $o_anchor->setChildElement($this);
@@ -579,7 +579,7 @@ trait TraitElementAttributes
      */
     public function getDataKey(string|int $key): array|string|float|int|null
     {
-        return $this->getDataObject()->get($key, false);
+        return $this->getDataObject()->get($key, exception: false);
     }
 
 

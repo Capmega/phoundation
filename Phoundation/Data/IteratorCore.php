@@ -48,6 +48,7 @@ use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataDisabled;
+use Phoundation\Data\Traits\TraitDataExceptionOnGet;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
@@ -153,7 +154,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $this->setSource($source);
         }
 
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType())
+             ->setExceptionOnGet(true);
     }
 
 
@@ -270,6 +272,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             if ($this->getReadonly() !== $o_parent->getReadonly()) {
                 $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
             }
+
             if ($this->getDisabled() !== $o_parent->getDisabled()) {
                 $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
             }
@@ -931,7 +934,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
             throw new OutOfBoundsException(tr('The specified from_key ":from_key" does not exist in this ":class" Iterator', [
                 ':from_key' => $from_key,
-                ':class'    => static::class
+                ':class'    => static::class,
             ]), $e);
         }
 
@@ -1435,7 +1438,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
             try {
                 foreach ($display_columns as $column) {
-                    $footers[$column] += get_numeric(isset_get($value[$column]));
+                    $footers[$column] += get_numeric(array_get_safe($value, $column));
                 }
 
             } catch (Throwable $e) {
@@ -1702,7 +1705,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             ]));
         }
 
-        $value = $this->get($key, $exception);
+        $value = $this->get($key, exception: $exception);
         $value = $this->ensureSourceValueHasColumns($value, $columns);
 
         return new static(Arrays::keepKeys($value, $columns));
@@ -1710,21 +1713,42 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Returns true if the specified key has the specified value
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $value
+     * @param bool                        $strict
+     * @param bool                        $exception
+     *
+     * @return bool
+     */
+    public function keyHasValue(Stringable|string|float|int $key, mixed $value, bool $strict = true, bool $exception = true): bool
+    {
+        if ($strict) {
+            return $this->get($key, exception: $exception) === $value;
+        }
+
+        return $this->get($key, exception: $exception) == $value;
+    }
+
+
+    /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         // Does this entry exist?
         if (array_key_exists($key, $this->source)) {
             return $this->ensureObject($key);
         }
 
-        if ($exception) {
+        if ($exception ?? $this->exception_on_get) {
             // The key doesn't exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
@@ -1732,7 +1756,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             ]));
         }
 
-        return null;
+        return $default;
     }
 
 
@@ -1872,7 +1896,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             ]));
         }
 
-        $value = $this->get($key, $exception);
+        $value = $this->get($key, exception: $exception);
         $value = $this->checkSourceValueHasColumns($value, $column);
         $value = Arrays::keepKeys($value, $column);
 
@@ -1934,7 +1958,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function splice(int $offset, ?int $length = null, IteratorInterface|array $replacement = [], ?array &$spliced = null): static
     {
         $spliced = Arrays::splice($this->source, $offset, $length, $replacement);
-
         return $this;
     }
 
@@ -1959,7 +1982,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // Then, get the entry
-        $entry = $this->get($key, $exception);
+        $entry = $this->get($key, exception: $exception);
 
         // Now rename
         $this->source[$target] = $this->source[$key];
@@ -2084,7 +2107,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlTable::new($this)
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
-                        ->setSource($this->source)
+                        ->setSource($this->getSource())
                         ->setRowCallbacks($this->row_callbacks)
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2104,7 +2127,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlDataTable::new($this)
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
-                            ->setSource($this->source)
+                            ->setSource($this->getSource())
                             ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2128,7 +2151,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return $class::new($this)
                      ->setId('iterator')
                      ->setName('iterator')
-                     ->setSource($this->source)
+                     ->setSource($this->getSource())
                      ->setKeyColumn($key_column)
                      ->setValueColumn($value_column);
     }
@@ -2297,7 +2320,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         if ($count < 0) {
             throw new OutOfBoundsException(tr('Cannot limit :class to ":count" entries, the number must be a positive integer value', [
                 ':class' => static::class,
-                ':count' => $count
+                ':count' => $count,
             ]));
         }
 

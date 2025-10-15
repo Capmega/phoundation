@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.8.1';
     }
 
 
@@ -125,6 +125,19 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $this->ensureModifiedColumns([
                 'os_tasks',
             ]);
+
+        })->addUpdate('0.8.1', function () {
+            $o_table = sql()->getSchemaObject()->getTableObject('os_tasks');
+
+            if ($o_table->columnExists('parents_id')) {
+                $o_table->alter()->modifyColumn('`parents_id`', 'bigint DEFAULT NULL,');
+            }
+
+            if ($o_table->foreignKeyExists('fk_os_tasks_parents_id')) {
+                $o_table->alter()
+                        ->dropForeignKey('fk_os_tasks_parents_id')
+                        ->addForeignKey('CONSTRAINT `fk_os_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `os_tasks` (`id`)');
+            }
         });
     }
 }

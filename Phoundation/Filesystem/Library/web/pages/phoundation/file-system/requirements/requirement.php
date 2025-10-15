@@ -133,7 +133,7 @@ if (!$o_requirement->isNew()) {
         $o_audit = Button::new()
                          ->setFloatRight(true)
                          ->setMode(EnumDisplayMode::information)
-                         ->setAnchorUrl('/audit/meta+' . $o_requirement->getMetaId() . '.html')
+                         ->setUrlObject('/audit/meta+' . $o_requirement->getMetaId() . '.html')
                          ->setFloatRight(true)
                          ->setContent(tr('Audit'))
                          ->setContent(tr('Audit'));

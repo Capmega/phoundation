@@ -1493,7 +1493,7 @@ class Route
      */
     protected static function applyStaticRoutes(): void
     {
-        if ((static::$rule_count === 1) and config()->get('web.route.static', false)) {
+        if ((static::$rule_count === 1) and config()->getBoolean('web.route.static', false)) {
             if (static::$apply_static_routes) {
                 // Check if remote IP is registered for special routing
                 $exists = sql()->getRow('SELECT   `id`, `url`, `regex`, `route`, `flags`
@@ -1897,7 +1897,7 @@ class Route
     {
         Log::notice(ts('*POSSIBLE HACK ATTEMPT DETECTED*'));
         Notification::new()
-            ->setUrl(Url::new('security/incidents.html')->makeWww())
+            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
             ->setMode(EnumDisplayMode::exception)
             ->setCode('hack')
             ->setRoles('security')

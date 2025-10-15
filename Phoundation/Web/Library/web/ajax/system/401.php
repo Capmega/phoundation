@@ -25,5 +25,5 @@ JsonPage::new()
         ->addFlashMessageSections(FlashMessage::new()
                                               ->setMode(EnumDisplayMode::error)
                                               ->setTitle(tr('Unauthorized'))
-                                              ->setMessage(tr('You need to sign-in to be able to see the requested resource')))
+                                              ->setMessage(tr('You need to sign-in to be able to access the requested background resource')))
         ->replyWithHttpCode(401, ['message' => $data ?? tr('unauthorized')]);

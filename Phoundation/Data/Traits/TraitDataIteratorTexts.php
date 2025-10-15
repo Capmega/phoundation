@@ -90,7 +90,7 @@ trait TraitDataIteratorTexts
      */
     public function getText(string $key, bool $exception = false, ?string $default = null): ?string
     {
-        return (($this->getTextsObject()->get($key, $exception) ?? $default) ?? $key);
+        return (($this->getTextsObject()->get($key, exception: $exception) ?? $default) ?? $key);
     }
 
 

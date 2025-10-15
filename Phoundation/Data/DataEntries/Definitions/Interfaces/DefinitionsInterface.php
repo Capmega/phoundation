@@ -10,6 +10,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
+use ReturnTypeWillChange;
 use Stringable;
 
 interface DefinitionsInterface extends IteratorInterface
@@ -59,30 +60,33 @@ interface DefinitionsInterface extends IteratorInterface
 
 
     /**
-     * Returns the specified column
+     * Returns only the specified key from the source of this DataEntry
+     *
+     * @note This method filters out all keys defined in static::getProtectedKeys() to ensure that keys like "password"
+     *       will not become available outside this object
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
-     * @return DefinitionInterface|null
+     * @return mixed
      */
-    public function get(Stringable|string|float|int $key, bool $exception = false): ?DefinitionInterface;
-
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Returns the first Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getFirstValue(): DefinitionInterface;
+    #[ReturnTypeWillChange] public function getFirstValue(): ?DefinitionInterface;
 
 
     /**
      * Returns the last Definition entry
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function getLastValue(): DefinitionInterface;
+    #[ReturnTypeWillChange] public function getLastValue(): ?DefinitionInterface;
 
 
     /**

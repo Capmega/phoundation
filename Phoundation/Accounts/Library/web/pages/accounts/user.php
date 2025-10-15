@@ -14,6 +14,7 @@
 
 declare(strict_types=1);
 
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
@@ -57,12 +58,20 @@ $o_user->getDefinitionsObject()->setRenderMeta(!$o_user->isNew())
                                ->setDefinitionRender('data'            , false);
 
 
+// Users cannot modify themselves unless they have the "god" right
+if (Session::getUserObject()->getId() === $get['id']) {
+    if (!$o_user->hasAllRights('god')) {
+        $o_user->setReadonly(true);
+    }
+}
+
+
 if ($o_user->isNotNew()) {
     // Define the drag/drop upload selector
     Request::getFileUploadHandlersObject()
            ->add(UploadHandler::new('image')
                               ->getDropZoneObject()
-                              ->setUrl(Url::new('accounts/user/image/upload+' . $o_user->getId())->makeAjax())
+                              ->setUrlObject(Url::new('accounts/user/image/upload+' . $o_user->getId())->makeAjax())
                               ->setSelector('#profile-picture-card')
                               ->setMaxFiles(0)
                               ->getHandlerObject())
@@ -218,7 +227,7 @@ if (!$o_user->isNew()) {
     $o_button_audit = Button::new()
                             ->setFloatRight(true)
                             ->setMode(EnumDisplayMode::information)
-                            ->setAnchorUrl('/audit/meta+' . $o_user->getMetaId() . '.html')
+                            ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html')
                             ->setFloatRight(true)
                             ->setContent(tr('Audit'))
                             ->setFloatRight(true);
@@ -248,7 +257,7 @@ if (!$o_user->isNew()) {
                         ->setTitle(tr('Edit roles for this user (:count)', [':count' => $o_user->getRolesObject()->getCount()]))
                         ->setContent($o_user->getRolesHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
-                                                  ->addButton(tr('Save'))
+                                                  ->addButton(isset_get($o_button_save))
                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_rights_card = Card::new()
@@ -278,7 +287,7 @@ if (!$o_user->isNew()) {
                          ->setTitle(tr('Additional email addresses for this user (:count)', [':count' => $o_user->getEmailsObject()->getCount()]))
                          ->setContent($o_user->getEmailsObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
-                                                   ->addButton(tr('Save'))
+                                                   ->addButton(isset_get($o_button_save))
                                                    ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 
     $o_phones_card = Card::new()
@@ -287,7 +296,7 @@ if (!$o_user->isNew()) {
                          ->setTitle(tr('Additional phone numbers for this user (:count)', [':count' => $o_user->getPhonesObject()->getCount()]))
                          ->setContent($o_user->getPhonesObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
-                                                   ->addButton(tr('Save'))
+                                                   ->addButton(isset_get($o_button_save))
                                                    ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
 }
 
@@ -310,8 +319,8 @@ $o_relevant_card = Card::new()
                                                         AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights'))
                                                       : AnchorBlock::new(Url::new('/profiles/profile+' . $o_user->getId() . '.html')->makeWww(), tr('Profile page for this user')) .
                                                         AnchorBlock::new(Url::new('/accounts/password+' . $o_user->getId() . '.html')->makeWww(), tr('Change password for this user')) .
-                                                        AnchorBlock::new(Url::new('/security/authentications.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Authentications for this user')) .
-                                                        AnchorBlock::new(Url::new('/security/incidents.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Security incidents for this user')) .
+                                                        AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Authentications for this user')) .
+                                                        AnchorBlock::new(Url::new('/reports/security/incidents.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Security incidents for this user')) .
                                                         AnchorBlock::new(Url::new('/accounts/sessions.html')->makeWww()->addQueries('users_id=' . $o_user->getId()), tr('Manage sessions for this user')) .
                                                         hr(AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Manage roles')) .
                                                            AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Manage rights')))));

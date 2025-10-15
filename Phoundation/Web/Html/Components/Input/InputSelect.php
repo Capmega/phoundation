@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
@@ -213,7 +214,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getMultiple(): bool
     {
-        return (bool) $this->o_attributes->get('multiple', false);
+        return (bool) $this->o_attributes->get('multiple');
     }
 
 
@@ -261,7 +262,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getSearch(): bool
     {
-        return (bool) $this->o_attributes->get('search', false);
+        return (bool) $this->o_attributes->get('search');
     }
 
 
@@ -285,7 +286,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getClearButton(): bool
     {
-        return (bool) $this->o_attributes->get('clear_button', false);
+        return (bool) $this->o_attributes->get('clear_button', exception: false);
     }
 
 
@@ -309,7 +310,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getCustomContent(): ?string
     {
-        return $this->o_attributes->get('custom_content', false);
+        return $this->o_attributes->get('custom_content');
     }
 
 
@@ -333,7 +334,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete', false));
+        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
     }
 
 
@@ -546,10 +547,11 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Validates that the specified selected entries exist in the source data
      *
+     * @param bool $throw_validation_exception
+     *
      * @return static
-     * @throws ValidationFailedException
      */
-    public function validateSelected(): static
+    public function validateSelected(bool $throw_validation_exception = false): static
     {
         if (empty($this->selected)) {
             // No validation required, there is nothing selected
@@ -565,48 +567,59 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         $diff    = array_diff($this->selected, $results);
 
         if (empty($diff)) {
+            // The selected key(s) exist in the source, we're good
             return $this;
         }
 
+        // The selected key(s) do not (all) exist in the source. Either the source is empty or simply doesn't contain the specified key. Register an incident
+        return $this->selectedNotInSource($throw_validation_exception, $diff);
+    }
+
+
+    /**
+     * Handles the issue of one or more selected items not existing in the source
+     *
+     * @param bool  $throw_validation_exception
+     * @param array $diff
+     *
+     * @return $this
+     */
+    protected function selectedNotInSource(bool $throw_validation_exception, array $diff): static
+    {
         if ($this->source) {
-            Incident::new()
-                    ->setType('invalid-data')
-                    ->setTitle(tr('InputSelect selected keys do not exist in source'))
-                    ->setBody(tr('The selected keys(s) ":values" in ":class" object ":name" do not exist in the InputSelect source', [
-                        ':class'  => static::class,
-                        ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
-                        ':values' => array_keys($diff),
-                    ]))
-                    ->setData([
-                        ':selected' => $this->selected,
-                        ':source'   => $this->source,
-                        ':diff'     => $diff,
-                    ])
-                    ->setLog(9)
-                    ->setNotifyRoles('developer')
-                    ->save()
-                    ->throw(ValidationFailedException::class, true);
+            $i = Incident::new()
+                         ->setBody(tr('The selected keys(s) ":values" in ":class" object ":name" do not exist in the InputSelect source', [
+                             ':class'  => static::class,
+                             ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
+                             ':values' => array_keys($diff),
+                         ]));
 
         } else {
-            Incident::new()
-                    ->setType('invalid-data')
-                    ->setTitle(tr('InputSelect with empty source has selected keys'))
-                    ->setBody(tr('The ":class" InputSelect object ":name" has an empty source, but does have selected keys(s) ":values"', [
-                        ':class'  => static::class,
-                        ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
-                        ':values' => array_keys($diff),
-                    ]))
-                    ->setData([
-                        ':selected' => $this->selected,
-                        ':source'   => $this->source,
-                        ':diff'     => $diff,
-                    ])
-                    ->setLog(9)
-                    ->setNotifyRoles('developer')
-                    ->save()
-                    ->throw(ValidationFailedException::class, true);
+            $i = Incident::new()
+                         ->setBody(tr('The ":class" InputSelect object ":name" has an empty source, but does have selected keys(s) ":values"', [
+                             ':class'  => static::class,
+                             ':name'   => $this->getName() ?? ('id: ' . $this->getId()),
+                             ':values' => array_keys($diff),
+                         ]));
         }
 
+        $i->setType('invalid-data')
+          ->setSeverity(EnumSeverity::low)
+          ->setTitle(tr('InputSelect selected keys do not exist in source'))
+          ->setData([
+              ':selected' => $this->selected,
+              ':source'   => $this->source,
+              ':diff'     => $diff,
+          ])
+          ->setLog(9)
+          ->setNotifyRoles('developer')
+          ->save();
+
+        if ($throw_validation_exception) {
+            $i->throw(ValidationFailedException::class, true);
+        }
+
+        $this->selected = [];
         return $this;
     }
 

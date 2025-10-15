@@ -202,16 +202,16 @@ class Incident extends DataEntryCore implements IncidentInterface
     /**
      * Sets the exception for this incident
      *
-     * @param Throwable|string|null $exception
-     * @param int                   $log
-     * @param array|string          $notify_roles
+     * @param Throwable|array|string|null $exception
+     * @param int                         $log
+     * @param array|string                $notify_roles
      *
      * @return static
      */
-    public function setException(Throwable|string|null $exception, int $log = 10, array|string $notify_roles = 'developer'): static
+    public function setException(Throwable|array|string|null $exception, int $log = 10, array|string $notify_roles = 'developer'): static
     {
         if ($exception) {
-            if (is_string($exception)) {
+            if (is_string($exception) or is_array($exception)) {
                 // This is (presumably) a JSON encoded exception data source. Import it into a new exception
                 $exception = PhoException::newFromSource($exception);
             }
@@ -576,20 +576,21 @@ class Incident extends DataEntryCore implements IncidentInterface
         $o_definitions->removeKeys('meta-divider')
 
                       ->add(DefinitionFactory::newCreatedBy()
-                                           ->setOptional(true))
+                                             ->setOptional(true))
 
                       ->add(DefinitionFactory::newDivider('meta-divider'))
 
                       ->add(Definition::new('type')
-                                    ->setLabel(tr('Incident type'))
-                                    ->setReadonly(true)
-                                    ->setDefault(tr('Unknown'))
-                                    ->setSize(6)
-                                    ->setMaxLength(64))
+                                      ->setLabel(tr('Incident type'))
+                                      ->setDisabled(true)
+                                      ->setDefault(tr('Unknown'))
+                                      ->setSize(6)
+                                      ->setMaxLength(64))
 
                     ->add(Definition::new('severity')
                                     ->setElement(EnumElement::select)
                                     ->setLabel(tr('Severity'))
+                                    ->setDisabled(true)
                                     ->setReadonly(true)
                                     ->setSize(6)
                                     ->setMaxLength(6)
@@ -604,20 +605,20 @@ class Incident extends DataEntryCore implements IncidentInterface
 
                     ->add(Definition::new('title')
                                     ->setLabel(tr('Title'))
-                                    ->setReadonly(true)
+                                    ->setDisabled(true)
                                     ->setSize(12)
                                     ->setMinLength(4)
                                     ->setMaxLength(255))
 
                     ->add(DefinitionFactory::newDescription('body')
                                     ->setLabel(tr('Body'))
-                                    ->setReadonly(true))
+                                    ->setDisabled(true))
 
                     ->add(Definition::new('details')
                                     ->setElement(EnumElement::textarea)
                                     ->setLabel(tr('Details'))
                                     ->setOptional(true)
-                                    ->setReadonly(true)
+                                    ->setDisabled(true)
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxLength(16_777_200)
@@ -662,13 +663,13 @@ class Incident extends DataEntryCore implements IncidentInterface
 
                     ->add(Definition::new('url')
                                     ->setOptional(true)
-                                    ->setReadonly(true)
+                                    ->setDisabled(true)
                                     ->setLabel('URL')
                                     ->setSize(12)
                                     ->setMaxLength(2048))
 
                     ->add(DefinitionFactory::newData('exception')
-                                           ->setReadonly(true)
+                                           ->setDisabled(true)
                                            ->setLabel('Exception')
                                            ->setRows(15)
                                            ->setNoValidation(true))
@@ -677,7 +678,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                     // validate, and the source is trusted because it comes from ourselves
                     ->add(Definition::new('data')
                                     ->setOptional(true)
-                                    ->setReadonly(true)
+                                    ->setDisabled(true)
                                     ->setInputType(EnumInputType::array_json)
                                     ->setLabel('Data')
                                     ->setSize(12)

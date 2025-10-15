@@ -47,6 +47,7 @@ use Phoundation\Databases\Sql\Exception\SqlConnectionRefusedException;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Exception\SqlIntegrityConstraintViolationException;
+use Phoundation\Databases\Sql\Exception\SqlInvalidBoundValueException;
 use Phoundation\Databases\Sql\Exception\SqlInvalidConfigurationException;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
@@ -332,8 +333,22 @@ class Sql implements SqlInterface
 
         if ($execute) {
             foreach ($execute as $key => $value) {
-                $value = Strings::fromDatatype($value, '"');
-                $query = str_replace($key, $value, $query);
+                if (is_scalar($value)) {
+                    $value = Strings::fromDatatype($value, '"');
+                    $query = str_replace($key, $value, $query);
+                    continue;
+                }
+
+                throw SqlInvalidBoundValueException::new(tr('Cannot parse query ":query", the bound execution variable key ":key" has a non-scalar value."', [
+                    ':query' => $query,
+                    ':key'   => $key,
+                ]))->setData([
+                    'connector' => $this->connector,
+                    'value'     => $value,
+                    'key'       => $key,
+                    'query'     => $query,
+                    'execute'   => $execute,
+                ]);
             }
         }
 
@@ -677,7 +692,7 @@ class Sql implements SqlInterface
 //        global $argv;
 //
 //        Notification::new()
-//            ->setUrl(Url::new('security/incidents.html')->makeWww())
+//            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
 //            ->setMode(EnumDisplayMode::exception)
 //            ->setCode('SQL_QUERY_ERROR')->setRoles('developer')->setTitle('SQL Query error')->setMessage('
 //                SQL STATE ERROR : "' . $error[0] . '"

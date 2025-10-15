@@ -469,11 +469,11 @@ class Cache extends Database implements CacheInterface
      */
     protected function getDriver(): Memcached|MongoDb|Redis|SqlInterface|FileDb|NullDb|null
     {
-        if (!config()->get('cache.enabled', false)) {
+        if (!config()->getBoolean('cache.enabled', false)) {
             return null;
         }
 
-        $driver = config()->get('cache.driver', 'memcached');
+        $driver = config()->getString('cache.driver', 'memcached');
 
         switch ($driver) {
             case 'memcache':

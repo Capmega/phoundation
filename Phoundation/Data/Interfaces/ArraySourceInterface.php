@@ -61,15 +61,17 @@ interface ArraySourceInterface extends ArraySourceMethodsInterface, PoadInterfac
      */
     public function clear(): static;
 
+
     /**
      * Returns value for the specified key
      *
      * @param Stringable|string|float|int $key
-     * @param bool                        $exception
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return mixed
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
 
     /**
      * Sets the value for the specified key

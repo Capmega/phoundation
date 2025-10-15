@@ -58,6 +58,7 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumDomainAllowed;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
+use Phoundation\Web\Requests\Exception\RequestException;
 use Phoundation\Web\Requests\Exception\RequestTypeException;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\JsonPageInterface;
@@ -493,7 +494,7 @@ class Request implements RequestInterface
 
                 // None of the requested languages are supported! Oh noes! Go for default language.
                 Notification::new()
-                            ->setUrl(Url::new('security/incidents.html')->makeWww())
+                            ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                             ->setMode(EnumDisplayMode::warning)
                             ->setCode('unsupported-languages-requested')
                             ->setRoles('developer')
@@ -873,7 +874,7 @@ class Request implements RequestInterface
      *
      * @param EnumRequestTypes $type The call type you wish to compare to
      *
-     * @return bool This function will return true if $type matches core::callType, or false if it does not.
+     * @return bool This function will return true if $type matches core::callType, or false if it doesn't.
      */
     public static function isRequestType(EnumRequestTypes $type): bool
     {
@@ -901,16 +902,17 @@ class Request implements RequestInterface
 
 
     /**
-     * Returns the value for the specified data key, if exist. If not, the default value will be returned
+     * Returns the value for the specified data key, if it exist. If not, the default value will be returned
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool                        $exception
      *
      * @return mixed
      */
-    public static function get(string $key, mixed $default = null): mixed
+    public static function get(Stringable|string|float|int $key, mixed $default = null, bool $exception = true): mixed
     {
-        return static::$source?->get($key, false) ?? $default;
+        return static::$source?->get($key, $default, $exception);
     }
 
 
@@ -1131,14 +1133,19 @@ class Request implements RequestInterface
     /**
      * Returns if this request is a GET method
      *
+     * @param bool $strict
+     *
      * @return bool
      */
-    public static function isGetRequestMethod(): bool
+    public static function isGetRequestMethod(bool $strict = true): bool
     {
-        // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
-        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
+        if (PLATFORM_WEB) {
+            // As soon as we inquire about the request method being GET, Phoundation will assume that GET is allowed
+            Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::get);
+            return Request::isRequestMethod(EnumHttpRequestMethod::get, $strict) or Request::isRequestMethod(EnumHttpRequestMethod::post);
+        }
 
-        return Request::isRequestMethod(EnumHttpRequestMethod::get) or Request::isRequestMethod(EnumHttpRequestMethod::post);
+        return false;
     }
 
 
@@ -1149,10 +1156,13 @@ class Request implements RequestInterface
      */
     public static function isPostRequestMethod(): bool
     {
-        // As soon as we inquire about the request method being POST, Phoundation will assume that POST is allowed
-        Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
+        if (PLATFORM_WEB) {
+            // As soon as we inquire about the request method being POST, Phoundation will assume that POST is allowed
+            Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
+            return Request::isRequestMethod(EnumHttpRequestMethod::post);
+        }
 
-        return Request::isRequestMethod(EnumHttpRequestMethod::post);
+        return false;
     }
 
 
@@ -1160,11 +1170,24 @@ class Request implements RequestInterface
      * Returns if this request is the specified method
      *
      * @param EnumHttpRequestMethod $method
+     * @param bool                  $strict
      *
      * @return bool
      */
-    public static function isRequestMethod(EnumHttpRequestMethod $method): bool
+    public static function isRequestMethod(EnumHttpRequestMethod $method, bool $strict = true): bool
     {
+        if (!$strict) {
+            if ($method === EnumHttpRequestMethod::upload) {
+                // Upload isn't a real method, its POST
+                $method = EnumHttpRequestMethod::post;
+            }
+
+            if ($method === EnumHttpRequestMethod::head) {
+                // HEAD is GET without a return body, treat it like GET
+                $method = EnumHttpRequestMethod::get;
+            }
+        }
+
         return Request::getRequestMethod() === $method;
     }
 
@@ -1172,11 +1195,15 @@ class Request implements RequestInterface
     /**
      * Returns the request method for this page
      *
-     * @return EnumHttpRequestMethod
+     * @return EnumHttpRequestMethod|null
      */
-    public static function getRequestMethod(): EnumHttpRequestMethod
+    public static function getRequestMethod(): ?EnumHttpRequestMethod
     {
-        return EnumHttpRequestMethod::from(strtolower($_SERVER['REQUEST_METHOD']));
+        if (PLATFORM_WEB) {
+            return EnumHttpRequestMethod::from(strtolower($_SERVER['REQUEST_METHOD']));
+        }
+
+        return null;
     }
 
 
@@ -1359,7 +1386,7 @@ class Request implements RequestInterface
                     ])
                     ->setNotifyRoles('security')
                     ->save()
-                    ->throw();
+                    ->throw(AccessDeniedException::class);
         }
     }
 
@@ -1515,20 +1542,25 @@ class Request implements RequestInterface
      */
     #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
     {
-        if ($e and (Debug::isEnabled() and $http_code > 0)) {
-            // In debug mode we don't show pretty pages, we dump all the exception data on screen
-            throw $e;
+        try {
+            if ($e and (Debug::isEnabled() and $http_code > 0)) {
+                // In debug mode we don't show pretty pages, we dump all the exception data on screen
+                throw $e;
+            }
+
+            static::$system_target = $http_code;
+            static::$is_system     = true;
+
+            if (!Session::hasStartedUp()) {
+                // Start session here because the reply will need it
+                Session::start();
+            }
+
+            SystemRequest::new()->execute(abs($http_code), $e, $message);
+
+        } catch (Throwable $e) {
+            throw new RequestException(tr('Failed to execute system page ":page"', [':page' => $http_code]), $e);
         }
-
-        static::$system_target = $http_code;
-        static::$is_system     = true;
-
-        if (!Session::hasStartedUp()) {
-            // Start session here because the reply will need it
-            Session::start();
-        }
-
-        SystemRequest::new()->execute(abs($http_code), $e, $message);
     }
 
 
@@ -1586,7 +1618,7 @@ class Request implements RequestInterface
             static::$stack_level++;
 
         } catch (FileNotExistException $e) {
-            Request::processFileNotFound($e, $target);
+            Request::processFileNotFoundException($e, $target);
         }
 
         if (PLATFORM_CLI) {
@@ -1686,16 +1718,8 @@ class Request implements RequestInterface
      * @return never
      * @throws FileNotExistException
      */
-    #[NoReturn] protected static function processFileNotFound(FileNotExistException $e, PhoFileInterface|string $target): never
+    #[NoReturn] protected static function processFileNotFoundException(FileNotExistException $e, PhoFileInterface|string $target): never
     {
-        if (static::$stack_level >= 0) {
-            Log::warning(ts('Sub target ":target" does not exist, displaying 500 page instead', [
-                ':target' => $target,
-            ]));
-
-            throw $e;
-        }
-
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
             // don't, hard fail because this method will normally execute a system page, and we just saw those don't
@@ -1703,6 +1727,14 @@ class Request implements RequestInterface
             throw new SystemPageNotFoundException(tr('The requested system page ":page" does not exist', [
                 ':page' => $target,
             ]));
+        }
+
+        if (static::$stack_level >= 0) {
+            Log::warning(ts('Sub target ":target" does not exist, displaying 500 page instead', [
+                ':target' => $target,
+            ]));
+
+            throw $e;
         }
 
         Log::warning(ts('Main target ":target" does not exist, displaying 404 page instead', [
@@ -1961,7 +1993,7 @@ class Request implements RequestInterface
      */
     public static function getHeader(string $name, bool $exception = false): ?string
     {
-        return Request::getHeaders()->get($name, $exception);
+        return Request::getHeaders()->get($name, exception: $exception);
     }
 
 

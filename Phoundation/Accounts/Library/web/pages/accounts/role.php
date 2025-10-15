@@ -89,7 +89,7 @@ if ($o_role->isNotNew()) {
     $o_audit = Button::new()
                      ->setFloatRight(true)
                      ->setMode(EnumDisplayMode::information)
-                     ->setAnchorUrl('/audit/meta+' . $o_role->getMetaId() . '.html')
+                     ->setUrlObject('/audit/meta+' . $o_role->getMetaId() . '.html')
                      ->setFloatRight(true)
                      ->setContent(tr('Audit'));
 
@@ -184,5 +184,5 @@ return Grid::new()
                                      ->addContent($o_role_card . $o_rights_card)
                                      ->setSize(9)
                                      ->useForm(true))
-           ->addGridColumn(isset_get($o_users_card)                , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+          ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three)
+          ->addGridColumn(isset_get($o_users_card)                , EnumDisplaySize::nine);

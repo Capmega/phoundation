@@ -14,10 +14,15 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // Set page meta data
@@ -187,7 +192,7 @@ Response::setBreadcrumbs([
                             <?= Anchor::new('invoice-print.html')
                                       ->setContent('<i class="fas fa-print"></i> ' . tr('Print'))
                                       ->setClass('btn btn-default')
-                                      ->setTarget(EnumAnchorTarget::blank)
+                                      ->setTargetObject(EnumAnchorTarget::blank)
                                       ->addAttribute('noopener', 'rel'); ?>
                             <button type="button" class="btn btn-success float-right">
                                 <i class="far fa-credit-card"></i>

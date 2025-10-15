@@ -623,8 +623,8 @@ class Response implements ResponseInterface
     {
         static $minified = null;
 
-        // Ensure the extension is stripped
-        // Ensure anything before templates/ is stripped
+        // Ensure the extension is stripped.
+        // Ensure anything before templates/ is stripped.
         $url = Strings::untilReverse($url, '.' . $type);
         $url = Strings::until($url, '.min');
         $url = Strings::from($url, 'templates/');
@@ -634,12 +634,10 @@ class Response implements ResponseInterface
             $minified = (config()->get('web.cdn.resources.minified', true) ? '.min' : '');
         }
 
-        // Determine the absolute file path
-        $file = DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type;
-
+        // Return URL with timestamp injected into the given file
         if (config()->getBoolean('web.cdn.resources.versioning', true)) {
-            // Return URL with timestamp injected into the given file
-            return $url . '-v' . filectime($file) . $minified . '.' . $type;
+            // Determine the absolute file path
+            return $url . '-v' . filectime(DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type) . $minified . '.' . $type;
         }
 
         // Return URL without an injected timestamp
@@ -1972,14 +1970,14 @@ class Response implements ResponseInterface
             }
         }
 
-        // Add noindex, nofollow and nosnipped headers for non production environments and non normal HTTP pages.
+        // Add noindex, nofollow and nosnipped headers for non-production environments and non-normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->get('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->getBoolean('web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
         // CORS headers
-        if (config()->get('security.web.cors', true) or static::$cors) {
+        if (config()->getBoolean('security.web.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
             static::$cors = array_merge(Arrays::force(config()->get('web.cors', [])), static::$cors);
@@ -1991,7 +1989,8 @@ class Response implements ResponseInterface
                             // Origin is allowed from all subdomains
                             $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                             $length = strlen(isset_get($_SESSION['domain']));
-                            if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
+
+                            if (substr($origin, -$length, $length) === array_get_safe($_SESSION, 'domain')) {
                                 // Sub domain matches. Since CORS does not support sub domains, just show the
                                 // current sub domain.
                                 $value = $_SERVER['HTTP_ORIGIN'];
@@ -2002,7 +2001,9 @@ class Response implements ResponseInterface
                                 $value = '';
                             }
                         }
-                    // no break
+
+                        // no break
+
                     case 'methods':
                         // no break
                     case 'headers':

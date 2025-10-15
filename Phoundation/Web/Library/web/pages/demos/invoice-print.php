@@ -14,11 +14,17 @@
 
 declare(strict_types=1);
 
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no query variables whatsoever
+GetValidator::new()->validate();
 
 
 // This page will build its own body
 Response::setRenderMainWrapper(false);
+
 
 ?>
 <body>

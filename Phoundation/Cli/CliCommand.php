@@ -1027,7 +1027,7 @@ class CliCommand
                 }
 
                 // See if the command execution should be stopped for some reason.
-                CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
+                CliCommand::limitCommand(array_get_safe($parameters, 'limit'), array_get_safe($parameters, 'reason'));
 
                 CliCommand::documentation();
                 CliAutoComplete::setup();
@@ -1036,7 +1036,7 @@ class CliCommand
         }
 
         // See if the command execution should be stopped for some reason.
-        CliCommand::limitCommand(isset_get($parameters['limit']), isset_get($parameters['reason']));
+        CliCommand::limitCommand(array_get_safe($parameters, 'limit'), array_get_safe($parameters, 'reason'));
     }
 
 
@@ -1190,7 +1190,7 @@ class CliCommand
             // This is a directory.
             // Does a file with the directory name exist inside? Only check if the NEXT command does not exist as a file
             $file .= '/';
-            $next = isset_get($commands[$position + 1]);
+            $next  = array_get_safe($commands, $position + 1);
 
             if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
                 if (file_exists($file . $command)) {

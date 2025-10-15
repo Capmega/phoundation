@@ -211,7 +211,7 @@ trait TraitInputElement
      */
     public function getAutoSubmit(): ScriptInterface|bool
     {
-        return $this->o_attributes->get('auto_submit', false);
+        return $this->o_attributes->get('auto_submit', exception: false);
     }
 
 
@@ -222,7 +222,7 @@ trait TraitInputElement
      */
     public function getOnChange(): ?string
     {
-        return $this->o_attributes->get('on_change', false);
+        return $this->o_attributes->get('on_change', exception: false);
     }
 
 

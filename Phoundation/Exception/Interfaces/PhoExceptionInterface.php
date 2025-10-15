@@ -125,24 +125,6 @@ interface PhoExceptionInterface extends PoadInterface
     public function addMessages(array|string|null $messages): static;
 
     /**
-     * Import exception data and return this as an exception
-     *
-     * @param ArraySourceInterface|array|string|null $source
-     *
-     * @return static|null
-     */
-    public static function newFromSourceOrNull(ArraySourceInterface|array|string|null $source): ?static;
-
-    /**
-     * Import exception data and return this as an exception
-     *
-     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
-     *
-     * @return static
-     */
-    public static function newFromSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null): static;
-
-    /**
      * Set the exception code
      *
      * @param string|int|null $code

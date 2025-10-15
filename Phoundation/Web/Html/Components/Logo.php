@@ -33,7 +33,7 @@ class Logo extends Img
 
         $this->src = Url::new('logos/large.webp')->makeImg();
 
-        $this->getAnchorObject()->setHref(Url::new('index')->makeWww());
+        $this->getAnchorObject()->setUrlObject(Url::new('index')->makeWww());
     }
 
 

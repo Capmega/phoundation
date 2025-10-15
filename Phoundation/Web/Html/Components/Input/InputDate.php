@@ -101,7 +101,7 @@ class InputDate extends InputText
      */
     public function getMax(): ?int
     {
-        return $this->o_attributes->get('max', false);
+        return $this->o_attributes->get('max');
     }
 
 
@@ -129,7 +129,7 @@ class InputDate extends InputText
      */
     public function getMin(): ?int
     {
-        return $this->o_attributes->get('min', false);
+        return $this->o_attributes->get('min');
     }
 
 

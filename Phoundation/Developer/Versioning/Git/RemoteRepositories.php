@@ -73,12 +73,13 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
     /**
      * Returns the specified repository
      *
-     * @param Stringable|string|float|int
-     * @param bool $exception
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool|null                   $exception
      *
      * @return RemoteRepository|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, bool $exception = true): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
         if (!array_key_exists($key, $this->source)) {
             if ($exception) {
@@ -88,6 +89,6 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
             }
         }
 
-        return RemoteRepository::new($this->directory, $key);
+        return RemoteRepository::new($this->directory, $key, $default);
     }
 }

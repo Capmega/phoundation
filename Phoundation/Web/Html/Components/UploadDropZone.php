@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataSelector;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Response;
 class UploadDropZone extends ResourceElement
 {
     use TraitDataSelector;
-    use TraitDataUrl;
+    use TraitDataUrlObject;
 
 
     /**

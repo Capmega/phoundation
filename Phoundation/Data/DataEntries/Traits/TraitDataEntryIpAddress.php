@@ -75,7 +75,7 @@ trait TraitDataEntryIpAddress
      */
     public function getNetLen(): ?int
     {
-        return $this->getTypesafe('string', 'net_len');
+        return $this->getTypesafe('int', 'net_len');
     }
 
 
