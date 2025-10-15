@@ -337,6 +337,11 @@ class Sql implements SqlInterface
                     $value = Strings::fromDatatype($value, '"');
                     $query = str_replace($key, $value, $query);
                     continue;
+
+                }
+
+                if ($value === null) {
+                    continue;
                 }
 
                 throw SqlInvalidBoundValueException::new(tr('Cannot parse query ":query", the bound execution variable key ":key" has a non-scalar value."', [
