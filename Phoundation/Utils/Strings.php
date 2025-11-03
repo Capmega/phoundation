@@ -37,6 +37,123 @@ use Throwable;
 class Strings extends Utils
 {
     /**
+     * Given a "string table", return an array with a sub-array for each row in the table.
+     *
+     * @param string      $source     The source string
+     * @param array       $headers    The column names in the table
+     * @param string      $separator  What to split the string on
+     * @param string|null $column_key The identifier of the sub-array
+     *
+     * @return array
+     */
+    public static function parseStringTableManual(string $source, array $headers, string $separator = '  ', ?string $column_key = 'name'): array
+    {
+        // check if $headers is 'key' => 'length' or 'key', 'key', ...
+        if (is_int(Arrays::firstValue(array_keys($headers)))) {
+            $headers = static::parseStringHeadersManual($source, $headers);
+        }
+
+        $result = [];
+        $rows       = preg_split("/\r\n|\n|\r/", $source);
+        $header_row = Arrays::firstValue($rows);
+
+        foreach ($rows as $row) {
+            if ($row === $header_row) {
+                continue;
+            }
+
+            $row_array = [];
+
+            foreach ($headers as $header => $length) {
+                $row_array[$header] = trim(substr($row, 0, $length));
+                $row                = trim(substr($row, $length));
+            }
+
+            $result[$row_array[$column_key]] = $row_array;
+        }
+
+        return $result;
+    }
+
+
+    /**
+     * Given a "string table", return an array with a sub-array for each row in the table.
+     *
+     * @param string      $source     The source string
+     * @param string      $separator  What to split the string on
+     * @param string|null $column_key The identifier of the sub-array
+     *
+     * @return array
+     */
+    public static function parseStringTableAuto(string $source, string $separator = '  ', ?string $column_key = 'name'): array
+    {
+        return static::parseStringTableManual($source, static::parseStringHeadersAuto($source), $separator, $column_key);
+    }
+
+
+    /**
+     * Given a string table, and a separator, return an array in the format of "column name" => "column length"
+     *
+     * @param string $source
+     * @param string $separator
+     *
+     * @return array
+     */
+    public static function parseStringHeadersAuto(string $source, string $separator = '  '): array
+    {
+        $lines      = preg_split("/\r\n|\n|\r/", $source);
+        $header_row = Arrays::firstValue($lines);
+        $headers    = Arrays::filterEmpty(explode($separator, $header_row));
+        $result     = [];
+
+        foreach ($headers as $header) {
+            // normalize keys
+            // todo cannot normalize keys this way since then it cannot be split later
+//            $header   = str_replace(' ', '_', $header);
+            $header = strtolower(trim($header));
+            $result[] = $header;
+        }
+
+        return static::parseStringHeadersManual($source, $result);
+    }
+
+
+    /**
+     * Given a string table, and a list of header names, return an array in the format of "column name" => "column length"
+     *
+     * @param string $source
+     * @param array  $headers
+     *
+     * @return array
+     */
+    public static function parseStringHeadersManual(string $source, array $headers): array
+    {
+        $result     = [];
+        $lines      = preg_split("/\r\n|\n|\r/", $source);
+
+        if (!$lines or empty($headers)) {
+            return [];
+        }
+
+        $header_row = strtolower(Arrays::firstValue($lines));
+        $length     = strlen($header_row);
+
+        // TODO cannot find headers if they have been normalized with strpos
+        // what if one of the keys is "age" and another is "usage" or something where they key is inside the other word - strpos will not work
+        // how can I find position of each key and subtract the position of the previous key?
+
+        foreach ($headers as $header) {
+            $header_row      = ltrim(Strings::from($header_row, $header));
+            $new_length      = strlen($header_row);
+            $result[$header] = $length - $new_length;
+            $length          = $new_length;
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Ensure that the specified $url will start with the specified $protocol.
      *
      * @param Stringable|string $source
