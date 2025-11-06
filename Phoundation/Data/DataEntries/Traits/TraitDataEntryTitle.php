@@ -33,12 +33,12 @@ trait TraitDataEntryTitle
     /**
      * Sets the title for this object
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static
+    public function setTitle(string|false|null $title): static
     {
-        return $this->set(get_null($title), 'title');
+        return $this->set(get_null(get_value_unless_false($this->getTitle(), $title)), 'title');
     }
 }

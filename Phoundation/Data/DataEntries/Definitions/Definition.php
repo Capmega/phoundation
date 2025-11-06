@@ -2667,26 +2667,6 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     *
-     * @param bool|null $disabled
-     * @param bool|null $set_readonly
-     *
-     * @return static
-     */
-    public function setDisabled(?bool $disabled, ?bool $set_readonly = null): static
-    {
-        if ($set_readonly) {
-            $this->setReadonly($disabled, false);
-        }
-
-        return $this->setKey($disabled, 'disabled');
-    }
-
-
-    /**
      * The label to be shown on HTML clients
      *
      * @return string|null
@@ -3991,18 +3971,54 @@ class Definition implements DefinitionInterface
      *
      * @note Defaults to false
      *
-     * @param bool|null $readonly
-     * @param bool|null $set_disabled
+     * @param bool|null         $readonly
+     * @param bool|null         $set_disabled
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setReadonly(?bool $readonly, ?bool $set_disabled = null): static
+    public function setReadonly(?bool $readonly, ?bool $set_disabled = null, string|false|null $title = null): static
     {
         if ($set_disabled) {
             $this->setDisabled($readonly, false);
         }
 
-        return $this->setKey((bool) $readonly, 'readonly');
+        return $this->setKey((bool) $readonly, 'readonly')
+                    ->setTooltip($title);
+    }
+
+
+    /**
+     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     * @return bool|null
+     */
+    public function getDisabled(): ?bool
+    {
+        return in_array($this->getColumn(), static::getMetaColumns()) or get_safe_typed('bool', $this->source, 'disabled', false);
+    }
+
+
+    /**
+     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     *
+     * @note Defaults to false
+     *
+     * @param bool|null         $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
+     *
+     * @return static
+     */
+    public function setDisabled(?bool $disabled, ?bool $set_readonly = null, string|false|null $title = null): static
+    {
+        if ($set_readonly) {
+            $this->setReadonly($disabled, false);
+        }
+
+        return $this->setKey($disabled, 'disabled')
+                    ->setTooltip($title);
     }
 
 
@@ -4030,18 +4046,6 @@ class Definition implements DefinitionInterface
     public function setSelectable(?bool $value): static
     {
         return $this->setKey((bool) $value, 'selectable');
-    }
-
-
-    /**
-     * Returns if the value cannot be modified and this element will be shown as disabled on HTML clients
-     *
-     * @note Defaults to false
-     * @return bool|null
-     */
-    public function getDisabled(): ?bool
-    {
-        return in_array($this->getColumn(), static::getMetaColumns()) or get_safe_typed('bool', $this->source, 'disabled', false);
     }
 
 

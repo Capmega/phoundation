@@ -24,7 +24,9 @@ use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Element;
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipBoundary;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipPlacement;
@@ -45,9 +47,9 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * The element to which this tooltip belongs
      *
-     * @var ElementInterface|null $source_element
+     * @var ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element
      */
-    protected ?ElementInterface $source_element;
+    protected ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element;
 
     /**
      * Tracks if the required javascript has already been sent or not
@@ -158,9 +160,9 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Returns the source element to which this tooltip is bound, if any
      *
-     * @return ElementInterface|null
+     * @return ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null
      */
-    public function getSourceElement(): ?ElementInterface
+    public function getSourceElement(): ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null
     {
         return $this->source_element;
     }
@@ -169,11 +171,11 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the source element to which this tooltip is bound, if any
      *
-     * @param ElementInterface|null $source_element
+     * @param ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element
      *
      * @return static
      */
-    public function setSourceElement(?ElementInterface $source_element): static
+    public function setSourceElement(ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element): static
     {
         $this->source_element = $source_element;
         return $this;
@@ -212,13 +214,13 @@ class Tooltip extends Element implements TooltipInterface
     /**
      * Sets the tooltip title for this element
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static
+    public function setTitle(string|false|null $title): static
     {
-        $this->o_data->set($title, 'title');
+        $this->o_data->set(get_null(get_value_unless_false($this->getTitle(), $title)), 'title');
 
         return $this;
     }

@@ -48,7 +48,6 @@ use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataDisabled;
-use Phoundation\Data\Traits\TraitDataExceptionOnGet;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
@@ -79,6 +78,7 @@ use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
+
 
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
@@ -285,8 +285,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets if this DataIterator (and its entries in its source!) is readonly or not
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool        $readonly
+     * @param bool|null   $set_disabled
      *
      * @return static
      */

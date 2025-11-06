@@ -326,13 +326,14 @@ trait TraitElementAttributes
     /**
      * Sets the HTML title element attribute
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static
+    public function setTitle(string|false|null $title): static
     {
-        $this->title = $title;
+        $this->title = get_value_unless_false($this->title, $title);
+        $this->title = get_null($this->title);
         return $this;
     }
 
@@ -1124,12 +1125,13 @@ trait TraitElementAttributes
     /**
      * Set the HTML disabled element attribute
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool              $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null, string|false|null $title = false): static
     {
         if ($disabled) {
             $this->addClass('disabled');
@@ -1145,7 +1147,7 @@ trait TraitElementAttributes
             return $this->setReadonly($disabled, false);
         }
 
-        return $this->updateReadonlyDisabledName();
+        return $this->updateReadonlyDisabledName()->setTitle($title);
     }
 
 
@@ -1163,12 +1165,13 @@ trait TraitElementAttributes
     /**
      * Set the HTML readonly element attribute
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool              $readonly
+     * @param bool|null         $set_disabled
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null, string|false|null $title = false): static
     {
         if ($readonly) {
             $this->addClass('readonly');
@@ -1184,7 +1187,7 @@ trait TraitElementAttributes
             return $this->setDisabled($readonly, false);
         }
 
-        return $this->updateReadonlyDisabledName();
+        return $this->updateReadonlyDisabledName()->setTitle($title);
     }
 
 

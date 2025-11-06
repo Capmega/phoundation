@@ -11,6 +11,7 @@ use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryCannotBeDeletedException;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\CacheableObjectInterface;
@@ -941,4 +942,26 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return static
      */
     public function setIsLoadedFromGlobalCache(): static;
+
+    /**
+     * Returns NULL if this specific DataEntry can be deleted, or a string containing the reason why it cannot be deleted
+     *
+     * @return string|null
+     */
+    public function getDeleteLockReason(): ?string;
+
+    /**
+     * Returns true if this DataEntry object can be deleted
+     *
+     * @return bool
+     */
+    public function canBeDeleted(): bool;
+
+    /**
+     * Checks if a DataEntry can be deleted, throws a DataEntryCannotBeDeletedException if it cannot be deleted
+     *
+     * @return static
+     * @throws DataEntryCannotBeDeletedException
+     */
+    public function checkCanBeDeleted(): static;
 }

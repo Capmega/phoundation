@@ -244,11 +244,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the title for this user
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static;
+    public function setTitle(string|false|null $title): static;
 
 
     /**
