@@ -341,6 +341,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         'is_loaded_from_global_cache' => false,
     ];
 
+    /**
+     * Will contain the value of the unique_value column after this DataEntry object was deleted
+     *
+     * @var mixed|null $unique_value
+     */
+    protected mixed $unique_value = null;
+
 
     /**
      * DataEntry class constructor
@@ -4443,6 +4450,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if (static::getUniqueColumn()) {
                 // When deleting an entry, the unique column goes to NULL
+                $this->unique_value = $this->getUniqueColumnValue();
                 $this->set(null, static::getUniqueColumn())->save();
             }
 
@@ -5439,5 +5447,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getUniqueObjectIdentifier(): int
     {
         return spl_object_id($this);
+    }
+
+
+    /**
+     * Returns the value of the unique column even after the DataEntry object has been deleted
+     *
+     * @return mixed
+     */
+    public function getOriginalUniqueColumnValue(): mixed
+    {
+        return $this->unique_value ?? $this->getUniqueColumnValue();
     }
 }

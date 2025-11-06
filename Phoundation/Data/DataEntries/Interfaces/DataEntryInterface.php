@@ -964,4 +964,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @throws DataEntryCannotBeDeletedException
      */
     public function checkCanBeDeleted(): static;
+
+    /**
+     * Returns the value of the unique column even after the DataEntry object has been deleted
+     *
+     * @return mixed
+     */
+    public function getOriginalUniqueColumnValue(): mixed;
 }
