@@ -78,6 +78,52 @@ function is_empty(mixed $value): bool
 
 
 /**
+ * Returns the given value to the specified new value unless the new value is boolean FALSE
+ *
+ * @param mixed $original
+ * @param mixed $value
+ *
+ * @return mixed
+ */
+function get_value_unless_false(mixed $original, mixed $value): mixed
+{
+    if ($value === false) {
+        // Do NOT update the value
+        return $original;
+    }
+
+    return $value;
+}
+
+
+/**
+ * Adds the specified value to the given source array if the value is NOT NULL
+ *
+ * @param array                            $source The source array to modify
+ * @param mixed                            $value  The value to (possibly) add to the specified source array
+ * @param Stringable|string|float|int|null $key    If specified, the array value will be added with this key. If NULL, the value will just be appended at the
+ *                                                 end of the array
+ *
+ * @return array
+ */
+function array_add_not_null(array $source, mixed $value, Stringable|string|float|int|null $key = null): array
+{
+    if ($value === null) {
+        return $source;
+    }
+
+    if ($key === null) {
+        $source[] = $value;
+
+    } else {
+        $source[$key] = $value;
+    }
+
+    return $source;
+}
+
+
+/**
  * Returns a realpath() version from the specified path, but ensures it will return an existing directory
  *
  * @param string $path
