@@ -251,7 +251,7 @@ class Route
         if ($this->detectFaviconRequest()) {
             // This is a favicon request that by default won't be logged, unless exceptions are encountered
             // Ensure the post-processing function is registered
-            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, logging disabled unless exception encountered)', [
+            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, further logging disabled unless exception encountered)', [
                 ':method' => static::$method,
                 ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                 ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
