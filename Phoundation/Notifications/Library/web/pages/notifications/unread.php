@@ -74,7 +74,7 @@ $o_notifications_card = Card::new()
                             ->setTitle('Active notifications')
                             ->setSwitches('reload')
                             ->setContent($notifications->getHtmlDataTableObject()
-                                                       ->setRowUrl('/notifications/notification+:ROW.html'))
+                                                       ->setRowUrls('/notifications/notification+:ROW.html'))
                             ->useForm(true)
                             ->setButtonsObject(
                                   Session::isImpersonated()

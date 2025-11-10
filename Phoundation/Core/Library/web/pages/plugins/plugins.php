@@ -67,7 +67,7 @@ $plugins_card = Card::new()
                                        'blacklisted' => tr('Blacklisted'),
                                        'description' => tr('Description'),
                                    ])
-                                   ->setRowUrl('/plugins/plugin+:ROW.html'))
+                                   ->setRowUrls('/plugins/plugin+:ROW.html'))
                ->useForm(true)
                ->setButtonsObject(Buttons::new()->addButton(tr('Scan')));
 

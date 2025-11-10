@@ -117,9 +117,9 @@ $o_incidents_card = Card::new()
                             'severity'   => tr('Severity'),
                             'title'      => tr('Title'),
                         ])
-                        ->setRowUrl(Url::new('/reports/security/incident+:ROW.html')
-                                       ->makeWww()
-                                       ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')))
+                        ->setRowUrls(Url::new('/reports/security/incident+:ROW.html')
+                                        ->makeWww()
+                                        ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')))
                         ->useForm(true);
 
 

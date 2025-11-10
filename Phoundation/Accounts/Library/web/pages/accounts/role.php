@@ -125,7 +125,7 @@ if ($o_role->isNotNew()) {
                                                'sign_in_count' => tr('Signins'),
                                                'created_on'    => tr('Created on'),
                                            ])
-                                           ->setRowUrl('/accounts/user+:ROW.html'));
+                                           ->setRowUrls('/accounts/user+:ROW.html'));
 }
 
 
