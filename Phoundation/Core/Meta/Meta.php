@@ -19,7 +19,9 @@ namespace Phoundation\Core\Meta;
 use DateTime;
 use Exception;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliCommand;
+use Phoundation\Core\Core;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Exception\MetaException;
@@ -350,7 +352,7 @@ class Meta implements MetaInterface
             if (static::$buffer) {
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
-                    ':created_by_' . static::$pointer => Session::getUserObject()->getId(false),
+                    ':created_by_' . static::$pointer => (Core::isReady() ? Session::getUserObject()->getId(false) : User::new('system')->getId(false)),
                     ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,

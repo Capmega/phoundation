@@ -22,6 +22,7 @@ namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreReadonlyException;
@@ -114,7 +115,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
-            $this->setCreatedBy(Session::getUserObject()->getId());
+            $this->setCreatedBy(Core::isReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
         }
 
         if ($identifier instanceof Throwable) {
