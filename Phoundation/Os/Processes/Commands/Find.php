@@ -685,8 +685,8 @@ class Find extends Command implements FindInterface
         if ($this->callback) {
             throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
-        $this->exec = $exec;
 
+        $this->exec = $exec;
         return $this;
     }
 
