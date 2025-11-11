@@ -128,16 +128,22 @@ class MySql extends Command
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
 
-        switch ($file->getMimetype()) {
-            case 'text/plain':
-                $this->setCommand('mysql')
-                     ->setTimeout($this->timeout)
-                     ->addArguments([
-                         '-h',  $this->o_connector->getHostname(),
-                         '-u',  $this->o_connector->getUsername(),
-                         '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
-                         '-B',  $this->o_connector->getDatabase(),
-                     ]);
+        // Ensure non-standard FK key detection is disabled, backup files may have these non-standard keys before initialization
+        // Set this GLOBAL, NOT SESSION, as the import process will go straight to a separate mysql process!
+        // TODO Research if there is there a way to set this to that process session only? Not a huge issue, but it would be better as this design leaves various ways on how this setting may remain off (CTRL-C during init process, for example!)
+        sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=OFF;');
+
+        try {
+            switch ($file->getMimetype()) {
+                case 'text/plain':
+                    $this->setCommand('mysql')
+                         ->setTimeout($this->timeout)
+                         ->addArguments([
+                             '-h',  $this->o_connector->getHostname(),
+                             '-u',  $this->o_connector->getUsername(),
+                             '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
+                             '-B',  $this->o_connector->getDatabase(),
+                         ]);
 
                     Tail::new()
                         ->setTimeout($this->timeout)
@@ -145,36 +151,49 @@ class MySql extends Command
                         ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
                         ->setPipe($this)
                         ->execute();
-                break;
 
-            case 'application/gzip':
-                $this->setCommand('mysql')
-                     ->setTimeout($this->timeout)
-                     ->addArguments([
-                         '-h',
-                         $this->o_connector->getHostname(),
-                         '-u',
-                         $this->o_connector->getUsername(),
-                         '-p' . $this->o_connector->getPassword(),
-                         '-B',
-                         $this->o_connector->getDatabase(),
-                     ]);
+                    break;
 
-                Zcat::new()
-                    ->setTimeout($this->timeout)
-                    ->setFileObject($file)
-                    ->setPipe(Tail::new()
-                                  ->setTimeout($this->timeout)
-                                  ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                                  ->setPipe($this))
-                    ->execute();
-                break;
+                case 'application/gzip':
+                    $this->setCommand('mysql')
+                         ->setTimeout($this->timeout)
+                         ->addArguments([
+                             '-h',
+                             $this->o_connector->getHostname(),
+                             '-u',
+                             $this->o_connector->getUsername(),
+                             '-p' . $this->o_connector->getPassword(),
+                             '-B',
+                             $this->o_connector->getDatabase(),
+                         ]);
 
-            default:
-                throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
-                    ':file' => $file->getSource(),
-                    ':type' => $file->getMimetype(),
-                ]));
+                    Zcat::new()
+                        ->setTimeout($this->timeout)
+                        ->setFileObject($file)
+                        ->setPipe(Tail::new()
+                                      ->setTimeout($this->timeout)
+                                      ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                                      ->setPipe($this)
+                        )
+                        ->execute();
+
+                    break;
+
+                default:
+                    throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
+                        ':file' => $file->getSource(),
+                        ':type' => $file->getMimetype(),
+                    ]));
+            }
+
+            // Re-enable non-standard FK key detection
+            sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=ON;');
+
+        } catch (Throwable $e) {
+            // Re-enable non-standard FK key detection
+            sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=ON;');
+
+            throw $e;
         }
     }
 
@@ -196,23 +215,25 @@ class MySql extends Command
                  ->addArgument($this->port ? '--port' . $this->port : null)
                  ->addArgument('--user' . $this->user)
                  ->addArgument('--defaults-extra-file=' . $password_file);
+
             if ($this->source) {
                 $this->setInputRedirect($this->source);
             }
+
             if ($method === EnumExecuteMethod::background) {
                 $pid = $this->executeBackground();
                 Log::success(ts('Executed wget as a background process with PID ":pid"', [
                     ':pid' => $pid,
                 ]), 4);
+
                 // TODO Password file should only be deleted after execution has finished
                 static::deletePasswordFile();
-
                 return $pid;
             }
+
             $results = $this->execute($method);
             Log::notice($results, 4);
             static::deletePasswordFile();
-
             return null;
 
         } catch (Throwable $e) {
@@ -270,6 +291,7 @@ class MySql extends Command
     {
         try {
             $query = addslashes($query);
+
             // Are we going to execute as root?
             if ($root) {
                 $this->createPasswordFile('root', $restrictions['db_root_password'], $restrictions);
@@ -277,14 +299,15 @@ class MySql extends Command
             } else {
                 $this->createPasswordFile($restrictions['db_username'], $restrictions['db_password'], $restrictions);
             }
+
             if ($simple_quotes) {
                 $results = Servers::exec($restrictions, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
                 $results = Servers::exec($restrictions, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
-            $this->deletePasswordFile($restrictions);
 
+            $this->deletePasswordFile($restrictions);
             return $results;
 
         } catch (MysqlException $e) {
@@ -319,9 +342,11 @@ class MySql extends Command
                              'SELECT 1\G',
                          ])
                          ->executeReturnString();
+
         if (!str_ends_with($result, '1: 1')) {
             throw new ProcessesException(tr('Failed to connect with MySQL server'));
         }
+
         // Import timezones
         $mysql = Process::new('mysql')
                         ->setSudo(true)
@@ -332,6 +357,7 @@ class MySql extends Command
                             'root',
                             'mysql',
                         ]);
+
         Process::new('mysql_tzinfo_to_sql', PhoRestrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
                ->addArgument('/usr/share/zoneinfo')
@@ -350,6 +376,7 @@ class MySql extends Command
     protected function getInstanceConfigForDatabase(string $database): array
     {
         return config()->getArray('databases.connectors.' . $database);
+
         foreach (Sql::getConnectorsObject() as $connector) {
 
         }

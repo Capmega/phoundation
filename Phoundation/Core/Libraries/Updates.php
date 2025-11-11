@@ -217,6 +217,7 @@ abstract class Updates implements UpdatesInterface
     public function init(?string $comments = null): ?string
     {
         $version = $this->getNextInitVersion();
+
         // Execute this init, register the version as executed, and return the next version
         switch ($version) {
             case 'post_once':

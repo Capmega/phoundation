@@ -40,11 +40,11 @@ interface IncidentInterface
     /**
      * Sets the roles iterator containing who will be notified about this incident
      *
-     * @param IteratorInterface|array|string $notify_roles
+     * @param IteratorInterface|array|string|null $notify_roles
      *
      * @return static
      */
-    public function setNotifyRoles(IteratorInterface|array|string $notify_roles): static;
+    public function setNotifyRoles(IteratorInterface|array|string|null $notify_roles): static;
 
 
     /**

@@ -152,6 +152,8 @@ class Libraries
     /**
      * Execute a complete systems initialization
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     *
      * @param bool        $system
      * @param bool        $plugins
      * @param bool        $templates
@@ -167,6 +169,9 @@ class Libraries
         if (FORCE) {
             static::force();
         }
+
+        // Ensure non-standard FK key detection is disabled as current system database MIGHT have non standard keys for FKs
+        sql()->query('SET SESSION restrict_fk_on_non_standard_key=OFF;');
 
         // Wipe all temporary data and set the core in INIT mode
         try {
@@ -210,9 +215,16 @@ class Libraries
 
             Log::setVerbose(VERBOSE);
 
+            // Re-enable non-standard FK key detection
+            sql()->query('SET SESSION restrict_fk_on_non_standard_key=ON;');
+
         } catch (Throwable $e) {
             // Something went wrong. Disable Log VERBOSE to avoid spamming the output Exception with extra lines
             Log::setVerbose(VERBOSE);
+
+            // Re-enable non-standard FK key detection
+            sql()->query('SET SESSION restrict_fk_on_non_standard_key=ON;');
+
             throw $e;
         }
     }

@@ -183,6 +183,4 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
             ':path' => $this->o_path,
         ]));
     }
-
-
 }

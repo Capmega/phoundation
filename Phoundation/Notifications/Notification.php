@@ -743,7 +743,7 @@ FILES variables:
         $sending = true;
         $user    = User::new()->load($user);
 
-        if (config()->getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
+        if (!config()->getBoolean('notifications.send.enabled', true) and !$this->override_non_production_lockout) {
             // We're not in production environment, don't send any notifications!
             Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),

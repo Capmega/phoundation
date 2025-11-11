@@ -337,6 +337,11 @@ class Sql implements SqlInterface
                     $value = Strings::fromDatatype($value, '"');
                     $query = str_replace($key, $value, $query);
                     continue;
+
+                }
+
+                if ($value === null) {
+                    continue;
                 }
 
                 throw SqlInvalidBoundValueException::new(tr('Cannot parse query ":query", the bound execution variable key ":key" has a non-scalar value."', [
@@ -373,9 +378,9 @@ class Sql implements SqlInterface
 
         try {
             if (!$this->pdo) {
-                throw new SqlException(tr('Cannot execute query ":query", on instance ":instance", it is not connected to a server', [
-                    ':query'    => $query,
-                    ':instance' => $this->connector,
+                throw new SqlException(tr('Cannot execute query ":query", on connector ":connector", it is not connected to a server', [
+                    ':query'     => $query,
+                    ':connector' => $this->connector,
                 ]));
             }
 
