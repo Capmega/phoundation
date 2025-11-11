@@ -16,11 +16,24 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Sessions;
 
+use PDOStatement;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\Interfaces\IteratorInterface;
 
 
 class UserSessions extends DataIterator
 {
+    /**
+     * UserSessions constructor
+     *
+     * @param IteratorInterface|array|string|PDOStatement|null $source
+     */
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
+    {
+        parent::__construct($source);
+    }
+
+
     /**
      * Returns the table name used by this object
      *

@@ -20,6 +20,7 @@ use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -30,6 +31,9 @@ use Phoundation\Os\Processes\Commands\Find;
 
 class Sessions
 {
+    use TraitStaticMethodNew;
+    
+
     /**
      * Returns the handler for sessions
      *
@@ -93,24 +97,13 @@ class Sessions
                 ]));
 
                 Find::new(PhoDirectory::newTemporaryObject())
-                    ->setOlderThan($age_in_minutes)
-                    ->setExecute('rf {} -rf')
+                    ->setAtime('-' . $age_in_minutes)
+                    ->setExec('rf {} -rf')
                     ->executeNoReturn();
                 break;
 
             case 'memcached':
         }
-    }
-
-
-    /**
-     * Returns a new sessions object
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new Sessions();
     }
 
 
