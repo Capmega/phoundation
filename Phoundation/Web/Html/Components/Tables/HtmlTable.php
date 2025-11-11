@@ -156,9 +156,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Table header text
      *
-     * @var string|null $header_text
+     * @var Stringable|string|null $header_text
      */
-    protected ?string $header_text = null;
+    protected Stringable|string|null $header_text = null;
 
     /**
      * If true, will process all cell contents with htmlentities()
@@ -257,9 +257,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns if the table is header_text or not
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getHeaderText(): ?string
+    public function getHeaderText(): Stringable|string|null
     {
         return $this->header_text;
     }
@@ -268,11 +268,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets if the table is header_text or not
      *
-     * @param string|null $header_text
+     * @param Stringable|string|null $header_text
      *
      * @return static
      */
-    public function setHeaderText(?string $header_text): static
+    public function setHeaderText(Stringable|string|null $header_text): static
     {
         $this->header_text = $header_text;
         return $this;
@@ -601,6 +601,31 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         $this->footers = $footers;
         return $this;
+    }
+
+
+    public function render(): ?string
+    {
+        $attributes = [];
+        $id         = $this->getId();
+        $name       = $this->getName();
+
+        if ($id) {
+            $attributes[] = 'id="' . $id . '_table"';
+        }
+
+        if ($name) {
+            $attributes[] = 'name="' . $name . '_table"';
+        }
+
+        if ($attributes) {
+            $attributes = ' ' . implode(' ', $attributes);
+
+        } else {
+            $attributes = null;
+        }
+
+        return '<div' . $attributes . '>' . $this->header_text . parent::render() . '</div>';
     }
 
 
