@@ -579,8 +579,8 @@ class Libraries
         Log::action(ts('Clearing commands caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRootObject(true))
-            ->clearTreeSymlinks(true)
-            ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
 
         static::$cache_has_been_cleared = true;
     }
