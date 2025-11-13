@@ -578,29 +578,85 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
-                $url  = Url::newFromPath($file)->makeImg();
+                $o_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
+                $o_url  = Url::newFromPath($o_file)->makeImg();
+                $url    = $o_url->getSource();
 
                 Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
                     'href' => $url,
-                    'type' => $file->getMimetype(),
+                    'type' => $o_file->getMimetype(),
                 ], $url);
 
             } else {
-                $url = Response::versionFile($url, 'img');
+                $o_url = Url::new($url)->makeImg();
+                $o_url = $o_url->setSource(Response::versionFile($url, 'img'));
+                $url   = $o_url->getSource();
 
                 // Unknown (likely remote?) link
                 Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
-                    'href' => Url::new($url)->makeImg(),
+                    'href' => $url,
                     'type' => 'image/' . Strings::fromReverse($url, '.'),
                 ], $url);
             }
 
+            Response::setAppleIcons($url);
+
         } catch (FilesystemException $e) {
             Log::warning(ts('Failed to find favicon, see next message for more information'), 3);
             Log::warning($e->makeWarning(), 3);
+        }
+    }
+
+
+    /**
+     * Adds apple touch icons to the site with correct locations
+     *
+     * @param string $url
+     *
+     * @return void
+     */
+    protected static function setAppleIcons(string $url): void
+    {
+        // Do we even want to add these apple touch icons?
+        if (!config()->getBoolean('web.icons.apple.enable', false)) {
+            return;
+        }
+
+        // The sizes we need to support, jeeeezz...
+        $sizes = [
+            '57x57',
+            '60x60',
+            '72x72',
+            '76x76',
+            '114x114',
+            '120x120',
+            '144x144',
+            '152x152',
+            '180x180',
+        ];
+
+        // apple icons should be in the same path as the favicons
+        $url = Strings::untilReverse($url, '/') . '/';
+
+        foreach ($sizes as $size) {
+            Response::addLinkToPageHeaders([
+                'rel'   => 'apple-touch-icon',
+                'sizes' => $size,
+                'href'  => Url::new($url . 'apple-touch-icon-' . $size . '.png')->makeImg(),
+                'type'  => 'image/png', // Require these files to always be PNG as we don't want to do a mimetype lookup because apple likes being a ...
+            ], 'apple-touch-icon-' . $size . '.png');
+
+            if (config()->getBoolean('web.icons.apple.precomposed', true)) {
+                // Because of course, lets add an entire other set too just for apple, why not?
+                Response::addLinkToPageHeaders([
+                    'rel'   => 'apple-touch-icon-precomposed',
+                    'sizes' => $size,
+                    'href'  => Url::new($url . 'apple-touch-icon-' . $size . '-precomposed.png')->makeImg(),
+                    'type'  => 'image/png', // Require these files to always be PNG as we don't want to do a mimetype lookup because apple likes being a ...
+                ], 'apple-touch-icon-' . $size . '-precomposed.png');
+            }
         }
     }
 
