@@ -1916,15 +1916,23 @@ function show_system(mixed $source = null, bool $die = true, bool $sort = true):
 
     } elseif (Core::inStartupState() and config()->getBoolean('debug.startup', false)) {
         $do = true;
-    }
 
-    if ($sort) {
-        if (is_array($source)) {
-            ksort($source);
+    } else {
+        // We're in normal running mode, use show() instead
+        if ($die) {
+            showdie($source, $sort);
         }
+
+        return show($source, $sort);
     }
 
     if ($do) {
+        if ($sort) {
+            if (is_array($source)) {
+                ksort($source);
+            }
+        }
+
         if (php_sapi_name() !== 'cli') {
             // Only add this on browsers
             echo '<pre>' . PHP_EOL;
