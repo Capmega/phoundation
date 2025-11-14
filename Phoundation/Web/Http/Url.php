@@ -1880,6 +1880,12 @@ class Url implements UrlInterface
      */
     public static function ensureQueryUrlEncoding(string $query, bool $allow_encoded_plus = false): string
     {
+        if (mb_substr_count('?', $query)) {
+            throw new OutOfBoundsException(tr('Cannot ensure query URL encoding, the specified query ":query" contains multiple "?" symbols', [
+                ':query' => $query,
+            ]));
+        }
+
         $parts = explode('=', $query);
 
         switch (count($parts)) {
@@ -1893,7 +1899,7 @@ class Url implements UrlInterface
                 break;
 
             default:
-                throw new OutOfBoundsException(tr('Cannot ensure query URL encoding, the specified query ":query" contains multiple "="', [
+                throw new OutOfBoundsException(tr('Cannot ensure query URL encoding, the specified query ":query" contains multiple "=" symbols', [
                     ':query' => $query,
                 ]));
         }
