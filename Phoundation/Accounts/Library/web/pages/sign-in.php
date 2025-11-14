@@ -23,9 +23,14 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Pages\SignInPage;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
+
+// As various crawlers will be redirected here and try a head, lets try to avoid a huge load of error notifications. HEAD on sign-in file is o.k.
+Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::head);
 
 
 // Only show sign-in page if we're a guest user
