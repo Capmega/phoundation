@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces;
 
+use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
+use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipBoundary;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipPlacement;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipTrigger;
@@ -40,11 +42,11 @@ interface TooltipInterface extends ElementInterface
     /**
      * Sets the tooltip title for this element
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static;
+    public function setTitle(string|false|null $title): static;
 
 
     /**
@@ -269,9 +271,16 @@ interface TooltipInterface extends ElementInterface
     /**
      * Sets the source element to which this tooltip is bound, if any
      *
-     * @param ElementInterface|null $source_element
+     * @param ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element
      *
      * @return static
      */
-    public function setSourceElement(?ElementInterface $source_element): static;
+    public function setSourceElement(ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null $source_element): static;
+
+    /**
+     * Returns the source element to which this tooltip is bound, if any
+     *
+     * @return ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null
+     */
+    public function getSourceElement(): ElementInterface|ElementsBlockInterface|DataEntryFormInterface|null;
 }

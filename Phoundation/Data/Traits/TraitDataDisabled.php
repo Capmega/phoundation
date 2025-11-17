@@ -76,13 +76,19 @@ trait TraitDataDisabled
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool              $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null, string|false|null $title = false): static
     {
+        // TODO This is godawful, get a better way of doing this. At least check the interface or something? This is just a quick stopgap until I have time for a better solution
+        if (method_exists($this, 'setTitle')) {
+            $this->setTitle($title);
+        }
+
         $this->disabled = $disabled;
 
         if ($set_readonly) {

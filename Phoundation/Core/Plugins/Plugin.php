@@ -214,12 +214,13 @@ class Plugin extends DataEntry implements PluginInterface
     /**
      * Sets if this plugin is disabled or not
      *
-     * @param int|bool|null $disabled
-     * @param bool|null     $set_readonly (ignored)
+     * @param int|bool|null     $disabled
+     * @param bool|null         $set_readonly (ignored)
+     * @param string|false|null $title        (ignored)
      *
      * @return static
      */
-    public function setDisabled(int|bool|null $disabled, ?bool $set_readonly = null): static
+    public function setDisabled(int|bool|null $disabled, ?bool $set_readonly = null, string|false|null $title = null): static
     {
         return $this->setEnabled(!$disabled);
     }

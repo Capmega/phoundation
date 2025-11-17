@@ -43,6 +43,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryCannotBeDeletedException;
 use Phoundation\Data\Enums\EnumStateMismatchHandling;
 use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryColumnDefinitionInvalidException;
@@ -339,6 +340,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         'is_loaded_from_local_cache'  => false,
         'is_loaded_from_global_cache' => false,
     ];
+
+    /**
+     * Will contain the value of the unique_value column after this DataEntry object was deleted
+     *
+     * @var mixed|null $unique_value
+     */
+    protected mixed $unique_value = null;
 
 
     /**
@@ -1986,8 +1994,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Sets if this object is readonly or not
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool        $readonly
+     * @param bool|null   $set_disabled
      *
      * @return static
      */
@@ -4367,6 +4375,58 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns NULL if this specific DataEntry object can be deleted, or a string containing the reason why it cannot be deleted
+     *
+     * @return string|null
+     */
+    public function getDeleteLockReason(): ?string
+    {
+        // By default, all DataEntry objects CAN be deleted. Implement more detailed logic for specific DataEntry classes as needed
+        return null;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object can be deleted
+     *
+     * @return bool
+     */
+    final public function canBeDeleted(): bool
+    {
+        if ($this->getDeleteLockReason()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Checks if a DataEntry can be deleted, throws a DataEntryCannotBeDeletedException if it cannot be deleted
+     *
+     * @return static
+     * @throws DataEntryCannotBeDeletedException
+     */
+    final public function checkCanBeDeleted(): static
+    {
+        if ($this->canBeDeleted()) {
+            return $this;
+        }
+
+        throw DataEntryCannotBeDeletedException::new(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because ":reason"', [
+            ':class'      => static::class,
+            ':identifier' => $this->getUniqueColumnValue(),
+            ':reason'     => $this->getDeleteLockReason(),
+        ]))
+        ->setData([
+            'class'      => static::class,
+            'identifier' => $this->getUniqueColumnValue(),
+            'reason'     => $this->getDeleteLockReason(),
+        ]);
+    }
+
+
+    /**
      * Delete this entry
      *
      * @param string|null $comments
@@ -4376,7 +4436,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function delete(?string $comments = null, bool $auto_save = true): static
     {
+        // Does this DataEntry class have support to be deleted? This requires a table with a "status" column!
         if ($this->hasMetaColumn('status')) {
+            // Check if this specific DataEntry is allowed to be deleted
+            $this->checkCanBeDeleted();
+
             if ($this->isModified()) {
                 throw new OutOfBoundsException(tr('Cannot delete DataEntry ":class" with identifier ":identifier" because it has modifications that have not yet been saved', [
                     ':class'      => static::class,
@@ -4386,6 +4450,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if (static::getUniqueColumn()) {
                 // When deleting an entry, the unique column goes to NULL
+                $this->unique_value = $this->getUniqueColumnValue();
                 $this->set(null, static::getUniqueColumn())->save();
             }
 
@@ -5391,5 +5456,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getUniqueObjectIdentifier(): int
     {
         return spl_object_id($this);
+    }
+
+
+    /**
+     * Returns the value of the unique column even after the DataEntry object has been deleted
+     *
+     * @return mixed
+     */
+    public function getOriginalUniqueColumnValue(): mixed
+    {
+        return $this->unique_value ?? $this->getUniqueColumnValue();
     }
 }

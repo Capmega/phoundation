@@ -664,12 +664,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *
      * @note Defaults to false
      *
-     * @param bool|null $disabled
-     * @param bool|null $set_readonly
+     * @param bool|null         $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setDisabled(?bool $disabled, ?bool $set_readonly = null): static;
+    public function setDisabled(?bool $disabled, ?bool $set_readonly = null, string|false|null $title = null): static;
 
 
     /**

@@ -84,16 +84,18 @@ class Button extends Input implements ButtonInterface
     /**
      * @inheritDoc
      */
-    public function setReadonly(bool $readonly, ?bool $set_disabled = null): static {
-        return parent::setReadonly($readonly, $set_disabled);
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null, string|false|null $title = false): static
+    {
+        return parent::setReadonly($readonly, $set_disabled, $title);
     }
 
 
     /**
      * @inheritDoc
      */
-    public function setDisabled(bool $disabled, ?bool $set_readonly = null): static {
-        return parent::setDisabled($disabled, $set_readonly);
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null, string|false|null $title = false): static
+    {
+        return parent::setDisabled($disabled, $set_readonly, $title);
     }
 
 
@@ -109,7 +111,7 @@ class Button extends Input implements ButtonInterface
     public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
-            // What does this do?????????????
+            // TODO What does this do?????????????
             $this->addClasses('btn-floating');
 
             Icons::new()

@@ -267,13 +267,15 @@ trait TraitDataDate
     /**
      * Sets the calendar title
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static
+    public function setTitle(string|false|null $title): static
     {
-        $this->title = $title;
+        $this->title = get_value_unless_false($this->title, $title);
+        $this->title = get_null($this->title);
+
         return $this;
     }
 
