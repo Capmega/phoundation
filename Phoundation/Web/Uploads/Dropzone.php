@@ -243,7 +243,7 @@ class Dropzone implements DropzoneInterface
             $ini_size = get_null(ini_get('max_file_size'));
 
             if ($ini_size and ($max_file_size > $ini_size)) {
-                throw new PhpConfigurationException(tr('The total maximum file size allowed for this upload handler is ":size", but the server configuration allows a maximum post size of ":post_max"', [
+                throw new PhpConfigurationException(tr('The total maximum file size allowed for this upload handler is ":size", but the server configuration allows a maximum PHP POST size of ":post_max"', [
                     ':size'     => Numbers::fromBytes($max_file_size),
                     ':post_max' => Numbers::fromBytes(($ini_size ?? -1)),
                 ]));
@@ -795,7 +795,7 @@ class Dropzone implements DropzoneInterface
         $real_max = $this->max_files * $this->max_file_size;
 
         if ($real_max > $post_max) {
-            throw new PhpConfigurationException(tr('The total maximum size of each files ":file_size" times the maximum amount of files ":max_files" allowed for this upload handler is ":total_size", which is more than the configured maximum PHP post size of ":post_max"', [
+            throw new PhpConfigurationException(tr('The total maximum size of each files ":file_size" times the maximum amount of files ":max_files" allowed for this upload handler is ":total_size", which is more than the configured maximum PHP POST size of ":post_max"', [
                 ':file_size'  => $this->max_file_size,
                 ':max_files'  => $this->max_files,
                 ':total_size' => $real_max,

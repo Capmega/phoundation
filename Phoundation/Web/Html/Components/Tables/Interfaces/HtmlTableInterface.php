@@ -17,19 +17,19 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns if the table is header_text or not
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getHeaderText(): ?string;
+    public function getHeaderText(): Stringable|string|null;
 
 
     /**
      * Sets if the table is header_text or not
      *
-     * @param string|null $header_text
+     * @param Stringable|string|null $header_text
      *
      * @return static
      */
-    public function setHeaderText(?string $header_text): static;
+    public function setHeaderText(Stringable|string|null $header_text): static;
 
 
     /**
