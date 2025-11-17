@@ -63,6 +63,41 @@ abstract class TemplatePage implements TemplatePageInterface
 
 
     /**
+     * Returns a warning about the used environment when said environment is not production
+     *
+     * @return string|null
+     */
+    public function renderEnvironmentWarning(): ?string
+    {
+        if (ENVIRONMENT === 'production') {
+            return null;
+        }
+
+        if (!config()->getBoolean('web.warnings.environments.enabled', true)) {
+            return null;
+        }
+
+        $mode    = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.background', 'warning');
+        $title   = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.title'     , tr('Notice!'));
+        $message = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.message'   , tr('You are currently navigating the ":environment" environment of this system. All data presented is artificially generated and the database can be reset upon request. Any data you enter into this system may be purged at any moment without prior notice!', [':environment' => ENVIRONMENT]));
+
+        return $this->getRenderedEnvironmentWarning($mode, $title, $message);
+    }
+
+
+    /**
+     * Actually renders the environment warning message
+     *
+     * @param string|null $mode
+     * @param string|null $title
+     * @param string|null $message
+     *
+     * @return string|null
+     */
+    abstract protected function getRenderedEnvironmentWarning(?string $mode, ?string $title, ?string $message): ?string;
+
+
+    /**
      * Build and send HTTP headers
      *
      * @param string $output
