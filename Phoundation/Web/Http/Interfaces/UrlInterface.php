@@ -415,4 +415,18 @@ interface UrlInterface
      * @return bool
      */
     public function isAbsolute(): bool;
+
+    /**
+     * Returns the URL starting from the path
+     *
+     * @return string|null
+     */
+    public function getFromHost(): ?string;
+
+    /**
+     * Returns the URL starting from the path, and skipping the language selector (Typical for Phoundation sites)
+     *
+     * @return string|null
+     */
+    public function getFromHostAndLanguage(): ?string;
 }
