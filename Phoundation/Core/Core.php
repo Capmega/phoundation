@@ -518,6 +518,7 @@ class Core implements CoreInterface
             // project name, platform and request type
             Core::securePhpSettings();
             Core::startPlatform();
+            Core::defineProjectDirectories();
 
             // Check if we're in readonly mode
             Core::$state    = 'startup';
@@ -611,6 +612,7 @@ class Core implements CoreInterface
                 Log::toAlternateLog('Project file "config/project/name" does not exist, entering setup mode');
 
                 Core::startPlatform();
+                Core::defineProjectDirectories();
                 Core::$state = 'setup';
 
                 throw new ProjectException('Project file "' . DIRECTORY_ROOT . 'config/project/name" cannot be read. Please ensure it exists');
@@ -672,20 +674,27 @@ class Core implements CoreInterface
      * Starts up the correct platform, either CLI or WEB
      *
      * @return void
+     * @todo Remove this, should be integrated into Route somewhere
      */
     protected static function startPlatform(): void
     {
-        switch (PLATFORM) {
-            case 'web':
-                Route::startup();
-                break;
-
-            case 'cli':
-                break;
+        if (PLATFORM_WEB) {
+            Route::startup();
         }
+    }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
-        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
+
+    /**
+     * Starts up the correct platform, either CLI or WEB
+     *
+     * @return void
+     */
+    public static function defineProjectDirectories(): void
+    {
+        if (!defined('DIRECTORY_PROJECT_CDN')) {
+            define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
+            define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
+        }
     }
 
 
@@ -1313,6 +1322,51 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the language indicated in the URL, unless it is a non supported language, in which case the default language will be returned
+     *
+     * @param string|null $locale
+     *
+     * @return string
+     */
+    protected static function getLanguageFromUrl(?string $locale = null): string
+    {
+        $default   = config()->getString('locale.languages.default', 'en');
+        $supported = config()->getArray('locale.languages.supported', [
+            'en',
+            'es',
+        ]);
+
+        if (empty($supported)) {
+            $supported = [not_empty(Strings::until(Strings::until($locale, '_'), '-'), $default)];
+        }
+
+        // Language is defined by the www/LANGUAGE dir that is used.
+        $url       = $_SERVER['REQUEST_URI'];
+        $url       = Strings::ensureBeginsNotWith($url, '/');
+        $language  = Strings::until($url, '/');
+        $supported = array_unique($supported);
+
+        if (!in_array($language, $supported, true)) {
+            Incident::new()
+                    ->setType('Language')
+                    ->setTitle('Unknown / unsupported language')
+                    ->setUrl(Request::getUrl())
+                    ->setBody(ts('The requested language ":language" is unsupported, falling back onto the default language ":default"', [
+                        ':language' => $language,
+                        ':default'  => $default,
+                    ]))
+                    ->setNotifyRoles('security')
+                    ->setLog(7)
+                    ->save();
+
+            $language = $default;
+        }
+
+        return $language;
+    }
+
+
+    /**
      * Apply the specified or configured locale
      *
      * @param string|null $locale
@@ -1325,28 +1379,11 @@ class Core implements CoreInterface
     {
         // Setup locale and character encoding
         // TODO Check this mess!
+        // TODO This should (for the initial session start) take the language from the HTTP Accept-language header!
         try {
+            // Get requested language
             if (PLATFORM_WEB) {
-                $supported = config()->get('locale.languages.supported', [
-                    'en',
-                    'es',
-                ]);
-
-                if ($supported) {
-                    // Language is defined by the www/LANGUAGE dir that is used.
-                    $url      = $_SERVER['REQUEST_URI'];
-                    $url      = Strings::ensureBeginsNotWith($url, '/');
-                    $language = Strings::until($url, '/');
-
-                    if (!in_array($language, $supported, true)) {
-                        Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => config()->getString('locale.languages.default', 'en'),
-                        ]));
-                    }
-
-                } else {
-                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));
-                }
+                $language = Core::getLanguageFromUrl($locale);
 
             } else {
                 $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));
