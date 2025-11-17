@@ -109,7 +109,7 @@ $connectors_card = Card::new()
                        ->setContent($connectors
                                         ->load()
                                         ->getHtmlDataTableObject()
-                                        ->setRowUrl('/phoundation/databases/connectors/connector+:ROW.html')
+                                        ->setRowUrls('/phoundation/databases/connectors/connector+:ROW.html')
                                         ->setColumns('id,name,hostname,username,database,status,created_on')
                                         ->setOrder([1 => 'asc']))
                        ->useForm(true)

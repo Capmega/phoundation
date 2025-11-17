@@ -115,7 +115,7 @@ $requirements_card = Card::new()
     ->setContent($requirements
         ->load()
         ->getHtmlDataTableObject()
-            ->setRowUrl('/phoundation/file-system/requirements/requirement+:ROW.html')
+            ->setRowUrls('/phoundation/file-system/requirements/requirement+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtonsObject($buttons);

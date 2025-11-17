@@ -142,7 +142,7 @@ $o_users_card = Card::new()
                                            'sign_in_count' => tr('Signins'),
                                            'created_on'    => tr('Created on'),
                                        ])
-                                       ->setRowUrl('/accounts/user+:ROW.html')
+                                       ->setRowUrls('/accounts/user+:ROW.html')
                                        ->setTopButtons(Buttons::new()
                                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')))
                   ->useForm(true)

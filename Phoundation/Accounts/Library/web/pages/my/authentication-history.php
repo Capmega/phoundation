@@ -68,7 +68,7 @@ $authentications_card = Card::new()
                                 'action'     => tr('Action'),
                                 'status'     => tr('Status'),
                             ])
-                            ->setRowUrl('/security/authentication+:ROW.html')
+                            ->setRowUrls('/security/authentication+:ROW.html')
                             ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                                 // Adjust date to correct timezone and format
                                 $row['created_on'] = PhoDateTime::new($row['created_on'], 'user')->format(EnumDateFormat::user_datetime);

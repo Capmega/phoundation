@@ -136,7 +136,7 @@ if (!$o_right->isNew()) {
                                                          'sign_in_count' => tr('Signins'),
                                                          'created_on'    => tr('Created on'),
                                                      ])
-                                                     ->setRowUrl('/accounts/user+:ROW.html'));
+                                                     ->setRowUrls('/accounts/user+:ROW.html'));
 }
 
 

@@ -177,28 +177,61 @@ interface HtmlTableInterface extends ResourceElementInterface
     /**
      * Returns the URL that applies to each row
      *
-     * @return UrlInterface|null
+     * @return array
      */
-    public function getRowUrl(): ?UrlInterface;
+    public function getRowUrls(): array;
 
 
     /**
      * Sets the URL that applies to each row
      *
-     * @param UrlInterface|string|null $row_url
+     * @param UrlInterface|string|null $o_url
+     * @param array|null               $restrictions
+     * @param int                      $priority
      *
      * @return static
      */
-    public function setRowUrl(UrlInterface|string|null $row_url): static;
+    public function setRowUrls(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static;
 
+    /**
+     * Sets the URL that applies to each row
+     *
+     * @param UrlInterface|string|null $o_url
+     * @param array|null               $restrictions
+     * @param int                      $priority
+     *
+     * @return static
+     */
+    public function addRowUrl(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static;
 
     /**
      * Returns the URL that applies to each column
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public function getColumnUrls(): IteratorInterface;
+    public function getColumnUrls(): array;
 
+    /**
+     * Sets the URL that applies to each column
+     *
+     * @param UrlInterface|string $o_url
+     * @param array|null          $restrictions
+     * @param int                 $priority
+     *
+     * @return static
+     */
+    public function setColumnUrls(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static;
+
+    /**
+     * Adds a URL that apply to each column cell (when optionally matching the restrictions)
+     *
+     * @param UrlInterface|string $o_url
+     * @param array|null          $restrictions
+     * @param int                 $priority
+     *
+     * @return static
+     */
+    public function addColumnUrl(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static;
 
     /**
      * Returns the table headers

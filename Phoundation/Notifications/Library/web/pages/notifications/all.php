@@ -82,7 +82,7 @@ $table = $notifications->getHtmlDataTableObject([
                            'url'     => tr('URL'),
                            'details' => tr('Details'),
                        ])
-                       ->setRowUrl('/notifications/notification+:ROW.html')
+                       ->setRowUrls('/notifications/notification+:ROW.html')
                        ->setAnchorClasses('notification open-modal');
 
 $table->getAnchorDataAttributes()->add(':ROW', 'id');
