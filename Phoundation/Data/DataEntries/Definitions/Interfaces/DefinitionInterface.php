@@ -24,6 +24,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\BeforeAfterContentInterface;
@@ -1658,4 +1659,38 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return string
      */
     public function getDataEntryMethodName(string $type): string;
+
+    /**
+     * Returns the pre_save_functions for this column
+     *
+     * @return array|null
+     */
+    public function getPreSaveFunctions(): ?array;
+
+    /**
+     * Sets the pre_save_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function setPreSaveFunctions(array|callable|null $value): static;
+
+    /**
+     * Adds the pre_save_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function addPreSaveFunctions(array|callable|null $value): static;
+
+    /**
+     * Clears the pre_save_functions for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function clearPreSaveFunctions($value): static;
 }

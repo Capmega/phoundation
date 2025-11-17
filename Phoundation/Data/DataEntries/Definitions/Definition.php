@@ -1674,6 +1674,70 @@ class Definition implements DefinitionInterface
 
 
     /**
+     * Returns the pre_save_functions for this column
+     *
+     * @return array|null
+     */
+    public function getPreSaveFunctions(): ?array
+    {
+        return get_safe_typed('array', $this->source, 'pre_save_functions');
+    }
+
+
+    /**
+     * Sets the pre_save_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function setPreSaveFunctions(array|callable|null $value): static
+    {
+        if (is_array($value)) {
+            foreach ($value as $function) {
+                if (!is_callable($function)) {
+                    throw new OutOfBoundsException(tr('Cannot add pre-save function ":function", it is not a function', [
+                        ':function' => $function
+                    ]));
+                }
+            }
+        }
+
+        return $this->setKey($value, 'pre_save_functions');
+    }
+
+
+    /**
+     * Adds the pre_save_functions for this column
+     *
+     * @param array|callable|null $value
+     *
+     * @return static
+     */
+    public function addPreSaveFunctions(array|callable|null $value): static
+    {
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+
+        return $this->setPreSaveFunctions(array_replace($this->getPreSaveFunctions() ?? [], $value));
+    }
+
+
+    /**
+     * Clears the pre_save_functions for this column
+     *
+     * @param callable|null $value
+     *
+     * @return static
+     */
+    public function clearPreSaveFunctions($value): static
+    {
+        return $this->setKey(null, 'pre_save_functions');
+    }
+
+
+    /**
      * Returns true if the input type is scalar, false if it is not
      *
      * @return bool
