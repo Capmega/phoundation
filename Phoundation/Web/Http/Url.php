@@ -1100,6 +1100,49 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns the URL starting from the path
+     *
+     * @return string|null
+     */
+    public function getFromHost(): ?string
+    {
+        $parsed = $this->getParsed();
+        return array_get_safe($parsed, 'path') . array_get_safe($parsed, 'query') . array_get_safe($parsed, 'fragment');
+    }
+
+
+    /**
+     * Returns the URL starting from the path, and skipping the language selector (Typical for Phoundation sites)
+     *
+     * @return string|null
+     */
+    public function getFromHostAndLanguage(): ?string
+    {
+        $path = $this->getFromHost();
+
+        // Strip the language, if specified
+        if (preg_match('/^\/\w{2}\//', $path)) {
+            $path = '/' . Strings::from(substr($path, 1), '/');
+        }
+
+        return $path;
+    }
+
+
+    /**
+     * Returns true if the URL for this object points to a page within THIS project
+     *
+     * A page is considered part of this project if the host name matches
+     *
+     * @return bool
+     */
+    public function isProjectUrl(): bool
+    {
+        return Domains::getCurrent() === $this->getHost();
+    }
+
+
+    /**
      * Cloak the specified URL.
      *
      * URL cloaking is nothing more than replacing a full URL (with query) with a random string. This function will

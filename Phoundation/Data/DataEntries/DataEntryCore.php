@@ -5100,10 +5100,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             // Determine the column to update and what DataEntry::getMETHOD() should be used
-            $column = $o_definition->getColumn();
-            $method = $o_definition->getDataEntryMethodName('get');
+            $column    = $o_definition->getColumn();
+            $method    = $o_definition->getDataEntryMethodName('get');
+            $functions = $o_definition->getPreSaveFunctions();
+            $value     = $this->$method();
 
-            $return[$column] = $this->$method();
+            // Apply pre-save functions
+            if ($functions) {
+                foreach ($functions as $function) {
+                    $value = $function($o_definition, $value);
+                }
+            }
+
+            $return[$column] = $value;
 
             // Ensure values are scalar for the SQL query
             if (($return[$column] !== null) and !is_scalar($return[$column])) {

@@ -55,6 +55,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
@@ -3291,7 +3292,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
+                                           ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
+                                           ->addPreSaveFunctions(function (DefinitionInterface $o_definition, mixed $value) {
+                                               // User redirect URL's must be stored without hostname and language specification!
+                                               $value = Url::new($value);
+
+                                               if ($value->isProjectUrl()) {
+                                                   return Url::new($value)->getFromHostAndLanguage();
+                                               }
+
+                                               return $value;
+                                           }))
 
                     ->add(Definition::new('url')
                                     ->setSize(4)
