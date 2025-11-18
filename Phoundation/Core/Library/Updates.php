@@ -44,8 +44,6 @@ class Updates extends Libraries\Updates
     public function updates(): void
     {
         $this->addUpdate('0.0.1', function () {
-            sql()->query('SET SESSION restrict_fk_on_non_standard_key=OFF;');
-
             // Add table for version control itself
             sql()->getSchemaObject()->getTableObject('core_versions')->drop()->define()
                  ->setColumns('

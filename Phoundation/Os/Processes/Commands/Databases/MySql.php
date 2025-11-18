@@ -128,72 +128,56 @@ class MySql extends Command
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
 
-        // Ensure non-standard FK key detection is disabled, backup files may have these non-standard keys before initialization
-        // Set this GLOBAL, NOT SESSION, as the import process will go straight to a separate mysql process!
-        // TODO Research if there is there a way to set this to that process session only? Not a huge issue, but it would be better as this design leaves various ways on how this setting may remain off (CTRL-C during init process, for example!)
-        sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=OFF;');
+        switch ($file->getMimetype()) {
+            case 'text/plain':
+                $this->setCommand('mysql')
+                     ->setTimeout($this->timeout)
+                     ->addArguments([
+                         '-h',  $this->o_connector->getHostname(),
+                         '-u',  $this->o_connector->getUsername(),
+                         '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
+                         '-B',  $this->o_connector->getDatabase(),
+                     ]);
 
-        try {
-            switch ($file->getMimetype()) {
-                case 'text/plain':
-                    $this->setCommand('mysql')
-                         ->setTimeout($this->timeout)
-                         ->addArguments([
-                             '-h',  $this->o_connector->getHostname(),
-                             '-u',  $this->o_connector->getUsername(),
-                             '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
-                             '-B',  $this->o_connector->getDatabase(),
-                         ]);
+                Tail::new()
+                    ->setTimeout($this->timeout)
+                    ->setFileObject($file)
+                    ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                    ->setPipe($this)
+                    ->execute();
 
-                    Tail::new()
-                        ->setTimeout($this->timeout)
-                        ->setFileObject($file)
-                        ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                        ->setPipe($this)
-                        ->execute();
+                break;
 
-                    break;
+            case 'application/gzip':
+                $this->setCommand('mysql')
+                     ->setTimeout($this->timeout)
+                     ->addArguments([
+                         '-h',
+                         $this->o_connector->getHostname(),
+                         '-u',
+                         $this->o_connector->getUsername(),
+                         '-p' . $this->o_connector->getPassword(),
+                         '-B',
+                         $this->o_connector->getDatabase(),
+                     ]);
 
-                case 'application/gzip':
-                    $this->setCommand('mysql')
-                         ->setTimeout($this->timeout)
-                         ->addArguments([
-                             '-h',
-                             $this->o_connector->getHostname(),
-                             '-u',
-                             $this->o_connector->getUsername(),
-                             '-p' . $this->o_connector->getPassword(),
-                             '-B',
-                             $this->o_connector->getDatabase(),
-                         ]);
+                Zcat::new()
+                    ->setTimeout($this->timeout)
+                    ->setFileObject($file)
+                    ->setPipe(Tail::new()
+                                  ->setTimeout($this->timeout)
+                                  ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                                  ->setPipe($this)
+                    )
+                    ->execute();
 
-                    Zcat::new()
-                        ->setTimeout($this->timeout)
-                        ->setFileObject($file)
-                        ->setPipe(Tail::new()
-                                      ->setTimeout($this->timeout)
-                                      ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                                      ->setPipe($this)
-                        )
-                        ->execute();
+                break;
 
-                    break;
-
-                default:
-                    throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
-                        ':file' => $file->getSource(),
-                        ':type' => $file->getMimetype(),
-                    ]));
-            }
-
-            // Re-enable non-standard FK key detection
-            sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=ON;');
-
-        } catch (Throwable $e) {
-            // Re-enable non-standard FK key detection
-            sql($this->o_connector)->query('SET GLOBAL restrict_fk_on_non_standard_key=ON;');
-
-            throw $e;
+            default:
+                throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
+                    ':file' => $file->getSource(),
+                    ':type' => $file->getMimetype(),
+                ]));
         }
     }
 
