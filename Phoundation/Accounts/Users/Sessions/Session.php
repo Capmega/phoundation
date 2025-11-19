@@ -1837,9 +1837,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", we are already impersonating', [
+                    ->setTitle('User impersonation failed')
+                    ->setBody(tr('Cannot impersonate user ":user", we are already impersonating', [
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
@@ -1862,9 +1863,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
+                    ->setBody(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1886,9 +1888,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
+                    ->setBody(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1910,9 +1913,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::severe)
-                    ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
+                    ->setBody(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1939,7 +1943,7 @@ class Session implements SessionInterface
 
         // Register an incident
         Incident::new()
-                ->setType('User impersonation stopped')
+                ->setType('User impersonation')
                 ->setSeverity(EnumSeverity::medium)
                 ->setTitle('User impersonation stopped')
                 ->setBody(tr('The user ":user" started impersonating user ":impersonate"', [
@@ -2128,7 +2132,8 @@ class Session implements SessionInterface
                     Incident::new()
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
+                            ->setTitle('User impersonation failed')
+                            ->setBody(tr('The user ":user" stopped impersonating user ":impersonate"', [
                                 ':user'        => User::new()->load($users_id)->getLogId(),
                                 ':impersonate' => User::new()->load($impersonate_id)->getLogId(),
                             ]))
@@ -2166,10 +2171,7 @@ class Session implements SessionInterface
                     Incident::new()
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('User impersonation failure', [
-                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
-                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
-                            ]))
+                            ->setTitle(tr('User impersonation failed'))
                             ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
                                 ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
                                 ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
