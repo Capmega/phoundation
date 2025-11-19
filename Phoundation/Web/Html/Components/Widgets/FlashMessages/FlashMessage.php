@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
@@ -421,11 +422,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderScript(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        $this->makeIncident();
-
-        $this->render = Script::new($this)
-                              ->setAttach($attach_javascript)
-                              ->render();
+        $this->makeIncident()->render = Script::new($this)
+                                              ->setAttach($attach_javascript)
+                                              ->render();
 
         return parent::render();
     }
@@ -469,6 +468,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderArray(): array
     {
+        $this->makeIncident();
+
         return match ($this->flash_handler) {
             'toast' => Toast::new($this)->renderArray(),
         };
@@ -562,6 +563,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
                     ->setSeverity($this->getSeverity())
                     ->setType('flash-message')
                     ->setTitle($this->getTitle())
+                    ->setBody($this->getMessage())
+                    ->setLog(7)
                     ->save();
         }
 

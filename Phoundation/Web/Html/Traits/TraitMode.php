@@ -59,7 +59,6 @@ trait TraitMode
 
         // Ensure we have primary display mode
         $this->mode = $mode->getPrimary($mode);
-
         return $this;
     }
 }
