@@ -2853,6 +2853,7 @@ class Core implements CoreInterface
     {
         // Don't register warning exceptions
         if ((!$e instanceof PhoException) or !$e->isWarning()) {
+            // This is a "bad" exception
             if (Core::getReadonly()) {
                 Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
@@ -2866,11 +2867,20 @@ class Core implements CoreInterface
 
                     } else {
                         // Only notify and register developer incident if we're on production
-                        if (Core::isProductionEnvironment()) {
+                        if (!Core::isProductionEnvironment()) {
                             // We CAN only notify if Core is ready
                             if (Core::isReady()) {
                                 try {
-                                    $e->registerIncident(EnumSeverity::severe);
+                                    if ($e instanceof PhoException) {
+                                        $e->registerIncident(EnumSeverity::severe);
+
+                                    } else {
+                                        Incident::new()
+                                                ->setException($e)
+                                                ->setType(null)
+                                                ->setSeverity(EnumSeverity::severe)
+                                                ->save();
+                                    }
 
                                 } catch (Throwable $f) {
                                     Log::error(ts('Failed to register uncaught exception because of the following exception'));
