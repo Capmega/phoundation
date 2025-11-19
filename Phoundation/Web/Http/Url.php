@@ -1196,7 +1196,8 @@ class Url implements UrlInterface
     protected function renderUrl(?string $extension, ?string $prefix, bool $use_configured_root): static
     {
         // Reset the parsed_url cache
-        $this->parsed_url = null;
+        $this->parsed_url  = null;
+        $this->is_absolute = null;
 
         if (empty($this->source)) {
             // There is no URL to work with, we're done
