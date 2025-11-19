@@ -3347,7 +3347,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        Log::notice(ts('Closing file ":file"', [
+        Log::action(ts('Closing file ":file"', [
             ':file' => $this->getRootname(),
         ]), 2);
 
