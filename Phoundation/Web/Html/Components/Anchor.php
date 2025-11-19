@@ -136,7 +136,6 @@ class Anchor extends SpanCore implements AnchorInterface
         if (!$this->hasRenderRights()) {
             return null;
         }
-
         if ($this->getUrlObject()->isEmpty()) {
             if (empty($this->content)) {
                 // This Anchor contains no URL nor text content to display. Render nothing instead
