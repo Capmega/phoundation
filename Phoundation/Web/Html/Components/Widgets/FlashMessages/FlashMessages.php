@@ -86,21 +86,6 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
 
     /**
-     * Add a "Success!" flash message
-     *
-     * @param FlashMessageInterface|PhoException|string|null $message
-     * @param string|null                                    $icon
-     * @param int|null                                       $auto_close
-     *
-     * @return static
-     */
-    public function addSuccess(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static
-    {
-        return $this->addMessage($message, tr('Success!'), EnumDisplayMode::success, $icon, $auto_close);
-    }
-
-
-    /**
      * Add a flash message
      *
      * @param FlashMessageInterface|PhoException|Stringable|string|null $message
@@ -108,10 +93,11 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param EnumDisplayMode|null                                      $mode
      * @param string|null                                               $icon
      * @param int|null                                                  $auto_close
+     * @param bool                                                      $make_incident
      *
      * @return static
      */
-    public function addMessage(FlashMessageInterface|PhoException|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, ?string $icon = null, ?int $auto_close = 5000): static
+    public function addMessage(FlashMessageInterface|PhoException|Stringable|string|null $message, ?string $title = null, ?EnumDisplayMode $mode = EnumDisplayMode::error, ?string $icon = null, ?int $auto_close = 5000, bool $make_incident = true): static
     {
         if (!$message) {
             // Ignore empty messages
@@ -204,7 +190,8 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                                    ->setMessage((string) $message)
                                    ->setTitle($title)
                                    ->setMode($mode)
-                                   ->setIcon($icon);
+                                   ->setIcon($icon)
+                                   ->setMakeIncident($make_incident);
         }
 
         $this->source[] = $message->setAttachJavaScript($this->attach_javascript);
@@ -214,17 +201,34 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
 
 
     /**
+     * Add a "Success!" flash message
+     *
+     * @param FlashMessageInterface|PhoException|string|null $message
+     * @param string|null                                    $icon
+     * @param int|null                                       $auto_close
+     * @param bool                                           $make_incident
+     *
+     * @return static
+     */
+    public function addSuccess(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000, bool $make_incident = false): static
+    {
+        return $this->addMessage($message, tr('Success!'), EnumDisplayMode::success, $icon, $auto_close, $make_incident);
+    }
+
+
+    /**
      * Add a "Validation failed" flash message
      *
      * @param FlashMessageInterface|PhoException|string|null $message
      * @param string|null                                    $icon
      * @param int|null                                       $auto_close
+     * @param bool                                           $make_incident
      *
      * @return static
      */
-    public function addValidationFailed(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static
+    public function addValidationFailed(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000, bool $make_incident = true): static
     {
-        return $this->addMessage($message, tr('Validation failed'), EnumDisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage($message, tr('Validation failed'), EnumDisplayMode::warning, $icon, $auto_close, $make_incident);
     }
 
 
@@ -234,12 +238,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param FlashMessageInterface|PhoException|string|null $message
      * @param string|null                                    $icon
      * @param int|null                                       $auto_close
+     * @param bool                                           $make_incident
      *
      * @return static
      */
-    public function addException(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0): static
+    public function addException(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0, bool $make_incident = true): static
     {
-        return $this->addMessage($message, tr('Something went wrong'), EnumDisplayMode::error, $icon, $auto_close);
+        return $this->addMessage($message, tr('Something went wrong'), EnumDisplayMode::error, $icon, $auto_close, $make_incident);
     }
 
 
@@ -249,12 +254,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param FlashMessageInterface|PhoException|string|null $message
      * @param string|null                                    $icon
      * @param int|null                                       $auto_close
+     * @param bool                                           $make_incident
      *
      * @return static
      */
-    public function addWarning(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0): static
+    public function addWarning(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 0, bool $make_incident = true): static
     {
-        return $this->addMessage($message, tr('Warning'), EnumDisplayMode::warning, $icon, $auto_close);
+        return $this->addMessage($message, tr('Warning'), EnumDisplayMode::warning, $icon, $auto_close, $make_incident);
     }
 
 
@@ -264,12 +270,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
      * @param FlashMessageInterface|PhoException|string|null $message
      * @param string|null                                    $icon
      * @param int|null                                       $auto_close
+     * @param bool                                           $make_incident
      *
      * @return static
      */
-    public function addNoticeMessage(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000): static
+    public function addNoticeMessage(FlashMessageInterface|PhoException|string|null $message = null, ?string $icon = null, ?int $auto_close = 10000, bool $make_incident = false): static
     {
-        return $this->addMessage($message, tr('Notice'), EnumDisplayMode::notice, $icon, $auto_close);
+        return $this->addMessage($message, tr('Notice'), EnumDisplayMode::notice, $icon, $auto_close, $make_incident);
     }
 
 
