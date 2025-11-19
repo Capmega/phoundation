@@ -377,14 +377,18 @@ class Incident extends DataEntryCore implements IncidentInterface
 
                 break;
 
+            case 'severe':
+                // no break
+
             case 'high':
                 // no break
 
-            case 'warning':
-                Log::warning(ts('Security incident (:id / :severity): :message', [
+            case 'medium':
+                Log::warning(ts('Registered incident :id [:severity]: ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
-                    ':message'  => $this->getTitle(),
+                    ':title'    => $this->getTitle(),
+                    ':body'     => $this->getBody(),
                 ]), (is_integer($this->log) ? $this->log : 7));
 
                 if ($details) {
@@ -394,10 +398,11 @@ class Incident extends DataEntryCore implements IncidentInterface
                 break;
 
             default:
-                Log::error(ts('Security incident (:id / :severity): :message', [
+                Log::error(ts('Registered incident :id [:severity]: ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
-                    ':message'  => $this->getTitle(),
+                    ':title'    => $this->getTitle(),
+                    ':body'     => $this->getBody(),
                 ]), (is_integer($this->log) ? $this->log : 9));
 
                 if ($details) {
