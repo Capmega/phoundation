@@ -52,7 +52,7 @@ class PhoDateTimeZone extends DateTimeZone implements PhoDateTimeZoneInterface
                 case 'display':
                     // The timezone requested by the user
                     $detected = Session::getUserObject()->getTimezonesName();
-                    $detected = 'PDT';
+                    $detected = 'PST';
                     break;
 
                 default:
