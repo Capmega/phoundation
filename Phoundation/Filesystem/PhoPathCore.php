@@ -1700,21 +1700,21 @@ class PhoPathCore implements PhoPathInterface
             if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
-                    ':type'      => get_null($type) ?? tr('unknown'),
+                    ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
                     ':directory' => dirname($this->source),
                 ]), $previous_e);
             }
 
             throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
-                ':type' => $type,
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
 
         if (!is_readable($this->source)) {
             throw new FileNotReadableException(tr('The ":type" type file ":file" cannot be read', [
-                ':type' => get_null($type) ?? tr('unknown'),
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
@@ -3290,8 +3290,8 @@ class PhoPathCore implements PhoPathInterface
         if (!$this->exists()) {
             if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FileNotExistException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
-                    ':type'      => ($type ? '' : ' ' . $type),
+                throw new FileNotExistException(tr('The ":type" type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
+                    ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
                     ':directory' => dirname($this->source),
                 ]), $previous_e);
@@ -3301,8 +3301,8 @@ class PhoPathCore implements PhoPathInterface
             PhoDirectory::new(dirname($this->source), $this->o_restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->source)) {
-            throw new FileNotWritableException(tr('The:type file ":file" cannot be written', [
-                ':type' => ($type ? '' : ' ' . $type),
+            throw new FileNotWritableException(tr('The ":type" type file ":file" cannot be written', [
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
