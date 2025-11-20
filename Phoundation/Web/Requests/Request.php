@@ -1558,8 +1558,9 @@ class Request implements RequestInterface
 
             SystemRequest::new()->execute(abs($http_code), $e, $message);
 
-        } catch (Throwable $e) {
-            throw new RequestException(tr('Failed to execute system page ":page"', [':page' => $http_code]), $e);
+        } catch (Throwable $f) {
+            throw RequestException::new(tr('Failed to execute system page ":page"', [':page' => $http_code]), $f)
+                                  ->setData(['original_exception' => $e]);
         }
     }
 
