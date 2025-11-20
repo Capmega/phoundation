@@ -1,0 +1,26 @@
+User-agent: Mediapartners-Google
+User-agent: Google-Safety
+User-agent: AdsBot-Google
+User-agent: AdsBot-Google-Mobile
+User-agent: APIs-Google
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-Video
+User-agent: Googlebot-News
+User-agent: Storebot-Google
+User-agent: Google-InspectionTool
+User-agent: GoogleOther
+User-agent: GoogleOther-Video
+User-agent: GoogleOther-Image
+User-agent: GoogleOther-Extended
+User-agent: Google-CloudVertexBot
+User-agent: FeedFetcher-Google
+User-agent: Google-CWS
+User-agent: Google-NotebookLM
+User-agent: Google-Pinpoint
+User-agent: GoogleProducer
+User-agent: Google-Site-Verification
+User-agent: *
+Disallow: /
+
+Sitemap: https://tracking.medinet.ca/sitemap.xml
