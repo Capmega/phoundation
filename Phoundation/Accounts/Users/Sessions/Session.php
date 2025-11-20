@@ -755,7 +755,7 @@ class Session implements SessionInterface
             // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
             Log::action(ts('About to start session ":session"', [
                 ':session' => session_id() ?: 'new',
-            ]), 1);
+            ]), 3);
 
             session_start();
             static::$open = true;
