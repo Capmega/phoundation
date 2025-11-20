@@ -62,6 +62,7 @@ use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -3104,16 +3105,16 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  static::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
-            static::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+            Core::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
             if (empty($new_target)) {
-                static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
+                Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
 
             } else {
                 Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
@@ -3123,26 +3124,26 @@ class Core implements CoreInterface
                 ]));
 
                 // Execute the new system page target instead
-                static::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
+                Core::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
             }
 
         } catch (AccessDeniedException $e) {
-            static::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
+            Core::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
 
-        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
-            static::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException | FileNotExistException $e) {
+            Core::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
+            Core::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryExistsException $e) {
-            static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            Core::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
-            static::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
+            Core::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
 
         } catch (PhoException | Throwable $e) {
-            static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
+            Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
         }
 
         // Remove all caching headers
