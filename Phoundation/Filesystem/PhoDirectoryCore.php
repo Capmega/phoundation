@@ -28,6 +28,7 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FilesystemInvalidPattern;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
@@ -1495,15 +1496,32 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         // Copy the contents
         foreach ($this->getFilesObject() as $path) {
             $basename = $path->getBasename();
+
             if ($path->isDirectory()) {
                 if ($recursive) {
                     $path->copy($target->addDirectory($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
                 }
 
             } else {
-                copy($this->addFile($basename)
-                          ->getSource(), $target->addFile($basename)
-                                                ->getSource(), $context);
+                try {
+                    copy($this->addFile($basename)->getSource(),
+                         $target->addFile($basename)->getSource(), $context);
+
+                } catch (PhpException $e) {
+                    if ($this->addFile($basename)->isLink() and !$this->addFile($basename)->isLinkAndTargetExists()) {
+                        // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
+                        if ($this->addFile($basename)->exists(true)) {
+                            // The exact target already exists as a symlink, which then doesn't exist.
+
+                            $this->addFile($basename)->delete();
+                        }
+
+                        symlink($this->addFile($basename)->getSource(),
+                                $target->addFile($basename)->getSource());
+                    }
+
+                    throw $e;
+                }
             }
         }
 
@@ -1677,6 +1695,36 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         }
 
         return $sizes;
+    }
+
+
+    /**
+     * Returns a PhoFileInterface object for the specified file in this directory,
+     *
+     * @param  string $file
+     * @param  bool $exception
+     * @return PhoDirectoryInterface|PhoFileInterface|null
+     */
+    public function getFileObject(string $file, bool $exception = false): PhoDirectoryInterface|PhoFileInterface|null
+    {
+        $file = $this->source . Strings::ensureBeginsNotWith($file, '/');
+
+        if (file_exists($file)) {
+            if (is_dir($file)) {
+                return new PhoDirectory($file, $this->o_restrictions);
+            }
+
+            return new PhoFile($file, $this->o_restrictions);
+        }
+
+        if ($exception) {
+            throw new FileNotExistException(tr('Cannot return a FileObject for the specified file ":file" in this directory ":directory", the file does not exist', [
+                ':file'      => $file,
+                ':directory' => $this->source
+            ]));
+        }
+
+        return null;
     }
 
 

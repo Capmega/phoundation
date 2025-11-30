@@ -1748,7 +1748,7 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
 function execute(): ?string
 {
     try {
-        Core::setScriptState();
+        Core::setReady();
         $result = include(Request::getTargetObject());
 
     } catch (Throwable $e) {

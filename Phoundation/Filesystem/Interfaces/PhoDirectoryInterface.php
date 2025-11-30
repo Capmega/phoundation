@@ -406,4 +406,14 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @return static
      */
     public function each(callable $callback): static;
+
+
+    /**
+     * Returns a PhoFileInterface object for the specified file in this directory,
+     *
+     * @param  string $file
+     * @param  bool $exception
+     * @return PhoDirectoryInterface|PhoFileInterface|null
+     */
+    public function getFileObject(string $file, bool $exception = false): PhoDirectoryInterface|PhoFileInterface|null;
 }

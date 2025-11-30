@@ -135,16 +135,17 @@ class CliAutoComplete
     public static function initSystemArguments(): void
     {
         static::$system_arguments = [
-            '-A,--all'                 => false,
-            '-C,--no-color'            => false,
-            '-D,--debug'               => false,
-            '-E,--environment'         => true,
-            '-G,--prefix'              => false,
-            '-F,--force'               => false,
-            '-H,--help'                => false,
-            '-I,--json-input'          => false,
-            '-J,--json-output'         => false,
-            '-L,--log-level'           => [
+            '-A,--all'                       => false,
+            '-C,--no-color'                  => false,
+            '-D,--debug'                     => false,
+            '-E,--environment'               => true,
+            '-G,--prefix'                    => false,
+            '-F,--force'                     => false,
+            '-H,--help'                      => false,
+            '-I,--json-input'                => false,
+            '-J,--json-output'               => false,
+            '-K,--reinitialize-autocomplete' => false,
+            '-L,--log-level'                 => [
                 0,
                 1,
                 2,
@@ -156,37 +157,32 @@ class CliAutoComplete
                 8,
                 9,
             ],
-            '-M,--timeout'             => true,
-            '-N,--no-audio'            => false,
-            '-O,--order-by'            => true,
-            '-P,--page'                => true,
-            '-Q,--verbose'             => false,
-            '-R,--rebuild-commands'    => false,
-            '-S,--service'             => true,
-            '-T,--test'                => false,
-            '-U,--usage'               => false,
-            '-V,--version'             => false,
-            '-W,--no-warnings'         => false,
-            '-X,--ignore-readonly'     => false,
-            '-Y,--clear-tmp'           => false,
-            '-Z,--clear-caches'        => false,
-            '--deleted'                => false,
-            '--iec'                    => false,
-            '--limit'                  => true,
-            '--no-validation'          => false,
-            '--no-password-validation' => false,
-            '--show-passwords'         => false,
-            '--si'                     => false,
-            '--status'                 => true,
-            '--sudo'                   => false,
-            '--timezone'               => [
-                'word'   => function ($word) {
-                    return Timezones::new()->keepMatchingKeys($word);
-                },
-                'noword' => function ($word) {
-                    return Timezones::new()->getSource();
-                },
-            ],
+            '-M,--timeout'                   => true,
+            '-N,--no-audio'                  => false,
+            '-O,--order-by'                  => true,
+            '-P,--page'                      => true,
+            '-Q,--verbose'                   => false,
+            '-R,--rebuild-commands'          => false,
+            '-S,--service'                   => true,
+            '-T,--test'                      => false,
+            '-U,--usage'                     => false,
+            '-V,--version'                   => false,
+            '-W,--no-warnings'               => false,
+            '-X,--ignore-readonly'           => false,
+            '-Y,--clear-tmp'                 => false,
+            '-Z,--clear-caches'              => false,
+            '--deleted'                      => false,
+            '--iec'                          => false,
+            '--limit'                        => true,
+            '--no-validation'                => false,
+            '--no-password-validation'       => false,
+            '--show-passwords'               => false,
+            '--si'                           => false,
+            '--status'                       => true,
+            '--sudo'                         => false,
+            '--timezone'                     => function ($word) {
+                return Timezones::new()->keepMatchingKeys($word);
+            },
         ];
     }
 
@@ -736,6 +732,8 @@ class CliAutoComplete
      */
     public static function setup(bool $force = false): void
     {
+        Log::action(ts('Ensuring autocomplete availability'), 2);
+
         $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
                        ->makeAbsolute(must_exist: false);
 

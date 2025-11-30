@@ -59,7 +59,7 @@ interface PhoFilesInterface extends IteratorInterface
      *
      * @return PhoFiles
      */
-    public function setParentDirectory(?PhoPathInterface $parent_directory): static;
+    public function setParentDirectoryObject(?PhoPathInterface $parent_directory): static;
 
     /**
      * Move all files to the specified target

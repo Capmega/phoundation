@@ -783,7 +783,7 @@ class Libraries
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
+            $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
             $cache->copy($temporary);
         }
 
@@ -795,7 +795,7 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis($target);
+              ->symlinkTargetFromThis($target);
 
         Log::success(ts('Finished rebuilding web cache'));
     }

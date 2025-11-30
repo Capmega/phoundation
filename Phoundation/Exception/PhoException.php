@@ -697,6 +697,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
             if ($key === null) {
                 $key = Strings::getRandom();
             }
+
             $this->data[$key] = $data;
         }
 
@@ -813,13 +814,13 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
             $warning = false;
         }
 
-        if (!Core::inBootState() and !config()->getBoolean('debug.exceptions.warnings', true)) {
+        if (Core::inBootState() or !config()->getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
+            showdie('b');
         }
 
         $this->warning = $warning;
-
         return $this;
     }
 
@@ -907,11 +908,11 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      * Register this exception in the developer incidents log
      *
      * @param EnumSeverity|null $severity
-     * @param string|null       $type
-     *
+     * @param string|null $type
+     * @param int|null $log
      * @return static
      */
-    public function registerIncident(?EnumSeverity $severity = null, ?string $type = null): static
+    public function registerIncident(?EnumSeverity $severity = null, ?string $type = null, ?int $log = null): static
     {
         $incident = Incident::new()->setException($this);
 
@@ -921,6 +922,25 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
 
         if ($severity) {
             $incident->setSeverity($severity);
+        }
+
+        if (PLATFORM_CLI) {
+            $incident->setLog(false);
+
+        } else {
+            // Set logging option
+            if (empty($log)) {
+                $log = match($severity) {
+                    EnumSeverity::unknown => 9,
+                    EnumSeverity::severe  => 9,
+                    EnumSeverity::high    => 6,
+                    EnumSeverity::medium  => 3,
+                    EnumSeverity::low     => 2,
+                    EnumSeverity::notice  => null,
+                };
+            }
+
+            $incident->setLog($log);
         }
 
         $incident->save();

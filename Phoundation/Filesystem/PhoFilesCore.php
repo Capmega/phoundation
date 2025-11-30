@@ -103,7 +103,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @return PhoFiles
      */
-    public function setParentDirectory(?PhoPathInterface $parent_directory, bool $load = true): static
+    public function setParentDirectoryObject(?PhoPathInterface $parent_directory, bool $load = true): static
     {
         $this->o_parent_directory = $parent_directory;
 
@@ -355,6 +355,22 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
         }
 
         return new Iterator($source);
+    }
+
+
+    /**
+     * Will execute the given callback on each file
+     *
+     * @param callable $function
+     * @return static
+     */
+    public function executeCallback(callable $function): static
+    {
+        foreach ($this as $key => $file) {
+            $function($file);
+        }
+
+        return $this;
     }
 
 

@@ -373,4 +373,20 @@ interface FindInterface extends CommandInterface
      * @return PhoFilesInterface
      */
     public function getFiles(): PhoFilesInterface;
+
+    /**
+     * Returns if all found files will be deleted
+     *
+     * @return bool
+     */
+    public function getDelete(): bool;
+
+    /**
+     * Sets what shell command to execute on each file
+     *
+     * @param bool $delete
+     * @param bool $recursive
+     * @return static
+     */
+    public function setDelete(bool $delete, bool $recursive = false): static;
 }

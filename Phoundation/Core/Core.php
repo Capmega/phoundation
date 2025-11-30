@@ -716,7 +716,7 @@ class Core implements CoreInterface
         // Track system state on exit
         static::$state_on_exit = Core::getState();
 
-        if (Core::isReady()) {
+        if (Core::getReady()) {
             if (Log::passesThreshold(2) or Log::getVerbose()) {
                 Log::warning(ts('Core->exit() was called'), 10);
             }
@@ -764,6 +764,44 @@ class Core implements CoreInterface
         }
 
         exit();
+    }
+
+
+    /**
+     * Returns true if the specified state indicates Core ready
+     *
+     * @param string|null $state
+     * @return bool
+     */
+    public static function isReady(?string $state = null): bool
+    {
+        return match ($state) {
+            null, 'setup', 'boot', 'startup', => false,
+            default                           => true
+        };
+    }
+
+
+    /**
+     * Returns true if all Core systems like Log, Session, and Config are ready to go
+     *
+     * @return bool
+     */
+    public static function getReady(): bool
+    {
+        return Core::$ready;
+    }
+
+
+    /**
+     * Lets the core know that the system is now executing user level scripts
+     *
+     * @return void
+     */
+    public static function setReady(): void
+    {
+        // We're done, transfer control to script
+        Core::$ready = true;
     }
 
 
@@ -1103,7 +1141,7 @@ class Core implements CoreInterface
         // Start processing the uncaught exception
         try {
             try {
-                if (Core::isReady()) {
+                if (Core::getReady()) {
                     // Register exception incident in the database
                     Core::registerUncaughtExceptionIncident($e);
 
@@ -2275,21 +2313,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns true if all Core systems like Log, Session, and Config are ready to go
-     *
-     * @param string|null $state
-     * @return bool
-     */
-    public static function isReady(?string $state = null): bool
-    {
-        return match ($state ?? Core::$state) {
-            null, 'setup', 'boot', 'startup', => false,
-            default                           => true
-        };
-    }
-
-
-    /**
      * Returns true if the Core state is the same as the specified state
      *
      * @param string|null $state
@@ -2870,7 +2893,7 @@ class Core implements CoreInterface
                         // Only notify and register developer incident if we're on production
                         if (!Core::isProductionEnvironment()) {
                             // We CAN only notify if Core is ready
-                            if (Core::isReady()) {
+                            if (Core::getReady()) {
                                 try {
                                     if ($e instanceof PhoException) {
                                         $e->registerIncident(EnumSeverity::severe);
@@ -2917,7 +2940,7 @@ class Core implements CoreInterface
      */
     protected static function playUncaughtExceptionAudio(Throwable $e): void
     {
-        if (Core::isReady()) {
+        if (Core::getReady()) {
             if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
                 try {
                     if (defined('ENVIRONMENT')) {

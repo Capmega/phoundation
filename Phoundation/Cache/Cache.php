@@ -153,7 +153,7 @@ class Cache extends Database implements CacheInterface
     public static function getEnabled(): bool
     {
         if (static::$enabled === null) {
-            if (!Core::isReady()) {
+            if (!Core::getReady()) {
                 return false;
             }
 
@@ -172,7 +172,7 @@ class Cache extends Database implements CacheInterface
     public static function getEnabledWeb(): bool
     {
         if (static::$enabled_web === null) {
-            if (!Core::isReady()) {
+            if (!Core::getReady()) {
                 return false;
             }
 
@@ -191,7 +191,7 @@ class Cache extends Database implements CacheInterface
     public static function getEnabledCli(): bool
     {
         if (static::$enabled_cli === null) {
-            if (!Core::isReady()) {
+            if (!Core::getReady()) {
                 return false;
             }
 
@@ -210,7 +210,7 @@ class Cache extends Database implements CacheInterface
     public static function getEnabledLocal(): bool
     {
         if (static::$enabled_local === null) {
-            if (!Core::isReady()) {
+            if (!Core::getReady()) {
                 return false;
             }
 
@@ -229,7 +229,7 @@ class Cache extends Database implements CacheInterface
     public static function getEnabledGlobal(): bool
     {
         if (static::$enabled_global === null) {
-            if (!Core::isReady()) {
+            if (!Core::getReady()) {
                 return false;
             }
 

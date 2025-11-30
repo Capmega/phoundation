@@ -352,7 +352,7 @@ class Meta implements MetaInterface
             if (static::$buffer) {
                 static::$updates[++static::$pointer] = [
                     ':meta_id_' . static::$pointer    => $this->id,
-                    ':created_by_' . static::$pointer => (Core::isReady() ? Session::getUserObject()->getId(false) : User::new('system')->getId(false)),
+                    ':created_by_' . static::$pointer => (Core::getReady() ? Session::getUserObject()->getId(false) : User::new('system')->getId(false)),
                     ':source_' . static::$pointer     => (string) (PLATFORM_WEB ? Url::newCurrent() : CliCommand::getExecutedPath()),
                     ':action_' . static::$pointer     => $action,
                     ':comments_' . static::$pointer   => $comments,

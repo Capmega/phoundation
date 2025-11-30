@@ -9,6 +9,8 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Os
+ *
+ * @todo Add support for multiple search paths
  */
 
 
@@ -69,6 +71,13 @@ class Find extends Command implements FindInterface
      * @var string|null $exec
      */
     protected ?string $exec = null;
+
+    /**
+     * Tracks if the found files should be deleted
+     *
+     * @var bool $delete
+     */
+    protected bool $delete = false;
 
     /**
      * Find empty files
@@ -686,7 +695,37 @@ class Find extends Command implements FindInterface
             throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
 
-        $this->exec = $exec;
+        $this->delete = false;
+        $this->exec   = $exec;
+        return $this;
+    }
+
+
+    /**
+     * Returns if all found files will be deleted
+     *
+     * @return bool
+     */
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+
+    /**
+     * Sets what shell command to execute on each file
+     *
+     * @param bool $delete
+     * @param bool $recursive
+     * @return static
+     */
+    public function setDelete(bool $delete, bool $recursive = false): static
+    {
+        if ($delete) {
+            $this->exec = 'rm -f' . ($recursive ? 'r' : null) . ' {}';
+        }
+
+        $this->delete = $delete;
         return $this;
     }
 

@@ -47,13 +47,13 @@ $like = $argv['like'] ? '*' : null;
 
 // Find the files that match the specified command
 $files = Find::new(PhoDirectory::newCommandsObject())
-    ->setName($like . $argv['command'] . '.php' . $like)
-    ->executeReturnIterator();
+             ->setName($like . $argv['command'] . '.php' . $like)
+             ->executeReturnIterator();
 
 $directories = Find::new(PhoDirectory::newCommandsObject())
-    ->setName($like . $argv['command'] . $like)
-    ->setType('d')
-    ->executeReturnIterator();
+                   ->setName($like . $argv['command'] . $like)
+                   ->setType('d')
+                   ->executeReturnIterator();
 
 
 // Merge files and directories and display the results
