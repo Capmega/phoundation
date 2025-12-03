@@ -1466,12 +1466,12 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string             $target
+     * @param Stringable|string $target
      * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable|null                 $callback
-     * @param mixed|null                    $context
-     * @param bool                          $recursive
-     *
+     * @param callable|null $callback
+     * @param mixed|null $context
+     * @param bool $recursive
+     * @param bool $ignore_fails
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
@@ -1480,7 +1480,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
     {
         $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
@@ -1518,6 +1518,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
                         symlink($this->addFile($basename)->getSource(),
                                 $target->addFile($basename)->getSource());
+                    }
+
+                    if (!$ignore_fails) {
+                        Log::warning($e->getMessage());
+                        continue;
                     }
 
                     throw $e;

@@ -351,12 +351,12 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string             $target
+     * @param Stringable|string $target
      * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable                      $callback
-     * @param mixed|null                    $context
-     * @param bool                          $recursive
-     *
+     * @param callable|null $callback
+     * @param mixed|null $context
+     * @param bool $recursive
+     * @param bool $ignore_fails
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
@@ -365,7 +365,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static;
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static;
 
     /**
      * Returns a new FindInterface object

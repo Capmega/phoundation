@@ -784,7 +784,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {

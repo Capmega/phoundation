@@ -3844,7 +3844,7 @@ class PhoPathCore implements PhoPathInterface
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
             $target->rename($new);
-            $this->delete();
+            $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
