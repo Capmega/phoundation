@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class NoRestrictionsSpecifiedExceptions
+ * Class NoRestrictionsSpecifiedException
  *
  * This exception is thrown when a Filesystem object like PhoPath, PhoFile, or PhoDirectory is created but no restrictions
  * were specified
@@ -17,6 +17,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Exception;
 
-class NoRestrictionsSpecifiedExceptions extends RestrictionsException
+class NoRestrictionsSpecifiedException extends RestrictionsException
 {
 }

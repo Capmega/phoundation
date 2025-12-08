@@ -110,9 +110,9 @@ interface PhoPathInterface extends Stringable
      * @param PhoPathInterface|string|null $from
      * @param bool                         $from_required
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string;
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): ?string;
 
     /**
      * Returns true if this object is the specified path

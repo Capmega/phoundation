@@ -22,7 +22,9 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\NoPathSpecifiedException;
+use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -98,14 +100,14 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @note By default, will then load the files in that path
      *
-     * @param PhoPathInterface|null $parent_directory
+     * @param PhoPathInterface|null $o_parent_directory
      * @param bool                  $load
      *
      * @return PhoFiles
      */
-    public function setParentDirectory(?PhoPathInterface $parent_directory, bool $load = true): static
+    public function setParentDirectory(?PhoPathInterface $o_parent_directory, bool $load = true): static
     {
-        $this->o_parent_directory = $parent_directory;
+        $this->o_parent_directory = $o_parent_directory;
 
         if ($load) {
             return $this->load();
@@ -126,7 +128,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             throw new NoPathSpecifiedException(tr('Cannot load files, no parent directory specified'));
         }
 
-        $this->setSource($this->o_parent_directory->scan());
+        return $this->setSource($this->o_parent_directory->scan());
     }
 
 
@@ -232,7 +234,13 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             while (true) {
                 switch ($current) {
                     case '':
-                        return $this->added_empty;
+                        // $current MIGHT be an object that, converted to string, gets "" (__toString() returns an empty string for that object), which can lead
+                        // to a foreach($this) on an Iterator to skip over all entries. To avoid this, test for this here
+                        if ($current === '') {
+                            return $this->added_empty;
+                        }
+
+                        break 2;
 
                     case '.':
                         // No break
@@ -278,15 +286,22 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                     $file = $this->o_parent_directory?->getSource() . $file;
                 }
 
-                if (is_dir($file)) {
-                    $file = PhoDirectory::new($file, $this->o_restrictions);
+                try {
+                    if (is_dir($file)) {
+                        $file = PhoDirectory::new($file, $this->o_restrictions);
 
-                } elseif (file_exists($file)) {
-                    $file = PhoFile::new($file, $this->o_restrictions);
+                    } elseif (file_exists($file)) {
+                        $file = PhoFile::new($file, $this->o_restrictions);
 
-                } else {
-                    // Non-existing file, just return the path
-                    $file = PhoPath::new($file, $this->o_restrictions);
+                    } else {
+                        // Non-existing file, just return the path
+                        $file = PhoPath::new($file, $this->o_restrictions);
+                    }
+
+                } catch (NoRestrictionsSpecifiedException $e) {
+                    throw NoRestrictionsSpecifiedException::new(tr('Cannot convert source filename ":file" to a PhoFile object, this PhoFiles object does not have a required PhoRestrictions object set', [
+                        ':file' => $file
+                    ]), $e);
                 }
 
                 continue;

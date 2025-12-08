@@ -32,5 +32,5 @@ interface PhoDuplicatesInterface
      *
      * @return PhoFilesInterface
      */
-    public function getDeletedFiles(): PhoFilesInterface;
+    public function getDeletedFilesObject(): PhoFilesInterface;
 }

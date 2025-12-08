@@ -365,7 +365,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function __toString(): string
     {
-        return $this->getSource();
+        return (string) $this->getSource();
     }
 
 
@@ -375,9 +375,9 @@ class PhoPathCore implements PhoPathInterface
      * @param PhoPathInterface|string|null $from
      * @param bool                         $from_required
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): ?string
     {
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);

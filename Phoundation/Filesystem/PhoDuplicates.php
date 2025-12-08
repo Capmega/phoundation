@@ -23,7 +23,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDuplicatesInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
-
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
 {
@@ -51,21 +51,21 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
     /**
      * The parent_directory object that generated this FsDuplicates object
      *
-     * @var PhoDirectoryInterface $parent_directory
+     * @var PhoPathInterface|null $o_parent_path
      */
-    protected PhoDirectoryInterface $parent_directory;
+    protected ?PhoPathInterface $o_parent_path;
 
 
     /**
      * PhoDuplicates class constructor
      *
-     * @param PhoDirectoryInterface|null                       $parent_directory
+     * @param PhoPathInterface|null                            $o_parent_path
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
-    public function __construct(?PhoDirectoryInterface $parent_directory, IteratorInterface|array|string|PDOStatement|null $source = null)
+    public function __construct(?PhoPathInterface $o_parent_path = null, IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         $this->setAcceptedDataTypes(PhoFile::class);
-        $this->parent_directory = $parent_directory;
+        $this->o_parent_path = $o_parent_path;
         parent::__construct($source);
     }
 
@@ -73,11 +73,11 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
     /**
      * Returns the number of bytes freed by the deleting of duplicate files
      *
-     * @return PhoDirectoryInterface|null
+     * @return PhoPathInterface|null
      */
-    public function getParentDirectory(): ?PhoDirectoryInterface
+    public function getParentPathObject(): ?PhoPathInterface
     {
-        return $this->parent_directory;
+        return $this->o_parent_path;
     }
 
 
@@ -108,7 +108,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
      *
      * @return PhoFilesInterface
      */
-    public function getDeletedFiles(): PhoFilesInterface
+    public function getDeletedFilesObject(): PhoFilesInterface
     {
         return $this->deleted_files;
     }
@@ -121,7 +121,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
      */
     public function deleteKeepFirst(): static
     {
-        $this->deleted_files = new PhoFiles($this->parent_directory);
+        $this->deleted_files = new PhoFiles($this->o_parent_path);
 
         foreach ($this->source as $files) {
             $first = true;
