@@ -218,7 +218,7 @@ class Incident extends DataEntryCore implements IncidentInterface
             }
 
             if ($exception instanceof PhoException) {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
+                $this->setTitle(tr('Encountered exception'))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity($exception->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
@@ -231,7 +231,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ]);
 
             } else {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
+                $this->setTitle(tr('Encountered exception'))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity(EnumSeverity::severe)
