@@ -17,9 +17,11 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Data\Traits\TraitDataTarget;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
@@ -29,6 +31,9 @@ trait TraitButtonProperties
     use TraitMode;
     use TraitUsesSize;
     use TraitDataTarget;
+    use TraitDataUrlObject {
+        setUrlObject as protected __setUrlObject;
+    }
 
 
     /**
@@ -37,13 +42,6 @@ trait TraitButtonProperties
      * @var EnumButtonType|null $button_type
      */
     protected ?EnumButtonType $button_type = null;
-
-    /**
-     * Sets if this is an anchor button or not
-     *
-     * @var string|null $anchor_url
-     */
-    protected ?string $anchor_url = null;
 
     /**
      * Outlined buttons
@@ -156,30 +154,19 @@ trait TraitButtonProperties
     /**
      * Returns the button's anchor URL
      *
-     * @return string|null
-     */
-    public function getAnchorUrl(): ?string
-    {
-        return $this->anchor_url;
-    }
-
-
-    /**
-     * Returns the button's anchor URL
-     *
-     * @param Stringable|string|null $anchor_url
+     * @param UrlInterface|string|null $o_url
      *
      * @return Button
      */
-    public function setAnchorUrl(Stringable|string|null $anchor_url): static
+    public function setUrlObject(UrlInterface|string|null $o_url): static
     {
-        if ($anchor_url) {
+        if ($o_url) {
             $this->setElement('a');
-            $this->anchor_url  = (string) Url::new($anchor_url)->makeWww();
+            $this->o_url       = Url::new($o_url);
             $this->button_type = null;
 
         } else {
-            $this->anchor_url = null;
+            $this->o_url = null;
         }
 
         return $this;
@@ -321,10 +308,10 @@ trait TraitButtonProperties
         $this->resetButtonClasses()
              ->o_attributes->set($this->button_type?->value, 'type');
 
-        if ($this->anchor_url) {
+        if ($this->o_url) {
             // Use an <a> anchor button
             $this->o_attributes->removeKeys('type');
-            $this->o_attributes->set($this->anchor_url, 'href');
+            $this->o_attributes->set($this->o_url, 'href');
 
             // Adds support for target="" attribute
             if ($this->target) {

@@ -45,7 +45,7 @@ $providers_card = Card::new()
                       ->setSwitches('reload')
                       ->useForm(true)
                       ->setContent(Providers::new()->getHtmlDataTableObject()
-                                                   ->setRowUrl('/business/provider+:ROW.html'));
+                                                   ->setRowUrls('/business/provider+:ROW.html'));
 
 // TODO Is this necessary? Default form action should be current and default method should be POST already
 $providers_card->getForm()

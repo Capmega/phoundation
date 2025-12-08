@@ -1100,6 +1100,17 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
 
     /**
+     * Returns true if the object file is a PHP file
+     *
+     * @return bool
+     */
+    public function isVideo(): bool
+    {
+        return $this->getMimetypeObject()->getPrimaryPart() === 'video';
+    }
+
+
+    /**
      * Ensure that the object file is writable
      *
      * This method will ensure that the object file will exist and is writable. If it does not exist, an empty file

@@ -79,11 +79,11 @@ class HttpTester
     /**
      * Resets the HttpTester and adds the set URL to the URL's to be scanned
      *
-     * @param UrlInterface $o_url
+     * @param UrlInterface|string|null $o_url
      *
      * @return static
      */
-    public function setUrlObject(UrlInterface $o_url): static
+    public function setUrlObject(UrlInterface|string|null $o_url): static
     {
         $this->o_urls = new Urls();
         $this->o_urls->add($o_url);

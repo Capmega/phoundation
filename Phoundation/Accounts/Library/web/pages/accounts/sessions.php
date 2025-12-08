@@ -52,7 +52,7 @@ $o_sessions_card = Card::new()
                                                    'ip'     => tr('IP address'),
                                                    'start'  => tr('Start'),
                                                ])
-                                               ->setRowUrl('/accounts/session+:ROW.html'));
+                                               ->setRowUrls('/accounts/session+:ROW.html'));
 
 
 // Build relevant links

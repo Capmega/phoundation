@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class UploadHandler
+ * Class Dropzone
  *
- * This request subclass handles upload functionalities
+ * This class is a wrapper around the dropzone library
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,7 +22,7 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataMimetypes;
 use Phoundation\Data\Traits\TraitDataRequestMethod;
 use Phoundation\Data\Traits\TraitDataTimeout;
-use Phoundation\Data\Traits\TraitDataUrl;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpConfigurationException;
@@ -32,7 +32,6 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Uploads\Interfaces\DropzoneInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 
@@ -40,7 +39,7 @@ use Phoundation\Web\Uploads\Interfaces\UploadHandlerInterface;
 class Dropzone implements DropzoneInterface
 {
     use TraitStaticMethodNew;
-    use TraitDataUrl;
+    use TraitDataUrlObject;
     use TraitDataMimetypes;
     use TraitDataRequestMethod {
         setRequestMethod as protected __setRequestMethod;
@@ -177,7 +176,7 @@ class Dropzone implements DropzoneInterface
      */
     public function __construct(UploadHandlerInterface $handler, ?string $selector = null)
     {
-        $this->setUrl(Url::newCurrent())
+        $this->setUrlObject(Url::newCurrent())
              ->setSelector($selector)
              ->setMaxFiles($this->getMaxFilesDefault())
              ->setRequestMethod(EnumHttpRequestMethod::post)
@@ -244,7 +243,7 @@ class Dropzone implements DropzoneInterface
             $ini_size = get_null(ini_get('max_file_size'));
 
             if ($ini_size and ($max_file_size > $ini_size)) {
-                throw new PhpConfigurationException(tr('The total maximum file size allowed for this upload handler is ":size", but the server configuration allows a maximum post size of ":post_max"', [
+                throw new PhpConfigurationException(tr('The total maximum file size allowed for this upload handler is ":size", but the server configuration allows a maximum PHP POST size of ":post_max"', [
                     ':size'     => Numbers::fromBytes($max_file_size),
                     ':post_max' => Numbers::fromBytes(($ini_size ?? -1)),
                 ]));
@@ -699,7 +698,7 @@ class Dropzone implements DropzoneInterface
     public function render(): ?string
     {
         $options = $this->generateOptionsJson([
-            'url'                   => $this->url,
+            'url'                   => $this->o_url->getSource(),
             'method'                => $this->request_method->value,
             'maxFiles'              => $this->max_files,
             'parallelUploads'       => $this->parallel_uploads,
@@ -754,7 +753,8 @@ class Dropzone implements DropzoneInterface
 //            'renameFile'            => $this->rename_file,
 //            'forceFallback'         => $this->force_fallback,
 
-        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); phoundation.log("Setup dropzone with selector \"' . $this->selector . '\"")')
+        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); 
+                            phoundation.log("Setup dropzone with selector \"' . $this->selector . '\" and target \"' . $this->o_url . '\"")')
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                      ->render();
     }
@@ -795,7 +795,7 @@ class Dropzone implements DropzoneInterface
         $real_max = $this->max_files * $this->max_file_size;
 
         if ($real_max > $post_max) {
-            throw new PhpConfigurationException(tr('The total maximum size of each files ":file_size" times the maximum amount of files ":max_files" allowed for this upload handler is ":total_size", which is more than the configured maximum PHP post size of ":post_max"', [
+            throw new PhpConfigurationException(tr('The total maximum size of each files ":file_size" times the maximum amount of files ":max_files" allowed for this upload handler is ":total_size", which is more than the configured maximum PHP POST size of ":post_max"', [
                 ':file_size'  => $this->max_file_size,
                 ':max_files'  => $this->max_files,
                 ':total_size' => $real_max,

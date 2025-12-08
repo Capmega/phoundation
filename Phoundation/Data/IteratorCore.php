@@ -48,7 +48,6 @@ use Phoundation\Data\Traits\TraitDataCache;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataDisabled;
-use Phoundation\Data\Traits\TraitDataExceptionOnGet;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
@@ -80,6 +79,7 @@ use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
 
+
 class IteratorCore extends IteratorBase implements IteratorInterface
 {
     use TraitDataCache;
@@ -92,7 +92,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         setParentObject as protected __setParentObject;
     }
     use TraitDataRestrictions;
-    use TraitDataRowCallbacks;
+    use TraitDataRowCallbacks; // TODO WHY IS THIS HERE? THESE METHODS ARE FOR TABLES!
     use TraitDataArraySource{
         setSource as protected __setSource;
     }
@@ -285,8 +285,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets if this DataIterator (and its entries in its source!) is readonly or not
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool        $readonly
+     * @param bool|null   $set_disabled
      *
      * @return static
      */
@@ -2107,7 +2107,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlTable::new($this)
                         ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                         ->setHeaders($this->prepareHeaders($columns))
-                        ->setSource($this->source)
+                        ->setSource($this->getSource())
                         ->setRowCallbacks($this->row_callbacks)
                         ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2127,7 +2127,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return HtmlDataTable::new($this)
                             ->setId(strtolower(Strings::fromReverse(static::class, '\\')))
                             ->setHeaders($this->prepareHeaders($columns))
-                            ->setSource($this->source)
+                            ->setSource($this->getSource())
                             ->setRowCallbacks($this->row_callbacks)
                             ->setCheckboxSelectors(EnumTableIdColumn::checkbox);
     }
@@ -2151,7 +2151,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         return $class::new($this)
                      ->setId('iterator')
                      ->setName('iterator')
-                     ->setSource($this->source)
+                     ->setSource($this->getSource())
                      ->setKeyColumn($key_column)
                      ->setValueColumn($value_column);
     }

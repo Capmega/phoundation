@@ -33,6 +33,31 @@ trait TraitDataUrlObject
     /**
      * Returns the url
      *
+     * @return string|null
+     */
+    public function getUrl(): ?string
+    {
+        return $this->o_url->getSource();
+    }
+
+
+    /**
+     * Sets the url
+     *
+     * @param string|null $url
+     *
+     * @return static
+     */
+    public function setUrl(?string $url): static
+    {
+        $this->o_url = Url::new($url);
+        return $this;
+    }
+
+
+    /**
+     * Returns the url
+     *
      * @return UrlInterface|null
      */
     public function getUrlObject(): ?UrlInterface

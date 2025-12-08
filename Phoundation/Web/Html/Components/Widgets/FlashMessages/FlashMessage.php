@@ -19,14 +19,20 @@ namespace Phoundation\Web\Html\Components\Widgets\FlashMessages;
 use PDOStatement;
 use Phoundation\Content\Images\ImageFile;
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Security\Incidents\Interfaces\IncidentInterface;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\ElementsBlock;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\FlashMessages\Interfaces\FlashMessageInterface;
 use Phoundation\Web\Html\Enums\EnumAttachJavascript;
+use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Traits\TraitMode;
 
 
@@ -98,6 +104,13 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      * @var EnumAttachJavascript
      */
     protected EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer;
+
+    /**
+     * Tracks if this flash message should generate an incident when rendered
+     *
+     * @var bool $make_incident
+     */
+    protected bool $make_incident = false;
 
 
     /**
@@ -409,9 +422,9 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderScript(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
-        $this->render = Script::new($this)
-                              ->setAttach($attach_javascript)
-                              ->render();
+        $this->makeIncident()->render = Script::new($this)
+                                              ->setAttach($attach_javascript)
+                                              ->render();
 
         return parent::render();
     }
@@ -427,6 +440,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function render(EnumAttachJavascript $attach_javascript = EnumAttachJavascript::footer): ?string
     {
+        $this->makeIncident();
+
         return parent::render();
     }
 
@@ -438,6 +453,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderJson(): ?string
     {
+        $this->makeIncident();
+
         return match ($this->flash_handler) {
             'toast' => Toast::new($this)->renderJson(),
         };
@@ -451,6 +468,8 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
      */
     public function renderArray(): array
     {
+        $this->makeIncident();
+
         return match ($this->flash_handler) {
             'toast' => Toast::new($this)->renderArray(),
         };
@@ -504,4 +523,66 @@ class FlashMessage extends ElementsBlock implements FlashMessageInterface
         ];
     }
 
+
+    /**
+     * Returns if this flash message should generate an incident when rendered
+     *
+     * @return bool
+     */
+    public function getMakeIncident(): bool
+    {
+        return $this->make_incident;
+    }
+
+
+    /**
+     * Sets if this flash message should generate an incident when rendered
+     *
+     * @param bool $make_incident
+     *
+     * @return static
+     */
+    public function setMakeIncident(bool $make_incident): static
+    {
+        $this->make_incident = $make_incident;
+        return $this;
+    }
+
+
+    /**
+     * Creates an incident from this flash message
+     *
+     * @return static
+     */
+    protected function makeIncident(): static
+    {
+        if ($this->make_incident) {
+            $this->make_incident = false;
+
+            Incident::new()
+                    ->setSeverity($this->getSeverity())
+                    ->setType('flash-message')
+                    ->setTitle($this->getTitle())
+                    ->setBody($this->getMessage())
+                    ->setLog(7)
+                    ->save();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the correct incident severity for the mode of this flash message
+     *
+     * @return EnumSeverity
+     */
+    protected function getSeverity(): EnumSeverity
+    {
+        return match ($this->getMode()) {
+            EnumDisplayMode::info, EnumDisplayMode::success => EnumSeverity::low,
+            EnumDisplayMode::warning                        => EnumSeverity::medium,
+            default                                         => EnumSeverity::severe,
+        };
+    }
 }

@@ -164,7 +164,7 @@ if (!$connector->isNew()) {
             $audit = Button::new()
                            ->setFloatRight(true)
                            ->setMode(EnumDisplayMode::information)
-                           ->setAnchorUrl('/audit/meta+' . $connector->getMetaId() . '.html')
+                           ->setUrlObject('/audit/meta+' . $connector->getMetaId() . '.html')
                            ->setContent(tr('Audit'))
                            ->setContent(tr('Audit'));
         }

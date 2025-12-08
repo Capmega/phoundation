@@ -743,12 +743,12 @@ FILES variables:
         $sending = true;
         $user    = User::new()->load($user);
 
-        if (config()->getBoolean('notifications.send.disable', false) and !$this->override_non_production_lockout) {
+        if (!config()->getBoolean('notifications.send.enabled', true) and !$this->override_non_production_lockout) {
             // We're not in production environment, don't send any notifications!
             Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),
                 ':user'  => $user->getEmail()
-            ]));
+            ]), 4);
 
             $sending = false;
             return $this;
@@ -955,7 +955,7 @@ FILES variables:
                                             $largest = Arrays::getLongestKeyLength($details);
 
                                             foreach ($details as $key => $value) {
-                                                if ($value and !is_scalar($value)) {
+                                                if (!is_scalar($value)) {
                                                     $value = print_r($value, true);
                                                 }
 
@@ -999,9 +999,10 @@ FILES variables:
                                     ->setSize(12)
                                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                         $o_validator->isJson();
-                                    }))
+                                    }));
 
-                    ->get('status')->setDefault('UNREAD');
+        $o_definitions->get('status')->setDefault('UNREAD');
+        $o_definitions->get('created_by')->setSize(3);
 
         return $this;
     }

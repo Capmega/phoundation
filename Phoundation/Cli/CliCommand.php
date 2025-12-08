@@ -320,6 +320,8 @@ class CliCommand
         // Execute the command and finish execution
         try {
             CliCommand::setProcessTitle();
+            Core::setScriptState();
+
             Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
             Request::execute(CliCommand::$command_file . '.php');
 
@@ -490,7 +492,7 @@ class CliCommand
             ]);
         }
 
-        Core::setScriptState();
+        Core::setReady();
         return $return;
     }
 
@@ -644,7 +646,7 @@ class CliCommand
         passthru($command, $result_code);
 
         // We likely won't be able to log here (nor should we), so disable logging
-        Core::setScriptState();
+        Core::setReady();
         Core::exit($result_code, direct_exit: true);
     }
 
@@ -1063,7 +1065,7 @@ class CliCommand
      */
     #[NoReturn] protected static function autoComplete(): ?string
     {
-        Core::setScriptState();
+        Core::setReady();
 
         Log::action(ts('Executing auto complete with command: :command', [
             ':command' => CliCommand::getAutoCompleteCommand(),
@@ -1749,6 +1751,7 @@ return 'under construction';
                                  ->select('-H,--help')->isOptional(false)->isBoolean()
                                  ->select('-I,--json-input', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('-J,--json-output')->isOptional()->isBoolean()
+                                 ->select('-K,--reinitialize-autocomplete')->isOptional()->isBoolean()
                                  ->select('-L,--log-level', true)->isOptional()->isInteger()->isBetween(1, 10)
                                  ->select('-M,--timeout', true)->isOptional(false)->isInteger()
                                  ->select('-N,--no-audio')->isOptional(false)->isBoolean()
@@ -1779,7 +1782,7 @@ return 'under construction';
                                  ->validate(false);
 
         } catch (ValidationFailedException $e) {
-            Core::setScriptState();
+            Core::setReady();
             throw $e;
         }
 
@@ -1940,7 +1943,7 @@ return 'under construction';
             // Process command line system arguments if we have no exception so far
             if ($argv['version']) {
                 Log::cli(Project::getVersions(true));
-                Core::setScriptState();
+                Core::setReady();
                 $exit = 0;
             }
 
@@ -2048,6 +2051,13 @@ return 'under construction';
                 CliCommand::rebuildCache();
                 CliCommand::setRequireDefault(false);
                 Core::disableInitState();
+            }
+
+            if ($argv['reinitialize_autocomplete']) {
+                // Reinitialize auto complete
+                CliAutoComplete::setup(true);
+                Log::success(ts('Auto complete has been reinitialized. You may need to run source ~/.bash_completion or alternatively, restart this computer, for Phoundation auto completion to work correctly'), 10);
+                exit();
             }
 
             if ($argv['clear_caches']) {

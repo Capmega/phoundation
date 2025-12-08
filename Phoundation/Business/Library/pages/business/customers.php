@@ -45,7 +45,7 @@ $customers_card = Card::new()
                       ->setSwitches('reload')
                       ->useForm(true)
                       ->setContent(Customers::new()->getHtmlDataTableObject()
-                                                   ->setRowUrl('/business/customer+:ROW.html'));
+                                                   ->setRowUrls('/business/customer+:ROW.html'));
 
 // TODO Is this necessary? Default form action should be current and default method should be POST already
 $customers_card->getForm()

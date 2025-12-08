@@ -139,12 +139,13 @@ class MySql extends Command
                          '-B',  $this->o_connector->getDatabase(),
                      ]);
 
-                    Tail::new()
-                        ->setTimeout($this->timeout)
-                        ->setFileObject($file)
-                        ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                        ->setPipe($this)
-                        ->execute();
+                Tail::new()
+                    ->setTimeout($this->timeout)
+                    ->setFileObject($file)
+                    ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                    ->setPipe($this)
+                    ->execute();
+
                 break;
 
             case 'application/gzip':
@@ -166,8 +167,10 @@ class MySql extends Command
                     ->setPipe(Tail::new()
                                   ->setTimeout($this->timeout)
                                   ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                                  ->setPipe($this))
+                                  ->setPipe($this)
+                    )
                     ->execute();
+
                 break;
 
             default:
@@ -196,23 +199,25 @@ class MySql extends Command
                  ->addArgument($this->port ? '--port' . $this->port : null)
                  ->addArgument('--user' . $this->user)
                  ->addArgument('--defaults-extra-file=' . $password_file);
+
             if ($this->source) {
                 $this->setInputRedirect($this->source);
             }
+
             if ($method === EnumExecuteMethod::background) {
                 $pid = $this->executeBackground();
                 Log::success(ts('Executed wget as a background process with PID ":pid"', [
                     ':pid' => $pid,
                 ]), 4);
+
                 // TODO Password file should only be deleted after execution has finished
                 static::deletePasswordFile();
-
                 return $pid;
             }
+
             $results = $this->execute($method);
             Log::notice($results, 4);
             static::deletePasswordFile();
-
             return null;
 
         } catch (Throwable $e) {
@@ -270,6 +275,7 @@ class MySql extends Command
     {
         try {
             $query = addslashes($query);
+
             // Are we going to execute as root?
             if ($root) {
                 $this->createPasswordFile('root', $restrictions['db_root_password'], $restrictions);
@@ -277,14 +283,15 @@ class MySql extends Command
             } else {
                 $this->createPasswordFile($restrictions['db_username'], $restrictions['db_password'], $restrictions);
             }
+
             if ($simple_quotes) {
                 $results = Servers::exec($restrictions, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
                 $results = Servers::exec($restrictions, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
-            $this->deletePasswordFile($restrictions);
 
+            $this->deletePasswordFile($restrictions);
             return $results;
 
         } catch (MysqlException $e) {
@@ -319,9 +326,11 @@ class MySql extends Command
                              'SELECT 1\G',
                          ])
                          ->executeReturnString();
+
         if (!str_ends_with($result, '1: 1')) {
             throw new ProcessesException(tr('Failed to connect with MySQL server'));
         }
+
         // Import timezones
         $mysql = Process::new('mysql')
                         ->setSudo(true)
@@ -332,6 +341,7 @@ class MySql extends Command
                             'root',
                             'mysql',
                         ]);
+
         Process::new('mysql_tzinfo_to_sql', PhoRestrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
                ->addArgument('/usr/share/zoneinfo')
@@ -350,6 +360,7 @@ class MySql extends Command
     protected function getInstanceConfigForDatabase(string $database): array
     {
         return config()->getArray('databases.connectors.' . $database);
+
         foreach (Sql::getConnectorsObject() as $connector) {
 
         }

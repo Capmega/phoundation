@@ -1953,6 +1953,7 @@ class DefinitionFactory
                                 ->setSize(4)
                                 ->setLabel(tr('Last modified by'))
                                 ->setTooltip(tr('This column contains the user who last modified this object. Other users may have made earlier edits to this object, that information may be found in the object\'s meta data'))
+                                ->setNullDisplay('-')
                                 ->setInputType(EnumInputType::dbid)
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                     $o_validator->columnExists(tr('must be an existing user'), table: 'accounts_users');
@@ -1995,6 +1996,7 @@ class DefinitionFactory
                          ->setDisabled(true)
                          ->setInputType(EnumInputType::datetime_local)
                          ->setDbNullInputType(EnumInputType::text)
+                         ->setNullDisplay('-')
                          ->addClasses('text-center')
                          ->setSize(4)
                          ->setMaxLength(20)

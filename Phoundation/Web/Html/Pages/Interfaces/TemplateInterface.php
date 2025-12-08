@@ -130,8 +130,8 @@ interface TemplateInterface extends ComponentInterface
     /**
      * Sets if this object is readonly or not
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool        $readonly
+     * @param bool|null   $set_disabled
      *
      * @return static
      */
@@ -165,8 +165,8 @@ interface TemplateInterface extends ComponentInterface
     /**
      * Sets if this object is disabled or not
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool        $disabled
+     * @param bool|null   $set_readonly
      *
      * @return static
      */

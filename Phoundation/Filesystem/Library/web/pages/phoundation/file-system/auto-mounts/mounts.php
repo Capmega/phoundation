@@ -111,7 +111,7 @@ $mounts_card = Card::new()
     ->setContent($mounts
         ->load()
         ->getHtmlDataTableObject()
-            ->setRowUrl('/phoundation/file-system/mount+:ROW.html')
+            ->setRowUrls('/phoundation/file-system/mount+:ROW.html')
             ->setOrder([1 => 'asc']))
     ->useForm(true)
     ->setButtonsObject($buttons);

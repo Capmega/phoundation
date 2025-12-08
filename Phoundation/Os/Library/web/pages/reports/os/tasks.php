@@ -87,7 +87,7 @@ $o_tasks_card = Card::new()
                                             'spent'        => tr('Spent'),
                                             'full_command' => tr('Command'),
                                          ])
-                                         ->setRowUrl(Url::new('reports/os/tasks+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
+                                         ->setRowUrls(Url::new('reports/os/tasks+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
                                          ->addRowCallback(function (array &$row, EnumTableRowType $type, &$params) use ($o_tasks) {
                                              $row['date_range'] = $o_tasks->get($row['id'])->getFullCommand();
                                          }))

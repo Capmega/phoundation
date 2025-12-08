@@ -55,6 +55,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
@@ -884,6 +885,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
+        if (!$this->saveBecauseModified($force)) {
+            // THis user hasn't been modified, there is nothing to save!
+            return $this;
+        }
+
         Log::action(ts('Saving user ":user"', [':user' => $this->getDisplayName()]));
 
         if ($this->readonly or $this->disabled) {
@@ -2517,7 +2523,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function lock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(PhoDateTime::new('2999/12/31 23:59:59'))
                     ->save()
@@ -2534,7 +2540,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function unlock(?string $comments = null): static
     {
-        Sessions::new()->drop($this);
+//        Sessions::new()->drop($this);
 
         return $this->setLockedUntil(null)
                     ->save()
@@ -3286,7 +3292,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in')))
+                                           ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
+                                           ->addPreSaveFunctions(function (DefinitionInterface $o_definition, mixed $value) {
+                                               // User redirect URL's must be stored without hostname and language specification!
+                                               $value = Url::new($value);
+
+                                               if ($value->isProjectUrl()) {
+                                                   return Url::new($value)->getFromHostAndLanguage();
+                                               }
+
+                                               return $value;
+                                           }))
 
                     ->add(Definition::new('url')
                                     ->setSize(4)

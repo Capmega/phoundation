@@ -22,6 +22,7 @@ namespace Phoundation\Security\Incidents;
 
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreReadonlyException;
@@ -114,7 +115,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
-            $this->setCreatedBy(Session::getUserObject()->getId());
+            $this->setCreatedBy(Core::getReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
         }
 
         if ($identifier instanceof Throwable) {
@@ -267,13 +268,18 @@ class Incident extends DataEntryCore implements IncidentInterface
     /**
      * Sets the roles iterator containing who will be notified about this incident
      *
-     * @param IteratorInterface|array|string $notify_roles
+     * @param IteratorInterface|array|string|null $notify_roles
      *
      * @return static
      */
-    public function setNotifyRoles(IteratorInterface|array|string $notify_roles): static
+    public function setNotifyRoles(IteratorInterface|array|string|null $notify_roles): static
     {
-        $this->notify_roles = Iterator::force($notify_roles);
+        if ($notify_roles) {
+            $this->notify_roles = Iterator::force($notify_roles);
+            return $this;
+        }
+
+        unset($this->notify_roles);
         return $this;
     }
 
@@ -336,13 +342,12 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         // Notify anybody? If we notify somebody, logging is not required as the notification will log too
         if (isset($this->notify_roles)) {
-            return $this->notify($severity, $details);
-
+            $this->notify($severity, $details);
         }
 
         // So no notifications, should we log this?
         if ($this->log) {
-            return $this->log($severity, $details);
+            $this->log($severity, $details);
         }
 
         return $this;
@@ -371,14 +376,18 @@ class Incident extends DataEntryCore implements IncidentInterface
 
                 break;
 
+            case 'severe':
+                // no break
+
             case 'high':
                 // no break
 
-            case 'warning':
-                Log::warning(ts('Security incident (:id / :severity): :message', [
+            case 'medium':
+                Log::warning(ts('Registered incident :id [:severity]: ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
-                    ':message'  => $this->getTitle(),
+                    ':title'    => $this->getTitle(),
+                    ':body'     => $this->getBody(),
                 ]), (is_integer($this->log) ? $this->log : 7));
 
                 if ($details) {
@@ -388,10 +397,11 @@ class Incident extends DataEntryCore implements IncidentInterface
                 break;
 
             default:
-                Log::error(ts('Security incident (:id / :severity): :message', [
+                Log::error(ts('Registered incident :id [:severity]: ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
-                    ':message'  => $this->getTitle(),
+                    ':title'    => $this->getTitle(),
+                    ':body'     => $this->getBody(),
                 ]), (is_integer($this->log) ? $this->log : 9));
 
                 if ($details) {
@@ -442,8 +452,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ->setTitle($body ? $this->getTitle(): $this->getType())
                      ->setMessage($body ?? $this->getTitle())
                      ->setDetails($details)
-                     ->log($this->log)
-                     ->send();
+                     ->send(false);
 
         return $this;
     }

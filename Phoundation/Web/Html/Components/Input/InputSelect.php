@@ -182,28 +182,30 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      *
      * Enabling readonly on a select element will also enable disabled!
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool              $readonly
+     * @param bool|null         $set_disabled
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setReadonly(bool $readonly, ?bool $set_disabled = true): static
+    public function setReadonly(bool $readonly, ?bool $set_disabled = true, string|false|null $title = null): static
     {
-        return parent::setReadonly($readonly, $set_disabled);
+        return parent::setReadonly($readonly, $set_disabled, $title);
     }
 
 
     /**
      * Set the HTML disabled element attribute
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool              $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setDisabled(bool $disabled, ?bool $set_readonly = true): static
+    public function setDisabled(bool $disabled, ?bool $set_readonly = true, string|false|null $title = null): static
     {
-        return parent::setDisabled($disabled, $set_readonly);
+        return parent::setDisabled($disabled, $set_readonly, $title);
     }
 
 

@@ -20,19 +20,18 @@ use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Pages\Template;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Non200Urls\Non200Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\SystemPageNotFoundException;
 use Phoundation\Web\Requests\Interfaces\SystemRequestInterface;
@@ -156,13 +155,14 @@ class SystemRequest implements SystemRequestInterface
             Log::warning('Not registering request as non HTTP-200 URL, invalid environment specified');
 
         } else {
-            if (config()->getBoolean('security.web.monitor.urls.non-200', true)) {
+            if (config()->getBoolean('security.web.monitor.urls.failed', true)) {
                 // Don't register anything if we're in readonly mode
                 if (!Core::getReadonly()) {
                     // Don't register 404's on favicon requests
                     if (!Route::isFaviconRequest()) {
                         Incident::new()
-                                ->setType('non-200-pages')
+                                ->setSeverity(EnumSeverity::low)
+                                ->setType('failed-pages')
                                 ->setTitle(tr('Page generated HTTP:http', [':http' => $http_code]))
                                 ->setBody(tr('The page for the URL ":url" generated HTTP:http', [
                                     ':http' => $http_code,
@@ -179,7 +179,7 @@ class SystemRequest implements SystemRequestInterface
                                     'post'           => Route::getPostData(),
                                     'session'        => Session::getSource(),
                                 ])
-                                ->setNotifyRoles('developer')
+                                ->setNotifyRoles(($http_code === 401) ? null : 'developer')
                                 ->save();
                     }
                 }
@@ -332,7 +332,7 @@ class SystemRequest implements SystemRequestInterface
         $this->executePage([
             'code'    => 401,
             'title'   => tr('Unauthorized'),
-            'message' => tr('You need to login to access the specified resource'),
+            'message' => tr('You need to sign-in to be able to access the specified resource'),
         ]);
     }
 

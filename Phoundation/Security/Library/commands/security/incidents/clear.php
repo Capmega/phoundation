@@ -17,7 +17,6 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Web\Non200Urls\Non200Urls;
 
 
 CliDocumentation::setAutoComplete([

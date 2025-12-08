@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Template\Interfaces;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 
+
 interface TemplateInterface
 {
     /**

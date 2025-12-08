@@ -40,7 +40,8 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$o_right = Right::new()->loadThis($get['id']);
+$o_right = Right::new()
+                ->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -84,7 +85,7 @@ if (!$o_right->isNew()) {
     $o_audit = Button::new()
                      ->setFloatRight(true)
                      ->setMode(EnumDisplayMode::information)
-                     ->setAnchorUrl('/audit/meta+' . $o_right->getMetaId() . '.html')
+                     ->setUrlObject('/audit/meta+' . $o_right->getMetaId() . '.html')
                      ->setFloatRight(true)
                      ->setContent(tr('Audit'));
 
@@ -135,7 +136,7 @@ if (!$o_right->isNew()) {
                                                          'sign_in_count' => tr('Signins'),
                                                          'created_on'    => tr('Created on'),
                                                      ])
-                                                     ->setRowUrl('/accounts/user+:ROW.html'));
+                                                     ->setRowUrls('/accounts/user+:ROW.html'));
 }
 
 

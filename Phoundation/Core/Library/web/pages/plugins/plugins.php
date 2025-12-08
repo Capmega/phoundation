@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Core\Plugins\Plugins;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
@@ -28,6 +29,10 @@ use Phoundation\Web\Html\Layouts\Grid;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
+
+
+// This page accepts no GET variables
+GetValidator::new()->validate();
 
 
 // Button clicked?
@@ -62,7 +67,7 @@ $plugins_card = Card::new()
                                        'blacklisted' => tr('Blacklisted'),
                                        'description' => tr('Description'),
                                    ])
-                                   ->setRowUrl('/plugins/plugin+:ROW.html'))
+                                   ->setRowUrls('/plugins/plugin+:ROW.html'))
                ->useForm(true)
                ->setButtonsObject(Buttons::new()->addButton(tr('Scan')));
 

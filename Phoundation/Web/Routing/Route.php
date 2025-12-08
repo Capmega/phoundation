@@ -25,6 +25,8 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreStartupFailedException;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\CookieValidator;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
@@ -37,6 +39,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
@@ -45,6 +48,7 @@ use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Exception\Http404Exception;
 use Phoundation\Web\Http\Http;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
@@ -239,7 +243,7 @@ class Route
             throw new RouteException('Failed to start Core library', $e);
         }
 
-        Core::setScriptState();
+        Core::setReady();
 
         // Start web request logging with initial request information
         static::$method = $_SERVER['REQUEST_METHOD'];
@@ -251,7 +255,7 @@ class Route
         if ($this->detectFaviconRequest()) {
             // This is a favicon request that by default won't be logged, unless exceptions are encountered
             // Ensure the post-processing function is registered
-            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, logging disabled unless exception encountered)', [
+            Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, further logging disabled unless exception encountered)', [
                 ':method' => static::$method,
                 ':url'    => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
                 ':client' => Session::getIpAddress() . (empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'] . ')'),
@@ -425,27 +429,28 @@ class Route
 
         // Get routing parameters and find the correct web page file for this route
         $parameters = static::getParametersObject()->select(static::$url);
-        $route      = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
+        $o_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
 
-        // Set up the request object, send parameters, attachment configuration and if this is a system request
-        Request::setRoutingParameters($parameters);
-        Request::setAttachment(static::$attachment);
-        Request::setSystem($system);
+        if ($o_file->hasExtension('php')) {
+            // Set up the request object, send parameters, attachment configuration and if this is a system request
+            Request::setRoutingParameters($parameters);
+            Request::setAttachment(static::$attachment);
+            Request::setSystem($system);
+            Core::setScriptState();
 
-        // Target may NEVER be web/index.php because that will run the router into endless loops!
-        if ($route->isPath('index.php')) {
-            throw new RouteException(tr('Will not route to resolved file "index.php" as this would cause an endless loop'));
-        }
+            // Target may NEVER be web/index.php because that will run the router into endless loops!
+            if ($o_file->isPath('index.php')) {
+                throw new RouteException(tr('Will not route to resolved file "index.php" as this would cause an endless loop'));
+            }
 
-        if ($route->hasExtension('php')) {
             // The route is a PHP file, so execute it. The Page object will take care of everything, even if it's an
             // attachment that the client will download instead of view in the browser.
-            Request::execute($route);
+            Request::execute($o_file);
         }
 
         // The file is NOT a PHP executable, send the resolved file contents to the client directly
-        throw new UnderConstructionException(tr('Implement routing to files!'));
-        //FileResponse::new()->$request)->send();
+        PhoFile::new(DIRECTORY_WEB . 'static/' . $o_file->getSource(), PhoRestrictions::newWeb(false, 'static'))->upload(false);
+        exit();
     }
 
 
@@ -1819,7 +1824,7 @@ class Route
         }
 
         Core::removeShutdownCallback(404);
-        Core::setScriptState();
+        Core::setReady();
 
         Request::setRoutingParameters(static::getParametersObject()->select(static::$url));
         Response::redirect(Url::new(static::$route)->makeWww()->addQueries($_GET), (int) $http_code);

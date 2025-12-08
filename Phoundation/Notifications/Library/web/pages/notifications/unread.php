@@ -74,7 +74,7 @@ $o_notifications_card = Card::new()
                             ->setTitle('Active notifications')
                             ->setSwitches('reload')
                             ->setContent($notifications->getHtmlDataTableObject()
-                                                       ->setRowUrl('/notifications/notification+:ROW.html'))
+                                                       ->setRowUrls('/notifications/notification+:ROW.html'))
                             ->useForm(true)
                             ->setButtonsObject(
                                   Session::isImpersonated()
@@ -105,9 +105,9 @@ $o_documentation_card = Card::new()
 // Set page meta data
 Response::setHeaderTitle(tr('Notifications'));
 Response::setBreadcrumbs([
-    Breadcrumb::new('/'                  , tr('Home')),
-    Breadcrumb::new('/notifications.html', tr('Notifications')),
-    Breadcrumb::new(''                   , tr('Unread'))
+    Breadcrumb::new('/'                      , tr('Home')),
+    Breadcrumb::new('/notifications/all.html', tr('Notifications')),
+    Breadcrumb::new(''                       , tr('Unread'))
 ]);
 
 

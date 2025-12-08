@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Utils\Strings;
 
 

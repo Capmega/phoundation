@@ -370,6 +370,17 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns the source of this object as-is
+     *
+     * @return string|null
+     */
+    public function getSourceUnprocessed(): ?string
+    {
+        return $this->source;
+    }
+
+
+    /**
      * Returns the path
      *
      * @param PhoPathInterface|string|null $from
@@ -1214,7 +1225,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function attemptAutoMount(): bool
     {
-        if (!Core::isReady()) {
+        if (!Core::getReady()) {
             // Can't use auto mounter until core is ready
             return false;
         }
@@ -1269,7 +1280,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(ts('Deleting file ":file"', [':file' => $this->source]), 2);
+        Log::action(ts('Deleting file ":file"', [':file' => $this->source]), 3);
 
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
@@ -1700,21 +1711,21 @@ class PhoPathCore implements PhoPathInterface
             if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
-                    ':type'      => get_null($type) ?? tr('unknown'),
+                    ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
                     ':directory' => dirname($this->source),
                 ]), $previous_e);
             }
 
             throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because it does not exist', [
-                ':type' => $type,
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
 
         if (!is_readable($this->source)) {
             throw new FileNotReadableException(tr('The ":type" type file ":file" cannot be read', [
-                ':type' => get_null($type) ?? tr('unknown'),
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
@@ -2432,7 +2443,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isLinkAndTargetExists(): bool
     {
-        return is_link($this->source);
+        return is_link($this->source) and file_exists($this->source);
     }
 
 
@@ -2785,14 +2796,14 @@ class PhoPathCore implements PhoPathInterface
 
         // Return (possibly) relative links
         if (is_dir($path)) {
-            return new PhoDirectory($path, $this->o_restrictions, $this->getParentDirectoryObject());
+            return new PhoDirectory($path, $this->o_restrictions);
         }
 
         if (file_exists($path)) {
-            return new PhoFile($path, $this->o_restrictions, $this->getParentDirectoryObject());
+            return new PhoFile($path, $this->o_restrictions);
         }
 
-        return new static($path, $this->o_restrictions, $this->getParentDirectoryObject());
+        return new static($path, $this->o_restrictions);
     }
 
 
@@ -3290,8 +3301,8 @@ class PhoPathCore implements PhoPathInterface
         if (!$this->exists()) {
             if (!file_exists(dirname($this->source))) {
                 // The file doesn't exist and neither does its parent directory
-                throw new FileNotExistException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
-                    ':type'      => ($type ? '' : ' ' . $type),
+                throw new FileNotExistException(tr('The ":type" type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
+                    ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
                     ':directory' => dirname($this->source),
                 ]), $previous_e);
@@ -3301,8 +3312,8 @@ class PhoPathCore implements PhoPathInterface
             PhoDirectory::new(dirname($this->source), $this->o_restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->source)) {
-            throw new FileNotWritableException(tr('The:type file ":file" cannot be written', [
-                ':type' => ($type ? '' : ' ' . $type),
+            throw new FileNotWritableException(tr('The ":type" type file ":file" cannot be written', [
+                ':type' => $type ?: ts('unknown'),
                 ':file' => $this->source,
             ]), $previous_e);
         }
@@ -3347,7 +3358,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        Log::notice(ts('Closing file ":file"', [
+        Log::action(ts('Closing file ":file"', [
             ':file' => $this->getRootname(),
         ]), 2);
 
@@ -3833,7 +3844,7 @@ class PhoPathCore implements PhoPathInterface
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
             $target->rename($new);
-            $this->delete();
+            $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
@@ -4131,18 +4142,20 @@ class PhoPathCore implements PhoPathInterface
     public function clearTreeSymlinks(bool $clean = false): static
     {
         if ($this->exists()) {
-            $list = Find::new($this->o_restrictions)
-                        ->setExecutionDirectory(new PhoDirectory($this))
-                        ->setPathObject($this)
-                        ->setType('l')
-                        ->setCallback(function ($file) use ($clean) {
-                            PhoPath::new($file, $this->o_restrictions)->delete(true);
-                        })
-                        ->getFiles();
+            // Delete all symlinks
+            Find::new($this->o_restrictions)
+                ->setExecutionDirectory(new PhoDirectory($this))
+                ->setPathObject($this)
+                ->setType('l')
+                ->setDelete(true);
 
-            foreach ($list as $file) {
-                $file->delete(true);
-            }
+            // Delete all empty directories
+            Find::new($this->o_restrictions)
+                ->setExecutionDirectory(new PhoDirectory($this))
+                ->setPathObject($this)
+                ->setType('d')
+                ->setEmpty(true)
+                ->setDelete(true);
         }
 
         return $this;

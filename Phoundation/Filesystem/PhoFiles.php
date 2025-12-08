@@ -27,15 +27,15 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
     /**
      * PhoFiles class constructor
      *
-     * @param PhoDirectoryInterface|null                 $parent_directory
+     * @param PhoDirectoryInterface|null                 $o_parent_directory
      * @param mixed                                      $source
      * @param PhoRestrictionsInterface|array|string|null $restrictions
      */
-    public function __construct(?PhoDirectoryInterface $parent_directory = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null)
+    public function __construct(?PhoDirectoryInterface $o_parent_directory = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null)
     {
-        $this->o_parent_directory  = $parent_directory;
+        $this->o_parent_directory  = $o_parent_directory;
         $this->accepted_data_types = [PhoPathInterface::class];
-        $this->o_restrictions        = $restrictions ?? $parent_directory?->getRestrictionsObject();
+        $this->o_restrictions      = $restrictions ?? $o_parent_directory?->getRestrictionsObject();
 
         if ($source) {
             $this->setSource($source);

@@ -369,7 +369,7 @@ class Config implements ConfigInterface
 
         // Allow user configuration to override system configuration?
         if ($allow_user_configuration) {
-            if (Core::isReady()) {
+            if (Core::getReady()) {
                 $data = sql()->getColumn('SELECT `value` FROM `accounts_configurations` WHERE `users_id` = :users_id AND `path` = :path', [
                     ':users_id' => Session::getUserObject()->getId(),
                     ':path'     => $path,
@@ -486,13 +486,15 @@ class Config implements ConfigInterface
             return Strings::toBoolean($return);
 
         } catch (OutOfBoundsException $e) {
-            throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
-                ':path'  => $path,
-                ':value' => $return,
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
+                ':path'        => $path,
+                ':value'       => $return,
+                ':environment' => ENVIRONMENT
             ]), $e)->addData([
-                                 'value'      => $return,
-                                 'value_type' => gettype($return)
-                             ]);
+                'value'       => $return,
+                'value_type'  => gettype($return),
+                'environment' => ENVIRONMENT,
+            ]);
         }
     }
 
@@ -535,12 +537,14 @@ class Config implements ConfigInterface
                 return null;
             }
 
-            throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
-                ':path'  => $path,
-                ':value' => $return,
+            throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a boolean value (Accepted are true, "true", "yes", "y", "1", false, "false", "no", "n", or 1), but has ":value" instead', [
+                ':path'        => $path,
+                ':value'       => $return,
+                ':environment' => ENVIRONMENT
             ]), $e)->addData([
-                'value'      => $return,
-                'value_type' => gettype($return)
+                'value'       => $return,
+                'value_type'  => gettype($return),
+                'environment' => ENVIRONMENT,
             ]);
         }
     }
@@ -644,9 +648,10 @@ class Config implements ConfigInterface
     public function getPositiveInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         if ($default < 0) {
-            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
-                ':path'    => $path,
-                ':default' => $default,
+            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" for environment ":environment" should hold a positive integer number but is negative', [
+                ':path'        => $path,
+                ':default'     => $default,
+                ':environment' => ENVIRONMENT
             ]));
         }
 
@@ -656,12 +661,14 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a positive integer number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a positive integer number but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -688,9 +695,10 @@ class Config implements ConfigInterface
     public function getNegativeInteger(string|array $path, ?int $default = null, bool $allow_user_configuration = false, bool $use_cache = true): int
     {
         if ($default < 0) {
-            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" should hold a positive integer number but is negative', [
-                ':path'    => $path,
-                ':default' => $default,
+            throw new OutOfBoundsException(tr('The specified default ":default" for configuration path ":path" for environment ":environment" should hold a positive integer number but is negative', [
+                ':path'        => $path,
+                ':default'     => $default,
+                ':environment' => ENVIRONMENT
             ]));
         }
 
@@ -700,12 +708,14 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a negative integer number but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a negative integer number but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -804,12 +814,14 @@ class Config implements ConfigInterface
             return (float) $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a float but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a float but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -912,12 +924,14 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a string but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -1000,12 +1014,14 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a string or an integer but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -1130,12 +1146,14 @@ class Config implements ConfigInterface
             // fall through
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a string or a boolean value but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a string or a boolean value but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]), $e)->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -1174,12 +1192,14 @@ class Config implements ConfigInterface
             return $return;
         }
 
-        throw ConfigDataTypeException::new(tr('The configuration path ":path" should hold a integer or a boolean value but has value ":value"', [
-            ':path'  => $path,
-            ':value' => $return,
+        throw ConfigDataTypeException::new(tr('The configuration path ":path" for environment ":environment" should hold a integer or a boolean value but has value ":value"', [
+            ':path'        => $path,
+            ':value'       => $return,
+            ':environment' => ENVIRONMENT
         ]))->addData([
-            'value'      => $return,
-            'value_type' => gettype($return)
+            'value'       => $return,
+            'value_type'  => gettype($return),
+            'environment' => ENVIRONMENT,
         ]);
     }
 
@@ -1688,7 +1708,7 @@ class Config implements ConfigInterface
                 try {
                     $file = DIRECTORY_ROOT . 'config/environments/' . $environment . '/' . ($this->section ?? $environment) . '.yaml';
 
-                    if (Core::isReady()) {
+                    if (Core::getReady()) {
                         // Only check restrictions if Core is ready to avoid endless loops
                         PhoRestrictions::new(DIRECTORY_ROOT . 'config/')
                                        ->check($file, false);

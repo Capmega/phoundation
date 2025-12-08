@@ -26,6 +26,7 @@ use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataTitle;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\RegexException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Anchor;
@@ -41,7 +42,7 @@ use Phoundation\Web\Html\Traits\TraitObjectTopButtons;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
-
+use Throwable;
 
 class HtmlTable extends ResourceElement implements HtmlTableInterface
 {
@@ -84,11 +85,16 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     protected ?string $anchor_classes = null;
 
     /**
-     * URLs that apply to all rows
-     *
-     * @var UrlInterface|null $row_url
+     * Contains a list of URLs that apply to some or all cells from a row
      */
-    protected ?UrlInterface $row_url = null;
+    protected ?array $row_urls = null;
+
+    /**
+     * Contains a list of URLs that apply to some or all cells
+     *
+     * @var array|null $column_urls
+     */
+    protected ?array $column_urls = null;
 
     /**
      * queries that apply to all rows
@@ -110,13 +116,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @var array|null $footers
      */
     protected ?array $footers = null;
-
-    /**
-     * URL's specific for columns
-     *
-     * @var IteratorInterface|null $column_urls
-     */
-    protected ?IteratorInterface $column_urls = null;
 
     /**
      * Data attributes for anchors
@@ -156,9 +155,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Table header text
      *
-     * @var string|null $header_text
+     * @var Stringable|string|null $header_text
      */
-    protected ?string $header_text = null;
+    protected Stringable|string|null $header_text = null;
 
     /**
      * If true, will process all cell contents with htmlentities()
@@ -187,6 +186,13 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @var array $anchors
      */
     protected array $anchors = [];
+
+    /**
+     * Tracks what content should be rendered if the cell is empty
+     *
+     * @var string $empty_cell
+     */
+    protected string $empty_cell = '-';
 
 
     /**
@@ -250,9 +256,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns if the table is header_text or not
      *
-     * @return string|null
+     * @return Stringable|string|null
      */
-    public function getHeaderText(): ?string
+    public function getHeaderText(): Stringable|string|null
     {
         return $this->header_text;
     }
@@ -261,13 +267,38 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets if the table is header_text or not
      *
-     * @param string|null $header_text
+     * @param Stringable|string|null $header_text
      *
      * @return static
      */
-    public function setHeaderText(?string $header_text): static
+    public function setHeaderText(Stringable|string|null $header_text): static
     {
         $this->header_text = $header_text;
+        return $this;
+    }
+
+
+    /**
+     * Returns what content should be rendered if the cell is empty
+     *
+     * @return string|null
+     */
+    public function getEmptyCell(): ?string
+    {
+        return $this->empty_cell;
+    }
+
+
+    /**
+     * Sets what content should be rendered if the cell is empty
+     *
+     * @param string|null $empty_cell
+     *
+     * @return static
+     */
+    public function setEmptyCell(?string $empty_cell): static
+    {
+        $this->empty_cell = $empty_cell;
         return $this;
     }
 
@@ -483,7 +514,6 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     public function setCheckboxSelectors(EnumTableIdColumn $checkbox_selectors): static
     {
         $this->checkbox_selectors = $checkbox_selectors;
-
         return $this;
     }
 
@@ -491,24 +521,53 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Returns the URL that applies to each row
      *
-     * @return UrlInterface|null
+     * @return array
      */
-    public function getRowUrl(): ?UrlInterface
+    public function getRowUrls(): array
     {
-        return $this->row_url;
+        if ($this->row_urls === null) {
+            $this->row_urls = [];
+        }
+
+        return $this->row_urls;
     }
 
 
     /**
      * Sets the URL that applies to each row
      *
-     * @param UrlInterface|string|null $row_url
+     * @param UrlInterface|string|null $o_url
+     * @param array|null               $restrictions
+     * @param int                      $priority
      *
      * @return static
      */
-    public function setRowUrl(UrlInterface|string|null $row_url): static
+    public function setRowUrls(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static
     {
-        $this->row_url = Url::new($row_url);
+        $this->row_urls = [];
+        return $this->addRowUrl($o_url, $restrictions, $priority);
+    }
+
+
+    /**
+     * Sets the URL that applies to each row
+     *
+     * @param UrlInterface|string|null $o_url
+     * @param array|null               $restrictions
+     * @param int                      $priority
+     *
+     * @return static
+     */
+    public function addRowUrl(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static
+    {
+        $this->getRowUrls();
+
+        $this->row_urls[] = [
+            'url'          => Url::new($o_url),
+            'restrictions' => $restrictions,
+            'priority'     => $priority
+        ];
+
         return $this;
     }
 
@@ -569,6 +628,31 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         $this->footers = $footers;
         return $this;
+    }
+
+
+    public function render(): ?string
+    {
+        $attributes = [];
+        $id         = $this->getId();
+        $name       = $this->getName();
+
+        if ($id) {
+            $attributes[] = 'id="' . $id . '_table"';
+        }
+
+        if ($name) {
+            $attributes[] = 'name="' . $name . '_table"';
+        }
+
+        if ($attributes) {
+            $attributes = ' ' . implode(' ', $attributes);
+
+        } else {
+            $attributes = null;
+        }
+
+        return '<div' . $attributes . '>' . $this->header_text . parent::render() . '</div>';
     }
 
 
@@ -654,11 +738,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function getRow(int $row, bool $exception = false): ?array
     {
-        if ($exception) {
-            return array_get_safe($row, $this->source);
-        }
-
-        return array_get_safe($this->source, $row);
+        return array_get_safe($this->source, $row, exception: $exception);
     }
 
 
@@ -712,7 +792,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
                 // If HtmlTable::renderCheckboxColumn() returned NULL, it means that we should not render this cell
                 if ($value !== null) {
                     $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
-                    $cells .= $this->renderCell($row_id, $column, $value, $params);
+                    $cells .= $this->renderCell($row_id, $column, $value, $row_values, $params);
                 }
 
             } else {
@@ -720,7 +800,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
                 $this->executeCellCallbacks($row_id, $column, $value, $row_values, $params);
 
-                $cells .= $this->renderCell($row_id, $column, $value, $params);
+                $cells .= $this->renderCell($row_id, $column, $value, $row_values, $params);
             }
         }
 
@@ -847,11 +927,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * @param string|float|int|null                 $row_id
      * @param string|float|int|null                 $column
      * @param Stringable|string|float|int|bool|null $value
+     * @param array                                 $row_values
      * @param array                                 $params
      *
      * @return string|null
      */
-    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null $value, array $params): ?string
+    protected function renderCell(string|float|int|null $row_id, string|float|int|null $column, Stringable|string|float|int|bool|null $value, array $row_values, array $params): ?string
     {
         if (!$this->renderColumn($column)) {
             return null;
@@ -862,22 +943,15 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             $value = $this->null_status;
         }
 
+        $value = $value ?: $this->empty_cell;
+
         // Use row or column URL's?
         // Use column convert?
         // Add data-* in this option?
         $attributes  = '';
         $value       = (string) $value;
-        $url         = $this->getColumnUrls()->get($column);
         $convert     = $this->getConvertColumns()->get($column);
         $attributes .= $this->renderCellData($row_id, $column);
-
-        if (empty($url)) {
-            $url = $this->row_url;
-        }
-
-        if (array_get_safe($params, 'no_url')) {
-            $url = null;
-        }
 
         if ($convert) {
             if (is_callable($convert)) {
@@ -900,9 +974,9 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
         }
 
-        if (isset($url) and !is_empty($value)) {
+        if (!is_empty($value)) {
             $queries = $this->getRowQueries();
-            $value   = $this->renderAnchor($row_id, $column, $value, $url, $queries);
+            $value   = $this->renderAnchor($row_id, $column, $value, $row_values, $params, $queries);
         }
 
         // Build row with TD tags with attributes
@@ -911,32 +985,56 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
-     * Sets the URL that applies to each column
+     * Returns the list of URL's that can apply to each column cell (when optionally matching the restrictions)
      *
-     * @param IteratorInterface $urls
-     *
-     * @return static
+     * @return array
      */
-    public function setColumnUrls(IteratorInterface $urls): static
+    public function getColumnUrls(): array
     {
-        $this->column_urls = $urls->setAcceptedDataTypes(Url::class);
-        return $this;
+        if (empty($this->column_urls)) {
+            $this->column_urls = [];
+        }
+
+        return $this->column_urls;
     }
 
 
     /**
-     * Returns the URL that applies to each column
+     * Sets the URL that applies to each column
      *
-     * @return IteratorInterface
+     * @param UrlInterface|string $o_url
+     * @param array|null          $restrictions
+     * @param int                 $priority
+     *
+     * @return static
      */
-    public function getColumnUrls(): IteratorInterface
+    public function setColumnUrls(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static
     {
-        if (empty($this->column_urls)) {
-            $this->column_urls = Iterator::new()->setAcceptedDataTypes(Url::class)
-                                                ->setExceptionOnGet(false);
-        }
+        $this->column_urls = [];
+        return $this->addColumnUrl($o_url, $restrictions, $priority);
+    }
 
-        return $this->column_urls;
+
+    /**
+     * Adds a URL that apply to each column cell (when optionally matching the restrictions)
+     *
+     * @param UrlInterface|string $o_url
+     * @param array|null          $restrictions
+     * @param int                 $priority
+     *
+     * @return static
+     */
+    public function addColumnUrl(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static
+    {
+        $this->getColumnUrls();
+
+        $this->column_urls[] = [
+            'url'          => $o_url,
+            'restrictions' => $restrictions,
+            'priority'     => $priority,
+        ];
+
+        return $this;
     }
 
 
@@ -990,59 +1088,175 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
 
     /**
+     * Determines what URL should be applied for the
+     *
+     * @param array $row_values
+     * @param array $params
+     *
+     * @return UrlInterface|null
+     */
+    protected function getCellUrl(array $row_values, array $params): ?UrlInterface
+    {
+        if (array_get_safe($params, 'no_url')) {
+            return null;
+        }
+
+        // First select matching column URL
+        $column_url = $this->getCellUrlFromSource($this->getColumnUrls(), $row_values, $column_priority);
+        $row_url    = $this->getCellUrlFromSource($this->getRowUrls()   , $row_values, $row_priority);
+
+        if ($column_url) {
+            // We have a column URL
+            if ($row_url) {
+                // We also have a row URL! The latter takes precedence if the priorities are the same
+                if ($row_priority >= $column_priority) {
+                    return $row_url;
+                }
+            }
+
+            return $column_url;
+        }
+
+        return $row_url;
+    }
+
+
+    /**
+     * Determines what URL should be applied for the
+     *
+     * @param array    $urls
+     * @param array    $row_values
+     * @param int|null $priority
+     *
+     * @return UrlInterface|null
+     */
+    protected function getCellUrlFromSource(array $urls, array $row_values, ?int &$priority = null): ?UrlInterface
+    {
+        foreach ($urls as $url) {
+            if (array_get_safe($url, 'restrictions')) {
+                foreach ($url['restrictions'] as $restriction_column => $restriction_value) {
+                    $priority = array_get_safe($url, 'priority', 0);
+
+                    if (array_key_exists($restriction_column, $row_values)) {
+                        $source_value = $row_values[$restriction_column];
+
+                        switch (substr($restriction_value, 0, 1)) {
+                            case '<': // Column value must be lesser than
+                                if ($source_value < $restriction_value) {
+                                    return $url['url'];
+                                }
+
+                                break;
+
+                            case '>':  // Column value must be larger than
+                                if ($source_value > $restriction_value) {
+                                    return $url['url'];
+                                }
+
+                                break;
+
+                            case '*': // Column value must match by regular expression
+                                try {
+                                    if (preg_match($source_value, $restriction_value)) {
+                                        return $url['url'];
+                                    }
+
+                                } catch (Throwable $e) {
+                                    throw new RegexException(tr('Could not test HtmlTable column ":column" value ":value" with regex ":regex", the regular expression failed to apply which probably means it is invalid', [
+                                        ':value'  => $value,
+                                        ':regex'  => $restriction_value,
+                                        ':column' => $column,
+                                    ]), $e);
+                                }
+
+                                break;
+
+                            case '!': // Column value must not match
+                                if ($source_value !== $restriction_value) {
+                                    return $url['url'];
+                                }
+
+                                break;
+
+                            case '=': // Column value must match
+                                // no break
+
+                            default:
+                                if ($source_value === $restriction_value) {
+                                    return $url['url'];
+                                }
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            return $url['url'];
+        }
+
+        // No URL matched
+        return null;
+    }
+
+
+    /**
      * Builds a URL around the specified column value
      *
-     * @param mixed             $row_id
-     * @param mixed             $column
-     * @param string            $value
-     * @param UrlInterface|null $o_url
-     * @param array|null        $queries
+     * @param mixed      $row_id
+     * @param mixed      $column
+     * @param string     $value
+     * @param array      $row_values
+     * @param array      $params
+     * @param array|null $queries
      *
      * @return string|null
      */
-    protected function renderAnchor(mixed $row_id, mixed $column, string $value, ?UrlInterface $o_url, ?array $queries): ?string
+    protected function renderAnchor(mixed $row_id, mixed $column, string $value, array $row_values, array $params, ?array $queries): ?string
     {
-        if ($o_url) {
-            // Ensure all :ROW and :COLUMN markings are converted
-            $url        = $o_url->getSource();
-            $anchor_url = $url;
-            $anchor_url = str_replace(':ROW'     , urlencode((string) $row_id), $anchor_url);
-            $anchor_url = str_replace('%3AROW'   , urlencode((string) $row_id), $anchor_url);
-            $anchor_url = str_replace(':COLUMN'  , urlencode((string) $column), $anchor_url);
-            $anchor_url = str_replace('%3ACOLUMN', urlencode((string) $column), $anchor_url);
-            $attributes = '';
+        $o_url = $this->getCellUrl($row_values, $params);
 
-            if ($queries) {
-                $o_url->addQueries($queries);
-            }
-
-            if ($this->anchor_data_attributes) {
-                foreach ($this->anchor_data_attributes as $data_key => $data_value) {
-                    $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
-                }
-            }
-
-            $o_anchor = array_get_safe($this->anchors, $url);
-
-            if (empty($o_anchor)) {
-                $o_anchor = Anchor::new($o_url)
-                                  ->setClass($this->renderAnchorClassString())
-                                  ->setExtraAttributes($attributes);
-
-                if (!$o_anchor->hasRequiredRights()) {
-                    return null;
-                }
-
-                $this->anchors[$url] = $o_anchor;
-            }
-
-            return $o_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
-                            ->setHref($anchor_url, false)
-                            ->setContent($value)
-                            ->render();
+        if (empty($o_url)) {
+            return $value;
         }
 
-        return $value;
+        // Ensure all :ROW and :COLUMN markings are converted
+        $url        = $o_url->getSource();
+        $anchor_url = $url;
+        $anchor_url = str_replace(':ROW'     , urlencode((string) $row_id), $anchor_url);
+        $anchor_url = str_replace('%3AROW'   , urlencode((string) $row_id), $anchor_url);
+        $anchor_url = str_replace(':COLUMN'  , urlencode((string) $column), $anchor_url);
+        $anchor_url = str_replace('%3ACOLUMN', urlencode((string) $column), $anchor_url);
+        $attributes = '';
+
+        if ($queries) {
+            $o_url->addQueries($queries);
+        }
+
+        if ($this->anchor_data_attributes) {
+            foreach ($this->anchor_data_attributes as $data_key => $data_value) {
+                $attributes .= ' data-' . $data_key . '="' . $data_value . '"';
+            }
+        }
+
+        $o_anchor = array_get_safe($this->anchors, $url);
+
+        if (empty($o_anchor)) {
+            $o_anchor = Anchor::new($o_url)
+                              ->setClass($this->renderAnchorClassString())
+                              ->setExtraAttributes($attributes);
+
+            if (!$o_anchor->hasRequiredRights()) {
+                return null;
+            }
+
+            $this->anchors[$url] = $o_anchor;
+        }
+
+        return $o_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
+                        ->setUrlObject($anchor_url, false)
+                        ->setContent($value)
+                        ->render();
     }
 
 

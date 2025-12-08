@@ -53,6 +53,17 @@ class Csrf
 
 
     /**
+     * Returns true if CSRF is enabled
+     *
+     * @return bool
+     */
+    public static function enabledCheckIncidentIsEnabled(): bool
+    {
+        return config()->getBoolean('security.web.csrf.incident', true);
+    }
+
+
+    /**
      * Returns a CSRF hidden input HTML element if CSRF is enabled
      *
      * @note Will only return the hidden __csrf variable if the specified method is POST (default)

@@ -2136,7 +2136,7 @@ trait TraitProcessVariables
 
         // Get the PID and remove the run file
         if (!$this->execute_bash and $this->use_run_file) {
-            // Get PID info from run_file
+            // Get PID information from run_file
             if (!$this->run_file) {
                 throw new ProcessException(tr('Failed to set process PID, no PID specified and run_file has not been set'));
             }

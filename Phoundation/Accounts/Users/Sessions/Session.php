@@ -755,7 +755,7 @@ class Session implements SessionInterface
             // Start session. Two log entries are added around it to more easily debug issues with PHP session starting
             Log::action(ts('About to start session ":session"', [
                 ':session' => session_id() ?: 'new',
-            ]), 1);
+            ]), 3);
 
             session_start();
             static::$open = true;
@@ -1362,15 +1362,17 @@ class Session implements SessionInterface
             if (!Csrf::isEnabled()) {
                 // CSRF generally should be turned on, its a bad idea to have it off!
                 if (Core::isProductionEnvironment()) {
-                    // CSRF is off on production environment, this is a really bad idea!
-                    Incident::new()
-                            ->setSeverity(EnumSeverity::high)
-                            ->setType('security')
-                            ->setTitle(ts('CSRF is disabled on production'))
-                            ->setBody(ts('The CSRF protection is disabled on production. This is a security risk and should be enabled immediately'))
-                            ->setNotifyRoles('security')
-                            ->setLog(9)
-                            ->save();
+                    if (Csrf::enabledCheckIncidentIsEnabled()) {
+                        // CSRF is off on production environment, this is a really bad idea!
+                        Incident::new()
+                                ->setSeverity(EnumSeverity::high)
+                                ->setType('security')
+                                ->setTitle(ts('CSRF is disabled on production'))
+                                ->setBody(ts('The CSRF protection is disabled on production. This is a security risk and should be enabled immediately'))
+                                ->setNotifyRoles('security')
+                                ->setLog(9)
+                                ->save();
+                    }
 
                 } else {
                     // All other environments just get a log warning
@@ -1837,9 +1839,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", we are already impersonating', [
+                    ->setTitle('User impersonation failed')
+                    ->setBody(tr('Cannot impersonate user ":user", we are already impersonating', [
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
@@ -1862,9 +1865,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
+                    ->setBody(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1886,9 +1890,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
-                    ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
+                    ->setBody(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1910,9 +1915,10 @@ class Session implements SessionInterface
                           ->save();
 
             Incident::new()
-                    ->setType('User impersonation failed')
+                    ->setType('User impersonation')
+                    ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::severe)
-                    ->setTitle(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
+                    ->setBody(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
                         ':user' => static::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
@@ -1939,9 +1945,9 @@ class Session implements SessionInterface
 
         // Register an incident
         Incident::new()
-                ->setType('User impersonation stopped')
+                ->setType('User impersonation')
                 ->setSeverity(EnumSeverity::medium)
-                ->setTitle('User impersonation stopped')
+                ->setTitle('User impersonation started')
                 ->setBody(tr('The user ":user" started impersonating user ":impersonate"', [
                     ':user'        => $original_user->getLogId(),
                     ':impersonate' => $user->getLogId(),
@@ -2128,7 +2134,8 @@ class Session implements SessionInterface
                     Incident::new()
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('The user ":user" stopped impersonating user ":impersonate"', [
+                            ->setTitle('User impersonation stopped')
+                            ->setBody(tr('The user ":user" stopped impersonating user ":impersonate"', [
                                 ':user'        => User::new()->load($users_id)->getLogId(),
                                 ':impersonate' => User::new()->load($impersonate_id)->getLogId(),
                             ]))
@@ -2166,10 +2173,7 @@ class Session implements SessionInterface
                     Incident::new()
                             ->setType('User impersonation')
                             ->setSeverity(EnumSeverity::low)
-                            ->setTitle(tr('User impersonation failure', [
-                                ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
-                                ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),
-                            ]))
+                            ->setTitle(tr('User impersonation failed'))
                             ->setBody(tr('User impersonation sign out failed users id ":id", impersonate id ":impersonate_id", closing sessions', [
                                 ':id'             => array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'),
                                 ':impersonate_id' => array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'),

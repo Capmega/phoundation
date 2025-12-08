@@ -39,19 +39,20 @@ GetValidator::new()->validate();
 // Build incidents "filter" card
 $filters      = FilterForm::new();
 $o_filters_card = Card::new()
-                    ->setCollapseSwitch(true)
-                    ->setTitle('Notifications filters')
-                    ->setContent($filters)
-                    ->useForm(true);
+                      ->setCollapseSwitch(true)
+                      ->setTitle('Notifications filters')
+                      ->setContent($filters)
+                      ->useForm(true);
 
 
 // Get a new "notifications" object
 $notifications = Notifications::new()->markSeverityColumn();
 $builder       = $notifications->getQueryBuilderObject();
 
-$builder->addSelect('`id`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
+$builder->addSelect('`id`, `id` AS `key`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
         ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUserObject()->getId()])
-        ->addOrderBy('`created_by` ASC');
+        ->addOrderBy('`created_by` ASC')
+        ->setLimit(1000);
 
 
 // Process POST requests
@@ -60,7 +61,7 @@ if (Request::isPostRequestMethod()) {
 //        $notifications->setStatus('READ');
 
         sql()->query('UPDATE `notifications` 
-                      SET    `status` = "READ" 
+                      SET    `status`   = "READ" 
                       WHERE  `users_id` = :users_id', [
                           ':users_id' => Session::getUserObject()->getId()
         ]);
@@ -72,8 +73,17 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build "notifications" table
-$table = $notifications->getHtmlDataTableObject()->setRowUrl('/notifications/notification+:ROW.html')
-                                                 ->setAnchorClasses('notification open-modal');
+$table = $notifications->getHtmlDataTableObject([
+                           'id'      => tr('ID'),
+                           'key'     => tr('Notification ID'),
+                           'mode'    => tr('Severity'),
+                           'title'   => tr('Title'),
+                           'message' => tr('Message'),
+                           'url'     => tr('URL'),
+                           'details' => tr('Details'),
+                       ])
+                       ->setRowUrls('/notifications/notification+:ROW.html')
+                       ->setAnchorClasses('notification open-modal');
 
 $table->getAnchorDataAttributes()->add(':ROW', 'id');
 
@@ -81,16 +91,17 @@ $table->getAnchorDataAttributes()->add(':ROW', 'id');
 
 // Build "notifications" card
 $o_notifications_card = Card::new()
-                     ->setTitle('Active notifications')
-                     ->setSwitches('reload')
-                     ->setContent($table)
-                     ->useForm(true)
-                     ->setButtonsObject(Buttons::new()
-                                               ->addButton(tr('Mark all as read')));
+                            ->setTitle(tr('Active notifications (:count)', [
+                                ':count' => $table->getCount()
+                            ]))
+                            ->setSwitches('reload')
+                            ->setContent($table)
+                            ->useForm(true)
+                            ->setButtonsObject(Buttons::new()->addButton(tr('Mark all as read')));
 
 $o_notifications_card->getForm()
-                   ->setAction(Url::newCurrent())
-                   ->setRequestMethod(EnumHttpRequestMethod::post);
+                     ->setAction(Url::newCurrent())
+                     ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links

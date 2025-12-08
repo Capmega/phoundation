@@ -66,7 +66,7 @@ $authentications_card = Card::new()
                                                              'action'     => tr('Action'),
                                                              'status'     => tr('Status'),
                                                          ])
-                                                         ->setRowUrl(Url::new('/security/authentication+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
+                                                         ->setRowUrls(Url::new('/security/authentication+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
                                                          ->addRowCallback(function (IteratorInterface|array &$row, EnumTableRowType $type, &$params) {
                                                              // Adjust date to correct timezone and format
                                                              $row['created_on'] = PhoDateTime::new($row['created_on'], 'user')->format(EnumDateFormat::user_datetime);

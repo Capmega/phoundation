@@ -152,6 +152,8 @@ class Libraries
     /**
      * Execute a complete systems initialization
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     *
      * @param bool        $system
      * @param bool        $plugins
      * @param bool        $templates
@@ -169,52 +171,45 @@ class Libraries
         }
 
         // Wipe all temporary data and set the core in INIT mode
-        try {
-            Log::setVerbose(true);
-            Core::enableInitState();
-            Tmp::clear();
+        Log::setVerbose(true);
+        Core::enableInitState();
+        Tmp::clear();
 
-            // Ensure the system database exists
-            static::ensureSystemsDatabaseAccessible();
+        // Ensure the system database exists
+        static::ensureSystemsDatabaseAccessible();
 
-            // Go over all system libraries and initialize them, then do the same for the plugins
-            static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
+        // Go over all system libraries and initialize them, then do the same for the plugins
+        static::initializeLibraries($system, $plugins, $templates, $comments, $libraries);
 
-            // Initialization done!
-            static::$initializing = false;
+        // Initialization done!
+        static::$initializing = false;
 
-            if (Core::isProductionEnvironment()) {
-                // Notification developers
-                Notification::new()
-                            ->setUrl(Url::new('/system/information.html')->makeWww())
-                            ->setMode(EnumDisplayMode::info)
-                            ->setRoles('developer')
-                            ->setTitle(tr('System initialization'))
-                            ->setMessage(tr('The system ran an initialization'))
-                            ->setDetails([
-                                             'system'    => $system,
-                                             'plugins'   => $plugins,
-                                             'templates' => $templates,
-                                             'comment'   => $comments,
-                                         ])
-                            ->send();
-            }
-
-            try {
-                // Wipe all cache data
-                Cache::clearAll();
-
-            } catch (ConfigPathDoesNotExistsException $e) {
-                Log::warning($e->getMessage());
-            }
-
-            Log::setVerbose(VERBOSE);
-
-        } catch (Throwable $e) {
-            // Something went wrong. Disable Log VERBOSE to avoid spamming the output Exception with extra lines
-            Log::setVerbose(VERBOSE);
-            throw $e;
+        if (Core::isProductionEnvironment()) {
+            // Notification developers
+            Notification::new()
+                        ->setUrl(Url::new('/system/information.html')->makeWww())
+                        ->setMode(EnumDisplayMode::info)
+                        ->setRoles('developer')
+                        ->setTitle(tr('System initialization'))
+                        ->setMessage(tr('The system ran an initialization'))
+                        ->setDetails([
+                                         'system'    => $system,
+                                         'plugins'   => $plugins,
+                                         'templates' => $templates,
+                                         'comment'   => $comments,
+                                     ])
+                        ->send();
         }
+
+        try {
+            // Wipe all cache data
+            Cache::clearAll();
+
+        } catch (ConfigPathDoesNotExistsException $e) {
+            Log::warning($e->getMessage());
+        }
+
+        Log::setVerbose(VERBOSE);
     }
 
 
@@ -567,8 +562,8 @@ class Libraries
         Log::action(ts('Clearing commands caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newFilesystemRootObject(true))
-            ->clearTreeSymlinks(true)
-            ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
 
         static::$cache_has_been_cleared = true;
     }
@@ -788,8 +783,8 @@ class Libraries
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -800,7 +795,7 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis($target);
+              ->symlinkTargetFromThis($target);
 
         Log::success(ts('Finished rebuilding web cache'));
     }

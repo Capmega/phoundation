@@ -43,7 +43,7 @@ if (!Session::isImpersonated()) {
 if ($notification->getUrl()) {
     $button = Button::new()
                     ->setMode(EnumDisplayMode::primary)
-                    ->setAnchorUrl($notification->getUrl())
+                    ->setUrlObject($notification->getUrl())
                     ->setContent(tr('Go'))
                     ->render();
 }
@@ -56,7 +56,7 @@ $reply = [
     'url'     => $notification->getUrl(),
     'buttons' => isset_get($button) . Button::new()
                                             ->setOutlined(true)
-                                            ->setAnchorUrl(Url::new('notifications/notification+' . $notification->getId() . '.html')->makeWww())
+                                            ->setUrlObject(Url::new('notifications/notification+' . $notification->getId() . '.html')->makeWww())
                                             ->setContent(tr('See notification details'))
                                             ->render(),
 ];

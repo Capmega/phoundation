@@ -401,11 +401,12 @@ interface ElementAttributesInterface extends ContentObjectInterface
      */
     public function getDisabled(): bool;
 
+
     /**
      * Set the HTML disabled element attribute
      *
-     * @param bool      $disabled
-     * @param bool|null $set_readonly
+     * @param bool        $disabled
+     * @param bool|null   $set_readonly
      *
      * @return static
      */
@@ -418,11 +419,12 @@ interface ElementAttributesInterface extends ContentObjectInterface
      */
     public function getReadonly(): bool;
 
+
     /**
      * Set the HTML readonly element attribute
      *
-     * @param bool      $readonly
-     * @param bool|null $set_disabled
+     * @param bool        $readonly
+     * @param bool|null   $set_disabled
      *
      * @return static
      */
@@ -666,12 +668,13 @@ interface ElementAttributesInterface extends ContentObjectInterface
      */
     public function getTitle(): ?string;
 
+
     /**
      * Sets the HTML title element attribute
      *
-     * @param string|null $title
+     * @param string|false|null $title
      *
      * @return static
      */
-    public function setTitle(?string $title): static;
+    public function setTitle(string|false|null $title): static;
 }

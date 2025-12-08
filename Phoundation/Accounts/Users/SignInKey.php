@@ -31,8 +31,7 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryRedirect;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUuid;
-use Phoundation\Data\Traits\TraitDataUrl;
-use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Data\Traits\TraitDataUrlObject;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
@@ -40,9 +39,10 @@ use Phoundation\Web\Requests\Response;
 use Phoundation\Web\Routing\Route;
 use Stringable;
 
+
 class SignInKey extends DataEntry implements SignInKeyInterface
 {
-    use TraitDataUrl;
+    use TraitDataUrlObject;
     use TraitDataEntryUser;
     use TraitDataEntryUuid;
     use TraitDataEntryRedirect;

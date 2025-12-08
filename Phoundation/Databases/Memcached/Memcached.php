@@ -25,7 +25,6 @@ use Phoundation\Databases\Memcached\Exception\MemcachedException;
 use Phoundation\Databases\Memcached\Interfaces\MemcachedInterface;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;

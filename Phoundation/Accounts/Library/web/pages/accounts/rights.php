@@ -101,7 +101,7 @@ $o_rights_card = Card::new()
                                                'roles'       => tr('Used by roles'),
                                                'description' => tr('Description'),
                                            ])
-                                           ->setRowUrl('/accounts/right+:ROW.html')
+                                           ->setRowUrls('/accounts/right+:ROW.html')
                                            ->setTopButtons(Buttons::new()
                                                                   ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')))
                      ->useForm(true)

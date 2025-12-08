@@ -62,6 +62,7 @@ use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -101,7 +102,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string PHOUNDATION_VERSION = '4.15.0';
+    public const string PHOUNDATION_VERSION = '4.15.1';
 
     public const string PHP_MINIMUM_VERSION = '8.3.0';
 
@@ -518,6 +519,7 @@ class Core implements CoreInterface
             // project name, platform and request type
             Core::securePhpSettings();
             Core::startPlatform();
+            Core::defineProjectDirectories();
 
             // Check if we're in readonly mode
             Core::$state    = 'startup';
@@ -611,6 +613,7 @@ class Core implements CoreInterface
                 Log::toAlternateLog('Project file "config/project/name" does not exist, entering setup mode');
 
                 Core::startPlatform();
+                Core::defineProjectDirectories();
                 Core::$state = 'setup';
 
                 throw new ProjectException('Project file "' . DIRECTORY_ROOT . 'config/project/name" cannot be read. Please ensure it exists');
@@ -672,20 +675,27 @@ class Core implements CoreInterface
      * Starts up the correct platform, either CLI or WEB
      *
      * @return void
+     * @todo Remove this, should be integrated into Route somewhere
      */
     protected static function startPlatform(): void
     {
-        switch (PLATFORM) {
-            case 'web':
-                Route::startup();
-                break;
-
-            case 'cli':
-                break;
+        if (PLATFORM_WEB) {
+            Route::startup();
         }
+    }
 
-        define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
-        define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
+
+    /**
+     * Starts up the correct platform, either CLI or WEB
+     *
+     * @return void
+     */
+    public static function defineProjectDirectories(): void
+    {
+        if (!defined('DIRECTORY_PROJECT_CDN')) {
+            define('DIRECTORY_PROJECT_CDN'   , DIRECTORY_CDN . LANGUAGE . '/' . Project::getSeoFullName() . '/');
+            define('DIRECTORY_PROJECT_PUBTMP', DIRECTORY_CDN . 'tmp/');
+        }
     }
 
 
@@ -706,7 +716,7 @@ class Core implements CoreInterface
         // Track system state on exit
         static::$state_on_exit = Core::getState();
 
-        if (Core::isReady()) {
+        if (Core::getReady()) {
             if (Log::passesThreshold(2) or Log::getVerbose()) {
                 Log::warning(ts('Core->exit() was called'), 10);
             }
@@ -754,6 +764,44 @@ class Core implements CoreInterface
         }
 
         exit();
+    }
+
+
+    /**
+     * Returns true if the specified state indicates Core ready
+     *
+     * @param string|null $state
+     * @return bool
+     */
+    public static function isReady(?string $state = null): bool
+    {
+        return match ($state) {
+            null, 'setup', 'boot', 'startup', => false,
+            default                           => true
+        };
+    }
+
+
+    /**
+     * Returns true if all Core systems like Log, Session, and Config are ready to go
+     *
+     * @return bool
+     */
+    public static function getReady(): bool
+    {
+        return Core::$ready;
+    }
+
+
+    /**
+     * Lets the core know that the system is now executing user level scripts
+     *
+     * @return void
+     */
+    public static function setReady(): void
+    {
+        // We're done, transfer control to script
+        Core::$ready = true;
     }
 
 
@@ -1093,7 +1141,7 @@ class Core implements CoreInterface
         // Start processing the uncaught exception
         try {
             try {
-                if (Core::isReady()) {
+                if (Core::getReady()) {
                     // Register exception incident in the database
                     Core::registerUncaughtExceptionIncident($e);
 
@@ -1313,6 +1361,51 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the language indicated in the URL, unless it is a non supported language, in which case the default language will be returned
+     *
+     * @param string|null $locale
+     *
+     * @return string
+     */
+    protected static function getLanguageFromUrl(?string $locale = null): string
+    {
+        $default   = config()->getString('locale.languages.default', 'en');
+        $supported = config()->getArray('locale.languages.supported', [
+            'en',
+            'es',
+        ]);
+
+        if (empty($supported)) {
+            $supported = [not_empty(Strings::until(Strings::until($locale, '_'), '-'), $default)];
+        }
+
+        // Language is defined by the www/LANGUAGE dir that is used.
+        $url       = $_SERVER['REQUEST_URI'];
+        $url       = Strings::ensureBeginsNotWith($url, '/');
+        $language  = Strings::until($url, '/');
+        $supported = array_unique($supported);
+
+        if (!in_array($language, $supported, true)) {
+            Incident::new()
+                    ->setType('Language')
+                    ->setTitle('Unknown / unsupported language')
+                    ->setUrl(Request::getUrl())
+                    ->setBody(ts('The requested language ":language" is unsupported, falling back onto the default language ":default"', [
+                        ':language' => $language,
+                        ':default'  => $default,
+                    ]))
+                    ->setNotifyRoles('security')
+                    ->setLog(7)
+                    ->save();
+
+            $language = $default;
+        }
+
+        return $language;
+    }
+
+
+    /**
      * Apply the specified or configured locale
      *
      * @param string|null $locale
@@ -1325,34 +1418,17 @@ class Core implements CoreInterface
     {
         // Setup locale and character encoding
         // TODO Check this mess!
+        // TODO This should (for the initial session start) take the language from the HTTP Accept-language header!
         try {
+            // Get requested language
             if (PLATFORM_WEB) {
-                $supported = config()->get('locale.languages.supported', [
-                    'en',
-                    'es',
-                ]);
-
-                if ($supported) {
-                    // Language is defined by the www/LANGUAGE dir that is used.
-                    $url      = $_SERVER['REQUEST_URI'];
-                    $url      = Strings::ensureBeginsNotWith($url, '/');
-                    $language = Strings::until($url, '/');
-
-                    if (!in_array($language, $supported, true)) {
-                        Log::warning(ts('Detected language ":language" is not supported, falling back to default. See configuration path "language.supported"', [
-                            ':language' => config()->get('locale.languages.default', 'en'),
-                        ]));
-                    }
-
-                } else {
-                    $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
-                }
+                $language = Core::getLanguageFromUrl($locale);
 
             } else {
-                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->get('locale.languages.default', 'en'));
+                $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));
             }
 
-            if (config()->get('locale.languages.default', ['en']) and config()->exists('locale.languages.supported.' . $language)) {
+            if (config()->getString('locale.languages.default', 'en') and config()->exists('locale.languages.supported.' . $language)) {
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
@@ -1403,14 +1479,14 @@ class Core implements CoreInterface
             $language = LANGUAGE;
 
         } else {
-            $language = config()->get('locale.languages.default', 'en');
+            $language = config()->getString('locale.languages.default', 'en');
         }
 
         if (isset($_SESSION['location']['country']['code'])) {
             $country = strtoupper($_SESSION['location']['country']['code']);
 
         } else {
-            $country = config()->get('location.default-country', 'us');
+            $country = config()->getString('location.default-country', 'us');
         }
 
         // First set LC_ALL as a baseline, then each entry
@@ -2237,21 +2313,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns true if all Core systems like Log, Session, and Config are ready to go
-     *
-     * @param string|null $state
-     * @return bool
-     */
-    public static function isReady(?string $state = null): bool
-    {
-        return match ($state ?? Core::$state) {
-            null, 'setup', 'boot', 'startup', => false,
-            default                           => true
-        };
-    }
-
-
-    /**
      * Returns true if the Core state is the same as the specified state
      *
      * @param string|null $state
@@ -2816,6 +2877,7 @@ class Core implements CoreInterface
     {
         // Don't register warning exceptions
         if ((!$e instanceof PhoException) or !$e->isWarning()) {
+            // This is a "bad" exception
             if (Core::getReadonly()) {
                 Log::error('Not attempting to register the following uncaught exception incident in the database, system is in readonly mode');
 
@@ -2829,11 +2891,20 @@ class Core implements CoreInterface
 
                     } else {
                         // Only notify and register developer incident if we're on production
-                        if (Core::isProductionEnvironment()) {
+                        if (!Core::isProductionEnvironment()) {
                             // We CAN only notify if Core is ready
-                            if (Core::isReady()) {
+                            if (Core::getReady()) {
                                 try {
-                                    $e->registerIncident(EnumSeverity::severe);
+                                    if ($e instanceof PhoException) {
+                                        $e->registerIncident(EnumSeverity::severe);
+
+                                    } else {
+                                        Incident::new()
+                                                ->setException($e)
+                                                ->setType(null)
+                                                ->setSeverity(EnumSeverity::severe)
+                                                ->save();
+                                    }
 
                                 } catch (Throwable $f) {
                                     Log::error(ts('Failed to register uncaught exception because of the following exception'));
@@ -2869,7 +2940,7 @@ class Core implements CoreInterface
      */
     protected static function playUncaughtExceptionAudio(Throwable $e): void
     {
-        if (Core::isReady()) {
+        if (Core::getReady()) {
             if (!defined('PLATFORM_CLI') or PLATFORM_CLI) {
                 try {
                     if (defined('ENVIRONMENT')) {
@@ -3057,16 +3128,16 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  static::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
-            static::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+            Core::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
             if (empty($new_target)) {
-                static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
+                Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
 
             } else {
                 Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
@@ -3076,26 +3147,26 @@ class Core implements CoreInterface
                 ]));
 
                 // Execute the new system page target instead
-                static::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
+                Core::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
             }
 
         } catch (AccessDeniedException $e) {
-            static::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
+            Core::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
 
-        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException $e) {
-            static::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" warning. Executing "system/404" instead'));
+        } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException | FileNotExistException $e) {
+            Core::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            static::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
+            Core::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryExistsException $e) {
-            static::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            Core::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
-            static::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
+            Core::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
 
         } catch (PhoException | Throwable $e) {
-            static::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
+            Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
         }
 
         // Remove all caching headers
@@ -3171,7 +3242,11 @@ class Core implements CoreInterface
                 showdie($e);
 
             case EnumRequestTypes::ajax:
-                if ($e->getWarning()) {
+                if ($e instanceof AccessDeniedException) {
+                    $e->setWarning(true);
+                    $message = tr('You do not have the required rights to access to the requested background resource. Please contact your system administrator to fix this');
+
+                } elseif ($e->getWarning()) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
 

@@ -261,7 +261,7 @@ showdie($matches);
             ':url' => $this->o_url
         ]));
 
-        $this->getCurlObject()->setUrl($this->o_url)
+        $this->getCurlObject()->setUrlObject($this->o_url)
                               ->execute();
 
         return $this;
