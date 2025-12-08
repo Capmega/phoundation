@@ -46,8 +46,8 @@ class Branches extends IteratorCore implements BranchesInterface
 
         $results = Process::new('git')
                           ->setExecutionDirectory(new PhoDirectory(
-                              $this->directory,
-                              PhoRestrictions::newWritableObject($this->directory)
+                              $this->o_path,
+                              PhoRestrictions::newWritableObject($this->o_path)
                           ))
                           ->addArgument('branch')
                           ->addArgument('--quiet')

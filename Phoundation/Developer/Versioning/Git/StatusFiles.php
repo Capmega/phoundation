@@ -46,23 +46,23 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     /**
      * A git object specifically for this path
      *
-     * @var GitInterface $git
+     * @var GitInterface $o_git
      */
-    protected GitInterface $git;
+    protected GitInterface $o_git;
 
 
     /**
      * StatusFiles class constructor
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoPathInterface|null $o_parent_path
      */
-    public function __construct(PhoDirectoryInterface $directory)
+    public function __construct(?PhoPathInterface $o_parent_path)
     {
-        $this->o_parent            = $directory;
+        $this->o_parent            = $o_parent_path;
+        $this->o_restrictions      = $o_parent_path?->getRestrictionsObject();
         $this->accepted_data_types = [PhoPathInterface::class];
-        $this->o_restrictions        = $directory->getRestrictionsObject();
 
-        $this->___construct($directory);
+        $this->___construct($o_parent_path);
     }
 
 
@@ -75,11 +75,11 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     {
         $this->source = [];
 
-        $files = $this->git_process->clearArguments()
-                                   ->addArgument('status')
-                                   ->addArgument($this->directory)
-                                   ->addArgument('--porcelain')
-                                   ->executeReturnArray();
+        $files = $this->o_git_process->clearArguments()
+                                     ->addArgument('status')
+                                     ->addArgument($this->o_path)
+                                     ->addArgument('--porcelain')
+                                     ->executeReturnArray();
 
         // Parse output
         foreach ($files as $file) {
@@ -97,13 +97,16 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
             $file   = substr($file, 3);
             $target = null;
 
-            if (str_contains($file, ' -> ')) {
-                $target = Strings::from($file, ' -> ');
-                $file   = Strings::until($file, ' -> ');
-            }
-
             try {
-                $this->source[$file] = StatusFile::new($status, new PhoFile($file), new PhoFile($target));
+                if (str_contains($file, ' -> ')) {
+                    $target = Strings::from($file, ' -> ');
+                    $file   = Strings::until($file, ' -> ');
+
+                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()), new PhoFile($target, $this->getRestrictionsObject()));
+
+                } else {
+                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()));
+                }
 
             } catch (GitUnknownStatusException $e) {
                 throw GitUnknownStatusException::new(tr('Unknown git status ":status" encountered for file ":file"', [
@@ -133,15 +136,18 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     {
         $list = [];
 
-        foreach ($this->getSource() as $file => $status) {
-            if (trim(substr($status->getStatus(), 0, 1))) {
-                $status = CliColor::apply($status->getStatus()->getReadable(), 'green');
+        foreach ($this as $file => $o_status) {
+            if (trim(substr($o_status->getStatus(), 0, 1))) {
+                $o_status = CliColor::apply($o_status->getStatusObject()->getReadable(), 'green');
 
             } else {
-                $status = CliColor::apply($status->getStatus()->getReadable(), 'red');
+                $o_status = CliColor::apply($o_status->getStatusObject()->getReadable(), 'red');
             }
 
-            $list[$file] = ['status' => $status];
+            $list[$file] = [
+                'file'   => $file,
+                'status' => $o_status
+            ];
         }
 
         Cli::displayTable($list, ['file'   => tr('File'),
@@ -155,38 +161,38 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param string $target_path
+     * @param PhoDirectoryInterface $o_target_path
      *
      * @return static
      */
-    public function patch(PhoDirectoryInterface $target_path): static
+    public function patch(PhoDirectoryInterface $o_target_path): static
     {
         try {
             // Add all paths to index, create the patch file, apply it, delete it, done
             $this->getGit()->add();
 
-            $patch_file = $this->getPatchFile(true);
+            $o_patch_file = $this->getPatchFile(true);
 
             $this->getGit()->reset('HEAD');
 
-            if ($patch_file) {
-                Git::new($target_path)->apply($patch_file);
-                PhoFile::new($patch_file, PhoRestrictions::newTemporary(true, 'StatusFiles::patch()'))->delete();
+            if ($o_patch_file) {
+                Git::new($o_target_path)->apply($o_patch_file);
+                PhoFile::new($o_patch_file, PhoRestrictions::newTemporary(true, 'StatusFiles::patch()'))->delete();
             }
 
             return $this;
 
         } catch (ProcessFailedException $e) {
-            Log::warning(ts('Patch failed to apply for target directory ":directory" with following exception', [
-                ':directory' => $target_path,
+            Log::warning(ts('Patch failed to apply for target path ":path" with following exception', [
+                ':path' => $o_target_path,
             ]));
             Log::warning($e->getMessages());
             Log::warning($e->getDataKey('output'));
 
-            if (isset($patch_file)) {
+            if (isset($o_patch_file)) {
                 // Delete the temporary patch file
-                Core::ExecuteIfNotInTestMode(function () use ($patch_file) {
-                    PhoFile::new($patch_file, PhoRestrictions::new(DIRECTORY_TMP, true))->delete();
+                Core::ExecuteIfNotInTestMode(function () use ($o_patch_file) {
+                    PhoFile::new($o_patch_file, PhoRestrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
 
@@ -202,9 +208,9 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
 
             if (isset($files)) {
                 // Specific files failed to apply
-                throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to directory ":directory"', [
-                    ':patch'     => isset_get($patch_file),
-                    ':directory' => $target_path,
+                throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to path ":path"', [
+                    ':patch' => isset_get($o_patch_file),
+                    ':path'  => $o_target_path,
                 ]), $e)->addData([
                     'files' => $files,
                 ]);
@@ -223,11 +229,11 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      */
     public function getGit(): GitInterface
     {
-        if (!isset($this->git)) {
-            $this->git = Git::new($this->directory);
+        if (!isset($this->o_git)) {
+            $this->o_git = Git::new($this->o_path);
         }
 
-        return $this->git;
+        return $this->o_git;
     }
 
 
@@ -240,6 +246,6 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      */
     public function getPatchFile(bool $cached = false): PhoFileInterface
     {
-        return Git::new($this->directory->getParentDirectoryObject())->saveDiff($this->directory->getBasename(), $cached);
+        return Git::new($this->o_path->getParentDirectoryObject())->saveDiff($this->o_path->getBasename(), $cached);
     }
 }

@@ -27,7 +27,7 @@ use Phoundation\Utils\Strings;
 class RemoteRepository extends IteratorCore
 {
     use TraitGitProcess {
-        __construct as protected construct;
+        __construct as protected ___construct;
     }
 
     /**
@@ -48,13 +48,13 @@ class RemoteRepository extends IteratorCore
     /**
      * Repository class constructor
      *
-     * @param string $directory
+     * @param string $o_path
      * @param string $repository
      */
-    public function __construct(string $directory, string $repository)
+    public function __construct(string $o_path, string $repository)
     {
         $this->repository = $repository;
-        $this->construct($directory);
+        $this->___construct($o_path);
         $this->loadData();
     }
 
@@ -69,10 +69,10 @@ class RemoteRepository extends IteratorCore
         if ($this->data) {
             return;
         }
-        $data = $this->git_process->addArgument('remote')
-                                  ->addArgument('show')
-                                  ->addArgument($this->repository)
-                                  ->executeReturnArray();
+        $data = $this->o_git_process->addArgument('remote')
+                                    ->addArgument('show')
+                                    ->addArgument($this->repository)
+                                    ->executeReturnArray();
         $this->parseData($data);
     }
 
@@ -172,14 +172,14 @@ class RemoteRepository extends IteratorCore
     /**
      * Returns a new Repository object
      *
-     * @param string $path
+     * @param string $o_path
      * @param string $repository
      *
      * @return static
      */
-    public static function new(string $path, string $repository): static
+    public static function new(string $o_path, string $repository): static
     {
-        return new static($path, $repository);
+        return new static($o_path, $repository);
     }
 
 
@@ -203,12 +203,12 @@ class RemoteRepository extends IteratorCore
      */
     public function setName(?string $repository): static
     {
-        $output = $this->git_process->clearArguments()
-                                    ->addArgument('remote')
-                                    ->addArgument('rename')
-                                    ->addArgument($this->repository)
-                                    ->addArgument($repository)
-                                    ->executeReturnArray();
+        $output = $this->o_git_process->clearArguments()
+                                      ->addArgument('remote')
+                                      ->addArgument('rename')
+                                      ->addArgument($this->repository)
+                                      ->addArgument($repository)
+                                      ->executeReturnArray();
         Log::notice($output, 4, false);
         $this->repository = $repository;
 
@@ -236,12 +236,12 @@ class RemoteRepository extends IteratorCore
      */
     public function setFetchUrl(string $url): static
     {
-        $output = $this->git_process->clearArguments()
-                                    ->addArgument('remote')
-                                    ->addArgument('set-url')
-                                    ->addArgument($this->repository)
-                                    ->addArgument($url)
-                                    ->executeReturnArray();
+        $output = $this->o_git_process->clearArguments()
+                                      ->addArgument('remote')
+                                      ->addArgument('set-url')
+                                      ->addArgument($this->repository)
+                                      ->addArgument($url)
+                                      ->executeReturnArray();
         Log::notice($output, 4, false);
         $this->data['push_url']  = $url;
         $this->data['fetch_url'] = $url;

@@ -44,9 +44,9 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
     /**
      * The status for this file
      *
-     * @var StatusInterface $status
+     * @var StatusInterface $o_status
      */
-    protected StatusInterface $status;
+    protected StatusInterface $o_status;
 
 
     /**
@@ -54,13 +54,13 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      *
      * @param StatusInterface|string $status
      * @param PhoFileInterface       $file
-     * @param PhoFileInterface       $git_target
+     * @param PhoFileInterface|null  $git_target
      */
-    public function __construct(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target)
+    public function __construct(StatusInterface|string $status, PhoFileInterface $file, ?PhoFileInterface $git_target = null)
     {
         $this->file       = $file;
         $this->git_target = $git_target;
-        $this->status     = (is_string($status) ? new Status($status) : $status);
+        $this->o_status     = (is_string($status) ? new Status($status) : $status);
     }
 
 
@@ -69,11 +69,11 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      *
      * @param StatusInterface|string $status
      * @param PhoFileInterface       $file
-     * @param PhoFileInterface       $git_target
+     * @param PhoFileInterface|null  $git_target
      *
      * @return static
      */
-    public static function new(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target): static
+    public static function new(StatusInterface|string $status, PhoFileInterface $file, ?PhoFileInterface $git_target = null): static
     {
         return new static($status, $file, $git_target);
     }
@@ -102,13 +102,24 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
 
 
     /**
-     * Returns the status for this file
+     * Returns the status object for this file
      *
      * @return StatusInterface
      */
     public function getStatusObject(): StatusInterface
     {
-        return $this->status;
+        return $this->o_status;
+    }
+
+
+    /**
+     * Returns the status for this file
+     *
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->o_status->getStatus();
     }
 
 
@@ -119,7 +130,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function hasConflict(): bool
     {
-        return $this->status->isConflict();
+        return $this->o_status->isConflict();
     }
 
 

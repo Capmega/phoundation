@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Traits;
 
-use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 
@@ -26,65 +26,70 @@ trait TraitGitProcess
     /**
      * The directory that will be checked
      *
-     * @var PhoDirectoryInterface $directory
+     * @var PhoPathInterface|null $o_path
      */
-    protected PhoDirectoryInterface $directory;
+    protected ?PhoPathInterface $o_path;
 
     /**
      * The git process
      *
-     * @var ProcessInterface $git_process
+     * @var ProcessInterface|null $o_git_process
      */
-    protected ProcessInterface $git_process;
+    protected ?ProcessInterface $o_git_process;
 
 
     /**
      * TraitGitProcess trait constructor
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoPathInterface|null $o_parent_path
      */
-    public function __construct(PhoDirectoryInterface $directory)
+    public function __construct(?PhoPathInterface $o_parent_path = null)
     {
-        $this->setDirectory($directory);
+        $this->setPath($o_parent_path);
     }
 
 
     /**
      * Returns a new static object that accepts $directory in the constructor
      *
-     * @param PhoDirectoryInterface $path
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public static function new(PhoDirectoryInterface $path): static
+    public static function new(?PhoPathInterface $o_path = null): static
     {
-        return new static($path);
+        return new static($o_path);
     }
 
 
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @return PhoDirectoryInterface
+     * @return PhoPathInterface
      */
-    public function getDirectory(): PhoDirectoryInterface
+    public function getPath(): PhoPathInterface
     {
-        return $this->directory;
+        return $this->o_path;
     }
 
 
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoPathInterface|null $o_path
      *
      * @return static
      */
-    public function setDirectory(PhoDirectoryInterface $directory): static
+    public function setPath(?PhoPathInterface $o_path): static
     {
-        $this->directory   = $directory->makeAbsolute()->checkWritable();
-        $this->git_process = Process::new('git')
-                                    ->setExecutionDirectory($this->directory);
+        if ($o_path) {
+            $this->o_path        = $o_path->makeAbsolute()->checkReadable();
+            $this->o_git_process = Process::new('git')->setExecutionDirectory($this->o_path->getDirectoryObject());
+
+        } else {
+            $this->o_path        = null;
+            $this->o_git_process = null;
+        }
 
         return $this;
     }
