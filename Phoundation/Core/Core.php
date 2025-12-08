@@ -2880,20 +2880,12 @@ class Core implements CoreInterface
                                                 ->setException($e)
                                                 ->setType(null)
                                                 ->setSeverity(EnumSeverity::severe)
+                                                ->setNotifyRoles('developer')
                                                 ->save();
                                     }
 
                                 } catch (Throwable $f) {
                                     Log::error(ts('Failed to register uncaught exception because of the following exception'));
-                                    Log::error($f);
-                                }
-
-                                try {
-                                    $e->getNotificationObject()
-                                      ->send(false);
-
-                                } catch (Throwable $f) {
-                                    Log::error(ts('Failed to notify developers of uncaught exception because of the following exception'));
                                     Log::error($f);
                                 }
                             }
