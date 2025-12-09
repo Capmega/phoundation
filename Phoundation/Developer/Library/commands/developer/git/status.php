@@ -23,6 +23,7 @@ use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Filesystem\PhoDirectory;
 
 
+// Start documentation
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => function ($word) {
