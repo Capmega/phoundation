@@ -1482,6 +1482,32 @@ class DefinitionFactory
      *
      * @return DefinitionInterface
      */
+    public static function newPath(?PhoDirectoryInterface $exists_in_directory = null, ?string $column = 'path'): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setMaxLength(2048)
+                         ->setOptional(true)
+                         ->setSize(3)
+                         ->setLabel(tr('Path'))
+                         ->setCliColumn(tr('-p,--path PATH'))
+                         ->setInputType(EnumInputType::text)
+                         ->setCliAutoComplete(true)
+                         ->addValidationFunction(function (ValidatorInterface $o_validator) use ($exists_in_directory) {
+                             if ($exists_in_directory) {
+                                 $o_validator->isPath($exists_in_directory);
+                             }
+                         });
+    }
+
+
+    /**
+     * Returns a Definition object for the column "file"
+     *
+     * @param PhoDirectoryInterface|null $exists_in_directory
+     * @param string|null                $column
+     *
+     * @return DefinitionInterface
+     */
     public static function newFile(?PhoDirectoryInterface $exists_in_directory = null, ?string $column = 'file'): DefinitionInterface
     {
         return Definition::new($column)
@@ -1489,7 +1515,7 @@ class DefinitionFactory
                          ->setOptional(true)
                          ->setSize(3)
                          ->setLabel(tr('File'))
-                         ->setCliColumn(tr('-f,--file PATH'))
+                         ->setCliColumn(tr('-f,--file FILE'))
                          ->setInputType(EnumInputType::text)
                          ->setCliAutoComplete(true)
                          ->addValidationFunction(function (ValidatorInterface $o_validator) use ($exists_in_directory) {
