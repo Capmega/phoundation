@@ -817,7 +817,6 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
         if (Core::inBootState() or !config()->getBoolean('debug.exceptions.warnings', true)) {
             // No warnings allowed from the configuration
             $warning = false;
-            showdie('b');
         }
 
         $this->warning = $warning;
