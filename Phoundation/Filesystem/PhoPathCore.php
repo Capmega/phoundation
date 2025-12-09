@@ -370,6 +370,17 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns the source of this object as-is
+     *
+     * @return string|null
+     */
+    public function getSourceUnprocessed(): ?string
+    {
+        return $this->source;
+    }
+
+
+    /**
      * Returns the path
      *
      * @param PhoPathInterface|string|null $from
@@ -1214,7 +1225,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function attemptAutoMount(): bool
     {
-        if (!Core::isReady()) {
+        if (!Core::getReady()) {
             // Can't use auto mounter until core is ready
             return false;
         }
@@ -2432,7 +2443,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isLinkAndTargetExists(): bool
     {
-        return is_link($this->source);
+        return is_link($this->source) and file_exists($this->source);
     }
 
 
@@ -2785,14 +2796,14 @@ class PhoPathCore implements PhoPathInterface
 
         // Return (possibly) relative links
         if (is_dir($path)) {
-            return new PhoDirectory($path, $this->o_restrictions, $this->getParentDirectoryObject());
+            return new PhoDirectory($path, $this->o_restrictions);
         }
 
         if (file_exists($path)) {
-            return new PhoFile($path, $this->o_restrictions, $this->getParentDirectoryObject());
+            return new PhoFile($path, $this->o_restrictions);
         }
 
-        return new static($path, $this->o_restrictions, $this->getParentDirectoryObject());
+        return new static($path, $this->o_restrictions);
     }
 
 
@@ -3833,7 +3844,7 @@ class PhoPathCore implements PhoPathInterface
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
             $target->rename($new);
-            $this->delete();
+            $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
@@ -4131,18 +4142,20 @@ class PhoPathCore implements PhoPathInterface
     public function clearTreeSymlinks(bool $clean = false): static
     {
         if ($this->exists()) {
-            $list = Find::new($this->o_restrictions)
-                        ->setExecutionDirectory(new PhoDirectory($this))
-                        ->setPathObject($this)
-                        ->setType('l')
-                        ->setCallback(function ($file) use ($clean) {
-                            PhoPath::new($file, $this->o_restrictions)->delete(true);
-                        })
-                        ->getFiles();
+            // Delete all symlinks
+            Find::new($this->o_restrictions)
+                ->setExecutionDirectory(new PhoDirectory($this))
+                ->setPathObject($this)
+                ->setType('l')
+                ->setDelete(true);
 
-            foreach ($list as $file) {
-                $file->delete(true);
-            }
+            // Delete all empty directories
+            Find::new($this->o_restrictions)
+                ->setExecutionDirectory(new PhoDirectory($this))
+                ->setPathObject($this)
+                ->setType('d')
+                ->setEmpty(true)
+                ->setDelete(true);
         }
 
         return $this;

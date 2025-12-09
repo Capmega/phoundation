@@ -369,7 +369,7 @@ class Config implements ConfigInterface
 
         // Allow user configuration to override system configuration?
         if ($allow_user_configuration) {
-            if (Core::isReady()) {
+            if (Core::getReady()) {
                 $data = sql()->getColumn('SELECT `value` FROM `accounts_configurations` WHERE `users_id` = :users_id AND `path` = :path', [
                     ':users_id' => Session::getUserObject()->getId(),
                     ':path'     => $path,
@@ -1708,7 +1708,7 @@ class Config implements ConfigInterface
                 try {
                     $file = DIRECTORY_ROOT . 'config/environments/' . $environment . '/' . ($this->section ?? $environment) . '.yaml';
 
-                    if (Core::isReady()) {
+                    if (Core::getReady()) {
                         // Only check restrictions if Core is ready to avoid endless loops
                         PhoRestrictions::new(DIRECTORY_ROOT . 'config/')
                                        ->check($file, false);

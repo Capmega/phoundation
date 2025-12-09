@@ -92,7 +92,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         setParentObject as protected __setParentObject;
     }
     use TraitDataRestrictions;
-    use TraitDataRowCallbacks;
+    use TraitDataRowCallbacks; // TODO WHY IS THIS HERE? THESE METHODS ARE FOR TABLES!
     use TraitDataArraySource{
         setSource as protected __setSource;
     }

@@ -28,6 +28,7 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
 use Phoundation\Filesystem\Exception\DirectoryException;
 use Phoundation\Filesystem\Exception\DirectoryNotMountedException;
+use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\FilesystemInvalidPattern;
 use Phoundation\Filesystem\Exception\PathNotDirectoryException;
@@ -1465,12 +1466,12 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string             $target
+     * @param Stringable|string $target
      * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable|null                 $callback
-     * @param mixed|null                    $context
-     * @param bool                          $recursive
-     *
+     * @param callable|null $callback
+     * @param mixed|null $context
+     * @param bool $recursive
+     * @param bool $ignore_fails
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
@@ -1479,7 +1480,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true): static
+    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
     {
         $context      = $context ?? stream_context_create();
         $restrictions = $this->ensureRestrictions($restrictions);
@@ -1495,15 +1496,37 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         // Copy the contents
         foreach ($this->getFilesObject() as $path) {
             $basename = $path->getBasename();
+
             if ($path->isDirectory()) {
                 if ($recursive) {
                     $path->copy($target->addDirectory($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
                 }
 
             } else {
-                copy($this->addFile($basename)
-                          ->getSource(), $target->addFile($basename)
-                                                ->getSource(), $context);
+                try {
+                    copy($this->addFile($basename)->getSource(),
+                         $target->addFile($basename)->getSource(), $context);
+
+                } catch (PhpException $e) {
+                    if ($this->addFile($basename)->isLink() and !$this->addFile($basename)->isLinkAndTargetExists()) {
+                        // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
+                        if ($this->addFile($basename)->exists(true)) {
+                            // The exact target already exists as a symlink, which then doesn't exist.
+
+                            $this->addFile($basename)->delete();
+                        }
+
+                        symlink($this->addFile($basename)->getSource(),
+                                $target->addFile($basename)->getSource());
+                    }
+
+                    if (!$ignore_fails) {
+                        Log::warning($e->getMessage());
+                        continue;
+                    }
+
+                    throw $e;
+                }
             }
         }
 
@@ -1677,6 +1700,36 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         }
 
         return $sizes;
+    }
+
+
+    /**
+     * Returns a PhoFileInterface object for the specified file in this directory,
+     *
+     * @param  string $file
+     * @param  bool $exception
+     * @return PhoDirectoryInterface|PhoFileInterface|null
+     */
+    public function getFileObject(string $file, bool $exception = false): PhoDirectoryInterface|PhoFileInterface|null
+    {
+        $file = $this->source . Strings::ensureBeginsNotWith($file, '/');
+
+        if (file_exists($file)) {
+            if (is_dir($file)) {
+                return new PhoDirectory($file, $this->o_restrictions);
+            }
+
+            return new PhoFile($file, $this->o_restrictions);
+        }
+
+        if ($exception) {
+            throw new FileNotExistException(tr('Cannot return a FileObject for the specified file ":file" in this directory ":directory", the file does not exist', [
+                ':file'      => $file,
+                ':directory' => $this->source
+            ]));
+        }
+
+        return null;
     }
 
 

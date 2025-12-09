@@ -316,7 +316,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      */
     public function __construct() {
         // Initialize validation configuration
-        if (Core::isReady()) {
+        if (Core::getReady()) {
             $this->setDatatypeValidationEnabled(!config()->getBoolean('security.validation.disabled', false))
                  ->setContentValidationEnabled(!config()->getBoolean('security.validation.content.disabled', false));
         }

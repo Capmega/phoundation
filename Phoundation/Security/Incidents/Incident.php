@@ -115,7 +115,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
-            $this->setCreatedBy(Core::isReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
+            $this->setCreatedBy(Core::getReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
         }
 
         if ($identifier instanceof Throwable) {
@@ -342,13 +342,12 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         // Notify anybody? If we notify somebody, logging is not required as the notification will log too
         if (isset($this->notify_roles)) {
-            return $this->notify($severity, $details);
-
+            $this->notify($severity, $details);
         }
 
         // So no notifications, should we log this?
         if ($this->log) {
-            return $this->log($severity, $details);
+            $this->log($severity, $details);
         }
 
         return $this;
@@ -453,8 +452,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ->setTitle($body ? $this->getTitle(): $this->getType())
                      ->setMessage($body ?? $this->getTitle())
                      ->setDetails($details)
-                     ->log($this->log)
-                     ->send();
+                     ->send(false);
 
         return $this;
     }

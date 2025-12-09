@@ -243,7 +243,7 @@ class Route
             throw new RouteException('Failed to start Core library', $e);
         }
 
-        Core::setScriptState();
+        Core::setReady();
 
         // Start web request logging with initial request information
         static::$method = $_SERVER['REQUEST_METHOD'];
@@ -436,6 +436,7 @@ class Route
             Request::setRoutingParameters($parameters);
             Request::setAttachment(static::$attachment);
             Request::setSystem($system);
+            Core::setScriptState();
 
             // Target may NEVER be web/index.php because that will run the router into endless loops!
             if ($o_file->isPath('index.php')) {
@@ -1823,7 +1824,7 @@ class Route
         }
 
         Core::removeShutdownCallback(404);
-        Core::setScriptState();
+        Core::setReady();
 
         Request::setRoutingParameters(static::getParametersObject()->select(static::$url));
         Response::redirect(Url::new(static::$route)->makeWww()->addQueries($_GET), (int) $http_code);

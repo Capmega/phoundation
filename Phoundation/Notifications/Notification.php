@@ -748,7 +748,7 @@ FILES variables:
             Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),
                 ':user'  => $user->getEmail()
-            ]));
+            ]), 4);
 
             $sending = false;
             return $this;

@@ -32,7 +32,7 @@ use Phoundation\Os\Processes\Commands\Find;
 class Sessions
 {
     use TraitStaticMethodNew;
-    
+
 
     /**
      * Returns the handler for sessions
