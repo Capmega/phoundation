@@ -3295,13 +3295,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
                                            ->addPreSaveFunctions(function (DefinitionInterface $o_definition, mixed $value) {
                                                // User redirect URL's must be stored without hostname and language specification!
-                                               $value = Url::new($value);
+                                               if ($value) {
+                                                   $value = Url::new($value);
 
-                                               if ($value->isProjectUrl()) {
-                                                   return Url::new($value)->getFromHostAndLanguage();
+                                                   if ($value->isProjectUrl()) {
+                                                       return Url::new($value)->getFromHostAndLanguage();
+                                                   }
+
+                                                   return $value;
                                                }
 
-                                               return $value;
+                                               return null;
                                            }))
 
                     ->add(Definition::new('url')
