@@ -1622,6 +1622,7 @@ class Log implements LogInterface
      * Write a command line interface message in the log file and to the screen
      *
      * @param mixed       $messages
+     * @param string|null $class
      * @param int         $threshold
      * @param bool        $clean
      * @param bool        $echo_newline
@@ -1630,7 +1631,7 @@ class Log implements LogInterface
      *
      * @return bool
      */
-    public static function cli(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
+    public static function cli(mixed $messages = null, ?string $class = 'cli', int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
     {
         if (empty($messages)) {
             $messages = ' ';
@@ -1642,7 +1643,7 @@ class Log implements LogInterface
                     $messages = print_r($messages, true);
                 }
 
-                return Log::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+                return Log::write($messages, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             case 'json':
                 return static::json($messages, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
