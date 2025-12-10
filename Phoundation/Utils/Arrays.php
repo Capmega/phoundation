@@ -1535,7 +1535,6 @@ class Arrays extends Utils
         }
 
         unset($value);
-
         return $source;
     }
 
