@@ -726,7 +726,7 @@ class Find extends Command implements FindInterface
         }
 
         $this->delete = false;
-        $this->exec   = $exec;
+        $this->exec   = $exec . ' \;';
         return $this;
     }
 
@@ -752,7 +752,7 @@ class Find extends Command implements FindInterface
     public function setDelete(bool $delete, bool $recursive = false): static
     {
         if ($delete) {
-            $this->exec = 'rm -f' . ($recursive ? 'r' : null) . ' {}';
+            $this->setExec('rm -f' . ($recursive ? 'r' : null) . ' {}');
         }
 
         $this->delete = $delete;
