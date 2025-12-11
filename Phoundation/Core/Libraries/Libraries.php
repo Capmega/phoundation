@@ -376,8 +376,28 @@ class Libraries
                 $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_PLUGINS, true));
 
             } catch (NotExistsException $e) {
-                // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_DIRECTORY_PLUGINS, config()->get('filesystem.mode.default.directory', 0750));
+                if (PhoDirectory::newPluginsObject()->exists()) {
+                    $o_directory = PhoDirectory::new($e->getDataKey('directory'), PhoRestrictions::newPluginsObject());
+
+                    if ($o_directory->isLink()) {
+                        Log::warning(ts('Failed to read target link ":link" for plugins vendor ":vendor", check plugins directory ":directory"', [
+                            ':link'      => $o_directory->getLinkTarget(),
+                            ':vendor'    => $o_directory->getBasename(),
+                            ':directory' => PhoDirectory::newPluginsObject(),
+                        ]));
+
+                    } else {
+                        Log::warning(ts('Failed to read plugins directory for vendor ":vendor", check plugins directory ":directory"', [
+                            ':link'      => $o_directory->getLinkTarget(),
+                            ':vendor'    => $o_directory->getBasename(),
+                            ':directory' => PhoDirectory::newPluginsObject(),
+                        ]));
+                    }
+
+                } else {
+                    // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
+                    mkdir(static::CLASS_DIRECTORY_PLUGINS, config()->get('filesystem.mode.default.directory', 0750));
+                }
             }
         }
 
@@ -411,9 +431,11 @@ class Libraries
         $directory = Strings::ensureEndsWith($directory, '/');
 
         if (!file_exists($directory)) {
-            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
+            throw NotExistsException::new(tr('The specified library base directory ":directory" does not exist', [
                 ':directory' => $directory,
-            ]));
+            ]))->addData([
+                'directory' => $directory
+            ]);
         }
 
         if ($has_vendors) {
