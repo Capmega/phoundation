@@ -1216,6 +1216,7 @@ class Log implements LogInterface
             // Log the initial exception message
             Log::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             Log::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
+            Log::exceptionMessages($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             Log::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
             Log::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
@@ -1225,7 +1226,6 @@ class Log implements LogInterface
             $has_logged = Log::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
-            Log::exceptionMessages($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::exceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::exceptionData($exception, $threshold, $clean, $echo_newline, $echo_screen);
             Log::previousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);

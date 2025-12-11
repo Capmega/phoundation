@@ -535,7 +535,6 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
-            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -594,7 +593,6 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
-            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -785,7 +783,6 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
             $cache->copy($temporary, ignore_fails: true);
-            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -840,7 +837,6 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
-            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -895,7 +891,6 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
-            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -1188,22 +1183,5 @@ class Libraries
         }
 
         return $true;
-    }
-
-
-    /**
-     * Recursively removes the symlinks from the specified directory
-     *
-     * @param PhoDirectoryInterface $o_directory
-     *
-     * @return void
-     */
-    protected static function removeSymlinks(PhoDirectoryInterface $o_directory): void
-    {
-        Find::new(PhoDirectory::new($o_directory))->setDebug(true)
-            ->setType('l')
-            ->setName('*.php')
-            ->setDelete(true)
-            ->executeNoReturn();
     }
 }
