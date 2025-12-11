@@ -85,6 +85,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint DEFAULT NULL,
                     `modified_by` bigint DEFAULT NULL,
+                    `modified_on` datetime NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
@@ -94,11 +95,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `url` varchar(2048) DEFAULT NULL,
                     `platform` ENUM ("git", "subversion"),
                     `type` ENUM ("system", "plugins", "templates", "data", "cdn", "project"),
+                    `required` tinyint,
                     `description` mediumtext DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
+                    KEY ` modified_by` (`modified_by`),
+                    KEY `modified_on` (`modified_on`),
                     KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
                     UNIQUE KEY `name` (`name`),
@@ -106,6 +110,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     UNIQUE KEY `path` (`path`),
                     KEY `url` (`url` (32)),
                     KEY `type` (`type`),
+                    KEY `required` (`required`),
                     KEY `platform` (`platform`)
                 ')->setForeignKeys('
                     CONSTRAINT `fk_developer_repositories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,

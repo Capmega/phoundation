@@ -110,7 +110,7 @@ class Repositories extends DataIteratorCore
      */
     public function getNewCount(): ?int
     {
-        return count($this->new);
+        return count($this->getNew());
     }
 
 
@@ -136,7 +136,7 @@ class Repositories extends DataIteratorCore
      */
     public function getDeletedCount(): ?int
     {
-        return count($this->deleted);
+        return count($this->getDeleted());
     }
 
 
@@ -164,15 +164,16 @@ class Repositories extends DataIteratorCore
 
         $found = $this->o_find->executeReturnArray();
 
-        foreach ($found as $repository) {
-            $repository = PhoDirectory::new($repository, $path->getRestrictionsObject())->getParentDirectoryObject();
+        foreach ($found as $repository_path) {
+            $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
-            if (Repository::isPhoundation($repository)) {
-                if (!Repository::exists($repository->getBasename())) {
-                    Repository::new()
-                              ->setName($repository->getBasename())
-                              ->setPath($repository)
-                              ->save();
+            if (Repository::isPhoundation($o_repository_path)) {
+                if (!Repository::exists($o_repository_path->getBasename())) {
+show($o_repository_path->getBasename());
+show($o_repository_path->getSource());
+show(Repository::new($o_repository_path->getBasename()));
+showdie();
+                    Repository::newFromPathObject($o_repository_path)->save();
                 }
             }
         }

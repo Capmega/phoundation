@@ -85,7 +85,8 @@ if ($permissions_denied) {
 
 
 // Done!
-Log::cli(ts('Found ":new" new repositories, deleted ":deleted" repositories', [
-    ':count'   => $o_repositories->getNewCount(),
+Log::cli(ts('Found ":new" new repositories, deleted ":deleted" repositories, there are ":count" repositories in the database', [
+    ':new'     => $o_repositories->getNewCount(),
+    ':count'   => Repositories::new()->load()->getCount(),
     ':deleted' => $o_repositories->getDeletedCount()
 ]), 'success');
