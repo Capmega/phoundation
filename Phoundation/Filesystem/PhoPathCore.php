@@ -4195,19 +4195,21 @@ class PhoPathCore implements PhoPathInterface
     {
         if ($this->exists()) {
             // Delete all symlinks
-            Find::new($this->o_restrictions)
-                ->setExecutionDirectory(new PhoDirectory($this))
+            Find::new()
+                ->setExecutionDirectory($this->getDirectoryObject())
                 ->setPathObject($this)
                 ->setType('l')
-                ->setDelete(true);
+                ->setDelete(true)
+                ->executeNoReturn();
 
             // Delete all empty directories
-            Find::new($this->o_restrictions)
-                ->setExecutionDirectory(new PhoDirectory($this))
+            Find::new()
+                ->setExecutionDirectory($this->getDirectoryObject())
                 ->setPathObject($this)
                 ->setType('d')
                 ->setEmpty(true)
-                ->setDelete(true);
+                ->setDelete(true)
+                ->executeNoReturn();
         }
 
         return $this;
