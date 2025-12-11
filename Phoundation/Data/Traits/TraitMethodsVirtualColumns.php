@@ -168,7 +168,7 @@ trait TraitMethodsVirtualColumns {
                     ':object'     => $configuration['class'],
                     ':class'      => static::class,
                     ':identifier' => Json::encode($identifier),
-                ]));
+                ]), 3);
 
                 $o_object = $configuration['class']::new()
                                                    ->setDebug($this->getDebug())

@@ -34,14 +34,17 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
         __construct as construct;
     }
 
+
     /**
      * RemoteRepositories class constructor
+     *
+     * @param PhoPathInterface|null $o_parent_path
      */
-    public function __construct(PhoDirectoryInterface $directory)
+    public function __construct(?PhoPathInterface $o_parent_path = null)
     {
-        $this->construct($directory);
+        $this->construct($o_parent_path);
         $this->source = Process::new('git')
-                               ->setExecutionDirectory($this->directory)
+                               ->setExecutionDirectory($this->o_path)
                                ->addArgument('remote')
                                ->addArgument('show')
                                ->executeReturnArray();
@@ -89,6 +92,6 @@ class RemoteRepositories extends IteratorCore implements RemoteRepositoriesInter
             }
         }
 
-        return RemoteRepository::new($this->directory, $key, $default);
+        return RemoteRepository::new($this->o_path, $key, $default);
     }
 }

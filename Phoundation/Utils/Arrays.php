@@ -1535,7 +1535,6 @@ class Arrays extends Utils
         }
 
         unset($value);
-
         return $source;
     }
 
@@ -1921,7 +1920,7 @@ class Arrays extends Utils
             foreach ($row as $column => $value) {
                 $length = (strlen((string) $value) + $add_extra);
 
-                if ($length > $columns[$column]) {
+                if ($length > array_get_safe($columns, $column)) {
                     $columns[$column] = $length;
                 }
 

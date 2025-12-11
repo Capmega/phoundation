@@ -11,6 +11,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -915,9 +916,9 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Returns the DataEntryInterface parent object
      *
-     * @return DataEntryInterface|RenderInterface|UrlInterface|null
+     * @return DataEntryInterface|PhoPathInterface|RenderInterface|UrlInterface|null;
      */
-    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|RenderInterface|UrlInterface|null;
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|PhoPathInterface|RenderInterface|UrlInterface|null;
 
 
     /**

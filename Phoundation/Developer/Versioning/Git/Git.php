@@ -83,7 +83,7 @@ class Git extends Versioning implements GitInterface
      */
     public function setDirectory(PhoDirectoryInterface $directory): static
     {
-        $this->directory = $directory->makeAbsolute()->checkWritable();
+        $this->directory = $directory->makeAbsolute()->checkReadable();
         $this->git       = Process::new('git')
                                   ->setExecutionDirectory($this->directory)
                                   ->setTimeout(300);

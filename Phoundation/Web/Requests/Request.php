@@ -739,11 +739,15 @@ class Request implements RequestInterface
      *
      * @param bool $no_queries
      *
-     * @return string
+     * @return string|null
      */
-    public static function getUri(bool $no_queries = false): string
+    public static function getUri(bool $no_queries = false): ?string
     {
-        return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
+        if (PLATFORM_WEB) {
+            return ($no_queries ? Strings::until($_SERVER['REQUEST_URI'], '?') : $_SERVER['REQUEST_URI']);
+        }
+
+        return null;
     }
 
 

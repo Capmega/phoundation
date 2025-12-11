@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,15 +30,18 @@ use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Exception\FindException;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Stringable;
 
 
 class Find extends Command implements FindInterface
 {
+    use TraitDataResultsWithPermissionDenied;
     use TraitDataStringName;
     use TraitDataObjectPath {
         setPathObject as protected __setPathObject;
@@ -183,18 +187,18 @@ class Find extends Command implements FindInterface
     protected ?string $action = null;
 
     /**
-     * The action to execute
-     *
-     * @var string|null $action_command
-     */
-    protected ?string $action_command = null;
-
-    /**
      * Find the specified path
      *
      * @var PhoDirectoryInterface|null $find_path
      */
     protected ?PhoDirectoryInterface $find_path = null;
+
+    /**
+     * Tracks if "permission denied" in the results should be ignored or not
+     *
+     * @var bool $ignore_permission_denied_in_results
+     */
+    protected bool $ignore_permission_denied_in_results = false;
 
 
     /**
@@ -222,9 +226,7 @@ class Find extends Command implements FindInterface
      */
     public function setPathObject(?PhoPathInterface $o_path): static
     {
-        $this->__setPathObject($o_path);
-
-        return $this->setExecutionDirectory(new PhoDirectory($this->o_path));
+        return $this->__setPathObject($o_path);
     }
 
 
@@ -429,6 +431,31 @@ class Find extends Command implements FindInterface
 
 
     /**
+     * Returns if permission denied in result set should be ignored or not
+     *
+     * @return bool
+     */
+    public function getIgnorePermissionDeniedInResults(): bool
+    {
+        return $this->ignore_permission_denied_in_results;
+    }
+
+
+    /**
+     * Sets if permission denied in result set should be ignored or not
+     *
+     * @param bool $ignore_permission_denied_in_results
+     *
+     * @return static
+     */
+    public function setIgnorePermissionDeniedInResults(bool $ignore_permission_denied_in_results): static
+    {
+        $this->ignore_permission_denied_in_results = $ignore_permission_denied_in_results;
+        return $this;
+    }
+
+
+    /**
      * Returns the access time in minutes for which to look
      *
      * @return string
@@ -449,11 +476,13 @@ class Find extends Command implements FindInterface
     public function setAtime(Stringable|string $atime): static
     {
         $atime = (string) $atime;
+
         if (!preg_match('/^[-+]?[0-9_]+$/', $atime)) {
             throw new OutOfBoundsException(tr('Invalid atime ":atime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':atime' => $atime,
             ]));
         }
+
         $this->atime = str_replace('_', '', $atime);
 
         return $this;
@@ -695,8 +724,12 @@ class Find extends Command implements FindInterface
             throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
 
-        $this->delete = false;
-        $this->exec   = $exec;
+        if (str_ends_with($exec, '{}')) {
+            $exec = Strings::untilReverse($exec, '{}');
+            $exec = trim($exec);
+        }
+
+        $this->exec = $exec;
         return $this;
     }
 
@@ -721,10 +754,6 @@ class Find extends Command implements FindInterface
      */
     public function setDelete(bool $delete, bool $recursive = false): static
     {
-        if ($delete) {
-            $this->exec = 'rm -f' . ($recursive ? 'r' : null) . ' {}';
-        }
-
         $this->delete = $delete;
         return $this;
     }
@@ -841,6 +870,7 @@ class Find extends Command implements FindInterface
                  ->addArgument($this->o_path->getSource())
                  ->addArguments($this->mount           ? '-mount'                                     : null)
                  ->addArguments($this->empty           ? '-empty'                                     : null)
+                 ->addArguments($this->delete          ? ['-delete']                                  : null)
                  ->addArguments($this->follow_symlinks ? '-L'                                         : null)
                  ->addArguments($this->name            ? ['-name'    , $this->name]                   : null)
                  ->addArguments($this->iname           ? ['-iname'   , $this->iname]                  : null)
@@ -855,16 +885,51 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
                  ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
                  ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
-                 ->addArguments($this->exec            ? ['-exec'    , $this->exec]                   : null);
+                 ->addArguments($this->exec            ? ['-exec'    , $this->exec, '{}', ';']        : null);
 
         } catch (ProcessFailedException $e) {
             PhoPath::new($this->o_path)
-                ->checkReadable('find', $e);
+                   ->checkReadable('find', $e);
         }
 
-        // Clear files cache and execute the find command
-        unset($this->files);
-        parent::executeReturnArray();
+        try {
+            // Clear files cache and execute the find command
+            unset($this->files);
+            parent::executeReturnArray();
+
+        } catch (ProcessFailedException $e) {
+            $output  = $e->getDataKey('output');
+            $matches = Arrays::keepMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
+
+            if (count($matches) and $this->ignore_permission_denied_in_results) {
+                // Some results had permission denied, we can safely ignore these as long as we flag it
+
+                // Clean failed matches entries, should only have the filename in there
+                $matches = Arrays::replaceValuesWithCallbackReturn($matches, function ($key, $value) {
+                    $value = Strings::cut($value, '‘', '’');
+                    return trim($value);
+                });
+
+                // Set exit code back to 0 and fill output with all the entries that do NOT have permiossion denied
+                $this->exit_code = 0;
+                $this->output    = Arrays::removeMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
+
+                $this->setResultsWithPermissionDenied(Arrays::valueToKeys($matches));
+            }
+        }
+
+        // If -exec was specified, the command has to exist and has to be properly escaped, or we will end up with all
+        // "No such file or directory" errors which will NOT set the exit code!
+        if ($this->getExec()) {
+            $first = array_first($this->output);
+            $first = strtolower($first);
+
+            if (str_contains($first, 'no such file or directory')) {
+                throw FindException::new(ts('Invalid or non existing exec command ":exec" specified', [
+                    ':exec' => $this->exec
+                ]))->addMessages(ts(ts('This means that the specified exec program "exec" for the results either does not exist (requires a package to be installed, perhaps?), or the command was not properly escaped, causing find to think that (for example) "ls -l" is a single complete command')));
+            }
+        }
 
         // The output array should have keys the same as values
         $this->output = Arrays::valueToKeys($this->output);

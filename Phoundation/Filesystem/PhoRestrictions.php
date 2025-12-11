@@ -222,6 +222,20 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
+     * Returns a new PhoDirectory object for the path DIRECTORY_ROOT / Plugins
+     *
+     * @param bool        $writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newPluginsObject(bool $writable = false, ?string $sub_directory = null): static
+    {
+        return new static(DIRECTORY_ROOT . 'Plugins/' . $sub_directory, $writable);
+    }
+
+
+    /**
      * Returns a new PhoDirectory object for the path DIRECTORY_DATA
      *
      * @param bool        $writable

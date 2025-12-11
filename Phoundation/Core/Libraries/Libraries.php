@@ -27,6 +27,7 @@ use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -39,6 +40,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
 use Throwable;
+
 
 class Libraries
 {
@@ -73,7 +75,7 @@ class Libraries
     protected static bool $cache_has_been_rebuilt = false;
 
     /**
-     * Tracjs if the command cache has been cleared within this process
+     * Tracks if the command cache has been cleared within this process
      *
      * @var bool $cache_has_been_cleared
      */
@@ -374,8 +376,28 @@ class Libraries
                 $return = array_merge($return, static::listLibraryDirectories(static::CLASS_DIRECTORY_PLUGINS, true));
 
             } catch (NotExistsException $e) {
-                // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
-                mkdir(static::CLASS_DIRECTORY_PLUGINS, config()->get('filesystem.mode.default.directory', 0750));
+                if (PhoDirectory::newPluginsObject()->exists()) {
+                    $o_directory = PhoDirectory::new($e->getDataKey('directory'), PhoRestrictions::newPluginsObject());
+
+                    if ($o_directory->isLink()) {
+                        Log::warning(ts('Failed to read target link ":link" for plugins vendor ":vendor", check plugins directory ":directory"', [
+                            ':link'      => $o_directory->getLinkTarget(),
+                            ':vendor'    => $o_directory->getBasename(),
+                            ':directory' => PhoDirectory::newPluginsObject(),
+                        ]));
+
+                    } else {
+                        Log::warning(ts('Failed to read plugins directory for vendor ":vendor", check plugins directory ":directory"', [
+                            ':link'      => $o_directory->getLinkTarget(),
+                            ':vendor'    => $o_directory->getBasename(),
+                            ':directory' => PhoDirectory::newPluginsObject(),
+                        ]));
+                    }
+
+                } else {
+                    // The plugins path does not exist. No biggie, note it in the logs and create it for next time.
+                    mkdir(static::CLASS_DIRECTORY_PLUGINS, config()->get('filesystem.mode.default.directory', 0750));
+                }
             }
         }
 
@@ -409,9 +431,11 @@ class Libraries
         $directory = Strings::ensureEndsWith($directory, '/');
 
         if (!file_exists($directory)) {
-            throw new NotExistsException(tr('The specified library base directory ":directory" does not exist', [
+            throw NotExistsException::new(tr('The specified library base directory ":directory" does not exist', [
                 ':directory' => $directory,
-            ]));
+            ]))->addData([
+                'directory' => $directory
+            ]);
         }
 
         if ($has_vendors) {
@@ -519,21 +543,20 @@ class Libraries
     public static function rebuildCommandsCache(): void
     {
         static::clearCommandsCache();
-
         Log::action(ts('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
         $cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritableObject([
-                                                                      DIRECTORY_COMMANDS,
-                                                                      DIRECTORY_TMP,
-                                                                      DIRECTORY_ROOT . 'commands/'
-                                                                  ]));
+            DIRECTORY_COMMANDS,
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'commands/'
+        ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -591,7 +614,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -718,22 +741,19 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRootObject())
-                                            ->getPhpStatistics(true);
+            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRootObject())
-                                             ->getPhpStatistics(true);
+            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRootObject())
-                                               ->getPhpStatistics(true);
+            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
@@ -749,8 +769,8 @@ class Libraries
     public static function getHtmlTable(): HtmlTableInterface
     {
         // Create and return the table
-        $table = HtmlTable::new()
-                          ->setSource(static::listLibraries());
+        $table = HtmlTable::new()->setSource(static::listLibraries());
+
         $table->getHeaders()
               ->setSource([
                   tr('Library'),
@@ -811,8 +831,8 @@ class Libraries
         Log::action(ts('Clearing web caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
-                   ->clearTreeSymlinks(true)
-                   ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
@@ -838,7 +858,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -865,8 +885,8 @@ class Libraries
         Log::action(ts('Clearing cron caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRootObject(true))
-            ->clearTreeSymlinks(true)
-            ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
@@ -884,15 +904,15 @@ class Libraries
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
         $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritableObject([
-                                                                                         DIRECTORY_SYSTEM . 'cache/system/Tests',
-                                                                                         DIRECTORY_TMP,
-                                                                                         DIRECTORY_ROOT . 'Tests/'
-                                                                                     ], 'Libraries::rebuildTestsCache() 1'));
+            DIRECTORY_SYSTEM . 'cache/system/Tests',
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'Tests/'
+        ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -919,8 +939,8 @@ class Libraries
         Log::action(ts('Clearing test caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRootObject(true))
-                   ->clearTreeSymlinks(true)
-                   ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
@@ -1179,12 +1199,11 @@ class Libraries
                                                WHERE  `library` = "core"');
 
             if ($version >= 9000) {
-                // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
+                // Once core_versions supports vendors (0.9.0 and up), it will ALWAYS support vendors, we're done!
                 $true = true;
             }
         }
 
         return $true;
-
     }
 }

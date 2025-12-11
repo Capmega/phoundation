@@ -25,7 +25,7 @@ use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
@@ -90,16 +90,16 @@ class Project implements ProjectInterface
     /**
      * Project constructor
      *
-     * @param PhoDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $o_directory
      */
-    public function __construct(PhoDirectoryInterface|null $directory = null)
+    public function __construct(PhoDirectoryInterface|null $o_directory = null)
     {
-        if (!$directory) {
+        if (!$o_directory) {
             // Default to the directory of this project
-            $directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
+            $o_directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
         }
 
-        $this->___construct($directory);
+        $this->___construct($o_directory);
     }
 
 
@@ -163,13 +163,13 @@ class Project implements ProjectInterface
     /**
      * Returns a new Phoundation object
      *
-     * @param string|null $directory
+     * @param string|null $o_directory
      *
      * @return static
      */
-    public static function new(?string $directory = null): static
+    public static function new(?string $o_directory = null): static
     {
-        return new static($directory);
+        return new static($o_directory);
     }
 
 
@@ -589,9 +589,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      *
      * @return GitInterface
      */
-    public function getGit(): GitInterface
+    public function getGitObject(): GitInterface
     {
-        return $this->git;
+        return $this->o_git;
     }
 
 
@@ -648,7 +648,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function resetHead(): static
     {
-        $this->git->reset('HEAD');
+        $this->o_git->reset('HEAD');
 
         return $this;
     }
@@ -681,9 +681,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                    ->ensureNoChanges();
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatusFilesObject()->getCount()) {
-                $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStashObject()->stash();
+            if ($this->o_git->getStatusFilesObject()->getCount()) {
+                $this->o_git->add(DIRECTORY_ROOT);
+                $this->o_git->getStashObject()->stash();
 
                 $stash = true;
             }
@@ -692,15 +692,15 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             $this->cacheLibraries($skip_caching)->copyPhoundationFilesLocal($phoundation_path, $branch);
 
             // If there are changes, then add and commit
-            if ($this->git->getStatusFilesObject()->getCount()) {
+            if ($this->o_git->getStatusFilesObject()->getCount()) {
                 if (!$message) {
                     $message = tr('Phoundation update');
                 }
 
-                $this->git->add([DIRECTORY_ROOT]);
+                $this->o_git->add([DIRECTORY_ROOT]);
 
                 if ($commit) {
-                    $this->git->commit($message, $signed);
+                    $this->o_git->commit($message, $signed);
                 }
 
                 Log::warning(ts('Committed local Phoundation update to git'));
@@ -711,8 +711,8 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStashObject()->pop();
-                $this->git->reset('HEAD');
+                $this->o_git->getStashObject()->pop();
+                $this->o_git->reset('HEAD');
             }
 
             return $this;
@@ -720,9 +720,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(ts('Moving stashed files back'));
-                $this->git->getStashObject()
+                $this->o_git->getStashObject()
                           ->pop();
-                $this->git->reset('HEAD');
+                $this->o_git->reset('HEAD');
             }
 
             throw $e;
@@ -744,7 +744,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        return $this->git->hasBranch($branch);
+        return $this->o_git->hasBranch($branch);
     }
 
 
@@ -759,7 +759,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         if (!$default) {
             // Select the current branch
-            $default = $this->git->getBranch();
+            $default = $this->o_git->getBranch();
 
             Log::notice(ts('Using project branch ":branch"', [
                 ':branch' => $default,
@@ -784,7 +784,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        $this->git->setBranch($branch);
+        $this->o_git->setBranch($branch);
 
         Log::notice(ts('Set project branch to ":branch"', [
             ':branch' => $branch,
@@ -801,7 +801,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getCoreChanges(): IteratorInterface
     {
-        return $this->git->getStatusFilesObject($this->directory->addDirectory('Phoundation'));
+        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('Phoundation'));
     }
 
 
@@ -825,17 +825,17 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         // Ensure that all the plugin directories exist
         foreach (['Plugins', 'Templates', 'data/vendors'] as $directory) {
-            $this->directory->addDirectory($directory)->ensure();
+            $this->o_directory->addDirectory($directory)->ensure();
         }
 
         // Get and return all changes
-        return $this->git
-                    ->getStatusFilesObject($this->directory->addDirectory('Plugins'))
-                        ->addSource($this->git->getStatusFilesObject(
-                            $this->directory->addDirectory('Templates')
+        return $this->o_git
+                    ->getStatusFilesObject($this->o_directory->addDirectory('Plugins'))
+                        ->addSource($this->o_git->getStatusFilesObject(
+                            $this->o_directory->addDirectory('Templates')
                         ))
-                        ->addSource($this->git->getStatusFilesObject(
-                            $this->directory->addDirectory('data/vendors')
+                        ->addSource($this->o_git->getStatusFilesObject(
+                            $this->o_directory->addDirectory('data/vendors')
                         ));
     }
 
@@ -874,7 +874,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getTemplatesChanges(): IteratorInterface
     {
-        return $this->git->getStatusFilesObject($this->directory->addDirectory('data/templates'));
+        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('data/templates'));
     }
 
 
@@ -908,7 +908,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getDataChanges(): IteratorInterface
     {
-        return $this->git->getStatusFilesObject($this->directory->addDirectory('data/vendors'));
+        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('data/vendors'));
     }
 
 
@@ -975,7 +975,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Log::action('Updating Phoundation core libraries');
 
         Rsync::new()
-             ->setSource($phoundation->getDirectory() . 'Phoundation/')
+             ->setSource($phoundation->getDirectoryObject() . 'Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Phoundation')
              ->setExclude([
                  '.idea',
@@ -989,7 +989,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         // Copy Phoundation plugin
         Log::action('Updating Phoundation Plugin');
         Rsync::new()
-             ->setSource($phoundation->getDirectory() . 'Plugins/Phoundation/Phoundation/')
+             ->setSource($phoundation->getDirectoryObject() . 'Plugins/Phoundation/Phoundation/')
              ->setTarget(DIRECTORY_ROOT . 'Plugins/Phoundation/Phoundation')
              ->setExclude([
                  '.idea',
@@ -1001,7 +1001,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         // Copy Phoundation PHO command
         Log::action('Updating "pho" command');
         Rsync::new()
-             ->setSource($phoundation->getDirectory() . 'pho')
+             ->setSource($phoundation->getDirectoryObject() . 'pho')
              ->setTarget(DIRECTORY_ROOT . 'pho')
              ->setExclude([
                  '.idea',
@@ -1068,7 +1068,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         if (!$branch) {
-            $branch = $this->git->getBranch();
+            $branch = $this->o_git->getBranch();
             Log::notice(ts('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
@@ -1081,9 +1081,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->git->getStatusFilesObject()->getCount()) {
-                $this->git->add(DIRECTORY_ROOT);
-                $this->git->getStashObject()
+            if ($this->o_git->getStatusFilesObject()->getCount()) {
+                $this->o_git->add(DIRECTORY_ROOT);
+                $this->o_git->getStashObject()
                           ->stash();
                 $stash = true;
             }
@@ -1094,17 +1094,17 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // If there are changes, then add and commit
             if (
-                $this->git->getStatusFilesObject()
+                $this->o_git->getStatusFilesObject()
                           ->getCount()
             ) {
                 if (!$message) {
                     $message = tr('Phoundation plugins update');
                 }
 
-                $this->git->add([DIRECTORY_ROOT]);
+                $this->o_git->add([DIRECTORY_ROOT]);
 
                 if ($commit) {
-                    $this->git->commit($message, $signed);
+                    $this->o_git->commit($message, $signed);
                 }
 
                 Log::warning(ts('Committed local Phoundation update to git'));
@@ -1115,9 +1115,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->git->getStashObject()
+                $this->o_git->getStashObject()
                           ->pop();
-                $this->git->reset('HEAD');
+                $this->o_git->reset('HEAD');
             }
 
             return $this;
@@ -1125,9 +1125,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(ts('Moving stashed files back'));
-                $this->git->getStashObject()
+                $this->o_git->getStashObject()
                           ->pop();
-                $this->git->reset('HEAD');
+                $this->o_git->reset('HEAD');
             }
 
             throw $e;
@@ -1172,7 +1172,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Log::action('Updating Phoundation plugins');
 
         Rsync::new()
-             ->setSource($plugins->getDirectory())
+             ->setSource($plugins->getDirectoryObject())
              ->setTarget(DIRECTORY_ROOT)
              ->setExclude([
                  '.idea',
@@ -1217,9 +1217,11 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             $bad_files = clone $stash;
             // Whoopsie, we have shirts in the stash, meaning some file was naughty.
             Log::warning(ts('Returning problematic files ":files" from stash', [':files' => $failed]));
+
             Git::new(DIRECTORY_ROOT)
                ->getStashObject()
                ->pop();
+
             throw PatchPartiallySuccessfulException::new(tr('Phoundation plugins patch was partially successful, some files failed'))
                                                    ->addData([
                                                        'files' => $bad_files,
@@ -1244,8 +1246,8 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         while (true) {
             try {
                 StatusFiles::new()
-                           ->setDirectory(DIRECTORY_ROOT . $section)
-                           ->patch($this->getDirectory() . $section);
+                           ->setParentDirectoryObject(PhoDirectory::newRootObject(false, $section))
+                           ->patch($this->getDirectoryObject($section));
 
                 // All okay!
                 return $files;
@@ -1254,7 +1256,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
                 // the rest of the files that do apply
                 $files = $e->getDataKey('files');
-                $git   = Git::new(DIRECTORY_ROOT);
+                $git   = Git::new(PhoDirectory::newRootObject());
 
                 if ($files) {
                     Log::warning(ts('Trying to fix by stashing ":count" problematic file(s) ":files"', [
@@ -1285,7 +1287,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
 
     /**
-     * Returns the general email for this project
+     * Returns the version for this project
      *
      * @return string
      */
@@ -1339,6 +1341,71 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
 
     /**
+     * Returns the Phoundation version required for this project
+     *
+     * @return string
+     */
+    public static function getPhoundationRequiredVersion(): string
+    {
+        static $return;
+
+        if (empty($return)) {
+            // Get the Phoundation project version
+            try {
+                $return = strtolower(trim(file_get_contents(DIRECTORY_ROOT . 'config/project/phoundation')));
+
+                if (!strlen($return)) {
+                    throw new OutOfBoundsException(tr('No version defined in DIRECTORY_ROOT/project/phoundation file'));
+                }
+
+                if (!is_version($return)) {
+                    throw new OutOfBoundsException(tr('Invalid version ":version" defined in DIRECTORY_ROOT/config/project/phoundation file', [
+                        ':version' => $return,
+                    ]));
+                }
+
+                return $return;
+
+            } catch (Throwable $e) {
+                if ($e instanceof OutOfBoundsException) {
+                    throw $e;
+                }
+
+                // Project file is not readable
+                if (!is_readable(DIRECTORY_ROOT . 'config/project/phoundation')) {
+                    if (file_exists(DIRECTORY_ROOT . 'config/project/phoundation')) {
+                        // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
+                        // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
+                        // won't be able to work our way around this.
+                        throw new ProjectException(tr('Project version file "config/project/phoundation" does exist but is not readable. Please check the owner, group and mode for this file'));
+                    }
+
+                    // The file doesn't exist, that is good. Go to setup mode
+                    Log::toAlternateLog('Project Phoundation version file "config/project/phoundation" does not exist, entering setup mode');
+
+                    throw new ProjectException(tr('Project Phoundation version file ":path" cannot be read. Please ensure it exists', [
+                        ':path' => DIRECTORY_ROOT . 'config/project/phoundation',
+                    ]));
+                }
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the current version of the Phoundation system
+     *
+     * @return string
+     */
+    public static function getPhoundationVersion(): string
+    {
+        return Core::PHOUNDATION_VERSION;
+    }
+
+
+    /**
      * Returns an associative array (or formatted string) with project version information
      *
      * @param bool $string If true, will return the versions list in a formatted string instead of an associative array
@@ -1348,11 +1415,12 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public static function getVersions(bool $string = false): array|string
     {
         $return = [
-            'project name'                    => Project::getFullName(),
-            'project version'                 => Project::getVersion(),
-            'phoundation framework version'   => Core::PHOUNDATION_VERSION,
-            'phoundation database version'    => Version::getString(Libraries::getMaximumVersion()),
-            'phoundation minimum php version' => Core::PHP_MINIMUM_VERSION,
+            'project name'                  => Project::getFullName(),
+            'project version'               => Project::getVersion(),
+            'phoundation framework version' => Project::getPhoundationVersion(),
+            'phoundation database version'  => Version::getString(Libraries::getMaximumVersion()),
+            'phoundation required version'  => Project::getPhoundationRequiredVersion(),
+            'PHP minimal version'           => Core::PHP_MINIMUM_VERSION,
         ];
 
         if ($string) {
@@ -1375,7 +1443,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         static $return;
 
         if (empty($return)) {
-            $return = Project::getOwnerName() . '_' . Project::getName();
+            $return = strtoupper(Project::getOwnerName() . '_' . Project::getName());
         }
 
         return $return;

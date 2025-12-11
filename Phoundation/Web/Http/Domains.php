@@ -357,8 +357,7 @@ class Domains
                 $domain = static::getCurrent();
             }
 
-            $language = $language ?? Session::getLanguage();
-            $url      = static::getConfigurationKey($domain, $type);
+            $url = static::getConfigurationKey($domain, $type);
 
             if (!$url) {
                 throw new OutOfBoundsException(tr('No configured URL found for ":type" type domain ":domain"', [
@@ -367,7 +366,7 @@ class Domains
                 ]));
             }
 
-            return str_replace(':LANGUAGE', $language, $url);
+            return str_replace(':LANGUAGE', Session::getLanguage(), $url);
 
         } catch (ConfigPathDoesNotExistsException) {
             if (isset($empty)) {

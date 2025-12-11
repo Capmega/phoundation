@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.9.0';
     }
 
 
@@ -76,6 +76,47 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $this->ensureModifiedColumns([
                 'developer_unittests',
             ]);
+
+        })->addUpdate('0.9.0', function () {
+            // Drop and create the developer_unittests table
+            sql()->getSchemaObject()->getTableObject('developer_repositories')->drop()->define()
+                 ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint DEFAULT NULL,
+                    `modified_by` bigint DEFAULT NULL,
+                    `modified_on` datetime NULL DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `name` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
+                    `seo_name` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
+                    `path` varchar(2048) CHARACTER SET latin1 DEFAULT NULL,
+                    `url` varchar(2048) DEFAULT NULL,
+                    `platform` ENUM ("git", "subversion"),
+                    `type` ENUM ("system", "plugins", "templates", "data", "cdn", "project"),
+                    `required` tinyint,
+                    `description` mediumtext DEFAULT NULL,
+                ')->setIndices('                
+                    PRIMARY KEY (`id`),
+                    KEY `created_by` (`created_by`),
+                    KEY `created_on` (`created_on`),
+                    KEY ` modified_by` (`modified_by`),
+                    KEY `modified_on` (`modified_on`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `status` (`status`),
+                    UNIQUE KEY `name` (`name`),
+                    UNIQUE KEY `seo_name` (`seo_name`),
+                    UNIQUE KEY `path` (`path`),
+                    KEY `url` (`url` (32)),
+                    KEY `type` (`type`),
+                    KEY `required` (`required`),
+                    KEY `platform` (`platform`)
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_developer_repositories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_developer_repositories_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_developer_repositories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                ')->create();
         });
     }
 }

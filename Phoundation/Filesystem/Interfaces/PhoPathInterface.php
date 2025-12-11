@@ -110,9 +110,9 @@ interface PhoPathInterface extends Stringable
      * @param PhoPathInterface|string|null $from
      * @param bool                         $from_required
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string;
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): ?string;
 
     /**
      * Returns true if this object is the specified path
@@ -971,11 +971,11 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 
     /**
      * Ensures the existence of the parent directory
