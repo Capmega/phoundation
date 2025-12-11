@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands;
 
 use JetBrains\PhpStorm\ExpectedValues;
+use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Exception\OutOfBoundsException;
@@ -33,11 +34,13 @@ use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Utils;
 use Stringable;
 
 
 class Find extends Command implements FindInterface
 {
+    use TraitDataResultsWithPermissionDenied;
     use TraitDataStringName;
     use TraitDataObjectPath {
         setPathObject as protected __setPathObject;
@@ -183,18 +186,18 @@ class Find extends Command implements FindInterface
     protected ?string $action = null;
 
     /**
-     * The action to execute
-     *
-     * @var string|null $action_command
-     */
-    protected ?string $action_command = null;
-
-    /**
      * Find the specified path
      *
      * @var PhoDirectoryInterface|null $find_path
      */
     protected ?PhoDirectoryInterface $find_path = null;
+
+    /**
+     * Tracks if "permission denied" in the results should be ignored or not
+     *
+     * @var bool $ignore_permission_denied_in_results
+     */
+    protected bool $ignore_permission_denied_in_results = false;
 
 
     /**
@@ -224,7 +227,7 @@ class Find extends Command implements FindInterface
     {
         $this->__setPathObject($o_path);
 
-        return $this->setExecutionDirectory(new PhoDirectory($this->o_path));
+        return $this->setExecutionDirectory($this->o_path ? new PhoDirectory($this->o_path) : null);
     }
 
 
@@ -429,6 +432,31 @@ class Find extends Command implements FindInterface
 
 
     /**
+     * Returns if permission denied in result set should be ignored or not
+     *
+     * @return bool
+     */
+    public function getIgnorePermissionDeniedInResults(): bool
+    {
+        return $this->ignore_permission_denied_in_results;
+    }
+
+
+    /**
+     * Sets if permission denied in result set should be ignored or not
+     *
+     * @param bool $ignore_permission_denied_in_results
+     *
+     * @return static
+     */
+    public function setIgnorePermissionDeniedInResults(bool $ignore_permission_denied_in_results): static
+    {
+        $this->ignore_permission_denied_in_results = $ignore_permission_denied_in_results;
+        return $this;
+    }
+
+
+    /**
      * Returns the access time in minutes for which to look
      *
      * @return string
@@ -449,11 +477,13 @@ class Find extends Command implements FindInterface
     public function setAtime(Stringable|string $atime): static
     {
         $atime = (string) $atime;
+
         if (!preg_match('/^[-+]?[0-9_]+$/', $atime)) {
             throw new OutOfBoundsException(tr('Invalid atime ":atime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':atime' => $atime,
             ]));
         }
+
         $this->atime = str_replace('_', '', $atime);
 
         return $this;
@@ -859,12 +889,34 @@ class Find extends Command implements FindInterface
 
         } catch (ProcessFailedException $e) {
             PhoPath::new($this->o_path)
-                ->checkReadable('find', $e);
+                   ->checkReadable('find', $e);
         }
 
-        // Clear files cache and execute the find command
-        unset($this->files);
-        parent::executeReturnArray();
+        try {
+            // Clear files cache and execute the find command
+            unset($this->files);
+            parent::executeReturnArray();
+
+        } catch (ProcessFailedException $e) {
+            $output  = $e->getDataKey('output');
+            $matches = Arrays::keepMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
+
+            if (count($matches) and $this->ignore_permission_denied_in_results) {
+                // Some results had permission denied, we can safely ignore these as long as we flag it
+
+                // Clean failed matches entries, should only have the filename in there
+                $matches = Arrays::replaceValuesWithCallbackReturn($matches, function ($key, $value) {
+                    $value = Strings::cut($value, '‘', '’');
+                    return trim($value);
+                });
+
+                // Set exit code back to 0 and fill output with all the entries that do NOT have permiossion denied
+                $this->exit_code = 0;
+                $this->output    = Arrays::removeMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
+
+                $this->setResultsWithPermissionDenied(Arrays::valueToKeys($matches));
+            }
+        }
 
         // The output array should have keys the same as values
         $this->output = Arrays::valueToKeys($this->output);

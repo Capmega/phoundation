@@ -21,7 +21,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoTime;
@@ -1863,9 +1863,8 @@ trait TraitProcessVariables
                 }
 
             } else {
-                // Redirect output to a file
-                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())
-                            ->ensure('output redirect file');
+                // Redirect output to a file. Make sure the parent directory exists first
+                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())->ensure();
 
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }

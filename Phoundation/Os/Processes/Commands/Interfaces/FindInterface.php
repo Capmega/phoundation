@@ -389,4 +389,34 @@ interface FindInterface extends CommandInterface
      * @return static
      */
     public function setDelete(bool $delete, bool $recursive = false): static;
+
+    /**
+     * Returns if permission denied in result set should be ignored or not
+     *
+     * @return bool
+     */
+    public function getIgnorePermissionDeniedInResults(): bool;
+
+    /**
+     * Sets if permission denied in result set should be ignored or not
+     *
+     * @param bool $ignore_permission_denied_in_results
+     *
+     * @return static
+     */
+    public function setIgnorePermissionDeniedInResults(bool $ignore_permission_denied_in_results): static;
+
+    /**
+     * Returns the "permission denied" items in the result set
+     *
+     * @return array
+     */
+    public function getResultsWithPermissionDenied(): array;
+
+    /**
+     * Returns the "permission denied" items in the result set
+     *
+     * @return int
+     */
+    public function getNumberOfResultsWithPermissionDenied(): int;
 }
