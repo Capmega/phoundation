@@ -39,9 +39,9 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool $persist If specified, the temporary directory will persist and not be removed once the process
      *                      terminates
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newTemporaryObject(bool $public = false, bool $persist = false): PhoDirectoryInterface
+    public static function newTemporaryObject(bool $public = false, bool $persist = false): static
     {
         if (!$persist) {
             // Return a non-persistent temporary directory that will be deleted once this process terminates
@@ -67,9 +67,9 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool        $writable
      * @param string|null $sub_directory
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newDataTmpObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
+    public static function newDataTmpObject(bool $writable = false, ?string $sub_directory = null): static
     {
         $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
 
@@ -86,9 +86,9 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool        $writable
      * @param string|null $sub_directory
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
+    public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): static
     {
         $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
 

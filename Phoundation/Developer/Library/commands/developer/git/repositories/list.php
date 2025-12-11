@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories scan
+ * Command developer git repositories list
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will scan for phoundation repositories and register them in the database
+ * This command will list all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

@@ -1551,7 +1551,9 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface
     {
-        $directory = $this->getSource() . Strings::ensureBeginsNotWith((string) $directory, '/');
+        if ($directory) {
+            $directory = $this->getSource() . Strings::ensureBeginsNotWith((string) $directory, '/');
+        }
 
         return PhoDirectory::new($directory, $this->o_restrictions)
                            ->setAutoMount($this->auto_mount);
@@ -1567,7 +1569,9 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      */
     public function addFile(PhoPathInterface|string $file): PhoFileInterface
     {
-        $file = $this->getSource() . Strings::ensureBeginsNotWith((string) $file, '/');
+        if ($file) {
+            $file = $this->getSource() . Strings::ensureBeginsNotWith((string) $file, '/');
+        }
 
         return PhoFile::new($file, $this->o_restrictions)
                       ->setAutoMount($this->auto_mount);

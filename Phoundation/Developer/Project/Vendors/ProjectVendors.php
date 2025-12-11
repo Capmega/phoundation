@@ -39,7 +39,7 @@ class ProjectVendors extends Vendors implements ProjectVendorsInterface
     {
         $this->type      = $type;
         $this->project   = $project;
-        $this->directory = $project?->getDirectory()->addDirectory($this->type->getDirectorySuffix());
+        $this->directory = $project?->getDirectoryObject()->addDirectory($this->type->getDirectorySuffix());
 
         parent::__construct($changed);
     }

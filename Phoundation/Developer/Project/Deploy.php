@@ -142,7 +142,7 @@ class Deploy implements DeployInterface
             $this->configuration['force']         = ($this->env_config['force'] or FORCE);
 
             if (!$this->env_config['ignore_changes']) {
-                if ($this->project->getGit()->hasChanges()) {
+                if ($this->project->getGitObject()->hasChanges()) {
                     throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
                 }
             }

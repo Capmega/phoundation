@@ -18,11 +18,7 @@ namespace Phoundation\Developer\Versioning\Git\Traits;
 
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
-use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
-use Stringable;
 
 
 trait TraitGit
@@ -30,39 +26,39 @@ trait TraitGit
     /**
      * The path that will be checked
      *
-     * @var PhoDirectoryInterface $directory
+     * @var PhoDirectoryInterface $o_directory
      */
-    protected PhoDirectoryInterface $directory;
+    protected PhoDirectoryInterface $o_directory;
 
     /**
      * The git process
      *
-     * @var GitInterface $git
+     * @var GitInterface $o_git
      */
-    protected GitInterface $git;
+    protected GitInterface $o_git;
 
 
     /**
      * GitPath class constructor
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoDirectoryInterface $o_directory
      */
-    public function __construct(PhoDirectoryInterface $directory)
+    public function __construct(PhoDirectoryInterface $o_directory)
     {
-        $this->setDirectory($directory);
+        $this->setDirectoryObject($o_directory);
     }
 
 
     /**
      * Returns a new GitPath object
      *
-     * @param string $directory
+     * @param PhoDirectoryInterface $o_directory
      *
      * @return static
      */
-    public static function new(string $directory): static
+    public static function new(PhoDirectoryInterface $o_directory): static
     {
-        return new static($directory);
+        return new static($o_directory);
     }
 
 
@@ -71,34 +67,35 @@ trait TraitGit
      *
      * @return GitInterface
      */
-    public function getGit(): GitInterface
+    public function getGitObject(): GitInterface
     {
-        return $this->git;
+        return $this->o_git;
     }
 
 
     /**
      * Returns the path for this ChangedFiles object
      *
+     * @param string|null $sub_directory
      * @return PhoDirectoryInterface
      */
-    public function getDirectory(): PhoDirectoryInterface
+    public function getDirectoryObject(?string $sub_directory = null): PhoDirectoryInterface
     {
-        return $this->directory;
+        return $this->o_directory->addDirectory($sub_directory);
     }
 
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoDirectoryInterface $o_directory
      *
      * @return static
      */
-    public function setDirectory(PhoDirectoryInterface $directory): static
+    public function setDirectoryObject(PhoDirectoryInterface $o_directory): static
     {
-        $this->directory = $directory->makeAbsolute()->checkWritable();
-        $this->git       = Git::new($this->directory);
+        $this->o_directory = $o_directory->makeAbsolute()->checkWritable();
+        $this->o_git       = Git::new($this->o_directory);
 
         return $this;
     }

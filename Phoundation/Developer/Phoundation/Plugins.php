@@ -95,7 +95,7 @@ class Plugins extends Project
                 ':directory' => $directory,
             ]));
 
-            $this->directory = new PhoDirectory($directory);
+            $this->o_directory = new PhoDirectory($directory);
 
             return $directory;
         }
@@ -144,7 +144,7 @@ class Plugins extends Project
                     ':directory' => $test_path,
                 ]));
 
-                $this->directory = new PhoDirectory($test_path);
+                $this->o_directory = new PhoDirectory($test_path);
 
                 return $test_path;
             }
@@ -188,7 +188,7 @@ class Plugins extends Project
                 ':branch' => $branch,
             ]), 3);
 
-            $this->git->setBranch($this->branch);
+            $this->o_git->setBranch($this->branch);
             $this->branch = null;
 
         } else {
@@ -198,8 +198,8 @@ class Plugins extends Project
             ]), 4);
 
             // Select the new branch and store the previous
-            $this->branch = $this->git->getBranch();
-            $this->git->setBranch($branch);
+            $this->branch = $this->o_git->getBranch();
+            $this->o_git->setBranch($branch);
         }
 
         return $this;
@@ -250,7 +250,7 @@ class Plugins extends Project
         foreach (Arrays::force($files) as $file) {
             $target = Strings::from($file, DIRECTORY_ROOT);
 
-            Cp::new()->archive($file, PhoRestrictions::new(DIRECTORY_ROOT), $this->getDirectory() . $target, PhoRestrictions::new($this->getDirectory(), true));
+            Cp::new()->archive($file, PhoRestrictions::new(DIRECTORY_ROOT), $this->getDirectoryObject() . $target, PhoRestrictions::new($this->getDirectoryObject(), true));
         }
     }
 
@@ -269,7 +269,7 @@ class Plugins extends Project
         }
 
         // Ensure phoundation is on the right branch
-        $this->phoundation_branch = $this->git->getBranch();
+        $this->phoundation_branch = $this->o_git->getBranch();
 
         if ($branch !== $this->phoundation_branch) {
             Log::warning(ts('Phoundation plugins is currently on different branch ":current"', [
@@ -279,7 +279,7 @@ class Plugins extends Project
                 ':requested' => $branch,
             ]), 5);
 
-            $this->git->checkout($branch);
+            $this->o_git->checkout($branch);
         }
 
         return $this;
@@ -297,7 +297,7 @@ class Plugins extends Project
     {
         if (!$branch) {
             // Select the current branch
-            $branch = $this->git->getBranch();
+            $branch = $this->o_git->getBranch();
 
             Log::notice(ts('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
@@ -318,10 +318,10 @@ class Plugins extends Project
     protected function ensureNoChanges(bool $force = false): static
     {
         // Ensure Phoundation has no changes
-        if ($this->git->hasChanges()) {
+        if ($this->o_git->hasChanges()) {
             if (!$force) {
                 throw GitHasChangesException::new(tr('Cannot copy changes, your Phoundation plugins installation ":directory" has uncommitted changes', [
-                    ':directory' => $this->directory,
+                    ':directory' => $this->o_directory,
                 ]))->makeWarning();
             }
         }
@@ -485,7 +485,7 @@ class Plugins extends Project
      */
     public function getPhoundationPlugins(): IteratorInterface
     {
-        return PhoDirectory::new($this->directory . 'Plugins/', $this->directory->getRestrictionsObject())
+        return PhoDirectory::new($this->o_directory . 'Plugins/', $this->o_directory->getRestrictionsObject())
                            ->scan()
                            ->forEachField(function (&$value, $key) {
                               $value = Strings::ensureEndsNotWith($value, '/');
@@ -502,7 +502,7 @@ class Plugins extends Project
      */
     protected function filterNonGitPlugins(array $phoundation_plugins): array
     {
-        $paths = $this->git
+        $paths = $this->o_git
                       ->getStatusFilesObject(
                           PhoDirectory::new(DIRECTORY_ROOT . 'Plugins/',
                           PhoRestrictions::newRootObject(false, 'Plugins/')
@@ -556,10 +556,10 @@ throw new UnderConstructionException(tr('Plugins::updateTo() is under constructi
         $count = 0;
 
         foreach ($this->phoundation_files as $directory) {
-            $directory = $this->git->getDirectory() . $directory;
+            $directory = $this->o_git->getDirectory() . $directory;
 
             // Find local Phoundation changes and filter Phoundation changes only
-            $changed_files = $this->git->getStatusFilesObject($directory);
+            $changed_files = $this->o_git->getStatusFilesObject($directory);
 
             if (!$changed_files->getCount()) {
                 Log::notice(ts('Not patching directory ":directory", it has no changes', [
@@ -569,7 +569,7 @@ throw new UnderConstructionException(tr('Plugins::updateTo() is under constructi
             }
 
             // Apply changes on Phoundation
-            $changed_files->applyPatch($this->directory);
+            $changed_files->applyPatch($this->o_directory);
             $count += $changed_files->getCount();
         }
 
