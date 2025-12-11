@@ -31,7 +31,7 @@ trait TraitDataEntryPath
      */
     public function getPath(): ?PhoPathInterface
     {
-        return $this->getValueTypesafe(PhoPathInterface::class, 'path');
+        return $this->getTypesafe(PhoPathInterface::class, 'path');
     }
 
 
