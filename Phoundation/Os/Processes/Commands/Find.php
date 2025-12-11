@@ -30,6 +30,7 @@ use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Os\Processes\Commands\Exception\FindException;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Arrays;
@@ -725,8 +726,12 @@ class Find extends Command implements FindInterface
             throw new OutOfBoundsException(tr('Cannot specify exec for find, a callback has already been defined'));
         }
 
-        $this->delete = false;
-        $this->exec   = $exec . ' \;';
+        if (str_ends_with($exec, '{}')) {
+            $exec = Strings::untilReverse($exec, '{}');
+            $exec = trim($exec);
+        }
+
+        $this->exec = $exec;
         return $this;
     }
 
@@ -751,10 +756,6 @@ class Find extends Command implements FindInterface
      */
     public function setDelete(bool $delete, bool $recursive = false): static
     {
-        if ($delete) {
-            $this->setExec('rm -f' . ($recursive ? 'r' : null) . ' {}');
-        }
-
         $this->delete = $delete;
         return $this;
     }
@@ -871,6 +872,7 @@ class Find extends Command implements FindInterface
                  ->addArgument($this->o_path->getSource())
                  ->addArguments($this->mount           ? '-mount'                                     : null)
                  ->addArguments($this->empty           ? '-empty'                                     : null)
+                 ->addArguments($this->delete          ? ['-delete']                                  : null)
                  ->addArguments($this->follow_symlinks ? '-L'                                         : null)
                  ->addArguments($this->name            ? ['-name'    , $this->name]                   : null)
                  ->addArguments($this->iname           ? ['-iname'   , $this->iname]                  : null)
@@ -885,7 +887,7 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
                  ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
                  ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
-                 ->addArguments($this->exec            ? ['-exec'    , $this->exec]                   : null);
+                 ->addArguments($this->exec            ? ['-exec'    , $this->exec, '{}', ';']        : null);
 
         } catch (ProcessFailedException $e) {
             PhoPath::new($this->o_path)
@@ -915,6 +917,19 @@ class Find extends Command implements FindInterface
                 $this->output    = Arrays::removeMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
 
                 $this->setResultsWithPermissionDenied(Arrays::valueToKeys($matches));
+            }
+        }
+
+        // If -exec was specified, the command has to exist and has to be properly escaped, or we will end up with all
+        // "No such file or directory" errors which will NOT set the exit code!
+        if ($this->getExec()) {
+            $first = array_first($this->output);
+            $first = strtolower($first);
+
+            if (str_contains($first, 'no such file or directory')) {
+                throw FindException::new(ts('Invalid or non existing exec command ":exec" specified', [
+                    ':exec' => $this->exec
+                ]))->addMessages(ts(ts('This means that the specified exec program "exec" for the results either does not exist (requires a package to be installed, perhaps?), or the command was not properly escaped, causing find to think that (for example) "ls -l" is a single complete command')));
             }
         }
 
