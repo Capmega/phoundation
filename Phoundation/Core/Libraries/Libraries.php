@@ -27,6 +27,7 @@ use Phoundation\Databases\Sql\Exception\DatabasesConnectorException;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -534,6 +535,7 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
+            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -592,6 +594,7 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
+            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -718,22 +721,19 @@ class Libraries
 
         if ($system) {
             // Get statistics for all system libraries
-            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRootObject())
-                                            ->getPhpStatistics(true);
+            $return['system'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_SYSTEM, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals'] = Arrays::addValues($return['totals'], $return['system']);
         }
 
         if ($plugin) {
             // Get statistics for all plugin libraries
-            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRootObject())
-                                             ->getPhpStatistics(true);
+            $return['plugins'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_PLUGINS, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals']  = Arrays::addValues($return['totals'], $return['plugins']);
         }
 
         if ($template) {
             // Get statistics for all template libraries
-            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRootObject())
-                                               ->getPhpStatistics(true);
+            $return['templates'] = PhoDirectory::new(LIBRARIES::CLASS_DIRECTORY_TEMPLATES, PhoRestrictions::newFilesystemRootObject())->getPhpStatistics(true);
             $return['totals']    = Arrays::addValues($return['totals'], $return['templates']);
         }
 
@@ -749,8 +749,8 @@ class Libraries
     public static function getHtmlTable(): HtmlTableInterface
     {
         // Create and return the table
-        $table = HtmlTable::new()
-                          ->setSource(static::listLibraries());
+        $table = HtmlTable::new()->setSource(static::listLibraries());
+
         $table->getHeaders()
               ->setSource([
                   tr('Library'),
@@ -785,6 +785,7 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
             $cache->copy($temporary, ignore_fails: true);
+            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -839,6 +840,7 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
+            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -893,6 +895,7 @@ class Libraries
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
             $cache->copy($temporary, ignore_fails: true);
+            static::removeSymlinks($cache);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -1179,12 +1182,28 @@ class Libraries
                                                WHERE  `library` = "core"');
 
             if ($version >= 9000) {
-                // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
+                // Once core_versions supports vendors (0.9.0 and up), it will ALWAYS support vendors, we're done!
                 $true = true;
             }
         }
 
         return $true;
+    }
 
+
+    /**
+     * Recursively removes the symlinks from the specified directory
+     *
+     * @param PhoDirectoryInterface $o_directory
+     *
+     * @return void
+     */
+    protected static function removeSymlinks(PhoDirectoryInterface $o_directory): void
+    {
+        Find::new(PhoDirectory::new($o_directory))->setDebug(true)
+            ->setType('l')
+            ->setName('*.php')
+            ->setDelete(true)
+            ->executeNoReturn();
     }
 }
