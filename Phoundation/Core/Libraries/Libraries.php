@@ -40,6 +40,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Http\Url;
 use Throwable;
 
+
 class Libraries
 {
     /**
@@ -73,7 +74,7 @@ class Libraries
     protected static bool $cache_has_been_rebuilt = false;
 
     /**
-     * Tracjs if the command cache has been cleared within this process
+     * Tracks if the command cache has been cleared within this process
      *
      * @var bool $cache_has_been_cleared
      */
@@ -519,21 +520,20 @@ class Libraries
     public static function rebuildCommandsCache(): void
     {
         static::clearCommandsCache();
-
         Log::action(ts('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
         $cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritableObject([
-                                                                      DIRECTORY_COMMANDS,
-                                                                      DIRECTORY_TMP,
-                                                                      DIRECTORY_ROOT . 'commands/'
-                                                                  ]));
+            DIRECTORY_COMMANDS,
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'commands/'
+        ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -591,7 +591,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -811,8 +811,8 @@ class Libraries
         Log::action(ts('Clearing web caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
-                   ->clearTreeSymlinks(true)
-                   ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
@@ -838,7 +838,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -865,8 +865,8 @@ class Libraries
         Log::action(ts('Clearing cron caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newFilesystemRootObject(true))
-            ->clearTreeSymlinks(true)
-            ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
@@ -884,15 +884,15 @@ class Libraries
         // Get temporary directory to build cache and the current cache directory
         $temporary = PhoDirectory::newTemporaryObject();
         $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritableObject([
-                                                                                         DIRECTORY_SYSTEM . 'cache/system/Tests',
-                                                                                         DIRECTORY_TMP,
-                                                                                         DIRECTORY_ROOT . 'Tests/'
-                                                                                     ], 'Libraries::rebuildTestsCache() 1'));
+            DIRECTORY_SYSTEM . 'cache/system/Tests',
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'Tests/'
+        ]));
 
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary);
+            $cache->copy($temporary, ignore_fails: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -919,8 +919,8 @@ class Libraries
         Log::action(ts('Clearing test caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_TESTS, PhoRestrictions::newFilesystemRootObject(true))
-                   ->clearTreeSymlinks(true)
-                   ->ensure();
+                    ->clearTreeSymlinks(true)
+                    ->ensure();
     }
 
 
