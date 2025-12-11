@@ -234,6 +234,25 @@ class PhoDirectory extends PhoDirectoryCore
 
 
     /**
+     * Returns a new PhoDirectory object for the path DIRECTORY_DATA / PROJECT
+     *
+     * @param bool        $writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newPluginsObject(bool $writable = false, ?string $sub_directory = null): static
+    {
+        $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
+
+        return static::new(
+            DIRECTORY_ROOT . 'Plugins/' . $sub_directory,
+            PhoRestrictions::newPluginsObject($writable)
+        );
+    }
+
+
+    /**
      * Returns a new PhoDirectory object for the path DIRECTORY_DATA
      *
      * @param bool        $writable
