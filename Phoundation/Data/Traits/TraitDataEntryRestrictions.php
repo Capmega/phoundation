@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 
 
 trait TraitDataEntryRestrictions

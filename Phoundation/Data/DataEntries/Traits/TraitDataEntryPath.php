@@ -29,22 +29,21 @@ trait TraitDataEntryPath
      *
      * @return PhoPathInterface|null
      */
-    public function getPath(): ?PhoPathInterface
+    public function getPath(): ?string
     {
-        return $this->getTypesafe(PhoPathInterface::class, 'path');
+        return $this->getTypesafe('string', 'path');
     }
 
 
     /**
      * Sets the path for this object
      *
-     * @param PhoPathInterface|string|null  $o_path
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string|null  $path
      *
      * @return static
      */
-    public function setPath(PhoPathInterface|string|null $o_path, ?PhoRestrictionsInterface $restrictions = null): static
+    public function setPath(string|null $path): static
     {
-        return $this->set(is_string($o_path) ? new PhoPath($o_path, $restrictions) : $o_path, 'path');
+        return $this->set(get_null($path), 'path');
     }
 }
