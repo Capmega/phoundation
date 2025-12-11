@@ -92,7 +92,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `seoname` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
                     `path` varchar(2048) CHARACTER SET latin1 DEFAULT NULL,
                     `url` varchar(2048) DEFAULT NULL,
-                    `type` ENUM ("git"),
+                    `platform` ENUM ("git"),
+                    `type` ENUM ("system", "plugins", "templates", "data", "cdn", "project"),
                     `description` mediumtext DEFAULT NULL,
                 ')->setIndices('                
                     PRIMARY KEY (`id`),
@@ -104,7 +105,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     UNIQUE KEY `seoname` (`seoname`),
                     UNIQUE KEY `path` (`path`),
                     KEY `url` (`url` (32)),
-                    KEY `type` (`type`)
+                    KEY `type` (`type`),
+                    KEY `platform` (`platform`)
                 ')->setForeignKeys('
                     CONSTRAINT `fk_developer_repositories_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     CONSTRAINT `fk_developer_repositories_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,

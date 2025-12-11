@@ -25,7 +25,7 @@ use Phoundation\Core\Libraries\Version;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Enums\EnumRepositoryType;
 use Phoundation\Developer\Phoundation\Exception\PatchPartiallySuccessfulException;
