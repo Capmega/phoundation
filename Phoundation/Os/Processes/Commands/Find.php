@@ -226,9 +226,7 @@ class Find extends Command implements FindInterface
      */
     public function setPathObject(?PhoPathInterface $o_path): static
     {
-        $this->__setPathObject($o_path);
-
-        return $this->setExecutionDirectory($this->o_path ? new PhoDirectory($this->o_path) : null);
+        return $this->__setPathObject($o_path);
     }
 
 
