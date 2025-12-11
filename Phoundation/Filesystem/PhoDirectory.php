@@ -95,7 +95,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_PROJECT_CDN . $sub_directory,
             PhoRestrictions::new(DIRECTORY_PROJECT_CDN . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -114,7 +114,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_ROOT . $sub_directory,
             PhoRestrictions::new(DIRECTORY_ROOT . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -133,7 +133,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             '/' . $sub_directory,
             PhoRestrictions::new('/' . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -172,8 +172,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_COMMANDS . $sub_directory,
             PhoRestrictions::new(DIRECTORY_COMMANDS . $sub_directory, $writable)
-        )->setAutoMount(false)
-         ->ensure();
+        )->setAutoMount(false);
     }
 
 
@@ -192,8 +191,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_WEB . $sub_directory,
             PhoRestrictions::new(DIRECTORY_WEB . $sub_directory, $writable)
-        )->setAutoMount(false)
-         ->ensure();
+        )->setAutoMount(false);
     }
 
 
@@ -212,7 +210,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -231,7 +229,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . PROJECT . '/' . $sub_directory,
             PhoRestrictions::newDataProjectObject($writable)
-        )->ensure();
+        );
     }
 
 
@@ -250,7 +248,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory,
             PhoRestrictions::newDataSourcesProjectObject($writable)
-        )->ensure();
+        );
     }
 
 
@@ -269,7 +267,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . 'sources/' . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . 'sources/' . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
