@@ -167,7 +167,7 @@ class Cli
                     // Display header?
                     foreach (Arrays::force($headers) as $column => $header) {
                         $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
+                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
                     }
 
                     Log::cli(' ');
@@ -189,7 +189,7 @@ class Cli
                             }
 
                             if (is_numeric($column) or array_key_exists($column, $headers)) {
-                                Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
+                                Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
                             }
                         }
 
