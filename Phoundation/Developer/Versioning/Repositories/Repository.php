@@ -142,11 +142,12 @@ class Repository extends DataEntry
      */
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName('type')
+        $o_definitions->add(DefinitionFactory::newName('platform')
                                              ->setSize(2)
                                              ->setReadonly(true)
                                              ->setSource([
-                                                 'git'
+                                                 'git',
+                                                 'subversion',
                                              ]))
 
                       ->add(DefinitionFactory::newName('type')

@@ -26,6 +26,7 @@ use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Process;
 
+
 class Repositories extends DataIteratorCore
 {
     use TraitDataResultsWithPermissionDenied {
