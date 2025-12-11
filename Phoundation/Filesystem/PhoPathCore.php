@@ -4196,7 +4196,6 @@ class PhoPathCore implements PhoPathInterface
         if ($this->exists()) {
             // Delete all symlinks
             Find::new()
-                ->setExecutionDirectory($this->getDirectoryObject())
                 ->setPathObject($this)
                 ->setType('l')
                 ->setDelete(true)
@@ -4204,7 +4203,6 @@ class PhoPathCore implements PhoPathInterface
 
             // Delete all empty directories
             Find::new()
-                ->setExecutionDirectory($this->getDirectoryObject())
                 ->setPathObject($this)
                 ->setType('d')
                 ->setEmpty(true)
