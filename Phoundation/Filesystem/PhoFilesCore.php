@@ -29,7 +29,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -161,16 +161,16 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string             $target
+     * @param PhoPathInterface|string       $target
      * @param PhoRestrictionsInterface|null $o_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
-        $o_restrictions = $this->ensureRestrictions($o_restrictions);
+        $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
         PhoDirectory::new($target, $o_restrictions)->ensure();
 
         foreach ($this->source as $file) {

@@ -30,7 +30,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoMountInterface;
@@ -59,7 +59,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     {
         parent::__construct($identifier);
 
-        $this->o_restrictions = $this->ensureRestrictions($restrictions);
+        $this->o_restrictions = $this->ensureRestrictionsObject($restrictions);
     }
 
 

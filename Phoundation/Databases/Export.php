@@ -31,7 +31,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Commands\Databases\MysqlDump;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Utils\Strings;

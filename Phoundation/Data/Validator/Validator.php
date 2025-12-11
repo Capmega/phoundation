@@ -41,7 +41,7 @@ use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
 use Phoundation\Data\Traits\TraitDataMethodPickValidatorInterface;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;

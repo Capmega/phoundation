@@ -22,7 +22,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
@@ -528,16 +528,25 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Ensures the existence of the specified directory
      *
-     * @param string|int|null $mode  octal $mode If the specified $this->directory does not exist, it will be created
-     *                               with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean         $clear If set to true, and the specified directory already exists, it will be deleted and
-     *                               then re-created
-     * @param bool            $sudo
+     * @param string|int|null             $mode            octal $mode If the specified $this->directory does not exist,
+     *                                                     it will be created with this directory mode. Defaults to
+     *                                                     configuration path filesystem.directories.mode
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param boolean                     $clear           If set to true, and the specified directory already exists,
+     *                                                     it will be deleted and then re-created
+     * @param bool                        $sudo
      *
      * @return static
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @package   file
+     * @version   2.4.16: Added documentation
      */
-    public function ensure(string|int|null $mode = null, ?bool $clear = false, bool $sudo = false): static
+    public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false): static
     {
+        $this->checkRestrictions(true, absolute_prefix: $absolute_prefix);
+
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
             PhoFile::new($this->source, $this->o_restrictions)->delete(false, $sudo);
@@ -546,26 +555,25 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         if (!file_exists(Strings::unslash($this->source))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs         = explode('/', Strings::ensureBeginsNotWith($this->source, '/'));
-            $count        = count($dirs);
-            $this->source = '';
+            $dirs   = explode('/', Strings::ensureBeginsNotWith(static::realPath($this->source, $absolute_prefix), '/'));
+            $count  = count($dirs);
+            $source = '';
 
             foreach ($dirs as $id => $dir) {
-                $this->source .= '/' . $dir;
+                $source .= '/' . $dir;
 
-                if (file_exists($this->source)) {
-                    if (!is_dir($this->source)) {
+                if (file_exists($source)) {
+                    if (!is_dir($source)) {
                         // Some normal file is in the way. Move the file out of the way, and retry
-                        PhoFile::new($this->source, $this->o_restrictions)->backup(move: true);
-
+                        PhoFile::new($source, $this->o_restrictions)->backup(move: true);
                         return $this->ensure(config()->get('filesystem.mode.directories', $mode ?? 0750), $clear, $sudo);
                     }
 
                     continue;
 
-                } elseif (is_link($this->source)) {
+                } elseif (is_link($source)) {
                     // This is a dead symlink, delete it
-                    PhoFile::new($this->source, $this->o_restrictions)->delete(false, $sudo);
+                    PhoFile::new($source, $this->o_restrictions)->delete(false, $sudo);
                 }
 
                 try {
@@ -573,11 +581,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
                     $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
 
-                    PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent($count - $id)->makeWritable())
+                    PhoDirectory::new(dirname($source), $this->o_restrictions->getParent($count - $id)->makeWritable())
                                 ->execute()
                                     ->setMode(0770)
-                                    ->onDirectoryOnly(function () use ($mode) {
-                                        mkdir($this->source, $mode);
+                                    ->onDirectoryOnly(function () use ($mode, $source) {
+                                        mkdir($source, $mode);
                                     });
 
                 } catch (RestrictionsException $e) {
@@ -586,11 +594,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 } catch (Throwable $e) {
                     // It sometimes happens that the specified directory was created just in between the file_exists and
                     // mkdir
-                    if (!file_exists($this->source)) {
+                    if (!file_exists($source)) {
                         throw DirectoryException::new(tr('Failed to create directory ":directory"', [
-                            ':directory' => $this->source,
+                            ':directory' => $source,
                         ]), $e)->addData(
-                            ['directory' => $this->source]
+                            ['directory' => $source]
                         );
                     }
 
@@ -619,7 +627,6 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     public function execute(): PhoExecuteInterface
     {
         $this->source = Strings::slash($this->source);
-
         return new PhoExecute($this->source, $this->o_restrictions);
     }
 
@@ -1466,12 +1473,13 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string $target
-     * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable|null $callback
-     * @param mixed|null $context
-     * @param bool $recursive
-     * @param bool $ignore_fails
+     * @param PhoPathInterface|string       $target
+     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
+     * @param bool                          $recursive
+     * @param bool                          $ignore_fails
+     *
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
@@ -1480,57 +1488,57 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
     {
-        $context      = $context ?? stream_context_create();
-        $restrictions = $this->ensureRestrictions($restrictions);
-        $target       = PhoDirectory::new($target, $restrictions)->ensure();
+        $context        = $context ?? stream_context_create();
+        $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
+        $o_target       = PhoDirectory::new($target, $o_restrictions)->ensure();
 
         $this->checkRestrictions(false);
-        $target->checkRestrictions(true);
+        $o_target->checkRestrictions(true);
 
         stream_context_set_params($context, [
             'notification' => $callback,
         ]);
 
         // Copy the contents
-        foreach ($this->getFilesObject() as $path) {
-            $basename = $path->getBasename();
+        if ($recursive) {
+            foreach ($this->getFilesObject() as $o_path) {
+                $basename = $o_path->getBasename();
 
-            if ($path->isDirectory()) {
-                if ($recursive) {
-                    $path->copy($target->addDirectory($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
-                }
+                if ($o_path->isDirectory()) {
+                    $o_path->copy($o_target->addDirectory($basename), $o_target->getRestrictionsObject(), $callback, $context, $recursive, $ignore_fails);
 
-            } else {
-                try {
-                    copy($this->addFile($basename)->getSource(),
-                         $target->addFile($basename)->getSource(), $context);
+                } elseif ($o_path->isLink()) {
+                    symlink($this->addFile($basename)->getLinkTarget()->getSource(),
+                            $o_target->addFile($basename)->getSource());
 
-                } catch (PhpException $e) {
-                    if ($this->addFile($basename)->isLink() and !$this->addFile($basename)->isLinkAndTargetExists()) {
-                        // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
-                        if ($this->addFile($basename)->exists(true)) {
-                            // The exact target already exists as a symlink, which then doesn't exist.
+                } else {
+                    try {
+                        copy($this->addFile($basename)->getSource(),
+                            $o_target->addFile($basename)->getSource(), $context);
 
-                            $this->addFile($basename)->delete();
+                    } catch (PhpException $e) {
+                        if ($this->addFile($basename)->isLink() and !$this->addFile($basename)->isLinkAndTargetExists()) {
+                            // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
+                            symlink($this->addFile($basename)->getSource(),
+                                    $o_target->addFile($basename)->getSource());
+
+                            continue;
                         }
 
-                        symlink($this->addFile($basename)->getSource(),
-                                $target->addFile($basename)->getSource());
-                    }
+                        if (!$ignore_fails) {
+                            Log::warning($e->getMessage());
+                            continue;
+                        }
 
-                    if (!$ignore_fails) {
-                        Log::warning($e->getMessage());
-                        continue;
+                        throw $e;
                     }
-
-                    throw $e;
                 }
             }
         }
 
-        return new static($target, $this->o_restrictions);
+        return new static($o_target, $this->o_restrictions);
     }
 
 

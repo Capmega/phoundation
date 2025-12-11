@@ -38,7 +38,7 @@ interface PhoFileInterface extends PhoPathInterface
     /**
      * Copy a file with progress notification
      *
-     * @param Stringable|string             $target
+     * @param PhoPathInterface|string       $target
      * @param PhoRestrictionsInterface|null $restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
@@ -51,7 +51,7 @@ interface PhoFileInterface extends PhoPathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Check if the object file exists and is readable. If not both, an exception will be thrown

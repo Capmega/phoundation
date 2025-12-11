@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html;
 use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;

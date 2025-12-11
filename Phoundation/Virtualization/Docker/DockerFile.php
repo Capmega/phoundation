@@ -20,7 +20,7 @@ use Phoundation\Data\Traits\TraitDataObjectDirectory;
 use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Virtualization\Traits\TraitDataImage;
 

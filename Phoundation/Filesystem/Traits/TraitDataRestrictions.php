@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Traits;
 
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 
@@ -38,11 +37,11 @@ trait TraitDataRestrictions
      */
     public function getRestrictionsObject(): PhoRestrictionsInterface
     {
-        if (isset($this->o_restrictions)) {
-            return $this->o_restrictions;
+        if (empty($this->o_restrictions)) {
+            $this->o_restrictions = new PhoRestrictions();
         }
 
-        throw new OutOfBoundsException(tr('Cannot return file restrictions, restrictions have not yet been set'));
+        return $this->o_restrictions;
     }
 
 
@@ -77,10 +76,6 @@ trait TraitDataRestrictions
      */
     public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface
     {
-        if (isset($this->o_restrictions)) {
-            return PhoRestrictions::getRestrictionsOrDefaultObject($o_restrictions, $this->o_restrictions);
-        }
-
-        return PhoRestrictions::getRestrictionsOrDefaultObject($o_restrictions);
+        return PhoRestrictions::getRestrictionsOrDefaultObject($o_restrictions, $this->o_restrictions);
     }
 }

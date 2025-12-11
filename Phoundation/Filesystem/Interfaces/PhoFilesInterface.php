@@ -39,11 +39,11 @@ interface PhoFilesInterface extends IteratorInterface
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 
     /**
      * Returns the parent Path (if available) that contains these files
@@ -81,14 +81,14 @@ interface PhoFilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string             $target
+     * @param PhoPathInterface|string       $target
      * @param PhoRestrictionsInterface|null $o_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Returns the current file

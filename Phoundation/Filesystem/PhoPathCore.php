@@ -28,7 +28,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
@@ -1339,15 +1339,16 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Checks restrictions against internal rules and throws an exception if no applicable match was found
      *
-     * @param bool           $write
-     * @param Throwable|null $e
+     * @param bool                        $write
+     * @param Throwable|null              $e
+     * @param Stringable|string|bool|null $absolute_prefix
      *
      * @return static
      */
-    public function checkRestrictions(bool $write, ?Throwable $e = null): static
+    public function checkRestrictions(bool $write, ?Throwable $e = null, Stringable|string|bool|null $absolute_prefix = null): static
     {
         // Check restrictions
-        $this->o_restrictions->check(static::realPath($this->source), $write, $e);
+        $this->o_restrictions->check(static::realPath($this->source, $absolute_prefix), $write, $e);
 
         // Check system read / write access
         if ($write) {
@@ -2310,6 +2311,53 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns the part of the path that exists, '/' if none of it exists
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getExistingPart(string $path): string
+    {
+        if (str_starts_with($path, '/')) {
+            while (!file_exists($path)) {
+                $path = dirname($path);
+            }
+
+            return $path;
+        }
+
+        if (trim($path)) {
+            throw FilesystemException::new(ts('Cannot check for existing part of path ":path", the path is not absolute', [
+                ':path' => $path,
+            ]))->setData([
+                'path' => $path,
+            ]);
+        }
+
+        throw FilesystemException::new(ts('Cannot check for existing part, no path specified'));
+    }
+
+
+    /**
+     * Returns the realpath of the specified path without the need for the path to actually exists
+     *
+     * NOTE: This method does this by finding the part of the path that does exist, getting a realpath of THAT part, and then adding the rest to it.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getRealPathSafe(string $path): string
+    {
+        $existing     = static::getExistingPart($path);
+        $not_existing = Strings::from($path, $existing);
+
+        return realpath($existing) . $not_existing;
+    }
+
+
+    /**
      * Returns the absolute and real path for the specified path
      *
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
@@ -2336,8 +2384,14 @@ class PhoPathCore implements PhoPathInterface
         // Use FsRestrictionsAllowAll as FsRestrictions will use PhoPathCore::realPath() and cause endless loops!
         $base   = basename($real);
         $parent = dirname($real);
-        $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
-        $parent = realpath($parent);
+
+        if ($must_exist) {
+            $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
+            $parent = realpath($parent);
+
+        } else {
+            $parent = static::getRealPathSafe($parent);
+        }
 
         if (!$parent) {
             throw new FilesystemException(tr('Failed to convert parent of path ":path" into a realpath', [
@@ -4040,8 +4094,6 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getFilesObject(bool $reload = false): PhoFilesInterface
     {
-        $this->checkRestrictions(false);
-
         if (empty($this->files) or $reload) {
             $this->checkReadable('directory');
 

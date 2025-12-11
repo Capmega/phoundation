@@ -238,7 +238,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
         $context      = $context ?? stream_context_create();
-        $restrictions = $this->ensureRestrictions($restrictions);
+        $restrictions = $this->ensureRestrictionsObject($restrictions);
 
         // Check these restrictions and the new file restrictions
         $this->o_restrictions->check($this->source, true);

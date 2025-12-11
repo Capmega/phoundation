@@ -971,11 +971,11 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 
     /**
      * Ensures the existence of the parent directory
