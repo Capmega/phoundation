@@ -741,7 +741,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
     public function isRestricted(Stringable|string $pattern, bool $write, ?Throwable $e = null): false|string
     {
         if (!$this->source) {
-            throw new RestrictionsException(tr('The ":label" restrictions have no paths specified', [
+            throw new RestrictionsException(tr('The ":label" restrictions object has no path restrictions specified', [
                 ':label' => $this->label,
             ]), $e);
         }
