@@ -47,6 +47,7 @@ use Phoundation\Os\Processes\Commands\Tar;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\P;
 use Stringable;
 use Throwable;
 
@@ -1780,7 +1781,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *
      * @return int
      */
-    public function getSize(bool $recursive = true): int
+    public function getSize(bool $recursive = true, bool $pass_symlinks = false): int
     {
         // Return the number of all files in this directory
         $files = scandir($this->source);
@@ -1794,6 +1795,13 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
             // Filename must have the complete absolute path
             $file = $this->source . $file;
+
+            if (is_link($file)) {
+                if (!$pass_symlinks) {
+                    // Do not continue, this is a symlink, don't count the size
+                    continue;
+                }
+            }
 
             if (is_dir($file)) {
                 if ($recursive) {
