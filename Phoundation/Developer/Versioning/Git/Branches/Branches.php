@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Branches;
 
+use Phoundation\Cli\Cli;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitStaticMethodNewWithRepository;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
@@ -49,6 +50,44 @@ class Branches extends IteratorCore implements BranchesInterface
     public function load(): static
     {
         $this->source = $this->o_repository->getGitObject()->getBranches();
+        return $this;
+    }
+
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
+     * @return static
+     */
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'branch'): static
+    {
+        $list = [];
+
+        foreach ($this->getSource() as $branch => $selected) {
+            $list[$branch] = [
+                'branch'   => $branch,
+                'selected' => $selected ? '*' : ''
+            ];
+        }
+
+        $filters = array_replace(
+            $filters,
+            [
+                'branch'   => tr('Branch'),
+                'selected' => tr('Selected'),
+            ]
+        );
+
+        Cli::displayTable(
+            $list,
+            $filters,
+            $id_column
+        );
+
         return $this;
     }
 
