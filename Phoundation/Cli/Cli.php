@@ -126,6 +126,8 @@ class Cli
             ]));
         }
 
+        $display_headers = true;
+
         if ($source) {
             switch (OUTPUT) {
                 case 'json':
@@ -145,6 +147,13 @@ class Cli
                         $exists  = false;
 
                         foreach (Arrays::force($row, null) as $header => $value) {
+                            if (is_numeric($header)) {
+                                // The columns are numeric, we can't auto display headers
+                                $display_headers = false;
+                                $headers[$header] = $header;
+                                continue;
+                            }
+
                             $value            = str_replace(['_', '-'], ' ', (string) $header);
                             $value            = Strings::capitalize($value) . ':';
                             $headers[$header] = $value;
@@ -165,12 +174,14 @@ class Cli
                     }
 
                     // Display header?
-                    foreach (Arrays::force($headers) as $column => $header) {
-                        $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
-                    }
+                    if ($display_headers) {
+                        foreach (Arrays::force($headers) as $column => $header) {
+                            $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                            Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+                        }
 
-                    Log::cli(' ');
+                        Log::cli(' ');
+                    }
 
                     // Display source
                     foreach ($source as $id => $row) {
