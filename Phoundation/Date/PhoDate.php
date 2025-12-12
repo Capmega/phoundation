@@ -29,8 +29,19 @@ use Phoundation\Utils\Strings;
 use Throwable;
 
 
-class PhoDate
+class PhoDate extends PhoDateTime
 {
+    /**
+     * Returns the source of this PhoDateTime object
+     *
+     * @return string
+     */
+    public function getSource(): string
+    {
+        return $this->format('Y-m-d');
+    }
+
+
     /**
      * ???
      *
@@ -54,7 +65,9 @@ class PhoDate
                 31536000 => tr('This year'),
             ];
         }
+
         usort($periods);
+
         foreach ($periods as $time => $label) {
             if ($timestamp < $time) {
                 return $label;
