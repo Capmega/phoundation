@@ -430,7 +430,7 @@ class Phoundation extends Project
         throw new UnderConstructionException(tr('Phoundation::updateTo() is under construction, not sure what it is supposed to do'));
         $count = 0;
         foreach ($this->phoundation_files as $directory) {
-            $directory = $this->o_git->getDirectory() . $directory;
+            $directory = $this->o_git->getDirectoryObject() . $directory;
             // Find local Phoundation changes and filter Phoundation changes only
             $changed_files = $this->o_git->getStatusFilesObject($directory);
             if (!$changed_files->getCount()) {

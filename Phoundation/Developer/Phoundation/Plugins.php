@@ -556,7 +556,7 @@ throw new UnderConstructionException(tr('Plugins::updateTo() is under constructi
         $count = 0;
 
         foreach ($this->phoundation_files as $directory) {
-            $directory = $this->o_git->getDirectory() . $directory;
+            $directory = $this->o_git->getDirectoryObject() . $directory;
 
             // Find local Phoundation changes and filter Phoundation changes only
             $changed_files = $this->o_git->getStatusFilesObject($directory);

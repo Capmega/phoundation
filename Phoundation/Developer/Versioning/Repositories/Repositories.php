@@ -17,17 +17,22 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Repositories;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
+use Phoundation\Developer\Phoundation\Interfaces\RepositoryInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Os\Processes\Process;
+use ReturnTypeWillChange;
+use Stringable;
 
 
-class Repositories extends DataIteratorCore
+class Repositories extends DataIteratorCore implements RepositoriesInterface
 {
     use TraitDataResultsWithPermissionDenied {
         getResultsWithPermissionDenied as protected __getResultsWithPermissionDenied;
@@ -66,14 +71,33 @@ class Repositories extends DataIteratorCore
      */
     public function __construct(?PhoPathInterface $o_parent_path = null)
     {
+        parent::__construct();
         $this->construct($o_parent_path);
-        $this->source = Process::new('git')
-                               ->setExecutionDirectory($this->o_path)
-                               ->addArgument('remote')
-                               ->addArgument('show')
-                               ->executeReturnArray();
+        $this->setKeysAreUniqueColumn(true);
 
-        $this->query = 'SELECT * FROM `developer_repositories` WHERE `status` IS NULL';
+        $this->query = 'SELECT `developer_repositories`.* FROM `developer_repositories` WHERE `status` IS NULL';
+    }
+
+
+    /**
+     * Returns the unique column for this class
+     *
+     * @return string|null
+     */
+    public static function getUniqueColumn(): ?string
+    {
+        return 'name';
+    }
+
+
+    /**
+     * Returns the data types that are allowed and accepted for this data iterator
+     *
+     * @return string|null
+     */
+    public static function getDefaultContentDataType(): ?string
+    {
+        return RepositoryInterface::class;
     }
 
 
@@ -141,6 +165,21 @@ class Repositories extends DataIteratorCore
 
 
     /**
+     * Returns the entry with the specified identifier
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool|null                   $exception
+     *
+     * @return RepositoryInterface|null
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface
+    {
+        return parent::get($key, $default, $exception);
+    }
+
+
+    /**
      * Scans for repositories on the current machine and registers them in the database
      *
      * @param PhoPathInterface $path
@@ -169,17 +208,13 @@ class Repositories extends DataIteratorCore
 
             if (Repository::isPhoundation($o_repository_path)) {
                 if (!Repository::exists($o_repository_path->getBasename())) {
-show($o_repository_path->getBasename());
-show($o_repository_path->getSource());
-show(Repository::new($o_repository_path->getBasename()));
-showdie();
                     Repository::newFromPathObject($o_repository_path)->save();
                 }
             }
         }
 
 
-        // Remove repsitories that weren't found from the list?
+        // Remove repositories that weren't found from the list?
         if ($delete_gone) {
 
         }

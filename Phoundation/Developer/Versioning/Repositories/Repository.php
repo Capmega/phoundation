@@ -19,20 +19,30 @@ namespace Phoundation\Developer\Versioning\Repositories;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPathObject;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
+use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Versioning\Git\Git;
+use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Git\Remotes;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
+use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 
-class Repository extends DataEntry
+class Repository extends DataEntry implements RepositoryInterface
 {
+    use TraitStaticMethodNew;
+    use TraitDataObjectGit;
     use TraitDataEntryType;
     use TraitDataEntryPlatform;
     use TraitDataEntryUrl;
@@ -41,6 +51,33 @@ class Repository extends DataEntry
     }
     use TraitDataEntryName;
     use TraitDataEntryDescription;
+
+
+    /**
+     * Repository class constructor
+     *
+     * @param IdentifierInterface|false|array|int|string|null $identifier
+     * @param EnumLoadParameters|null                         $on_null_identifier
+     * @param EnumLoadParameters|null                         $on_not_exists
+     */
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
+        parent::__construct($identifier, $on_null_identifier, $on_not_exists);
+        $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
+    }
+
+
+    /**
+     * Returns a new Repository object for the given $o_path object
+     *
+     * @param PhoPathInterface $o_path
+     * @return static
+     */
+    public static function newFromPathObject(PhoPathInterface $o_path): static
+    {
+        return Repository::new()
+                         ->setName($o_path->getBasename())
+                         ->setPathObject($o_path);
+    }
 
 
     /**
@@ -73,22 +110,6 @@ class Repository extends DataEntry
     public static function getUniqueColumn(): ?string
     {
         return 'name';
-    }
-
-
-    /**
-     * Returns a new Repository object for the given $o_path object
-     *
-     * @param PhoPathInterface $o_path
-     * @return static
-     */
-    public static function newFromPathObject(PhoPathInterface $o_path): static
-    {
-        $o_repository = Repository::new()
-                                  ->setName($o_path->getBasename())
-                                  ->setPathObject($o_path);
-
-        return $o_repository;
     }
 
 
@@ -173,6 +194,30 @@ class Repository extends DataEntry
 
 
     /**
+     * Returns the "required" property for this object
+     *
+     * @return string|null
+     */
+    public function getRequired(): ?string
+    {
+        return $this->getTypesafe('string', 'required');
+    }
+
+
+    /**
+     * Sets the 'required' property for this object
+     *
+     * @param int|bool $required
+     *
+     * @return static
+     */
+    public function setRequired(int|bool $required): static
+    {
+        return $this->set((bool) $required, 'required');
+    }
+
+
+    /**
      * Sets the path for this object
      *
      * @param string|null  $path
@@ -184,6 +229,17 @@ class Repository extends DataEntry
         return $this->__setPath($path)
                     ->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
                     ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value);
+    }
+
+
+    /**
+     * Returns the Remotes class object for this Repository
+     *
+     * @return RemotesInterface
+     */
+    public function getRemotesObject(): RemotesInterface
+    {
+        return Remotes::new($this->o_git);
     }
 
 

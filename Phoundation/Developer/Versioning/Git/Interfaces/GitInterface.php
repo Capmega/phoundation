@@ -28,16 +28,16 @@ interface GitInterface
      *
      * @return PhoDirectoryInterface
      */
-    public function getDirectory(): PhoDirectoryInterface;
+    public function getDirectoryObject(): PhoDirectoryInterface;
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param PhoDirectoryInterface $directory
+     * @param PhoDirectoryInterface $o_directory
      *
      * @return static
      */
-    public function setDirectory(PhoDirectoryInterface $directory): static;
+    public function setDirectoryObject(PhoDirectoryInterface $o_directory): static;
 
     /**
      * Clone the specified URL to this path
@@ -61,13 +61,6 @@ interface GitInterface
      * @return static
      */
     public function setBranch(string $branch): static;
-
-    /**
-     * Returns all available git repositories
-     *
-     * @return RemoteRepositoriesInterface
-     */
-    public function getRepositoriesObject(): RemoteRepositoriesInterface;
 
     /**
      * Returns a list of available git branches
