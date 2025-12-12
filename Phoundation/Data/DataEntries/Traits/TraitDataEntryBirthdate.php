@@ -45,7 +45,7 @@ trait TraitDataEntryBirthdate
     {
         if (is_array($birthdate)) {
             try {
-                $birthdate = array_get_safe('date', $birthdate);
+                $birthdate = array_get_safe($birthdate, 'date');
 
             } catch (\Throwable $e) {
                 throw OutOfBoundsException::new(tr('Unknown array given, unable to set birthdate'))
