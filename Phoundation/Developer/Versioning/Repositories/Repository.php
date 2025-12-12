@@ -37,11 +37,10 @@ use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
-
+use Phoundation\Filesystem\PhoRestrictions;
 
 class Repository extends DataEntry implements RepositoryInterface
 {
-    use TraitStaticMethodNew;
     use TraitDataObjectGit;
     use TraitDataEntryType;
     use TraitDataEntryPlatform;
@@ -60,8 +59,18 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param EnumLoadParameters|null                         $on_null_identifier
      * @param EnumLoadParameters|null                         $on_not_exists
      */
-    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
+    {
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
+
+        // Set default restrictions for this Repository object. Repositories can be pretty much anywhere, so we have to assume access to the entire filesystem
+        if ($this->getPath()) {
+            $this->o_restrictions = PhoRestrictions::new($this->getPath(), true);
+
+        } else {
+            $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
+        }
+
         $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
     }
 

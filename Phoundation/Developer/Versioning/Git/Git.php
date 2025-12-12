@@ -218,7 +218,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -235,24 +234,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
-        return $output;
-    }
-
-
-    /**
-     * Returns the remotes available for this git repository
-     *
-     * @return array
-     */
-    public function getRemotes(): array
-    {
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('remote')
-                                  ->executeReturnArray();
-
-        Log::notice($output, 1, false);
-
         return $output;
     }
 

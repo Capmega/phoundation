@@ -65,6 +65,10 @@ $argv = ArgvValidator::new()
 
 
 // Scan for new repositories
+Log::cli(ts('Scanning ":path" for repositories, this might take a minute...', [
+    ':path' => $argv['path']
+]), 'action');
+
 $o_repositories     = Repositories::new();
 $permissions_denied = $o_repositories->scan($argv['path'], $argv['delete_gone'])
                                      ->getNumberOfResultsWithPermissionDenied();
