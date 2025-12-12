@@ -279,6 +279,28 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns the size of the repository in bytes
+     *
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->o_git->getDirectoryObject()->getSize();
+    }
+
+
+    /**
+     * Returns the size of the repository in bytes
+     *
+     * @return int
+     */
+    public function getGitSize(): int
+    {
+        return $this->o_git->getDirectoryObject()->addDirectory('.git')->getSize();
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $o_definitions

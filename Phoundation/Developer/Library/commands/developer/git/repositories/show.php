@@ -23,7 +23,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\PhoDirectory;
-
+use Phoundation\Utils\Numbers;
 
 // Start documentation
 CliDocumentation::setAutoComplete([
@@ -59,14 +59,31 @@ $o_repository = Repository::new($argv['name']);
 // Display repository details
 $o_repository->displayCliForm();
 
+
+// Display repository size
+Log::cli(' ');
+Log::cli(ts('Size:'), 'information');
+Log::cli(ts('Git database: :size', [
+    ':size' => Numbers::getHumanReadableAndPreciseBytes($o_repository->getGitSize())
+]));
+Log::cli(ts('Working tree: :size', [
+    ':size' => Numbers::getHumanReadableAndPreciseBytes($o_repository->getSize())
+]));
+
+
+// Display remotes
 Log::cli(' ');
 Log::cli(ts('Remotes:'), 'information');
 $o_repository->getRemotesObject()->displayCliTable();
 
+
+// Display branches
 Log::cli(' ');
 Log::cli(ts('Branches:'), 'information');
 $o_repository->getBranchesObject()->displayCliTable();
 
+
+// Display tags
 Log::cli(' ');
 Log::cli(ts('Tags:'), 'information');
 $o_repository->getTagsObject()->displayCliTable();
