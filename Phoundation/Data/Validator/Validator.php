@@ -3627,6 +3627,7 @@ throw new ObsoleteException();
      * @param array|string|null $formats
      *
      * @return static
+     * @todo Either remove $formats or implement it
      * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and
      *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      */
@@ -5583,6 +5584,34 @@ throw new ObsoleteException();
                 }
 
                 $value = PhoDateTime::new($value);
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToDate(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->hasOptionalValue($value)) {
+                $this->isDate();
+// TODO Change this to isDateTime() when the PhoDate class is ready
+//                $this->isDateTime();
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, don't test anything more
+                    return;
+                }
+
+                $value = PhoDate::new($value);
             }
         });
     }

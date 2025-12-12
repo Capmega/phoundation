@@ -2003,7 +2003,7 @@ class Definition implements DefinitionInterface
             case EnumInputType::date:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeToDateTime();
+                         $o_validator->sanitizeToDate();
                      });
                 break;
 
