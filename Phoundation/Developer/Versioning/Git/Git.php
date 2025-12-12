@@ -118,7 +118,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -160,7 +159,7 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Returns the current git branch for this directory
+     * Sets the current git branch for this directory
      *
      * @param string $branch
      *
@@ -355,7 +354,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -377,7 +375,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -400,7 +397,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -424,22 +420,7 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
-    }
-
-
-    /**
-     * Returns a Git Tag object to manage git tagging
-     *
-     * @param string $message
-     * @param bool   $signed
-     *
-     * @return TagInterface
-     */
-    public function getTagObject(string $message, bool $signed = false): TagInterface
-    {
-        return new Tag($this->o_process);
     }
 
 
@@ -583,7 +564,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -605,7 +585,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -625,7 +604,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -638,14 +616,10 @@ class Git extends Versioning implements GitInterface
     public function fetchAll(): static
     {
         $output = $this->o_process->clearArguments()
-                                  ->addArguments([
-                                'fetch',
-                                '--all',
-                            ])
+                                  ->addArguments(['fetch', '--all'])
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -665,7 +639,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -685,7 +658,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 }

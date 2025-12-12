@@ -301,6 +301,31 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns the current git branch for this repository
+     *
+     * @return string
+     */
+    public function getCurrentBranch(): string
+    {
+        return $this->o_git->getCurrentBranch();
+    }
+
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     *
+     * @return Repository
+     */
+    public function setCurrentBranch(string $branch): static
+    {
+        $this->o_git->setCurrentBranch($branch);
+        return $this;
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $o_definitions
