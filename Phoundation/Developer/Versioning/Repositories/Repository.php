@@ -27,17 +27,21 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Versioning\Git\Branches\Branches;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Git\Remotes;
+use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
+use Phoundation\Developer\Versioning\Git\Tags\Tags;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+
 
 class Repository extends DataEntry implements RepositoryInterface
 {
@@ -248,7 +252,29 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getRemotesObject(): RemotesInterface
     {
-        return Remotes::new($this->o_git);
+        return Remotes::new($this);
+    }
+
+
+    /**
+     * Returns the Remotes class object for this Repository
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesObject(): BranchesInterface
+    {
+        return Branches::new($this);
+    }
+
+
+    /**
+     * Returns the Remotes class object for this Repository
+     *
+     * @return TagsInterface
+     */
+    public function getTagsObject(): TagsInterface
+    {
+        return Tags::new($this);
     }
 
 

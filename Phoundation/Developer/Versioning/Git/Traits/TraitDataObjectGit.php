@@ -22,7 +22,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 trait TraitDataObjectGit
 {
     /**
-     * The path that will be checked
+     * Tracks the Git object linked to this object
      *
      * @var GitInterface $o_git
      */
@@ -30,7 +30,7 @@ trait TraitDataObjectGit
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Returns the Git object linked to this object
      *
      * @return GitInterface
      */
@@ -41,7 +41,7 @@ trait TraitDataObjectGit
 
 
     /**
-     * Returns the path for this ChangedFiles object
+     * Sets the Git object linked to this object
      *
      * @param GitInterface $o_git
      *

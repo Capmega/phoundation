@@ -526,7 +526,7 @@ class Repository extends PhoDirectory implements RepositoryInterface
      */
     public function setBranch(string $branch): static
     {
-        $this->git->setBranch($branch);
+        $this->git->setCurrentBranch($branch);
         return $this;
     }
 

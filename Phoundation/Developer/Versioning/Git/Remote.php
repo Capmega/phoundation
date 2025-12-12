@@ -16,11 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git;
 
-use Phoundation\Data\Entry;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
+use Phoundation\Developer\Versioning\Repositories\Repository;
 
-class Remote extends Entry
+
+class Remote extends Repository
 {
     use TraitDataObjectGit;
 
@@ -34,24 +35,5 @@ class Remote extends Entry
     {
         parent::__construct();
         $this->o_git = $o_git;
-    }
-
-
-    /**
-     *
-     *
-     * @param string $name
-     *
-     * @return $this
-     */
-    protected function load(string $name): static
-    {
-        $output = $this->o_git->get()
-                            ->addArgument('remote show')
-                            ->addArgument($files ? '-f' : null)
-                            ->addArgument($directories ? '-d' : null)
-                            ->addArguments($branches_or_directories)
-                            ->executeReturnArray();
-
     }
 }

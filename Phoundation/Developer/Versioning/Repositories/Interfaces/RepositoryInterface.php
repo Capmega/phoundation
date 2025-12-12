@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 
 interface RepositoryInterface extends DataEntryInterface
@@ -41,4 +42,20 @@ interface RepositoryInterface extends DataEntryInterface
      * @return RemotesInterface
      */
     public function getRemotesObject(): RemotesInterface;
+
+    /**
+     * Returns the path for this ChangedFiles object
+     *
+     * @return GitInterface
+     */
+    public function getGitObject(): GitInterface;
+
+    /**
+     * Returns the path for this ChangedFiles object
+     *
+     * @param GitInterface $o_git
+     *
+     * @return static
+     */
+    public function setGitObject(GitInterface $o_git): static;
 }

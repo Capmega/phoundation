@@ -188,7 +188,7 @@ class Plugins extends Project
                 ':branch' => $branch,
             ]), 3);
 
-            $this->o_git->setBranch($this->branch);
+            $this->o_git->setCurrentBranch($this->branch);
             $this->branch = null;
 
         } else {
@@ -198,8 +198,8 @@ class Plugins extends Project
             ]), 4);
 
             // Select the new branch and store the previous
-            $this->branch = $this->o_git->getBranch();
-            $this->o_git->setBranch($branch);
+            $this->branch = $this->o_git->getCurrentBranch();
+            $this->o_git->setCurrentBranch($branch);
         }
 
         return $this;
@@ -269,7 +269,7 @@ class Plugins extends Project
         }
 
         // Ensure phoundation is on the right branch
-        $this->phoundation_branch = $this->o_git->getBranch();
+        $this->phoundation_branch = $this->o_git->getCurrentBranch();
 
         if ($branch !== $this->phoundation_branch) {
             Log::warning(ts('Phoundation plugins is currently on different branch ":current"', [
@@ -297,7 +297,7 @@ class Plugins extends Project
     {
         if (!$branch) {
             // Select the current branch
-            $branch = $this->o_git->getBranch();
+            $branch = $this->o_git->getCurrentBranch();
 
             Log::notice(ts('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,

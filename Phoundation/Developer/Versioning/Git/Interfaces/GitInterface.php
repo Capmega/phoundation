@@ -51,7 +51,7 @@ interface GitInterface
      *
      * @return string
      */
-    public function getBranch(): string;
+    public function getCurrentBranch(): string;
 
     /**
      * Returns the current git branch for this path
@@ -60,21 +60,21 @@ interface GitInterface
      *
      * @return static
      */
-    public function setBranch(string $branch): static;
+    public function setCurrentBranch(string $branch): static;
 
     /**
      * Returns a list of available git branches
      *
-     * @return BranchesInterface
+     * @return array
      */
-    public function getBranchesObject(): BranchesInterface;
+    public function getBranches(): array;
 
     /**
      * Stashes the git changes
      *
-     * @return StashInterface
+     * @return array
      */
-    public function getStashObject(): StashInterface;
+    public function getStashList(): array;
 
     /**
      * Checks out the specified branches or paths for this git path

@@ -53,5 +53,20 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+$o_repository = Repository::new($argv['name']);
+
+
 // Display repository details
-Repository::new($argv['name'])->displayCliForm();
+$o_repository->displayCliForm();
+
+Log::cli(' ');
+Log::cli(ts('Remotes:'), 'information');
+$o_repository->getRemotesObject()->displayCliTable();
+
+Log::cli(' ');
+Log::cli(ts('Branches:'), 'information');
+$o_repository->getBranchesObject()->displayCliTable();
+
+Log::cli(' ');
+Log::cli(ts('Tags:'), 'information');
+$o_repository->getTagsObject()->displayCliTable();

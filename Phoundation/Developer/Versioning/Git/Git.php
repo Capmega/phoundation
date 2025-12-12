@@ -18,19 +18,17 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
-use Phoundation\Developer\Versioning\Git\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\RemoteRepositoriesInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\StashInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Developer\Versioning\Versioning;
-use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Stringable;
 
@@ -134,7 +132,7 @@ class Git extends Versioning implements GitInterface
      */
     public function hasBranch(string $branch): bool
     {
-        return $this->getBranchesObject()->keyExists($branch);
+        return array_key_exists($branch, $this->getBranches());
     }
 
 
@@ -143,7 +141,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return string
      */
-    public function getBranch(): string
+    public function getCurrentBranch(): string
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('branch')
@@ -168,7 +166,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return static
      */
-    public function setBranch(string $branch): static
+    public function setCurrentBranch(string $branch): static
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('checkout')
@@ -176,7 +174,6 @@ class Git extends Versioning implements GitInterface
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
-
         return $this;
     }
 
@@ -184,22 +181,123 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @return BranchesInterface
+     * @return array
      */
-    public function getBranchesObject(): BranchesInterface
+    public function getBranches(): array
     {
-        return new Branches($this->o_directory);
+        $source  = [];
+        $results = $this->o_process
+                        ->clearArguments()
+                        ->addArgument('branch')
+                        ->addArgument('--quiet')
+                        ->addArgument('--no-color')
+                        ->executeReturnArray();
+
+        foreach ($results as $line) {
+            if (str_starts_with($line, '*')) {
+                $source[substr($line, 2)] = true;
+
+            } else {
+                $source[substr($line, 2)] = false;
+            }
+        }
+
+        return $source;
     }
 
 
     /**
-     * Stashes the git changes
+     * Returns a list of available git tags
      *
-     * @return StashInterface
+     * @return array
      */
-    public function getStashObject(): StashInterface
+    public function getTags(): array
     {
-        return Stash::new($this->o_directory);
+        $return = $this->o_process
+                       ->clearArguments()
+                       ->addArgument('tag')
+                       ->addArgument('-l')
+                       ->executeReturnArray();
+
+        Log::notice($return, 1, false);
+        return Arrays::valueToKeys($return);
+    }
+
+
+    /**
+     * Stashes the changes in the current repository
+     *
+     * @param PhoPathInterface|array|string|null $o_paths
+     *
+     * @return static
+     */
+    public function stash(PhoPathInterface|array|string|null $o_paths = null): static
+    {
+        $output = $this->o_process
+                       ->clearArguments()
+                       ->addArgument('stash')
+                       ->addArgument('--')
+                       ->addArguments($o_paths)
+                       ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Pops the last changes from the git stash stashes over the working tree
+     *
+     * @return static
+     */
+    public function stashPop(): static
+    {
+        $output = $this->o_process
+                       ->clearArguments()
+                       ->addArgument('stash')
+                       ->addArgument('pop')
+                       ->executeReturnArray();
+
+        Log::notice($output, 4, false);
+        return $this;
+    }
+
+
+    /**
+     * Returns an array containing all the changes in the last available git stash
+     *
+     * @return array
+     */
+    public function stashShow(): array
+    {
+        return $this->o_process
+                    ->clearArguments()
+                    ->addArgument('stash')
+                    ->addArgument('show')
+                    ->executeReturnArray();
+    }
+
+
+    /**
+     * Returns a list of git stashes
+     *
+     * @return array
+     */
+    public function getStashList(): array
+    {
+        $return  = [];
+        $results = $this->o_process
+                        ->clearArguments()
+                        ->addArgument('stash')
+                        ->addArgument('list')
+                        ->executeReturnArray();
+
+        foreach ($results as $result) {
+            preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
+            $return[$matches[0][0]] = $matches[2][0];
+        }
+
+        return $return;
     }
 
 
@@ -229,12 +327,12 @@ class Git extends Versioning implements GitInterface
      */
     public function getRemotes(): array
     {
-        $output = $this->o_process->clearArguments()
+        $return = $this->o_process->clearArguments()
                                   ->addArgument('remote')
                                   ->executeReturnArray();
 
-        Log::notice($output, 1, false);
-        return $output;
+        Log::notice($return, 1, false);
+        return Arrays::valueToKeys($return);
     }
 
 
