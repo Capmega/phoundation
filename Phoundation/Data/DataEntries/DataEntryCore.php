@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries;
 
+use Error;
 use Exception;
 use PDOStatement;
 use Phoundation\Accounts\Config\Config;
@@ -1251,8 +1252,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             try {
                 foreach ($identifier as $column => $value) {
                     if ($column !== static::getIdColumn()) {
-                        $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()
-                                                                                           ->get($column));
+                        $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()->get($column));
                     }
                 }
 
@@ -2988,7 +2988,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // The set method doesn't exist and is required
-        throw new DataEntryException(tr('Cannot set DataEntry class ":class" source column ":column" because the class has no linked set method ":short:::method()" defined', [
+        throw new DataEntryException(tr('Cannot set or get DataEntry class ":class" source column ":column" because the class has no linked set method ":short:::method()" defined', [
             ':short'  => Strings::fromReverse($this::class, '\\'),
             ':column' => $column,
             ':method' => $method,
@@ -5148,7 +5148,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getSourceForDatabase(bool $insert): array
     {
-        $return = [];
+        $source = [];
 
         // Run over all definitions and generate a data column
         foreach ($this->o_definitions as $column => $o_definition) {
@@ -5168,7 +5168,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $column    = $o_definition->getColumn();
             $method    = $o_definition->getDataEntryMethodName('get');
             $functions = $o_definition->getPreSaveFunctions();
-            $value     = $this->$method();
+
+            try {
+                $value = $this->$method();
+
+            } catch (Error $e) {
+                $this->handleSetColumnValueWithObjectSetterException($e, $method, null, $column);
+            }
 
             // Apply pre-save functions
             if ($functions) {
@@ -5177,28 +5183,28 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
             }
 
-            $return[$column] = $value;
+            $source[$column] = $value;
 
             // Ensure values are scalar for the SQL query
-            if (($return[$column] !== null) and !is_scalar($return[$column])) {
-                if (is_enum($return[$column])) {
-                    $return[$column] = $return[$column]->value;
+            if (($source[$column] !== null) and !is_scalar($source[$column])) {
+                if (is_enum($source[$column])) {
+                    $source[$column] = $source[$column]->value;
 
-                } elseif ($return[$column] instanceof Stringable) {
-                    $return[$column] = (string) $return[$column];
+                } elseif ($source[$column] instanceof Stringable) {
+                    $source[$column] = (string) $source[$column];
 
                 } else {
-                    $return[$column] = Json::ensureEncoded($return[$column]);
+                    $source[$column] = Json::ensureEncoded($source[$column]);
                 }
             }
         }
 
         if ($this->debug) {
             Log::dump('DATA SENT TO SQL FOR "' . static::class . '"', 10, echo_header: false);
-            Log::vardump($return, echo_header: false);
+            Log::vardump($source, echo_header: false);
         }
 
-        return $return;
+        return $source;
     }
 
 

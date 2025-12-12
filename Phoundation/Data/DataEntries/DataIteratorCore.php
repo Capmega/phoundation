@@ -493,13 +493,13 @@ throw new ObsoleteException();
     /**
      * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
      *
-     * @param bool $value
+     * @param bool $keys_are_unique_column
      *
      * @return static
      */
-    public function setKeysAreUniqueColumn(bool $value): static
+    public function setKeysAreUniqueColumn(bool $keys_are_unique_column): static
     {
-        $this->keys_are_unique_column = $value;
+        $this->keys_are_unique_column = $keys_are_unique_column;
         return $this;
     }
 
