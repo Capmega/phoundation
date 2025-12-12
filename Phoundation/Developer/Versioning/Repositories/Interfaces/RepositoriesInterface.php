@@ -3,7 +3,6 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
-use Phoundation\Developer\Phoundation\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Stringable;
 

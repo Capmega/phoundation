@@ -17,17 +17,15 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Repositories;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
-use Phoundation\Developer\Phoundation\Interfaces\RepositoryInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
+use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
-use Phoundation\Os\Processes\Process;
 use ReturnTypeWillChange;
 use Stringable;
 
