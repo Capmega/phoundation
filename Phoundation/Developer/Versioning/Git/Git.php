@@ -3,7 +3,10 @@
 /**
  * Class Git
  *
+ * Driver class for the git versioning system
  *
+ * This class contains (most of the basic) methods to manage all basic operations one would do with git. The constructor requires a PhoDirectory object
+ * containing the directory of the git repository on which this class will be working
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,7 +23,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\TagInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -96,8 +98,8 @@ class Git extends Versioning implements GitInterface
     {
         $this->o_directory = $o_directory->makeAbsolute()->checkReadable();
         $this->o_process   = Process::new('git')
-                                        ->setExecutionDirectory($this->o_directory)
-                                        ->setTimeout(300);
+                                    ->setExecutionDirectory($this->o_directory)
+                                    ->setTimeout(300);
 
         return $this;
     }
