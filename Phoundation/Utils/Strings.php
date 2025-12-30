@@ -3003,7 +3003,7 @@ class Strings extends Utils
         throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a key specified to extract a value from', [
             ':class' => EntryInterface::class
         ]))->addData([
-            ':source' => $source,
+            'source' => $source,
         ]);
     }
 }
