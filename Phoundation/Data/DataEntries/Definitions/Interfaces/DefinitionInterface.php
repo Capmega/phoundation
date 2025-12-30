@@ -1167,10 +1167,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * Adds the specified validation function to the validation functions list for this definition
      *
      * @param callable $function
-     *
+     * @param string|null $name
+     * @param bool $set_content_test_done
      * @return static
      */
-    public function addValidationFunction(callable $function): static;
+    public function addValidationFunction(callable $function, ?string $name = null, bool $set_content_test_done = false): static;
 
 
     /**
