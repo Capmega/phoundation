@@ -45,7 +45,7 @@ class LsBlk extends Command
 
 
     /**
-     * Returns the output of the DF command in a usable Iterator interface
+     * Returns the output of the lsblk command in a usable Iterator interface
      *
      * @todo This method should auto execute if not executed yet, or fail gracefully
      *
@@ -64,7 +64,7 @@ class LsBlk extends Command
                 $result['device'] = '/dev/' . $result['name'];
 
             } else {
-                $match = $devices->getMatchingValues($result['name'], Utils::MATCH_ENDS_WITH)->getFirstValue();
+                $match = $devices->getMatchingValues($result['name'], Utils::MATCH_ENDS_WITH, 'source')->getFirstValue();
 
                 if ($match) {
                     // This is a "linked" device

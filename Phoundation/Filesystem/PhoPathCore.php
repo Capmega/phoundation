@@ -501,7 +501,6 @@ class PhoPathCore implements PhoPathInterface
     public function makeAbsolute(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): static
     {
         $this->source = static::absolutePath($this->source, $absolute_prefix, $must_exist);
-
         return $this;
     }
 
@@ -867,7 +866,7 @@ class PhoPathCore implements PhoPathInterface
         $correct_extension = $this->getCorrectExtension();
         $basename          = $this->getBasename();
         $correct_filename  = Strings::untilReverse($basename, '.') . '.' . $correct_extension;
-        $correct_file      = $this->getParentDirectoryObject()->addFile($correct_filename);
+        $correct_file      = $this->getParentDirectoryObject()->addPath($correct_filename);
 
         Incident::new()
                 ->setType(tr('Incorrect file extension for mimetype'))
@@ -983,6 +982,42 @@ class PhoPathCore implements PhoPathInterface
             ':ext'       => Strings::force($extensions, ', '),
             ':mimetype'  => $this->getMimetype(),
         ]));
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function basenameMatchesRegex(string $regular_expression): bool
+    {
+        return (bool) preg_match($regular_expression, $this->getBasename());
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function pathMatchesRegex(string $regular_expression): bool
+    {
+        return (bool) preg_match($regular_expression, $this->getSource());
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function parentDirectoryMatchesRegex(string $regular_expression): bool
+    {
+        return preg_match($regular_expression, $this->getParentDirectoryObject()->getSource());
     }
 
 
@@ -2159,7 +2194,16 @@ class PhoPathCore implements PhoPathInterface
             }
 
         } else {
-            chmod($this->source, $mode);
+            try {
+                chmod($this->source, $mode);
+
+            } catch (PhpException $e) {
+                throw FilesystemException::new(ts('Failed to change mode for file ":file"', [
+                    ':file' => $this->source,
+                ]), $e)->addData([
+                    'file' => $this->source,
+                ]);
+            }
         }
 
         return $this;
@@ -2174,25 +2218,31 @@ class PhoPathCore implements PhoPathInterface
     public function getModeHumanReadable(): string
     {
         $return = '';
-        $mode   = $this->getmode();
+        $mode   = $this->getMode();
         $mode   = substr(decoct($mode), -3, 3);
 
         for ($i = 0; $i < 3; $i++) {
             $number = (int) substr($mode, $i, 1);
+
             if (($number - 4) >= 0) {
                 $return .= 'r';
                 $number -= 4;
+
             } else {
                 $return .= '-';
             }
+
             if (($number - 2) >= 0) {
                 $return .= 'w';
                 $number -= 2;
+
             } else {
                 $return .= '-';
             }
+
             if (($number - 1) >= 0) {
                 $return .= 'x';
+
             } else {
                 $return .= '-';
             }
@@ -3999,8 +4049,8 @@ class PhoPathCore implements PhoPathInterface
                     while (true) {
                         try {
                             // Create symlink for only this file
-                            $link = $dir_target->addFile($section)->getRelativePathTo($path);
-                            $dir_alternate_path->addFile($section . $number)->symlinkThisToTarget($link);
+                            $link = $dir_target->addPath($section)->getRelativePathTo($path);
+                            $dir_alternate_path->addPath($section . $number)->symlinkThisToTarget($link);
                             break;
 
                         } catch (FileExistsException $e) {
@@ -4008,7 +4058,7 @@ class PhoPathCore implements PhoPathInterface
                                 throw $e;
                             }
 
-                            if (!$dir_alternate_path->addFile($section . $number)->isLink()) {
+                            if (!$dir_alternate_path->addPath($section . $number)->isLink()) {
                                 // Only retry if the existing target is a symlink too. If the existing target is a
                                 // normal file, then assume that this normal file was there to replace this link
                                 break;
@@ -4248,7 +4298,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        return new PhoFilesystem($filesystem['filesystem']);
+        return new PhoFilesystem($filesystem['filesystem'], $this->o_restrictions);
     }
 
 

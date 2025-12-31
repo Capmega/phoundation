@@ -57,7 +57,7 @@ interface PhoExecuteInterface extends PhoDirectoryInterface
      *
      * @return int
      */
-    public function getMode(): int;
+    public function getRequiredMode(): int;
 
     /**
      * Returns the file mode for the object file in octal mode
@@ -69,12 +69,12 @@ interface PhoExecuteInterface extends PhoDirectoryInterface
     /**
      * Sets the path mode that will be set for each path
      *
-     * @param string|int|null $mode
+     * @param string|int|null $required_mode
      *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setMode(string|int|null $mode): static;
+    public function setRequiredMode(string|int|null $required_mode): static;
 
     /**
      * Returns if exceptions will be ignored during the processing of multiple files
@@ -194,7 +194,7 @@ interface PhoExecuteInterface extends PhoDirectoryInterface
      *
      * @return void
      */
-    public function onDirectoryOnly(callable $callback): void;
+    public function onDirectoriesOnly(callable $callback): void;
 
     /**
      * Execute the callback function on each file in the specified path

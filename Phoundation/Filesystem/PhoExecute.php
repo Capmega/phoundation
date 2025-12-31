@@ -19,6 +19,7 @@ namespace Phoundation\Filesystem;
 use Exception;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Interfaces\PhoExecuteInterface;
 use Phoundation\Data\Traits\TraitDataRestrictions;
 use Phoundation\Utils\Arrays;
@@ -40,9 +41,9 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
     /**
      * The mode that directories will receive when executing this each
      *
-     * @var string|int|null $mode
+     * @var string|int|null $required_mode
      */
-    protected string|int|null $mode = null;
+    protected string|int|null $required_mode = null;
 
     /**
      * If set, will NOT execute on the specified extensions
@@ -144,9 +145,9 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
      *
      * @return int
      */
-    public function getMode(): int
+    public function getRequiredMode(): int
     {
-        return $this->mode;
+        return $this->required_mode;
     }
 
 
@@ -164,14 +165,14 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
     /**
      * Sets the directory mode that will be set for each directory
      *
-     * @param string|int|null $mode
+     * @param string|int|null $required_mode
      *
      * @return static
      * @throws OutOfBoundsException if the specified threshold is invalid.
      */
-    public function setMode(string|int|null $mode): static
+    public function setRequiredMode(string|int|null $required_mode): static
     {
-        $this->mode = get_null($mode);
+        $this->required_mode = get_null($required_mode);
 
         return $this;
     }
@@ -364,10 +365,10 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
      * Execute the callback function on each file in the specified directory
      *
      * @param callable $callback
-     *
+     * @param bool $exception
      * @return void
      */
-    public function onDirectoryOnly(callable $callback): void
+    public function onDirectoriesOnly(callable $callback, bool $exception = true): void
     {
         $this->o_restrictions->check($this->source, true);
 
@@ -380,8 +381,26 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
                 continue;
             }
 
-            if ($this->mode) {
-                $mode = $this->switchMode($this->mode);
+            try {
+                if ($this->required_mode) {
+                    $mode = $this->switchMode($this->required_mode);
+                }
+
+            } catch (FilesystemException $e) {
+                if (!$this->isWritable()) {
+                    // Cannot switch mode because the file is not writable, likely issue with ownership
+                    throw $e;
+                }
+
+                // The file is writable, we might be able to ignore this?
+                if ($exception) {
+                    throw $e;
+                }
+
+                Log::warning(ts('Failed to switch mode to ":mode" for file ":file". This MAY not effect anything, so it will be ignored', [
+                    ':mode' => $this->required_mode,
+                    ':file' => $this->source,
+                ]), 4);
             }
 
             Log::action(ts('Executing callback function on directory ":directory"', [
@@ -393,6 +412,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
             // Return original file mode
             if (isset($mode)) {
                 $this->chmod($mode);
+                unset($mode);
             }
         }
     }
@@ -440,9 +460,9 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
             return 0;
         }
 
-        if ($this->mode) {
+        if ($this->required_mode) {
             // Temporarily change mode for this callback
-            $mode = $this->switchMode($this->mode);
+            $mode = $this->switchMode($this->required_mode);
         }
 
         try {

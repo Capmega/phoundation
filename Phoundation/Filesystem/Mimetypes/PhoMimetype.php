@@ -16,12 +16,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem\Mimetypes;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPriority;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Filesystem\Interfaces\PhoMimetypeInterface;
@@ -112,11 +115,26 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     {
         $this->__setPathObject($o_path);
 
-        return $this->load([
-            'mimetype'  => $o_path->getMimetype(),
-            'extension' => $o_path->getExtension(),
-            'priority'  => 0
-        ]);
+        try {
+            return $this->load([
+                'mimetype'  => $o_path->getMimetype(),
+                'extension' => $o_path->getExtension(),
+                'priority'  => 0
+            ]);
+
+        } catch (DataEntryNotExistsException) {
+            // This mimetype is not supported or found, load nothing
+            Log::warning(ts('Not loading mimetype data for path ":path", no mimetype available in database or configuration for identifier ":data"', [
+                ':path' => $o_path,
+                ':data' => [
+                    'mimetype'  => $o_path->getMimetype(),
+                    'extension' => $o_path->getExtension(),
+                    'priority'  => 0
+                ]
+            ]), 5);
+
+            return $this;
+        }
     }
 
 
@@ -381,7 +399,6 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
 
                     ->add(DefinitionFactory::newCode('mimetype')
                                            ->setOptional(false)
-                                           ->setInputType(EnumInputType::code)
                                            ->setSize(4)
                                            ->setMaxLength(128)
                                            ->setLabel('Mimetype')

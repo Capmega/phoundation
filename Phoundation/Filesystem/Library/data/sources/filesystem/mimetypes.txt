@@ -219,9 +219,9 @@
 .jfif-tbnl 	image/jpeg
 .jpe 	image/jpeg
 .jpe 	image/pjpeg
-.jpeg 	image/jpeg	0
+.jpeg 	image/jpeg	1
 .jpeg 	image/pjpeg
-.jpg 	image/jpeg	1
+.jpg 	image/jpeg	0
 .jpg 	image/pjpeg
 .jps 	image/x-jps
 .js 	application/x-javascript	2
@@ -659,8 +659,8 @@
 .xlw 	application/x-excel
 .xlw 	application/x-msexcel
 .xm 	audio/xm
-.xml 	application/xml
-.xml 	text/xml	1
+.xml 	application/xml 1
+.xml 	text/xml	0
 .xmz 	xgl/movie
 .xpix 	application/x-vnd.ls-xpix
 .xpm 	image/x-xpixmap

@@ -77,8 +77,8 @@ class Df extends Command
             $this->addArgument('-i');
         }
 
-        if ($this->path) {
-            $this->addArgument($this->path);
+        if ($this->o_path) {
+            $this->addArgument($this->o_path);
         }
 
         return parent::executeReturnArray();

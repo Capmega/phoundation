@@ -359,7 +359,7 @@ interface PhoPathInterface extends Stringable
      *
      * @return int|null
      */
-    public function getMode(): int|null;
+    public function getRequiredMode(): int|null;
 
     /**
      * Returns the path octal filemode into a text readable filemode (rwxrwxrwx)
@@ -1410,4 +1410,28 @@ interface PhoPathInterface extends Stringable
      * @return bool
      */
     public function isWorldExecutable(): bool;
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function basenameMatchesRegex(string $regular_expression): bool;
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function pathMatchesRegex(string $regular_expression): bool;
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function parentDirectoryMatchesRegex(string $regular_expression): bool;
 }

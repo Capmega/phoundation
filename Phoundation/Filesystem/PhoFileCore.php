@@ -151,8 +151,8 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
             // Create the file
             PhoDirectory::new(dirname($this->source), $this->o_restrictions)
                      ->execute()
-                     ->setMode(0770)
-                     ->onDirectoryOnly(function () use ($mode) {
+                     ->setRequiredMode(0770)
+                     ->onDirectoriesOnly(function () use ($mode) {
                         Log::warning(ts('File ":file" did not exist and was created empty to ensure system stability, but information may be missing', [
                             ':file' => $this->source,
                         ]));
@@ -1106,7 +1106,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      */
     public function isVideo(): bool
     {
-        return $this->getMimetypeObject()->getPrimaryPart() === 'video';
+        return $this->getMimetypeObject()?->getPrimaryPart() === 'video';
     }
 
 
