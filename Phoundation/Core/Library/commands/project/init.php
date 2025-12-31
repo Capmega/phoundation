@@ -16,6 +16,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Core;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Libraries\Library;
 use Phoundation\Data\Validator\ArgvValidator;
@@ -119,6 +120,7 @@ if ($argv['set_version']) {
 
 
 // Initialize the system
+Core::setTimeout(config()->getInteger('system.timeouts.project-init', 600));
 Libraries::initialize(!$argv['system'], !$argv['plugins'], !$argv['templates'], $argv['comments'], $argv['libraries']);
 
 
