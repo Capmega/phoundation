@@ -3028,7 +3028,7 @@ class Core implements CoreInterface
     {
         // Command line command crashed.
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
-        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
+        if (($e instanceof PhoException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
             if (!$e->hasBeenLogged()) {
                 Log::warning($e->getMessage(), 10);
