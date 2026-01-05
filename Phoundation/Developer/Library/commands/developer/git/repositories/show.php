@@ -19,11 +19,10 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
 use Phoundation\Developer\Versioning\Repositories\Repository;
-use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Utils\Numbers;
+
 
 // Start documentation
 CliDocumentation::setAutoComplete([
@@ -53,10 +52,8 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-$o_repository = Repository::new($argv['name']);
-
-
 // Display repository details
+$o_repository = Repository::new($argv['name']);
 $o_repository->displayCliForm();
 
 
