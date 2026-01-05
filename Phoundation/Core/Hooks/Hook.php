@@ -135,7 +135,7 @@ class Hook implements HookInterface
      */
     public function exists(string $hook): bool
     {
-        return $this->directory->addFile($hook . '.php')->exists();
+        return $this->directory->addPath($hook . '.php')->exists();
     }
 
 
@@ -159,7 +159,7 @@ class Hook implements HookInterface
      */
     public function getFile(?string $hook = null): PhoFileInterface
     {
-        return $this->directory->addFile(($hook ?? $this->hook) . '.php');
+        return $this->directory->addPath(($hook ?? $this->hook) . '.php');
     }
 
 

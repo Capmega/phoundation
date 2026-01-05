@@ -1598,20 +1598,30 @@ class Core implements CoreInterface
      * @return bool Returns TRUE on success, or FALSE on failure.
      * @see     set_time_limit()
      */
-    public static function setTimeout(?int $timeout = null): bool
+    public static function setTimeout(?int $timeout = null, bool $allow_override = true): bool
     {
-        if ($timeout === null) {
-            if (PLATFORM_WEB) {
-                // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
-                $timeout = config()->get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+        static $set_allow_override = true;
 
-            } else {
-                // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
-                $timeout = config()->get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+        if ($set_allow_override) {
+            if ($timeout === null) {
+                if (PLATFORM_WEB) {
+                    // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
+                    $timeout = config()->get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+
+                } else {
+                    // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
+                    $timeout = config()->get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+                }
             }
+
+            $return = set_time_limit($timeout);
+
+        } else {
+            $return = false;
         }
 
-        return set_time_limit($timeout);
+        $set_allow_override = $allow_override;
+        return $return;
     }
 
 
@@ -1942,7 +1952,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
+            $directory->ensure()->addPath(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
             Log::warning(ts('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 
@@ -2025,7 +2035,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            $directory->ensure()->addFile(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
+            $directory->ensure()->addPath(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
 
             Log::warning(ts('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 

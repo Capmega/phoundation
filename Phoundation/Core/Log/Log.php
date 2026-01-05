@@ -2135,13 +2135,11 @@ class Log implements LogInterface
      *
      * @see  Log::write()
      */
-    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10): bool
+    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10, string $tencolor = 'blue', string $ten_dot = '#'): bool
     {
-        static $count = 0, $l_each = 0;
+        static $count = 0, $internal_each = 0, $ten_count = 0;
 
-        if (!PLATFORM_CLI) {
-            return false;
-        }
+        $echo_screen = PLATFORM_CLI;
 
         if (($each === 0) or ($each === true)) {
             if ($count) {
@@ -2149,22 +2147,32 @@ class Log implements LogInterface
                 Log::write(ts('Done'), $color, $threshold, false, true, false);
             }
 
-            $l_each = 0;
-            $count  = 0;
+            $internal_each = 0;
+            $ten_count     = 0;
+            $count         = 0;
 
             return true;
         }
 
         $count++;
+        $ten_count++;
 
-        if ($l_each != $each) {
-            $l_each = $each;
-            $count  = 0;
+        if ($internal_each != $each) {
+            $internal_each = $each;
+            $ten_count     = 0;
+            $count         = 0;
         }
 
-        if ($count >= $l_each) {
+        if ($count >= $internal_each) {
             $count = 0;
-            Log::write($dot, $color, $threshold, false, false, false);
+
+            if (floor($ten_count / 10) >= $internal_each) {
+                $ten_count = 0;
+                Log::write($ten_dot, $tencolor, $threshold, false, false, false, echo_screen: $echo_screen);
+
+            } else {
+                Log::write($dot, $color, $threshold, false, false, false, echo_screen: $echo_screen);
+            }
 
             return true;
         }
