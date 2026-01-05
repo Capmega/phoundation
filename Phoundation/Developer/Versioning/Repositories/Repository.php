@@ -156,28 +156,28 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function detectPhoundationType(PhoDirectoryInterface $o_directory): ?EnumPhoundationType
     {
-        if ($o_directory->addFile('.git')->exists()) {
-            if ($o_directory->addFile('.is-phoundation')->exists()) {
+        if ($o_directory->addPath('.git')->exists()) {
+            if ($o_directory->addPath('.is-phoundation')->exists()) {
                 return EnumPhoundationType::system;
             }
 
-            if ($o_directory->addFile('.is-phoundation-plugins')->exists()) {
+            if ($o_directory->addPath('.is-phoundation-plugins')->exists()) {
                 return EnumPhoundationType::plugins;
             }
 
-            if ($o_directory->addFile('.is-phoundation-templates')->exists()) {
+            if ($o_directory->addPath('.is-phoundation-templates')->exists()) {
                 return EnumPhoundationType::templates;
             }
 
-            if ($o_directory->addFile('.is-phoundation-data')->exists()) {
+            if ($o_directory->addPath('.is-phoundation-data')->exists()) {
                 return EnumPhoundationType::data;
             }
 
-            if ($o_directory->addFile('.is-phoundation-cdn')->exists()) {
+            if ($o_directory->addPath('.is-phoundation-cdn')->exists()) {
                 return EnumPhoundationType::cdn;
             }
 
-            if ($o_directory->addFile('config/project/phoundation')->exists()) {
+            if ($o_directory->addPath('config/project/phoundation')->exists()) {
                 return EnumPhoundationType::project;
             }
         }
@@ -194,11 +194,11 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function detectPlatform(PhoDirectoryInterface $o_directory): ?string
     {
-        if ($o_directory->addFile('.git')->exists()) {
+        if ($o_directory->addPath('.git')->exists()) {
             return 'git';
         }
 
-        if ($o_directory->addFile('.svn')->exists()) {
+        if ($o_directory->addPath('.svn')->exists()) {
             return 'subversion';
         }
 
