@@ -29,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.8.1';
     }
 
 
@@ -192,6 +192,29 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'filesystem_requirements',
                 'filesystem_mimetypes',
                 'filesystem_user_files',
+            ]);
+
+        })->addUpdate('0.8.1', function () {
+            // Add missing mimetype
+            sql()->insert('filesystem_mimetypes', [
+                'name'           => 'text/x-nfo',
+                'seo_name'       => 'text-x-nfo',
+                'extension'      => '.nfo',
+                'mimetype'       => 'text/xml',
+                'primary_part'   => 'text',
+                'secondary_part' => 'x-nfo',
+                'priority'       => 0,
+            ]);
+
+            // Add missing mimetype
+            sql()->insert('filesystem_mimetypes', [
+                'name'           => 'text/x-nfo',
+                'seo_name'       => 'text-x-nfo',
+                'extension'      => '.nfo',
+                'mimetype'       => 'text/x-nfo',
+                'primary_part'   => 'text',
+                'secondary_part' => 'x-nfo',
+                'priority'       => 1,
             ]);
         });
     }

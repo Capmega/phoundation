@@ -161,7 +161,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                             ->ensure();
 
         // Put lock file to avoid delete directory auto cleanup removing this temporary directory
-        $path->addFile('.lock')->touch();
+        $path->addPath('.lock')->touch();
 
         return $path;
     }
@@ -529,14 +529,14 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Ensures the existence of the specified directory
      *
-     * @param string|int|null             $mode            octal $mode If the specified $this->directory does not exist,
+     * @param string|int|null $mode octal $mode If the specified $this->directory does not exist,
      *                                                     it will be created with this directory mode. Defaults to
      *                                                     configuration path filesystem.directories.mode
      * @param Stringable|string|bool|null $absolute_prefix
-     * @param boolean                     $clear           If set to true, and the specified directory already exists,
+     * @param boolean $clear If set to true, and the specified directory already exists,
      *                                                     it will be deleted and then re-created
-     * @param bool                        $sudo
-     *
+     * @param bool $sudo
+     * @param bool $exception
      * @return static
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
@@ -544,7 +544,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * @package   file
      * @version   2.4.16: Added documentation
      */
-    public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false): static
+    public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false, bool $exception = false): static
     {
         $this->checkRestrictions(true, absolute_prefix: $absolute_prefix);
 
@@ -581,13 +581,12 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
                     $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
-
                     PhoDirectory::new(dirname($source), $this->o_restrictions->getParent($count - $id)->makeWritable())
                                 ->execute()
-                                    ->setMode(0770)
-                                    ->onDirectoryOnly(function () use ($mode, $source) {
+                                    ->setRequiredMode(0770)
+                                    ->onDirectoriesOnly(function () use ($mode, $source) {
                                         mkdir($source, $mode);
-                                    });
+                                    }, $exception);
 
                 } catch (RestrictionsException $e) {
                     throw $e;
@@ -1511,19 +1510,19 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     $o_path->copy($o_target->addDirectory($basename), $o_target->getRestrictionsObject(), $callback, $context, $recursive, $ignore_fails);
 
                 } elseif ($o_path->isLink()) {
-                    symlink($this->addFile($basename)->getLinkTarget()->getSource(),
-                            $o_target->addFile($basename)->getSource());
+                    symlink($this->addPath($basename)->getLinkTarget()->getSource(),
+                            $o_target->addPath($basename)->getSource());
 
                 } else {
                     try {
-                        copy($this->addFile($basename)->getSource(),
-                            $o_target->addFile($basename)->getSource(), $context);
+                        copy($this->addPath($basename)->getSource(),
+                            $o_target->addPath($basename)->getSource(), $context);
 
                     } catch (PhpException $e) {
-                        if ($this->addFile($basename)->isLink() and !$this->addFile($basename)->isLinkAndTargetExists()) {
+                        if ($this->addPath($basename)->isLink() and !$this->addPath($basename)->isLinkAndTargetExists()) {
                             // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
-                            symlink($this->addFile($basename)->getSource(),
-                                    $o_target->addFile($basename)->getSource());
+                            symlink($this->addPath($basename)->getSource(),
+                                    $o_target->addPath($basename)->getSource());
 
                             continue;
                         }
@@ -1564,17 +1563,23 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param PhoPathInterface|string $file
+     * @param PhoPathInterface|string $path
      *
-     * @return PhoFileInterface
+     * @return PhoFileInterface|PhoDirectoryInterface
      */
-    public function addFile(PhoPathInterface|string $file): PhoFileInterface
+    public function addPath(PhoPathInterface|string $path): PhoFileInterface|PhoDirectoryInterface
     {
-        if ($file) {
-            $file = $this->getSource() . Strings::ensureBeginsNotWith((string) $file, '/');
+        if ($path) {
+            $path = $this->getSource() . Strings::ensureBeginsNotWith((string) $path, '/');
         }
 
-        return PhoFile::new($file, $this->o_restrictions)
+        if (is_dir($path)) {
+            // This is a directory, return the correct object
+            return PhoDirectory::new($path, $this->o_restrictions)
+                               ->setAutoMount($this->auto_mount);
+        }
+
+        return PhoFile::new($path, $this->o_restrictions)
                       ->setAutoMount($this->auto_mount);
     }
 
@@ -1840,5 +1845,56 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the directory contains any video files
+     *
+     * @param bool $recursive
+     * @return bool
+     */
+    public function containsVideoFiles(bool $recursive = false): bool
+    {
+        return $this->getVideoFilesObject()->isNotEmpty();
+    }
+
+
+    /**
+     * Returns a PhoFiles object containing all video files found in this directory
+     *
+     * @param bool $recursive
+     * @param bool $use_cache
+     * @return PhoFilesInterface
+     */
+    public function getVideoFilesObject(bool $recursive = false, bool $use_cache = true): PhoFilesInterface
+    {
+        static $o_return;
+
+        // Use cached results?
+        if ($o_return) {
+            if ($use_cache) {
+                return $o_return;
+            }
+        }
+
+        // Initialize
+        $o_return = PhoFiles::new($this);
+
+        // Scan, recursive if needed
+        foreach ($this->scan() as $o_file) {
+            if ($o_file->isDirectory()) {
+                if ($recursive) {
+                    // Recurse into directories
+                    $o_return->addSource($o_file->getVideoFilesObject(true));
+                }
+
+            } else if ($o_file->isVideo()) {
+                // Found a video file!
+                $o_return->add($o_file);
+            }
+        }
+
+        return $o_return;
     }
 }

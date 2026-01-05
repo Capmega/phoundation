@@ -45,7 +45,7 @@ class LsBlk extends Command
 
 
     /**
-     * Returns the output of the DF command in a usable Iterator interface
+     * Returns the output of the lsblk command in a usable Iterator interface
      *
      * @todo This method should auto execute if not executed yet, or fail gracefully
      *
@@ -57,14 +57,15 @@ class LsBlk extends Command
         $results = Json::decode($this->getStringOutput());
         $results = $results['blockdevices'];
         $devices = PhoMountedStorageDevices::new()->scan();
-
+//show($results);
         // Fix the device names and update the keys
         foreach ($results as $result) {
             if (str_starts_with($result['name'], 'loop')) {
                 $result['device'] = '/dev/' . $result['name'];
 
             } else {
-                $match = $devices->getMatchingValues($result['name'], Utils::MATCH_ENDS_WITH)->getFirstValue();
+show($result['name']);
+                $match = $devices->getMatchingValues($result['name'], Utils::MATCH_ENDS_WITH, 'source')->getFirstValue();
 
                 if ($match) {
                     // This is a "linked" device

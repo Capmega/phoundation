@@ -501,7 +501,6 @@ class PhoPathCore implements PhoPathInterface
     public function makeAbsolute(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): static
     {
         $this->source = static::absolutePath($this->source, $absolute_prefix, $must_exist);
-
         return $this;
     }
 
@@ -867,7 +866,7 @@ class PhoPathCore implements PhoPathInterface
         $correct_extension = $this->getCorrectExtension();
         $basename          = $this->getBasename();
         $correct_filename  = Strings::untilReverse($basename, '.') . '.' . $correct_extension;
-        $correct_file      = $this->getParentDirectoryObject()->addFile($correct_filename);
+        $correct_file      = $this->getParentDirectoryObject()->addPath($correct_filename);
 
         Incident::new()
                 ->setType(tr('Incorrect file extension for mimetype'))
@@ -983,6 +982,42 @@ class PhoPathCore implements PhoPathInterface
             ':ext'       => Strings::force($extensions, ', '),
             ':mimetype'  => $this->getMimetype(),
         ]));
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function basenameMatchesRegex(string $regular_expression): bool
+    {
+        return (bool) preg_match($regular_expression, $this->getBasename());
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function pathMatchesRegex(string $regular_expression): bool
+    {
+        return (bool) preg_match($regular_expression, $this->getSource());
+    }
+
+
+    /**
+     * Returns true if the basename of this path matches the regular expression
+     *
+     * @param string $regular_expression
+     * @return bool
+     */
+    public function parentDirectoryMatchesRegex(string $regular_expression): bool
+    {
+        return preg_match($regular_expression, $this->getParentDirectoryObject()->getSource());
     }
 
 
@@ -1849,7 +1884,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function switchMode(string|int $mode): string|int
     {
-        $old_mode = $this->getMode();
+        $old_mode = $this->getRequiredMode();
         $this->chmod($mode);
 
         return $old_mode;
@@ -1861,7 +1896,7 @@ class PhoPathCore implements PhoPathInterface
      *
      * @return int
      */
-    public function getMode(): int
+    public function getRequiredMode(): int
     {
         $mode = fileperms($this->getSource());
 
@@ -1882,7 +1917,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getOctalMode(): string
     {
-        return decoct($this->getMode());
+        return decoct($this->getRequiredMode());
     }
 
 
@@ -1904,7 +1939,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getOwnerPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0100) ? 'r' : '-') .
                (($mode & 0x0080) ? 'w' : '-') .
@@ -1920,7 +1955,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getGroupPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0020) ? 'r' : '-') .
                (($mode & 0x0010) ? 'w' : '-') .
@@ -1936,7 +1971,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getWorldPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0004) ? 'r' : '-') .
                (($mode & 0x0002) ? 'w' : '-') .
@@ -1963,7 +1998,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0100);
+        return (bool) ($this->getRequiredMode() & 0x0100);
     }
 
 
@@ -1974,7 +2009,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0080);
+        return (bool) ($this->getRequiredMode() & 0x0080);
     }
 
 
@@ -1985,7 +2020,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0800);
+        return (bool) ($this->getRequiredMode() & 0x0800);
     }
 
 
@@ -1996,7 +2031,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0020);
+        return (bool) ($this->getRequiredMode() & 0x0020);
     }
 
 
@@ -2007,7 +2042,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0010);
+        return (bool) ($this->getRequiredMode() & 0x0010);
     }
 
 
@@ -2018,7 +2053,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0400);
+        return (bool) ($this->getRequiredMode() & 0x0400);
     }
 
 
@@ -2029,7 +2064,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0004);
+        return (bool) ($this->getRequiredMode() & 0x0004);
     }
 
 
@@ -2040,7 +2075,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0002);
+        return (bool) ($this->getRequiredMode() & 0x0002);
     }
 
 
@@ -2051,7 +2086,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0200);
+        return (bool) ($this->getRequiredMode() & 0x0200);
     }
 
 
@@ -2160,7 +2195,16 @@ class PhoPathCore implements PhoPathInterface
             }
 
         } else {
-            chmod($this->source, $mode);
+            try {
+                chmod($this->source, $mode);
+
+            } catch (PhpException $e) {
+                throw FilesystemException::new(ts('Failed to change mode for file ":file"', [
+                    ':file' => $this->source,
+                ]), $e)->addData([
+                    'file' => $this->source,
+                ]);
+            }
         }
 
         return $this;
@@ -2175,7 +2219,7 @@ class PhoPathCore implements PhoPathInterface
     public function getModeHumanReadable(): string
     {
         $return = '';
-        $mode   = $this->getmode();
+        $mode   = $this->getRequiredMode();
         $mode   = substr(decoct($mode), -3, 3);
 
         for ($i = 0; $i < 3; $i++) {
@@ -4053,8 +4097,8 @@ class PhoPathCore implements PhoPathInterface
                     while (true) {
                         try {
                             // Create symlink for only this file
-                            $link = $dir_target->addFile($section)->getRelativePathTo($path);
-                            $dir_alternate_path->addFile($section . $number)->symlinkThisToTarget($link);
+                            $link = $dir_target->addPath($section)->getRelativePathTo($path);
+                            $dir_alternate_path->addPath($section . $number)->symlinkThisToTarget($link);
                             break;
 
                         } catch (FileExistsException $e) {
@@ -4062,7 +4106,7 @@ class PhoPathCore implements PhoPathInterface
                                 throw $e;
                             }
 
-                            if (!$dir_alternate_path->addFile($section . $number)->isLink()) {
+                            if (!$dir_alternate_path->addPath($section . $number)->isLink()) {
                                 // Only retry if the existing target is a symlink too. If the existing target is a
                                 // normal file, then assume that this normal file was there to replace this link
                                 break;
@@ -4300,7 +4344,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        return new PhoFilesystem($filesystem['filesystem']);
+        return new PhoFilesystem($filesystem['filesystem'], $this->o_restrictions);
     }
 
 

@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Filesystem\Mimetypes\PhoMimetypesInit;
 
@@ -52,3 +53,4 @@ if ($argv['clear']) {
 
 // Initialize the mime types
 PhoMimetypesInit::init();
+Log::cli('Done', 'success');

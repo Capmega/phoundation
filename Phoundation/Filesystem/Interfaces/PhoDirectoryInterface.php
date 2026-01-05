@@ -94,14 +94,14 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Ensures the existence of the specified directory
      *
-     * @param string|int|null             $mode            octal $mode If the specified $this->directory does not exist,
+     * @param string|int|null $mode octal $mode If the specified $this->directory does not exist,
      *                                                     it will be created with this directory mode. Defaults to
      *                                                     configuration path filesystem.directories.mode
      * @param Stringable|string|bool|null $absolute_prefix
-     * @param boolean                     $clear           If set to true, and the specified directory already exists,
+     * @param boolean $clear If set to true, and the specified directory already exists,
      *                                                     it will be deleted and then re-created
-     * @param bool                        $sudo
-     *
+     * @param bool $sudo
+     * @param bool $exception
      * @return static
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
@@ -109,7 +109,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @package   file
      * @version   2.4.16: Added documentation
      */
-    public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false): static;
+    public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false, bool $exception = true): static;
 
     /**
      * Returns true if the object directories are all empty
@@ -398,11 +398,11 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param PhoPathInterface|string $file
+     * @param PhoPathInterface|string $path
      *
-     * @return PhoFileInterface
+     * @return PhoFileInterface|PhoDirectoryInterface
      */
-    public function addFile(PhoPathInterface|string $file): PhoFileInterface;
+    public function addPath(PhoPathInterface|string $path): PhoFileInterface|PhoDirectoryInterface;
 
     /**
      * Executes the specified callback on each file
@@ -421,4 +421,12 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @return PhoDirectoryInterface|PhoFileInterface|null
      */
     public function getFileObject(string $file, bool $exception = false): PhoDirectoryInterface|PhoFileInterface|null;
+
+    /**
+     * Returns true if the directory contains any video files
+     *
+     * @param bool $recursive
+     * @return bool
+     */
+    public function containsVideoFiles(bool $recursive = false): bool;
 }

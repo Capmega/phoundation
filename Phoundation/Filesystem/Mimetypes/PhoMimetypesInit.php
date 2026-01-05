@@ -58,10 +58,14 @@ class PhoMimetypesInit
             PhoRestrictions::newRootObject(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
         )->getContentsAsString();
 
-        Log::action(ts('Registering mimetypes'), echo_newline: false);
-
         $types = Arrays::force($types, PHP_EOL);
         $count = 0;
+
+        PhoMimetypesInit::clear();
+
+        Log::action(ts('Registering ":count" mimetypes', [
+            ':count' => count($types)
+        ]), echo_newline: false);
 
         foreach ($types as $type) {
             $type = trim($type);
