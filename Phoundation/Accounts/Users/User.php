@@ -1074,23 +1074,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         if ($this->isCreated()) {
             // Notify the user that their account was created, accompanied by a login link
-            $key = $this->getSigninKey()
-                        ->generate(Url::new('/force-password-update.html')
-                                      ->makeWww());
-
-            $this->notify()
-                 ?->setTitle(tr('An account has been created for you on :project', [
-                     ':project' => Project::getHumanReadableFullName()
-                 ]))
-                 ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
-                     ':url'     => $key->getUrl(),
-                     ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                     ':user'    => Session::getUserObject()->getDisplayName(),
-                     ':project' => Project::getHumanReadableFullName(),
-                 ]))
-                 ->save()
-                 ->send();
-
+            $this->sendWelcomeEmail();
             return $this;
         }
 
@@ -1112,6 +1096,32 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ->setMessage($message)
                         ->save()
                         ->send();
+
+        return $this;
+    }
+
+
+    /**
+     * Sends a welcome email to the user
+     *
+     * @return static
+     */
+    public function sendWelcomeEmail(): static
+    {
+        $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
+
+        $this->notify()
+             ?->setTitle(tr('An account has been created for you on :project', [
+                 ':project' => Project::getHumanReadableFullName()
+             ]))
+             ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
+                 ':url'     => $key->getUrl(),
+                 ':link'    => Anchor::new($key->getUrl(), tr('here')),
+                 ':user'    => Session::getUserObject()->getDisplayName(),
+                 ':project' => Project::getHumanReadableFullName(),
+             ]))
+             ->save()
+             ->send();
 
         return $this;
     }

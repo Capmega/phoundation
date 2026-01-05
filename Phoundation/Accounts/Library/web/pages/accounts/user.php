@@ -157,6 +157,15 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 Response::redirect();
+
+            case tr('Re-send welcome email'):
+                $o_user->sendWelcomeEmail();
+
+                Response::getFlashMessagesObject()->addSuccess(tr('Re-sent welcome email for user account ":user"', [
+                    ':user' => $o_user->getDisplayName(),
+                ]));
+
+                Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
