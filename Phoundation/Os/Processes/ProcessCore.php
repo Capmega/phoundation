@@ -226,7 +226,7 @@ abstract class ProcessCore implements ProcessInterface
                 if ($file->getModePermissions() !== '750') {
                     // Yeah, file permission is not what it should be. Fix and retry.
                     Log::warning(ts('File mode ":mode" for executable ":file" is incorrect, should be "750". Fixing and retrying', [
-                        ':mode' => $file->getMode(),
+                        ':mode' => $file->getRequiredMode(),
                         ':file' => $file->getSource(),
                     ]));
 
@@ -706,7 +706,6 @@ abstract class ProcessCore implements ProcessInterface
     public function executeReturnIterator(?string $separator = null): IteratorInterface
     {
         $this->setExecutionMethod(EnumExecuteMethod::returnIterator);
-
         return Iterator::new()->setKeyValueSource($this->executeReturnArray(), separator: $separator);
     }
 

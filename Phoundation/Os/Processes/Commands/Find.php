@@ -24,6 +24,7 @@ use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoFiles;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
@@ -96,7 +97,7 @@ class Find extends Command implements FindInterface
      * @note This is true by default for security to avoid searching on remote filesystems by accident
      * @var bool $mount
      */
-    protected bool $mount = true;
+    protected bool $mount = false;
 
     /**
      * The file last modified time in minutes
@@ -200,12 +201,19 @@ class Find extends Command implements FindInterface
      */
     protected bool $ignore_permission_denied_in_results = false;
 
+    /**
+     * Tracks if the returned files should be objects (true) or just strings (false)
+     *
+     * @var bool $return_objects
+     */
+    protected bool $return_objects = false;
+
 
     /**
      * Find class constructor
      *
      * @param PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory
-     * @param \Stringable|string|null                             $operating_system
+     * @param Stringable|string|null                              $operating_system
      * @param string|null                                         $packages
      */
     public function __construct(PhoDirectoryInterface|PhoRestrictionsInterface|null $execution_directory = null, Stringable|string|null $operating_system = null, ?string $packages = null) {
@@ -226,7 +234,39 @@ class Find extends Command implements FindInterface
      */
     public function setPathObject(?PhoPathInterface $o_path): static
     {
+        if ($o_path) {
+            // If no execution path or restrictions have been set yet, take the restrictions from the search path
+            if (empty($this->o_restrictions)) {
+                $this->setRestrictionsObject($o_path->getRestrictionsObject());
+            }
+        }
+
         return $this->__setPathObject($o_path);
+    }
+
+
+    /**
+     * Returns if the returned files should be objects (true) or just strings (false)
+     *
+     * @return bool
+     */
+    public function getReturnObjects(): bool
+    {
+        return $this->return_objects;
+    }
+
+
+    /**
+     * Sets if the returned files should be objects (true) or just strings (false)
+     *
+     * @param bool $return_objects
+     *
+     * @return static
+     */
+    public function setReturnObjects(bool $return_objects): static
+    {
+        $this->return_objects = $return_objects;
+        return $this;
     }
 
 
@@ -253,7 +293,6 @@ class Find extends Command implements FindInterface
     public function setFindPath(PhoPathInterface|null $find_path): static
     {
         $this->find_path = $find_path;
-
         return $this;
     }
 
@@ -281,7 +320,6 @@ class Find extends Command implements FindInterface
     public function setMount(bool $mount): static
     {
         $this->mount = $mount;
-
         return $this;
     }
 
@@ -308,7 +346,6 @@ class Find extends Command implements FindInterface
     public function setFollowSymlinks(bool $follow_symlinks): static
     {
         $this->follow_symlinks = $follow_symlinks;
-
         return $this;
     }
 
@@ -335,7 +372,6 @@ class Find extends Command implements FindInterface
     public function setEmpty(bool $empty): static
     {
         $this->empty = $empty;
-
         return $this;
     }
 
@@ -361,7 +397,6 @@ class Find extends Command implements FindInterface
     public function setIname(?string $iname): static
     {
         $this->iname = $iname;
-
         return $this;
     }
 
@@ -387,13 +422,14 @@ class Find extends Command implements FindInterface
     public function setSize(Stringable|string $size): static
     {
         $size = (string) $size;
+
         if (!preg_match('/^[-+]?[0-9_]+$/', $size)) {
             throw new OutOfBoundsException(tr('Invalid size ":size" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':size' => $size,
             ]));
         }
-        $this->size = str_replace('_', '', $size);
 
+        $this->size = str_replace('_', '', $size);
         return $this;
     }
 
@@ -419,13 +455,14 @@ class Find extends Command implements FindInterface
     public function setMtime(Stringable|string $mtime): static
     {
         $mtime = (string) $mtime;
+
         if (!preg_match('/^[-+]?[0-9_]+$/', $mtime)) {
             throw new OutOfBoundsException(tr('Invalid mtime ":mtime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':mtime' => $mtime,
             ]));
         }
-        $this->mtime = str_replace('_', '', $mtime);
 
+        $this->mtime = str_replace('_', '', $mtime);
         return $this;
     }
 
@@ -484,7 +521,6 @@ class Find extends Command implements FindInterface
         }
 
         $this->atime = str_replace('_', '', $atime);
-
         return $this;
     }
 
@@ -510,13 +546,14 @@ class Find extends Command implements FindInterface
     public function setCtime(Stringable|string $ctime): static
     {
         $ctime = (string) $ctime;
+
         if (!preg_match('/^[-+]?[0-9_]+$/', $ctime)) {
             throw new OutOfBoundsException(tr('Invalid ctime ":ctime" specified, must be either NUMBER (exact), -NUMBER (smaller than), or +NUMBER (larger than)', [
                 ':ctime' => $ctime,
             ]));
         }
-        $this->ctime = str_replace('_', '', $ctime);
 
+        $this->ctime = str_replace('_', '', $ctime);
         return $this;
     }
 
@@ -542,6 +579,7 @@ class Find extends Command implements FindInterface
     public function setTypes(Stringable|array|string $types): static
     {
         $types = Arrays::force($types);
+
         foreach ($types as &$type) {
             $type = match ($type) {
                 'directory'        => 'd',
@@ -560,9 +598,9 @@ class Find extends Command implements FindInterface
                 'l'                => 'l',
             };
         }
-        unset($type);
-        $this->types = Strings::force($types, ',');
 
+        unset($type);
+        $this->type = Strings::force($types, ',');
         return $this;
     }
 
@@ -666,7 +704,6 @@ class Find extends Command implements FindInterface
     public function setMaxDepth(?int $max_depth): static
     {
         $this->max_depth = $max_depth;
-
         return $this;
     }
 
@@ -694,8 +731,8 @@ class Find extends Command implements FindInterface
         if ($this->exec) {
             throw new OutOfBoundsException(tr('Cannot specify callback for find, exec has already been defined'));
         }
-        $this->callback = $callback;
 
+        $this->callback = $callback;
         return $this;
     }
 
@@ -764,15 +801,7 @@ class Find extends Command implements FindInterface
      *
      * @return string
      */
-    #[ExpectedValues([
-        'b',
-        'c',
-        'd',
-        'p',
-        'f',
-        'l',
-        's',
-    ])]
+    #[ExpectedValues(['b', 'c', 'd', 'p', 'f', 'l', 's',])]
     public function getType(): string
     {
         return $this->type;
@@ -797,15 +826,7 @@ class Find extends Command implements FindInterface
      *
      * @return static
      */
-    public function setType(#[ExpectedValues([
-        'b',
-        'c',
-        'd',
-        'p',
-        'f',
-        'l',
-        's',
-    ])] string $type): static
+    public function setType(#[ExpectedValues(['b', 'c', 'd', 'p', 'f', 'l', 's',])] string $type): static
     {
         $types = [
             'b',
@@ -816,13 +837,14 @@ class Find extends Command implements FindInterface
             'l',
             's',
         ];
+
         if (!in_array($type, $types)) {
             throw new OutOfBoundsException(tr('Invalid type ":type" specified, must be one of "b, c, d, p, f, l, s"', [
                 ':type' => $type,
             ]));
         }
-        $this->type = $type;
 
+        $this->type = $type;
         return $this;
     }
 
@@ -868,6 +890,8 @@ class Find extends Command implements FindInterface
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
                  ->addArgument($this->o_path->getSource())
+                 ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
+                 ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
                  ->addArguments($this->mount           ? '-mount'                                     : null)
                  ->addArguments($this->empty           ? '-empty'                                     : null)
                  ->addArguments($this->delete          ? ['-delete']                                  : null)
@@ -882,8 +906,6 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->regex           ? ['-regex'   , $this->regex]                  : null)
                  ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
                  ->addArguments($this->depth           ? ['-depth'   , $this->depth]                  : null)
-                 ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
-                 ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
                  ->addArguments($this->size            ? ['-size'    , $this->size]                   : null)
                  ->addArguments($this->exec            ? ['-exec'    , $this->exec, '{}', ';']        : null);
 
@@ -901,20 +923,21 @@ class Find extends Command implements FindInterface
             $output  = $e->getDataKey('output');
             $matches = Arrays::keepMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
 
-            if (count($matches) and $this->ignore_permission_denied_in_results) {
+            if (count($matches)) {
                 // Some results had permission denied, we can safely ignore these as long as we flag it
+                if ($this->ignore_permission_denied_in_results) {
+                    // Clean failed matches entries, should only have the filename in there
+                    $matches = Arrays::replaceValuesWithCallbackReturn($matches, function ($key, $value) {
+                        $value = Strings::cut($value, '‘', '’');
+                        return trim($value);
+                    });
 
-                // Clean failed matches entries, should only have the filename in there
-                $matches = Arrays::replaceValuesWithCallbackReturn($matches, function ($key, $value) {
-                    $value = Strings::cut($value, '‘', '’');
-                    return trim($value);
-                });
+                    // Set exit code back to 0 and fill output with all the entries that do NOT have permiossion denied
+                    $this->setResultsWithPermissionDenied(Arrays::valueToKeys($matches))
+                         ->exit_code = 0;;
+                }
 
-                // Set exit code back to 0 and fill output with all the entries that do NOT have permiossion denied
-                $this->exit_code = 0;
-                $this->output    = Arrays::removeMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
-
-                $this->setResultsWithPermissionDenied(Arrays::valueToKeys($matches));
+                $this->output = Arrays::removeMatchingValues($output, 'Permission denied', flags: Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ENDS_WITH);
             }
         }
 
@@ -933,6 +956,18 @@ class Find extends Command implements FindInterface
 
         // The output array should have keys the same as values
         $this->output = Arrays::valueToKeys($this->output);
+
+        // Return the found files and directories as strings or objects?
+        if ($this->return_objects) {
+            foreach ($this->output as &$value) {
+                if (is_dir($value)) {
+                    $value = PhoDirectory::new($value, $this->o_restrictions);
+
+                } else {
+                    $value = PhoFile::new($value, $this->o_restrictions);
+                }
+            }
+        }
 
         // Execute callbacks?
         if ($this->callback) {

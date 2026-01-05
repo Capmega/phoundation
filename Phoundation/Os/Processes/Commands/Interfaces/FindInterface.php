@@ -419,4 +419,20 @@ interface FindInterface extends CommandInterface
      * @return int
      */
     public function getNumberOfResultsWithPermissionDenied(): int;
+
+    /**
+     * Returns if the returned files should be objects (true) or just strings (false)
+     *
+     * @return bool
+     */
+    public function getReturnObjects(): bool;
+
+    /**
+     * Sets if the returned files should be objects (true) or just strings (false)
+     *
+     * @param bool $return_objects
+     *
+     * @return static
+     */
+    public function setReturnObjects(bool $return_objects): static;
 }
