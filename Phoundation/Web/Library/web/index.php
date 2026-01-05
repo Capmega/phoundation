@@ -142,16 +142,13 @@ require(substr($_SERVER['DOCUMENT_ROOT'], 0, -4) . 'vendor/autoload.php');
 // Set routing parameters to be applied for the various page types
 Route::getParametersObject()
     ->add(RoutingParameters::new('/^\w{2}\/ajax/') // Routing parameters for AJAX requests
-                           ->setRequireDirectoryRights('/ajax/')
                            ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
-                           ->setTemplate(Mdb::class)
-                           ->setRights('mmb'))
+                           ->setTemplate(Mdb::class))
 
     ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages
                             ->setTemplate(Mdb::class)
-                            ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')
-                            ->setRequireDirectoryRights('/pages/', 'sign-key.php,sign-in.php,sign-out.php,lost-password.php')
-                            ->setRights('mmb'))
+                            ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/'))
+
      ->add(RoutingParameters::new() // Routing parameters for default english system pages
                             ->setSystemPagesOnly(true)
                             ->setTemplate(Mdb::class)
