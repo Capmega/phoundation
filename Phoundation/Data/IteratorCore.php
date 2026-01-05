@@ -1280,13 +1280,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
      * @param ArrayableInterface|Stringable|array|string|int|null $needles
-     * @param int                                                 $flags
-     *
+     * @param int $flags
+     * @param string|null $column
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
-        return new static(Arrays::keepMatchingValues($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingValues($this->source, $needles, $flags, $column));
     }
 
 

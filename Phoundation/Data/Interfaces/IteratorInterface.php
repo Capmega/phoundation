@@ -471,11 +471,11 @@ interface IteratorInterface extends IteratorBaseInterface
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
      * @param ArrayableInterface|Stringable|array|string|int|null $needles
-     * @param int                                                 $flags
-     *
+     * @param int $flags
+     * @param string|null $column
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): IteratorInterface;
 
 
     /**

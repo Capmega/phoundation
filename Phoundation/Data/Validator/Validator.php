@@ -2596,6 +2596,11 @@ throw new ObsoleteException();
             }
 
             if (strlen($value) > $max_characters) {
+show($this->selected_field);
+show($max_characters);
+show($value);
+showbacktrace();
+die();
                 $this->addSoftFailure(tr('must have ":count" characters or less', [':count' => $max_characters]));
             }
         });
