@@ -556,7 +556,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary, ignore_fails: true);
+            $cache->copy($temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -614,7 +614,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary, ignore_fails: true);
+            $cache->copy($temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -804,7 +804,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
-            $cache->copy($temporary, ignore_fails: true);
+            $cache->copy($temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -858,7 +858,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary, ignore_fails: true);
+            $cache->copy($temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -912,7 +912,7 @@ class Libraries
         if ($cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $temporary = $temporary->delete();
-            $cache->copy($temporary, ignore_fails: true);
+            $cache->copy($temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {

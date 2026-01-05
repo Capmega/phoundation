@@ -529,11 +529,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Ensures the existence of the specified directory
      *
-     * @param string|int|null $mode octal $mode If the specified $this->directory does not exist,
+     * @param string|int|null             $mode            octal $mode If the specified $this->directory does not exist,
      *                                                     it will be created with this directory mode. Defaults to
      *                                                     configuration path filesystem.directories.mode
      * @param Stringable|string|bool|null $absolute_prefix
-     * @param boolean $clear If set to true, and the specified directory already exists,
+     * @param boolean                     $clear           If set to true, and the specified directory already exists,
      *                                                     it will be deleted and then re-created
      * @param bool $sudo
      * @param bool $exception
@@ -581,6 +581,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     // Make sure that the parent directory is writable when creating the directory
                     // Since we're modifying the item $id of $count, be sure to get matching restrictions
                     $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
+
                     PhoDirectory::new(dirname($source), $this->o_restrictions->getParent($count - $id)->makeWritable())
                                 ->execute()
                                     ->setRequiredMode(0770)
@@ -597,9 +598,9 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                     if (!file_exists($source)) {
                         throw DirectoryException::new(tr('Failed to create directory ":directory"', [
                             ':directory' => $source,
-                        ]), $e)->addData(
-                            ['directory' => $source]
-                        );
+                        ]), $e)->addData([
+                            'directory' => $source
+                        ]);
                     }
 
                     // We're okay, the directory already exists
@@ -1478,7 +1479,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      * @param bool                          $recursive
-     * @param bool                          $ignore_fails
+     * @param bool                          $exception
      *
      * @return static
      * @example:
@@ -1488,7 +1489,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *      }
      *  });
      */
-    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static
     {
         $context        = $context ?? stream_context_create();
         $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
@@ -1502,39 +1503,42 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         ]);
 
         // Copy the contents
-        if ($recursive) {
-            foreach ($this->getFilesObject() as $o_path) {
-                $basename = $o_path->getBasename();
+        foreach ($this->getFilesObject() as $o_path) {
+            $basename = $o_path->getBasename();
 
-                if ($o_path->isDirectory()) {
-                    $o_path->copy($o_target->addDirectory($basename), $o_target->getRestrictionsObject(), $callback, $context, $recursive, $ignore_fails);
-
-                } elseif ($o_path->isLink()) {
-                    symlink($this->addPath($basename)->getLinkTarget()->getSource(),
-                            $o_target->addPath($basename)->getSource());
-
-                } else {
-                    try {
-                        copy($this->addPath($basename)->getSource(),
-                            $o_target->addPath($basename)->getSource(), $context);
-
-                    } catch (PhpException $e) {
-                        if ($this->addPath($basename)->isLink() and !$this->addPath($basename)->isLinkAndTargetExists()) {
-                            // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
-                            symlink($this->addPath($basename)->getSource(),
-                                    $o_target->addPath($basename)->getSource());
-
-                            continue;
-                        }
-
-                        if (!$ignore_fails) {
-                            Log::warning($e->getMessage());
-                            continue;
-                        }
-
-                        throw $e;
-                    }
+            if ($o_path->isDirectory()) {
+                if ($recursive) {
+                    $o_path->copy($target->addPath($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
                 }
+
+            } elseif ($o_path->isLink()) {
+                symlink($this->addPath($basename)->getLinkTarget()->getSource(),
+                        $o_target->addPath($basename)->getSource());
+
+            } else {
+                try {
+                    copy($this->addPath($basename)->getSource(),
+                        $o_target->addPath($basename)->getSource(), $context);
+
+                } catch (PhpException $e) {
+                    if ($this->addPath($basename)->isLink() and !$this->addPath($basename)->isLinkAndTargetExists()) {
+                        // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
+                        symlink($this->addPath($basename)->getSource(),
+                                $o_target->addPath($basename)->getSource());
+
+                        continue;
+                    }
+
+                    symlink($this->addPath($basename)->getSource(),
+                            $target->addPath($basename)->getSource());
+                }
+
+                if (!$exception) {
+                    Log::warning($e->getMessage());
+                    continue;
+                }
+
+                throw $e;
             }
         }
 

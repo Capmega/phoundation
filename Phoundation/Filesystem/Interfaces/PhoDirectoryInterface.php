@@ -360,7 +360,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      * @param bool                          $recursive
-     * @param bool                          $ignore_fails
+     * @param bool                          $exception
      *
      * @return static
      * @example:
@@ -370,7 +370,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      *      }
      *  });
      */
-    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static;
 
     /**
      * Returns a new FindInterface object
