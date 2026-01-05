@@ -4600,7 +4600,9 @@ class Arrays extends Utils
     {
         $return = [];
 
+show($needles);
         foreach ($source as $key => $value) {
+show($value);
             if ($needles) {
                 $needles_match = false;
 
@@ -4618,6 +4620,7 @@ class Arrays extends Utils
                         }
 
                     } else {
+show($column);
                         $string_value = Strings::getStringValue($value, $column);
 
                         if (!Arrays::useCleanedHaystackValue($string_value, $flags)) {

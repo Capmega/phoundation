@@ -2967,6 +2967,7 @@ class Strings extends Utils
      */
     public static function getStringValue(mixed $source, ?string $key): ?string
     {
+show($key);
         if ($key) {
             try {
                 if (is_array($source)) {
@@ -2999,11 +3000,13 @@ class Strings extends Utils
                                           'source' => $source,
                                       ]);
         }
-
+show($key);
+showbacktrace();
+show($source);
         throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a key specified to extract a value from', [
             ':class' => EntryInterface::class
         ]))->addData([
-            ':source' => $source,
+            'source' => $source,
         ]);
     }
 }
