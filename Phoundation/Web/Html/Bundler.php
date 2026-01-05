@@ -216,8 +216,8 @@ class Bundler
         // Generate new bundle file. This requires the pub/$files path to be writable
         PhoDirectory::new(dirname($this->bundle_file), $this->o_restrictions)
                  ->execute()
-                 ->setMode(0770)
-                 ->onDirectoryOnly(function () use ($files) {
+                 ->setRequiredMode(0770)
+                 ->onDirectoriesOnly(function () use ($files) {
                      foreach ($files as $file => $data) {
                          $org_file = $file;
                          $file     = $this->directory . $file . $this->extension;

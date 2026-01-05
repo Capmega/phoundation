@@ -112,7 +112,7 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
      */
     public function create(bool $force = false): static
     {
-        $this->source = static::$directory->addFile($this->command . '/' . $this->pid)->getSource();
+        $this->source = static::$directory->addPath($this->command . '/' . $this->pid)->getSource();
         return parent::create();
     }
 
@@ -229,7 +229,7 @@ showdie($cmd);
         PhoDirectory::new(static::$directory)
                  ->execute()
                  ->setRecurse(true)
-                 ->onDirectoryOnly(function (string $directory) {
+                 ->onDirectoriesOnly(function (string $directory) {
 // TODO
                  });
     }

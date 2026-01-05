@@ -923,7 +923,7 @@ class CliCommand
 //            $run_dir = DIRECTORY_ROOT . 'data/system/run/';
 //            $command = $core->register['command'];
 //
-//            PhoDirectory::ensure(dirname($run_dir . $command));
+//            PhoDirectory::createDirectory(dirname($run_dir . $command));
 //
 //            if ($close) {
 //                if (!$executed) {
@@ -1904,8 +1904,8 @@ return 'under construction';
 
             // Set timeout
             if ($argv['timeout']) {
-                // User set timeout
-                Core::setTimeout((int)$argv['timeout']);
+                // User set timeout, this cannot be overridden
+                Core::setTimeout((int) $argv['timeout'], false);
 
             } else {
                 // Use default timeout
@@ -2063,6 +2063,7 @@ return 'under construction';
             if ($argv['clear_caches']) {
                 // Clear all caches
                 try {
+                    Core::setTimeout(config()->getInteger('system.timeouts.cache-rebuild', 300));
                     Core::enableInitState();
                     Log::setVerbose(true);
                     Cache::clearAll();
