@@ -548,7 +548,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
     public function addRestrictions(?PhoRestrictionsInterface $restrictions): static
     {
         if ($restrictions) {
-            return $this->addLabel($restrictions->getLabel())
+            return $this->setLabel($restrictions->getLabel())
                         ->addDirectories($restrictions?->getSource());
         }
 
@@ -586,7 +586,6 @@ class PhoRestrictions implements PhoRestrictionsInterface
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         $this->source = [];
-
         return $this->addDirectories(Arrays::extractSourceArray($source, $execute));
     }
 
@@ -629,22 +628,6 @@ class PhoRestrictions implements PhoRestrictionsInterface
     public function setLabel(?string $label): static
     {
         $this->label = (get_null($label) ?? tr('Unspecified'));
-
-        return $this;
-    }
-
-
-    /**
-     * Adds the specified label for this restriction
-     *
-     * @param string|null $label
-     *
-     * @return static
-     */
-    public function addLabel(?string $label): static
-    {
-        $this->label .= ', ' . (get_null($label) ?? tr('Unspecified'));
-
         return $this;
     }
 
