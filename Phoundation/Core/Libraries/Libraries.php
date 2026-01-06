@@ -546,28 +546,28 @@ class Libraries
         Log::action(ts('Rebuilding command cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritableObject([
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_COMMANDS, PhoRestrictions::newWritableObject([
             DIRECTORY_COMMANDS,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'commands/'
         ]));
 
-        if ($cache->exists()) {
+        if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary, exception: true);
+            $o_temporary = $o_temporary->delete();
+            $o_cache->copy($o_temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildCommandsCache($cache, $temporary);
+            $library->rebuildCommandsCache($o_cache, $o_temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRootObject(true))->delete();
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis($target);
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
 
         static::$cache_has_been_rebuilt = true;
 
@@ -604,28 +604,28 @@ class Libraries
         Log::action(ts('Rebuilding hook cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newWritableObject([
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_HOOKS, PhoRestrictions::newWritableObject([
             DIRECTORY_HOOKS,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'hooks/'
         ]));
 
-        if ($cache->exists()) {
+        if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary, exception: true);
+            $o_temporary = $o_temporary->delete();
+            $o_cache->copy($o_temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildHooksCache($cache, $temporary);
+            $library->rebuildHooksCache($o_cache, $o_temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRootObject(true))->delete();
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis($target);
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
 
         static::$cache_has_been_rebuilt = true;
 
@@ -794,28 +794,28 @@ class Libraries
         Log::action(ts('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newWritableObject([
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newWritableObject([
             DIRECTORY_WEB,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'web/'
         ]));
 
-        if ($cache->exists()) {
+        if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete()->getParentDirectoryObject()->ensure();
-            $cache->copy($temporary, exception: true);
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildWebCache($cache, $temporary);
+            $library->rebuildWebCache($o_cache, $o_temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRootObject(true))->delete();
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis($target);
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
 
         Log::success(ts('Finished rebuilding web cache'));
     }
@@ -848,28 +848,28 @@ class Libraries
         Log::action(ts('Rebuilding cron cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newWritableObject([
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_CRON, PhoRestrictions::newWritableObject([
             DIRECTORY_CRON,
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'cron/'
         ]));
 
-        if ($cache->exists()) {
+        if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary, exception: true);
+            $o_temporary = $o_temporary->delete();
+            $o_cache->copy($o_temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildCronCache($cache, $temporary);
+            $library->rebuildCronCache($o_cache, $o_temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRootObject(true))->delete();
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-            ->symlinkTargetFromThis($target);
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
 
         Log::success(ts('Finished rebuilding cron cache'));
     }
@@ -902,28 +902,28 @@ class Libraries
         Log::action(ts('Rebuilding Tests cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
-        $temporary = PhoDirectory::newTemporaryObject();
-        $cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritableObject([
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_SYSTEM . 'cache/system/Tests', PhoRestrictions::newWritableObject([
             DIRECTORY_SYSTEM . 'cache/system/Tests',
             DIRECTORY_TMP,
             DIRECTORY_ROOT . 'Tests/'
         ]));
 
-        if ($cache->exists()) {
+        if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $temporary = $temporary->delete();
-            $cache->copy($temporary, exception: true);
+            $o_temporary = $o_temporary->delete();
+            $o_cache->copy($o_temporary, exception: true);
         }
 
         foreach (static::listLibraries() as $library) {
-            $library->rebuildTestsCache($cache, $temporary);
+            $library->rebuildTestsCache($o_cache, $o_temporary);
         }
 
-        $target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRootObject(true))->delete();
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRootObject(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
-        $cache->replaceWithPath($temporary)
-              ->symlinkTargetFromThis($target);
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
 
         Log::success(ts('Finished rebuilding Tests cache'));
     }
