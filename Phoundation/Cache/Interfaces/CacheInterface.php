@@ -43,7 +43,7 @@ interface CacheInterface
      *
      * @return PoadInterface|array|string|float|int|null
      */
-    public function get(string $key, ?callable $callback = null): PoadInterface|array|string|float|int|null;
+    public function getOrGenerate(string $key, ?callable $callback = null): PoadInterface|array|string|float|int|null;
 
 
     /**

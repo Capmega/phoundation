@@ -560,7 +560,7 @@ class Cache extends Database implements CacheInterface
      *
      * @return PoadInterface|array|string|float|int|null
      */
-    public function get(Stringable|string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
+    public function getOrGenerate(Stringable|string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
     {
         static::$cache_lookups++;
 

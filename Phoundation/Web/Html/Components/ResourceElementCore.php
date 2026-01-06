@@ -377,7 +377,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      */
     public function render(): ?string
     {
-        return cache('html')->get($this->getCacheKey(), function () {
+        return cache('html')->getOrGenerate($this->getCacheKey(), function () {
             // Render the body
             $this->content = $this->renderBody();
 
