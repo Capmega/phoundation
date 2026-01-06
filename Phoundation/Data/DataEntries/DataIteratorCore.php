@@ -1425,7 +1425,7 @@ throw new ObsoleteException();
         $this->setIsLoading(true)
              ->selectQuery($identifiers, $like);
 
-        cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers) {
+        cache('dataentries')->getOrGenerate($this->getCacheKey(), function ()  use ($identifiers) {
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
