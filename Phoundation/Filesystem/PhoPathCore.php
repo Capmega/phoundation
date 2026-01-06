@@ -2546,6 +2546,17 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns true if the file is a symlink AND its target exists
+     *
+     * @return bool
+     */
+    public function isLinkAndTargetDoesNotExist(): bool
+    {
+        return is_link($this->source) and !file_exists($this->source);
+    }
+
+
+    /**
      * Returns true if this file is a FIFO
      *
      * @return bool
@@ -3929,28 +3940,35 @@ class PhoPathCore implements PhoPathInterface
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $target
+     * @param PhoPathInterface|string $o_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface
+    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface
     {
-        $target = PhoPath::new($target);
+        if (!$o_target->exists()) {
+            throw new FileNotExistException(ts('Cannot replace path ":source" with target ":target", the target does not exist', [
+                ':source' => $this->source,
+                ':target' => $o_target,
+            ]));
+        }
+
+        $o_target = PhoPath::new($o_target);
 
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
-            $target->rename($new);
+            $o_target->rename($new);
             $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
-            $target->rename($this);
+            $o_target->rename($this);
         }
 
-        return $target;
+        return $o_target;
     }
 
 

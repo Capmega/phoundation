@@ -1493,53 +1493,46 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     {
         $context        = $context ?? stream_context_create();
         $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
-        $o_target       = PhoDirectory::new($target, $o_restrictions)->ensure();
 
+        // Check restrictions and ensure that the target parent directory exists
         $this->checkRestrictions(false);
-        $o_target->checkRestrictions(true);
+        $o_target = PhoDirectory::new($target, $o_restrictions)
+                                ->checkRestrictions(true)
+                                ->getParentDirectoryObject()
+                                ->ensure();
 
+        // Setup stream parameters for the callback function
         stream_context_set_params($context, [
             'notification' => $callback,
         ]);
 
-        // Copy the contents
+        // Copy each file
         foreach ($this->getFilesObject() as $o_path) {
             $basename = $o_path->getBasename();
 
             if ($o_path->isDirectory()) {
+                // Copy a directory. Recursively?
                 if ($recursive) {
-                    $o_path->copy($target->addPath($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
-                }
-
-            } elseif ($o_path->isLink()) {
-                symlink($this->addPath($basename)->getLinkTarget()->getSource(),
-                        $o_target->addPath($basename)->getSource());
-
-            } else {
-                try {
-                    copy($this->addPath($basename)->getSource(),
-                        $o_target->addPath($basename)->getSource(), $context);
-
-                } catch (PhpException $e) {
-                    if ($this->addPath($basename)->isLink() and !$this->addPath($basename)->isLinkAndTargetExists()) {
-                        // This is a broken symlink, PHP copy() chokes on that. Just create the symlink manually
-                        symlink($this->addPath($basename)->getSource(),
-                                $o_target->addPath($basename)->getSource());
-
-                        continue;
-                    }
-
-                    symlink($this->addPath($basename)->getSource(),
-                            $target->addPath($basename)->getSource());
-                }
-
-                if (!$exception) {
-                    Log::warning($e->getMessage());
+                    // Copy recursively
+                    $o_path->copy($o_target->addPath($basename), $o_target->getRestrictionsObject(), $callback, $context, $recursive);
                     continue;
                 }
 
-                throw $e;
+                // Copy only the empty directory
+                $o_target->addPath($basename)->ensure();
+                continue;
             }
+
+            if ($o_path->isLink()) {
+                // Copy symlink
+                symlink($o_path->getLinkTarget()->getSource(),
+                        $o_target->addPath($basename)->getSource());
+                continue;
+            }
+
+            // Copy normal file
+            copy($o_path->getSource(),
+                 $o_target->addPath($basename)->getSource(), $context);
         }
 
         return new static($o_target, $this->o_restrictions);

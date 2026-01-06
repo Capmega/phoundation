@@ -878,11 +878,11 @@ interface PhoPathInterface extends Stringable
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $target
+     * @param PhoPathInterface|string $o_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface;
+    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface;
 
     /**
      * Ensures that this path is a symlink
