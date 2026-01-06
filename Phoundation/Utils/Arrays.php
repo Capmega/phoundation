@@ -4532,8 +4532,8 @@ class Arrays extends Utils
     {
         $return = [];
 
-        foreach ($source as $key => $value) {
-            if ($needles) {
+        if ($needles) {
+            foreach ($source as $key => $value) {
                 $needles_match = false;
 
                 foreach ($needles as $needle) {
@@ -4570,12 +4570,8 @@ class Arrays extends Utils
                     }
                 }
 
-            } else {
-                // No needles specified!
-                $needles_match = true;
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
             }
-
-            Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
         }
 
         return Arrays::checkMatch($needles, $flags, $return);
