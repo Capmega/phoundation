@@ -134,6 +134,8 @@ if (Request::isPostRequestMethod()) {
 
     } catch (DataEntryNotExistsException | AccessDeniedException $e) {
         // Specified email does not exist, register a security incident
+        Response::getFlashMessagesObject()->addSuccess(tr('We sent a lost password email to the specified address if it exists. Please check your spam folder in case you haven\'t received it.'));
+
         Incident::new()
                 ->setSeverity(EnumSeverity::low)
                 ->setType(tr('Non existing user lost password request'))
