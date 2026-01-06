@@ -41,6 +41,7 @@ use Phoundation\Content\Media\Audio\Success;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
+use Phoundation\Core\Exception\SystemCacheException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Tmp;
@@ -1725,6 +1726,7 @@ return 'under construction';
      * Startup for Command Line Interface
      *
      * @return void
+     * @throws SystemCacheException | CliCommandException
      * @todo Refactor this monstrosity into smaller methods
      */
     protected static function processSystemArguments(): void
@@ -1800,8 +1802,7 @@ return 'under construction';
                 // The Environment was manually specified on the command line
                 $environment = $argv['environment'];
 
-            }
-            else {
+            } else {
                 // Get environment variable from the shell environment
                 $environment = getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT);
             }
@@ -2074,7 +2075,7 @@ return 'under construction';
                 } catch (Throwable $e) {
                     // Something went wrong, reset Log VERBOSE setting to avoid spamming extra lines on top of Exception
                     Log::setVerbose(VERBOSE);
-                    throw $e;
+                    throw new SystemCacheException(ts('Failed to clear and rebuild system caches'), $e);
                 }
             }
 
@@ -2099,6 +2100,10 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
+            if ($e instanceof SystemCacheException) {
+                throw $e;
+            }
+
             throw new CliCommandException(ts('Failed to process system arguments because: ') . $e->getMessage(), $e);
         }
     }
