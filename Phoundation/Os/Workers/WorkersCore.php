@@ -110,11 +110,11 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Workers constructor
      *
-     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $o_execution_directory
      */
-    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $o_execution_directory = null)
     {
-        parent::__construct($execution_directory);
+        parent::__construct($o_execution_directory);
     }
 
 

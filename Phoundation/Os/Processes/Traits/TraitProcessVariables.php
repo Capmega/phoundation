@@ -366,20 +366,20 @@ trait TraitProcessVariables
     /**
      * Process class constructor
      *
-     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $oExecution_directory_or_restrictions
      */
-    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $oExecution_directory_or_restrictions = null)
     {
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
         $this->setUseRunFile(PhoDirectory::getWriteEnabled());
 
-        if ($execution_directory_or_restrictions) {
-            if ($execution_directory_or_restrictions instanceof PhoRestrictions) {
-                $this->setRestrictionsObject($execution_directory_or_restrictions);
+        if ($oExecution_directory_or_restrictions) {
+            if ($oExecution_directory_or_restrictions instanceof PhoRestrictions) {
+                $this->setRestrictionsObject($oExecution_directory_or_restrictions);
 
             } else {
-                $this->setExecutionDirectory($execution_directory_or_restrictions);
+                $this->setExecutionDirectory($oExecution_directory_or_restrictions);
             }
         }
 
