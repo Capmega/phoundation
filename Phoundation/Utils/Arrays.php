@@ -38,10 +38,8 @@ class Arrays extends Utils
      * Group by options
      */
     const int GROUP_BY_DROP      = 1;
-
     const int GROUP_BY_NULL      = 2;
     const int NO_GROUP_BY        = 3;
-
     const int GROUP_BY_EXCEPTION = 4;
 
 
