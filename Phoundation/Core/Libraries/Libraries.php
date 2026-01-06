@@ -555,8 +555,8 @@ class Libraries
 
         if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $o_temporary = $o_temporary->delete();
-            $o_cache->copy($o_temporary, exception: true);
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -613,8 +613,8 @@ class Libraries
 
         if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $o_temporary = $o_temporary->delete();
-            $o_cache->copy($o_temporary, exception: true);
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -804,7 +804,7 @@ class Libraries
         if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
             $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
-            $o_cache->copy($o_temporary, exception: true);
+            $o_cache->copy($o_temporary);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -857,8 +857,8 @@ class Libraries
 
         if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $o_temporary = $o_temporary->delete();
-            $o_cache->copy($o_temporary, exception: true);
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
         }
 
         foreach (static::listLibraries() as $library) {
@@ -911,8 +911,8 @@ class Libraries
 
         if ($o_cache->exists()) {
             // Replace the temporary directory with the cache directory contents
-            $o_temporary = $o_temporary->delete();
-            $o_cache->copy($o_temporary, exception: true);
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
         }
 
         foreach (static::listLibraries() as $library) {
