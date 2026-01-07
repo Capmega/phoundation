@@ -1195,16 +1195,19 @@ class CliCommand
             $file .= '/';
             $next  = array_get_safe($commands, $position + 1);
 
-            if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
-                if (file_exists($file . $command)) {
-                    if (!is_dir($file . $command)) {
-                        // This is the file! Adjust the CliAutoComplete position if it's active because we'll be one
-                        // position ahead of what is expected
-                        if (CliAutoComplete::isActive()) {
-                            CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
-                        }
+            // TODO Fix this! With the next IF, auto complete effectively is disabled for commands that have the same name as their parent directory, because the auto suggest has to show a mix of both optional other sub commands of the parent directory AND the auto suggest data for that command.
+            if (!CliAutoComplete::isActive()) {
+                if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
+                    if (file_exists($file . $command . '.php')) {
+                        if (!is_dir($file . $command . '.php')) {
+                            // This is the file! Adjust the CliAutoComplete position if it is active because we will be one
+                            // position ahead of what is expected
+                            if (CliAutoComplete::isActive()) {
+                                CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
+                            }
 
-                        return $file . $command;
+                            return $file . $command;
+                        }
                     }
                 }
             }
