@@ -159,11 +159,18 @@ if (Request::isPostRequestMethod()) {
                 Response::redirect();
 
             case tr('Re-send welcome email'):
-                $o_user->sendWelcomeEmail();
+                if (!$o_user->hasSignedIn()) {
+                    $o_user->sendWelcomeEmail();
 
-                Response::getFlashMessagesObject()->addSuccess(tr('Re-sent welcome email for user account ":user"', [
-                    ':user' => $o_user->getDisplayName(),
-                ]));
+                    Response::getFlashMessagesObject()->addSuccess(tr('Re-sent welcome email for user account ":user"', [
+                        ':user' => $o_user->getDisplayName(),
+                    ]));
+
+                } else {
+                    Response::getFlashMessagesObject()->addWarning(tr('Cannot re-send welcome email for user account ":user", the user has already signed in', [
+                        ':user' => $o_user->getDisplayName(),
+                    ]));
+                }
 
                 Response::redirect();
         }
