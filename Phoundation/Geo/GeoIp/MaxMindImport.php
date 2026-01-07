@@ -133,7 +133,7 @@ class MaxMindImport extends GeoIpImport
         }
 
         $target_directory->ensure();
-        $target_directory->getRestrictionsObject()->addDirectory(DIRECTORY_DATA . 'garbage/', true);
+        $target_directory->getRestrictionsObject()->addPath(DIRECTORY_DATA . 'garbage/', true);
 
         Log::action(ts('Processing GeoIP files and moving to directory ":directory"', [
             ':directory' => $target_directory

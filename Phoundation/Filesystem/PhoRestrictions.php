@@ -60,11 +60,11 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * PhoRestrictions class constructor
      *
-     * @param PhoPathInterface|string|array|null $directories
+     * @param PhoPathInterface|string|array|null $paths
      * @param bool                               $write
      * @param string|null                        $label
      */
-    public function __construct(PhoPathInterface|string|array|null $directories = null, bool $write = false, ?string $label = null)
+    public function __construct(PhoPathInterface|string|array|null $paths = null, bool $write = false, ?string $label = null)
     {
         if ($label) {
             $this->label = $label;
@@ -85,9 +85,9 @@ class PhoRestrictions implements PhoRestrictionsInterface
             }
         }
 
-        if ($directories) {
-            foreach (Arrays::force($directories) as $directory) {
-                $this->addDirectory($directory, $write);
+        if ($paths) {
+            foreach (Arrays::force($paths) as $path) {
+                $this->addPath($path, $write);
             }
         }
     }
@@ -96,15 +96,15 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Returns a new PhoRestrictions object with the specified restrictions
      *
-     * @param PhoPathInterface|string|array|null $directories
+     * @param PhoPathInterface|string|array|null $paths
      * @param bool                               $write
      * @param string|null                        $label
      *
      * @return static
      */
-    public static function new(PhoPathInterface|string|array|null $directories = null, bool $write = false, ?string $label = null): static
+    public static function new(PhoPathInterface|string|array|null $paths = null, bool $write = false, ?string $label = null): static
     {
-        return new static($directories, $write, $label);
+        return new static($paths, $write, $label);
     }
 
 
@@ -128,252 +128,252 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Returns a new writable FsRestrictions object with the specified restrictions
      *
-     * @param PhoPathInterface|string|array|null $directories
+     * @param PhoPathInterface|string|array|null $paths
      * @param string|null                        $label
      *
      * @return static
      */
-    public static function newWritableObject(PhoPathInterface|string|array|null $directories = null, ?string $label = null): static
+    public static function newWritableObject(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
     {
-        return new static($directories, true, $label);
+        return new static($paths, true, $label);
     }
 
 
     /**
      * Returns a new readonly FsRestrictions object with the specified restrictions
      *
-     * @param PhoPathInterface|string|array|null $directories
+     * @param PhoPathInterface|string|array|null $paths
      * @param string|null                        $label
      *
      * @return static
      */
-    public static function newReadonlyObject(PhoPathInterface|string|array|null $directories = null, ?string $label = null): static
+    public static function newReadonlyObject(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
     {
-        return new static($directories, false, $label);
+        return new static($paths, false, $label);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_ROOT
+     * Returns a PhoRestrictions object for DIRECTORY_ROOT
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newRootObject(bool $write = false, ?string $sub_directory = null): static
+    public static function newRootObject(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_ROOT . $sub_directory, $write);
+        return new static(DIRECTORY_ROOT . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for /
+     * Returns a PhoRestrictions object for /
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newFilesystemRootObject(bool $write = false, ?string $sub_directory = null): static
+    public static function newFilesystemRootObject(bool $write = false, ?string $sub_path = null): static
     {
-        return new static('/' . $sub_directory, $write);
+        return new static('/' . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_DATA
+     * Returns a PhoRestrictions object for DIRECTORY_DATA
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newDataObject(bool $write = false, ?string $sub_directory = null): static
+    public static function newDataObject(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_DATA . $sub_directory, $write);
+        return new static(DIRECTORY_DATA . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_DATA
+     * Returns a PhoRestrictions object for DIRECTORY_DATA
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newDataSourcesObject(bool $write = false, ?string $sub_directory = null): static
+    public static function newDataSourcesObject(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_DATA . 'sources/' . $sub_directory, $write);
+        return new static(DIRECTORY_DATA . 'sources/' . $sub_path, $write);
     }
 
 
     /**
-     * Returns a new PhoDirectory object for the path DIRECTORY_DATA / PROJECT
+     * Returns a new PhoRestrictions object for the path DIRECTORY_DATA / PROJECT
      *
      * @param bool        $writable
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newDataProjectObject(bool $writable = false, ?string $sub_directory = null): static
+    public static function newDataProjectObject(bool $writable = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $sub_directory, $writable);
+        return new static(DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $sub_path, $writable);
     }
 
 
     /**
-     * Returns a new PhoDirectory object for the path DIRECTORY_ROOT / Plugins
+     * Returns a new PhoRestrictions object for the path DIRECTORY_ROOT / Plugins
      *
      * @param bool        $writable
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newPluginsObject(bool $writable = false, ?string $sub_directory = null): static
+    public static function newPluginsObject(bool $writable = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_ROOT . 'Plugins/' . $sub_directory, $writable);
+        return new static(DIRECTORY_ROOT . 'Plugins/' . $sub_path, $writable);
     }
 
 
     /**
-     * Returns a new PhoDirectory object for the path DIRECTORY_DATA
+     * Returns a new PhoRestrictions object for the path DIRECTORY_DATA
      *
      * @param bool        $writable
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_directory = null): static
+    public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory, $writable);
+        return new static(DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_path, $writable);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_SYSTEM
+     * Returns a PhoRestrictions object for DIRECTORY_SYSTEM
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newSystem(bool $write = false, ?string $sub_directory = null): static
+    public static function newSystem(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_SYSTEM . $sub_directory, $write);
+        return new static(DIRECTORY_SYSTEM . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_SYSTEM/cache
+     * Returns a PhoRestrictions object for DIRECTORY_SYSTEM/cache
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newCache(bool $write = false, ?string $sub_directory = null): static
+    public static function newCache(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_SYSTEM . 'cache/' . $sub_directory, $write);
+        return new static(DIRECTORY_SYSTEM . 'cache/' . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_TMP
+     * Returns a PhoRestrictions object for DIRECTORY_TMP
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newTemporary(bool $write = false, ?string $sub_directory = null): static
+    public static function newTemporary(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_TMP . $sub_directory, $write);
+        return new static(DIRECTORY_TMP . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_PUBTMP
+     * Returns a PhoRestrictions object for DIRECTORY_PUBTMP
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newPublicTemporary(bool $write = false, ?string $sub_directory = null): static
+    public static function newPublicTemporary(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_PUBTMP . $sub_directory, $write);
+        return new static(DIRECTORY_PUBTMP . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_COMMANDS
+     * Returns a PhoRestrictions object for DIRECTORY_COMMANDS
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newCommands(bool $write = false, ?string $sub_directory = null): static
+    public static function newCommands(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_COMMANDS . $sub_directory, $write);
+        return new static(DIRECTORY_COMMANDS . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_HOOKS
+     * Returns a PhoRestrictions object for DIRECTORY_HOOKS
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newHooks(bool $write = false, ?string $sub_directory = null): static
+    public static function newHooks(bool $write = false, ?string $sub_path = null): static
     {
         return PhoRestrictions::newFilesystemRootObject(write: $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_WEB
+     * Returns a PhoRestrictions object for DIRECTORY_WEB
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return PhoRestrictions
      */
-    public static function newWeb(bool $write = false, ?string $sub_directory = null): static
+    public static function newWeb(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_WEB . $sub_directory, $write);
+        return new static(DIRECTORY_WEB . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_PROJECT_CDN
+     * Returns a PhoRestrictions object for DIRECTORY_PROJECT_CDN
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newCdn(bool $write = false, ?string $sub_directory = null): static
+    public static function newCdn(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_PROJECT_CDN . $sub_directory, $write);
+        return new static(DIRECTORY_PROJECT_CDN . $sub_path, $write);
     }
 
 
     /**
-     * Returns a restrictions object for DIRECTORY_DATA/files/
+     * Returns a PhoRestrictions object for DIRECTORY_DATA/files/
      *
      * @param bool        $write
-     * @param string|null $sub_directory
+     * @param string|null $sub_path
      *
      * @return static
      */
-    public static function newUserFilesObject(bool $write = false, ?string $sub_directory = null): static
+    public static function newUserFilesObject(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_DATA . 'files/' . $sub_directory, $write);
+        return new static(DIRECTORY_DATA . 'files/' . $sub_path, $write);
     }
 
 
@@ -448,7 +448,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
-     * Returns a restrictions object with parent directories for all directories in this restrictions object
+     * Returns a PhoRestrictions object with parent directories for all directories in this restrictions object
      *
      * This is useful for the Directory object where one will want to be able to access or create the parent directory
      * of the file that needs to be accessed
@@ -471,12 +471,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
         $restrictions = PhoRestrictions::new()->setLabel($this->label);
 
-        foreach ($this->source as $directory => $write) {
+        foreach ($this->source as $path => $write) {
             for ($l = 0; $l < $levels; $l++) {
-                $directory = dirname($directory);
+                $path = dirname($path);
             }
 
-            $restrictions->addDirectory($directory, $write);
+            $restrictions->addPath($path, $write);
         }
 
         return $restrictions;
@@ -491,7 +491,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public function addDirectory(PhoDirectoryInterface|string|null $directory, bool $write = false): static
+    public function addPath(PhoDirectoryInterface|string|null $directory, bool $write = false): static
     {
         if ($directory) {
             $this->source[PhoPath::realPath($directory)] = $write;
@@ -503,7 +503,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
-     * Returns a restrictions object with the current directory and the specified child directory attached
+     * Returns a PhoRestrictions object with the current directory and the specified child directory attached
      *
      * This is useful when we want more strict restrictions
      *
@@ -519,7 +519,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
         foreach ($this->source as $directory => $original_write) {
             foreach ($child_directories as $child) {
-                $restrictions->addDirectory(Strings::slash($directory) . Strings::ensureBeginsNotWith($child, '/'), $write ?? $original_write);
+                $restrictions->addPath(Strings::slash($directory) . Strings::ensureBeginsNotWith($child, '/'), $write ?? $original_write);
             }
         }
 
@@ -569,7 +569,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
     {
         if ($directories) {
             foreach (Arrays::force($directories) as $directory => $directory_write) {
-                $this->addDirectory($directory, $directory_write);
+                $this->addPath($directory, $directory_write);
             }
         }
 
@@ -753,7 +753,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
-     * Return these restrictions but with write enabled
+     * Return these PhoRestrictions but with write enabled
      *
      * @return PhoRestrictionsInterface
      */
@@ -762,7 +762,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
         $restrictions = new PhoRestrictions();
 
         foreach ($this->source as $path => $write) {
-            $restrictions->addDirectory($path, true);
+            $restrictions->addPath($path, true);
         }
 
         return $restrictions;

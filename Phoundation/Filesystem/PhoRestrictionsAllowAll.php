@@ -30,7 +30,7 @@ class PhoRestrictionsAllowAll extends PhoRestrictions implements PhoRestrictions
     /**
      * @inheritDoc
      */
-    public function addDirectory(PhoDirectoryInterface|string|null $directory, bool $write = false): static
+    public function addPath(PhoDirectoryInterface|string|null $directory, bool $write = false): static
     {
         return $this;
     }

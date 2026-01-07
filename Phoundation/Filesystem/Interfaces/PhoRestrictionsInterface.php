@@ -70,7 +70,7 @@ interface PhoRestrictionsInterface extends ArraySourceInterface
      *
      * @return static
      */
-    public function addDirectory(PhoDirectoryInterface|string|null $directory, bool $write = false): static;
+    public function addPath(PhoDirectoryInterface|string|null $directory, bool $write = false): static;
 
     /**
      * Returns all directories for this restriction
