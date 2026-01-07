@@ -1128,12 +1128,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 // Yeah, this column is not allowed
-                throw DataEntryColumnsNotDefinedException::new(tr('Not setting column ":column", it is not defined for the ":class" class', [
+                throw DataEntryColumnsNotDefinedException::new(tr('Not setting column ":column", it is not defined nor permitted for the ":class" class', [
                     ':column' => $key,
                     ':class'  => static::class,
-                ]))->setData([
+                ]))
+                ->setData([
                     'column' => $key
-                ]);
+                ])
+                ->addHint(ts('Check the definitions and permitted columns in the ":class" class for column ":column". Either the column has to be defined in one of those two places, or the column simply cannot be used in this class', [
+                    ':column' => $key,
+                    ':class'  => static::class,
+                ]));
             }
 
             // Column is permitted but has no Definition available!
@@ -2117,7 +2122,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a source array with all source virtual columns resolved (not NULL)
+     * Returns a source array with all columns from definitions and permitted columns, with all source virtual columns resolved
      *
      * @return array
      */
@@ -2125,6 +2130,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $source = [];
 
+        // Add columns from definitions
         if ($this->o_definitions) {
             foreach ($this->o_definitions as $column => $o_definition) {
                 if (!$o_definition->getContainsData()) {
@@ -2164,6 +2170,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 } else {
                     $source[$column] = $value;
                 }
+            }
+        }
+
+        // Add columns from permitted columns
+        if ($this->permitted_columns) {
+            foreach ($this->permitted_columns as $column => $value) {
+                $source[$column] = array_get_safe($this->source, $column);
             }
         }
 
