@@ -467,7 +467,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
                 try {
                     // Ensure that the path that we're working with is absolute, normalized, and real.
                     $path->makeAbsolute(must_exist: false)
-                         ->makeRealPath(false);
+                         ->makeReal(false);
 
                     if (!$path->exists()) {
                         // The resolved path doesn't exist, continue
@@ -486,7 +486,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                     $repository = new Repository(
                         $path,
-                        PhoRestrictions::newWritableObject($path->getParentDirectory() . $path)
+                        PhoRestrictions::newWritableObject($path->getParentDirectoryObject() . $path)
                     );
 
                     if (!$repository->isRepository()) {
