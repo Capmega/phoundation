@@ -438,6 +438,8 @@ class Cache extends Database implements CacheInterface
         Libraries::rebuildCronCache();
         Libraries::rebuildTestsCache();
         Libraries::rebuildCommandsCache();
+        Libraries::rebuildConfigCache();
+//        Libraries::rebuildDataCache();
 
         static::$has_been_cleared = true;
 
@@ -681,7 +683,7 @@ class Cache extends Database implements CacheInterface
      *
      * @return void
      */
-    public function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
+    public static function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
     {
         $auto_commit = $auto_commit ?? config()->getBoolean('cache.system.commit.auto', false);
 
@@ -698,7 +700,7 @@ class Cache extends Database implements CacheInterface
                 $git->add($directory)
                     ->commit($message, config()->getBoolean('cache.system.commit.signed', false) or $signed);
 
-                Log::success($this->log(ts('Committed system cache update to git')));
+                Log::success(ts('Committed system cache update to git'));
             }
         }
     }

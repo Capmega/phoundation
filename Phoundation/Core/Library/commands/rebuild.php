@@ -57,10 +57,14 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Rebuild commands and web cache
-Libraries::rebuildCommandsCache();
-Libraries::rebuildTestsCache();
+// Rebuild system caches
 Libraries::rebuildWebCache();
+Libraries::rebuildHooksCache();
+Libraries::rebuildCronCache();
+Libraries::rebuildTestsCache();
+Libraries::rebuildCommandsCache();
+Libraries::rebuildConfigCache();
+//        Libraries::rebuildDataCache();
 
 
 // Commit the system web cache?
