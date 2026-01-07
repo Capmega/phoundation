@@ -54,8 +54,8 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
     {
         // Uploaded file restrictions always require write access to /tmp/ and DIRECTORY_TMP
         $restrictions = $restrictions ?? new PhoRestrictions();
-        $restrictions->addDirectory(DIRECTORY_TMP, true);
-        $restrictions->addDirectory('/tmp/', true);
+        $restrictions->addPath(DIRECTORY_TMP, true);
+        $restrictions->addPath('/tmp/', true);
 
         // This uploaded file refers to the PHP temp file
         $this->setSource($source->getTmpName())

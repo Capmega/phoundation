@@ -157,6 +157,22 @@ if (Request::isPostRequestMethod()) {
                 ]));
 
                 Response::redirect();
+
+            case tr('Re-send welcome email'):
+                if (!$o_user->hasSignedIn()) {
+                    $o_user->sendWelcomeEmail();
+
+                    Response::getFlashMessagesObject()->addSuccess(tr('Re-sent welcome email for user account ":user"', [
+                        ':user' => $o_user->getDisplayName(),
+                    ]));
+
+                } else {
+                    Response::getFlashMessagesObject()->addWarning(tr('Cannot re-send welcome email for user account ":user", the user has already signed in', [
+                        ':user' => $o_user->getDisplayName(),
+                    ]));
+                }
+
+                Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
@@ -228,9 +244,17 @@ if (!$o_user->isNew()) {
                             ->setFloatRight(true)
                             ->setMode(EnumDisplayMode::information)
                             ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html')
-                            ->setFloatRight(true)
-                            ->setContent(tr('Audit'))
-                            ->setFloatRight(true);
+                            ->setContent(tr('Audit'));
+}
+
+
+// Re-send welcome email button.
+if (!$o_user->hasSignedIn()) {
+    $o_button_welcome = Button::new()
+                              ->setFloatRight(true)
+                              ->setMode(EnumDisplayMode::primary)
+                              ->setOutlined(true)
+                              ->setContent(tr('Re-send welcome email'));
 }
 
 
@@ -244,6 +268,7 @@ $o_user_card = Card::new()
                                              ->addButton(isset_get($o_button_save))
                                              ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true)
                                              ->addButton(isset_get($o_button_audit))
+                                             ->addButton(isset_get($o_button_welcome))
                                              ->addButton(isset_get($o_button_delete))
                                              ->addButton(isset_get($o_button_lock))
                                              ->addButton(isset_get($o_button_impersonate)));

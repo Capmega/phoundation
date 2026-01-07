@@ -26,9 +26,6 @@ class ForcePasswordUpdatePage extends Page
      */
     public function __construct(?string $name) {
         parent::__construct($name);
-
-        $this->addTexts([
-            tr('Please update your account to have a new and secure password password before continuing...'),
-        ]);
+        $this->setText(tr('Please update your account to have a new and secure password password before continuing...'));
     }
 }

@@ -765,7 +765,7 @@ FILES variables:
             Pho::new()
                ->setPhoCommands('email send')
                ->addArgument('-h')
-               ->addArguments(['-t', $user->getEmail()])
+               ->addArguments(['-t', $this->getOverrideEmail() ?? $user->getEmail()])
                ->addArguments(['-s', $this->getTitle()])
                ->addArguments(['-b', $message])
                ->executeBackground();
@@ -787,6 +787,17 @@ FILES variables:
 
         $sending = false;
         return $this;
+    }
+
+
+    /**
+     * Returns a configured email address that (if configured) will always be used for all notifications
+     *
+     * @return string|null
+     */
+    public function getOverrideEmail(): ?string
+    {
+        return get_null(config()->getString('notifications.send.override.email', ''));
     }
 
 

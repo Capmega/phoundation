@@ -38,10 +38,8 @@ class Arrays extends Utils
      * Group by options
      */
     const int GROUP_BY_DROP      = 1;
-
     const int GROUP_BY_NULL      = 2;
     const int NO_GROUP_BY        = 3;
-
     const int GROUP_BY_EXCEPTION = 4;
 
 
@@ -4534,8 +4532,8 @@ class Arrays extends Utils
     {
         $return = [];
 
-        foreach ($source as $key => $value) {
-            if ($needles) {
+        if ($needles) {
+            foreach ($source as $key => $value) {
                 $needles_match = false;
 
                 foreach ($needles as $needle) {
@@ -4572,12 +4570,8 @@ class Arrays extends Utils
                     }
                 }
 
-            } else {
-                // No needles specified!
-                $needles_match = true;
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
             }
-
-            Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
         }
 
         return Arrays::checkMatch($needles, $flags, $return);
@@ -4600,9 +4594,7 @@ class Arrays extends Utils
     {
         $return = [];
 
-show($needles);
         foreach ($source as $key => $value) {
-show($value);
             if ($needles) {
                 $needles_match = false;
 
@@ -4620,7 +4612,6 @@ show($value);
                         }
 
                     } else {
-show($column);
                         $string_value = Strings::getStringValue($value, $column);
 
                         if (!Arrays::useCleanedHaystackValue($string_value, $flags)) {

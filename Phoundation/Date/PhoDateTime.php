@@ -1252,27 +1252,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns a string representation of how long ago the specified date was, from now
+     * Returns a string representation of how long ago the specified date was, from now or from the specified date
      *
      * @param PhoDate|PhoDateTimeInterface|string|int|null $date
-     * @param bool                                $microseconds
+     * @param bool                                         $reverse
+     * @param bool                                         $microseconds
      *
      * @return string
      */
-    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $microseconds = false): string
+    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $reverse = false, bool $microseconds = false): string
     {
-        if (!is_object($date)) {
-            if (is_integer($date)) {
-                $timestamp = $date;
-                $date      = new PhoDateTime();
-                $date->setTimestamp($timestamp);
+        if ($reverse) {
+            $diff = $this->diff(new PhoDateTime($date));
 
-            } else {
-                $date = new PhoDateTime($date);
-            }
+        } else {
+            $diff = PhoDateTime::new($date)->diff($this);
         }
-
-        $diff = $this->diff($date);
 
         if ($diff->y) {
             return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [

@@ -414,74 +414,74 @@ class PhoDate extends PhoDateTime
     }
 
 
-    /**
-     * Returns a string representation of how long ago the specified date was, from now
-     *
-     * @param PhoDate|PhoDateTimeInterface|string|int $date
-     * @param bool                           $microseconds
-     *
-     * @return string
-     */
-    public static function getAge(PhoDate|DateTime|string|int $date, bool $microseconds = false): string
-    {
-        if (!is_object($date)) {
-            if (is_integer($date)) {
-                $timestamp = $date;
-                $date      = new DateTime();
-                $date->setTimestamp($timestamp);
-
-            } else {
-                $date = new DateTime($date);
-            }
-        }
-
-        $now  = new DateTime();
-        $diff = $now->diff($date);
-
-        if ($diff->y) {
-            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
-                ':count' => $diff->y
-            ]));
-        }
-
-        if ($diff->m) {
-            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
-                ':count' => $diff->m
-            ]));
-        }
-
-        if ($diff->d) {
-            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
-                ':count' => $diff->d
-            ]));
-        }
-
-        if ($diff->h) {
-            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
-                ':count' => $diff->h
-            ]));
-        }
-
-        if ($diff->i) {
-            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
-                ':count' => $diff->i
-            ]));
-        }
-
-        if ($diff->s) {
-            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
-                ':count' => $diff->s
-            ]));
-        }
-
-        if ($microseconds) {
-            if (isset($diff->u) and $diff->u) {
-                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
-                    ':count' => $diff->s
-                ]));
-            }
-        }
-
-        return tr('Right now');
-    }
+//    /**
+//     * Returns a string representation of how long ago the specified date was, from now
+//     *
+//     * @param PhoDate|PhoDateTimeInterface|string|int $date
+//     * @param bool                           $microseconds
+//     *
+//     * @return string
+//     */
+//    public static function getAge(PhoDate|DateTime|string|int $date, bool $microseconds = false): string
+//    {
+//        if (!is_object($date)) {
+//            if (is_integer($date)) {
+//                $timestamp = $date;
+//                $date      = new DateTime();
+//                $date->setTimestamp($timestamp);
+//
+//            } else {
+//                $date = new DateTime($date);
+//            }
+//        }
+//
+//        $now  = new DateTime();
+//        $diff = $now->diff($date);
+//
+//        if ($diff->y) {
+//            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
+//                ':count' => $diff->y
+//            ]));
+//        }
+//
+//        if ($diff->m) {
+//            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
+//                ':count' => $diff->m
+//            ]));
+//        }
+//
+//        if ($diff->d) {
+//            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
+//                ':count' => $diff->d
+//            ]));
+//        }
+//
+//        if ($diff->h) {
+//            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
+//                ':count' => $diff->h
+//            ]));
+//        }
+//
+//        if ($diff->i) {
+//            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
+//                ':count' => $diff->i
+//            ]));
+//        }
+//
+//        if ($diff->s) {
+//            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
+//                ':count' => $diff->s
+//            ]));
+//        }
+//
+//        if ($microseconds) {
+//            if (isset($diff->u) and $diff->u) {
+//                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
+//                    ':count' => $diff->s
+//                ]));
+//            }
+//        }
+//
+//        return tr('Right now');
+//    }
 }

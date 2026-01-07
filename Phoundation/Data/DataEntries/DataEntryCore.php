@@ -1656,7 +1656,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($global) {
-            $data_entry = cache('dataentries')->get($cache_key);
+            $data_entry = cache('dataentries')->getOrGenerate($cache_key);
 
             if ($data_entry) {
                 if ($data_entry instanceof DataEntryInterface) {

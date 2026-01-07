@@ -87,9 +87,9 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @return PhoPathInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getParentDirectory(): ?PhoPathInterface
+    public function getParentDirectoryObject(): ?PhoDirectoryInterface
     {
         return $this->o_parent_directory;
     }
@@ -100,12 +100,12 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @note By default, will then load the files in that path
      *
-     * @param PhoPathInterface|null $o_parent_directory
+     * @param PhoDirectoryInterface|null $o_parent_directory
      * @param bool                  $load
      *
      * @return PhoFiles
      */
-    public function setParentDirectoryObject(?PhoPathInterface $o_parent_directory, bool $load = true): static
+    public function setParentDirectoryObject(?PhoDirectoryInterface $o_parent_directory, bool $load = true): static
     {
         $this->o_parent_directory = $o_parent_directory;
 

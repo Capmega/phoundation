@@ -102,7 +102,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string PHOUNDATION_VERSION = '4.16.0';
+    public const string PHOUNDATION_VERSION = '4.18.0';
 
     public const string PHP_MINIMUM_VERSION = '8.3.0';
 
@@ -3028,7 +3028,7 @@ class Core implements CoreInterface
     {
         // Command line command crashed.
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
-        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
+        if (($e instanceof PhoException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
             if (!$e->hasBeenLogged()) {
                 Log::warning($e->getMessage(), 10);

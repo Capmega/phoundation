@@ -169,9 +169,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
              ->generateUuid()
              ->save();
 
-        $url       = Url::new('sign-key')->makeWww();
-        $url       = str_replace(':key', $this->getUuid(), (string) $url);
-        $this->url = Url::new($url)->makeWww()->getSource();
+        $url         = Url::new('sign-key')->makeWww();
+        $url         = str_replace(':key', $this->getUuid(), (string) $url);
+        $this->o_url = Url::new($url)->makeWww();
 
         return $this;
     }

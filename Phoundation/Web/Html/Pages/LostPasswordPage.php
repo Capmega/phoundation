@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Pages;
 
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
@@ -33,8 +34,8 @@ class LostPasswordPage extends Page
         Response::setPageTitle(tr('Request a new password'));
         Response::setHeaderTitle(tr('Request a new password'));
 
-        $this->setUrl(Url::new('sign-in')->makeWww()->addRedirect(array_get_safe($get, 'redirect'))->addQuery(array_get_safe($get, 'email'), 'email'), 'back-to-sign-in');
-        $this->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                        , 'image-background');
+        $this->setUrl(Url::new('sign-in')->makeWww()->addRedirect($this->get(EnumHttpRequestMethod::get, 'redirect'))->addQuery($this->get(EnumHttpRequestMethod::get, 'email'), 'email'), 'back-to-sign-in');
+        $this->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                                                                      , 'image-background');
 
         parent::__construct($name);
     }

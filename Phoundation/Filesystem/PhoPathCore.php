@@ -624,13 +624,13 @@ class PhoPathCore implements PhoPathInterface
      * ~ is the current shell's user home directory
      * / is considered absolute
      *
-     * @param Stringable|string|null      $path
-     * @param Stringable|string|bool|null $absolute_prefix
-     * @param bool                        $must_exist
+     * @param PhoPathInterface|string|null $path
+     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param bool                         $must_exist
      *
      * @return static
      */
-    public static function absolutePath(Stringable|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
+    public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
 
@@ -2407,7 +2407,7 @@ class PhoPathCore implements PhoPathInterface
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
      * parent directory of the specified path exists and a valid absolute and real path is always returned
      *
-     * @param string                      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      * @param bool                        $resolve_basename
@@ -2415,8 +2415,9 @@ class PhoPathCore implements PhoPathInterface
      * @return string
      * @todo add InstanceCache support
      */
-    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
+    public static function realPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
+        $path = trim((string) $path);
         $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
         if (static::onDomain($real)) {
@@ -2542,6 +2543,17 @@ class PhoPathCore implements PhoPathInterface
     public function isLinkAndTargetExists(): bool
     {
         return is_link($this->source) and file_exists($this->source);
+    }
+
+
+    /**
+     * Returns true if the file is a symlink AND its target exists
+     *
+     * @return bool
+     */
+    public function isLinkAndTargetDoesNotExist(): bool
+    {
+        return is_link($this->source) and !file_exists($this->source);
     }
 
 
@@ -2788,14 +2800,14 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns a normalized path that has all ./ and ../ resolved
      *
-     * @param Stringable|string           $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      *
      * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
      *                 whatever was specified does not exist.
      */
-    protected static function normalizePath(Stringable|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
+    protected static function normalizePath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
     {
         $path = trim((string) $path);
 
@@ -3929,28 +3941,35 @@ class PhoPathCore implements PhoPathInterface
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $target
+     * @param PhoPathInterface|string $o_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface
+    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface
     {
-        $target = PhoPath::new($target);
+        if (!$o_target->exists()) {
+            throw new FileNotExistException(ts('Cannot replace path ":source" with target ":target", the target does not exist', [
+                ':source' => $this->source,
+                ':target' => $o_target,
+            ]));
+        }
+
+        $o_target = PhoPath::new($o_target);
 
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
-            $target->rename($new);
+            $o_target->rename($new);
             $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we don't have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
-            $target->rename($this);
+            $o_target->rename($this);
         }
 
-        return $target;
+        return $o_target;
     }
 
 

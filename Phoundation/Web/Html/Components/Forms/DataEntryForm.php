@@ -148,7 +148,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
      */
     public function render(): ?string
     {
-        return cache('html')->get($this->getCacheKey(), function () {
+        return cache('html')->getOrGenerate($this->getCacheKey(), function () {
             if (!$this->getDefinitionsObject()) {
                 if ($this->render_contents_only) {
                     return $this->content;

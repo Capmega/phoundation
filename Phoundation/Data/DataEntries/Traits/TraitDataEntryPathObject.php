@@ -38,6 +38,7 @@ trait TraitDataEntryPathObject
     }
 
 
+
     /**
      * Sets the path for this object
      *

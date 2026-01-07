@@ -61,7 +61,7 @@ try {
         ]));
 
     } else {
-        Log::printr(cache($argv['connector'])->get($argv['key']), echo_header: false);
+        Log::printr(cache($argv['connector'])->getOrGenerate($argv['key']), echo_header: false);
     }
 
 } catch (ConnectorNotExistsException $e) {

@@ -166,7 +166,7 @@ class Import extends \Phoundation\Developer\Project\Import
         Log::action(ts('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            PhoFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
+            PhoFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addPath(DIRECTORY_DATA . 'garbage/', true))
                 ->delete();
             $previous = PhoDirectory::new($target_path, $restrictions)
                                     ->move(DIRECTORY_DATA . 'garbage/');
