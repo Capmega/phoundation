@@ -486,12 +486,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Add new directory for this restriction
      *
-     * @param PhoDirectoryInterface|string|null $directory
-     * @param bool                              $write
+     * @param PhoPathInterface|string|null $directory
+     * @param bool                         $write
      *
      * @return static
      */
-    public function addPath(PhoDirectoryInterface|string|null $directory, bool $write = false): static
+    public function addPath(PhoPathInterface|string|null $directory, bool $write = false): static
     {
         if ($directory) {
             $this->source[PhoPath::realPath($directory)] = $write;
