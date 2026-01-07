@@ -350,7 +350,13 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      */
     public function setData(mixed $data): static
     {
-        $this->data = Arrays::force($data, null);
+        $data       = Arrays::force($data, null);
+        $this->data = [];
+
+        // Remove ":" from keys, as they're sometimes (accidentally) added due to ts() use
+        foreach ($data as $key => $value) {
+            $this->data[Strings::ensureBeginsNotWith($key, ':')] = $value;
+        }
 
         return $this;
     }
