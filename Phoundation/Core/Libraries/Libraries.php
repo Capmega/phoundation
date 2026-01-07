@@ -815,7 +815,7 @@ class Libraries
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $o_cache->replaceWithPath($o_temporary)
-                ->symlinkTargetFromThis($o_target);
+            ->symlinkTargetFromThis($o_target);
 
         Log::success(ts('Finished rebuilding web cache'));
     }
@@ -831,8 +831,112 @@ class Libraries
         Log::action(ts('Clearing web caches (symlinks only)'), 3);
 
         PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
-                    ->clearTreeSymlinks(true)
-                    ->ensure();
+            ->clearTreeSymlinks(true)
+            ->ensure();
+    }
+
+
+    /**
+     * Rebuilds the data cache
+     *
+     * @return void
+     */
+    public static function rebuildDataCache(): void
+    {
+        static::clearDataCache();
+
+        Log::action(ts('Rebuilding data cache'), 4);
+
+        // Get temporary directory to build cache and the current cache directory
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::newDataObject(true);
+
+        if ($o_cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
+        }
+
+        foreach (static::listLibraries() as $library) {
+            $library->rebuildDataCache($o_cache, $o_temporary);
+        }
+
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'data', PhoRestrictions::newRootObject(true))->delete();
+
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
+
+        Log::success(ts('Finished rebuilding data cache'));
+    }
+
+
+    /**
+     * Deletes the data cache
+     *
+     * @return void
+     */
+    public static function clearDataCache(): void
+    {
+        Log::action(ts('Clearing data caches (symlinks only)'), 3);
+
+        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
+            ->clearTreeSymlinks(true)
+            ->ensure();
+    }
+
+
+    /**
+     * Rebuilds the config cache
+     *
+     * @return void
+     */
+    public static function rebuildConfigCache(): void
+    {
+        static::clearConfigCache();
+
+        Log::action(ts('Rebuilding config cache'), 4);
+
+        // Get temporary directory to build cache and the current cache directory
+        $o_temporary = PhoDirectory::newTemporaryObject();
+        $o_cache     = PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newWritableObject([
+            DIRECTORY_WEB,
+            DIRECTORY_TMP,
+            DIRECTORY_ROOT . 'config/'
+        ]));
+
+        if ($o_cache->exists()) {
+            // Replace the temporary directory with the cache directory contents
+            $o_temporary = $o_temporary->delete()->getParentDirectoryObject()->ensure();
+            $o_cache->copy($o_temporary);
+        }
+
+        foreach (static::listLibraries() as $library) {
+            $library->rebuildConfigCache($o_cache, $o_temporary);
+        }
+
+        $o_target = PhoFile::new(DIRECTORY_ROOT . 'config', PhoRestrictions::newRootObject(true))->delete();
+
+        // Move the old out of the way, push the new in and ensure we have a root directory link
+        $o_cache->replaceWithPath($o_temporary)
+                ->symlinkTargetFromThis($o_target);
+
+        Log::success(ts('Finished rebuilding config cache'));
+    }
+
+
+    /**
+     * Deletes the config cache
+     *
+     * @return void
+     */
+    public static function clearConfigCache(): void
+    {
+        Log::action(ts('Clearing config caches (symlinks only)'), 3);
+
+        PhoDirectory::new(DIRECTORY_WEB, PhoRestrictions::newFilesystemRootObject(true))
+            ->clearTreeSymlinks(true)
+            ->ensure();
     }
 
 
