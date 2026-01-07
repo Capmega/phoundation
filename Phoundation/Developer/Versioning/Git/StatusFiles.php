@@ -25,7 +25,9 @@ use Phoundation\Developer\Versioning\Git\Exception\GitStatusException;
 use Phoundation\Developer\Versioning\Git\Exception\GitUnknownStatusException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoFilesCore;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -38,6 +40,7 @@ use Phoundation\Utils\Strings;
 
 class StatusFiles extends PhoFilesCore implements StatusFilesInterface
 {
+    use TraitDataObjectRepository;
     use TraitGitProcess {
         __construct as protected ___construct;
     }
@@ -54,15 +57,37 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     /**
      * StatusFiles class constructor
      *
-     * @param PhoPathInterface|null $o_parent_path
+     * @param RepositoryInterface|PhoPathInterface|null $o_parent
      */
-    public function __construct(?PhoPathInterface $o_parent_path)
+    public function __construct(RepositoryInterface|PhoPathInterface|null $o_parent)
     {
-        $this->o_parent            = $o_parent_path;
-        $this->o_restrictions      = $o_parent_path?->getRestrictionsObject();
-        $this->accepted_data_types = [PhoPathInterface::class];
+        if ($o_parent instanceof RepositoryInterface) {
+            $this->o_repository        = $o_parent;
+            $this->o_parent            = $this->o_repository->getPathObject();
+            $this->o_restrictions      = $o_parent?->getRestrictionsObject();
+            $this->accepted_data_types = [PhoPathInterface::class];
 
-        $this->___construct($o_parent_path);
+            $this->___construct($o_parent);
+
+        } else {
+            $this->o_parent            = $o_parent;
+            $this->o_restrictions      = $o_parent?->getRestrictionsObject();
+            $this->accepted_data_types = [PhoPathInterface::class];
+
+            $this->___construct($o_parent);
+        }
+    }
+
+
+    /**
+     * Returns a new StatusFiles object
+     *
+     * @param RepositoryInterface|PhoPathInterface|null $o_parent
+     *
+     * @return static
+     */
+    public static function new(RepositoryInterface|PhoPathInterface|null $o_parent): static {
+        return new static($o_parent);
     }
 
 

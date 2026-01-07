@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-use Phoundation\Developer\Versioning\Git\RemoteRepository;
+use Phoundation\Developer\Versioning\Git\Repositories\RemoteRepository;
 use ReturnTypeWillChange;
 use Stringable;
 

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories list
+ * Command developer git repositories status
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will list all known phoundation repositories
+ * This command will list the status for all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,44 +17,29 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
-use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development git repositories list');
+CliDocumentation::setUsage('./pho development git repositories status');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will list all known phoundation repositories 
+This command will status all known phoundation repositories 
 
 
 ARGUMENTS
 
 
-- 
-
-
-OPTIONAL ARGUMENTS
-
-
-[-A]                                    If specified, will list all repositories (including deleted)'));
+-'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()->validate();
 
 
-// List known repositories
-Repositories::new()->load()->displayCliTable([
-    'name'     => ts('Repository name'),
-    'platform' => ts('Platform'),
-    'type'     => ts('Type'),
-    'required' => ts('Required'),
-    'path'     => ts('Path'),
-]);
+// List status for all known repositories
+Repositories::new()->load()->getStatus()->displayCliTable();

@@ -33,7 +33,9 @@ use Phoundation\Developer\Versioning\Git\Branches\Branches;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Remotes;
+use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
 use Phoundation\Developer\Versioning\Git\Tags\Tags;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
@@ -263,13 +265,24 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns the Remotes class object for this Repository
+     * Returns the Branches object for this Repository
      *
      * @return BranchesInterface
      */
     public function getBranchesObject(): BranchesInterface
     {
         return Branches::new($this);
+    }
+
+
+    /**
+     * Returns the Status object for this Repository
+     *
+     * @return StatusFilesInterface
+     */
+    public function getStatusObject(): StatusFilesInterface
+    {
+        return StatusFiles::new($this);
     }
 
 

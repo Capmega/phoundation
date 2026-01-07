@@ -19,7 +19,10 @@ namespace Phoundation\Developer\Versioning\Repositories;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -245,5 +248,19 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns an array containing the status for all repositories
+     *
+     * @return IteratorInterface
+     */
+    public function getStatus(): IteratorInterface
+    {
+        foreach (Repositories::new()->load() as $o_repository) {
+            $o_status = $o_repository->getStatus();
+showdie($o_status);
+        }
     }
 }
