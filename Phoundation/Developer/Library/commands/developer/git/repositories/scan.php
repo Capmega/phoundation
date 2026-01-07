@@ -76,7 +76,7 @@ $permissions_denied = $o_repositories->scan($argv['path'], $argv['delete_gone'])
 
 // Process permission denied errors
 if ($permissions_denied) {
-    Log::cli(ts('Encountered "permission denied" on ":count" paths', [
+    Log::cli(ts('Encountered "permission denied" on  following ":count" paths', [
         ':count' => $permissions_denied
     ]), 'warning');
 

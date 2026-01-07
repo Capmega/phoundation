@@ -46,7 +46,6 @@ trait TraitDataBranch
     public function setBranch(string $branch): static
     {
         $this->branch = $branch;
-
         return $this;
     }
 }

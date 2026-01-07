@@ -18,6 +18,7 @@ namespace Phoundation\Developer\Versioning\Repositories;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
@@ -71,7 +72,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         parent::__construct();
         $this->construct($o_parent_path);
-        $this->setKeysAreUniqueColumn(true);
+
+        $this->setKeysAreUniqueColumn(true)
+             ->setInjectSourceDirectly(false);
 
         $this->query = 'SELECT `developer_repositories`.* FROM `developer_repositories` WHERE `status` IS NULL';
     }
@@ -95,7 +98,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public static function getDefaultContentDataType(): ?string
     {
-        return RepositoryInterface::class;
+        return Repository::class;
     }
 
 
@@ -122,6 +125,30 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         }
 
         return $this->new;
+    }
+
+
+    /**
+     * Load the Repositories list data from the database, and optionally adds detail directly from the repositories
+     *
+     * @param IdentifierInterface|int|array|string|null $identifiers
+     * @param bool                                      $like
+     * @param bool                                      $details
+     *
+     * @return $this
+     */
+    public function load(IdentifierInterface|int|array|string|null $identifiers = null, bool $like = false, bool $details = false): static
+    {
+        parent::load($identifiers, $like);
+
+        // Load detail information directly from the repositories themselves?
+        if ($details) {
+            foreach ($this as $o_repository) {
+                $o_repository->loadDetails();
+            }
+        }
+
+        return $this;
     }
 
 
@@ -190,7 +217,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $this->load();
 
         Log::action(ts('Scanning path ":path" for repositories, this may take a little while...', [
-            ':path' => $path
+            ':path' => $path,
         ]));
 
         $this->o_find = Find::new()

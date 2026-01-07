@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -36,6 +37,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Git\Remotes;
 use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
 use Phoundation\Developer\Versioning\Git\Tags\Tags;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -54,6 +56,7 @@ class Repository extends DataEntry implements RepositoryInterface
     }
     use TraitDataEntryName;
     use TraitDataEntryDescription;
+    use TraitDataBranch;
 
 
     /**
@@ -74,8 +77,6 @@ class Repository extends DataEntry implements RepositoryInterface
         } else {
             $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
         }
-
-        $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
     }
 
 
@@ -239,9 +240,12 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function setPath(string|null $path): static
     {
-        return $this->__setPath($path)
-                    ->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
-                    ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value);
+        $this->__setPath($path)
+             ->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
+             ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value)
+             ->o_git = new Git($this->getPathObject()->getDirectoryObject());
+
+        return $this;
     }
 
 
@@ -322,6 +326,15 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $this->o_git->setCurrentBranch($branch);
         return $this;
+    }
+
+
+    /**
+     * @return static
+     */
+    public function loadDetails(): static
+    {
+        return $this->setBranch($this->o_git->getCurrentBranch());
     }
 
 
