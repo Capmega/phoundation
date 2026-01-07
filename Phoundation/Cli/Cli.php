@@ -233,7 +233,7 @@ class Cli
 
                     if (isset($not_rendered)) {
                         foreach ($not_rendered as $column) {
-                            Log::warning(ts('Not rendered column ":column" for some or all rows while rendering CLI table, it does not exist in some or all of the source data', [
+                            Log::warning(ts('Did not render column ":column" for some or all rows while rendering CLI table, it does not exist in some or all of the source data', [
                                 ':column' => $column,
                             ]), 10);
                         }
