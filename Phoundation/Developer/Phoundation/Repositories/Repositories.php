@@ -433,6 +433,9 @@ class Repositories extends IteratorCore implements RepositoriesInterface
     /**
      * Scans for available phoundation and or phoundation plugin and or phoundation template repositories
      *
+     * @param IteratorInterface|array $directories
+     * @param bool                    $recurse
+     *
      * @return static
      */
     protected function scanDirectories(IteratorInterface|array $directories, bool $recurse = false): static
@@ -440,54 +443,51 @@ class Repositories extends IteratorCore implements RepositoriesInterface
         // Ensure we have absolute, normalized, real and unique directories
         $directories = $this->resolveDirectories($directories);
 
-        foreach ($directories as $directory) {
-            if ($this->scanned_paths->keyExists($directory->getSource())) {
+        foreach ($directories as $o_directory) {
+            if ($this->scanned_paths->keyExists($o_directory->getSource())) {
                 // This path was already scanned
                 continue;
             }
 
             // Track scanned paths
-            $this->scanned_paths->add($directory, $directory->getSource());
+            $this->scanned_paths->add($o_directory, $o_directory->getSource());
 
             Log::action(ts('Scanning directory ":directory"', [
-                ':directory' => $directory->getSource()
+                ':directory' => $o_directory->getSource()
             ]));
 
-            if (!$directory->exists()) {
+            if (!$o_directory->exists()) {
                 // Nothing here
                 Log::warning(ts('Ignoring directory ":directory", it does not exist', [
-                    ':directory' => $directory->getSource(),
+                    ':directory' => $o_directory->getSource(),
                 ]), 2);
 
                 continue;
             }
 
             // The main phoundation directory should be called either phoundation or Phoundation.
-            foreach ($directory->scan() as $path) {
+            foreach ($o_directory->scan() as $o_path) {
                 try {
                     // Ensure that the path that we're working with is absolute, normalized, and real.
-                    $path->makeAbsolute(must_exist: false)
-                         ->makeReal(false);
+                    $o_path->makeAbsolute(must_exist: false)
+                           ->makeReal(false);
 
-                    if (!$path->exists()) {
+                    if (!$o_path->exists()) {
                         // The resolved path doesn't exist, continue
                         continue;
                     }
 
-                    if ($this->keyExists($path->getSource())) {
+                    if ($this->keyExists($o_path->getSource())) {
                         // This repository has already been added
                         continue;
                     }
 
-
                     Log::action(ts('Testing directory ":directory" for Phoundation repository', [
-                        ':directory' => $path->getSource(),
+                        ':directory' => $o_path->getSource(),
                     ]), 1);
 
-                    $repository = new Repository(
-                        $path,
-                        PhoRestrictions::newWritableObject($path->getParentDirectoryObject() . $path)
-                    );
+                    // Since we do not know where any of these repositories will be, just give plain restrictions access to everything
+                    $repository = new Repository($o_path, PhoRestrictions::newWritableObject($o_path));
 
                     if (!$repository->isRepository()) {
                         Log::warning(ts('Ignoring directory ":directory", it is not a repository', [
@@ -509,7 +509,7 @@ class Repositories extends IteratorCore implements RepositoriesInterface
 
                 } catch (FileNotWritableException $e) {
                     Log::warning(ts('Ignoring path ":path", the path cannot be written to', [
-                        ':path' => $path,
+                        ':path' => $o_path,
                     ]));
                 }
             }
