@@ -16,11 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
+use Phoundation\Cli\Exception\CliRenderException;
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -176,8 +178,19 @@ class Cli
                     // Display header?
                     if ($display_headers) {
                         foreach (Arrays::force($headers) as $column => $header) {
-                            $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                            Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+                            try {
+                                $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                                Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+
+                            } catch (PhpException $e) {
+                                if (!array_key_exists($column, $column_sizes)) {
+                                    // The source doesn't contain the specified column. Continue rendering without this column.
+                                    $not_rendered[$column] = $column;
+                                    continue;
+                                }
+
+                                throw new CliRenderException($e);
+                            }
                         }
 
                         Log::cli(' ');
@@ -199,12 +212,31 @@ class Cli
                                 $value = DataEntry::getHumanReadableStatus($value);
                             }
 
-                            if (is_numeric($column) or array_key_exists($column, $headers)) {
-                                Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+                            try {
+                                if (is_numeric($column) or array_key_exists($column, $headers)) {
+                                    Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+                                }
+
+                            } catch (PhpException $e) {
+                                if (!array_key_exists($column, $column_sizes)) {
+                                    // The source doesn't contain the specified column. Continue rendering without this column.
+                                    $not_rendered[$column] = $column;
+                                    continue;
+                                }
+
+                                throw new CliRenderException($e);
                             }
                         }
 
                         Log::cli(' ');
+                    }
+
+                    if (isset($not_rendered)) {
+                        foreach ($not_rendered as $column) {
+                            Log::warning(ts('Not rendered column ":column" for some or all rows while rendering CLI table, it does not exist in some or all of the source data', [
+                                ':column' => $column,
+                            ]), 10);
+                        }
                     }
             }
 
