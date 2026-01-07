@@ -64,7 +64,7 @@ Libraries::rebuildCronCache();
 Libraries::rebuildTestsCache();
 Libraries::rebuildCommandsCache();
 Libraries::rebuildConfigCache();
-//        Libraries::rebuildDataCache();
+Libraries::rebuildDataCache();
 
 
 // Commit the system web cache?

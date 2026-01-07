@@ -839,9 +839,11 @@ class Libraries
      * Rebuilds the data cache
      *
      * @return void
+     * @todo Properly implement, symlink only certain parts of data/ as data/ itself CONTAINS the symlinks in data/system/cache. Also data/log etc should not be symlinked!
      */
     public static function rebuildDataCache(): void
     {
+return;
         static::clearDataCache();
 
         Log::action(ts('Rebuilding data cache'), 4);
@@ -889,9 +891,11 @@ class Libraries
      * Rebuilds the config cache
      *
      * @return void
+     * @todo Properly implement, requires moving config directory as well, probably
      */
     public static function rebuildConfigCache(): void
     {
+return;
         static::clearConfigCache();
 
         Log::action(ts('Rebuilding config cache'), 4);

@@ -439,7 +439,7 @@ class Cache extends Database implements CacheInterface
         Libraries::rebuildTestsCache();
         Libraries::rebuildCommandsCache();
         Libraries::rebuildConfigCache();
-//        Libraries::rebuildDataCache();
+        Libraries::rebuildDataCache();
 
         static::$has_been_cleared = true;
 
