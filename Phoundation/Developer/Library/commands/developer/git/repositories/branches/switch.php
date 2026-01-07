@@ -27,11 +27,17 @@ use Phoundation\Filesystem\PhoDirectory;
 
 // Start documentation
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-p,--path' => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
+    'positions' => [
+        0 => function ($word) {
+            return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
         },
-        '-d,--delete-gone' => false
+        1 => function ($word) {
+            $argv = ArgvValidator::new()
+                                 ->select('repository')->isCode()
+                                 ->validate();
+
+            return array_keys(Repository::new($argv['repository'])->getBranchesObject()->keepMatchingAutocompleteValues($word, 'name')->getSource());
+        },
     ]
 ]);
 
