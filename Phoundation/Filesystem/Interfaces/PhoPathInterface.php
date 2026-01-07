@@ -1434,4 +1434,21 @@ interface PhoPathInterface extends Stringable
      * @return bool
      */
     public function parentDirectoryMatchesRegex(string $regular_expression): bool;
+
+    /**
+     * Makes the specified path absolute if it's not
+     *
+     * The start character will be treated as follows:
+     *
+     * . Is DIRECTORY_START
+     * ~ is the current shell's user home directory
+     * / is considered absolute
+     *
+     * @param PhoPathInterface|string|null $path
+     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param bool                         $must_exist
+     *
+     * @return static
+     */
+    public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string;
 }

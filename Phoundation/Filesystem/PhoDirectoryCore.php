@@ -1542,11 +1542,11 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param PhoPathInterface|string|int $directory
+     * @param PhoDirectoryInterface|string|int $directory
      *
      * @return PhoDirectoryInterface
      */
-    public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface
+    public function addDirectory(PhoDirectoryInterface|string|int $directory): PhoDirectoryInterface
     {
         if ($directory) {
             $directory = $this->getSource() . Strings::ensureBeginsNotWith((string) $directory, '/');

@@ -26,6 +26,8 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
@@ -58,11 +60,11 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * PhoRestrictions class constructor
      *
-     * @param Stringable|string|array|null $directories
-     * @param bool                         $write
-     * @param string|null                  $label
+     * @param PhoPathInterface|string|array|null $directories
+     * @param bool                               $write
+     * @param string|null                        $label
      */
-    public function __construct(Stringable|string|array|null $directories = null, bool $write = false, ?string $label = null)
+    public function __construct(PhoPathInterface|string|array|null $directories = null, bool $write = false, ?string $label = null)
     {
         if ($label) {
             $this->label = $label;
@@ -94,13 +96,13 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Returns a new PhoRestrictions object with the specified restrictions
      *
-     * @param Stringable|string|array|null $directories
-     * @param bool                         $write
-     * @param string|null                  $label
+     * @param PhoPathInterface|string|array|null $directories
+     * @param bool                               $write
+     * @param string|null                        $label
      *
      * @return static
      */
-    public static function new(Stringable|string|array|null $directories = null, bool $write = false, ?string $label = null): static
+    public static function new(PhoPathInterface|string|array|null $directories = null, bool $write = false, ?string $label = null): static
     {
         return new static($directories, $write, $label);
     }
@@ -126,12 +128,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Returns a new writable FsRestrictions object with the specified restrictions
      *
-     * @param Stringable|string|array|null $directories
-     * @param string|null                  $label
+     * @param PhoPathInterface|string|array|null $directories
+     * @param string|null                        $label
      *
      * @return static
      */
-    public static function newWritableObject(Stringable|string|array|null $directories = null, ?string $label = null): static
+    public static function newWritableObject(PhoPathInterface|string|array|null $directories = null, ?string $label = null): static
     {
         return new static($directories, true, $label);
     }
@@ -140,12 +142,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Returns a new readonly FsRestrictions object with the specified restrictions
      *
-     * @param Stringable|string|array|null $directories
-     * @param string|null                  $label
+     * @param PhoPathInterface|string|array|null $directories
+     * @param string|null                        $label
      *
      * @return static
      */
-    public static function newReadonlyObject(Stringable|string|array|null $directories = null, ?string $label = null): static
+    public static function newReadonlyObject(PhoPathInterface|string|array|null $directories = null, ?string $label = null): static
     {
         return new static($directories, false, $label);
     }
@@ -484,12 +486,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
     /**
      * Add new directory for this restriction
      *
-     * @param Stringable|string|null $directory
-     * @param bool                   $write
+     * @param PhoDirectoryInterface|string|null $directory
+     * @param bool                              $write
      *
      * @return static
      */
-    public function addDirectory(Stringable|string|null $directory, bool $write = false): static
+    public function addDirectory(PhoDirectoryInterface|string|null $directory, bool $write = false): static
     {
         if ($directory) {
             $this->source[PhoPath::realPath($directory)] = $write;

@@ -19,13 +19,18 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 use Throwable;
 
+
 class PhoRestrictionsAllowAll extends PhoRestrictions implements PhoRestrictionsInterface
 {
-    public function addDirectory(Stringable|string|null $directory, bool $write = false): static
+    /**
+     * @inheritDoc
+     */
+    public function addDirectory(PhoDirectoryInterface|string|null $directory, bool $write = false): static
     {
         return $this;
     }

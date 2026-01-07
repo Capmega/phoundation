@@ -624,13 +624,13 @@ class PhoPathCore implements PhoPathInterface
      * ~ is the current shell's user home directory
      * / is considered absolute
      *
-     * @param Stringable|string|null      $path
-     * @param Stringable|string|bool|null $absolute_prefix
-     * @param bool                        $must_exist
+     * @param PhoPathInterface|string|null $path
+     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param bool                         $must_exist
      *
      * @return static
      */
-    public static function absolutePath(Stringable|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
+    public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
 
@@ -2407,7 +2407,7 @@ class PhoPathCore implements PhoPathInterface
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
      * parent directory of the specified path exists and a valid absolute and real path is always returned
      *
-     * @param string                      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      * @param bool                        $resolve_basename
@@ -2415,8 +2415,9 @@ class PhoPathCore implements PhoPathInterface
      * @return string
      * @todo add InstanceCache support
      */
-    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
+    public static function realPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
+        $path = trim((string) $path);
         $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
         if (static::onDomain($real)) {
@@ -2799,14 +2800,14 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns a normalized path that has all ./ and ../ resolved
      *
-     * @param Stringable|string           $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      *
      * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
      *                 whatever was specified does not exist.
      */
-    protected static function normalizePath(Stringable|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
+    protected static function normalizePath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
     {
         $path = trim((string) $path);
 
