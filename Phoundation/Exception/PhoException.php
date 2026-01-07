@@ -342,6 +342,43 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
 
 
     /**
+     * Adds a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function addHint(array|string $hint): static
+    {
+        return $this->addData($hint, 'hint');
+    }
+
+
+    /**
+     * Sets a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function setHint(array|string $hint): static
+    {
+        return $this->addHint($hint);
+    }
+
+
+    /**
+     * Returns any possible hints to possibly solve the exception that may have been added to the exception
+     *
+     * @return array|string|null
+     */
+    public function getHint(): array|string|null
+    {
+        return $this->getDataKey('hint');
+    }
+
+
+    /**
      * Sets the specified data for this exception
      *
      * @param mixed $data
@@ -703,7 +740,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                 $key = Strings::getRandom();
             }
 
-            $this->data[$key] = $data;
+            $this->data[Strings::ensureBeginsNotWith($key, ':')] = $data;
         }
 
         return $this;

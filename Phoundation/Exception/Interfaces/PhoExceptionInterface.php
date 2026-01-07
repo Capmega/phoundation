@@ -418,4 +418,31 @@ interface PhoExceptionInterface extends PoadInterface
      * @return static
      */
     public function addFix(string $fix): static;
+
+    /**
+     * Adds a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function addHint(array|string $hint): static;
+
+
+    /**
+     * Sets a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function setHint(array|string $hint): static;
+
+
+    /**
+     * Returns any possible hints to possibly solve the exception that may have been added to the exception
+     *
+     * @return array|string|null
+     */
+    public function getHint(): array|string|null;
 }
