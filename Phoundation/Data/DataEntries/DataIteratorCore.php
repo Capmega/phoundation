@@ -883,6 +883,13 @@ throw new ObsoleteException();
                                                             ->list($this->query, $this->execute);
         }
 
+        // Ensure all source objects are converted to arrays for this
+        foreach ($this->source as &$value) {
+            if (is_object($value)) {
+                $value = $value->getSource();
+            }
+        }
+
         return parent::displayCliTable($columns, $filters, $id_column);
     }
 

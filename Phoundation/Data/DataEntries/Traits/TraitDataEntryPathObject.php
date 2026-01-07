@@ -34,7 +34,13 @@ trait TraitDataEntryPathObject
      */
     public function getPathObject(): ?PhoPathInterface
     {
-        return PhoPath::new($this->getPath(), $this->getRestrictionsObject());
+        $path = $this->getPath();
+
+        if ($path) {
+            return PhoPath::new($this->getPath(), $this->getRestrictionsObject());
+        }
+
+        return null;
     }
 
 
