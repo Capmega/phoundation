@@ -191,6 +191,7 @@ class Git extends Versioning implements GitInterface
                         ->clearArguments()
                         ->addArgument('branch')
                         ->addArgument('--quiet')
+                        ->addArgument(ALL ? '-a' : null)
                         ->addArgument('--no-color')
                         ->executeReturnArray();
 

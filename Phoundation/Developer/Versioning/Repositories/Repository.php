@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -37,7 +36,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Git\Remotes;
 use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
 use Phoundation\Developer\Versioning\Git\Tags\Tags;
-use Phoundation\Developer\Versioning\Git\Traits\TraitDataBranch;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -56,7 +55,7 @@ class Repository extends DataEntry implements RepositoryInterface
     }
     use TraitDataEntryName;
     use TraitDataEntryDescription;
-    use TraitDataBranch;
+    use TraitDataEntryBranch;
 
 
     /**
@@ -70,13 +69,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
 
-        // Set default restrictions for this Repository object. Repositories can be pretty much anywhere, so we have to assume access to the entire filesystem
-        if ($this->getPath()) {
-            $this->o_restrictions = PhoRestrictions::new($this->getPath(), true);
-
-        } else {
-            $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
-        }
+        $this->setPermittedColumns(['branch']);
     }
 
 
@@ -240,8 +233,17 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function setPath(string|null $path): static
     {
-        $this->__setPath($path)
-             ->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
+        $this->__setPath($path);
+
+        // Set default restrictions for this Repository object. Repositories can be pretty much anywhere, so we have to assume access to the entire filesystem
+        if ($this->getPath()) {
+            $this->o_restrictions = PhoRestrictions::new($this->getPath(), true);
+
+        } else {
+            $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
+        }
+
+        $this->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
              ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value)
              ->o_git = new Git($this->getPathObject()->getDirectoryObject());
 

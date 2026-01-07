@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories list
+ * Command developer git repositories branches
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -62,6 +62,5 @@ Repositories::new()->load(details: true)->displayCliTable([
     'name'     => ts('Repository name'),
     'platform' => ts('Platform'),
     'type'     => ts('Type'),
-    'required' => ts('Required'),
     'branch'   => ts('Branch'),
 ]);

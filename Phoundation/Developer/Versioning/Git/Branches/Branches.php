@@ -37,7 +37,6 @@ class Branches extends IteratorCore implements BranchesInterface
     public function __construct(RepositoryInterface $o_repository) {
         parent::__construct();
         $this->o_repository = $o_repository;
-
         $this->load();
     }
 
