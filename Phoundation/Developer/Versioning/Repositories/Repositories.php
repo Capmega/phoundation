@@ -321,27 +321,43 @@ throw new UnderConstructionException();
     protected function getProjectRepository(): RepositoryInterface
     {
         // Check the current main project repository first
-        // Thye repository version MUST match the configured version
+        // The repository version MUST match the configured version
         try {
             $o_repository = $this->get(Project::getDirectoryName());
             $branch       = $o_repository->getCurrentBranch();
 
-            if (!preg_match('&/\d{1,3}\.\d{1,3}^/', $branch)) {
-                if (!preg_match('&/\d{1,3}\.\d{1,3}-[a-z0-9-]^/i', $branch)) {
-                    throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" is not valid', [
-                        ':branch'  => $branch,
-                        ':version' => Project::getVersion(),
-                    ]))->addHint(ts('In order to synchronize branches amongst all project repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX'));
+            if (!preg_match('/^\d{1,3}\.\d{1,3}$/', $branch)) {
+                if (!preg_match('/^\d{1,3}\.\d{1,3}-[a-z0-9-]$/i', $branch)) {
+                    $e = RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the currently selected project branch ":version" is not valid', [
+                        ':version' => $branch
+                    ]))->addHint(ts('In order to synchronize branches amongst all project repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX'))
+                       ->makeWarning();
                 }
             }
 
-            if (!str_starts_with($branch, Project::getVersion())) {
-                throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
+            $version = Project::getVersion();
+            $version = Strings::untilReverse($version, '.');
+
+            if (!str_starts_with($branch, $version)) {
+                $e = RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
                     ':branch'  => $branch,
                     ':version' => Project::getVersion(),
                 ]))->addHint(ts('In order to synchronize branches amongst all project repositories, please select the branch ":version" or ":version-SUFFIX"', [
                     ':version' => $branch,
+                ]))->makeWarning();
+            }
+
+            if (isset($e)) {
+                if (!$o_repository->hasBranch($version)) {
+                    throw $e;
+                }
+
+                Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the current project version ":version", selecting correct branch to be able to continue', [
+                    ':branch'  => $o_repository->getCurrentBranch(),
+                    ':version' => $version
                 ]));
+
+                $o_repository->setCurrentBranch($version);
             }
 
         } catch (NotExistsException) {
@@ -390,6 +406,7 @@ throw new UnderConstructionException();
                     $branch = $phoundation_branch;
             }
 
+            // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->hasBranch($branch)) {
                 Log::action(ts('Selecting branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
