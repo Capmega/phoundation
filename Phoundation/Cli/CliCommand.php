@@ -2019,10 +2019,11 @@ return 'under construction';
                     throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
                 }
 
-                Log::warning(ts('Running in FORCE mode'));
+                if (!QUIET) {
+                    Log::warning(ts('Running in FORCE mode'), 10);
+                }
 
-            }
-            elseif (TEST) {
+            } elseif (TEST) {
                 Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
             }
 
