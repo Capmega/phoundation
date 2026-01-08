@@ -276,6 +276,19 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns true if the specified branch exists in this repository
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function branchExists(string $branch): bool
+    {
+        return $this->getBranchesObject()->keyExists($branch);
+    }
+
+
+    /**
      * Returns the Status object for this Repository
      *
      * @return StatusFilesInterface

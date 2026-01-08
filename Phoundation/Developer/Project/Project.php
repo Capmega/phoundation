@@ -1502,6 +1502,17 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
 
     /**
+     * Returns the directory name for this project
+     *
+     * @return string
+     */
+    public static function getDirectoryName(): string
+    {
+        return Strings::fromReverse(substr(DIRECTORY_ROOT, 0, -1), '/');
+    }
+
+
+    /**
      * Returns the name for this project
      *
      * @return string

@@ -22,16 +22,20 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
+use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
+use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -319,9 +323,51 @@ throw new UnderConstructionException();
     public function synchronize(?string $suffix): static
     {
         if ($this->hasChanges()) {
-            throw new RepositoriesHaveChangesException(ts('Cannot synchronize repositories, one or more repositories has changes'));
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot synchronize repositories, one or more repositories has changes'));
+            }
         }
 
-        showdie(Project::getVersion());
+        // Check the current main project repository first
+        // Thye repository version MUST match the configured version
+        try {
+            $o_project = $this->get(Project::getDirectoryName());
+            $branch    = $o_project->getCurrentBranch();
+
+            if (!str_starts_with($branch, Project::getVersion())) {
+                throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
+                    ':branch'  => $branch,
+                    ':version' => Project::getVersion(),
+                ]))->addHint(ts('The current project branch MUST start with the project version (found in config/project/version) in order to synchronize branches amongst all project repositories'));
+            }
+
+        } catch (NotExistsException) {
+            throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, could not find the project repository'))
+                                                    ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
+        }
+
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.') . ($suffix ? '-' . $suffix : null);
+
+        foreach ($this as $o_repository) {
+            if ($o_repository === $o_project) {
+                continue;
+            }
+
+show($phoundation_version);
+show($o_repository->getName());
+showdie($o_repository->getBranchesObject()->keyExists($phoundation_version));
+            if ($o_repository->getBranchesObject()) {
+
+            }
+
+show($o_repository->getCurrentBranch());
+        }
+
+showdie($phoundation_version);
+
+
+
+showdie(Project::getVersion());
     }
 }

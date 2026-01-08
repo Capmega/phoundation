@@ -125,4 +125,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return string
      */
     public function getCurrentBranch(): string;
+
+    /**
+     * Returns true if the specified branch exists in this repository
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function branchExists(string $branch): bool;
 }
