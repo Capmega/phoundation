@@ -392,12 +392,10 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            if ($o_repository === $o_project) {
-                // This is the project repository itself, we can skip it.
-                continue;
-            }
-
             switch ($o_repository->getType()) {
+                case 'project':
+                    // no break
+
                 case 'data':
                     $branch = $project_branch;
                     break;
@@ -426,21 +424,8 @@ throw new UnderConstructionException();
                 $o_repository->createBranch($branch)
                              ->push($branch);
             }
-
-
-show($o_repository->getName());
-showdie($o_repository->getBranchesObject()->keyExists($phoundation_branch));
-            if ($o_repository->getBranchesObject()) {
-
-            }
-
-show($o_repository->getCurrentBranch());
         }
 
-showdie($phoundation_branch);
-
-
-
-showdie(Project::getVersion());
+        return $this;
     }
 }
