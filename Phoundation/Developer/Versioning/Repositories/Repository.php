@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -373,6 +374,43 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Deletes the specified branch from this repository (and optionally the selected remote as well)
+     *
+     * @param string       $branch
+     * @param string|false $remote_repository
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, string|false $remote_repository = false): static
+    {
+        // Select what remote to use, if any
+        $remote = $this->selectRemoteRepository($remote_repository);
+
+        // Delete the branch locally
+        Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
+            ':branch'     => $branch,
+            ':type'       => $this->getType(),
+            ':repository' => $this->getName()
+        ]));
+
+        $this->o_git->deleteBranch($branch);
+
+        if ($remote) {
+            // Delete the branch from the remote repository as well
+            Log::action(ts('Deleting branch ":branch" from repository ":repository" remote ":remote"', [
+                ':branch'     => $branch,
+                ':remote'     => $remote,
+                ':repository' => $this->getName()
+            ]));
+
+            $this->o_git->deleteBranchRemote($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Creates the specified new branch in this repository
      *
      * @param string|null $branch
@@ -416,12 +454,16 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the specified repository, or the configured default
      *
-     * @param string|null $repository
+     * @param string|false|null $repository
      *
-     * @return string
+     * @return string|null
      */
-    public function selectRemoteRepository(?string $repository): string
+    public function selectRemoteRepository(string|false|null $repository): ?string
     {
+        if ($repository === false) {
+            return null;
+        }
+
         $repository = $repository ?? $this->getDefaultRemoteRepository();
 
         if (array_key_exists($repository, $this->getRemoteRepositories())) {

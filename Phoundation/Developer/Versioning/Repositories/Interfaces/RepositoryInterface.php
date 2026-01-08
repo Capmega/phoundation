@@ -134,4 +134,14 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function branchExists(string $branch): bool;
+
+    /**
+     * Deletes the specified branch from this repository (and optionally the selected remote as well)
+     *
+     * @param string       $branch
+     * @param string|false $remote_repository
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, string|false $remote_repository = false): static;
 }

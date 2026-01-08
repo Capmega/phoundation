@@ -200,6 +200,47 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Deletes the specified GIT branch for this directory
+     *
+     * @param string $branch
+     * @param bool   $force
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, bool $force = false): static
+    {
+        $output = $this->o_process->clearArguments()
+                                  ->addArguments(['branch', '-d', ($force or FORCE ? '-f' : null)])
+                                  ->addArgument($branch)
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified GIT branch for this directory
+     *
+     * @param string $branch
+     * @param string $remote
+     *
+     * @return static
+     */
+    public function deleteBranchRemote(string $branch, string $remote): static
+    {
+        $this->checkRemote($remote);
+
+        $output = $this->o_process->clearArguments()
+                                  ->addArguments(['push', $remote, $branch])
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
      * Returns a list of available git branches
      *
      * @return array
@@ -355,6 +396,39 @@ class Git extends Versioning implements GitInterface
 
         Log::notice($return, 1, false);
         return Arrays::valueToKeys($return);
+    }
+
+
+    /**
+     * Returns true if the specified remote exists for this repository
+     *
+     * @param string $remote
+     *
+     * @return bool
+     */
+    public function hasRemote(string $remote): bool
+    {
+        return array_key_exists($remote, $this->getRemotes());
+    }
+
+
+    /**
+     * Throws an exception if the specified remote does not exist for this GIT repository
+     *
+     * @param string $remote
+     *
+     * @return static
+     */
+    public function checkRemote(string $remote): static
+    {
+        if ($this->hasRemote($remote)) {
+            return $this;
+        }
+
+        throw new GitException(ts('The specified remote ":remote" does not exist for the GIT repository ":repository"', [
+            ':remote'     => $remote,
+            ':repository' => $this->o_directory
+        ]));
     }
 
 

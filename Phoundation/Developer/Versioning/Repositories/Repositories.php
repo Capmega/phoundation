@@ -144,7 +144,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * @param bool                                      $like
      * @param bool                                      $details
      *
-     * @return $this
+     * @return static
      */
     public function load(IdentifierInterface|int|array|string|null $identifiers = null, bool $like = false, bool $details = false): static
     {
@@ -316,9 +316,9 @@ throw new UnderConstructionException();
     /**
      * Gets the project repository object, verifies its on the correct branch, and returns it
      *
-     * @return RepositoryInterface
+     * @return void
      */
-    protected function getProjectRepository(): RepositoryInterface
+    protected function verifyProjectRepositoryVersion(): void
     {
         // Check the current main project repository first
         // The repository version MUST match the configured version
@@ -364,8 +364,66 @@ throw new UnderConstructionException();
             throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, could not find the project repository'))
                                                     ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
         }
+    }
 
-        return $o_repository;
+
+    /**
+     * Deletes the specified branch from all known repositories
+     *
+     * @param string $suffix
+     * @param bool   $remote
+     *
+     * @return static
+     */
+    public function deleteBranch(string $suffix, bool $remote = true): static
+    {
+        $this->verifyProjectRepositoryVersion();
+
+        $project_branch     = Project::getVersion();
+        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch = Project::getPhoundationRequiredVersion();
+        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                    ':branch' => $suffix
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct branch
+        foreach ($this as $o_repository) {
+            switch ($o_repository->getType()) {
+                case 'project':
+                    // no break
+
+                case 'data':
+                    $branch = $project_branch;
+                    break;
+
+                default:
+                    $branch = $phoundation_branch;
+            }
+
+            // Delete the branch, if exists
+            if ($o_repository->hasBranch($branch)) {
+                Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
+                    ':branch'     => $branch,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->deleteBranch($branch);
+
+                if ($remote) {
+                    // Delete the branch from the default remote repository as well
+
+                }
+            }
+        }
+
+        return $this;
     }
 
 
@@ -374,7 +432,7 @@ throw new UnderConstructionException();
      *
      * @param string|null $suffix
      *
-     * @return $this
+     * @return static
      */
     public function selectBranch(?string $suffix): static
     {
@@ -384,7 +442,8 @@ throw new UnderConstructionException();
             }
         }
 
-        $o_project          = $this->getProjectRepository();
+        $this->verifyProjectRepositoryVersion();
+
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
         $phoundation_branch = Project::getPhoundationRequiredVersion();
@@ -415,7 +474,7 @@ throw new UnderConstructionException();
                 $o_repository->setCurrentBranch($branch);
 
             } else {
-                Log::action(ts('Creating required branch ":branch" for ":type" repository ":repository"', [
+                Log::action(ts('Creating and pushing required branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
