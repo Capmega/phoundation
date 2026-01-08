@@ -50,21 +50,21 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('suffix')->isOptional()->matchesRegex('/^[A-Z0-9-]+$/')
+                     ->select('suffix')->isOptional()->matchesRegex('/^[A-Z0-9-]+$/i')
                      ->validate();
 
 
 // Synchronize all known repositories
 $o_repositories = Repositories::new()->load();
 
-Log::cli(ts('Synchronizing branches for ":count" repositories, this might take a few seconds...', [
+Log::cli(ts('Selecting branches for ":count" repositories, this might take a few seconds...', [
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->synchronize($argv['suffix']);
+$o_repositories->selectBranch($argv['suffix']);
 
 
 // Done!
-Log::cli(ts('Synchronized ":count" repositories', [
+Log::cli(ts('Selected branches for ":count" repositories', [
     ':count'   => $o_repositories->getCount(),
 ]), 'success');

@@ -180,6 +180,26 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Creates the specified GIT branch for this directory
+     *
+     * @param string $branch
+     * @param bool   $reset
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static
+    {
+        $output = $this->o_process->clearArguments()->setDebug(true)
+                                  ->addArguments(['checkout', ($reset ? '-B' : '-b')])
+                                  ->addArgument($branch)
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
      * Returns a list of available git branches
      *
      * @return array
@@ -553,17 +573,19 @@ class Git extends Versioning implements GitInterface
      *
      * @param string      $repository
      * @param string|null $branch
+     * @param bool        $set_upstream If true, will add the -u modifier to the git push command, automatically setting the target as the upstream branch
      *
      * @return static
      */
-    public function push(string $repository, ?string $branch = null): static
+    public function push(string $repository, ?string $branch = null, bool $set_upstream = false): static
     {
-        $output = $this->o_process->clearArguments()
+        $output = $this->o_process->clearArguments()->setDebug(true)
                                   ->addArgument('push')
+                                  ->addArgument($set_upstream ? '-u' : null)
                                   ->addArguments([
-                                $repository,
-                                $branch,
-                            ])
+                                      $repository,
+                                      $branch,
+                                  ])
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);

@@ -164,15 +164,17 @@ interface GitInterface
      */
     public function apply(?PhoFileInterface $patch_file): static;
 
+
     /**
      * Push the local changes to the remote repository / branch
      *
      * @param string $repository
      * @param string $branch
+     * @param bool   $set_upstream
      *
      * @return static
      */
-    public function push(string $repository, string $branch): static;
+    public function push(string $repository, string $branch, bool $set_upstream = false): static;
 
     /**
      * Merge the specified branch into this one
@@ -191,4 +193,23 @@ interface GitInterface
      * @return static
      */
     public function rebase(string $branch): static;
+
+    /**
+     * Creates the specified GIT branch for this directory
+     *
+     * @param string $branch
+     * @param bool   $reset
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static;
+
+    /**
+     * Returns the current git branch for this directory
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranch(string $branch): bool;
 }

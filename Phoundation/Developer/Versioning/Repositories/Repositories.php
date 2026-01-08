@@ -320,7 +320,7 @@ throw new UnderConstructionException();
      *
      * @return $this
      */
-    public function synchronize(?string $suffix): static
+    public function selectBranch(?string $suffix): static
     {
         if ($this->hasChanges()) {
             if (!FORCE) {
@@ -346,8 +346,8 @@ throw new UnderConstructionException();
                                                     ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
         }
 
-        $phoundation_version = Project::getPhoundationRequiredVersion();
-        $phoundation_version = Strings::untilReverse($phoundation_version, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch = Project::getPhoundationRequiredVersion();
+        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
@@ -356,10 +356,20 @@ throw new UnderConstructionException();
                 continue;
             }
 
+            if (!$o_repository->hasBranch($phoundation_branch)) {
+                Log::action(ts('Creating required branch ":branch" for repository ":repository"', [
+                    ':branch'     => $phoundation_branch,
+                    ':repository' => $o_repository->getName(),
+                ]));
 
-show($phoundation_version);
+                $o_repository->createBranch($phoundation_branch)
+                             ->push($phoundation_branch);
+            }
+
+
+show($phoundation_branch);
 show($o_repository->getName());
-showdie($o_repository->getBranchesObject()->keyExists($phoundation_version));
+showdie($o_repository->getBranchesObject()->keyExists($phoundation_branch));
             if ($o_repository->getBranchesObject()) {
 
             }
@@ -367,7 +377,7 @@ showdie($o_repository->getBranchesObject()->keyExists($phoundation_version));
 show($o_repository->getCurrentBranch());
         }
 
-showdie($phoundation_version);
+showdie($phoundation_branch);
 
 
 

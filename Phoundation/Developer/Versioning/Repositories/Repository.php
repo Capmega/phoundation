@@ -40,6 +40,7 @@ use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
 use Phoundation\Developer\Versioning\Git\Tags\Tags;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -344,6 +345,50 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns true if the requested branch exists for this repository
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranch(string $branch): bool
+    {
+        return array_key_exists($branch, $this->o_git->getBranches());
+    }
+
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string $branch
+     * @param bool   $reset
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static
+    {
+        $this->o_git->createBranch($branch, $reset);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string|null $branch
+     * @param string|null $repository
+     * @param bool        $reset
+     *
+     * @return static
+     */
+    public function push(?string $branch, ?string $repository, bool $reset = false): static
+    {
+        $this->o_git->push($this->selectRemoteRepository($repository), $branch, $reset);
+        return $this;
+    }
+
+
+    /**
      * Sets the current git branch for this repository
      *
      * @param string $branch
@@ -354,6 +399,50 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $this->o_git->setCurrentBranch($branch);
         return $this;
+    }
+
+
+    /**
+     * Returns the configured default remote repository name
+     *
+     * @return string
+     */
+    public function getDefaultRemoteRepository(): string
+    {
+        return config()->getString('development.versioning.repositories.remote', 'origin');
+    }
+
+
+    /**
+     * Returns the specified repository, or the configured default
+     *
+     * @param string|null $repository
+     *
+     * @return string
+     */
+    public function selectRemoteRepository(?string $repository): string
+    {
+        $repository = $repository ?? $this->getDefaultRemoteRepository();
+
+        if (array_key_exists($repository, $this->getRemoteRepositories())) {
+            return $repository;
+        }
+
+        throw new RepositoriesException(ts('Cannot select remote ":remote" for repository ":repository", the remote does not exist', [
+            ':repository' => $this->getDisplayName(),
+            ':remote'     => $repository
+        ]));
+    }
+
+
+    /**
+     * Returns the available remote repositories for this path
+     *
+     * @return array
+     */
+    public function getRemoteRepositories(): array
+    {
+        return $this->o_git->getRemotes();
     }
 
 
