@@ -314,6 +314,46 @@ throw new UnderConstructionException();
 
 
     /**
+     * Gets the project repository object, verifies its on the correct branch, and returns it
+     *
+     * @return RepositoryInterface
+     */
+    protected function getProjectRepository(): RepositoryInterface
+    {
+        // Check the current main project repository first
+        // Thye repository version MUST match the configured version
+        try {
+            $o_repository = $this->get(Project::getDirectoryName());
+            $branch       = $o_repository->getCurrentBranch();
+
+            if (!preg_match('&/\d{1,3}\.\d{1,3}^/', $branch)) {
+                if (!preg_match('&/\d{1,3}\.\d{1,3}-[a-z0-9-]^/i', $branch)) {
+                    throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" is not valid', [
+                        ':branch'  => $branch,
+                        ':version' => Project::getVersion(),
+                    ]))->addHint(ts('In order to synchronize branches amongst all project repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX'));
+                }
+            }
+
+            if (!str_starts_with($branch, Project::getVersion())) {
+                throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
+                    ':branch'  => $branch,
+                    ':version' => Project::getVersion(),
+                ]))->addHint(ts('In order to synchronize branches amongst all project repositories, please select the branch ":version" or ":version-SUFFIX"', [
+                    ':version' => $branch,
+                ]));
+            }
+
+        } catch (NotExistsException) {
+            throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, could not find the project repository'))
+                                                    ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
+        }
+
+        return $o_repository;
+    }
+
+
+    /**
      * Synchronizes all selected branch repositories so they are all on the correct branch
      *
      * @param string|null $suffix
@@ -328,24 +368,9 @@ throw new UnderConstructionException();
             }
         }
 
-        // Check the current main project repository first
-        // Thye repository version MUST match the configured version
-        try {
-            $o_project = $this->get(Project::getDirectoryName());
-            $branch    = $o_project->getCurrentBranch();
-
-            if (!str_starts_with($branch, Project::getVersion())) {
-                throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
-                    ':branch'  => $branch,
-                    ':version' => Project::getVersion(),
-                ]))->addHint(ts('The current project branch MUST start with the project version (found in config/project/version) in order to synchronize branches amongst all project repositories'));
-            }
-
-        } catch (NotExistsException) {
-            throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, could not find the project repository'))
-                                                    ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
-        }
-
+        $o_project          = $this->getProjectRepository();
+        $project_branch     = Project::getVersion();
+        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
@@ -356,18 +381,36 @@ throw new UnderConstructionException();
                 continue;
             }
 
-            if (!$o_repository->hasBranch($phoundation_branch)) {
-                Log::action(ts('Creating required branch ":branch" for repository ":repository"', [
-                    ':branch'     => $phoundation_branch,
+            switch ($o_repository->getType()) {
+                case 'data':
+                    $branch = $project_branch;
+                    break;
+
+                default:
+                    $branch = $phoundation_branch;
+            }
+
+            if ($o_repository->hasBranch($branch)) {
+                Log::action(ts('Selecting branch ":branch" for ":type" repository ":repository"', [
+                    ':branch'     => $branch,
+                    ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->createBranch($phoundation_branch)
-                             ->push($phoundation_branch);
+                $o_repository->setCurrentBranch($branch);
+
+            } else {
+                Log::action(ts('Creating required branch ":branch" for ":type" repository ":repository"', [
+                    ':branch'     => $branch,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->createBranch($branch)
+                             ->push($branch);
             }
 
 
-show($phoundation_branch);
 show($o_repository->getName());
 showdie($o_repository->getBranchesObject()->keyExists($phoundation_branch));
             if ($o_repository->getBranchesObject()) {

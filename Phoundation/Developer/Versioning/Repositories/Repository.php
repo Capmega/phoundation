@@ -381,7 +381,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return static
      */
-    public function push(?string $branch, ?string $repository, bool $reset = false): static
+    public function push(?string $branch = null, ?string $repository = null, bool $reset = false): static
     {
         $this->o_git->push($this->selectRemoteRepository($repository), $branch, $reset);
         return $this;

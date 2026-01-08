@@ -50,7 +50,7 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('suffix')->isOptional()->matchesRegex('/^[A-Z0-9-]+$/i')
+                     ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->validate();
 
 

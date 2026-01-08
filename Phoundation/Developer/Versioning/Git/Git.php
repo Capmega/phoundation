@@ -189,7 +189,7 @@ class Git extends Versioning implements GitInterface
      */
     public function createBranch(string $branch, bool $reset = false): static
     {
-        $output = $this->o_process->clearArguments()->setDebug(true)
+        $output = $this->o_process->clearArguments()
                                   ->addArguments(['checkout', ($reset ? '-B' : '-b')])
                                   ->addArgument($branch)
                                   ->executeReturnArray();
@@ -579,7 +579,7 @@ class Git extends Versioning implements GitInterface
      */
     public function push(string $repository, ?string $branch = null, bool $set_upstream = false): static
     {
-        $output = $this->o_process->clearArguments()->setDebug(true)
+        $output = $this->o_process->clearArguments()
                                   ->addArgument('push')
                                   ->addArgument($set_upstream ? '-u' : null)
                                   ->addArguments([
