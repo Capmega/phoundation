@@ -45,6 +45,6 @@ $argv = ArgvValidator::new()->validate();
 
 
 // Display "1" if there are any changes
-if (Repositories::new()->load()->getStatusObject()->isNotEmpty()) {
+if (Repositories::new()->load()->hasChanges()) {
     Log::cli(1);
 }

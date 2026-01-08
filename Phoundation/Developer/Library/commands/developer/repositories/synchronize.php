@@ -36,6 +36,10 @@ CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
 This command will synchronize the branches for all known phoundation repositories, ensuring all repositories are on the right branch
 
+The selected branch for this project should match the specified version, with optionally a suffix 
+
+The selected branch for all other repositories should match the Phoundation version, with optionally a suffix 
+
 
 ARGUMENTS
 
@@ -50,10 +54,10 @@ $argv = ArgvValidator::new()
 
 
 // Synchronize all known repositories
-$o_repositories = Repositories::new();
+$o_repositories = Repositories::new()->load();
 
 Log::cli(ts('Synchronizing branches for ":count" repositories, this might take a few seconds...', [
-    ':path' => $o_repositories->getCount()
+    ':count' => $o_repositories->getCount()
 ]), 'action');
 
 $o_repositories->synchronize($argv['suffix']);

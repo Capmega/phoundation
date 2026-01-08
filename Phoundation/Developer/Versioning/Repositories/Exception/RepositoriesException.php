@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class RepositoryNotFoundException
+ * Class RepositoriesException
  *
  *
  *
@@ -14,8 +14,10 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Developer\Phoundation\Exception;
+namespace Phoundation\Developer\Versioning\Repositories\Exception;
 
-class RepositoryNotFoundException extends PhoundationException
+use Phoundation\Developer\Versioning\Exception\VersioningException;
+
+class RepositoriesException extends VersioningException
 {
 }

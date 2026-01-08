@@ -70,4 +70,11 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      */
     public function scan(PhoPathInterface $path, bool $delete_gone = true): static;
+
+    /**
+     * Returns true when any of the known repositories has changes
+     *
+     * @return bool
+     */
+    public function hasChanges(): bool;
 }

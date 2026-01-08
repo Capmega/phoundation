@@ -22,10 +22,9 @@ use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
-use Phoundation\Developer\Versioning\Git\Git;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
-use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Exception\UnderConstructionException;
@@ -256,6 +255,23 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns true when any of the known repositories has changes
+     *
+     * @return bool
+     */
+    public function hasChanges(): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->getStatusObject()->scanChanges()->getCount()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Returns an array containing the status for all repositories
      *
      * @param bool $readable
@@ -302,6 +318,10 @@ throw new UnderConstructionException();
      */
     public function synchronize(?string $suffix): static
     {
+        if ($this->hasChanges()) {
+            throw new RepositoriesHaveChangesException(ts('Cannot synchronize repositories, one or more repositories has changes'));
+        }
 
+        showdie(Project::getVersion());
     }
 }
