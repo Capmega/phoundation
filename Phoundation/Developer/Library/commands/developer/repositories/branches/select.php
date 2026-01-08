@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories sync
+ * Command developer git repositories branches select
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -30,7 +30,8 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories sync');
+CliDocumentation::setUsage('./pho development repositories branches select
+./pho development rp br sl');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 

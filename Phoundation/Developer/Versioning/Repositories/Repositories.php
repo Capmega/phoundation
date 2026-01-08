@@ -349,10 +349,13 @@ throw new UnderConstructionException();
         $phoundation_version = Project::getPhoundationRequiredVersion();
         $phoundation_version = Strings::untilReverse($phoundation_version, '.') . ($suffix ? '-' . $suffix : null);
 
+        // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
             if ($o_repository === $o_project) {
+                // This is the project repository itself, we can skip it.
                 continue;
             }
+
 
 show($phoundation_version);
 show($o_repository->getName());
