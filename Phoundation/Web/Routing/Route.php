@@ -351,8 +351,10 @@ class Route
             define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+            define('QUIET'     , get_null(getenv('QUIET'))      ?? false);
 
             Log::setVerbose(get_null(getenv('VERBOSE')) ?? false);
+            Log::setQuiet(get_null(getenv('QUIET'))     ?? false);
 
             // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?

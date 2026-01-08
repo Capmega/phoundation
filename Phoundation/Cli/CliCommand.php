@@ -1762,12 +1762,13 @@ return 'under construction';
                                  ->select('-N,--no-audio')->isOptional(false)->isBoolean()
                                  ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                                  ->select('-P,--page', true)->isOptional(1)->isNatural(false)
-                                 ->select('-Q,--verbose')->isOptional(false)->isBoolean()
+                                 ->select('-Q,--quiet')->isOptional(false)->isBoolean()
                                  ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
                                  ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
                                  ->select('-T,--test')->isOptional(false)->isBoolean()
                                  ->select('-U,--usage')->isOptional(false)->isBoolean()
-                                 ->select('-V,--version')->isOptional(false)->isBoolean()
+                                 ->select('--version')->isOptional(false)->isBoolean()
+                                 ->select('-V,--verbose')->isOptional(false)->isBoolean()
                                  ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
@@ -1851,11 +1852,13 @@ return 'under construction';
             define('STATUS'    , $argv['status']);
             define('TEST'      , $argv['test']);
             define('VERBOSE'   , $argv['verbose']);
+            define('QUIET'     , $argv['quiet']);
 
             if ($argv['log_level']) {
                 Log::setThreshold($argv['log_level']);
             }
 
+            Log::setQuiet($argv['quiet']);
             Log::setVerbose($argv['verbose']);
 
             // Set requested language
@@ -2302,7 +2305,7 @@ return 'under construction';
 [-P, --page PAGE]                       If specified, and used by the command (only commands that display tables) will
                                         show the table on the specified page. Defaults to 1
 
-[-Q, --verbose]                         Will print more output during log startup and shutdown
+[-Q, --quiet]                           Will hide all non data output 
 
 [-R, --rebuild-commands]                If specified will rebuild the cache for all CLI commands         
 
@@ -2317,8 +2320,8 @@ return 'under construction';
 
 [-U, --usage]                           Prints various command usage examples for the typed command
 
-[-V, --version]                         Will display the current version for your Phoundation installation
-                                        
+[-V, --verbose]                         Will print more output during log startup and shutdown
+
 [-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
                                         instead of displaying only the main exception message for warnings
 
@@ -2361,6 +2364,8 @@ return 'under construction';
 
 [--timezone STRING]                     Sets the specified timezone for the command you are executing
 
+[--version]                             Will display the current version for your Phoundation installation
+                                        
 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']);
     }
 }

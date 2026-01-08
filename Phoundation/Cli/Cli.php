@@ -176,7 +176,7 @@ class Cli
                     }
 
                     // Display header?
-                    if ($display_headers) {
+                    if ($display_headers and !QUIET) {
                         foreach (Arrays::force($headers) as $column => $header) {
                             try {
                                 $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
@@ -311,7 +311,7 @@ class Cli
 
             case 'normal':
                 // Display header
-                if ($key_header and $value_header) {
+                if ($key_header and $value_header and !QUIET) {
                     Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'cyan') . ' ' . CliColor::apply($value_header, 'cyan'));
                 }
 
@@ -345,7 +345,12 @@ class Cli
                         $value = DataEntry::getHumanReadableStatus($value);
                     }
 
-                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
+                    if (QUIET) {
+                        Log::cli($value);
+
+                    } else {
+                        Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
+                    }
                 }
         }
     }

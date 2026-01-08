@@ -26,6 +26,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataStaticBoolQuiet;
 use Phoundation\Data\Traits\TraitDataStaticBoolVerbose;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -53,6 +54,7 @@ use Throwable;
 class Log implements LogInterface
 {
     use TraitDataStaticBoolVerbose;
+    use TraitDataStaticBoolQuiet;
 
 
     /**
@@ -1809,6 +1811,11 @@ class Log implements LogInterface
      */
     protected static function logDebugHeader(string $keyword, string $datatype, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
     {
+        if (QUIET) {
+            // Not logging headers at all!
+            return false;
+        }
+
         return Log::write(tr('Showing debug ":datatype" data with ":keyword" at :location', [
             ':keyword'  => $keyword,
             ':location' => static::getSourceCodeLocationText($trace - 1),

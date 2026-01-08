@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataVerbose
  *
- * This trait adds support for static enabling / disabling verbose in objects
+ * This trait adds support for enabling / disabling verbose in static objects
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openverbose.org/licenses/GPL-2.0 GNU Public License, Version 2
