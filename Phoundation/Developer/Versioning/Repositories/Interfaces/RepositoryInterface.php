@@ -118,4 +118,11 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function setPathObject(?PhoPathInterface $o_path): static;
+
+    /**
+     * Returns the current git branch for this repository
+     *
+     * @return string
+     */
+    public function getCurrentBranch(): string;
 }

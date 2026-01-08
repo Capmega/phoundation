@@ -34,7 +34,7 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development git repositories scan');
+CliDocumentation::setUsage('./pho development repositories scan');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -65,7 +65,7 @@ $argv = ArgvValidator::new()
 
 
 // Scan for new repositories
-Log::cli(ts('Scanning ":path" for repositories, this might take a minute...', [
+Log::cli(ts('Scanning ":path" for repositories, this might take a few seconds...', [
     ':path' => $argv['path']
 ]), 'action');
 

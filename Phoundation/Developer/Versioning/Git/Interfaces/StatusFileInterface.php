@@ -21,13 +21,6 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 
 interface StatusFileInterface extends PhoFileInterface
 {
-/**
-     * Returns the file name
-     *
-     * @return PhoFileInterface
-     */
-    public function getFile(): PhoFileInterface;
-
     /**
      * Returns the target file
      *
@@ -64,4 +57,11 @@ interface StatusFileInterface extends PhoFileInterface
      * @return PhoFileInterface
      */
     public function getPatchFile(): PhoFileInterface;
+
+    /**
+     * Returns the status for this file
+     *
+     * @return string
+     */
+    public function getReadableStatus(): string;
 }

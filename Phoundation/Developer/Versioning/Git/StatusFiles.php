@@ -63,19 +63,17 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     {
         if ($o_parent instanceof RepositoryInterface) {
             $this->o_repository        = $o_parent;
-            $this->o_parent            = $this->o_repository->getPathObject();
+            $this->o_parent            = $o_parent->getPathObject();
             $this->o_restrictions      = $o_parent?->getRestrictionsObject();
             $this->accepted_data_types = [PhoPathInterface::class];
-
-            $this->___construct($o_parent);
 
         } else {
             $this->o_parent            = $o_parent;
             $this->o_restrictions      = $o_parent?->getRestrictionsObject();
             $this->accepted_data_types = [PhoPathInterface::class];
-
-            $this->___construct($o_parent);
         }
+
+        $this->___construct($this->o_parent);
     }
 
 
@@ -161,6 +159,13 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     {
         $list = [];
 
+        if (empty($columns)) {
+            $columns = [
+                'file'   => tr('File'),
+                'status' => tr('Status'),
+            ];
+        }
+
         foreach ($this as $file => $o_status) {
             if (trim(substr($o_status->getStatus(), 0, 1))) {
                 $o_status = CliColor::apply($o_status->getStatusObject()->getReadable(), 'green');
@@ -175,9 +180,7 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
             ];
         }
 
-        Cli::displayTable($list, ['file'   => tr('File'),
-                                  'status' => tr('Status'),
-        ], $id_column);
+        Cli::displayTable($list, $columns, $id_column);
 
         return $this;
     }

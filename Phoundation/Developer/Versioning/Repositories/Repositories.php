@@ -20,12 +20,15 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
+use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
@@ -173,11 +176,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function getDeleted(): array
     {
-        if (empty($this->new)) {
+        if (empty($this->deleted)) {
             return [];
         }
 
-        return $this->new;
+        return $this->deleted;
     }
 
 
@@ -214,6 +217,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * @param bool             $delete_gone
      *
      * @return static
+     * @todo Implement $delete_gone support
      */
     public function scan(PhoPathInterface $path, bool $delete_gone = true): static
     {
@@ -242,9 +246,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         }
 
 
-        // Remove repositories that weren't found from the list?
+        // Remove repositories that were not found from the list?
         if ($delete_gone) {
-
+throw new UnderConstructionException();
         }
 
         return $this;
@@ -254,13 +258,50 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Returns an array containing the status for all repositories
      *
+     * @param bool $readable
+     *
      * @return IteratorInterface
      */
-    public function getStatus(): IteratorInterface
+    public function getStatusObject(bool $readable = false): IteratorInterface
     {
+        $return = [];
+
         foreach (Repositories::new()->load() as $o_repository) {
-            $o_status = $o_repository->getStatus();
-showdie($o_status);
+            $o_status = $o_repository->getStatusObject()->scanChanges()->getSource();
+
+            foreach ($o_status as $file => $status) {
+                if ($readable) {
+                    $return[$file] = [
+                        'repository' => $o_repository->getName(),
+                        'branch'     => $o_repository->getCurrentBranch(),
+                        'file'       => $file,
+                        'status'     => $status->getReadableStatus()
+                    ];
+
+                } else {
+                    $return[$file] = [
+                        'repository' => $o_repository->getName(),
+                        'branch'     => $o_repository->getCurrentBranch(),
+                        'file'       => $file,
+                        'status'     => $status->getStatus()
+                    ];
+                }
+            }
         }
+
+        return Iterator::new($return);
+    }
+
+
+    /**
+     * Synchronizes all selected branch repositories so they are all on the correct branch
+     *
+     * @param string|null $suffix
+     *
+     * @return $this
+     */
+    public function synchronize(?string $suffix): static
+    {
+
     }
 }

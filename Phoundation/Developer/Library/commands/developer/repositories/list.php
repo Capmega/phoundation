@@ -27,7 +27,7 @@ use Phoundation\Filesystem\PhoDirectory;
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development git repositories list');
+CliDocumentation::setUsage('./pho development repositories list');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 

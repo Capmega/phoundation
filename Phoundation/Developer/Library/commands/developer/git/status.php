@@ -45,4 +45,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+// Display repository status
 Git::new(PhoDirectory::newRootObject())->getStatusFilesObject($argv['path'])->displayCliTable();

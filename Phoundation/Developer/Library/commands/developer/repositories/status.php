@@ -24,7 +24,8 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development git repositories status');
+CliDocumentation::setUsage('./pho development repositories status
+./pho development repositories status -h');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -34,12 +35,20 @@ This command will status all known phoundation repositories
 ARGUMENTS
 
 
--'));
+-
+
+
+OPTIONAL ARGUMENTS
+
+
+[-h, --human-readable]                  If specified, will display the information with human readable statuses'));
 
 
 // Get command line arguments
-$argv = ArgvValidator::new()->validate();
+$argv = ArgvValidator::new()
+                     ->select('-h,--human-readable')->isOptional()->isBoolean()
+                     ->validate();
 
 
 // List status for all known repositories
-Repositories::new()->load()->getStatus()->displayCliTable();
+Repositories::new()->load()->getStatusObject($argv['human_readable'])->displayCliTable();

@@ -23,6 +23,7 @@ use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 
+
 class Branches extends IteratorCore implements BranchesInterface
 {
     use TraitDataObjectRepository;

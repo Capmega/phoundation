@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * Command developer git repositories sync
+ *
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
+ *
+ * This command will synchronize the branches for all known phoundation repositories
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Development
+ */
+
+
+declare(strict_types=1);
+
+use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Versioning\Repositories\Repositories;
+use Phoundation\Filesystem\PhoDirectory;
+
+
+// Start documentation
+CliDocumentation::setAutoComplete([
+    'positions' => [
+        0 => true
+    ]
+]);
+
+CliDocumentation::setUsage('./pho development repositories sync');
+
+CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
+
+This command will synchronize the branches for all known phoundation repositories, ensuring all repositories are on the right branch
+
+
+ARGUMENTS
+
+
+-'));
+
+
+// Get command line arguments
+$argv = ArgvValidator::new()
+                     ->select('suffix')->isOptional()->matchesRegex('/^[A-Z0-9-]+$/')
+                     ->validate();
+
+
+// Synchronize all known repositories
+$o_repositories = Repositories::new();
+
+Log::cli(ts('Synchronizing branches for ":count" repositories, this might take a few seconds...', [
+    ':path' => $o_repositories->getCount()
+]), 'action');
+
+$o_repositories->synchronize($argv['suffix']);
+
+
+// Done!
+Log::cli(ts('Synchronized ":count" repositories', [
+    ':count'   => $o_repositories->getCount(),
+]), 'success');

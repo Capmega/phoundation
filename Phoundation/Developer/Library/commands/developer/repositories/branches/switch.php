@@ -41,7 +41,7 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development git repositories branches switch REPOSITORY_NAME BRANCH_NAME');
+CliDocumentation::setUsage('./pho development repositories branches switch REPOSITORY_NAME BRANCH_NAME');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
