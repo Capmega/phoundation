@@ -26,6 +26,7 @@ use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -316,9 +317,11 @@ throw new UnderConstructionException();
     /**
      * Gets the project repository object, verifies its on the correct branch, and returns it
      *
-     * @return void
+     * @param string $action
+     *
+     * @return static
      */
-    protected function verifyProjectRepositoryVersion(): void
+    protected function verifyProjectRepositoryVersion(string $action): static
     {
         // Check the current main project repository first
         // The repository version MUST match the configured version
@@ -328,8 +331,9 @@ throw new UnderConstructionException();
 
             if (!preg_match('/^\d{1,3}\.\d{1,3}$/', $branch)) {
                 if (!preg_match('/^\d{1,3}\.\d{1,3}-[a-z0-9-]$/i', $branch)) {
-                    $e = RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the currently selected project branch ":version" is not valid', [
-                        ':version' => $branch
+                    $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
+                        ':version' => $branch,
+                        ':action'  => $action
                     ]))->addHint(ts('In order to synchronize branches amongst all project repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX'))
                        ->makeWarning();
                 }
@@ -339,7 +343,8 @@ throw new UnderConstructionException();
             $version = Strings::untilReverse($version, '.');
 
             if (!str_starts_with($branch, $version)) {
-                $e = RepositorySynchronizationException::new(ts('Cannot synchronize repositories, the project version ":version" does not match the project repository branch ":branch"', [
+                $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the project version ":version" does not match the project repository branch ":branch"', [
+                    ':action'  => $action,
                     ':branch'  => $branch,
                     ':version' => Project::getVersion(),
                 ]))->addHint(ts('In order to synchronize branches amongst all project repositories, please select the branch ":version" or ":version-SUFFIX"', [
@@ -361,9 +366,12 @@ throw new UnderConstructionException();
             }
 
         } catch (NotExistsException) {
-            throw RepositorySynchronizationException::new(ts('Cannot synchronize repositories, could not find the project repository'))
-                                                    ->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
+            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, could not find the project repository', [
+                ':action' => $action
+            ]))->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
         }
+
+        return $this;
     }
 
 
@@ -377,12 +385,14 @@ throw new UnderConstructionException();
      */
     public function deleteBranch(string $suffix, bool $remote = true): static
     {
-        $this->verifyProjectRepositoryVersion();
-
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        $this->verifyProjectRepositoryVersion()
+             ->checkAnyIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkAnyIsOnBranch($project_branch    , ts('delete branch'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
@@ -428,6 +438,46 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns true if the current git branch for this repository is equal to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function anyIsOnBranch(string $branch): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->isOnBranch($branch)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the known repositories currently has the specified branch selected
+     *
+     * NOTE: Will NOT throw the exception when running in FORCE mode
+     *
+     * @param string $branch
+     * @param string $action
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkAnyIsOnBranch(string $branch, string $action): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->checkIsOnBranch($branch, $action);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Synchronizes all selected branch repositories so they are all on the correct branch
      *
      * @param string|null $suffix
@@ -436,18 +486,18 @@ throw new UnderConstructionException();
      */
     public function selectBranch(?string $suffix): static
     {
-        if ($this->hasChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot synchronize repositories, one or more repositories has changes'));
-            }
-        }
-
-        $this->verifyProjectRepositoryVersion();
-
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot select branches on repositories, one or more repositories has changes'));
+            }
+        }
+
+        $this->verifyProjectRepositoryVersion(ts('select branch'));
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {

@@ -346,6 +346,41 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns true if the current git branch for this repository is equal to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function isOnBranch(string $branch): bool
+    {
+        return $this->o_git->getCurrentBranch() === $branch;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if the repository is using the specified branch
+     *
+     * @param string $branch
+     * @param string $action
+     *
+     * @return Repository
+     */
+    public function checkIsOnBranch(string $branch, string $action): static
+    {
+        if ($this->isOnBranch($branch)) {
+            throw RepositoriesException::new(ts('Cannot perform action ":action" on branch ":branch" of repository ":repository", the repository is using the branch right now', [
+                ':action'     => $action,
+                ':branch'     => $branch,
+                ':repository' => $this->getDisplayName()
+            ]))->makeWarning();
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns true if the requested branch exists for this repository
      *
      * @param string $branch
@@ -383,6 +418,13 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function deleteBranch(string $branch, string|false $remote_repository = false): static
     {
+        if ($this->isOnBranch($branch)) {
+            throw new RepositoriesException(ts('Cannot delete branch ":branch" from repository ":repository", it has the branch selected', [
+                ':branch'     => $branch,
+                ':repository' => $this->getName(),
+            ]));
+        }
+
         // Select what remote to use, if any
         $remote = $this->selectRemoteRepository($remote_repository);
 

@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoPath;
@@ -144,4 +145,23 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function deleteBranch(string $branch, string|false $remote_repository = false): static;
+
+    /**
+     * Returns true if the current git branch for this repository is equal to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function isOnBranch(string $branch): bool;
+
+    /**
+     * Throws a RepositoriesException if the repository is using the specified branch
+     *
+     * @param string $branch
+     * @param string $action
+     *
+     * @return Repository
+     */
+    public function checkIsOnBranch(string $branch, string $action): static;
 }
