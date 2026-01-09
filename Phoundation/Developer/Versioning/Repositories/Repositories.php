@@ -417,7 +417,7 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getType(), $phoundation_branch , $project_branch);
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
 
             // Delete the branch, if exists
             Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
@@ -487,7 +487,7 @@ throw new UnderConstructionException();
     public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): static
     {
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getType(), $phoundation_branch , $project_branch);
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             $o_repository->checkHasSuffixOrVersionBranch($version, $branch);
@@ -534,7 +534,7 @@ throw new UnderConstructionException();
      */
     public function automaticallySelectBranch(?string $suffix): static
     {
-        $project_version = Project::getPhoundationRequiredVersion();
+        $project_version = Project::getVersion();
         $project_version = Strings::untilReverse($project_version, '.');
         $project_branch  = $project_version . ($suffix ? '-' . $suffix : null);
 
@@ -542,11 +542,6 @@ throw new UnderConstructionException();
         $phoundation_version = Strings::untilReverse($phoundation_version, '.');
         $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
-show($project_version);
-show($project_branch);
-show($phoundation_branch);
-show($phoundation_version);
-showdie();
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
 
