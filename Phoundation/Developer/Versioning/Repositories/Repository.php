@@ -411,13 +411,16 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
-     * @param string       $branch
-     * @param string|false $remote_repository
+     * @param string      $branch
+     * @param string|bool $remote_repository
      *
      * @return static
      */
-    public function deleteBranch(string $branch, string|false $remote_repository = false): static
+    public function deleteBranch(string $branch, string|bool $remote_repository = false): static
     {
+        // Select what remote to use, if any
+        $remote_repository = $this->selectRemoteRepository($remote_repository);
+
         // Only delete the branch if the repository has it
         if ($this->hasBranch($branch)) {
             // Only delete the branch if its not selected
@@ -427,26 +430,26 @@ class Repository extends DataEntry implements RepositoryInterface
                     ':repository' => $this->getName(),
                 ]));
             }
-            // Select what remote to use, if any
-            $remote = $this->selectRemoteRepository($remote_repository);
+
             // Delete the branch locally
             Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
                 ':branch'     => $branch,
                 ':type'       => $this->getType(),
                 ':repository' => $this->getName()
             ]));
+
             $this->o_git->deleteBranch($branch);
         }
 
-        if ($remote) {
+        if ($remote_repository) {
             // Delete the branch from the remote repository as well
             Log::action(ts('Deleting branch ":branch" from repository ":repository" remote ":remote"', [
                 ':branch'     => $branch,
-                ':remote'     => $remote,
+                ':remote'     => $remote_repository,
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteBranchRemote($branch, $remote);
+            $this->o_git->deleteBranchRemote($branch, $remote_repository);
         }
 
         return $this;
@@ -497,14 +500,18 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the specified repository, or the configured default
      *
-     * @param string|false|null $repository
+     * @param string|bool|null $repository
      *
      * @return string|null
      */
-    public function selectRemoteRepository(string|false|null $repository): ?string
+    public function selectRemoteRepository(string|bool|null $repository): ?string
     {
-        if ($repository === false) {
-            return null;
+        if (is_bool($repository)) {
+            if ($repository === false) {
+                return null;
+            }
+
+            $repository = null;
         }
 
         $repository = $repository ?? $this->getDefaultRemoteRepository();

@@ -24,6 +24,7 @@ use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Versioning;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -133,6 +134,8 @@ class Git extends Versioning implements GitInterface
      */
     public function hasBranch(string $branch): bool
     {
+        $this->verifyBranch($branch);
+
         return array_key_exists($branch, $this->getBranches());
     }
 
@@ -169,6 +172,8 @@ class Git extends Versioning implements GitInterface
      */
     public function setCurrentBranch(string $branch): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('checkout')
                                   ->addArgument($branch)
@@ -189,6 +194,8 @@ class Git extends Versioning implements GitInterface
      */
     public function createBranch(string $branch, bool $reset = false): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArguments(['checkout', ($reset ? '-B' : '-b')])
                                   ->addArgument($branch)
@@ -209,6 +216,8 @@ class Git extends Versioning implements GitInterface
      */
     public function deleteBranch(string $branch, bool $force = false): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArguments(['branch', '-d', ($force or FORCE ? '-f' : null)])
                                   ->addArgument($branch)
@@ -229,10 +238,11 @@ class Git extends Versioning implements GitInterface
      */
     public function deleteBranchRemote(string $branch, string $remote): static
     {
-        $this->checkRemote($remote);
+        $this->checkRemote($remote)
+             ->verifyBranch($branch);
 
         $output = $this->o_process->clearArguments()
-                                  ->addArguments(['push', $remote, $branch])
+                                  ->addArguments(['push', $remote, ':' . $branch])
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -653,6 +663,8 @@ class Git extends Versioning implements GitInterface
      */
     public function push(string $repository, ?string $branch = null, bool $set_upstream = false): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('push')
                                   ->addArgument($set_upstream ? '-u' : null)
@@ -677,6 +689,8 @@ class Git extends Versioning implements GitInterface
      */
     public function pull(string $repository, string $branch): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('pull')
                                   ->addArgument($repository)
@@ -732,6 +746,8 @@ class Git extends Versioning implements GitInterface
      */
     public function merge(string $branch): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('merge')
                                   ->addArgument($branch)
@@ -751,12 +767,34 @@ class Git extends Versioning implements GitInterface
      */
     public function rebase(string $branch): static
     {
+        $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('rebase')
                                   ->addArgument($branch)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Throws an OutOfBoundsException if the specified branch name is invalid
+     *
+     * @param string $branch
+     *
+     * @return static
+     * @throws OutOfBoundsException
+     */
+    protected function verifyBranch(string $branch): static
+    {
+        if (str_starts_with($branch, ':')) {
+            throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
+                ':branch' => $branch
+            ]));
+        }
+
         return $this;
     }
 }

@@ -164,4 +164,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return Repository
      */
     public function checkIsOnBranch(string $branch, string $action): static;
+
+    /**
+     * Returns the specified repository, or the configured default
+     *
+     * @param string|bool|null $repository
+     *
+     * @return string|null
+     */
+    public function selectRemoteRepository(string|bool|null $repository): ?string;
 }
