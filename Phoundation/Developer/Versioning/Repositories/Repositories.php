@@ -321,7 +321,7 @@ throw new UnderConstructionException();
      *
      * @return static
      */
-    protected function verifyProjectRepositoryVersion(string $action): static
+    protected function verifyProjectRepositoryVersion(string $action, bool $no_suffix = false): static
     {
         // Check the current main project repository first
         // The repository version MUST match the configured version
@@ -330,12 +330,22 @@ throw new UnderConstructionException();
             $branch       = $o_repository->getCurrentBranch();
 
             if (!preg_match('/^\d{1,3}\.\d{1,3}$/', $branch)) {
+                if ($no_suffix) {
+                    $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
+                        ':version' => $branch,
+                        ':action'  => $action
+                    ]))->addHint(ts('In order to perform action ":action" on repositories, the current project branch MUST be either MAJOR.MINOR', [
+                        ':action'  => $action
+                    ]))->makeWarning();
+                }
+
                 if (!preg_match('/^\d{1,3}\.\d{1,3}-[a-z0-9-]$/i', $branch)) {
                     $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
                         ':version' => $branch,
                         ':action'  => $action
-                    ]))->addHint(ts('In order to synchronize branches amongst all project repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX'))
-                       ->makeWarning();
+                    ]))->addHint(ts('In order to perform action ":action" on repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX', [
+                        ':action'  => $action
+                    ]))->makeWarning();
                 }
             }
 
@@ -347,8 +357,9 @@ throw new UnderConstructionException();
                     ':action'  => $action,
                     ':branch'  => $branch,
                     ':version' => Project::getVersion(),
-                ]))->addHint(ts('In order to synchronize branches amongst all project repositories, please select the branch ":version" or ":version-SUFFIX"', [
+                ]))->addHint(ts('In order to perform action ":action" on repositories, please select the branch ":version" or ":version-SUFFIX"', [
                     ':version' => $branch,
+                    ':action'  => $action
                 ]))->makeWarning();
             }
 
