@@ -318,6 +318,7 @@ throw new UnderConstructionException();
      * Gets the project repository object, verifies its on the correct branch, and returns it
      *
      * @param string $action
+     * @param bool   $no_suffix
      *
      * @return static
      */
@@ -328,6 +329,8 @@ throw new UnderConstructionException();
         try {
             $o_repository = $this->get(Project::getDirectoryName());
             $branch       = $o_repository->getCurrentBranch();
+            $version      = Project::getVersion();
+            $version      = Strings::untilReverse($version, '.');
 
             if (!preg_match('/^\d{1,3}\.\d{1,3}$/', $branch)) {
                 if ($no_suffix) {
@@ -337,9 +340,8 @@ throw new UnderConstructionException();
                     ]))->addHint(ts('In order to perform action ":action" on repositories, the current project branch MUST be either MAJOR.MINOR', [
                         ':action'  => $action
                     ]))->makeWarning();
-                }
 
-                if (!preg_match('/^\d{1,3}\.\d{1,3}-[a-z0-9-]$/i', $branch)) {
+                } elseif (!preg_match('/^\d{1,3}\.\d{1,3}-[a-z0-9-]$/i', $branch)) {
                     $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
                         ':version' => $branch,
                         ':action'  => $action
@@ -349,18 +351,17 @@ throw new UnderConstructionException();
                 }
             }
 
-            $version = Project::getVersion();
-            $version = Strings::untilReverse($version, '.');
-
-            if (!str_starts_with($branch, $version)) {
-                $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the project version ":version" does not match the project repository branch ":branch"', [
-                    ':action'  => $action,
-                    ':branch'  => $branch,
-                    ':version' => Project::getVersion(),
-                ]))->addHint(ts('In order to perform action ":action" on repositories, please select the branch ":version" or ":version-SUFFIX"', [
-                    ':version' => $branch,
-                    ':action'  => $action
-                ]))->makeWarning();
+            if (empty($e)) {
+                if (!str_starts_with($branch, $version)) {
+                    $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the project version ":version" does not match the project repository branch ":branch"', [
+                        ':action'  => $action,
+                        ':branch'  => $branch,
+                        ':version' => Project::getVersion(),
+                    ]))->addHint(ts('In order to perform action ":action" on repositories, please select the branch ":version" or ":version-SUFFIX"', [
+                        ':version' => $branch,
+                        ':action'  => $action
+                    ]))->makeWarning();
+                }
             }
 
             if (isset($e)) {
@@ -501,7 +502,7 @@ throw new UnderConstructionException();
             }
         }
 
-        $this->verifyProjectRepositoryVersion(ts('select branch'));
+        $this->verifyProjectRepositoryVersion(ts('select branch'), true);
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
