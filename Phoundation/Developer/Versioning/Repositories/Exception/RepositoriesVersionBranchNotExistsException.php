@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class RepositoriesHaveChangesException
+ * Class RepositoriesVersionBranchNotExistsException
  *
- * Thrown when a repository action requires that none of the repositories have changes
+ * Thrown when a repository action requires a version branch to exist but it does not exist
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -19,10 +19,10 @@ namespace Phoundation\Developer\Versioning\Repositories\Exception;
 use Phoundation\Developer\Versioning\Exception\VersioningException;
 use Throwable;
 
-class RepositoriesHaveChangesException extends VersioningException
+class RepositoriesVersionBranchNotExistsException extends VersioningException
 {
     /**
-     * RepositoriesHaveChangesException class constructor
+     * RepositoriesVersionBranchNotExistsException class constructor
      *
      * @param Throwable|array|string|null $messages
      * @param Throwable|null              $previous

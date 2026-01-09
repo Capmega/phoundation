@@ -42,6 +42,7 @@ use Phoundation\Developer\Versioning\Git\Tags\Tags;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -544,6 +545,45 @@ class Repository extends DataEntry implements RepositoryInterface
     public function loadDetails(): static
     {
         return $this->setBranch($this->o_git->getCurrentBranch());
+    }
+
+
+    /**
+     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
+     *
+     * @param string $version
+     * @param string $branch
+     *
+     * @return static
+     * @throws RepositoriesVersionBranchNotExistsException
+     */
+    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
+    {
+        if ($this->hasSuffixOrVersionBranch($version, $branch)) {
+            throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
+                ':repository' => $this->getName(),
+                ':suffix'     => $branch,
+                ':version'    => $version
+            ]))->addData([
+                'repository' => $this->getDisplayName()
+            ]);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this repository has the requested suffix or version branch available
+     *
+     * @param string $suffix
+     * @param string $version
+     *
+     * @return bool
+     */
+    public function hasSuffixOrVersionBranch(string $version, string $suffix): bool
+    {
+        return $this->hasBranch($suffix) or $this->hasBranch($version);
     }
 
 

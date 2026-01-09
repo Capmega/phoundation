@@ -61,10 +61,4 @@ Log::cli(ts('Selecting branches for ":count" repositories, this might take a few
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectBranch($argv['suffix']);
-
-
-// Done!
-Log::cli(ts('Selected branches for ":count" repositories', [
-    ':count'   => $o_repositories->getCount(),
-]), 'success');
+$o_repositories->automaticallySelectBranch($argv['suffix']);

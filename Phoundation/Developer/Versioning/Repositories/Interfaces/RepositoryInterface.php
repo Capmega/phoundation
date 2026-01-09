@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -173,4 +174,25 @@ interface RepositoryInterface extends DataEntryInterface
      * @return string|null
      */
     public function selectRemoteRepository(string|bool|null $repository): ?string;
+
+    /**
+     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
+     *
+     * @param string $version
+     * @param string $branch
+     *
+     * @return static
+     * @throws RepositoriesVersionBranchNotExistsException
+     */
+    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static;
+
+    /**
+     * Returns true if this repository has the requested suffix or version branch available
+     *
+     * @param string $version
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasSuffixOrVersionBranch(string $version, string $branch): bool;
 }

@@ -28,6 +28,7 @@ use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Exception\NotExistsException;
@@ -483,19 +484,71 @@ throw new UnderConstructionException();
 
 
     /**
+     * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
+     *
+     * @param string $phoundation_version
+     * @param string $project_version
+     * @param string $phoundation_branch
+     *
+     * @param string $project_branch
+     *
+     * @return static
+     */
+    public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): static
+    {
+        foreach ($this as $o_repository) {
+            $branch  = $this->getValueForType($o_repository->getType(), $phoundation_branch , $project_branch);
+            $version = $this->getValueForType($o_repository->getType(), $phoundation_version, $project_version);
+
+            $o_repository->checkHasSuffixOrVersionBranch($version, $branch);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the correct branch for the specified type
+     *
+     * @param string $type
+     * @param string $phoundation
+     * @param string $project
+     *
+     * @return string
+     */
+    protected function getValueForType(string $type, string $phoundation, string $project): string
+    {
+        switch ($type) {
+            case 'project':
+                // no break
+
+            case 'data':
+                return $project;
+        }
+
+        return $phoundation;
+    }
+
+
+    /**
      * Synchronizes all selected branch repositories so they are all on the correct branch
      *
      * @param string|null $suffix
      *
      * @return static
      */
-    public function selectBranch(?string $suffix): static
+    public function automaticallySelectBranch(?string $suffix): static
     {
-        $project_branch     = Project::getVersion();
-        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
-        $phoundation_branch = Project::getPhoundationRequiredVersion();
-        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+        $project_version     = Project::getPhoundationRequiredVersion();
+        $project_version     = Strings::untilReverse($project_version, '.');
+        $project_branch      = $project_version . ($suffix ? '-' . $suffix : null);
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
+        $phoundation_branch  = Strings::untilReverse($phoundation_version, '.') . ($suffix ? '-' . $suffix : null);
 
+        // Before we start, make sure all target repositories have either the suffix branch already available or if not,
+        $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
+showdie();
         if ($this->hasChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot select branches on repositories, one or more repositories has changes'));
@@ -506,21 +559,11 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            switch ($o_repository->getType()) {
-                case 'project':
-                    // no break
-
-                case 'data':
-                    $branch = $project_branch;
-                    break;
-
-                default:
-                    $branch = $phoundation_branch;
-            }
+            $branch = $this->getValueForType($o_repository->getType(), $phoundation_branch, $project_branch);
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->hasBranch($branch)) {
-                Log::action(ts('Selecting branch ":branch" for ":type" repository ":repository"', [
+                Log::action(ts('Automatically selecting branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
@@ -528,15 +571,30 @@ throw new UnderConstructionException();
 
                 $o_repository->setCurrentBranch($branch);
 
-            } else {
-                Log::action(ts('Creating and pushing required branch ":branch" for ":type" repository ":repository"', [
+            } elseif ($suffix) {
+                // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available
+                if (!$o_repository->hasBranch($phoundation_version)) {
+                    throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
+                        ':branch'     => $phoundation_version,
+                        ':repository' => $o_repository->getName(),
+                        ':version'    => $phoundation_version,
+                    ]));
+                }
+
+                Log::action(ts('Creating and pushing required branch ":branch" from version branch ":version" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
+                    ':version'    => $phoundation_version,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->createBranch($branch)
+                $o_repository->selectBranch($phoundation_version)
+                             ->createBranch($branch)
                              ->push($branch);
+
+            } else {
+                // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
+                // We cannot create the branch automatically, because from where?!
             }
         }
 
