@@ -424,12 +424,7 @@ throw new UnderConstructionException();
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->deleteBranch($branch);
-
-                if ($remote) {
-                    // Delete the branch from the default remote repository as well
-
-                }
+                $o_repository->deleteBranch($branch, $remote);
             }
         }
 
