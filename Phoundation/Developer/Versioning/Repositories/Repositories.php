@@ -417,17 +417,7 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            switch ($o_repository->getType()) {
-                case 'project':
-                    // no break
-
-                case 'data':
-                    $branch = $project_branch;
-                    break;
-
-                default:
-                    $branch = $phoundation_branch;
-            }
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getType(), $phoundation_branch , $project_branch);
 
             // Delete the branch, if exists
             Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
@@ -552,11 +542,11 @@ throw new UnderConstructionException();
         $phoundation_version = Strings::untilReverse($phoundation_version, '.');
         $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
-//show($project_version);
-//show($project_branch);
-//show($phoundation_version);
-//show($phoundation_branch);
-//showdie();
+show($project_version);
+show($project_branch);
+show($phoundation_branch);
+show($phoundation_version);
+showdie();
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
 
