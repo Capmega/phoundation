@@ -390,7 +390,7 @@ throw new UnderConstructionException();
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
-        $this->verifyProjectRepositoryVersion()
+        $this->verifyProjectRepositoryVersion(ts('delete branch'))
              ->checkAnyIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkAnyIsOnBranch($project_branch    , ts('delete branch'));
 
