@@ -3045,29 +3045,23 @@ class Core implements CoreInterface
                 }
             }
 
-            Core::exit(255);
-        }
+            if (($e instanceof PhoException) and $e->isWarning()) {
+                if ($e instanceof CliNoCommandSpecifiedException) {
+                    if ($data = $e->getData()) {
+                        Log::information('Available methods:', 10);
 
-        if (($e instanceof PhoException) and $e->isWarning()) {
-            // This is just a simple general warning, no backtrace and such needed, only show the
-            // principal message
-            Log::warning(ts('Warning: :warning', [':warning' => $e->getMessage()]), 10);
-
-            if ($e instanceof CliNoCommandSpecifiedException) {
-                if ($data = $e->getData()) {
-                    Log::information('Available methods:', 10);
-
-                    foreach ($data['commands'] as $file) {
-                        Log::notice($file, 10);
+                        foreach ($data['commands'] as $file) {
+                            Log::notice($file, 10);
+                        }
                     }
-                }
 
-            } elseif ($e instanceof CliCommandNotFoundException) {
-                if ($data = $e->getData()) {
-                    Log::information('Available sub-commands:', 10, echo_prefix: false);
+                } elseif ($e instanceof CliCommandNotFoundException) {
+                    if ($data = $e->getData()) {
+                        Log::information('Available sub-commands:', 10, echo_prefix: false);
 
-                    foreach ($data['commands'] as $method) {
-                        Log::notice($method, 10, echo_prefix: false);
+                        foreach ($data['commands'] as $method) {
+                            Log::notice($method, 10, echo_prefix: false);
+                        }
                     }
                 }
             }
