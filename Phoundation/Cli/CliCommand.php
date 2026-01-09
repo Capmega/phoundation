@@ -1215,16 +1215,6 @@ class CliCommand
             // Continue scanning
         }
 
-        // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        //  itself, then that is the one that will be executed. For example, ./pho project init will execute
-        // DIRECTORY_COMMANDS/system/init/init
-        if (file_exists($file . $command)) {
-            if (!is_dir($file . $command)) {
-                // Yup, this is it, guys!
-                return $file . $command;
-            }
-        }
-
         // Check if there are commands before the current <TAB>
         $test = Strings::from($file, DIRECTORY_COMMANDS);
 
