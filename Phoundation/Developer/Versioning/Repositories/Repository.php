@@ -588,8 +588,8 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
     {
-        if ($this->hasSuffixOrVersionBranch($version, $branch)) {
-            if ($branch) {
+        if (!$this->hasBranchOrVersionBranch($version, $branch)) {
+            if ($branch and ($version !== $branch)) {
                 throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
                     ':repository' => $this->getName(),
                     ':suffix'     => $branch,
@@ -614,14 +614,14 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if this repository has the requested suffix or version branch available
      *
-     * @param string $suffix
+     * @param string $branch
      * @param string $version
      *
      * @return bool
      */
-    public function hasSuffixOrVersionBranch(string $version, string $suffix): bool
+    public function hasBranchOrVersionBranch(string $version, string $branch): bool
     {
-        return $this->hasBranch($suffix) or $this->hasBranch($version);
+        return $this->hasBranch($branch) or $this->hasBranch($version);
     }
 
 

@@ -194,7 +194,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function hasSuffixOrVersionBranch(string $version, string $branch): bool;
+    public function hasBranchOrVersionBranch(string $version, string $branch): bool;
 
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository

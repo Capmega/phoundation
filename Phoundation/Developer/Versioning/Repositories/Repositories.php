@@ -497,8 +497,8 @@ throw new UnderConstructionException();
     public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): static
     {
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $phoundation_branch , $project_branch);
-            $version = $this->getValueForType($o_repository->getType(), $phoundation_version, $project_version);
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getType(), $phoundation_branch , $project_branch);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             $o_repository->checkHasSuffixOrVersionBranch($version, $branch);
         }
@@ -508,22 +508,27 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns the correct branch for the specified type
+     * Returns the correct branch for the specified type and name
+     *
+     * If the type is data and starts not with "phoundation-", the $project value will be returned, else the $phoundation value will be returned
      *
      * @param string $type
+     * @param string $name
      * @param string $phoundation
      * @param string $project
      *
      * @return string
      */
-    protected function getValueForType(string $type, string $phoundation, string $project): string
+    protected function getValueForType(string $type, string $name, string $phoundation, string $project): string
     {
         switch ($type) {
             case 'project':
                 // no break
 
             case 'data':
-                return $project;
+                if (!str_starts_with($name, 'phoundation-')) {
+                    return $project;
+                }
         }
 
         return $phoundation;
@@ -539,13 +544,19 @@ throw new UnderConstructionException();
      */
     public function automaticallySelectBranch(?string $suffix): static
     {
-        $project_version     = Project::getPhoundationRequiredVersion();
-        $project_version     = Strings::untilReverse($project_version, '.');
-        $project_branch      = $project_version . ($suffix ? '-' . $suffix : null);
+        $project_version = Project::getPhoundationRequiredVersion();
+        $project_version = Strings::untilReverse($project_version, '.');
+        $project_branch  = $project_version . ($suffix ? '-' . $suffix : null);
+
         $phoundation_version = Project::getPhoundationRequiredVersion();
         $phoundation_version = Strings::untilReverse($phoundation_version, '.');
-        $phoundation_branch  = Strings::untilReverse($phoundation_version, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
+//show($project_version);
+//show($project_branch);
+//show($phoundation_version);
+//show($phoundation_branch);
+//showdie();
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
 
@@ -559,7 +570,7 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $phoundation_branch, $project_branch);
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch, $project_branch);
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->hasBranch($branch)) {
@@ -593,6 +604,7 @@ throw new UnderConstructionException();
                              ->push($branch);
 
             } else {
+showdie('aaaaaaaaaaaaaaaaaaaaaaaaa');
                 // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
                 // We cannot create the branch automatically, because from where?!
             }
