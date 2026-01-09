@@ -59,7 +59,7 @@ class MetaList
     {
         // Create and return the table
         $in     = SqlQueries::in($this->meta_list);
-        $source = sql()->list(' SELECT    `meta_history`.`id`,
+        $source = sql()->list('SELECT    `meta_history`.`id`,
                                          `meta_history`.`created_by`,
                                          DATE_FORMAT(`meta_history`.`created_on`, "%Y-%m-%d %h:%m:%s") AS `date_time`,
                                          COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`,
