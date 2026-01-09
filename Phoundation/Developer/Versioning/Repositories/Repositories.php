@@ -548,7 +548,7 @@ throw new UnderConstructionException();
 
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
-showdie();
+
         if ($this->hasChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot select branches on repositories, one or more repositories has changes'));
