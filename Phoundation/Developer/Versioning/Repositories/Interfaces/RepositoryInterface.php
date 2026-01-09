@@ -195,4 +195,34 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function hasSuffixOrVersionBranch(string $version, string $branch): bool;
+
+    /**
+     * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
+     *
+     * @param string|null $repository
+     * @param string|null $branch
+     * @param bool        $set_upstreams
+     *
+     * @return static
+     */
+    public function push(?string $repository = null, ?string $branch = null, bool $set_upstreams = false): static;
+
+    /**
+     * Will pull the changes for the current branch from the specified, or default remote repository
+     *
+     * @param string|null $remote
+     * @param string|null $branch
+     *
+     * @return static
+     */
+    public function pull(?string $remote = null, ?string $branch = null): static;
+
+    /**
+     * Will fetch the changes for the current branch from the specified, or default remote repository
+     *
+     * @param string|null $remote
+     *
+     * @return static
+     */
+    public function fetch(?string $remote = null): static;
 }

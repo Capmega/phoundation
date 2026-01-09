@@ -410,6 +410,51 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
+     *
+     * @param string|null $repository
+     * @param string|null $branch
+     * @param bool        $set_upstreams
+     *
+     * @return static
+     */
+    public function push(?string $repository = null, ?string $branch = null, bool $set_upstreams = false): static
+    {
+        $this->o_git->push($this->selectRemoteRepository($repository), $branch, $set_upstreams);
+        return $this;
+    }
+
+
+    /**
+     * Will pull the changes for the current branch from the specified, or default remote repository
+     *
+     * @param string|null $remote
+     * @param string|null $branch
+     *
+     * @return static
+     */
+    public function pull(?string $remote = null, ?string $branch = null): static
+    {
+        $this->o_git->pull($remote, $branch);
+        return $this;
+    }
+
+
+    /**
+     * Will fetch the changes for the current branch from the specified, or default remote repository
+     *
+     * @param string|null $remote
+     *
+     * @return static
+     */
+    public function fetch(?string $remote = null): static
+    {
+        $this->o_git->fetch($remote);
+        return $this;
+    }
+
+
+    /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
      * @param string      $branch
@@ -453,22 +498,6 @@ class Repository extends DataEntry implements RepositoryInterface
             $this->o_git->deleteBranchRemote($branch, $remote_repository);
         }
 
-        return $this;
-    }
-
-
-    /**
-     * Creates the specified new branch in this repository
-     *
-     * @param string|null $branch
-     * @param string|null $repository
-     * @param bool        $reset
-     *
-     * @return static
-     */
-    public function push(?string $branch = null, ?string $repository = null, bool $reset = false): static
-    {
-        $this->o_git->push($this->selectRemoteRepository($repository), $branch, $reset);
         return $this;
     }
 
@@ -560,9 +589,18 @@ class Repository extends DataEntry implements RepositoryInterface
     public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
     {
         if ($this->hasSuffixOrVersionBranch($version, $branch)) {
-            throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
+            if ($branch) {
+                throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
+                    ':repository' => $this->getName(),
+                    ':suffix'     => $branch,
+                    ':version'    => $version
+                ]))->addData([
+                    'repository' => $this->getDisplayName()
+                ]);
+            }
+
+            throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required version branch ":version"', [
                 ':repository' => $this->getName(),
-                ':suffix'     => $branch,
                 ':version'    => $version
             ]))->addData([
                 'repository' => $this->getDisplayName()
