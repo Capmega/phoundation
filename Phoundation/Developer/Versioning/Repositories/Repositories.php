@@ -589,9 +589,13 @@ throw new UnderConstructionException();
                              ->push($branch);
 
             } else {
-showdie('aaaaaaaaaaaaaaaaaaaaaaaaa');
                 // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
                 // We cannot create the branch automatically, because from where?!
+                throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
+                    ':branch'     => $phoundation_version,
+                    ':repository' => $o_repository->getName(),
+                    ':version'    => $phoundation_version,
+                ]));
             }
         }
 

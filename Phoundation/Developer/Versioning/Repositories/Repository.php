@@ -614,14 +614,14 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if this repository has the requested suffix or version branch available
      *
-     * @param string $branch
      * @param string $version
+     * @param string $branch
      *
      * @return bool
      */
     public function hasBranchOrVersionBranch(string $version, string $branch): bool
     {
-        return $this->hasBranch($branch) or $this->hasBranch($version);
+        return $this->hasBranch($version) or $this->hasBranch($branch);
     }
 
 
