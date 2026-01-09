@@ -1242,9 +1242,9 @@ class CliCommand
         $commands = Arrays::replaceValuesWithCallbackReturn($commands, function ($key, $value) { return strip_extension($value); });
         $commands = Arrays::removeMatchingValues($commands, '/^\./', flags: Utils::MATCH_REGEX);
 
-        // We're stuck in a directory still, no command to execute.
+        // We are stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw CliCommandNotFoundException::new(tr('The specified command ":file" does not exist', [
+        throw CliCommandNotFoundException::new(tr('The specified command ":file" is a group, please specify a sub command', [
             ':file' => Strings::from($file, DIRECTORY_COMMANDS)
         ]))
         ->makeWarning()

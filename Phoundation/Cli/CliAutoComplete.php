@@ -245,7 +245,6 @@ class CliAutoComplete
 
                 CliAutoComplete::showResults($data['commands']);
             }
-
         }
 
         if (static::$position > count($cli_commands)) {
