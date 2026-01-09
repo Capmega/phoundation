@@ -418,24 +418,25 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function deleteBranch(string $branch, string|false $remote_repository = false): static
     {
-        if ($this->isOnBranch($branch)) {
-            throw new RepositoriesException(ts('Cannot delete branch ":branch" from repository ":repository", it has the branch selected', [
+        // Only delete the branch if the repository has it
+        if ($this->hasBranch($branch)) {
+            // Only delete the branch if its not selected
+            if ($this->isOnBranch($branch) and !FORCE) {
+                throw new RepositoriesException(ts('Cannot delete branch ":branch" from repository ":repository", it has the branch selected', [
+                    ':branch'     => $branch,
+                    ':repository' => $this->getName(),
+                ]));
+            }
+            // Select what remote to use, if any
+            $remote = $this->selectRemoteRepository($remote_repository);
+            // Delete the branch locally
+            Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
                 ':branch'     => $branch,
-                ':repository' => $this->getName(),
+                ':type'       => $this->getType(),
+                ':repository' => $this->getName()
             ]));
+            $this->o_git->deleteBranch($branch);
         }
-
-        // Select what remote to use, if any
-        $remote = $this->selectRemoteRepository($remote_repository);
-
-        // Delete the branch locally
-        Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
-            ':branch'     => $branch,
-            ':type'       => $this->getType(),
-            ':repository' => $this->getName()
-        ]));
-
-        $this->o_git->deleteBranch($branch);
 
         if ($remote) {
             // Delete the branch from the remote repository as well

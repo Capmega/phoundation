@@ -417,15 +417,13 @@ throw new UnderConstructionException();
             }
 
             // Delete the branch, if exists
-            if ($o_repository->hasBranch($branch)) {
-                Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
-                    ':branch'     => $branch,
-                    ':type'       => $o_repository->getType(),
-                    ':repository' => $o_repository->getName(),
-                ]));
+            Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
+                ':branch'     => $branch,
+                ':type'       => $o_repository->getType(),
+                ':repository' => $o_repository->getName(),
+            ]));
 
-                $o_repository->deleteBranch($branch, $remote);
-            }
+            $o_repository->deleteBranch($branch, $remote);
         }
 
         return $this;
