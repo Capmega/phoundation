@@ -285,10 +285,12 @@ class PhoRestrictions implements PhoRestrictionsInterface
      * @param string|null $sub_path
      *
      * @return static
+     * @todo switch to symlinked config when its fully supported
      */
     public static function newConfig(bool $write = false, ?string $sub_path = null): static
     {
-        return new static(DIRECTORY_SYSTEM . 'config/' . $sub_path, $write);
+        return new static(DIRECTORY_ROOT . 'config/' . $sub_path, $write);
+        //return new static(DIRECTORY_SYSTEM . 'config/' . $sub_path, $write);
     }
 
 

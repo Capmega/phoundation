@@ -3563,7 +3563,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Write the specified data to this file
+     * Wrapper for PhoPathCore::setContents()
      *
      * @param string $data
      * @param int    $flags
@@ -3572,6 +3572,21 @@ class PhoPathCore implements PhoPathInterface
      * @return static
      */
     public function putContents(string $data, int $flags = 0, $context = null): static
+    {
+        return $this->setContents($data, $flags, $context);
+    }
+
+
+    /**
+     * Write the specified data to this file
+     *
+     * @param string $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return static
+     */
+    public function setContents(string $data, int $flags = 0, $context = null): static
     {
         Log::notice(ts('Putting ":count" bytes to file ":file"', [
             ':file'  => $this->getRootname(),

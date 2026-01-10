@@ -1451,4 +1451,15 @@ interface PhoPathInterface extends Stringable
      * @return static
      */
     public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string;
+
+    /**
+     * Write the specified data to this file
+     *
+     * @param string $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return static
+     */
+    public function setContents(string $data, int $flags = 0, $context = null): static;
 }
