@@ -2249,7 +2249,7 @@ return 'under construction';
      */
     public static function getHelpGlobalArguments(): string
     {
-        return tr('[-A, --all]                             If set, the system will run in ALL mode, which typically will display normally
+        return ts('[-A, --all]                             If set, the system will run in ALL mode, which typically will display normally
                                         hidden information like deleted entries. Only used by specific commands, check
                                         --help on commands to see if and how this flag is used.
 
@@ -2264,9 +2264,9 @@ return 'under construction';
                                         run unless you specify the environment manually using these flags. The
                                         environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
 
-[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override certain
-                                        restrictions. See --help for information on how specific commands deal with this
-                                        flag
+[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override 
+                                        certain restrictions. See --help for information on how specific commands deal 
+                                        with this flag
 
 [-G, --prefix]                          Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
                                         that normally begins each log line output
@@ -2316,24 +2316,23 @@ return 'under construction';
 [-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
                                         instead of displaying only the main exception message for warnings
 
-[--ignore-readonly]                     If specified will make the system ignore readonly mode that would normally 
-                                        prohibit it from writing to disk or database.
-                                        WARNING: When the system is in readonly mode, there usually is a good reason for 
-                                                 it (For example: The system is in the middle of an update or upgrade), 
-                                                 so use this option with care! Use this only when you know what you are 
-                                                 doing or when you are prepared to deal with the consequences! 
-
-
-
 [-Y, --clear-tmp]                       Will clear all temporary data in ROOT/data/tmp, and memcached
 
 [-Z, --clear-caches]                    Will clear all caches in ROOT/data/cache, and memcached
 
 [--deleted]                             Will show deleted DataEntry records
 
-[--iec]                                 Will display human readable amounts of data in IEC units (International Electrotechnical Commission, 1_024 = 1KB, 
-                                        1_048_576 = 1MB, etc) 
+[--iec]                                 Will display human readable amounts of data in IEC units (International 
+                                        Electrotechnical Commission, 1_024 = 1KB, 1_048_576 = 1MB, etc) 
                                         NOTE: Cannot be used with --si  
+
+[--ignore-readonly]                     If specified will make the system ignore readonly mode that would normally 
+                                        prohibit it from writing to disk or database.
+                                        
+                                        WARNING: When the system is in readonly mode, there usually is a good reason for 
+                                                 it (For example: The system is in the middle of an update or upgrade), 
+                                                 so use this option with care! Use this only when you know what you are 
+                                                 doing or when you are prepared to deal with the consequences! 
 
 [--limit NUMBER]                        Will limit table output to the number of specified fields
 
@@ -2346,7 +2345,8 @@ return 'under construction';
 [--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
                                         data output will show passwords in the clear!
 
-[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 1_000_000 = 1MB, etc)
+[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 
+                                        1_000_000 = 1MB, etc)
                                         NOTE: Cannot be used with --iec  
 
 [--status STRING]                       If specified the system will only display entries with the specified status
