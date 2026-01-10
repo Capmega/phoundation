@@ -77,13 +77,13 @@ interface GitInterface
     public function getStashList(): array;
 
     /**
-     * Checks out the specified branches or paths for this git path
+     * Checks out the specified branches or directories for this git directory
      *
-     * @param array|Stringable $branches_or_directories
+     * @param Stringable|array|string $branches_or_directories
      *
      * @return static
      */
-    public function checkout(array|Stringable $branches_or_directories): static;
+    public function checkout(Stringable|array|string $branches_or_directories): static;
 
     /**
      * Resets the current branch to the specified revision

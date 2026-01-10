@@ -398,6 +398,20 @@ class Repository extends DataEntry implements RepositoryInterface
      * Creates the specified new branch in this repository
      *
      * @param string $branch
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch): static
+    {
+        $this->o_git->selectBranch($branch);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string $branch
      * @param bool   $reset
      *
      * @return static

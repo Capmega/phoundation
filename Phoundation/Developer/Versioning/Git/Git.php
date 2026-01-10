@@ -377,11 +377,11 @@ class Git extends Versioning implements GitInterface
     /**
      * Checks out the specified branches or directories for this git directory
      *
-     * @param array|Stringable $branches_or_directories
+     * @param Stringable|array|string $branches_or_directories
      *
      * @return static
      */
-    public function checkout(array|Stringable $branches_or_directories): static
+    public function checkout(Stringable|array|string $branches_or_directories): static
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('checkout')
@@ -390,6 +390,19 @@ class Git extends Versioning implements GitInterface
 
         Log::notice($output, 1, false);
         return $this;
+    }
+
+
+    /**
+     * "Selects" the specified branch for this repository (Equivalent to git checkout branch)
+     *
+     * @param string $branch
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch): static
+    {
+        return $this->checkout($branch);
     }
 
 
