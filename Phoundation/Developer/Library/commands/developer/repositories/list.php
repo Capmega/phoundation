@@ -51,7 +51,7 @@ $argv = ArgvValidator::new()->validate();
 
 
 // List known repositories
-Repositories::new()->load()->displayCliTable([
+Repositories::new()->load()->ksort()->displayCliTable([
     'name'     => ts('Repository name'),
     'platform' => ts('Platform'),
     'type'     => ts('Type'),
