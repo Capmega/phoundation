@@ -279,6 +279,20 @@ class PhoRestrictions implements PhoRestrictionsInterface
 
 
     /**
+     * Returns a PhoRestrictions object for DIRECTORY_SYSTEM/config
+     *
+     * @param bool        $write
+     * @param string|null $sub_path
+     *
+     * @return static
+     */
+    public static function newConfig(bool $write = false, ?string $sub_path = null): static
+    {
+        return new static(DIRECTORY_SYSTEM . 'config/' . $sub_path, $write);
+    }
+
+
+    /**
      * Returns a PhoRestrictions object for DIRECTORY_TMP
      *
      * @param bool        $write
