@@ -52,9 +52,9 @@ class Version
             if (is_int($source)) {
                 $source = Version::convertIntegerToString($source);
             }
+
             // Make sure we have a valid version!
-            Validate::new($source)
-                    ->isVersion();
+            Validate::new($source)->isVersion();
         }
 
         return $this->__setSource($source);
