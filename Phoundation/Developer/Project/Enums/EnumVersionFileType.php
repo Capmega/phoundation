@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Project\Enums;
 
-enum EnumVersionFile: string
+enum EnumVersionFileType: string
 {
     case phoundation = 'phoundation';
     case project     = 'project';
