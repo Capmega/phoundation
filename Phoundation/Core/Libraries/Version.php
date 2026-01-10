@@ -5,10 +5,11 @@
  *
  * This class manages library versions
  *
- * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
+ * @author     Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license    http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright  Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package    Phoundation\Developer
+ * @deprecated This class has been deprecated and will be removed soon. Use Utils\Version instead
  */
 
 
@@ -29,6 +30,7 @@ class Version
      * @param ?int $version
      *
      * @return string
+     * @deprecated This entire Version class has been deprecated and will be removed soon. Use Utils\Version class instead
      */
     public static function getString(?int $version): string
     {
@@ -75,6 +77,7 @@ class Version
      * @param string $version
      *
      * @return int
+     * @deprecated This entire Version class has been deprecated and will be removed soon. Use Utils\Version class instead
      */
     public static function getInteger(string $version): int
     {
@@ -107,6 +110,7 @@ class Version
      * @param string $version2
      *
      * @return int
+     * @deprecated This entire Version class has been deprecated and will be removed soon. Use Utils\Version class instead
      */
     public static function compare(string $version1, string $version2): int
     {
