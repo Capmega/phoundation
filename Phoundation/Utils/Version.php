@@ -3,12 +3,12 @@
 /**
  * Class Version
  *
- * This class handles version files
+ * This class can contain and manage MAJOR.MINOR.REVISION type versions
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Filesystem
+ * @package   Phoundation\Developer
  */
 
 
@@ -16,57 +16,369 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
-use Phoundation\Data\Traits\TraitDataVersion;
-use Phoundation\Filesystem\Interfaces\PhoFileInterface;
-use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Filesystem\PhoFile;
-
+use Phoundation\Data\Traits\TraitDataStringSource;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Validate;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Exception\VersionCannotBeModifiedException;
 
 class Version
 {
-    use TraitDataVersion {
-        __construct as protected ___construct;
+    use TraitDataStringSource {
+        setSource as protected __setSource;
     }
-
-    /**
-     * The file containing the version
-     *
-     * @var PhoFileInterface $file
-     */
-    protected PhoFileInterface $file;
-
-    /**
-     * The version from the version file
-     *
-     * @var string $version
-     */
-    protected string $version;
-
 
     /**
      * Version class constructor
      *
-     * @param PhoFileInterface|string       $file
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string $version
      */
-    public function __construct(PhoFileInterface|string $file, ?PhoRestrictionsInterface $restrictions = null)
+    public function __construct(string $version)
     {
-        $this->file    = new PhoFile($file, $restrictions);
-        $this->version = $this->file->getContentsAsString();
-
-        $this->___construct($this->version);
+        $this->setSource($version);
     }
 
 
     /**
-     * Save the version to the file
+     * Sets the source for this Version object
+     *
+     * @param string|int|null $source
      *
      * @return static
      */
-    public function save(): static
+    public function setSource(string|int|null $source): static
     {
-        $this->file->putContents($this->getVersion());
+        if ($source !== null) {
+            if (is_int($source)) {
+                $source = Version::convertIntegerToString($source);
+            }
+            // Make sure we have a valid version!
+            Validate::new($source)
+                    ->isVersion();
+        }
+
+        return $this->__setSource($source);
+    }
+
+
+    /**
+     * Increases the major version by the specified amount
+     *
+     * @param int $by_value [1] The amount to increase the major version by
+     *
+     * @return static
+     */
+    public function increaseMajor(int $by_value = 1): static
+    {
+        $this->checkCanModify()->checkModifyValue($by_value);
+
+        $source     = $this->getSourceAsArray();
+        $source[0] += $by_value;
+
+        return $this->setSourceAsArray($source);
+    }
+
+
+    /**
+     * Increases the minor version by the specified amount
+     *
+     * @param int $by_value [1] The amount to increase the minor version by
+     *
+     * @return static
+     */
+    public function increaseMinor(int $by_value = 1): static
+    {
+        $this->checkCanModify()->checkModifyValue($by_value);
+
+        $source     = $this->getSourceAsArray();
+        $source[1] += $by_value;
+
+        return $this->setSourceAsArray($source);
+    }
+
+
+    /**
+     * Increases the revision version by the specified amount
+     *
+     * @param int $by_value [1] The amount to increase the revision version by
+     *
+     * @return static
+     */
+    public function increaseRevision(int $by_value = 1): static
+    {
+        $this->checkCanModify()->checkModifyValue($by_value);
+
+        $source     = $this->getSourceAsArray();
+        $source[2] += $by_value;
+
+        return $this->setSourceAsArray($source);
+    }
+
+
+    /**
+     * Returns true if this version can be modified
+     *
+     * @return bool
+     */
+    protected function canModify(): bool
+    {
+        return match ($this->source) {
+            'post_once', 'post_always' => false,
+            default                    => true,
+        };
+    }
+
+
+    /**
+     * Throws a OutOfBoundsException if the version modifier is invalid
+     *
+     * The version modifier value must be between 1 and 999
+     *
+     * @param int $value
+     *
+     * @return static
+     */
+    protected function checkModifyValue(int $value): static
+    {
+        if (($value < 1) or ($value > 999)) {
+            throw new OutOfBoundsException(ts('Cannot modify the version ":version"', [
+                ':version' => $this->source
+            ]));
+        }
 
         return $this;
+    }
+
+
+    /**
+     * Throws a VersionCannotBeModifiedException if the version cannot be modified
+     *
+     * Typically, this would be only for 'post_once', and 'post_always'
+     *
+     * @return static
+     * @throws VersionCannotBeModifiedException
+     */
+    protected function checkCanModify(): static
+    {
+        if ($this->canModify()) {
+            return $this;
+        }
+
+        throw new VersionCannotBeModifiedException(ts('Cannot modify the version ":version"', [
+            ':version' => $this->source
+        ]));
+    }
+
+
+    /**
+     * Converts the specified integer version to a string version
+     *
+     * @param int $version
+     *
+     * @return string
+     */
+    protected static function convertIntegerToString(int $version): string
+    {
+        if ($version < 0) {
+            return match ($version) {
+                -1      => 'post_once',
+                -2      => 'post_always',
+                default => throw new OutOfBoundsException(tr('Invalid version string ":version" specified', [
+                    ':version' => $version,
+                ]))
+            };
+        }
+
+        $major    = floor($version / 1000000);
+        $minor    = floor(($version - ($major * 1000000)) / 1000);
+        $revision = fmod($version, 1000);
+
+        if ($major > 999) {
+            throw new OutOfBoundsException(tr('The major of version ":version" cannot be greater than "999"', [
+                ':version' => $version,
+            ]));
+        }
+
+        if ($minor > 999) {
+            throw new OutOfBoundsException(tr('The minor of version ":version" cannot be greater than "999"', [
+                ':version' => $version,
+            ]));
+        }
+
+        if ($revision > 999) {
+            throw new OutOfBoundsException(tr('The revision of version ":version" cannot be greater than "999"', [
+                ':version' => $version,
+            ]));
+        }
+
+        return $major . '.' . $minor . '.' . $revision;
+    }
+
+
+    /**
+     * Validates the specified source array
+     *
+     * @param array $source
+     *
+     * @return $this
+     */
+    protected function validateVersionArray(array $source): static
+    {
+        if (count($source) !== 3) {
+            throw ValidationFailedException::new(ts('The specified version array is invalid, it must have exactly 3 elements'))
+                                           ->addData(['version' => $source]);
+        }
+
+        // Make sure the version keys are valid. Either must be 0, 1, 2 or major, minor, revision
+        $numerical = null;
+        $keys      = [
+            0 => 'major',
+            1 => 'minor',
+            2 => 'revision',
+        ];
+
+        foreach ($keys as $id => $label) {
+            if (array_key_exists($id, $source)) {
+                if ($numerical === false) {
+                    throw ValidationFailedException::new(ts('The specified version array is invalid, it must be a numerical array with element keys "0 => value, 1 => value, 2 => value" or "major => value, minor => value, revision => value", these keys cannot be mixed'))
+                                                   ->addData(['version' => $source]);
+                }
+
+                $numerical = true;
+                continue;
+            }
+
+            if (array_key_exists($label, $source)) {
+                if ($numerical === true) {
+                    throw ValidationFailedException::new(ts('The specified version array is invalid, it must be a numerical array with element keys "0 => value, 1 => value, 2 => value" or "major => value, minor => value, revision => value", these keys cannot be mixed'))
+                                                   ->addData(['version' => $source]);
+                }
+
+                $numerical = false;
+            }
+        }
+
+        foreach ($source as $section => $version) {
+            if ($version < 0) {
+                throw ValidationFailedException::new(ts('The specified version array is invalid, key ":section" should be higher than, or equal to 0', [
+                    ':section' => $section,
+                ]))->addData(['version' => $source]);
+            }
+
+            if ($version > 999) {
+                throw ValidationFailedException::new(ts('The specified version array is invalid, key ":section" should be lower than, or equal to 999', [
+                    ':section' => $section,
+                ]))->addData(['version' => $source]);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the source version as an array
+     *
+     * Array element order:
+     * 0 => major
+     * 1 => minor
+     * 2 => revision
+     *
+     * @return array
+     */
+    protected function getSourceAsArray(): array
+    {
+        return explode('.', $this->source);
+    }
+
+
+    /**
+     * Sets the source version as an array
+     *
+     * This method will convert the given array source to a version string and store it in the source of this object
+     *
+     * Array element order:
+     * 0 => major
+     * 1 => minor
+     * 2 => revision
+     *
+     * @param array $source The
+     *
+     * @return static
+     */
+    protected function setSourceAsArray(array $source): static
+    {
+        return $this->validateVersionArray($source)
+                    ->setSource(implode('.', $source));
+    }
+
+
+    /**
+     * Converts the specified string version to a integer version
+     *
+     * @param string $version
+     *
+     * @return int
+     */
+    protected static function convertStringToInteger(string $version): int
+    {
+        switch ($version) {
+            case 'post_once':
+                return -1;
+
+            case 'post_always':
+                return -2;
+        }
+
+        if (!Strings::isVersion($version)) {
+            throw new OutOfBoundsException(tr('Specified version ":version" is not valid, should be of format "\d{1,4}.\d{1,4}.\d{1,4}"', [
+                ':version' => $version,
+            ]));
+        }
+
+        $major    = (int) Strings::until($version, '.') * 1000000;
+        $minor    = (int) Strings::until(Strings::from($version, '.'), '.') * 1000;
+        $revision = (int) Strings::fromReverse($version, '.');
+
+        return $major + $minor + $revision;
+    }
+
+
+    /**
+     * Compares versions with support for "post", "post_once", "post_always"
+     *
+     * @param string $version1
+     * @param string $version2
+     *
+     * @return int
+     */
+    protected function compare(string $version1, string $version2): int
+    {
+        // Check if versions are valid
+        Validate::new($version1)->isVersion(11, true);
+        Validate::new($version2)->isVersion(11, true);
+
+        // Process if the first version has "post" in it
+        switch ($version1) {
+            case 'post_once':
+                return match ($version2) {
+                    'post_always' => -1,
+                    'post_once'   => 0,
+                    default       => 1,
+                };
+
+            case 'post_always':
+                return match ($version2) {
+                    'post_always' => 0,
+                    default       => 1,
+                };
+        }
+
+        // If the second version has post in it, it is easier as we have already processed all "post" version1
+        if (str_starts_with($version2, 'post')) {
+            return 1;
+        }
+
+        return version_compare($version1, $version2);
     }
 }
