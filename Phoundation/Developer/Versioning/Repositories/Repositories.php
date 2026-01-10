@@ -555,7 +555,8 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch, $project_branch);
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->hasBranch($branch)) {
@@ -569,11 +570,11 @@ throw new UnderConstructionException();
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available
-                if (!$o_repository->hasBranch($phoundation_version)) {
+                if (!$o_repository->hasBranch($version)) {
                     throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
-                        ':branch'     => $phoundation_version,
+                        ':branch'     => $branch,
                         ':repository' => $o_repository->getName(),
-                        ':version'    => $phoundation_version,
+                        ':version'    => $version,
                     ]));
                 }
 
@@ -592,9 +593,9 @@ throw new UnderConstructionException();
                 // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
                 // We cannot create the branch automatically, because from where?!
                 throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
-                    ':branch'     => $phoundation_version,
+                    ':branch'     => $branch,
                     ':repository' => $o_repository->getName(),
-                    ':version'    => $phoundation_version,
+                    ':version'    => $version,
                 ]));
             }
         }
