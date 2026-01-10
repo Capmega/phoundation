@@ -1735,11 +1735,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
+     * @param Stringable|string|float|int $key       The key in this Iterator object for which to return the value
+     * @param mixed                       $default   The default value to return if the specified key does not exist
+     * @param bool|null                   $exception If true, will throw a NotExistsException if the specified key does
+     *                                               not exist
      *
      * @return mixed
+     * @throws NotExistsException
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
