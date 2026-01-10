@@ -21,17 +21,19 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\VersionCannotBeModifiedException;
+use Phoundation\Utils\Interfaces\VersionInterface;
 
-class Version
+class Version implements VersionInterface
 {
     use TraitDataStringSource {
         setSource as protected __setSource;
     }
 
+
     /**
      * Version class constructor
      *
-     * @param string $version
+     * @param string $version The version to work with
      */
     public function __construct(string $version)
     {
@@ -42,7 +44,7 @@ class Version
     /**
      * Sets the source for this Version object
      *
-     * @param string|int|null $source
+     * @param string|int|null $source The source for this Version object
      *
      * @return static
      */
@@ -198,7 +200,7 @@ class Version
      *
      * The version modifier value must be between 1 and 999
      *
-     * @param int $value
+     * @param int $value The version modifier value to test
      *
      * @return static
      */
@@ -219,7 +221,7 @@ class Version
      *
      * The version value must be between 1 and 999
      *
-     * @param int $value
+     * @param int $value The version value to test
      *
      * @return static
      */
@@ -258,7 +260,7 @@ class Version
     /**
      * Converts the specified integer version to a string version
      *
-     * @param int $version
+     * @param int $version The integer version to convert to a string
      *
      * @return string
      */
@@ -303,7 +305,7 @@ class Version
     /**
      * Validates the specified source array
      *
-     * @param array $source
+     * @param array $source The version array to validate
      *
      * @return $this
      */
@@ -387,7 +389,7 @@ class Version
      * 1 => minor
      * 2 => revision
      *
-     * @param array $source The
+     * @param array $source The version in array format to store in this object
      *
      * @return static
      */
@@ -401,7 +403,7 @@ class Version
     /**
      * Converts the specified string version to a integer version
      *
-     * @param string $version
+     * @param string $version The string version to convert to an integer
      *
      * @return int
      */
@@ -432,8 +434,8 @@ class Version
     /**
      * Compares versions with support for "post", "post_once", "post_always"
      *
-     * @param string $version1
-     * @param string $version2
+     * @param string $version1 First version
+     * @param string $version2 Second version
      *
      * @return int
      */
