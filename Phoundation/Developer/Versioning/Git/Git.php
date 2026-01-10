@@ -129,14 +129,14 @@ class Git extends Versioning implements GitInterface
      * Returns the current git branch for this directory
      *
      * @param string $branch
+     * @param bool   $from_all
      *
      * @return bool
      */
-    public function hasBranch(string $branch): bool
+    public function hasBranch(string $branch, bool $from_all = false): bool
     {
         $this->verifyBranch($branch);
-
-        return array_key_exists($branch, $this->getBranches());
+        return array_key_exists($branch, $this->getBranches($from_all));
     }
 
 
@@ -231,8 +231,8 @@ class Git extends Versioning implements GitInterface
     /**
      * Deletes the specified GIT branch for this directory
      *
-     * @param string $branch
-     * @param string $remote
+     * @param string $branch The branch to remove from the remote repository
+     * @param string $remote The remote repository from which to remove the branch
      *
      * @return static
      */
@@ -241,11 +241,21 @@ class Git extends Versioning implements GitInterface
         $this->checkRemote($remote)
              ->verifyBranch($branch);
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArguments(['push', $remote, ':' . $branch])
-                                  ->executeReturnArray();
+        if ($this->hasBranch($branch, true)) {
+            $output = $this->o_process->clearArguments()
+                                      ->addArguments(['push', $remote, ':' . $branch])
+                                      ->executeReturnArray();
 
-        Log::notice($output, 1, false);
+            Log::notice($output, 1, false);
+
+        } else {
+            Log::warning(ts('Not deleting branch ":branch" from remote ":remote" from repository ":repository", the branch does not exist on the remote', [
+                ':branch'     => $branch,
+                ':remote'     => $remote,
+                ':repository' => $this->o_directory,
+            ]), 3);
+        }
+
         return $this;
     }
 
@@ -253,16 +263,18 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
+     * @param bool $all [FALSE] If true, will return all branches, including the ones that have not been checked out locally
+     *
      * @return array
      */
-    public function getBranches(): array
+    public function getBranches(bool $all = false): array
     {
         $source  = [];
         $results = $this->o_process
                         ->clearArguments()
                         ->addArgument('branch')
                         ->addArgument('--quiet')
-                        ->addArgument(ALL ? '-a' : null)
+                        ->addArgument((ALL or $all) ? '-a' : null)
                         ->addArgument('--no-color')
                         ->executeReturnArray();
 

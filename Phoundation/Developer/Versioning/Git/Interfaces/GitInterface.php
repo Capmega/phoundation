@@ -65,9 +65,11 @@ interface GitInterface
     /**
      * Returns a list of available git branches
      *
+     * @param bool $all
+     *
      * @return array
      */
-    public function getBranches(): array;
+    public function getBranches(bool $all = false): array;
 
     /**
      * Stashes the git changes
