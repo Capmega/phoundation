@@ -417,15 +417,7 @@ throw new UnderConstructionException();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-
-            // Delete the branch, if exists
-            Log::warning(ts('Deleting branch ":branch" for ":type" repository ":repository"', [
-                ':branch'     => $branch,
-                ':type'       => $o_repository->getType(),
-                ':repository' => $o_repository->getName(),
-            ]));
-
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $o_repository->deleteBranch($branch, $remote);
         }
 
