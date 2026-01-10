@@ -70,12 +70,7 @@ class Version
      */
     public function increaseMajor(int $by_value = 1): static
     {
-        $this->checkCanModify()->checkModifyValue($by_value);
-
-        $source     = $this->getSourceAsArray();
-        $source[0] += $by_value;
-
-        return $this->setSourceAsArray($source);
+        return $this->increaseSection($by_value, 0);
     }
 
 
@@ -88,12 +83,7 @@ class Version
      */
     public function increaseMinor(int $by_value = 1): static
     {
-        $this->checkCanModify()->checkModifyValue($by_value);
-
-        $source     = $this->getSourceAsArray();
-        $source[1] += $by_value;
-
-        return $this->setSourceAsArray($source);
+        return $this->increaseSection($by_value, 1);
     }
 
 
@@ -106,12 +96,86 @@ class Version
      */
     public function increaseRevision(int $by_value = 1): static
     {
-        $this->checkCanModify()->checkModifyValue($by_value);
+        return $this->increaseSection($by_value, 2);
+    }
 
-        $source     = $this->getSourceAsArray();
-        $source[2] += $by_value;
 
-        return $this->setSourceAsArray($source);
+    /**
+     * Decreases the major version by the specified amount
+     *
+     * @param int $by_value [1] The amount to decrease the major version by
+     *
+     * @return static
+     */
+    public function decreaseMajor(int $by_value = 1): static
+    {
+        return $this->decreaseSection($by_value, 0);
+    }
+
+
+    /**
+     * Decreases the minor version by the specified amount
+     *
+     * @param int $by_value [1] The amount to decrease the minor version by
+     *
+     * @return static
+     */
+    public function decreaseMinor(int $by_value = 1): static
+    {
+        return $this->decreaseSection($by_value, 1);
+    }
+
+
+    /**
+     * Decreases the revision version by the specified amount
+     *
+     * @param int $by_value [1] The amount to decrease the revision version by
+     *
+     * @return static
+     */
+    public function decreaseRevision(int $by_value = 1): static
+    {
+        return $this->decreaseSection($by_value, 2);
+    }
+
+
+    /**
+     * Increases the specified section version by the specified amount
+     *
+     * @param int $by_value The amount to increase the section version by
+     * @param int $section  The section for which to increase the value
+     *
+     * @return static
+     */
+    protected function increaseSection(int $by_value, int $section): static
+    {
+        $this->checkCanModify()->checkModifier($by_value);
+
+        $source            = $this->getSourceAsArray();
+        $source[$section] += $by_value;
+
+        return $this->checkValue($source[$section])
+                    ->setSourceAsArray($source);
+    }
+
+
+    /**
+     * Decreases the specified section version by the specified amount
+     *
+     * @param int $by_value The amount to decrease the section version by
+     * @param int $section  The section for which to decrease the value
+     *
+     * @return static
+     */
+    protected function decreaseSection(int $by_value, int $section): static
+    {
+        $this->checkCanModify()->checkModifier($by_value);
+
+        $source            = $this->getSourceAsArray();
+        $source[$section] -= $by_value;
+
+        return $this->checkValue($source[$section])
+                    ->setSourceAsArray($source);
     }
 
 
@@ -138,11 +202,32 @@ class Version
      *
      * @return static
      */
-    protected function checkModifyValue(int $value): static
+    protected function checkModifier(int $value): static
     {
         if (($value < 1) or ($value > 999)) {
-            throw new OutOfBoundsException(ts('Cannot modify the version ":version"', [
-                ':version' => $this->source
+            throw new OutOfBoundsException(ts('Specified version modifier value ":version" is invalid, it must be an integer between 1 and 999.', [
+                ':version' => $value
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws a OutOfBoundsException if the version value is invalid
+     *
+     * The version value must be between 1 and 999
+     *
+     * @param int $value
+     *
+     * @return static
+     */
+    protected function checkValue(int $value): static
+    {
+        if (($value < 1) or ($value > 999)) {
+            throw new OutOfBoundsException(ts('Version section value ":version" is invalid, it must be an integer between 1 and 999', [
+                ':version' => $value
             ]));
         }
 
