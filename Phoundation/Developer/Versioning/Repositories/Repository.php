@@ -548,7 +548,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return string|null
      */
-    public function selectRemoteRepository(string|bool|null $repository): ?string
+    public function selectRemoteRepository(string|bool|null $repository = null): ?string
     {
         if (is_bool($repository)) {
             if ($repository === false) {

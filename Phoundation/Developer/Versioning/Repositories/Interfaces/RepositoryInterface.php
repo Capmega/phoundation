@@ -173,7 +173,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function selectRemoteRepository(string|bool|null $repository): ?string;
+    public function selectRemoteRepository(string|bool|null $repository = null): ?string;
 
     /**
      * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException

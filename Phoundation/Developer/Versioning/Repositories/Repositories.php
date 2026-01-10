@@ -580,14 +580,14 @@ throw new UnderConstructionException();
 
                 Log::action(ts('Creating and pushing required branch ":branch" from version branch ":version" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
-                    ':version'    => $phoundation_version,
+                    ':version'    => $version,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->selectBranch($phoundation_version)
+                $o_repository->selectBranch($version)
                              ->createBranch($branch)
-                             ->push($branch);
+                             ->push($o_repository->selectRemoteRepository(), $branch);
 
             } else {
                 // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
