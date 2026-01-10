@@ -22,10 +22,12 @@ use Phoundation\Developer\Project\Enums\EnumVersionFile;
 use Phoundation\Developer\Traits\TraitDataObjectVersionFile;
 use Phoundation\Filesystem\PhoFileCore;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Traits\TraitDataObjectVersion;
 
 
 class VersionFile extends PhoFileCore
 {
+    use TraitDataObjectVersion;
     use TraitDataObjectVersionFile {
         setVersionFileObject as protected __setVersionFileObject;
     }
@@ -33,6 +35,8 @@ class VersionFile extends PhoFileCore
 
     /**
      * VersionFile class constructor
+     *
+     * @param EnumVersionFile $o_version_file The version file to use
      */
     public function __construct(EnumVersionFile $o_version_file)
     {
@@ -49,57 +53,9 @@ class VersionFile extends PhoFileCore
      */
     public function setVersionFileObject(?EnumVersionFile $o_version_file): static
     {
-        $this->__setVersionFileObject($o_version_file);
-        return $this->setSource(DIRECTORY_ROOT . 'config/project/' . $this->o_version_file->value, PhoRestrictions::newConfig(true, 'project/'));
-    }
-
-
-    /**
-     * Returns the version string from this version file
-     *
-     * @return string
-     */
-    public function getVersion(): string
-    {
-
-    }
-
-
-    /**
-     * Sets the version string from this version file
-     *
-     * @param string $version
-     *
-     * @return VersionFile
-     */
-    public function setVersion(string $version): static
-    {
-
-    }
-
-
-    /**
-     * Increases the major number by the specified amount
-     *
-     * @param int $amount
-     *
-     * @return static
-     */
-    public function increaseMajor(int $amount = 1): static
-    {
-
-    }
-
-
-    /**
-     * Save the version to the file
-     *
-     * @return static
-     */
-    public function save(): static
-    {
-        $this->putContents($this->getVersion());
-
-        return $this;
+        return $this->__setVersionFileObject($o_version_file)
+                    ->setSource(DIRECTORY_ROOT . 'config/project/' . $this->o_version_file->value, PhoRestrictions::newConfig(true, 'project/'))
+                    ->setVersion($this->getContentsAsString())
+                    ->addChangeEventHandler();
     }
 }
