@@ -61,4 +61,4 @@ Log::cli(ts('Automatically selecting branches for ":count" repositories, this mi
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->automaticallySelectBranch($argv['suffix']);
+$o_repositories->selectAutoBranch($argv['suffix']);

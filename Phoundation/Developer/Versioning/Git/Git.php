@@ -292,20 +292,114 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Deletes the specified GIT tag for this directory
+     *
+     * @param string $tag
+     * @param bool   $force
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, bool $force = false): static
+    {
+        $this->verifyTag($tag);
+
+        $output = $this->o_process->clearArguments()
+                                  ->addArguments(['tag', '-d', ($force or FORCE ? '-f' : null)])
+                                  ->addArgument($tag)
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Returns the current git tag for this directory
+     *
+     * @param string $tag
+     * @param bool   $from_all
+     *
+     * @return bool
+     */
+    public function hasTag(string $tag, bool $from_all = false): bool
+    {
+        $this->verifyTag($tag);
+        return array_key_exists($tag, $this->getTags($from_all));
+    }
+
+
+    /**
+     * Deletes the specified GIT tag for this directory
+     *
+     * @param string $tag The tag to remove from the remote repository
+     * @param string $remote The remote repository from which to remove the tag
+     *
+     * @return static
+     */
+    public function deleteTagRemote(string $tag, string $remote): static
+    {
+        $this->checkRemote($remote)
+             ->verifyTag($tag);
+
+        if ($this->hasTag($tag, true)) {
+            $output = $this->o_process->clearArguments()
+                                      ->addArguments(['push', $remote, ':' . $tag])
+                                      ->executeReturnArray();
+
+            Log::notice($output, 1, false);
+
+        } else {
+            Log::warning(ts('Not deleting tag ":tag" from remote ":remote" from repository ":repository", the tag does not exist on the remote', [
+                ':tag'     => $tag,
+                ':remote'     => $remote,
+                ':repository' => $this->o_directory,
+            ]), 3);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns a list of available git tags
      *
+     * @param bool $from_all
      * @return array
      */
-    public function getTags(): array
+    public function getTags(bool $from_all = false): array
+    {
+        $return = $this->o_process
+            ->clearArguments()
+            ->addArgument('tag')
+            ->addArguments(['-l', $from_all ? '-a' : null])
+            ->executeReturnArray();
+
+        Log::notice($return, 1, false);
+        return Arrays::valueToKeys($return);
+    }
+
+
+    /**
+     * Creates the specified tag for this GIT repository
+     *
+     * @param string      $name            The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $name, ?string $message = null, bool $signed = false): static
     {
         $return = $this->o_process
                        ->clearArguments()
                        ->addArgument('tag')
-                       ->addArgument('-l')
+                       ->addArguments(['-a', $name])
+                       ->addArguments($message ? ['-m', $message] : null)
+                       ->addArguments($signed  ? ['-s']           : null)
                        ->executeReturnArray();
 
         Log::notice($return, 1, false);
-        return Arrays::valueToKeys($return);
+        return $this;
     }
 
 
@@ -817,6 +911,26 @@ class Git extends Versioning implements GitInterface
         if (str_starts_with($branch, ':')) {
             throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
                 ':branch' => $branch
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws an OutOfBoundsException if the specified tag name is invalid
+     *
+     * @param string $tag
+     *
+     * @return static
+     * @throws OutOfBoundsException
+     */
+    protected function verifyTag(string $tag): static
+    {
+        if (str_starts_with($tag, ':')) {
+            throw new OutOfBoundsException(ts('Invalid git tag name ":tag" specified', [
+                ':tag' => $tag
             ]));
         }
 

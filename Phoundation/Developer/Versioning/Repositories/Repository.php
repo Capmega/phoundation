@@ -257,181 +257,44 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns the Remotes class object for this Repository
-     *
-     * @return RemotesInterface
+     * @return static
      */
-    public function getRemotesObject(): RemotesInterface
+    public function loadDetails(): static
     {
-        return Remotes::new($this);
+        return $this->setBranch($this->o_git->getCurrentBranch());
     }
 
 
     /**
-     * Returns the Branches object for this Repository
+     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
      *
-     * @return BranchesInterface
-     */
-    public function getBranchesObject(): BranchesInterface
-    {
-        return Branches::new($this);
-    }
-
-
-    /**
-     * Returns the Tags object for this Repository
-     *
-     * @return TagsInterface
-     */
-    public function getTagsObject(): TagsInterface
-    {
-        return Tags::new($this);
-    }
-
-
-    /**
-     * Returns true if the specified branch exists in this repository
-     *
-     * @param string $branch The branch to test for existence
-     *
-     * @return bool
-     */
-    public function branchExists(string $branch): bool
-    {
-        return $this->getBranchesObject()->keyExists($branch);
-    }
-
-
-    /**
-     * Returns true if the specified tag exists in this repository
-     *
-     * @param string $tag The tag to test for existence
-     *
-     * @return bool
-     */
-    public function tagExists(string $tag): bool
-    {
-        return $this->getTagsObject()->keyExists($tag);
-    }
-
-
-    /**
-     * Returns the Status object for this Repository
-     *
-     * @return StatusFilesInterface
-     */
-    public function getStatusObject(): StatusFilesInterface
-    {
-        return StatusFiles::new($this);
-    }
-
-
-    /**
-     * Returns the size of the repository in bytes
-     *
-     * @return int
-     */
-    public function getSize(): int
-    {
-        return $this->o_git->getDirectoryObject()->getSize();
-    }
-
-
-    /**
-     * Returns the size of the repository in bytes
-     *
-     * @return int
-     */
-    public function getGitSize(): int
-    {
-        return $this->o_git->getDirectoryObject()->addDirectory('.git')->getSize();
-    }
-
-
-    /**
-     * Returns the current git branch for this repository
-     *
-     * @return string
-     */
-    public function getCurrentBranch(): string
-    {
-        return $this->o_git->getCurrentBranch();
-    }
-
-
-    /**
-     * Returns true if the current git branch for this repository is equal to the specified branch
-     *
+     * @param string $version
      * @param string $branch
      *
-     * @return bool
+     * @return static
+     * @throws RepositoriesVersionBranchNotExistsException
      */
-    public function isOnBranch(string $branch): bool
+    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
     {
-        return $this->o_git->getCurrentBranch() === $branch;
-    }
+        if (!$this->hasBranchOrVersionBranch($version, $branch)) {
+            if ($branch and ($version !== $branch)) {
+                throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
+                    ':repository' => $this->getName(),
+                    ':suffix'     => $branch,
+                    ':version'    => $version
+                ]))->addData([
+                    'repository' => $this->getDisplayName()
+                ]);
+            }
 
-
-    /**
-     * Throws a RepositoriesException if the repository is using the specified branch
-     *
-     * @param string $branch
-     * @param string $action
-     *
-     * @return Repository
-     */
-    public function checkIsOnBranch(string $branch, string $action): static
-    {
-        if ($this->isOnBranch($branch)) {
-            throw RepositoriesException::new(ts('Cannot perform action ":action" on branch ":branch" of repository ":repository", the repository is using the branch right now', [
-                ':action'     => $action,
-                ':branch'     => $branch,
-                ':repository' => $this->getDisplayName()
-            ]))->makeWarning();
+            throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required version branch ":version"', [
+                ':repository' => $this->getName(),
+                ':version'    => $version
+            ]))->addData([
+                'repository' => $this->getDisplayName()
+            ]);
         }
 
-        return $this;
-    }
-
-
-    /**
-     * Returns true if the requested branch exists for this repository
-     *
-     * @param string $branch
-     *
-     * @return bool
-     */
-    public function hasBranch(string $branch, bool $check_tags_too = true): bool
-    {
-        return array_key_exists($branch, $this->o_git->getBranches()) or array_key_exists($branch, $this->o_git->getTags());
-    }
-
-
-    /**
-     * Creates the specified new branch in this repository
-     *
-     * @param string $branch
-     *
-     * @return static
-     */
-    public function selectBranch(string $branch): static
-    {
-        $this->o_git->selectBranch($branch);
-        return $this;
-    }
-
-
-    /**
-     * Creates the specified new branch in this repository
-     *
-     * @param string $branch
-     * @param bool   $reset
-     *
-     * @return static
-     */
-    public function createBranch(string $branch, bool $reset = false): static
-    {
-        $this->o_git->createBranch($branch, $reset);
         return $this;
     }
 
@@ -482,64 +345,57 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Deletes the specified branch from this repository (and optionally the selected remote as well)
+     * Returns the size of the repository working tree and database in bytes
      *
-     * @param string      $branch
-     * @param string|bool $remote_repository
-     *
-     * @return static
+     * @return int
      */
-    public function deleteBranch(string $branch, string|bool $remote_repository = false): static
+    public function getSize(): int
     {
-        // Select what remote to use, if any
-        $remote_repository = $this->selectRemoteRepository($remote_repository);
-
-        // Only delete the branch if the repository has it
-        if ($this->hasBranch($branch)) {
-            // Only delete the branch if its not selected
-            if ($this->isOnBranch($branch) and !FORCE) {
-                throw new RepositoriesException(ts('Cannot delete branch ":branch" from repository ":repository", it has the branch selected', [
-                    ':branch'     => $branch,
-                    ':repository' => $this->getName(),
-                ]));
-            }
-
-            // Delete the branch locally
-            Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
-                ':branch'     => $branch,
-                ':type'       => $this->getType(),
-                ':repository' => $this->getName()
-            ]));
-
-            $this->o_git->deleteBranch($branch);
-        }
-
-        if ($remote_repository) {
-            // Delete the branch from the remote repository as well
-            Log::action(ts('Deleting branch ":branch" from repository ":repository" remote ":remote"', [
-                ':branch'     => $branch,
-                ':remote'     => $remote_repository,
-                ':repository' => $this->getName()
-            ]));
-
-            $this->o_git->deleteBranchRemote($branch, $remote_repository);
-        }
-
-        return $this;
+        return $this->o_git->getDirectoryObject()->getSize();
     }
 
 
     /**
-     * Sets the current git branch for this repository
+     * Returns the size of the repository database in bytes
      *
-     * @param string $branch
-     *
-     * @return Repository
+     * @return int
      */
-    public function setCurrentBranch(string $branch): static
+    public function getGitSize(): int
     {
-        $this->o_git->setCurrentBranch($branch);
-        return $this;
+        return $this->o_git->getDirectoryObject()->addDirectory('.git')->getSize();
+    }
+
+
+    /**
+     * Returns the size of the repository working tree in bytes
+     *
+     * @return int
+     */
+    public function getWorkingTreeSize(): int
+    {
+        return $this->getSize() - $this->getGitSize();
+    }
+
+
+    /**
+     * Returns the Status object for this Repository
+     *
+     * @return StatusFilesInterface
+     */
+    public function getStatusObject(): StatusFilesInterface
+    {
+        return StatusFiles::new($this);
+    }
+
+
+    /**
+     * Returns the Remotes class object for this Repository
+     *
+     * @return RemotesInterface
+     */
+    public function getRemotesObject(): RemotesInterface
+    {
+        return Remotes::new($this);
     }
 
 
@@ -596,45 +452,86 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * @return static
+     * Returns the Branches object for this Repository
+     *
+     * @return BranchesInterface
      */
-    public function loadDetails(): static
+    public function getBranchesObject(): BranchesInterface
     {
-        return $this->setBranch($this->o_git->getCurrentBranch());
+        return Branches::new($this);
     }
 
 
     /**
-     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
+     * Sets the current git branch for this repository
      *
-     * @param string $version
      * @param string $branch
      *
-     * @return static
-     * @throws RepositoriesVersionBranchNotExistsException
+     * @return Repository
      */
-    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
+    public function setCurrentBranch(string $branch): static
     {
-        if (!$this->hasBranchOrVersionBranch($version, $branch)) {
-            if ($branch and ($version !== $branch)) {
-                throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
-                    ':repository' => $this->getName(),
-                    ':suffix'     => $branch,
-                    ':version'    => $version
-                ]))->addData([
-                    'repository' => $this->getDisplayName()
-                ]);
-            }
+        $this->o_git->setCurrentBranch($branch);
+        return $this;
+    }
 
-            throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required version branch ":version"', [
-                ':repository' => $this->getName(),
-                ':version'    => $version
-            ]))->addData([
-                'repository' => $this->getDisplayName()
-            ]);
+
+    /**
+     * Returns the current git branch for this repository
+     *
+     * @return string
+     */
+    public function getCurrentBranch(): string
+    {
+        return $this->o_git->getCurrentBranch();
+    }
+
+
+    /**
+     * Returns true if the current git branch for this repository is equal to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function isOnBranch(string $branch): bool
+    {
+        return $this->o_git->getCurrentBranch() === $branch;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if the repository is using the specified branch
+     *
+     * @param string $branch
+     * @param string $action
+     *
+     * @return Repository
+     */
+    public function checkIsOnBranch(string $branch, string $action): static
+    {
+        if ($this->isOnBranch($branch)) {
+            throw RepositoriesException::new(ts('Cannot perform action ":action" on branch ":branch" of repository ":repository", the repository is using the branch right now', [
+                ':action'     => $action,
+                ':branch'     => $branch,
+                ':repository' => $this->getDisplayName()
+            ]))->makeWarning();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the requested branch exists for this repository
+     *
+     * @param string $branch         The branch to search for
+     * @param bool   $check_tags_too If true will search for the branch name in the tags list as well
+     * @return bool
+     */
+    public function branchExists(string $branch, bool $check_tags_too = true): bool
+    {
+        return array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
     }
 
 
@@ -648,7 +545,199 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasBranchOrVersionBranch(string $version, string $branch): bool
     {
-        return $this->hasBranch($version) or $this->hasBranch($branch);
+        return $this->branchExists($version) or $this->branchExists($branch);
+    }
+
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string $branch
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch): static
+    {
+        $this->o_git->selectBranch($branch);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string $branch
+     * @param bool   $reset
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static
+    {
+        $this->o_git->createBranch($branch, $reset);
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified branch from this repository (and optionally the selected remote as well)
+     *
+     * @param string      $branch
+     * @param string|bool $remote_repository
+     *
+     * @return static
+     */
+    public function deleteAutoBranch(string $branch, string|bool $remote_repository = false): static
+    {
+        // Select what remote to use, if any
+        $remote_repository = $this->selectRemoteRepository($remote_repository);
+
+        // Only delete the branch if the repository has it
+        if ($this->branchExists($branch)) {
+            // Only delete the branch if it is not selected
+            if ($this->isOnBranch($branch) and !FORCE) {
+                throw new RepositoriesException(ts('Cannot delete branch ":branch" from repository ":repository", it has the branch selected', [
+                    ':branch'     => $branch,
+                    ':repository' => $this->getName(),
+                ]));
+            }
+
+            // Delete the branch locally
+            Log::action(ts('Deleting branch ":branch" from ":type" type repository ":repository"', [
+                ':branch'     => $branch,
+                ':type'       => $this->getType(),
+                ':repository' => $this->getName()
+            ]));
+
+            $this->o_git->deleteBranch($branch);
+        }
+
+        if ($remote_repository) {
+            // Delete the branch from the remote repository as well
+            Log::action(ts('Deleting branch ":branch" from repository ":repository" remote ":remote"', [
+                ':branch'     => $branch,
+                ':remote'     => $remote_repository,
+                ':repository' => $this->getName()
+            ]));
+
+            $this->o_git->deleteBranchRemote($branch, $remote_repository);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the Tags object for this Repository
+     *
+     * @return TagsInterface
+     */
+    public function getTagsObject(): TagsInterface
+    {
+        return Tags::new($this);
+    }
+
+
+    /**
+     * Returns true if the specified tag exists in this repository
+     *
+     * @param string $tag The tag to test for existence
+     *
+     * @return bool
+     */
+    public function tagExists(string $tag): bool
+    {
+        return $this->getTagsObject()->keyExists($tag);
+    }
+
+
+    /**
+     * Creates the specified tag for this repository
+     *
+     * @param string      $name            The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $name, ?string $message = null, bool $signed = false): static
+    {
+        $this->o_git->createTag($name, $message, $signed);
+        return $this;
+    }
+
+
+    /**
+     * Returns true if the current git tag for this repository is equal to the specified tag
+     *
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public function isOnTag(string $tag): bool
+    {
+        return $this->o_git->getCurrentBranch() === $tag;
+    }
+
+
+    /**
+     * Creates the specified new tag in this repository
+     *
+     * @param string $tag
+     *
+     * @return static
+     */
+    public function selectTag(string $tag): static
+    {
+        $this->o_git->selectTag($tag);
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified tag from this repository (and optionally the selected remote as well)
+     *
+     * @param string      $tag
+     * @param string|bool $remote_repository
+     *
+     * @return static
+     */
+    public function deleteAutoTag(string $tag, string|bool $remote_repository = false): static
+    {
+        // Select what remote to use, if any
+        $remote_repository = $this->selectRemoteRepository($remote_repository);
+
+        // Only delete the tag if the repository has it
+        if ($this->tagExists($tag)) {
+            // Only delete the tag if it is not selected
+            if ($this->isOnTag($tag) and !FORCE) {
+                throw new RepositoriesException(ts('Cannot delete tag ":tag" from repository ":repository", it has the tag selected', [
+                    ':tag'     => $tag,
+                    ':repository' => $this->getName(),
+                ]));
+            }
+
+            // Delete the tag locally
+            Log::action(ts('Deleting tag ":tag" from ":type" type repository ":repository"', [
+                ':tag'     => $tag,
+                ':type'       => $this->getType(),
+                ':repository' => $this->getName()
+            ]));
+
+            $this->o_git->deleteTag($tag);
+        }
+
+        if ($remote_repository) {
+            // Delete the tag from the remote repository as well
+            Log::action(ts('Deleting tag ":tag" from repository ":repository" remote ":remote"', [
+                ':tag'     => $tag,
+                ':remote'     => $remote_repository,
+                ':repository' => $this->getName()
+            ]));
+
+            $this->o_git->deleteTagRemote($tag, $remote_repository);
+        }
+
+        return $this;
     }
 
 

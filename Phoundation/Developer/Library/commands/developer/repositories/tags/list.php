@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories branches
+ * Command developer git repositories tags
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will switch the branch for the specified repository
+ * This command will list all available tags for the specified repository
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -31,7 +31,8 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branches list REPOSITORY_NAME');
+CliDocumentation::setUsage('./pho development repositories tags list REPOSITORY_NAME
+./pho dv rp tg ls REPOSITORY_NAME --all');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -41,13 +42,13 @@ This command will list all known phoundation repositories
 ARGUMENTS
 
 
-REPOSITORY_NAME                         The repository for which to display the available branches
+REPOSITORY_NAME                         The repository for which to display the available tags
 
 
 OPTIONAL ARGUMENTS
 
 
-[-A, --all]                             If specified, will display all branches'));
+[-A, --all]                             If specified, will display all tags'));
 
 
 // Get command line arguments
@@ -56,8 +57,8 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Switch the branch!
-Repository::new($argv['repository'])->getBranchesObject()->displayCliTable([
-    'branch' => ts('Branch'),
+// Switch the tag!
+Repository::new($argv['repository'])->getTagsObject()->displayCliTable([
+    'tag' => ts('Tag'),
 ]);
 

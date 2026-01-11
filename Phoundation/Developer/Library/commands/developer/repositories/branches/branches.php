@@ -17,22 +17,12 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
-use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
-CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-p,--path' => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
-        },
-        '-d,--delete-gone' => false
-    ]
-]);
+CliDocumentation::setAutoComplete();
 
 CliDocumentation::setUsage('./pho development repositories branches');
 

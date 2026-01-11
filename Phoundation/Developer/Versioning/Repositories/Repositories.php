@@ -19,10 +19,7 @@ namespace Phoundation\Developer\Versioning\Repositories;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
-use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
@@ -37,7 +34,6 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
-use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Utils\Strings;
@@ -353,7 +349,7 @@ throw new UnderConstructionException();
             }
 
             if (isset($e)) {
-                if (!$o_repository->hasBranch($version)) {
+                if (!$o_repository->branchExists($version)) {
                     throw $e;
                 }
 
@@ -477,30 +473,78 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns the correct branch for the specified type and name
+     * Throws a RepositoriesException if any of the known repositories currently has the specified tag selected
      *
-     * If the type is data and starts not with "phoundation-", the $project value will be returned, else the $phoundation value will be returned
+     * NOTE: Will NOT throw the exception when running in FORCE mode
      *
-     * @param string $type
-     * @param string $name
-     * @param string $phoundation
-     * @param string $project
+     * @param string $tag
+     * @param string $action
      *
-     * @return string
+     * @return static
+     * @throws RepositoriesException
      */
-    protected function getValueForType(string $type, string $name, string $phoundation, string $project): string
+    public function checkAnyIsOnTag(string $tag, string $action): static
     {
-        switch ($type) {
-            case 'project':
-                // no break
-
-            case 'data':
-                if (!str_starts_with($name, 'phoundation-')) {
-                    return $project;
-                }
+        foreach ($this as $o_repository) {
+            $o_repository->checkIsOnTag($tag, $action);
         }
 
-        return $phoundation;
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified tag for all repositories
+     *
+     * @param string      $name            The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $name, ?string $message = null, bool $signed = false): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->createTag($name, $message, $signed);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified tag from all repositories
+     *
+     * @param string $suffix
+     * @param bool $remote
+     * @return static
+     */
+    public function deleteAutoTag(string $suffix, bool $remote = true): static
+    {
+        $project_branch     = Project::getVersion();
+        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch = Project::getPhoundationRequiredVersion();
+        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        $this->verifyProjectRepositoryVersion(ts('delete tag'))
+             ->checkAnyIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkAnyIsOnTag($project_branch    , ts('delete tag'));
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                    ':branch' => $suffix
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct branch
+        foreach ($this as $o_repository) {
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $o_repository->deleteBranch($branch, $remote);
+        }
+
+        return $this;
     }
 
 
@@ -511,7 +555,7 @@ throw new UnderConstructionException();
      *
      * @return static
      */
-    public function automaticallySelectBranch(?string $suffix): static
+    public function selectAutoBranch(?string $suffix): static
     {
         $project_version = Project::getVersion();
         $project_version = Strings::untilReverse($project_version, '.');
@@ -580,5 +624,33 @@ throw new UnderConstructionException();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns the correct branch for the specified type and name
+     *
+     * If the type is data and starts not with "phoundation-", the $project value will be returned, else the $phoundation value will be returned
+     *
+     * @param string $type
+     * @param string $name
+     * @param string $phoundation
+     * @param string $project
+     *
+     * @return string
+     */
+    protected function getValueForType(string $type, string $name, string $phoundation, string $project): string
+    {
+        switch ($type) {
+            case 'project':
+                // no break
+
+            case 'data':
+                if (!str_starts_with($name, 'phoundation-')) {
+                    return $project;
+                }
+        }
+
+        return $phoundation;
     }
 }

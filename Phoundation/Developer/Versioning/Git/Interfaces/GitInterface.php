@@ -259,5 +259,16 @@ interface GitInterface
      * @return array
      */
     public function getTags(): array;
+
+    /**
+     * Creates the specified tag for this GIT repository
+     *
+     * @param string      $name            The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $name, ?string $message = null, bool $signed = false): static;
 }
 

@@ -77,4 +77,13 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return bool
      */
     public function hasChanges(): bool;
+
+    /**
+     * Returns true if the current git branch for this repository is equal to the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function anyIsOnBranch(string $branch): bool;
 }
