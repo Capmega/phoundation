@@ -408,7 +408,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function __destruct()
     {
         if ($this->is_modified and !$this->readonly) {
-            $enabled = config()->getBoolean('development.dataentries.destruct.modified.check', false);
+            $enabled = config()->getBoolean('developer.dataentries.destruct.modified.check', false);
 
             if ($enabled) {
                 // Can't destroy a modified DataEntry object without either resetting it or saving it
@@ -580,7 +580,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getAllowModifiedDestruct(): bool
     {
         if ($this->allow_modified_destruct === null) {
-            return config()->getBoolean('development.data-entries.modified-destruct.allow', false);
+            return config()->getBoolean('developer.data-entries.modified-destruct.allow', false);
         }
 
         return $this->allow_modified_destruct;
