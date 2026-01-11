@@ -313,11 +313,15 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                 continue;
             }
 
-            throw new OutOfBoundsException(tr('Iterator ":class" key ":key" contains unsupported data ":data"', [
+            throw OutOfBoundsException::new(tr('Iterator ":class" key ":key" contains unsupported value ":value"', [
                 ':class' => static::class,
                 ':key'   => $key,
-                ':data'  => $file,
-            ]));
+                ':value' => $file,
+            ]))->addData([
+                'iterator class'                => static::class,
+                'accepted datatypes or classes' => PhoPathInterface::class,
+                'value datatype or class'       => get_class_or_datatype($file),
+            ]);
         }
 
         return $this;

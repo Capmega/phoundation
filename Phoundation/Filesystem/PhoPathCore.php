@@ -28,6 +28,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Filesystem\Exception\NotADirectoryException;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -2965,15 +2966,22 @@ class PhoPathCore implements PhoPathInterface
      *
      * If the current path is not a directory, the parent directory object will be returned instead
      *
+     * @param bool $allow_parent If true, and the path is not a directory, the parent directory will be returned instead
      * @return PhoDirectoryInterface
      */
-    public function getDirectoryObject(): PhoDirectoryInterface
+    public function getDirectoryObject(bool $allow_parent = true): PhoDirectoryInterface
     {
         if ($this->isDirectory()) {
             return PhoDirectory::new($this);
         }
 
-        return $this->getParentDirectoryObject();
+        if ($allow_parent) {
+            return $this->getParentDirectoryObject();
+        }
+
+        throw new NotADirectoryException(ts('Cannot get a directory for the path ":path", it is not a directory and the parent is not allowed to be returned', [
+            ':path' => $this->source,
+        ]));
     }
 
 

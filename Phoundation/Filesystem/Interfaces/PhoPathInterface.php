@@ -1298,9 +1298,10 @@ interface PhoPathInterface extends Stringable
      *
      * If the current path is not a directory, the parent directory object will be returned instead
      *
+     * @param bool $allow_parent If true, and the path is not a directory, the parent directory will be returned instead
      * @return PhoDirectoryInterface
      */
-    public function getDirectoryObject(): PhoDirectoryInterface;
+    public function getDirectoryObject(bool $allow_parent = true): PhoDirectoryInterface;
 
     /**
      * Returns true if the path for this object is in the specified path
