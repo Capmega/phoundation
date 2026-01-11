@@ -21,6 +21,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -971,4 +973,37 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return mixed
      */
     public function getOriginalUniqueColumnValue(): mixed;
+
+    /**
+     * Returns the server restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
+
+    /**
+     * Sets the server and filesystem restrictions for this object
+     *
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions is not specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $write modifier for that object
+     * @param string|null                                $label          If $restrictions is not specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $label modifier for that object
+     */
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param PhoRestrictionsInterface|null $o_restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 }
