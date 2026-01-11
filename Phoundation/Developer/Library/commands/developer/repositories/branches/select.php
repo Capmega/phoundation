@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories branches switch
+ * Command developer git repositories branches select
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will switch the branch for the specified repository
+ * This command will select the branch for all repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -41,7 +41,7 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branches switch REPOSITORY_NAME BRANCH_NAME');
+CliDocumentation::setUsage('./pho development repositories branches select REPOSITORY_NAME BRANCH_NAME');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -53,16 +53,26 @@ ARGUMENTS
 
 REPOSITORY_NAME                         The repository for which to switch the branch
 
-BRANCH_NAME                             The branch name to switch to'));
+BRANCH_NAME                             The branch name to switch to
+
+
+OPTIONAL ARGUMENTS
+
+
+[-a,--auto-create]                      If specified, will automatically create the branch if it does not yet exist
+
+[-u,--upstream]                         (Requires --auto-create) If specified, will automatically set the newly created branch upstream to '));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('repository')->isCode()
                      ->select('branch')->isCode()
+                     ->select('-a,--auto-create')->isOptional()->isBoolean()
+                     ->select('-u,--upstream')->isOptional()->isBoolean()
                      ->validate();
 
 
 // Switch the branch!
-Repository::new($argv['repository'])->setCurrentBranch($argv['branch']);
+Repository::new($argv['repository'])->setCurrentBranch($argv['branch'], $argv['auto_create'], $argv['upstream']);
 

@@ -406,7 +406,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getDefaultRemoteRepository(): string
     {
-        return config()->getString('development.versioning.repositories.remote', 'origin');
+        return config()->getString('developer.versioning.repositories.remote', 'origin');
     }
 
 
@@ -466,12 +466,13 @@ class Repository extends DataEntry implements RepositoryInterface
      * Sets the current git branch for this repository
      *
      * @param string $branch
-     *
+     * @param bool $auto_create
+     * @param bool $upstream
      * @return Repository
      */
-    public function setCurrentBranch(string $branch): static
+    public function setCurrentBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
-        $this->o_git->setCurrentBranch($branch);
+        $this->o_git->setCurrentBranch($branch, $auto_create, $upstream);
         return $this;
     }
 

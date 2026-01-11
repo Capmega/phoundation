@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Exception;
 
-class BranchNotAvailableException extends GitException
+class BranchNotExistException extends GitException
 {
 }

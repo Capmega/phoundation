@@ -213,7 +213,7 @@ interface GitInterface
      *
      * @return bool
      */
-    public function hasBranch(string $branch): bool;
+    public function branchExists(string $branch): bool;
 
     /**
      * Deletes the specified GIT branch for this directory
@@ -232,7 +232,7 @@ interface GitInterface
      *
      * @return bool
      */
-    public function hasRemote(string $remote): bool;
+    public function remoteExists(string $remote): bool;
 
     /**
      * Throws an exception if the specified remote does not exist for this GIT repository
@@ -241,7 +241,7 @@ interface GitInterface
      *
      * @return static
      */
-    public function checkRemote(string $remote): static;
+    public function checkRemoteExists(string $remote): static;
 
     /**
      * Deletes the specified GIT branch for this directory
@@ -263,12 +263,12 @@ interface GitInterface
     /**
      * Creates the specified tag for this GIT repository
      *
-     * @param string      $name            The name for the tag
+     * @param string      $tag            The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
      * @param bool        $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, bool $signed = false): static;
+    public function createTag(string $tag, ?string $message = null, bool $signed = false): static;
 }
 

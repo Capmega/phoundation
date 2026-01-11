@@ -744,7 +744,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        return $this->o_git->hasBranch($branch);
+        return $this->o_git->branchExists($branch);
     }
 
 
