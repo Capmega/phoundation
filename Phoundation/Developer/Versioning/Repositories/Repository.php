@@ -279,15 +279,39 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns the Tags object for this Repository
+     *
+     * @return TagsInterface
+     */
+    public function getTagsObject(): TagsInterface
+    {
+        return Tags::new($this);
+    }
+
+
+    /**
      * Returns true if the specified branch exists in this repository
      *
-     * @param string $branch
+     * @param string $branch The branch to test for existence
      *
      * @return bool
      */
     public function branchExists(string $branch): bool
     {
         return $this->getBranchesObject()->keyExists($branch);
+    }
+
+
+    /**
+     * Returns true if the specified tag exists in this repository
+     *
+     * @param string $tag The tag to test for existence
+     *
+     * @return bool
+     */
+    public function tagExists(string $tag): bool
+    {
+        return $this->getTagsObject()->keyExists($tag);
     }
 
 
@@ -299,17 +323,6 @@ class Repository extends DataEntry implements RepositoryInterface
     public function getStatusObject(): StatusFilesInterface
     {
         return StatusFiles::new($this);
-    }
-
-
-    /**
-     * Returns the Remotes class object for this Repository
-     *
-     * @return TagsInterface
-     */
-    public function getTagsObject(): TagsInterface
-    {
-        return Tags::new($this);
     }
 
 
@@ -388,9 +401,9 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return bool
      */
-    public function hasBranch(string $branch): bool
+    public function hasBranch(string $branch, bool $check_tags_too = true): bool
     {
-        return array_key_exists($branch, $this->o_git->getBranches());
+        return array_key_exists($branch, $this->o_git->getBranches()) or array_key_exists($branch, $this->o_git->getTags());
     }
 
 

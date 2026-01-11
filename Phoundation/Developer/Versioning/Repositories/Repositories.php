@@ -25,6 +25,8 @@ use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
+use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
@@ -35,6 +37,7 @@ use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
 use Phoundation\Utils\Strings;
@@ -280,38 +283,22 @@ throw new UnderConstructionException();
     /**
      * Returns an array containing the status for all repositories
      *
-     * @param bool $readable
-     *
-     * @return IteratorInterface
+     * @return StatusFilesInterface
      */
-    public function getStatusObject(bool $readable = false): IteratorInterface
+    public function getStatusObject(): StatusFilesInterface
     {
-        $return = [];
+        $o_return = StatusFiles::new();
 
         foreach (Repositories::new()->load() as $o_repository) {
-            $o_status = $o_repository->getStatusObject()->scanChanges()->getSource();
-
-            foreach ($o_status as $file => $status) {
-                if ($readable) {
-                    $return[$file] = [
-                        'repository' => $o_repository->getName(),
-                        'branch'     => $o_repository->getCurrentBranch(),
-                        'file'       => $file,
-                        'status'     => $status->getReadableStatus()
-                    ];
-
-                } else {
-                    $return[$file] = [
-                        'repository' => $o_repository->getName(),
-                        'branch'     => $o_repository->getCurrentBranch(),
-                        'file'       => $file,
-                        'status'     => $status->getStatus()
-                    ];
-                }
-            }
+            $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
+            $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+//'repository' => $o_repository->getName(),
+//'branch'     => $o_repository->getCurrentBranch(),
+//'file'       => $file,
+//'status'     => $status->getReadableStatus()
         }
 
-        return Iterator::new($return);
+        return $o_return;
     }
 
 

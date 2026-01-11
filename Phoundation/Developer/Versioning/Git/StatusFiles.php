@@ -28,6 +28,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoFilesCore;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -59,21 +60,19 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      *
      * @param RepositoryInterface|PhoPathInterface|null $o_parent
      */
-    public function __construct(RepositoryInterface|PhoPathInterface|null $o_parent)
+    public function __construct(RepositoryInterface|PhoPathInterface|null $o_parent = null)
     {
         if ($o_parent instanceof RepositoryInterface) {
-            $this->o_repository        = $o_parent;
-            $this->o_parent            = $o_parent->getPathObject();
-            $this->o_restrictions      = $o_parent?->getRestrictionsObject();
-            $this->accepted_data_types = [PhoPathInterface::class];
+            $this->o_repository = $o_parent;
+            $this->o_parent     = $o_parent->getPathObject();
 
         } else {
-            $this->o_parent            = $o_parent;
-            $this->o_restrictions      = $o_parent?->getRestrictionsObject();
-            $this->accepted_data_types = [PhoPathInterface::class];
+            $this->o_parent = $o_parent;
         }
 
-        $this->___construct($this->o_parent);
+        $this->setRestrictionsObject($o_parent?->getRestrictionsObject() ?? new PhoRestrictions())
+             ->setAcceptedDataTypes([PhoPathInterface::class])
+             ->___construct($this->o_parent);
     }
 
 
@@ -84,7 +83,8 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      *
      * @return static
      */
-    public static function new(RepositoryInterface|PhoPathInterface|null $o_parent): static {
+    public static function new(RepositoryInterface|PhoPathInterface|null $o_parent = null): static
+    {
         return new static($o_parent);
     }
 
@@ -125,10 +125,12 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
                     $target = Strings::from($file, ' -> ');
                     $file   = Strings::until($file, ' -> ');
 
-                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()), new PhoFile($target, $this->getRestrictionsObject()));
+                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()), new PhoFile($target, $this->getRestrictionsObject()))
+                                                     ->setRepositoryObject($this->o_repository);
 
                 } else {
-                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()));
+                    $this->source[$file] = StatusFile::new($status, new PhoFile($file, $this->getRestrictionsObject()))
+                                                     ->setRepositoryObject($this->o_repository);
                 }
 
             } catch (GitUnknownStatusException $e) {
@@ -167,17 +169,50 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
         }
 
         foreach ($this as $file => $o_status) {
-            if (trim(substr($o_status->getStatus(), 0, 1))) {
-                $o_status = CliColor::apply($o_status->getStatusObject()->getReadable(), 'green');
+            $entry = [];
 
-            } else {
-                $o_status = CliColor::apply($o_status->getStatusObject()->getReadable(), 'red');
+            foreach ($columns as $column => $label) {
+                switch ($column) {
+                    case 'repository':
+                        $entry[$column] = $o_status->getRepositoryObject()?->getDisplayName();
+                        break;
+
+                    case 'branch':
+                        $entry[$column] = $o_status->getRepositoryObject()?->getCurrentBranch();
+                        break;
+
+                    case 'file':
+                        $entry[$column] = $file;
+                        break;
+
+                    case 'status':
+                        if (trim(substr($o_status->getStatus(), 0, 1))) {
+                            $entry[$column] = CliColor::apply($o_status->getStatus(), 'green');
+
+                        } else {
+                            $entry[$column] = CliColor::apply($o_status->getStatus(), 'red');
+                        }
+
+                        break;
+
+                    case 'readable_status':
+                        if (trim(substr($o_status->getStatus(), 0, 1))) {
+                            $entry[$column] = CliColor::apply($o_status->getReadableStatus(), 'green');
+
+                        } else {
+                            $entry[$column] = CliColor::apply($o_status->getReadableStatus(), 'red');
+                        }
+
+                        break;
+
+                    default:
+                        throw new OutOfBoundsException(ts('Unknown column ":column" specified', [
+                            ':column' => $column,
+                        ]));
+                }
             }
 
-            $list[$file] = [
-                'file'   => $file,
-                'status' => $o_status
-            ];
+            $list[$file] = $entry;
         }
 
         Cli::displayTable($list, $columns, $id_column);
@@ -258,7 +293,7 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
     public function getGit(): GitInterface
     {
         if (!isset($this->o_git)) {
-            $this->o_git = Git::new($this->o_path);
+            $this->o_git = Git::new($this->o_path->getDirectoryObject());
         }
 
         return $this->o_git;

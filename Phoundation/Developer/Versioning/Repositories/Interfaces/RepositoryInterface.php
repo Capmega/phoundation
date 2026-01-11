@@ -225,4 +225,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function fetch(?string $remote = null): static;
+
+    /**
+     * Returns true if the specified tag exists in this repository
+     *
+     * @param string $tag The tag to test for existence
+     *
+     * @return bool
+     */
+    public function tagExists(string $tag): bool;
 }

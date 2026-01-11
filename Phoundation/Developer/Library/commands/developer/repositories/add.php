@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories list
+ * Command developer git repositories add
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will list all known phoundation repositories
+ * This command will list the add for all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,36 +24,31 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development repositories list
-./pho dv rp ls
-./pho development rp ls -A');
+CliDocumentation::setUsage('./pho development repositories add
+./pho development repositories add -h');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will list all known phoundation repositories 
+This command will add all known phoundation repositories 
 
 
 ARGUMENTS
 
 
-- 
+-
 
 
 OPTIONAL ARGUMENTS
 
 
-[-A]                                    If specified, will list all repositories (including deleted)'));
+[-h, --human-readable]                  If specified, will display the information with human readable addes'));
 
 
 // Get command line arguments
-$argv = ArgvValidator::new()->validate();
+$argv = ArgvValidator::new()
+                     ->select('-h,--human-readable')->isOptional()->isBoolean()
+                     ->validate();
 
 
-// List known repositories
-Repositories::new()->load()->ksort()->displayCliTable([
-    'name'     => ts('Repository name'),
-    'platform' => ts('Platform'),
-    'type'     => ts('Type'),
-    'required' => ts('Required'),
-    'path'     => ts('Path'),
-]);
+// List add for all known repositories
+Repositories::new()->load()->getStatusObject($argv['human_readable'])->displayCliTable();

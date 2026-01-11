@@ -19,6 +19,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFileInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Filesystem\PhoFileCore;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -27,6 +28,9 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 class StatusFile extends PhoFileCore implements StatusFileInterface
 {
+    use TraitDataObjectRepository;
+
+
     /**
      * The target in case a file was renamed
      *

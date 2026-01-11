@@ -252,4 +252,12 @@ interface GitInterface
      * @return static
      */
     public function deleteBranchRemote(string $branch, string $remote): static;
+
+    /**
+     * Returns a list of available git tags
+     *
+     * @return array
+     */
+    public function getTags(): array;
 }
+
