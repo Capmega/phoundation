@@ -312,8 +312,10 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Executing push to remote ":remote" on repository ":repository"', [
+        Log::action(ts('Pushing branch "branch" on ":type" type repository ":repository" to remote ":remote"', [
             ':repository' => $this->getName(),
+            ':type'       => $this->getType(),
+            ':branch'     => $branch,
             ':remote'     => $remote,
         ]));
 
@@ -334,8 +336,10 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Executing pull from remote ":remote" on repository ":repository"', [
+        Log::action(ts('Pulling branch "branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
+            ':type'       => $this->getType(),
+            ':branch'     => $branch,
             ':remote'     => $remote,
         ]));
 
@@ -357,13 +361,13 @@ class Repository extends DataEntry implements RepositoryInterface
         $remote = $this->selectRemoteRepository($remote);
 
         if ($remote) {
-            Log::action(ts('Executing fetch from remote ":remote" on repository ":repository"', [
+            Log::action(ts('Executing fetch on repository ":repository" from remote ":remote"', [
                 ':repository' => $this->getName(),
                 ':remote'     => $remote,
             ]));
 
         } else {
-            Log::action(ts('Executing fetch from all remotes on repository ":repository"', [
+            Log::action(ts('Executing fetch on repository ":repository" for all remotes', [
                 ':repository' => $this->getName(),
             ]));
         }
@@ -501,6 +505,12 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
+        Log::action(ts('Selecting branch ":branch" for ":type" type repository ":repository"', [
+            ':branch'     => $branch,
+            ':type'       => $this->getType(),
+            ':repository' => $this->getName()
+        ]));
+
         $this->o_git->selectBranch($branch, $auto_create, $upstream);
         return $this;
     }
@@ -748,6 +758,12 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function selectTag(string $tag): static
     {
+        Log::action(ts('Selecting tag ":tag" for ":type" type repository ":repository"', [
+            ':tag'     => $tag,
+            ':type'       => $this->getType(),
+            ':repository' => $this->getName()
+        ]));
+
         $this->o_git->selectTag($tag);
         return $this;
     }
