@@ -59,7 +59,7 @@ class Tags extends IteratorCore implements Interfaces\TagsInterface
      * @param string $name
      * @param string|null $message
      * @param bool $signed
-     * @return $this
+     * @return static
      */
     public function create(string $name, ?string $message = null, bool $signed = false): static
     {

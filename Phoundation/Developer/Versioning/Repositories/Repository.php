@@ -325,7 +325,7 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will pull the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|bool|null $remote [null]  The remote to pull from, null will pull from the default repository
+     * @param string|bool|null $remote [null] The remote to pull from, null will pull from the default repository
      * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
      *
      * @return static

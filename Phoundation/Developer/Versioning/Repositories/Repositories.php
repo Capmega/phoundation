@@ -241,12 +241,12 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Executes a "git fetch" on all repositories
      *
-     * @param string|null $remote
-     * @param bool        $all
+     * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
+     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
-     * @return $this
+     * @return static
      */
-    public function fetch(?string $remote = null, bool $all = true): static
+    public function fetch(string|bool|null $remote = null, bool $all = true): static
     {
         foreach ($this as $o_repository) {
             $o_repository->fetch($remote, $all);
@@ -257,17 +257,36 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Executes a "git pull" on all repositories
+     * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $branch
-     * @param string|null $remote
+     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
+     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
+     * @param bool             $set_upstream [false]
      *
-     * @return $this
+     * @return static
      */
-    public function pull(?string $remote = null, ?string $branch = null): static
+    public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
         foreach ($this as $o_repository) {
-            $o_repository->pull($branch, $remote);
+            $o_repository->push($remote, $branch, $set_upstream);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Executes a "git pull" on all repositories
+     *
+     * @param string|bool|null $remote [null] The remote to pull from, null will pull from the default repository
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
+     *
+     * @return static
+     */
+    public function pull(string|bool|null $remote = null, ?string $branch = null): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->pull($remote, $branch);
         }
 
         return $this;
