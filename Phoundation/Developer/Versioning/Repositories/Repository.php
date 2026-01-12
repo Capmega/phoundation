@@ -469,11 +469,11 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param string $branch
      * @param bool $auto_create
      * @param bool $upstream
-     * @return Repository
+     * @return static
      */
-    public function setCurrentBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
-        $this->o_git->setCurrentBranch($branch, $auto_create, $upstream);
+        $this->o_git->selectBranch($branch, $auto_create, $upstream);
         return $this;
     }
 
@@ -483,7 +483,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return string
      */
-    public function getCurrentBranch(): string
+    public function getSelectedBranch(): string
     {
         return $this->o_git->getCurrentBranch();
     }
@@ -508,7 +508,7 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param string $branch
      * @param string $action
      *
-     * @return Repository
+     * @return static
      */
     public function checkIsOnBranch(string $branch, string $action): static
     {
@@ -528,14 +528,25 @@ class Repository extends DataEntry implements RepositoryInterface
      * Returns true if the requested branch exists for this repository
      *
      * @param string $branch                 The branch to search for
-     * @param bool   $check_tags_too [false] If true will also check in the tags list
-     * @param bool   $check_all      [false] If true will also check remote repositories
+     * @param bool   $check_tags_too [true]  If true will search for the branch name in the tags list as well
+     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it
+     *                                       does not yet exist
      *
      * @return bool
      */
-    public function branchExists(string $branch, bool $check_tags_too = true, bool $check_all = false): bool
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool
     {
-        return array_key_exists($branch, $this->o_git->getBranches($check_all)) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+        $exists = array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+
+        if (!$exists) {
+            // Branch does not yet exist for this repository, create it automatically?
+            if ($auto_create) {
+                $this->createBranch($branch);
+                return true;
+            }
+        }
+
+        return $exists;
     }
 
 
@@ -558,28 +569,14 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Creates the specified new branch in this repository
      *
-     * @param string $branch
+     * @param string           $branch               The branch to create from the currently selected branch
+     * @param bool             $reset        [false] If true, will first reset the repository before creating the new branch
+     * @param string|true|null $remote       [null]  If true or string value, will push the new branch to the default (for true) or specified remote
+     * @param bool             $set_upstream [false] If true, will set the remote as the default upstream repository
      *
      * @return static
      */
-    public function selectBranch(string $branch): static
-    {
-        $this->o_git->selectBranch($branch);
-        return $this;
-    }
-
-
-    /**
-     * Creates the specified new branch in this repository
-     *
-     * @param string      $branch
-     * @param bool        $reset
-     * @param string|null $remote
-     * @param bool        $set_upstream
-     *
-     * @return static
-     */
-    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static
+    public function createBranch(string $branch, bool $reset = false, string|true|null $remote = null, bool $set_upstream = false): static
     {
         $this->o_git->createBranch($branch, $reset);
 
@@ -594,8 +591,8 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Deletes the specified branch from this repository
      *
-     * @param string      $branch The branch to delete
-     * @param string|bool $remote If string value or true, will delete the branch from the default (for true) or specified remote repository
+     * @param string      $branch        The branch to delete
+     * @param string|bool $remote [true] If string value or true, will delete the branch from the default (for true) or specified remote repository
      *
      * @return static
      */
@@ -614,15 +611,15 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
-     * @param string      $branch
-     * @param string|bool $remote_repository
+     * @param string      $branch        The auto-branch suffix to delete
+     * @param string|bool $remote [true] If string value or true, will delete the branch from the default (for true) or specified remote repository
      *
      * @return static
      */
-    public function deleteAutoBranch(string $branch, string|bool $remote_repository = false): static
+    public function deleteAutoBranch(string $branch, string|bool $remote = false): static
     {
         // Select what remote to use, if any
-        $remote_repository = $this->selectRemoteRepository($remote_repository);
+        $remote = $this->selectRemoteRepository($remote);
 
         // Only delete the branch if the repository has it
         if ($this->branchExists($branch)) {
@@ -644,15 +641,15 @@ class Repository extends DataEntry implements RepositoryInterface
             $this->o_git->deleteBranch($branch);
         }
 
-        if ($remote_repository) {
+        if ($remote) {
             // Delete the branch from the remote repository as well
             Log::action(ts('Deleting branch ":branch" from repository ":repository" remote ":remote"', [
                 ':branch'     => $branch,
-                ':remote'     => $remote_repository,
+                ':remote'     => $remote,
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteBranchRemote($branch, $remote_repository);
+            $this->o_git->deleteBranchRemote($branch, $remote);
         }
 
         return $this;

@@ -54,7 +54,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Synchronize all known repositories
+// Synchronize all available repositories
 $o_repositories = Repositories::new()->load();
 
 Log::cli(ts('Automatically selecting branches for ":count" repositories, this might take a few seconds...', [

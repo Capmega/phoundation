@@ -188,7 +188,7 @@ class Plugins extends Project
                 ':branch' => $branch,
             ]), 3);
 
-            $this->o_git->setCurrentBranch($this->branch);
+            $this->o_git->selectBranch($this->branch);
             $this->branch = null;
 
         } else {
@@ -199,7 +199,7 @@ class Plugins extends Project
 
             // Select the new branch and store the previous
             $this->branch = $this->o_git->getCurrentBranch();
-            $this->o_git->setCurrentBranch($branch);
+            $this->o_git->selectBranch($branch);
         }
 
         return $this;

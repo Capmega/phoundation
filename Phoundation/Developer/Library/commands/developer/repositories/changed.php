@@ -5,8 +5,8 @@
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will display either nothing when there are no changes in any of the known repositories, or 1 when there are 1 or more changes in any of the
- * known repositories
+ * This command will display either nothing when there are no changes in any of the available repositories, or 1 when there are 1 or more changes in any of the
+ * available repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -30,7 +30,7 @@ CliDocumentation::setUsage('./pho development repositories changed');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will display either nothing when there are no changes in any of the known repositories, or 1 when there are 1 or more changes in any of the known
+This command will display either nothing when there are no changes in any of the available repositories, or 1 when there are 1 or more changes in any of the known
 repositories 
 
 

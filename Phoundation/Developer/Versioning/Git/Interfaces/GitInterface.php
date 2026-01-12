@@ -60,7 +60,7 @@ interface GitInterface
      *
      * @return static
      */
-    public function setCurrentBranch(string $branch): static;
+    public function selectBranch(string $branch): static;
 
     /**
      * Returns a list of available git branches

@@ -1,0 +1,1 @@
+delete-auto.php

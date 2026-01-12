@@ -167,12 +167,14 @@ class Git extends Versioning implements GitInterface
     /**
      * Sets the current git branch for this directory
      *
-     * @param string $branch
-     * @param bool $auto_create
-     * @param bool $upstream
+     * @param string      $branch              The name of the branch to select
+     * @param bool        $auto_create [false] If true, will automatically create the branch if it does not yet exist
+     * @param string|bool $upstream    [false] If specified, will automatically push the branch upstream to either the
+     *                                         default remote (if this variable is true), or the specified remote (if
+     *                                         this variable is a string containing the remote where to set upstream to)
      * @return static
      */
-    public function setCurrentBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    public function selectBranch(string $branch, bool $auto_create = false, string|bool $upstream = false): static
     {
         $this->verifyBranch($branch);
 
@@ -189,22 +191,18 @@ class Git extends Versioning implements GitInterface
             $this->createBranch($branch, upstream: $upstream);
         }
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('checkout')
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
-
-        Log::notice($output, 1, false);
-        return $this;
+        return $this->checkout($branch);
     }
 
 
     /**
      * Creates the specified GIT branch for this directory
      *
-     * @param string      $branch   The new branch name to create
-     * @param bool        $reset    If true, will reset the tree before creating the new branch
-     * @param string|bool $upstream If true, or repository name, will set this remote as the default upstream
+     * Note: This will NOT select the branch, only create it
+     *
+     * @param string      $branch           The new branch name to create
+     * @param bool        $reset    [false] If true, will reset the tree before creating the new branch
+     * @param string|bool $upstream [false] If true, or repository name, will set this remote as the default upstream
      * @return static
      */
     public function createBranch(string $branch, bool $reset = false, string|bool $upstream = false): static
@@ -218,10 +216,11 @@ class Git extends Versioning implements GitInterface
             ]));
         }
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArguments(['checkout', ($reset ? '-B' : '-b')])
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
+        $current = $this->getCurrentBranch();
+        $output  = $this->o_process->clearArguments()
+                                   ->addArguments(['checkout', ($reset ? '-B' : '-b')])
+                                   ->addArgument($branch)
+                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
 
@@ -229,15 +228,16 @@ class Git extends Versioning implements GitInterface
             return $this->push($this->getDefaultRemote($upstream), $branch, true);
         }
 
-        return $this;
+        return $this->selectBranch($current);
     }
 
 
     /**
      * Deletes the specified GIT branch for this directory
      *
-     * @param string $branch
-     * @param bool   $force
+     * @param string $branch         The name of the branch to delete
+     * @param bool   $force  [false] If true, will force deletion, even if there is a reason to stop the deletion, like
+     *                               the branch containing changes that haven't been merged anywhere yet
      *
      * @return static
      */
@@ -290,7 +290,8 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @param bool $all [false] If true will also check remote repositories
+     * @param bool $all [false] If true, will return all branches, including the ones that have not been checked out
+     *                          locally
      *
      * @return array
      */
@@ -526,19 +527,6 @@ class Git extends Versioning implements GitInterface
 
         Log::notice($output, 1, false);
         return $this;
-    }
-
-
-    /**
-     * "Selects" the specified branch for this repository (Equivalent to git checkout branch)
-     *
-     * @param string $branch
-     *
-     * @return static
-     */
-    public function selectBranch(string $branch): static
-    {
-        return $this->checkout($branch);
     }
 
 

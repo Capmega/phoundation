@@ -17,16 +17,17 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
+use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development repositories list
-./pho dv rp ls
-./pho development rp ls -A');
+CliDocumentation::setUsage('./pho development repositories list');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -49,7 +50,7 @@ OPTIONAL ARGUMENTS
 $argv = ArgvValidator::new()->validate();
 
 
-// List known repositories
+// List available repositories
 Repositories::new()->load()->ksort()->displayCliTable([
     'name'     => ts('Repository name'),
     'platform' => ts('Platform'),
