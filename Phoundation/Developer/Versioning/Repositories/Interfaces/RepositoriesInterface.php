@@ -106,10 +106,10 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @param string      $name            The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool        $signed  [FALSE] If true
+     * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, bool $signed = false): static;
+    public function createTag(string $name, ?string $message = null, ?bool $signed = false): static;
 
     /**
      * Creates the specified tag for all repositories

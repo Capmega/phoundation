@@ -166,6 +166,30 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Returns whether git signing has been enabled in configuration or not
+     *
+     * @return bool
+     */
+    public static function getConfigSigned(): bool
+    {
+        return config()->getBoolean('versioning.git.signed', true);
+    }
+
+
+    /**
+     * Returns either the specified $sign when the value is true or false. When null, will return the default from Git::getConfigSign()
+     *
+     * @param bool|null $signed
+     *
+     * @return bool
+     */
+    public static function selectSigned(?bool $signed): bool
+    {
+        return $signed ?? $this->getConfigSigned();
+    }
+
+
+    /**
      * Sets the current git branch for this directory
      *
      * @param string      $branch              The name of the branch to select
@@ -428,15 +452,15 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Creates the specified tag for this GIT repository
+     * Creates the specified tag for this git repository
      *
      * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool        $signed  [FALSE] If true
+     * @param bool|null   $signed  [FALSE] If true, will sign the tag (Requires git has been configured for signing messages)
      * @return static
      */
-    public function createTag(string $tag, ?string $message = null, bool $signed = false): static
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
     {
         if ($this->branchExists($tag)) {
             throw new GitException(ts('Cannot create new tag ":tag" on repository ":repository", the tag already exists', [
@@ -448,8 +472,33 @@ class Git extends Versioning implements GitInterface
         $return = $this->o_process->clearArguments()
                                   ->addArgument('tag')
                                   ->addArguments(['-a', $tag])
-                                  ->addArguments($message ? ['-m', $message] : null)
-                                  ->addArguments($signed  ? ['-s']           : null)
+                                  ->addArguments($message                     ? ['-m', $message] : null)
+                                  ->addArguments($this->selectSigned($signed) ? ['-s']           : null)
+                                  ->executeReturnArray();
+
+        Log::notice($return, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified lightweight tag for this git repository
+     *
+     * @param string $tag The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $tag): static
+    {
+        if ($this->branchExists($tag)) {
+            throw new GitException(ts('Cannot create new tag ":tag" on repository ":repository", the tag already exists', [
+                ':tag'        => $tag,
+                ':repository' => $this->o_directory
+            ]));
+        }
+
+        $return = $this->o_process->clearArguments()
+                                  ->addArgument('tag')
+                                  ->addArguments($tag)
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -694,12 +743,11 @@ class Git extends Versioning implements GitInterface
      */
     public function commit(string $message, ?bool $signed = null): static
     {
-        $signed = $signed ?? config()->getBoolean('versioning.git.sign', false);
         $output = $this->o_process->clearArguments()
                                   ->addArgument('commit')
                                   ->addArgument('-m')
                                   ->addArgument($message)
-                                  ->addArgument($signed ? '-s' : null)
+                                  ->addArgument($this->selectSigned($signed) ? '-s' : null)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);

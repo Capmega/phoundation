@@ -437,7 +437,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return string
      */
-    public function getDefaultRemoteRepository(): string
+    public function getConfigRemoteRepository(): string
     {
         return config()->getString('developer.versioning.repositories.remote', 'origin');
     }
@@ -460,7 +460,7 @@ class Repository extends DataEntry implements RepositoryInterface
             $repository = null;
         }
 
-        $repository = $repository ?? $this->getDefaultRemoteRepository();
+        $repository = $repository ?? $this->getConfigRemoteRepository();
 
         if (array_key_exists($repository, $this->getRemoteRepositories())) {
             return $repository;
@@ -704,10 +704,10 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param string      $name            The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool        $signed  [FALSE] If true
+     * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, bool $signed = false): static
+    public function createTag(string $name, ?string $message = null, ?bool $signed = false): static
     {
         $this->o_git->createTag($name, $message, $signed);
         return $this;
