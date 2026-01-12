@@ -302,13 +302,13 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $remote
-     * @param string|null $branch
-     * @param bool        $set_upstream
+     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
+     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
+     * @param bool             $set_upstream [false]
      *
      * @return static
      */
-    public function push(?string $remote = null, ?string $branch = null, bool $set_upstream = false): static
+    public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
         $remote = $this->selectRemoteRepository($remote);
 
@@ -325,12 +325,12 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will pull the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
-     * @param string|null $branch
+     * @param string|bool|null $remote [null]  The remote to pull from, null will pull from the default repository
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
      *
      * @return static
      */
-    public function pull(?string $remote = null, ?string $branch = null): static
+    public function pull(string|bool|null $remote = null, ?string $branch = null): static
     {
         $remote = $this->selectRemoteRepository($remote);
 
@@ -347,12 +347,12 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote The remote to fetch from
-     * @param bool        $all    Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
+     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(?string $remote = null, bool $all = true): static
+    public function fetch(string|bool|null $remote = null, bool $all = true): static
     {
         $remote = $this->selectRemoteRepository($remote);
 

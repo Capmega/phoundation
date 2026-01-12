@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
@@ -202,33 +203,33 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $remote
-     * @param string|null $branch
-     * @param bool        $set_upstream
+     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
+     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
+     * @param bool             $set_upstream [false]
      *
      * @return static
      */
-    public function push(?string $remote = null, ?string $branch = null, bool $set_upstream = false): static;
+    public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static;
 
     /**
      * Will pull the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
-     * @param string|null $branch
+     * @param string|bool|null $remote [null]  The remote to pull from, null will pull from the default repository
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
      *
      * @return static
      */
-    public function pull(?string $remote = null, ?string $branch = null): static;
+    public function pull(string|bool|null $remote = null, ?string $branch = null): static;
 
     /**
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote The remote to fetch from
-     * @param bool        $all    If true, will execute git fetch --all
+     * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
+     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(?string $remote = null, bool $all = true): static;
+    public function fetch(string|bool|null $remote = null, bool $all = true): static;
 
     /**
      * Returns true if the specified tag exists in this repository
@@ -255,14 +256,4 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static;
-
-    /**
-     * Deletes the specified branch from this repository
-     *
-     * @param string      $branch The branch to delete
-     * @param string|bool $remote If string value or true, will delete the branch from the default (for true) or specified remote repository
-     *
-     * @return static
-     */
-    public function deleteBranch(string $branch, string|bool $remote = true): static;
 }
