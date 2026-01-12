@@ -310,7 +310,14 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function push(?string $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
-        $this->o_git->push($this->selectRemoteRepository($remote), $branch, $set_upstream);
+        $remote = $this->selectRemoteRepository($remote);
+
+        Log::action(ts('Executing push to remote ":remote" on repository ":repository"', [
+            ':repository' => $this->getName(),
+            ':remote'     => $remote,
+        ]));
+
+        $this->o_git->push($remote, $branch, $set_upstream);
         return $this;
     }
 
@@ -325,7 +332,14 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function pull(?string $remote = null, ?string $branch = null): static
     {
-        $this->o_git->pull($this->selectRemoteRepository($remote), $branch);
+        $remote = $this->selectRemoteRepository($remote);
+
+        Log::action(ts('Executing pull from remote ":remote" on repository ":repository"', [
+            ':repository' => $this->getName(),
+            ':remote'     => $remote,
+        ]));
+
+        $this->o_git->pull($remote, $branch);
         return $this;
     }
 
@@ -340,6 +354,13 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function fetch(?string $remote = null, bool $all = true): static
     {
+        $remote = $this->selectRemoteRepository($remote);
+
+        Log::action(ts('Executing fetch from remote ":remote" on repository ":repository"', [
+            ':repository' => $this->getName(),
+            ':remote'     => $remote,
+        ]));
+
         $this->o_git->fetch($remote, $all);
         return $this;
     }
