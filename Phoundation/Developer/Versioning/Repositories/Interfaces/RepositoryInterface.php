@@ -199,13 +199,13 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $repository
+     * @param string|null $remote
      * @param string|null $branch
-     * @param bool        $set_upstreams
+     * @param bool        $set_upstream
      *
      * @return static
      */
-    public function push(?string $repository = null, ?string $branch = null, bool $set_upstreams = false): static;
+    public function push(?string $remote = null, ?string $branch = null, bool $set_upstream = false): static;
 
     /**
      * Will pull the changes for the current branch from the specified, or default remote repository
@@ -220,11 +220,12 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
+     * @param string|null $remote The remote to fetch from
+     * @param bool        $all    If true, will execute git fetch --all
      *
      * @return static
      */
-    public function fetch(?string $remote = null): static;
+    public function fetch(?string $remote = null, bool $all = true): static;
 
     /**
      * Returns true if the specified tag exists in this repository
@@ -239,4 +240,26 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function loadDetails(): static;
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string      $branch
+     * @param bool        $reset
+     * @param string|null $remote
+     * @param bool        $set_upstream
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static;
+
+    /**
+     * Deletes the specified branch from this repository
+     *
+     * @param string      $branch The branch to delete
+     * @param string|bool $remote If string value or true, will delete the branch from the default (for true) or specified remote repository
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, string|bool $remote = true): static;
 }

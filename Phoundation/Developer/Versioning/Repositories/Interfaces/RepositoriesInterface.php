@@ -99,4 +99,58 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return RepositoryInterface
      */
     public function getRandom(): RepositoryInterface;
+
+    /**
+     * Creates the specified tag for all repositories
+     *
+     * @param string      $name            The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $name, ?string $message = null, bool $signed = false): static;
+
+    /**
+     * Creates the specified tag for all repositories
+     *
+     * @param string      $name          The name for the tag to delete
+     * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
+     *
+     * @return static
+     */
+    public function deleteTag(string $name, string|bool $remote = true): static;
+
+    /**
+     * Executes a "git fetch" on all repositories
+     *
+     * @param string|null $remote
+     * @param bool        $all
+     *
+     * @return $this
+     */
+    public function fetch(?string $remote = null, bool $all = true): static;
+
+
+    /**
+     * Executes a "git pull" on all repositories
+     *
+     * @param string|null $remote
+     * @param string|null $branch
+     *
+     * @return $this
+     */
+    public function pull(?string $remote = null, ?string $branch = null): static;
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string      $branch
+     * @param bool        $reset
+     * @param string|null $remote
+     * @param bool        $set_upstream
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static;
 }

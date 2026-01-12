@@ -302,15 +302,15 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $repository
+     * @param string|null $remote
      * @param string|null $branch
-     * @param bool        $set_upstreams
+     * @param bool        $set_upstream
      *
      * @return static
      */
-    public function push(?string $repository = null, ?string $branch = null, bool $set_upstreams = false): static
+    public function push(?string $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
-        $this->o_git->push($this->selectRemoteRepository($repository), $branch, $set_upstreams);
+        $this->o_git->push($this->selectRemoteRepository($remote), $branch, $set_upstream);
         return $this;
     }
 
@@ -325,7 +325,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function pull(?string $remote = null, ?string $branch = null): static
     {
-        $this->o_git->pull($remote, $branch);
+        $this->o_git->pull($this->selectRemoteRepository($remote), $branch);
         return $this;
     }
 
@@ -333,13 +333,14 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
+     * @param string|null $remote The remote to fetch from
+     * @param bool        $all    Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(?string $remote = null): static
+    public function fetch(?string $remote = null, bool $all = true): static
     {
-        $this->o_git->fetch($remote);
+        $this->o_git->fetch($remote, $all);
         return $this;
     }
 
@@ -571,14 +572,41 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Creates the specified new branch in this repository
      *
-     * @param string $branch
-     * @param bool   $reset
+     * @param string      $branch
+     * @param bool        $reset
+     * @param string|null $remote
+     * @param bool        $set_upstream
      *
      * @return static
      */
-    public function createBranch(string $branch, bool $reset = false): static
+    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static
     {
         $this->o_git->createBranch($branch, $reset);
+
+        if ($remote or $set_upstream) {
+            $this->push($this->selectRemoteRepository($remote), $branch, $set_upstream);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified branch from this repository
+     *
+     * @param string      $branch The branch to delete
+     * @param string|bool $remote If string value or true, will delete the branch from the default (for true) or specified remote repository
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, string|bool $remote = true): static
+    {
+        $this->o_git->deleteBranch($branch, FORCE);
+
+        if ($remote) {
+            $this->o_git->deleteBranchRemote($branch, $remote);
+        }
+
         return $this;
     }
 
@@ -672,6 +700,26 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Deletes the specified tag from this repository
+     *
+     * @param string      $tag The tag to delete
+     * @param string|bool $remote If string value or true, will delete the tag from the default (for true) or specified remote repository
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, string|bool $remote = true): static
+    {
+        $this->o_git->deleteTag($tag, FORCE);
+
+        if ($remote) {
+            $this->o_git->deleteTagRemote($tag, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns true if the current git tag for this repository is equal to the specified tag
      *
      * @param string $tag
@@ -681,6 +729,28 @@ class Repository extends DataEntry implements RepositoryInterface
     public function isOnTag(string $tag): bool
     {
         return $this->o_git->getCurrentBranch() === $tag;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if the repository is using the specified tag
+     *
+     * @param string $tag
+     * @param string $action
+     *
+     * @return Repository
+     */
+    public function checkIsOnTag(string $tag, string $action): static
+    {
+        if ($this->isOnBranch($tag)) {
+            throw RepositoriesException::new(ts('Cannot perform action ":action" on tag ":tag" of repository ":repository", the repository is using the tag right now', [
+                ':action'     => $action,
+                ':tag'     => $tag,
+                ':repository' => $this->getDisplayName()
+            ]))->makeWarning();
+        }
+
+        return $this;
     }
 
 

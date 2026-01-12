@@ -344,14 +344,13 @@ class Git extends Versioning implements GitInterface
      * Returns the current git tag for this directory
      *
      * @param string $tag
-     * @param bool   $from_all
      *
      * @return bool
      */
-    public function hasTag(string $tag, bool $from_all = false): bool
+    public function hasTag(string $tag): bool
     {
         $this->verifyTag($tag);
-        return array_key_exists($tag, $this->getTags($from_all));
+        return array_key_exists($tag, $this->getTags());
     }
 
 
@@ -368,7 +367,7 @@ class Git extends Versioning implements GitInterface
         $this->checkRemoteExists($remote)
              ->verifyTag($tag);
 
-        if ($this->hasTag($tag, true)) {
+        if ($this->hasTag($tag)) {
             $output = $this->o_process->clearArguments()
                                       ->addArguments(['push', $remote, ':' . $tag])
                                       ->executeReturnArray();
@@ -871,14 +870,17 @@ class Git extends Versioning implements GitInterface
     /**
      * Pull the remote changes from the remote repository / branch
      *
-     * @param string $repository
+     * @param string $repository The repository to pull from. If not specified, the "origin" default will be used, unless an upstream was specified for the
+     *                           current branch
+     * @param bool   $all        Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(string $repository): static
+    public function fetch(string $repository, bool $all = true): static
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('fetch')
+                                  ->addArgument($all ? '--all' : null)
                                   ->addArgument($repository)
                                   ->executeReturnArray();
 
