@@ -862,7 +862,7 @@ throw new UnderConstructionException();
 
         $this->verifyProjectRepositoryVersion(ts('delete tag'))
              ->checkAnyIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnTag($project_branch    , ts('delete tag'));
+             ->checkAnyIsOnTag($project_branch , ts('delete tag'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
