@@ -91,7 +91,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      *
      * @param IteratorInterface|array|int|null $group_id
      *
-     * @return $this
+     * @return static
      */
     public function create(IteratorInterface|array|int|null $group_id = null): static
     {
@@ -114,7 +114,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      *
      * @param IteratorInterface|array|int|null $group_id
      *
-     * @return $this
+     * @return static
      */
     public function delete(IteratorInterface|array|int|null $group_id = null): static
     {

@@ -338,7 +338,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param bool $ensure_objects
      *
-     * @return $this
+     * @return static
      */
     public function setEnsureObjects(bool $ensure_objects): static
     {

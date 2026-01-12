@@ -225,7 +225,7 @@ interface UrlInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function addRight(RightInterface|string|null $o_right): static;
 
@@ -234,7 +234,7 @@ interface UrlInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function removeRight(RightInterface|string|null $o_right): static;
 

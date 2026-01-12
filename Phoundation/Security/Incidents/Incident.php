@@ -360,7 +360,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      * @param string $severity
      * @param mixed  $details
      *
-     * @return $this
+     * @return static
      */
     protected function log(string $severity, mixed $details): static
     {
@@ -419,7 +419,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      * @param string     $severity
      * @param array|null $details
      *
-     * @return $this
+     * @return static
      */
     protected function notify(string $severity, ?array $details): static
     {

@@ -107,7 +107,7 @@ interface AnchorInterface extends SpanInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function addRight(RightInterface|string|null $o_right): static;
 
@@ -117,7 +117,7 @@ interface AnchorInterface extends SpanInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function removeRight(RightInterface|string|null $o_right): static;
 
@@ -127,7 +127,7 @@ interface AnchorInterface extends SpanInterface
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
-     * @return $this
+     * @return static
      */
     public function setRenderRightsFail(EnumAnchorRenderRightsFail $render_rights_fail): static;
 

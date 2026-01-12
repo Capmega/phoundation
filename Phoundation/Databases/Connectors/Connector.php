@@ -960,7 +960,7 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param bool  $directly
      * @param bool  $force
      *
-     * @return $this
+     * @return static
      */
     public function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {

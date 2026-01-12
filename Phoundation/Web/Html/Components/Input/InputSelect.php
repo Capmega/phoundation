@@ -584,7 +584,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * @param bool  $throw_validation_exception
      * @param array $diff
      *
-     * @return $this
+     * @return static
      */
     protected function selectedNotInSource(bool $throw_validation_exception, array $diff): static
     {
