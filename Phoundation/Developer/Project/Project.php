@@ -784,7 +784,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        $this->o_git->setCurrentBranch($branch);
+        $this->o_git->selectBranch($branch);
 
         Log::notice(ts('Set project branch to ":branch"', [
             ':branch' => $branch,

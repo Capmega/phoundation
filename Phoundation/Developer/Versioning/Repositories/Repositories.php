@@ -139,6 +139,44 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
+     * Returns the specified Repository object
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed|null                  $default
+     * @param bool|null                   $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
+    {
+        return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     * Returns a random Repository
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getRandom(): RepositoryInterface
+    {
+        return parent::getRandom();
+    }
+
+
+    /**
+     * Returns the current Repository
+     *
+     * @note overrides the IteratorCore::current() method which returns mixed
+     *
+     * @return mixed
+     */
+    public function current(): RepositoryInterface
+    {
+        return parent::current();
+    }
+
+
+    /**
      * Load the Repositories list data from the database, and optionally adds detail directly from the repositories
      *
      * @param IdentifierInterface|int|array|string|null $identifiers
@@ -200,21 +238,6 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Returns the entry with the specified identifier
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
-     *
-     * @return RepositoryInterface|null
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface
-    {
-        return parent::get($key, $default, $exception);
-    }
-
-
-    /**
      * Scans for repositories on the current machine and registers them in the database
      *
      * @param PhoPathInterface $path
@@ -260,7 +283,7 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns true when any of the known repositories has changes
+     * Returns true when any of the available repositories has changes
      *
      * @return bool
      */
@@ -312,7 +335,7 @@ throw new UnderConstructionException();
         // The repository version MUST match the configured version
         try {
             $o_repository = $this->get(Project::getDirectoryName());
-            $branch       = $o_repository->getCurrentBranch();
+            $branch       = $o_repository->getSelectedBranch();
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
@@ -354,11 +377,11 @@ throw new UnderConstructionException();
                 }
 
                 Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the current project version ":version", selecting correct branch to be able to continue', [
-                    ':branch'  => $o_repository->getCurrentBranch(),
+                    ':branch'  => $o_repository->getSelectedBranch(),
                     ':version' => $version
                 ]));
 
-                $o_repository->setCurrentBranch($version);
+                $o_repository->selectBranch($version);
             }
 
         } catch (NotExistsException) {
@@ -372,14 +395,14 @@ throw new UnderConstructionException();
 
 
     /**
-     * Deletes the specified branch from all known repositories
+     * Deletes the specified branch from all available repositories
      *
      * @param string $suffix
      * @param bool   $remote
      *
      * @return static
      */
-    public function deleteBranch(string $suffix, bool $remote = true): static
+    public function deleteAutoBranch(string $suffix, bool $remote = true): static
     {
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
@@ -409,7 +432,69 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns true if the current git branch for this repository is equal to the specified branch
+     * Returns true if any repository is on the specified branch
+     *
+     * @param string $branch              The branch that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     * *                                  not yet exist
+     * @return bool
+     */
+    public function anyHasBranch(string $branch, bool $auto_create = false): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->branchExists($branch, auto_create: $auto_create)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if all repository is on the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function allHaveBranch(string $branch): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->branchExists($branch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if not all repositories have the specified branch
+     *
+     * @param string $branch              The branch that must exist in all repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     *                                    not yet exist
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkAllHaveBranch(string $branch, string $action, bool $auto_create = false): static
+    {
+        if (!$this->anyHasBranch($branch, $auto_create)) {
+            throw new RepositoriesException(ts('Cannot perform action ":action", one or more repositories do not have the required branch ":branch"', [
+                ':action' => $action,
+                ':branch' => $branch
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if any repository is on the specified branch
      *
      * @param string $branch
      *
@@ -428,7 +513,26 @@ throw new UnderConstructionException();
 
 
     /**
-     * Throws a RepositoriesException if any of the known repositories currently has the specified branch selected
+     * Returns true if all repository is on the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function allAreOnBranch(string $branch): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->isOnBranch($branch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified branch selected
      *
      * NOTE: Will NOT throw the exception when running in FORCE mode
      *
@@ -473,7 +577,7 @@ throw new UnderConstructionException();
 
 
     /**
-     * Throws a RepositoriesException if any of the known repositories currently has the specified tag selected
+     * Throws a RepositoriesException if any of the available repositories currently has the specified tag selected
      *
      * NOTE: Will NOT throw the exception when running in FORCE mode
      *
@@ -506,6 +610,41 @@ throw new UnderConstructionException();
     {
         foreach ($this as $o_repository) {
             $o_repository->createTag($name, $message, $signed);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified tag from all repositories
+     *
+     * @param string $tag The tag to delete from the currently selected tag
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->deleteTag($tag);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     * @return static
+     */
+    public function selectTag(string $branch, bool $auto_create = false, bool $upstream = false): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->selectTag($branch, $auto_create, $upstream);
         }
 
         return $this;
@@ -549,6 +688,61 @@ throw new UnderConstructionException();
 
 
     /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     * @return static
+     */
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    {;
+        $this->checkAllHaveBranch($branch, ts('select branch'), $auto_create);
+
+        foreach ($this as $o_repository) {
+            $o_repository->selectBranch($branch, $auto_create, $upstream);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified branch for all repositories
+     *
+     * @param string $branch The branch to create from the currently selected branch
+     * @param bool   $reset  If true, will first reset the repository before creating the new branch
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->createBranch($branch, $reset);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified branch from all repositories
+     *
+     * @param string $branch The branch to delete from the currently selected branch
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->deleteBranch($branch);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Synchronizes all selected branch repositories so they are all on the correct branch
      *
      * @param string|null $suffix
@@ -583,13 +777,13 @@ throw new UnderConstructionException();
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->hasBranch($branch)) {
-                Log::action(ts('Automatically selecting branch ":branch" for ":type" repository ":repository"', [
+                Log::action(ts('Selecting auto-branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->setCurrentBranch($branch);
+                $o_repository->selectBranch($branch);
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available

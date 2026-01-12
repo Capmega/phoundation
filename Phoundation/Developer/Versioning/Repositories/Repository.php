@@ -468,11 +468,11 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param string $branch
      * @param bool $auto_create
      * @param bool $upstream
-     * @return Repository
+     * @return static
      */
-    public function setCurrentBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
-        $this->o_git->setCurrentBranch($branch, $auto_create, $upstream);
+        $this->o_git->selectBranch($branch, $auto_create, $upstream);
         return $this;
     }
 
@@ -482,7 +482,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return string
      */
-    public function getCurrentBranch(): string
+    public function getSelectedBranch(): string
     {
         return $this->o_git->getCurrentBranch();
     }
@@ -507,7 +507,7 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param string $branch
      * @param string $action
      *
-     * @return Repository
+     * @return static
      */
     public function checkIsOnBranch(string $branch, string $action): static
     {
@@ -526,13 +526,26 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch         The branch to search for
-     * @param bool   $check_tags_too If true will search for the branch name in the tags list as well
+     * @param string $branch                 The branch to search for
+     * @param bool   $check_tags_too         If true will search for the branch name in the tags list as well
+     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it
+     *                                       does not yet exist
+     *
      * @return bool
      */
-    public function branchExists(string $branch, bool $check_tags_too = true): bool
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool
     {
-        return array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+        $exists = array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+
+        if (!$exists) {
+            // Branch does not yet exist for this repository, create it automatically?
+            if ($auto_create) {
+                $this->createBranch($branch);
+                return true;
+            }
+        }
+
+        return $exists;
     }
 
 
@@ -553,22 +566,8 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Creates the specified new branch in this repository
      *
-     * @param string $branch
-     *
-     * @return static
-     */
-    public function selectBranch(string $branch): static
-    {
-        $this->o_git->selectBranch($branch);
-        return $this;
-    }
-
-
-    /**
-     * Creates the specified new branch in this repository
-     *
-     * @param string $branch
-     * @param bool   $reset
+     * @param string $branch The branch to create from the currently selected branch
+     * @param bool   $reset  If true, will first reset the repository before creating the new branch
      *
      * @return static
      */

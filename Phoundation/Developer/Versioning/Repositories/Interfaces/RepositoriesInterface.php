@@ -72,7 +72,7 @@ interface RepositoriesInterface extends DataIteratorInterface
     public function scan(PhoPathInterface $path, bool $delete_gone = true): static;
 
     /**
-     * Returns true when any of the known repositories has changes
+     * Returns true when any of the available repositories has changes
      *
      * @return bool
      */
@@ -86,4 +86,54 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return bool
      */
     public function anyIsOnBranch(string $branch): bool;
+
+    /**
+     * Creates the specified branch for all repositories
+     *
+     * @param string $branch The branch to create from the currently selected branch
+     * @param bool   $reset  If true, will first reset the repository before creating the new branch
+     *
+     * @return static
+     */
+    public function createBranch(string $branch, bool $reset = false): static;
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     *
+     * @return static
+     */
+    public function selectTag(string $branch, bool $auto_create = false, bool $upstream = false): static;
+
+    /**
+     * Deletes the specified branch from all repositories
+     *
+     * @param string $branch The branch to delete from the currently selected branch
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch): static;
+
+    /**
+     * Throws a RepositoriesException if not all repositories have the specified branch
+     *
+     * @param string $branch
+     * @param string $action
+     *
+     * @return static
+     */
+    public function checkAllHaveBranch(string $branch, string $action): static;
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     * @return static
+     */
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static;
 }

@@ -216,13 +216,13 @@ class Phoundation extends Project
             }
 
             // Select the previous branch and reset it
-            $this->o_git->setCurrentBranch($this->branch);
+            $this->o_git->selectBranch($this->branch);
             $this->branch = null;
 
         } else {
             // Select the new branch and store the previous
             $this->branch = $this->o_git->getCurrentBranch();
-            $this->o_git->setCurrentBranch($branch);
+            $this->o_git->selectBranch($branch);
         }
 
         return $this;
