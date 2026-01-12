@@ -95,7 +95,7 @@ USEFUL COMMANDS:
 ./pho accounts users list               Lists all available users on the command line.
 
 
-GLOBAL SYSTEM ARGUMENTS
+OPTIONAL GLOBAL SYSTEM ARGUMENTS
 
 
 The following arguments are available to ALL commands
