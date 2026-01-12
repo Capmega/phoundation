@@ -290,7 +290,7 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @param bool $all [FALSE] If true, will return all branches, including the ones that have not been checked out locally
+     * @param bool $all [false] If true will also check remote repositories
      *
      * @return array
      */

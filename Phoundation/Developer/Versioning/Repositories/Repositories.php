@@ -18,6 +18,7 @@ namespace Phoundation\Developer\Versioning\Repositories;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
@@ -196,21 +197,6 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function getDeletedCount(): ?int
     {
         return count($this->getDeleted());
-    }
-
-
-    /**
-     * Returns the entry with the specified identifier
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
-     *
-     * @return RepositoryInterface|null
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface
-    {
-        return parent::get($key, $default, $exception);
     }
 
 
@@ -652,5 +638,41 @@ throw new UnderConstructionException();
         }
 
         return $phoundation;
+    }
+
+
+    /**
+     * Returns the current RepositoryInterface object
+     *
+     * @return RepositoryInterface
+     */
+    public function current(): RepositoryInterface
+    {
+        return current($this->source);
+    }
+
+
+    /**
+     * Returns the entry with the specified identifier
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool|null                   $exception
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
+    {
+        return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     *
+     * @return RepositoryInterface
+     */
+    public function getRandom(): RepositoryInterface
+    {
+        return parent::getRandom();
     }
 }

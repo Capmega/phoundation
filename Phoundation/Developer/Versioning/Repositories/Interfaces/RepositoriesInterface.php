@@ -4,6 +4,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use ReturnTypeWillChange;
 use Stringable;
 
 
@@ -50,18 +51,6 @@ interface RepositoriesInterface extends DataIteratorInterface
 
 
     /**
-     * Returns the entry with the specified identifier
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
-     *
-     * @return RepositoryInterface|null
-     */
-    public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface;
-
-
-    /**
      * Scans for repositories on the current machine and registers them in the database
      *
      * @param PhoPathInterface $path
@@ -86,4 +75,28 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return bool
      */
     public function anyIsOnBranch(string $branch): bool;
+
+    /**
+     * Returns the current RepositoryInterface object
+     *
+     * @return RepositoryInterface
+     */
+    public function current(): RepositoryInterface;
+
+    /**
+     * Returns the entry with the specified identifier
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed                       $default
+     * @param bool|null                   $exception
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface;
+
+    /**
+     *
+     * @return RepositoryInterface
+     */
+    public function getRandom(): RepositoryInterface;
 }

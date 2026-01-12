@@ -180,11 +180,11 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @param string $version
      * @param string $branch
-     *
+     * @param bool   $check_tags_too [false]
+     * @param bool   $check_all      [false] If true will also check remote repositories
      * @return static
-     * @throws RepositoriesVersionBranchNotExistsException
      */
-    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static;
+    public function checkHasSuffixOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static;
 
     /**
      * Returns true if this repository has the requested suffix or version branch available
@@ -234,4 +234,9 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function tagExists(string $tag): bool;
+
+    /**
+     * @return static
+     */
+    public function loadDetails(): static;
 }

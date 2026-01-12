@@ -270,13 +270,13 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @param string $version
      * @param string $branch
-     *
+     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @param bool   $check_all      [false] If true will also check remote repositories
      * @return static
-     * @throws RepositoriesVersionBranchNotExistsException
      */
-    public function checkHasSuffixOrVersionBranch(string $version, string $branch): static
+    public function checkHasSuffixOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static
     {
-        if (!$this->hasBranchOrVersionBranch($version, $branch)) {
+        if (!$this->hasBranchOrVersionBranch($version, $branch, $check_tags_too, $check_all)) {
             if ($branch and ($version !== $branch)) {
                 throw RepositoriesVersionBranchNotExistsException::new(ts('The repository ":repository" does not have the required suffix branch ":suffix" nor version branch ":version"', [
                     ':repository' => $this->getName(),
@@ -526,13 +526,15 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch         The branch to search for
-     * @param bool   $check_tags_too If true will search for the branch name in the tags list as well
+     * @param string $branch                 The branch to search for
+     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @param bool   $check_all      [false] If true will also check remote repositories
+     *
      * @return bool
      */
-    public function branchExists(string $branch, bool $check_tags_too = true): bool
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $check_all = false): bool
     {
-        return array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+        return array_key_exists($branch, $this->o_git->getBranches($check_all)) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
     }
 
 
@@ -541,12 +543,14 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @param string $version
      * @param string $branch
+     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @param bool   $check_all      [false] If true will also check remote repositories
      *
      * @return bool
      */
-    public function hasBranchOrVersionBranch(string $version, string $branch): bool
+    public function hasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = false, bool $check_all = false): bool
     {
-        return $this->branchExists($version) or $this->branchExists($branch);
+        return $this->branchExists($version, $check_tags_too, $check_all) or $this->branchExists($branch, $check_tags_too, $check_all);
     }
 
 
