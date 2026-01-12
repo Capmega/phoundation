@@ -271,7 +271,7 @@ throw new UnderConstructionException();
     {
         $o_return = StatusFiles::new();
 
-        foreach (Repositories::new()->load() as $o_repository) {
+        foreach ($this as $o_repository) {
             $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
             $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
 //'repository' => $o_repository->getName(),
@@ -648,7 +648,7 @@ throw new UnderConstructionException();
      */
     public function current(): RepositoryInterface
     {
-        return current($this->source);
+        return parent::current($this->source);
     }
 
 
@@ -668,6 +668,7 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns a random Repository
      *
      * @return RepositoryInterface
      */
