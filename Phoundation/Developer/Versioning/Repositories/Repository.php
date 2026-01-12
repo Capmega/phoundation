@@ -589,26 +589,6 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Deletes the specified branch from this repository
-     *
-     * @param string      $branch        The branch to delete
-     * @param string|bool $remote [true] If string value or true, will delete the branch from the default (for true) or specified remote repository
-     *
-     * @return static
-     */
-    public function deleteBranch(string $branch, string|bool $remote = true): static
-    {
-        $this->o_git->deleteBranch($branch, FORCE);
-
-        if ($remote) {
-            $this->o_git->deleteBranchRemote($branch, $remote);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
      * @param string      $branch        The auto-branch suffix to delete
@@ -616,7 +596,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return static
      */
-    public function deleteAutoBranch(string $branch, string|bool $remote = false): static
+    public function deleteBranch(string $branch, string|bool $remote = false): static
     {
         // Select what remote to use, if any
         $remote = $this->selectRemoteRepository($remote);
@@ -697,26 +677,6 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Deletes the specified tag from this repository
-     *
-     * @param string      $tag The tag to delete
-     * @param string|bool $remote If string value or true, will delete the tag from the default (for true) or specified remote repository
-     *
-     * @return static
-     */
-    public function deleteTag(string $tag, string|bool $remote = true): static
-    {
-        $this->o_git->deleteTag($tag, FORCE);
-
-        if ($remote) {
-            $this->o_git->deleteTagRemote($tag, $remote);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Returns true if the current git tag for this repository is equal to the specified tag
      *
      * @param string $tag
@@ -773,7 +733,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return static
      */
-    public function deleteAutoTag(string $tag, string|bool $remote_repository = false): static
+    public function deleteTag(string $tag, string|bool $remote_repository = false): static
     {
         // Select what remote to use, if any
         $remote_repository = $this->selectRemoteRepository($remote_repository);

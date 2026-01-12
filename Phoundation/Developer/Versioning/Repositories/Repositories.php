@@ -744,7 +744,7 @@ throw new UnderConstructionException();
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
             $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $o_repository->deleteAutoBranch($branch, $remote);
+            $o_repository->deleteBranch($branch, $remote);
         }
 
         return $this;
@@ -856,7 +856,7 @@ throw new UnderConstructionException();
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
             $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $o_repository->deleteAutoTag($branch, $remote);
+            $o_repository->deleteTag($branch, $remote);
         }
 
         return $this;

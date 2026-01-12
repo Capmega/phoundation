@@ -148,7 +148,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function deleteAutoBranch(string $branch, string|false $remote = false): static;
+    public function deleteBranch(string $branch, string|false $remote = false): static;
 
     /**
      * Returns true if the current git branch for this repository is equal to the specified branch

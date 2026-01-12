@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class BranchNotAvailableException
+ * Class GitBranchNotExistException
  *
  *
  *
@@ -16,6 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Exception;
 
-class BranchNotExistException extends GitException
+class GitBranchNotExistException extends GitException
 {
 }

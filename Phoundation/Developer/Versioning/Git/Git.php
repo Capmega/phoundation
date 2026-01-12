@@ -20,8 +20,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Versioning\Git\Exception\BranchNotExistException;
+use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
+use Phoundation\Developer\Versioning\Git\Exception\GitTagNotExistException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Versioning;
@@ -181,7 +182,7 @@ class Git extends Versioning implements GitInterface
         if (!$this->branchExists($branch)) {
             // The requested branch does not exist!
             if (!$auto_create) {
-                throw BranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
+                throw GitBranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
                     ':branch'     => $branch,
                     ':repository' => $this->o_directory
                 ]))->addHint(ts('Set $auto_create to true to automatically create the requested branch from the currently selected branch if it does not exist'));
@@ -192,6 +193,28 @@ class Git extends Versioning implements GitInterface
         }
 
         return $this->checkout($branch);
+    }
+
+
+    /**
+     * Sets the current git tag for this directory
+     *
+     * @param string $tag The name of the tag to select
+     * @return static
+     */
+    public function selectTag(string $tag): static
+    {
+        $this->verifyTag($tag);
+
+        if (!$this->tagExists($tag)) {
+            // The requested tag does not exist!
+            throw GitTagNotExistException::new(ts('Cannot set current tag to ":tag" on repository ":repository", the tag does not exist', [
+                ':tag'        => $tag,
+                ':repository' => $this->o_directory
+            ]))->addHint(ts('Set $auto_create to true to automatically create the requested tag from the currently selected tag if it does not exist'));
+        }
+
+        return $this->checkout($tag);
     }
 
 
@@ -348,7 +371,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return bool
      */
-    public function hasTag(string $tag): bool
+    public function tagExists(string $tag): bool
     {
         $this->verifyTag($tag);
         return array_key_exists($tag, $this->getTags());
@@ -368,7 +391,7 @@ class Git extends Versioning implements GitInterface
         $this->checkRemoteExists($remote)
              ->verifyTag($tag);
 
-        if ($this->hasTag($tag)) {
+        if ($this->tagExists($tag)) {
             $output = $this->o_process->clearArguments()
                                       ->addArguments(['push', $remote, ':' . $tag])
                                       ->executeReturnArray();

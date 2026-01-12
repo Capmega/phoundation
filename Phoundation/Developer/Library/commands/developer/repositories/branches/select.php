@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Versioning\Git\Exception\BranchNotExistException;
+use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
 
@@ -67,7 +67,7 @@ try {
     // Switch the branch!
     Repositories::new()->load()->selectBranch($argv['branch'], $argv['auto_create'] or $argv['auto_upstream'], $argv['auto_upstream']);
 
-} catch (RepositoriesException|BranchNotExistException $e) {
+} catch (RepositoriesException|GitBranchNotExistException $e) {
     throw $e->makeWarning();
 }
 
