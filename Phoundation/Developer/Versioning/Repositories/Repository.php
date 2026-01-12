@@ -356,10 +356,17 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Executing fetch from remote ":remote" on repository ":repository"', [
-            ':repository' => $this->getName(),
-            ':remote'     => $remote,
-        ]));
+        if ($remote) {
+            Log::action(ts('Executing fetch from remote ":remote" on repository ":repository"', [
+                ':repository' => $this->getName(),
+                ':remote'     => $remote,
+            ]));
+
+        } else {
+            Log::action(ts('Executing fetch from all remotes on repository ":repository"', [
+                ':repository' => $this->getName(),
+            ]));
+        }
 
         $this->o_git->fetch($remote, $all);
         return $this;

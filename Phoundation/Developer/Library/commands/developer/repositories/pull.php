@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer git repositories list
+ * Command developer git repositories pull
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will list all known phoundation repositories
+ * This command will pull all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,15 +22,20 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 
 
 // Start documentation
-CliDocumentation::setAutoComplete();
+CliDocumentation::setAutoComplete([
+    'arguments' => [
+        '-a' => false
+    ]
+]);
 
-CliDocumentation::setUsage('./pho development repositories list
-./pho dv rp ls
-./pho development rp ls -A');
+CliDocumentation::setUsage('./pho development repositories pull
+./pho dv rp pl
+./pho development rp pl -A
+./pho development rp pull -A --remote origin');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will list all known phoundation repositories 
+This command will execute a pull on all known phoundation repositories 
 
 
 ARGUMENTS
@@ -42,18 +47,17 @@ ARGUMENTS
 OPTIONAL ARGUMENTS
 
 
-[-A]                                    If specified, will list all repositories (including deleted)'));
+[-b, --branch BRANCH_NAME]                     If specified, will pull from the specified remote branch (must exist)
+
+[-r, --remote REMOTE_REPOSITORY]               If specified, will pull from the specified remote repository (must exist)'));
 
 
 // Get command line arguments
-$argv = ArgvValidator::new()->validate();
+$argv = ArgvValidator::new()
+                     ->select('-b,--branch')->isOptional()->isCode()
+                     ->select('-r,--remote')->isOptional()->isCode()
+                     ->validate();
 
 
-// List known repositories
-Repositories::new()->load()->ksort()->displayCliTable([
-    'name'     => ts('Repository name'),
-    'platform' => ts('Platform'),
-    'type'     => ts('Type'),
-    'required' => ts('Required'),
-    'path'     => ts('Path'),
-]);
+// Execute git pull on all known repositories
+Repositories::new()->load()->pull($argv['remote'], $argv['branch']);

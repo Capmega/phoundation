@@ -270,5 +270,16 @@ interface GitInterface
      * @return static
      */
     public function createTag(string $tag, ?string $message = null, bool $signed = false): static;
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string|null $repository        The repository to pull from. If not specified, the "origin" default will be used, unless an upstream was specified
+     *                                       for the current branch
+     * @param bool        $all        [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     *
+     * @return static
+     */
+    public function fetch(?string $repository, bool $all = true): static;
 }
 

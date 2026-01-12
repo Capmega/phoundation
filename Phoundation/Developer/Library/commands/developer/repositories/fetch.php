@@ -24,13 +24,14 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 // Start documentation
 CliDocumentation::setAutoComplete([
     'arguments' => [
-        '-a' => false
+        '-a'          => false,
+        '-r,--remote' => true
     ]
 ]);
 
 CliDocumentation::setUsage('./pho development repositories fetch
-./pho dv rp ls
-./pho development rp ls -A');
+./pho dv rp ft
+./pho development rp ft -A --remote origin');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -48,14 +49,17 @@ OPTIONAL ARGUMENTS
 
 [-A, --all]                                    If specified, will fetch all repositories (including deleted)
 
+[-r, --remote REMOTE_REPOSITORY]               If specified, will fetch from the specified remote repository (must exist)
+
 [-a]                                           If specified, will execute fetch --all'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('-a')->isOptional()->isBoolean()
+                     ->select('-r,--remote')->isOptional()->isCode()
                      ->validate();
 
 
 // Execute git pull on all known repositories
-Repositories::new()->load()->fetch($argv['a']);
+Repositories::new()->load()->fetch($argv['remote'] ?? false, $argv['a']);
