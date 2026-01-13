@@ -54,5 +54,5 @@ $argv = ArgvValidator::new()
 
 
 // Delete the tag!
-Repositories::new($argv['repository'])->deleteAutoTag($argv['name']);
+Repositories::new($argv['repository'])->deleteTag($argv['name']);
 

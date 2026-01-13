@@ -69,4 +69,4 @@ Log::cli(ts('Deleting branches for ":count" repositories, this might take a few 
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->deleteAutoBranch($argv['branch'], !$argv['not_remote']);
+$o_repositories->deleteBranch($argv['branch'], !$argv['not_remote']);

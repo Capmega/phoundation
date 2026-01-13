@@ -401,9 +401,9 @@ throw new UnderConstructionException();
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
-        $this->verifyProjectRepositoryVersion(ts('delete branch'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnBranch($project_branch    , ts('delete branch'));
+        $this->verifyProjectRepositoryVersion(ts('delete auto branch'))
+             ->checkAnyIsOnBranch($phoundation_branch, ts('delete auto branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkAnyIsOnBranch($project_branch    , ts('delete auto branch'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
