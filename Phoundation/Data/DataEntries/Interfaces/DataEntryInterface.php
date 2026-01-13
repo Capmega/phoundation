@@ -905,13 +905,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function addPermittedColumns(array|string|null $columns): static;
 
     /**
-     * Returns true if this DataEntry object was loaded from cache
-     *
-     * @return static
-     */
-    public function setIsLoaded(): static;
-
-    /**
      * Returns the source without processing any data first
      *
      * @return array
