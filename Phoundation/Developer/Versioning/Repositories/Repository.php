@@ -75,7 +75,7 @@ class Repository extends DataEntry implements RepositoryInterface
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
         $this->setPermittedColumns(['branch'])
-             ->addEventHandler('loaded', function () {
+             ->addEventHandlerDeprecated('loaded', function () {
                  $this->setBranch($this->o_git->getSelectedBranch(true));
              });
 

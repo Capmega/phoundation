@@ -9,6 +9,7 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Data
+ * @deprecated
  */
 
 
@@ -25,6 +26,8 @@ use TypeError;
 
 trait TraitDataEventHandler
 {
+    // TODO DEPRECATED This event handler must be merged with the Utils\Traits\TraitEventHandler class
+
     /**
      * The data for this object
      *
@@ -169,7 +172,7 @@ trait TraitDataEventHandler
             $handler = $this->event_handlers[$event]['event'];
 
             if ($this->event_handlers[$event]['clear']) {
-                $this->clearEventHandler($event);
+                $this->clearEventHandlerDeprecated($event);
             }
 
             if (is_callable($handler)) {
@@ -198,9 +201,9 @@ trait TraitDataEventHandler
      *
      * @return static
      */
-    public function addEventHandler(string $event, mixed $handler, bool $clear_after_execute = false): static
+    public function addEventHandlerDeprecated(string $event, mixed $handler, bool $clear_after_execute = false): static
     {
-        return $this->setEventHandler($event, $handler, $clear_after_execute);
+        return $this->setEventHandlerDeprecated($event, $handler, $clear_after_execute);
     }
 
 
@@ -213,7 +216,7 @@ trait TraitDataEventHandler
      *
      * @return static
      */
-    public function setEventHandler(string $event, mixed $handler, bool $clear_after_execute = false): static
+    public function setEventHandlerDeprecated(string $event, mixed $handler, bool $clear_after_execute = false): static
     {
         $this->checkEventIsAllowed($event);
 
@@ -242,7 +245,7 @@ trait TraitDataEventHandler
      *
      * @return static
      */
-    public function clearEventHandler(string $event): static
+    public function clearEventHandlerDeprecated(string $event): static
     {
         unset($this->event_handlers[$event]);
         return $this;
@@ -254,7 +257,7 @@ trait TraitDataEventHandler
      *
      * @return array
      */
-    public function getEventHandlers(): array
+    public function getEventHandlersDeprecated(): array
     {
         return $this->event_handlers;
     }
@@ -267,13 +270,13 @@ trait TraitDataEventHandler
      *
      * @return TraitDataEventHandler
      */
-    public function setEventHandlers(IteratorInterface|array|null $events): static
+    public function setEventHandlersDeprecated(IteratorInterface|array|null $events): static
     {
         $this->event_handlers = [];
 
         if ($events) {
             foreach ($events as $event => $handler) {
-                $this->setEventHandler($event, $handler);
+                $this->setEventHandlerDeprecated($event, $handler);
             }
         }
 

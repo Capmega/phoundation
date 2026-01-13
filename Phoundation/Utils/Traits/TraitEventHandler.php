@@ -16,14 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils\Traits;
 
-use Phoundation\Data\Exception\EventException;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Interfaces\EventsInterface;
 use Phoundation\Utils\Events;
 use Stringable;
 
 
-trait TraitDataEventHandler
+trait TraitEventHandler
 {
     /**
      * The path to use
@@ -63,21 +63,6 @@ trait TraitDataEventHandler
 
 
     /**
-     * Adds the handler for the specified event
-     *
-     * @param string   $event     The name for this event handler
-     * @param callable $handler   The handler callback for the specified event
-     * @param bool     $exception Will not throw an exception if the specified event has already been registered before
-     * @return TraitDataEventHandler
-     */
-    public function addEventHandler(string $event, callable $handler, bool $exception = true): static
-    {
-        $this->getEventsObject()->add($handler, $event, true, $exception);
-        return $this;
-    }
-
-
-    /**
      * Triggers the specified event
      *
      * If the event exists in the Event handler object, the event will be executed
@@ -97,47 +82,31 @@ trait TraitDataEventHandler
 
 
     /**
-     * Returns the event for a specified key
+     * Adds the handler for the specified event
      *
-     * @param string      $event
-     * @param string|null $in_script
+     * @param string   $event     The name for this event handler
+     * @param callable $handler   The handler callback for the specified event
+     * @param bool     $exception Will not throw an exception if the specified event has already been registered before
      *
-     * @return array
+     * @return static
      */
-    public function getEventHandler(string $event, ?string $in_script = null): mixed
+    public function addEventHandler(string $event, callable $handler, bool $exception = true): static
     {
-        if (array_key_exists($event, $this->event_handlers)) {
-            $handler = $this->event_handlers[$event]['event'];
-
-            if ($this->event_handlers[$event]['clear']) {
-                $this->clearEventHandler($event);
-            }
-
-            if (is_callable($handler)) {
-                $handler = $handler();
-            }
-
-            if ($in_script) {
-                $handler = str_replace(':SCRIPT', $handler, $in_script);
-            }
-
-            return $handler;
-        }
-
-        return null;
+        $this->getEventsObject()->add($handler, $event, true, $exception);
+        return $this;
     }
 
 
     /**
-     * Sets the handler for the specified event type
+     * Sets the handler for the specified event name
      *
-     * @param array|string $events
-     * @param mixed        $handler
-     * @param bool         $clear_after_execute
-     *
+     * @param array|string $events           The name of the event
+     * @param callable     $handler          The handler function that will be executed when this event is triggered
+     * @param bool         $exception [true] If true, will throw an IteratorKeyExistsException
      * @return static
+     * @throws IteratorKeyExistsException
      */
-    public function setEventHandler(array|string $events, mixed $handler, bool $clear_after_execute = false): static
+    public function setEventHandlers(array|string $events, callable $handler, bool $exception = true): static
     {
         $events = Arrays::force($events);
 
@@ -146,32 +115,15 @@ trait TraitDataEventHandler
                 break;
 
             case 1:
-                $event = array_pop($events);
-
-                $this->o_events->checkIsAllowed($event);
-
-                if (array_key_exists($event, $this->event_handlers)) {
-                    throw EventException::new(ts('The specified event ":event" already exists for class ":class"', [
-                        ':event' => $event,
-                        ':class' => static::class,
-                    ]));
-                }
-
-                if (is_callable($handler)) {
-                    $handler = $handler($this);
-                }
-
-                $this->event_handlers[$event]['event'] = $handler;
-                $this->event_handlers[$event]['clear'] = $clear_after_execute;
+                $this->getEventsObject()->add($handler, array_pop($events), true, $exception);
                 break;
 
             default:
                 // Set this handler for multiple events
                 foreach ($events as $event) {
-                    $this->setEventHandler($event, $handler, $clear_after_execute);
+                    $this->setEventHandlers($event, $handler, $exception);
                 }
         }
-
 
         return $this;
     }
