@@ -456,7 +456,7 @@ throw new UnderConstructionException();
      *
      * @param string $branch              The branch that must exist in any repositories
      * @param string $action              The action displayed in the exception, if thrown
-     * @param bool   $auto_create [false] If true, will automaticanyy create the branch on each repository where it does
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
      *                                    not yet exist
      * @return static
      * @throws RepositoriesBranchExistsException
@@ -819,8 +819,8 @@ throw new UnderConstructionException();
     /**
      * Throws a RepositoriesException if not any repositories have the specified tag
      *
-     * @param string $tag              The tag that must exist in any repositories
-     * @param string $action              The action displayed in the exception, if thrown
+     * @param string $tag    The tag that must exist in any repositories
+     * @param string $action The action displayed in the exception, if thrown
      *
      * @return static
      * @throws RepositoriesTagExistsException
