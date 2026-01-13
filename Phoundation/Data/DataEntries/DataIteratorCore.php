@@ -650,7 +650,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Returns the random entry
+     * Returns a random entry
      *
      * @return mixed
      */

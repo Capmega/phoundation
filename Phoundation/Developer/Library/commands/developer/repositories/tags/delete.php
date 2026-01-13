@@ -24,17 +24,12 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 // Start documentation
 CliDocumentation::setAutoComplete([
     'positions' => [
-        0 => function ($word) {
-            return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
-        },
-        1 => function ($word) {
-            return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
-        },
+        0 => true,
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories tags delete TAG_NAME
-./pho dv rp tg dl TAG_NAME');
+CliDocumentation::setUsage('./pho development repositories tags delete NAME
+./pho dv rp tg dl NAME');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
@@ -44,15 +39,15 @@ This command will create a tag with the specified name for all repositories
 ARGUMENTS
 
 
-TAG_NAME                                The name of the tag to delete'));
+NAME                                    The name of the tag to delete'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('name', true)->isOptional()->isCode()
+                     ->select('name', true)->isCode()
                      ->validate();
 
 
 // Delete the tag!
-Repositories::new($argv['repository'])->deleteTag($argv['name']);
+Repositories::new()->load()->deleteTag($argv['name']);
 

@@ -16,14 +16,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Tags;
 
+use Phoundation\Cli\Cli;
+
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitStaticMethodNewWithRepository;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 
 
 class Tags extends IteratorCore implements Interfaces\TagsInterface
 {
+    use TraitDataObjectGit;
     use TraitDataObjectRepository;
     use TraitStaticMethodNewWithRepository;
 
@@ -54,86 +59,25 @@ class Tags extends IteratorCore implements Interfaces\TagsInterface
 
 
     /**
-     * Creates a new tag
+     * Creates and returns a CLI table for the data in this list
      *
-     * @param string $name
-     * @param string|null $message
-     * @param bool $signed
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
      * @return $this
      */
-    public function create(string $name, ?string $message = null, bool $signed = false): static
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
-        $this->o_repository->createTag($name, $message, $signed);
+        $source = [];
+
+        foreach ($this as $key => $value) {
+            $source[$key] = [
+                'tag' => $value,
+            ];
+        }
+
+        Cli::displayTable($source, $columns, $id_column);
         return $this;
     }
-
-
-// Obsolete code, must be removed
-//    /**
-//     * Returns the directory for this ChangedFiles object
-//     *
-//     * @param PhoDirectoryInterface $directory
-//     *
-//     * @return static
-//     */
-//    public function setDirectory(PhoDirectoryInterface $directory): static
-//    {
-//        $this->setGitDirectory($directory);
-//
-//        $results = Process::new('git')
-//                          ->setExecutionDirectory(new PhoDirectory(
-//                              $this->o_path,
-//                              PhoRestrictions::newWritableObject($this->o_path)
-//                          ))
-//                          ->addArgument('tag')
-//                          ->addArgument('--quiet')
-//                          ->addArgument('--no-color')
-//                          ->executeReturnArray();
-//
-//        foreach ($results as $line) {
-//            if (str_starts_with($line, '*')) {
-//                $this->source[substr($line, 2)] = true;
-//
-//            } else {
-//                $this->source[substr($line, 2)] = false;
-//            }
-//        }
-//
-//        return $this;
-//    }
-//
-//
-//    /**
-//     * Creates and returns a CLI table for the data in this list
-//     *
-//     * @param array|string|null $columns
-//     * @param array             $filters
-//     * @param string|null       $id_column
-//     *
-//     * @return static
-//     */
-//    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'tag'): static
-//    {
-//        $list = [];
-//
-//        foreach ($this->getSource() as $tag => $selected) {
-//            $list[$tag] = ['selected' => $selected ? '*' : ''];
-//        }
-//
-//        $filters = array_replace(
-//            $filters,
-//            [
-//                'tag'   => tr('Tag'),
-//                'selected' => tr('Selected'),
-//            ]
-//        );
-//
-//        Cli::displayTable(
-//            $list,
-//            $filters,
-//            $id_column
-//        );
-//
-//        return $this;
-//    }
 }

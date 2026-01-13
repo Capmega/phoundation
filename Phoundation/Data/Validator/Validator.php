@@ -474,11 +474,87 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *       unless $also_if_selected_is_default is true
      *
      * @param IteratorInterface|array|string $keys
+     * @param bool                           $also_if_selected_is_default If true, and the specified column is not empty but contains a default value, it will
+     *                                                                    be treated as if it is empty
+     *
+     * @return static
+     */
+    public function requiresColumnsEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
+    {
+        $keys = Arrays::force($keys);
+
+        if (empty($keys)) {
+            throw new OutOfBoundsException(tr('Cannot test field ":field" for required keys being empty, no keys were specified', [
+                ':field' => $this->selected_field
+            ]));
+        }
+
+        return $this->validateValues(function (&$value) use ($keys, $also_if_selected_is_default) {
+            $restricted = [];
+
+            if (!$this->hasOptionalValue($value) or $also_if_selected_is_default) {
+                // Ensure we have clean keys to test, test all keys
+                foreach ($keys as $key) {
+                    $clean_key = Strings::ensureBeginsNotWith($key, '-');
+                    $clean_key = str_replace('-', '_', $clean_key);
+
+                    // This key likely WILL exist (because if not specified, it would be defaulted or already failed)
+                    // So do not test with array_key_exists() but with empty() instead, NULL or "" or false will be used as
+                    // "not specified"
+                    if (!empty($this->source[$clean_key])) {
+                        $restricted[] = $key;
+                    }
+                }
+
+                // Any keys missing?
+                switch (count($restricted)) {
+                    case 0:
+                        // All required fields are empty, yay!
+                        break;
+
+                    case 1:
+                        // 1 field failed
+                        $value = [];
+                        $this->addSoftFailure(tr('requires that the field ":key" is not specified', [
+                            ':key' => current($restricted),
+                        ]));
+
+                        break;
+
+                    default:
+                        // Multiple fields failed
+                        $value = [];
+                        $this->addSoftFailure(tr('requires that the fields ":key" are not specified', [
+                            ':key' => Strings::force($restricted, ', '),
+                        ]));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Requires that the specified keys are available for this key to be valid
+     *
+     * @note This test does not count as an "executed test" to be able to select the next key. If only this test was
+     *       executed for the selected key, and a next key will be selected, an ValidationFailedException exception will
+     *       still be thrown
+     *
+     * @note This test requires that the specified keys have already been tested before, as it does not know what keys
+     *       will be tested after, and if they will default or not
+     *
+     * @note This test will not test for the existence of the specified key, as they SHOULD exist (See previous note) so
+     *       it will test if they are not empty. If the specified keys are empty, the field will fail.
+     *
+     * @note This will only require the specified keys are not empty if the currently selected field is not default,
+     *       unless $also_if_selected_is_default is true
+     *
+     * @param IteratorInterface|array|string $keys
      * @param bool                           $also_if_selected_is_default
      *
      * @return static
      */
-    public function requiresNotEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
+    public function requiresColumnsNotEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
     {
         $keys = Arrays::force($keys);
 
@@ -1172,7 +1248,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     public function requiresField(int|string $field): static
     {
         if (!$this->selected_is_default) {
-            if (!array_key_exists($field, $this->source)) {
+            if (empty($this->source[$field])) {
                 $this->addSoftFailure(tr('requires field ":field" to have a valid value as well', [
                     ':field' => $field,
                 ]));
@@ -6803,7 +6879,7 @@ die();
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($failure) {
+        return $this->validateValues(function (&$selected_value) use ($value, $failure) {
             if (!$this->hasOptionalValue($value)) {
                 if ($value) {
                     $this->addSoftFailure($failure);

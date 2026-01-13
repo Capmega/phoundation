@@ -50,5 +50,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// List add for all known repositories
+// List add for all available repositories
 Repositories::new()->load()->getStatusObject($argv['human_readable'])->displayCliTable();

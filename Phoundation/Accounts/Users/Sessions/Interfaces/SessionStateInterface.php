@@ -25,7 +25,7 @@ interface SessionStateInterface
      * @param Stringable|string|float|int $key
      * @param Stringable|string|null      $page
      *
-     * @return $this
+     * @return static
      */
     public function set(Stringable|string|float|int $value, Stringable|string|float|int $key, Stringable|string|null $page = null): static;
 }

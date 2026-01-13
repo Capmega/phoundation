@@ -332,7 +332,7 @@ class VersionCore implements VersionInterface
      *
      * @param array $source The version array to validate
      *
-     * @return $this
+     * @return static
      */
     protected function validateVersionArray(array $source): static
     {

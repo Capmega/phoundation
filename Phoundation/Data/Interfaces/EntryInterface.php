@@ -76,7 +76,7 @@ interface EntryInterface extends ArraySourceInterface, CliFormInterface
      *
      * @param bool $exception
      *
-     * @return $this
+     * @return static
      */
     public function setExceptionOnGet(bool $exception): static;
 }

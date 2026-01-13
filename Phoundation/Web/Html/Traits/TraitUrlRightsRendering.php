@@ -151,7 +151,7 @@ trait TraitUrlRightsRendering
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function addRight(RightInterface|string|null $o_right): static
     {
@@ -165,7 +165,7 @@ trait TraitUrlRightsRendering
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function removeRight(RightInterface|string|null $o_right): static
     {
@@ -179,7 +179,7 @@ trait TraitUrlRightsRendering
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
-     * @return $this
+     * @return static
      */
     public function setRenderRightsFail(EnumAnchorRenderRightsFail $render_rights_fail): static
     {

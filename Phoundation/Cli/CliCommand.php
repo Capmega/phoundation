@@ -1347,7 +1347,7 @@ class CliCommand
             CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
             
             
-GLOBAL SYSTEM ARGUMENTS
+GLOBAL OPTIONAL SYSTEM ARGUMENTS
             
             
 ') . CliCommand::getHelpGlobalArguments(), false);

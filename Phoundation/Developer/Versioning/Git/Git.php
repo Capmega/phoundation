@@ -20,8 +20,9 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Versioning\Git\Exception\BranchNotExistException;
+use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
+use Phoundation\Developer\Versioning\Git\Exception\GitTagNotExistException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Versioning;
@@ -144,9 +145,10 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the current git branch for this directory
      *
-     * @return string
+     * @param bool $return_if_detached [false] If true will return the current branch if HEAD is detached
+     * @return string|null
      */
-    public function getCurrentBranch(): string
+    public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('branch')
@@ -154,7 +156,17 @@ class Git extends Versioning implements GitInterface
 
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
-                return trim(Strings::from($line, '*'));
+                $return = trim(Strings::from($line, '*'));
+
+                if (preg_match_all('/^\(HEAD detached at (.+?)\)$/', $return, $matches)) {
+                    if (!$return_if_detached) {
+                        return null;
+                    }
+
+                    $return = $matches[1][0];
+                }
+
+                return $return;
             }
         }
 
@@ -165,21 +177,72 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Returns the current git branch for this directory
+     *
+     * @return string|null
+     */
+    public function getSelectedTag(): ?string
+    {
+        if ($this->getSelectedBranch()) {
+            // A branch was selected, so no tag can be selected
+            return null;
+        }
+
+        $tags = $this->getTags();
+        $tag  = $this->getSelectedBranch(true);
+
+        if (array_key_exists($tag, $tags)) {
+            // This is an existing tag, it is the correct tag
+            return $tag;
+        }
+
+        // No branch or tag is selected, so likely were in detached mode
+        return null;
+    }
+
+
+    /**
+     * Returns whether git signing has been enabled in configuration or not
+     *
+     * @return bool
+     */
+    public static function getConfigSigned(): bool
+    {
+        return config()->getBoolean('versioning.git.signed', true);
+    }
+
+
+    /**
+     * Returns either the specified $sign when the value is true or false. When null, will return the default from Git::getConfigSign()
+     *
+     * @param bool|null $signed
+     *
+     * @return bool
+     */
+    public static function selectSigned(?bool $signed): bool
+    {
+        return $signed ?? Git::getConfigSigned();
+    }
+
+
+    /**
      * Sets the current git branch for this directory
      *
-     * @param string $branch
-     * @param bool $auto_create
-     * @param bool $upstream
+     * @param string      $branch              The name of the branch to select
+     * @param bool        $auto_create [false] If true, will automatically create the branch if it does not yet exist
+     * @param string|bool $upstream    [false] If specified, will automatically push the branch upstream to either the
+     *                                         default remote (if this variable is true), or the specified remote (if
+     *                                         this variable is a string containing the remote where to set upstream to)
      * @return static
      */
-    public function setCurrentBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    public function selectBranch(string $branch, bool $auto_create = false, string|bool $upstream = false): static
     {
         $this->verifyBranch($branch);
 
         if (!$this->branchExists($branch)) {
             // The requested branch does not exist!
             if (!$auto_create) {
-                throw BranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
+                throw GitBranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
                     ':branch'     => $branch,
                     ':repository' => $this->o_directory
                 ]))->addHint(ts('Set $auto_create to true to automatically create the requested branch from the currently selected branch if it does not exist'));
@@ -189,22 +252,40 @@ class Git extends Versioning implements GitInterface
             $this->createBranch($branch, upstream: $upstream);
         }
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('checkout')
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
+        return $this->checkout($branch);
+    }
 
-        Log::notice($output, 1, false);
-        return $this;
+
+    /**
+     * Sets the current git tag for this directory
+     *
+     * @param string $tag The name of the tag to select
+     * @return static
+     */
+    public function selectTag(string $tag): static
+    {
+        $this->verifyTag($tag);
+
+        if (!$this->tagExists($tag)) {
+            // The requested tag does not exist!
+            throw GitTagNotExistException::new(ts('Cannot set current tag to ":tag" on repository ":repository", the tag does not exist', [
+                ':tag'        => $tag,
+                ':repository' => $this->o_directory
+            ]))->addHint(ts('Set $auto_create to true to automatically create the requested tag from the currently selected tag if it does not exist'));
+        }
+
+        return $this->checkout($tag);
     }
 
 
     /**
      * Creates the specified GIT branch for this directory
      *
-     * @param string      $branch   The new branch name to create
-     * @param bool        $reset    If true, will reset the tree before creating the new branch
-     * @param string|bool $upstream If true, or repository name, will set this remote as the default upstream
+     * Note: This will NOT select the branch, only create it
+     *
+     * @param string      $branch           The new branch name to create
+     * @param bool        $reset    [false] If true, will reset the tree before creating the new branch
+     * @param string|bool $upstream [false] If true, or repository name, will set this remote as the default upstream
      * @return static
      */
     public function createBranch(string $branch, bool $reset = false, string|bool $upstream = false): static
@@ -218,10 +299,11 @@ class Git extends Versioning implements GitInterface
             ]));
         }
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArguments(['checkout', ($reset ? '-B' : '-b')])
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
+        $current = $this->getSelectedBranch();
+        $output  = $this->o_process->clearArguments()
+                                   ->addArguments(['checkout', ($reset ? '-B' : '-b')])
+                                   ->addArgument($branch)
+                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
 
@@ -229,15 +311,16 @@ class Git extends Versioning implements GitInterface
             return $this->push($this->getDefaultRemote($upstream), $branch, true);
         }
 
-        return $this;
+        return $this->selectBranch($current);
     }
 
 
     /**
      * Deletes the specified GIT branch for this directory
      *
-     * @param string $branch
-     * @param bool   $force
+     * @param string $branch         The name of the branch to delete
+     * @param bool   $force  [false] If true, will force deletion, even if there is a reason to stop the deletion, like
+     *                               the branch containing changes that haven't been merged anywhere yet
      *
      * @return static
      */
@@ -290,7 +373,8 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @param bool $all [false] If true will also check remote repositories
+     * @param bool $all [false] If true, will return all branches, including the ones that have not been checked out
+     *                          locally
      *
      * @return array
      */
@@ -344,14 +428,13 @@ class Git extends Versioning implements GitInterface
      * Returns the current git tag for this directory
      *
      * @param string $tag
-     * @param bool   $from_all
      *
      * @return bool
      */
-    public function hasTag(string $tag, bool $from_all = false): bool
+    public function tagExists(string $tag): bool
     {
         $this->verifyTag($tag);
-        return array_key_exists($tag, $this->getTags($from_all));
+        return array_key_exists($tag, $this->getTags());
     }
 
 
@@ -368,7 +451,7 @@ class Git extends Versioning implements GitInterface
         $this->checkRemoteExists($remote)
              ->verifyTag($tag);
 
-        if ($this->hasTag($tag, true)) {
+        if ($this->tagExists($tag)) {
             $output = $this->o_process->clearArguments()
                                       ->addArguments(['push', $remote, ':' . $tag])
                                       ->executeReturnArray();
@@ -405,15 +488,15 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Creates the specified tag for this GIT repository
+     * Creates the specified tag for this git repository
      *
      * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool        $signed  [FALSE] If true
+     * @param bool|null   $signed  [FALSE] If true, will sign the tag (Requires git has been configured for signing messages)
      * @return static
      */
-    public function createTag(string $tag, ?string $message = null, bool $signed = false): static
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
     {
         if ($this->branchExists($tag)) {
             throw new GitException(ts('Cannot create new tag ":tag" on repository ":repository", the tag already exists', [
@@ -425,8 +508,33 @@ class Git extends Versioning implements GitInterface
         $return = $this->o_process->clearArguments()
                                   ->addArgument('tag')
                                   ->addArguments(['-a', $tag])
-                                  ->addArguments($message ? ['-m', $message] : null)
-                                  ->addArguments($signed  ? ['-s']           : null)
+                                  ->addArguments($message                     ? ['-m', $message] : null)
+                                  ->addArguments($this->selectSigned($signed) ? ['-s']           : null)
+                                  ->executeReturnArray();
+
+        Log::notice($return, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified lightweight tag for this git repository
+     *
+     * @param string $tag The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $tag): static
+    {
+        if ($this->branchExists($tag)) {
+            throw new GitException(ts('Cannot create new tag ":tag" on repository ":repository", the tag already exists', [
+                ':tag'        => $tag,
+                ':repository' => $this->o_directory
+            ]));
+        }
+
+        $return = $this->o_process->clearArguments()
+                                  ->addArgument('tag')
+                                  ->addArguments($tag)
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -503,7 +611,7 @@ class Git extends Versioning implements GitInterface
                         ->executeReturnArray();
 
         foreach ($results as $result) {
-            preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
+            preg_match_all('/stash@\{(\d+)}:\s(.+)/', $result, $matches);
             $return[$matches[0][0]] = $matches[2][0];
         }
 
@@ -527,46 +635,6 @@ class Git extends Versioning implements GitInterface
 
         Log::notice($output, 1, false);
         return $this;
-    }
-
-
-    /**
-     * "Selects" the specified branch for this repository (Equivalent to git checkout branch)
-     *
-     * @param string $branch
-     *
-     * @return static
-     */
-    public function selectBranch(string $branch): static
-    {
-        if (array_key_exists($branch, $this->getBranches(true))) {
-            return $this->checkout($branch);
-        }
-
-        throw new GitException(ts('Cannot select branch ":branch" for repository ":repository", the branch does not exist', [
-            ':branch'     => $branch,
-            ':repository' => $this->o_directory,
-        ]));
-    }
-
-
-    /**
-     * "Selects" the specified tag for this repository (Equivalent to git checkout tag)
-     *
-     * @param string $tag
-     *
-     * @return static
-     */
-    public function selectTag(string $tag): static
-    {
-        if (array_key_exists($tag, $this->getTags())) {
-            return $this->checkout($tag);
-        }
-
-        throw new GitException(ts('Cannot select tag ":tag" for repository ":repository", the tag does not exist', [
-            ':tag'        => $tag,
-            ':repository' => $this->o_directory,
-        ]));
     }
 
 
@@ -704,19 +772,18 @@ class Git extends Versioning implements GitInterface
     /**
      * Resets the current branch to the specified revision
      *
-     * @param string $message
-     * @param bool   $signed
+     * @param string    $message
+     * @param bool|null $signed
      *
      * @return static
      */
     public function commit(string $message, ?bool $signed = null): static
     {
-        $signed = $signed ?? config()->getBoolean('versioning.git.sign', false);
         $output = $this->o_process->clearArguments()
                                   ->addArgument('commit')
                                   ->addArgument('-m')
                                   ->addArgument($message)
-                                  ->addArgument($signed ? '-s' : null)
+                                  ->addArgument($this->selectSigned($signed) ? '-s' : null)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -848,13 +915,15 @@ class Git extends Versioning implements GitInterface
     /**
      * Push the local changes to the remote repository / branch
      *
-     * @param string|null $repository
-     * @param string|null $branch
-     * @param bool        $set_upstream If true, will add the -u modifier to the git push command, automatically setting the target as the upstream branch
+     * @param string|null $repository   [null]  The remote repository to push to. If null, will push to the default repository
+     * @param string|null $branch       [null]  If specified will push only this branch
+     * @param bool        $push_tags    [true]  If true, will push the tags as well
+     * @param bool        $set_upstream [false] If true, will add the -u modifier to the git push command, automatically setting the target as the upstream
+     *                                  branch
      *
      * @return static
      */
-    public function push(?string $repository, ?string $branch = null, bool $set_upstream = false): static
+    public function push(?string $repository = null, ?string $branch = null, bool $push_tags = true, bool $set_upstream = false): static
     {
         $this->verifyBranch($branch);
 
@@ -898,14 +967,17 @@ class Git extends Versioning implements GitInterface
     /**
      * Pull the remote changes from the remote repository / branch
      *
-     * @param string $repository
+     * @param string|null $repository        The repository to pull from. If not specified, the "origin" default will be used, unless an upstream was specified
+     *                                       for the current branch
+     * @param bool        $all        [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(string $repository): static
+    public function fetch(?string $repository, bool $all = true): static
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('fetch')
+                                  ->addArgument($all ? '--all' : null)
                                   ->addArgument($repository)
                                   ->executeReturnArray();
 

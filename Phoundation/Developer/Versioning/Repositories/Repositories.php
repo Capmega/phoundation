@@ -26,8 +26,12 @@ use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -140,6 +144,44 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
+     * Returns the specified Repository object
+     *
+     * @param Stringable|string|float|int $key
+     * @param mixed|null                  $default
+     * @param bool|null                   $exception
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
+    {
+        return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     * Returns a random Repository
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function getRandom(): RepositoryInterface
+    {
+        return parent::getRandom();
+    }
+
+
+    /**
+     * Returns the current Repository
+     *
+     * @note overrides the IteratorCore::current() method which returns mixed
+     *
+     * @return mixed
+     */
+    #[ReturnTypeWillChange] public function current(): RepositoryInterface
+    {
+        return parent::current();
+    }
+
+
+    /**
      * Load the Repositories list data from the database, and optionally adds detail directly from the repositories
      *
      * @param IdentifierInterface|int|array|string|null $identifiers
@@ -201,6 +243,61 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
+     * Executes a "git fetch" on all repositories
+     *
+     * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
+     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     *
+     * @return static
+     */
+    public function fetch(string|bool|null $remote = null, bool $all = true): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->fetch($remote, $all);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
+     *
+     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
+     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
+     * @param bool             $set_upstream [false]
+     *
+     * @return static
+     */
+    public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->push($remote, $branch, $set_upstream);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Executes a "git pull" on all repositories
+     *
+     * @param string|bool|null $remote [null] The remote to pull from, null will pull from the default repository
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
+     *
+     * @return static
+     */
+    public function pull(string|bool|null $remote = null, ?string $branch = null): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->pull($remote, $branch);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Scans for repositories on the current machine and registers them in the database
      *
      * @param PhoPathInterface $path
@@ -238,6 +335,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         // Remove repositories that were not found from the list?
         if ($delete_gone) {
+// TODO Implement auto delete gone repositories
 throw new UnderConstructionException();
         }
 
@@ -246,7 +344,7 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns true when any of the known repositories has changes
+     * Returns true when any of the available repositories has changes
      *
      * @return bool
      */
@@ -271,7 +369,7 @@ throw new UnderConstructionException();
     {
         $o_return = StatusFiles::new();
 
-        foreach (Repositories::new()->load() as $o_repository) {
+        foreach ($this as $o_repository) {
             $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
             $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
 //'repository' => $o_repository->getName(),
@@ -298,7 +396,7 @@ throw new UnderConstructionException();
         // The repository version MUST match the configured version
         try {
             $o_repository = $this->get(Project::getDirectoryName());
-            $branch       = $o_repository->getCurrentBranch();
+            $branch       = $o_repository->getSelectedBranch();
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
@@ -340,11 +438,11 @@ throw new UnderConstructionException();
                 }
 
                 Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the current project version ":version", selecting correct branch to be able to continue', [
-                    ':branch'  => $o_repository->getCurrentBranch(),
+                    ':branch'  => $o_repository->getSelectedBranch(),
                     ':version' => $version
                 ]));
 
-                $o_repository->setCurrentBranch($version);
+                $o_repository->selectBranch($version);
             }
 
         } catch (NotExistsException) {
@@ -358,28 +456,42 @@ throw new UnderConstructionException();
 
 
     /**
-     * Deletes the specified branch from all known repositories
+     * Returns true if any repository is on the specified branch
      *
-     * @param string $branch
-     * @param bool   $remote
-     *
-     * @return static
+     * @param string $branch              The branch that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     * *                                  not yet exist
+     * @return bool
      */
-    public function deleteBranch(string $branch, bool $remote = true): static
+    public function anyHaveBranch(string $branch, bool $auto_create = false): bool
     {
-        $this->checkAnyIsOnBranch($branch, ts('delete branch'));
-
-        if ($this->hasChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
-                    ':branch' => $branch
-                ]));
+        foreach ($this as $o_repository) {
+            if ($o_repository->branchExists($branch, auto_create: $auto_create)) {
+                return true;
             }
         }
 
-        // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $o_repository->deleteBranch($branch, $remote);
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesBranchExistsException if not any repositories have the specified branch
+     *
+     * @param string $branch              The branch that must exist in any repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     * @param bool   $auto_create [false] If true, will automaticanyy create the branch on each repository where it does
+     *                                    not yet exist
+     * @return static
+     * @throws RepositoriesBranchExistsException
+     */
+    public function checkNoneHaveBranch(string $branch, string $action, bool $auto_create = false): static
+    {
+        if ($this->anyHaveBranch($branch, $auto_create)) {
+            throw new RepositoriesBranchExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified branch ":branch"', [
+                ':action' => $action,
+                ':branch' => $branch
+            ]));
         }
 
         return $this;
@@ -387,36 +499,42 @@ throw new UnderConstructionException();
 
 
     /**
-     * Deletes the specified branch from all known repositories
+     * Returns true if any repository is on the specified branch
      *
-     * @param string $suffix
-     * @param bool   $remote
-     *
-     * @return static
+     * @param string $branch              The branch that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     * *                                  not yet exist
+     * @return bool
      */
-    public function deleteAutoBranch(string $suffix, bool $remote = true): static
+    public function allHaveBranch(string $branch, bool $auto_create = false): bool
     {
-        $project_branch     = Project::getVersion();
-        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
-        $phoundation_branch = Project::getPhoundationRequiredVersion();
-        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
-
-        $this->verifyProjectRepositoryVersion(ts('delete auto branch'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete auto branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnBranch($project_branch    , ts('delete auto branch'));
-
-        if ($this->hasChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
-                    ':branch' => $suffix
-                ]));
+        foreach ($this as $o_repository) {
+            if (!$o_repository->branchExists($branch, auto_create: $auto_create)) {
+                return false;
             }
         }
 
-        // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $o_repository->deleteBranch($branch, $remote);
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesNotAllHaveBranchException if not all repositories have the specified branch
+     *
+     * @param string $branch              The branch that must exist in all repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     *                                    not yet exist
+     * @return static
+     * @throws RepositoriesNotAllHaveBranchException
+     */
+    public function checkAllHaveBranch(string $branch, string $action, bool $auto_create = false): static
+    {
+        if (!$this->anyHaveBranch($branch, $auto_create)) {
+            throw new RepositoriesNotAllHaveBranchException(ts('Cannot perform action ":action", one or more repositories do not have the required branch ":branch"', [
+                ':action' => $action,
+                ':branch' => $branch
+            ]));
         }
 
         return $this;
@@ -443,7 +561,26 @@ throw new UnderConstructionException();
 
 
     /**
-     * Throws a RepositoriesException if any of the known repositories currently has the specified branch selected
+     * Returns true if all repository is on the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function allAreOnBranch(string $branch): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->isOnBranch($branch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified branch selected
      *
      * NOTE: Will NOT throw the exception when running in FORCE mode
      *
@@ -453,10 +590,10 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesException
      */
-    public function checkAnyIsOnBranch(string $branch, string $action): static
+    public function checkNoneIsOnBranch(string $branch, string $action): static
     {
         foreach ($this as $o_repository) {
-            $o_repository->checkIsOnBranch($branch, $action);
+            $o_repository->checkIsNotOnBranch($branch, $action);
         }
 
         return $this;
@@ -488,20 +625,21 @@ throw new UnderConstructionException();
 
 
     /**
-     * Throws a RepositoriesException if any of the known repositories currently has the specified tag selected
+     * Creates the specified new branch in this repository
      *
-     * NOTE: Will NOT throw the exception when running in FORCE mode
-     *
-     * @param string $tag
-     * @param string $action
+     * @param string      $branch
+     * @param bool        $reset
+     * @param string|null $remote
+     * @param bool        $set_upstream
      *
      * @return static
-     * @throws RepositoriesException
      */
-    public function checkAnyIsOnTag(string $tag, string $action): static
+    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static
     {
+        $this->checkNoneHaveBranch($branch, ts('create branch'));
+
         foreach ($this as $o_repository) {
-            $o_repository->checkIsOnTag($tag, $action);
+            $o_repository->createBranch($branch, $reset, $remote, $set_upstream);
         }
 
         return $this;
@@ -509,83 +647,37 @@ throw new UnderConstructionException();
 
 
     /**
-     * Creates the specified tag for all repositories
+     * Creates the specified branch for all repositories
      *
-     * @param string      $name            The name for the tag
-     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
-     *                                     automatically
-     * @param bool        $signed  [FALSE] If true
-     * @return static
-     */
-    public function createTag(string $name, ?string $message = null, bool $signed = false): static
-    {
-        foreach ($this as $o_repository) {
-            $o_repository->createTag($name, $message, $signed);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Deletes the specified tag from all known repositories
-     *
-     * @param string $tag
-     * @param bool   $remote
+     * @param string      $branch        The name for the branch to delete
+     * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
      *
      * @return static
      */
-    public function deleteTag(string $tag, bool $remote = true): static
+    public function deleteBranch(string $branch, string|bool $remote = true): static
     {
-        $this->checkAnyIsOnTag($tag, ts('delete tag'));
-
-        if ($this->hasChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot tag ":tag" from repositories, one or more repositories has changes', [
-                    ':tag' => $tag
-                ]));
-            }
-        }
-
-        // Go over each repository, switch each to the correct tag
         foreach ($this as $o_repository) {
-            $o_repository->deleteTag($tag, $remote);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Deletes the specified tag from all repositories
-     *
-     * @param string $suffix
-     * @param bool $remote
-     * @return static
-     */
-    public function deleteAutoTag(string $suffix, bool $remote = true): static
-    {
-        $project_branch     = Project::getVersion();
-        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
-        $phoundation_branch = Project::getPhoundationRequiredVersion();
-        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
-
-        $this->verifyProjectRepositoryVersion(ts('delete tag'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete auto tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnTag($project_branch       , ts('delete auto tag'));
-
-        if ($this->hasChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot delete auto branch ":branch" from repositories, one or more repositories has changes', [
-                    ':branch' => $suffix
-                ]));
-            }
-        }
-
-        // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $o_repository->deleteBranch($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     * @return static
+     */
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
+    {
+        $this->checkAllHaveBranch($branch, ts('select branch'), $auto_create);
+
+        foreach ($this as $o_repository) {
+            $o_repository->selectBranch($branch, $auto_create, $upstream);
         }
 
         return $this;
@@ -626,18 +718,18 @@ throw new UnderConstructionException();
             $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
-            if ($o_repository->hasBranch($branch)) {
-                Log::action(ts('Automatically selecting branch ":branch" for ":type" repository ":repository"', [
+            if ($o_repository->branchExists($branch)) {
+                Log::action(ts('Selecting auto-branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->setCurrentBranch($branch);
+                $o_repository->selectBranch($branch);
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available
-                if (!$o_repository->hasBranch($version)) {
+                if (!$o_repository->branchExists($version)) {
                     throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
                         ':branch'     => $branch,
                         ':repository' => $o_repository->getName(),
@@ -672,6 +764,362 @@ throw new UnderConstructionException();
 
 
     /**
+     * Deletes the specified branch from all known repositories
+     *
+     * @param string      $suffix
+     * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
+     *
+     * @return static
+     */
+    public function deleteAutoBranch(string $suffix, string|bool $remote = true): static
+    {
+        $project_branch     = Project::getVersion();
+        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch = Project::getPhoundationRequiredVersion();
+        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        $this->verifyProjectRepositoryVersion(ts('delete branch'))
+             ->checkNoneIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneIsOnBranch($project_branch    , ts('delete branch'));
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                    ':branch' => $suffix
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct branch
+        foreach ($this as $o_repository) {
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $o_repository->deleteBranch($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the known repositories currently has the specified tag selected
+     *
+     * NOTE: Will NOT throw the exception when running in FORCE mode
+     *
+     * @param string $tag
+     * @param string $action
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkNoneIsOnTag(string $tag, string $action): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->checkIsOnTag($tag, $action);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag The tag that any of the repositories must have
+     *
+     * @return bool
+     */
+    public function anyHaveTag(string $tag): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->tagExists($tag)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if not any repositories have the specified tag
+     *
+     * @param string $tag              The tag that must exist in any repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesTagExistsException
+     */
+    public function checkNoneHaveTag(string $tag, string $action): static
+    {
+        if ($this->anyHaveTag($tag)) {
+            throw new RepositoriesTagExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified tag ":tag"', [
+                ':action' => $action,
+                ':tag' => $tag
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag              The tag that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the tag on each repository where it does
+     * *                                  not yet exist
+     * @return bool
+     */
+    public function allHaveTag(string $tag, bool $auto_create = false): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->tagExists($tag)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesNotAllHaveTagException if not all repositories have the specified tag
+     *
+     * @param string $tag    The tag that must exist in all repositories
+     * @param string $action The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveTagException
+     */
+    public function checkAllHaveTag(string $tag, string $action): static
+    {
+        if (!$this->anyHaveTag($tag)) {
+            throw new RepositoriesNotAllHaveTagException(ts('Cannot perform action ":action", one or more repositories do not have the required tag ":tag"', [
+                ':action' => $action,
+                ':tag' => $tag
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Checks if all repositories have the requested suffix or version tag available, and if not, throws a RepositoriesVersionTagNotExistsException
+     *
+     * @param string $phoundation_version
+     * @param string $project_version
+     * @param string $phoundation_tag
+     *
+     * @param string $project_tag
+     *
+     * @return static
+     */
+    public function checkAllHaveSuffixOrVersionTag(string $phoundation_version, string $project_version, string $phoundation_tag, string $project_tag): static
+    {
+        foreach ($this as $o_repository) {
+            $tag     = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+
+            $o_repository->checkHasSuffixOrVersionTag($version, $tag);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified tag for all repositories
+     *
+     * @param string      $tag             The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool        $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
+    {
+        $this->checkNoneHaveTag($tag, ts('create tag'));
+showdie();
+
+        foreach ($this as $o_repository) {
+            $o_repository->createTag($tag, $message, $signed);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified lightweight tag for all repositories
+     *
+     * @param string $name The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $name): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->createLightweightTag($name);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the current git branch for this repository
+     *
+     * @param string $branch
+     * @param bool $auto_create
+     * @param bool $upstream
+     * @return static
+     */
+    public function selectTag(string $branch, bool $auto_create = false, bool $upstream = false): static
+    {
+        foreach ($this as $o_repository) {
+            $o_repository->selectTag($branch);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified tag for all repositories
+     *
+     * @param string      $tag           The name for the tag to delete
+     * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, string|bool $remote = true): static
+    {
+        $this->checkNoneIsOnTag($tag, ts('delete tag'));
+
+        foreach ($this as $o_repository) {
+            $o_repository->deleteTag($tag, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Synchronizes all selected tag repositories so they are all on the correct tag
+     *
+     * @param string|null $suffix
+     *
+     * @return static
+     */
+    public function selectAutoTag(?string $suffix): static
+    {
+        $project_version = Project::getVersion();
+        $project_version = Strings::untilReverse($project_version, '.');
+        $project_tag  = $project_version . ($suffix ? '-' . $suffix : null);
+
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
+        $phoundation_tag  = $phoundation_version . ($suffix ? '-' . $suffix : null);
+
+        // Before we start, make sure all target repositories have either the suffix tag already available or if not,
+        $this->checkAllHaveSuffixOrVersionTag($phoundation_version, $project_version, $phoundation_tag, $project_tag);
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot select tages on repositories, one or more repositories has changes'));
+            }
+        }
+
+        $this->verifyProjectRepositoryVersion(ts('select tag'), true);
+
+        // Go over each repository, switch each to the correct tag
+        foreach ($this as $o_repository) {
+            $tag  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+
+            // Can we switch to the tag, or do we have to create and push it first?
+            if ($o_repository->tagExists($tag)) {
+                Log::action(ts('Selecting auto-tag ":tag" for ":type" repository ":repository"', [
+                    ':tag'     => $tag,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->selectTag($tag);
+
+            } elseif ($suffix) {
+                // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX tag, IF we have VERSION tag available
+                if (!$o_repository->tagExists($version)) {
+                    throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
+                        ':tag'     => $tag,
+                        ':repository' => $o_repository->getName(),
+                        ':version'    => $version,
+                    ]));
+                }
+
+                Log::action(ts('Creating and pushing required tag ":tag" from version tag ":version" for ":type" repository ":repository"', [
+                    ':tag'     => $tag,
+                    ':version'    => $version,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->selectTag($version)
+                             ->createTag($tag)
+                             ->push($o_repository->selectRemoteRepository(), $tag);
+
+            } else {
+                // Problem! The repository does not have the requested tag which is an exact version, without a suffix.
+                // We cannot create the tag automatically, because from where?!
+                throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
+                    ':tag'     => $tag,
+                    ':repository' => $o_repository->getName(),
+                    ':version'    => $version,
+                ]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified tag from all repositories
+     *
+     * @param string $suffix
+     * @param bool $remote
+     * @return static
+     */
+    public function deleteAutoTag(string $suffix, bool $remote = true): static
+    {
+        $project_branch     = Project::getVersion();
+        $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
+        $phoundation_branch = Project::getPhoundationRequiredVersion();
+        $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
+
+        $this->verifyProjectRepositoryVersion(ts('delete tag'))
+             ->checkNoneIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneIsOnTag($project_branch , ts('delete tag'));
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                    ':branch' => $suffix
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct branch
+        foreach ($this as $o_repository) {
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $o_repository->deleteTag($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns the correct branch for the specified type and name
      *
      * If the type is data and starts not with "phoundation-", the $project value will be returned, else the $phoundation value will be returned
@@ -696,41 +1144,5 @@ throw new UnderConstructionException();
         }
 
         return $phoundation;
-    }
-
-
-    /**
-     * Returns the current RepositoryInterface object
-     *
-     * @return RepositoryInterface
-     */
-    public function current(): RepositoryInterface
-    {
-        return current($this->source);
-    }
-
-
-    /**
-     * Returns the entry with the specified identifier
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
-     *
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
-    {
-        return parent::get($key, $default, $exception);
-    }
-
-
-    /**
-     *
-     * @return RepositoryInterface
-     */
-    public function getRandom(): RepositoryInterface
-    {
-        return parent::getRandom();
     }
 }

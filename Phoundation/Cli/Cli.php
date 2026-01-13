@@ -166,7 +166,7 @@ class Cli
                         }
 
                         if (!$exists) {
-                            // The specified ID column doesn't exist in the rows, remove it
+                            // The specified ID column does not exist in the rows, remove it
                             unset($headers[$id_column]);
                         }
 
@@ -184,7 +184,7 @@ class Cli
 
                             } catch (PhpException $e) {
                                 if (!array_key_exists($column, $column_sizes)) {
-                                    // The source doesn't contain the specified column. Continue rendering without this column.
+                                    // The source does not contain the specified column. Continue rendering without this column.
                                     $not_rendered[$column] = $column;
                                     continue;
                                 }

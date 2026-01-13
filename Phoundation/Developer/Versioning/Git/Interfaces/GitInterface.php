@@ -42,6 +42,7 @@ interface GitInterface
     /**
      * Clone the specified URL to this path
      *
+     * @param string $url
      * @return static
      */
     public function clone(string $url): static;
@@ -49,9 +50,9 @@ interface GitInterface
     /**
      * Returns the current git branch for this path
      *
-     * @return string
+     * @return string|null
      */
-    public function getCurrentBranch(): string;
+    public function getSelectedBranch(): ?string;
 
     /**
      * Returns the current git branch for this path
@@ -60,7 +61,7 @@ interface GitInterface
      *
      * @return static
      */
-    public function setCurrentBranch(string $branch): static;
+    public function selectBranch(string $branch): static;
 
     /**
      * Returns a list of available git branches
@@ -109,12 +110,12 @@ interface GitInterface
     /**
      * Resets the current branch to the specified revision
      *
-     * @param string $message
-     * @param bool   $signed
+     * @param string    $message
+     * @param bool|null $signed
      *
      * @return static
      */
-    public function commit(string $message, bool $signed = false): static;
+    public function commit(string $message, ?bool $signed = false): static;
 
     /**
      * Returns a ChangedFiles object containing all the files that have changes according to git
@@ -170,13 +171,15 @@ interface GitInterface
     /**
      * Push the local changes to the remote repository / branch
      *
-     * @param string $repository
-     * @param string $branch
-     * @param bool   $set_upstream
+     * @param string|null $repository   [null]  The remote repository to push to. If null, will push to the default repository
+     * @param string|null $branch       [null]  If specified will push only this branch
+     * @param bool        $push_tags    [true]  If true, will push the tags as well
+     * @param bool        $set_upstream [false] If true, will add the -u modifier to the git push command, automatically setting the target as the upstream
+     *                                  branch
      *
      * @return static
      */
-    public function push(string $repository, string $branch, bool $set_upstream = false): static;
+    public function push(?string $repository = null, ?string $branch = null, bool $push_tags = true, bool $set_upstream = false): static;
 
     /**
      * Merge the specified branch into this one
@@ -263,12 +266,61 @@ interface GitInterface
     /**
      * Creates the specified tag for this GIT repository
      *
-     * @param string      $tag            The name for the tag
+     * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool        $signed  [FALSE] If true
+     * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $tag, ?string $message = null, bool $signed = false): static;
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string|null $repository        The repository to pull from. If not specified, the "origin" default will be used, unless an upstream was specified
+     *                                       for the current branch
+     * @param bool        $all        [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     *
+     * @return static
+     */
+    public function fetch(?string $repository, bool $all = true): static;
+
+    /**
+     * Creates the specified lightweight tag for this git repository
+     *
+     * @param string $tag The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $tag): static;
+
+    /**
+     * Pops the last changes from the git stash stashes over the working tree
+     *
+     * @return static
+     */
+    public function stashPop(): static;
+
+    /**
+     * Returns an array containing all the changes in the last available git stash
+     *
+     * @return array
+     */
+    public function stashShow(): array;
+
+    /**
+     * Returns the current git tag for this directory
+     *
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public function tagExists(string $tag): bool;
+
+    /**
+     * Returns the current git branch for this directory
+     *
+     * @return string|null
+     */
+    public function getSelectedTag(): ?string;
 }
 

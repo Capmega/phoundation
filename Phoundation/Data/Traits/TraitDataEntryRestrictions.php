@@ -77,7 +77,7 @@ trait TraitDataEntryRestrictions
      *
      * @param string|null $restrictions
      *
-     * @return $this
+     * @return static
      */
     public function setRestrictions(string|null $restrictions = null): static
     {

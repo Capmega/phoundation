@@ -50,14 +50,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// How to display status?
-$status = ($argv['human_readable'] ? 'readable_status' : 'status');
-
-
-// List status for all known repositories
-Repositories::new()->load()->getStatusObject()->displayCliTable([
-    'repository' => ts('Repository'),
-    'branch'     => ts('Branch'),
-    'file'       => ts('File'),
-    $status      => ts('Status'),
-]);
+// List status for all available repositories
+Repositories::new()->load()->getStatusObject($argv['human_readable'])->displayCliTable();

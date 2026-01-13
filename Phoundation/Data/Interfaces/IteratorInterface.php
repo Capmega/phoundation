@@ -908,7 +908,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param bool $ensure_objects
      *
-     * @return $this
+     * @return static
      */
     public function setEnsureObjects(bool $ensure_objects): static;
 
@@ -980,7 +980,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param bool $exception
      *
-     * @return $this
+     * @return static
      */
     public function setExceptionOnGet(bool $exception): static;
 }

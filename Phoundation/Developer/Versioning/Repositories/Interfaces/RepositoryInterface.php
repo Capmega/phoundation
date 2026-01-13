@@ -2,6 +2,7 @@
 
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
@@ -124,28 +125,31 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @return string
+     * @return string|null
      */
-    public function getCurrentBranch(): string;
+    public function getSelectedBranch(): ?string;
 
     /**
-     * Returns true if the specified branch exists in this repository
+     * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch
+     * @param string $branch                 The branch to search for
+     * @param bool   $check_tags_too         If true will search for the branch name in the tags list as well
+     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it
+     *                                       does not yet exist
      *
      * @return bool
      */
-    public function branchExists(string $branch): bool;
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool;
 
     /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
      * @param string       $branch
-     * @param string|false $remote_repository
+     * @param string|false $remote
      *
      * @return static
      */
-    public function deleteBranch(string $branch, string|false $remote_repository = false): static;
+    public function deleteBranch(string $branch, string|false $remote = false): static;
 
     /**
      * Returns true if the current git branch for this repository is equal to the specified branch
@@ -164,7 +168,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return Repository
      */
-    public function checkIsOnBranch(string $branch, string $action): static;
+    public function checkIsNotOnBranch(string $branch, string $action): static;
 
     /**
      * Returns the specified repository, or the configured default
@@ -199,41 +203,43 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|null $repository
-     * @param string|null $branch
-     * @param bool        $set_upstreams
+     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
+     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
+     * @param bool             $set_upstream [false]
      *
      * @return static
      */
-    public function push(?string $repository = null, ?string $branch = null, bool $set_upstreams = false): static;
+    public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static;
 
     /**
      * Will pull the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
-     * @param string|null $branch
+     * @param string|bool|null $remote [null]  The remote to pull from, null will pull from the default repository
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
      *
      * @return static
      */
-    public function pull(?string $remote = null, ?string $branch = null): static;
+    public function pull(string|bool|null $remote = null, ?string $branch = null): static;
 
     /**
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
-     * @param string|null $remote
+     * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
+     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
-    public function fetch(?string $remote = null): static;
+    public function fetch(string|bool|null $remote = null, bool $all = true): static;
 
     /**
      * Returns true if the specified tag exists in this repository
      *
-     * @param string $tag The tag to test for existence
+     * @param string $tag                        The tag to test for existence
+     * @param bool   $check_branches_too [false] If true will check if the tag exists as a branch name as well
      *
      * @return bool
      */
-    public function tagExists(string $tag): bool;
+    public function tagExists(string $tag, bool $check_branches_too = false): bool;
 
     /**
      * @return static
@@ -241,23 +247,24 @@ interface RepositoryInterface extends DataEntryInterface
     public function loadDetails(): static;
 
     /**
-     * Deletes the specified tag from this repository (and optionally the selected remote as well)
+     * Creates the specified new branch in this repository
      *
-     * @param string      $tag
-     * @param string|bool $remote_repository
+     * @param string      $branch
+     * @param bool        $reset
+     * @param string|null $remote
+     * @param bool        $set_upstream
      *
      * @return static
      */
-    public function deleteTag(string $tag, string|bool $remote_repository = false): static;
+    public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static;
 
     /**
-     * Creates the specified new tag in this repository
+     * Creates the specified lightweight tag for all repositories
      *
-     * @param string $tag
-     *
+     * @param string $name The name for the tag
      * @return static
      */
-    public function selectTag(string $tag): static;
+    public function createLightweightTag(string $name): static;
 
     /**
      * Returns the size of the repository working tree in bytes
@@ -267,11 +274,30 @@ interface RepositoryInterface extends DataEntryInterface
     public function getWorkingTreeSize(): int;
 
     /**
-     * Creates the specified new branch in this repository
+     * Creates the specified tag for this repository
      *
-     * @param string $branch
-     *
+     * @param string      $tag             The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function selectBranch(string $branch): static;
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
+
+    /**
+     * Checks if this repository has the requested suffix or version tag available, and if not, throws a RepositoriesHaveChangesException
+     *
+     * @param string $version
+     * @param string $tag
+     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @return static
+     */
+    public function checkHasSuffixOrVersionTag(string $version, string $tag, bool $check_tags_too = true): static;
+
+    /**
+     * Returns the current git branch for this repository
+     *
+     * @return string|null
+     */
+    public function getSelectedTag(): ?string;
 }

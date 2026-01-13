@@ -47,7 +47,7 @@ class Btrfs
     /**
      * @param PhoPathInterface|null $o_path
      *
-     * @return $this
+     * @return static
      */
     public function setPathObject(?PhoPathInterface $o_path): static
     {

@@ -216,13 +216,13 @@ class Phoundation extends Project
             }
 
             // Select the previous branch and reset it
-            $this->o_git->setCurrentBranch($this->branch);
+            $this->o_git->selectBranch($this->branch);
             $this->branch = null;
 
         } else {
             // Select the new branch and store the previous
-            $this->branch = $this->o_git->getCurrentBranch();
-            $this->o_git->setCurrentBranch($branch);
+            $this->branch = $this->o_git->getSelectedBranch();
+            $this->o_git->selectBranch($branch);
         }
 
         return $this;
@@ -296,7 +296,7 @@ class Phoundation extends Project
             return $this;
         }
         // Ensure phoundation is on the right branch
-        $this->phoundation_branch = $this->o_git->getCurrentBranch();
+        $this->phoundation_branch = $this->o_git->getSelectedBranch();
         if ($branch !== $this->phoundation_branch) {
             Log::warning(ts('Phoundation is currently on different branch ":current"', [
                 ':current' => $this->phoundation_branch,
@@ -322,7 +322,7 @@ class Phoundation extends Project
     {
         if (!$branch) {
             // Select the current branch
-            $branch = $this->o_git->getCurrentBranch();
+            $branch = $this->o_git->getSelectedBranch();
             Log::notice(ts('Trying to patch updates on Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
