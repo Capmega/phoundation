@@ -2,16 +2,12 @@
 
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
-use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Filesystem\PhoPath;
-use Phoundation\Filesystem\PhoRestrictions;
 
 interface RepositoryInterface extends DataEntryInterface
 {
@@ -240,11 +236,6 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function tagExists(string $tag, bool $check_branches_too = false): bool;
-
-    /**
-     * @return static
-     */
-    public function loadDetails(): static;
 
     /**
      * Creates the specified new branch in this repository

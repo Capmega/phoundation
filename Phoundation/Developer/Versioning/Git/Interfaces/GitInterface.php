@@ -48,11 +48,12 @@ interface GitInterface
     public function clone(string $url): static;
 
     /**
-     * Returns the current git branch for this path
+     * Returns the current git branch for this directory
      *
+     * @param bool $return_if_detached [false] If true will return the current branch if HEAD is detached
      * @return string|null
      */
-    public function getSelectedBranch(): ?string;
+    public function getSelectedBranch(bool $return_if_detached = false): ?string;
 
     /**
      * Returns the current git branch for this path

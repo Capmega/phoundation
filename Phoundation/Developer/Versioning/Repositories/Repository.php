@@ -74,9 +74,8 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        parent::__construct($identifier, $on_null_identifier, $on_not_exists);
-
         $this->setPermittedColumns(['branch']);
+        parent::__construct($identifier, $on_null_identifier, $on_not_exists);
     }
 
 
@@ -250,20 +249,35 @@ class Repository extends DataEntry implements RepositoryInterface
             $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
         }
 
-        $this->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
-             ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value)
-             ->o_git = new Git($this->getPathObject()->getDirectoryObject());
+        if (!$this->isLoading()) {
+            // These are NOT set when loading as when loading, we get these values from the database
+            $this->setPlatform($this->detectPlatform($this->getPathObject()->getDirectoryObject()))
+                 ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value);
+        }
 
+        $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
         return $this;
     }
 
 
     /**
-     * @return static
+     * Returns a Repository object matching the specified identifier that MUST exist in the database
+     *
+     * @param IdentifierInterface|int|array|string|null $identifier
+     * @param EnumLoadParameters|null $on_null_identifier
+     * @param EnumLoadParameters|null $on_not_exists
+     *
+     * @return $this|null
      */
-    public function loadDetails(): static
+    public function load(IdentifierInterface|int|array|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        return $this->setBranch($this->o_git->getSelectedBranch());
+        parent::load($identifier, $on_null_identifier, $on_not_exists);
+
+        if ($this->isLoaded()) {
+            $this->setBranch($this->o_git->getSelectedBranch(true));
+        }
+
+        return $this;
     }
 
 

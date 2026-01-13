@@ -182,30 +182,6 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Load the Repositories list data from the database, and optionally adds detail directly from the repositories
-     *
-     * @param IdentifierInterface|int|array|string|null $identifiers
-     * @param bool                                      $like
-     * @param bool                                      $details
-     *
-     * @return static
-     */
-    public function load(IdentifierInterface|int|array|string|null $identifiers = null, bool $like = false, bool $details = false): static
-    {
-        parent::load($identifiers, $like);
-
-        // Load detail information directly from the repositories themselves?
-        if ($details) {
-            foreach ($this as $o_repository) {
-                $o_repository->loadDetails();
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Returns the number of new repositories found after a scan
      *
      * @return int|null
