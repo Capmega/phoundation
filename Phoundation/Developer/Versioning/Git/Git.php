@@ -31,6 +31,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoFile;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
@@ -953,13 +954,24 @@ class Git extends Versioning implements GitInterface
     {
         $this->verifyBranch($branch);
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('pull')
-                                  ->addArgument($this->getDefaultRemote($repository))
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
+        try {
+            $output = $this->o_process->clearArguments()
+                                      ->addArgument('pull')
+                                      ->addArgument($this->getDefaultRemote($repository))
+                                      ->addArgument($branch)
+                                      ->executeReturnArray();
 
-        Log::notice($output, 1, false);
+            Log::notice($output, 1, false);
+
+        } catch (ProcessFailedException $e) {
+            if (Arrays::contains($e->getDataKey('output'), 'You asked to pull from the remote')) {
+                if (Arrays::contains($e->getDataKey('output'), 'You asked to pull from the remote')) {
+
+                }
+            }
+//            if ($e->($needle))
+        }
+
         return $this;
     }
 
@@ -1047,17 +1059,18 @@ class Git extends Versioning implements GitInterface
     /**
      * Throws an OutOfBoundsException if the specified branch name is invalid
      *
-     * @param string $branch
+     * @param string|null $branch
      *
      * @return static
-     * @throws OutOfBoundsException
      */
-    protected function verifyBranch(string $branch): static
+    protected function verifyBranch(?string $branch): static
     {
-        if (str_starts_with($branch, ':')) {
-            throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
-                ':branch' => $branch
-            ]));
+        if ($branch) {
+            if (str_starts_with($branch, ':')) {
+                throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
+                    ':branch' => $branch
+                ]));
+            }
         }
 
         return $this;
