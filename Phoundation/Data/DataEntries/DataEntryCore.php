@@ -159,7 +159,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataColumns;
     use TraitDataPermitValidationFailures;
     use TraitDataEventHandler;
-//    use TraitEventHandler;
+    use TraitEventHandler;
 
 
     /**
@@ -1408,7 +1408,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setOnLoadNotExists($on_not_exists)
                             ->setIdentifier($identifier->getIdentifier())
                             ->setSourceDirect($identifier->getSourceUnprocessed())
-                            ->setObjectState($identifier->getObjectState());
+                            ->setObjectState($identifier->getObjectState())
+                            ->triggerEvent('loaded');
             }
 
             throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [

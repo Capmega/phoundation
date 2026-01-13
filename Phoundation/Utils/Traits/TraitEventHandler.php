@@ -67,14 +67,14 @@ trait TraitEventHandler
      *
      * If the event exists in the Event handler object, the event will be executed
      *
-     * @param Stringable|string|float|int $event     The event key for which the callback should be executed
-     * @param mixed                       $values    The values to pass along to the callback function
-     * @param bool                        $exception If true, will throw a NotExistsException if the specified event
-     *                                               does not exist
-     * @return mixed                                 The return value from the event callback, if available. NULL
-     *                                               otherwise
+     * @param Stringable|string|float|int $event            The event key for which the callback should be executed
+     * @param mixed                       $values    [null] The values to pass along to the callback function
+     * @param bool                        $exception [true] If true, will throw a NotExistsException if the specified
+     *                                                      event does not exist
+     * @return mixed                                        The return value from the event callback, if available. NULL
+     *                                                      otherwise
      */
-    public function triggerEvent(Stringable|string|float|int $event, mixed $values, bool $exception = false): static
+    public function triggerEvent(Stringable|string|float|int $event, mixed $values = null, bool $exception = false): static
     {
         $this->getEventsObject()->trigger($event, $values, $exception);
         return $this;
