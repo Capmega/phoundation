@@ -16,12 +16,14 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils\Traits;
 
+use Phoundation\Data\Exception\EventException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Interfaces\EventsInterface;
 use Phoundation\Utils\Events;
 use Stringable;
 
 
-trait TraitEventHandler
+trait TraitDataEventHandler
 {
     /**
      * The path to use
@@ -66,11 +68,11 @@ trait TraitEventHandler
      * @param string   $event     The name for this event handler
      * @param callable $handler   The handler callback for the specified event
      * @param bool     $exception Will not throw an exception if the specified event has already been registered before
-     * @return TraitEventHandler
+     * @return TraitDataEventHandler
      */
     public function addEventHandler(string $event, callable $handler, bool $exception = true): static
     {
-        $this->getEventsObject()->add($handler, $event, exception: $exception);
+        $this->getEventsObject()->add($handler, $event, true, $exception);
         return $this;
     }
 
@@ -90,6 +92,87 @@ trait TraitEventHandler
     public function triggerEvent(Stringable|string|float|int $event, mixed $values, bool $exception = false): static
     {
         $this->getEventsObject()->trigger($event, $values, $exception);
+        return $this;
+    }
+
+
+    /**
+     * Returns the event for a specified key
+     *
+     * @param string      $event
+     * @param string|null $in_script
+     *
+     * @return array
+     */
+    public function getEventHandler(string $event, ?string $in_script = null): mixed
+    {
+        if (array_key_exists($event, $this->event_handlers)) {
+            $handler = $this->event_handlers[$event]['event'];
+
+            if ($this->event_handlers[$event]['clear']) {
+                $this->clearEventHandler($event);
+            }
+
+            if (is_callable($handler)) {
+                $handler = $handler();
+            }
+
+            if ($in_script) {
+                $handler = str_replace(':SCRIPT', $handler, $in_script);
+            }
+
+            return $handler;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Sets the handler for the specified event type
+     *
+     * @param array|string $events
+     * @param mixed        $handler
+     * @param bool         $clear_after_execute
+     *
+     * @return static
+     */
+    public function setEventHandler(array|string $events, mixed $handler, bool $clear_after_execute = false): static
+    {
+        $events = Arrays::force($events);
+
+        switch (count($events)) {
+            case 0:
+                break;
+
+            case 1:
+                $event = array_pop($events);
+
+                $this->o_events->checkIsAllowed($event);
+
+                if (array_key_exists($event, $this->event_handlers)) {
+                    throw EventException::new(ts('The specified event ":event" already exists for class ":class"', [
+                        ':event' => $event,
+                        ':class' => static::class,
+                    ]));
+                }
+
+                if (is_callable($handler)) {
+                    $handler = $handler($this);
+                }
+
+                $this->event_handlers[$event]['event'] = $handler;
+                $this->event_handlers[$event]['clear'] = $clear_after_execute;
+                break;
+
+            default:
+                // Set this handler for multiple events
+                foreach ($events as $event) {
+                    $this->setEventHandler($event, $handler, $clear_after_execute);
+                }
+        }
+
+
         return $this;
     }
 }

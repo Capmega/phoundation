@@ -2,9 +2,11 @@
 
 namespace Phoundation\Utils\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Stringable;
 
-interface EventsInterface
+
+interface EventsInterface extends IteratorInterface
 {
     /**
      * Triggers the callback for the specified events

@@ -22,12 +22,12 @@ use Phoundation\Data\Validator\Validate;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Exception\VersionCannotBeModifiedException;
 use Phoundation\Utils\Interfaces\VersionInterface;
-use Phoundation\Utils\Traits\TraitEventHandler;
+use Phoundation\Utils\Traits\TraitDataEventHandler;
 
 
 class VersionCore implements VersionInterface
 {
-    use TraitEventHandler;
+    use TraitDataEventHandler;
     use TraitDataStringSource {
         setSource as protected __setSource;
     }

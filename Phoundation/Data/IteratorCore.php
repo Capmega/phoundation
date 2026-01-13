@@ -565,6 +565,32 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Same as Arrays::spliceKey() but for this Iterator
+     *
+     * @param string                  $key
+     * @param int|null                $length
+     * @param IteratorInterface|array $replacement
+     * @param bool                    $after
+     * @param array|null              $spliced
+     *
+     * @return static
+     */
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static
+    {
+        try {
+            $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+
+        } catch (OutOfBoundsException $e) {
+            throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
+                ':key' => $key,
+            ]), $e);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Add the specified value to the iterator array using an optional key
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
@@ -657,32 +683,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Same as Arrays::spliceKey() but for this Iterator
-     *
-     * @param string                  $key
-     * @param int|null                $length
-     * @param IteratorInterface|array $replacement
-     * @param bool                    $after
-     * @param array|null              $spliced
-     *
-     * @return static
-     */
-    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static
-    {
-        try {
-            $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
-
-        } catch (OutOfBoundsException $e) {
-            throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
-                ':key' => $key,
-            ]), $e);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
@@ -726,7 +726,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
-
         return $this;
     }
 
@@ -778,7 +777,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
-
         return $this;
     }
 

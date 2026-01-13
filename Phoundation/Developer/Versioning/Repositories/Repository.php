@@ -74,7 +74,11 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        $this->setPermittedColumns(['branch']);
+        $this->setPermittedColumns(['branch'])
+             ->addEventHandler('loaded', function () {
+                 $this->setBranch($this->o_git->getSelectedBranch(true));
+             });
+
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
     }
 
@@ -256,27 +260,6 @@ class Repository extends DataEntry implements RepositoryInterface
         }
 
         $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
-        return $this;
-    }
-
-
-    /**
-     * Returns a Repository object matching the specified identifier that MUST exist in the database
-     *
-     * @param IdentifierInterface|int|array|string|null $identifier
-     * @param EnumLoadParameters|null $on_null_identifier
-     * @param EnumLoadParameters|null $on_not_exists
-     *
-     * @return $this|null
-     */
-    public function load(IdentifierInterface|int|array|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
-    {
-        parent::load($identifier, $on_null_identifier, $on_not_exists);
-
-        if ($this->isLoaded()) {
-            $this->setBranch($this->o_git->getSelectedBranch(true));
-        }
-
         return $this;
     }
 

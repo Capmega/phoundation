@@ -76,7 +76,6 @@ use Phoundation\Data\Traits\TraitDataColumns;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataDebug;
 use Phoundation\Data\Traits\TraitDataDisabled;
-use Phoundation\Data\Traits\TraitDataEventHandler;
 use Phoundation\Data\Traits\TraitDataIdentifier;
 use Phoundation\Data\Traits\TraitDataIgnoreDeleted;
 use Phoundation\Data\Traits\TraitDataInsertUpdate;
@@ -115,6 +114,7 @@ use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Traits\TraitDataEventHandler;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -138,7 +138,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataDebug;
     use TraitDataDisabled;
     use TraitDataDefinitions;
-    use TraitDataEventHandler;
     use TraitDataIdentifier;
     use TraitDataIgnoreDeleted;
     use TraitDataInsertUpdate;
@@ -158,6 +157,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitMethodsVirtualColumns;
     use TraitDataColumns;
     use TraitDataPermitValidationFailures;
+    use TraitDataEventHandler;
 
 
     /**

@@ -16,10 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
+use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
-use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
-use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
@@ -215,6 +214,27 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function getDeletedCount(): ?int
     {
         return count($this->getDeleted());
+    }
+
+
+    /**
+     * Creates and returns a CLI table for the data in this Repositories object
+     *
+     * @param array|string|null $columns
+     * @param array $filters
+     * @param string|null $id_column
+     * @return $this
+     */
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
+    {
+        $source = [];
+
+        foreach ($this as $o_repository) {
+            $source[] = $o_repository->getSource();
+        }
+
+        Cli::displayTable($source, $columns, $id_column);
+        return $this;
     }
 
 
