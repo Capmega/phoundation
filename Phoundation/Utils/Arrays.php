@@ -4579,6 +4579,63 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if the specified source contains any or all of the specified needles
+     *
+     * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
+     *
+     * @param IteratorInterface|array $source  The source array to test
+     * @param array|string            $needles The needles that must be matches
+     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     *
+     * @return bool
+     */
+    public static function containsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): bool
+    {
+        $source  = Arrays::force($source);
+        $needles = Arrays::force($needles);
+
+        if (empty($needles)) {
+            throw OutOfBoundsException::new(ts('Cannot test if all needles are in source, no needles specified'))
+                                      ->setData([
+                                          'source'  => $source,
+                                          'needles' => $needles
+                                      ]);
+        }
+
+        // Test the needles
+        foreach ($source as $value) {
+            if (!is_scalar($value)) {
+                // Only test scalar values
+                continue;
+            }
+
+            $value = (string) $value;
+
+            // Check for all needles
+            foreach ($needles as $needle_id => $needle) {
+                if (str_contains($value, $needle)) {
+                    unset($needles[$needle_id]);
+
+                    if (empty($needles)) {
+                        // All needles have matched!
+                        return true;
+                    }
+
+                    if (!$all) {
+                        // Only a single needle must match
+                        return true;
+                    }
+
+                    // There are still needles left, continue testing
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Process the given array with the specified needles for full matching and return the requested result
      *
      * @param int         $action
