@@ -185,7 +185,7 @@ class Git extends Versioning implements GitInterface
      */
     public static function selectSigned(?bool $signed): bool
     {
-        return $signed ?? $this->getConfigSigned();
+        return $signed ?? Git::getConfigSigned();
     }
 
 
@@ -575,7 +575,7 @@ class Git extends Versioning implements GitInterface
                         ->executeReturnArray();
 
         foreach ($results as $result) {
-            preg_match_all('/stash@\{(\d+)\}:\s(.+)/', $result, $matches);
+            preg_match_all('/stash@\{(\d+)}:\s(.+)/', $result, $matches);
             $return[$matches[0][0]] = $matches[2][0];
         }
 
@@ -736,8 +736,8 @@ class Git extends Versioning implements GitInterface
     /**
      * Resets the current branch to the specified revision
      *
-     * @param string $message
-     * @param bool   $signed
+     * @param string    $message
+     * @param bool|null $signed
      *
      * @return static
      */
@@ -879,13 +879,15 @@ class Git extends Versioning implements GitInterface
     /**
      * Push the local changes to the remote repository / branch
      *
-     * @param string|null $repository
-     * @param string|null $branch
-     * @param bool        $set_upstream If true, will add the -u modifier to the git push command, automatically setting the target as the upstream branch
+     * @param string|null $repository   [null]  The remote repository to push to. If null, will push to the default repository
+     * @param string|null $branch       [null]  If specified will push only this branch
+     * @param bool        $push_tags    [true]  If true, will push the tags as well
+     * @param bool        $set_upstream [false] If true, will add the -u modifier to the git push command, automatically setting the target as the upstream
+     *                                  branch
      *
      * @return static
      */
-    public function push(?string $repository, ?string $branch = null, bool $set_upstream = false): static
+    public function push(?string $repository = null, ?string $branch = null, bool $push_tags = true, bool $set_upstream = false): static
     {
         $this->verifyBranch($branch);
 

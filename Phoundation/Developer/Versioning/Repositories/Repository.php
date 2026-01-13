@@ -41,6 +41,7 @@ use Phoundation\Developer\Versioning\Git\Tags\Interfaces\TagsInterface;
 use Phoundation\Developer\Versioning\Git\Tags\Tags;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -616,6 +617,13 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function createBranch(string $branch, bool $reset = false, string|true|null $remote = null, bool $set_upstream = false): static
     {
+        if ($this->branchExists($branch)) {
+            throw new RepositoriesBranchExistsException(ts('Cannot create branch ":branch" on repository ":repository", the branch already exists', [
+                ':branch'     => $branch,
+                ':repository' => $this->getName()
+            ]));
+        }
+
         $this->o_git->createBranch($branch, $reset);
 
         if ($remote or $set_upstream) {
@@ -701,15 +709,35 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Creates the specified tag for this repository
      *
-     * @param string      $name            The name for the tag
+     * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
      * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, ?bool $signed = false): static
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
     {
-        $this->o_git->createTag($name, $message, $signed);
+        if ($this->tagExists($tag)) {
+            throw new RepositoriesBranchExistsException(ts('Cannot create tag ":tag" on repository ":repository", the tag already exists', [
+                ':branch'     => $tag,
+                ':repository' => $this->getName()
+            ]));
+        }
+
+        $this->o_git->createTag($tag, $message, $signed);
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified lightweight tag for all repositories
+     *
+     * @param string $name The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $name): static
+    {
+        $this->o_git->createLightweightTag($name);
         return $this;
     }
 

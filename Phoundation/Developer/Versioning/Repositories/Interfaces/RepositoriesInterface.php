@@ -3,6 +3,9 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use ReturnTypeWillChange;
 use Stringable;
@@ -103,13 +106,13 @@ interface RepositoriesInterface extends DataIteratorInterface
     /**
      * Creates the specified tag for all repositories
      *
-     * @param string      $name            The name for the tag
+     * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
      * @param bool|null   $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, ?bool $signed = false): static;
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
 
     /**
      * Creates the specified tag for all repositories
@@ -203,4 +206,83 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      */
     public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static;
+
+    /**
+     * Creates the specified lightweight tag for all repositories
+     *
+     * @param string $name The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $name): static;
+
+    /**
+     * Throws a RepositoriesException if not any repositories have the specified branch
+     *
+     * @param string $branch              The branch that must exist in any repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     * @param bool   $auto_create [false] If true, will automaticanyy create the branch on each repository where it does
+     *                                    not yet exist
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkAnyHaveBranch(string $branch, string $action, bool $auto_create = false): static;
+
+    /**
+     * Returns true if any repository is on the specified branch
+     *
+     * @param string $branch              The branch that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
+     * *                                  not yet exist
+     * @return bool
+     */
+    public function allHaveBranch(string $branch, bool $auto_create = false): bool;
+
+    /**
+     * Returns true if all repository is on the specified branch
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function allAreOnBranch(string $branch): bool;
+
+    /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag The tag that any of the repositories must have
+     *
+     * @return bool
+     */
+    public function anyHaveTag(string $tag): bool;
+
+    /**
+     * Throws a RepositoriesException if not any repositories have the specified tag
+     *
+     * @param string $tag    The tag that must exist in any repositories
+     * @param string $action The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesTagExistsException
+     */
+    public function checkAnyHaveTag(string $tag, string $action): static;
+
+    /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag The tag that any of the repositories must have
+     *
+     * @return bool
+     */
+    public function allHaveTag(string $tag): bool;
+
+    /**
+     * Throws a RepositoriesNotAllHaveTagException if not all repositories have the specified tag
+     *
+     * @param string $tag                 The tag that must exist in all repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveTagException
+     */
+    public function checkAllHaveTag(string $tag, string $action): static;
 }

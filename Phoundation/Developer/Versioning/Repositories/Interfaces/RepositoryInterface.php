@@ -256,4 +256,30 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static;
+
+    /**
+     * Creates the specified lightweight tag for all repositories
+     *
+     * @param string $name The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $name): static;
+
+    /**
+     * Returns the size of the repository working tree in bytes
+     *
+     * @return int
+     */
+    public function getWorkingTreeSize(): int;
+
+    /**
+     * Creates the specified tag for this repository
+     *
+     * @param string      $tag             The name for the tag
+     * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
+     *                                     automatically
+     * @param bool|null   $signed  [FALSE] If true
+     * @return static
+     */
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
 }

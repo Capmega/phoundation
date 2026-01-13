@@ -27,9 +27,11 @@ CliDocumentation::setAutoComplete([
         0 => function ($word) {
             return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
         },
-        1 => function ($word) {
-            return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
-        },
+    ],
+    'arguments' => [
+        '-l,--lightweight' => false,
+        '-m,--message'     => true,
+        '-s,--signed'      => false,
     ]
 ]);
 
@@ -50,6 +52,8 @@ TAG_NAME                                The name for the tag to create
 OPTIONAL ARGUMENTS
 
 
+[-l, --lightweight]                     If specified, will generate a lightweight tag instead of an annotated tag
+                                        
 [-m, --message]                         The optional message to add to this tag. This will make the tag an annotated 
                                         tag
                                         
@@ -59,12 +63,17 @@ OPTIONAL ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('name'        , true)->isOptional()->isCode()
-                     ->select('-m,--message', true)->isOptional()->isDescription()
-                     ->select('-s,--signed')->isOptional()->isBoolean()
+                     ->select('name', true)->isCode()
+                     ->select('-l,--lightweight')->isOptional()->isBoolean()->requiresColumnsEmpty('message,signed')
+                     ->select('-m,--message', true)->isOptional()->xorColumn('lightweight')->isDescription()
+                     ->select('-s,--signed')->isOptional()->isBoolean()->requiresField('message')
                      ->validate();
 
 
 // Create the tag!
-Repositories::new($argv['repository'])->createTag($argv['name'], $argv['message'], $argv['signed']);
+if ($argv['lightweight']) {
+    Repositories::new()->load()->createLightweightTag($argv['name']);
 
+} else {
+    Repositories::new()->load()->createTag($argv['name'], $argv['message'], $argv['signed']);
+}

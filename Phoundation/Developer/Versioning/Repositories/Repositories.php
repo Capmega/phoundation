@@ -26,8 +26,12 @@ use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -331,6 +335,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         // Remove repositories that were not found from the list?
         if ($delete_gone) {
+// TODO Implement auto delete gone repositories
 throw new UnderConstructionException();
         }
 
@@ -458,7 +463,7 @@ throw new UnderConstructionException();
      * *                                  not yet exist
      * @return bool
      */
-    public function anyHasBranch(string $branch, bool $auto_create = false): bool
+    public function anyHaveBranch(string $branch, bool $auto_create = false): bool
     {
         foreach ($this as $o_repository) {
             if ($o_repository->branchExists($branch, auto_create: $auto_create)) {
@@ -467,6 +472,29 @@ throw new UnderConstructionException();
         }
 
         return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesBranchExistsException if not any repositories have the specified branch
+     *
+     * @param string $branch              The branch that must exist in any repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     * @param bool   $auto_create [false] If true, will automaticanyy create the branch on each repository where it does
+     *                                    not yet exist
+     * @return static
+     * @throws RepositoriesBranchExistsException
+     */
+    public function checkAnyHaveBranch(string $branch, string $action, bool $auto_create = false): static
+    {
+        if ($this->anyHaveBranch($branch, $auto_create)) {
+            throw new RepositoriesBranchExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified branch ":branch"', [
+                ':action' => $action,
+                ':branch' => $branch
+            ]));
+        }
+
+        return $this;
     }
 
 
@@ -491,19 +519,19 @@ throw new UnderConstructionException();
 
 
     /**
-     * Throws a RepositoriesException if not all repositories have the specified branch
+     * Throws a RepositoriesNotAllHaveBranchException if not all repositories have the specified branch
      *
      * @param string $branch              The branch that must exist in all repositories
      * @param string $action              The action displayed in the exception, if thrown
      * @param bool   $auto_create [false] If true, will automatically create the branch on each repository where it does
      *                                    not yet exist
      * @return static
-     * @throws RepositoriesException
+     * @throws RepositoriesNotAllHaveBranchException
      */
     public function checkAllHaveBranch(string $branch, string $action, bool $auto_create = false): static
     {
-        if (!$this->anyHasBranch($branch, $auto_create)) {
-            throw new RepositoriesException(ts('Cannot perform action ":action", one or more repositories do not have the required branch ":branch"', [
+        if (!$this->anyHaveBranch($branch, $auto_create)) {
+            throw new RepositoriesNotAllHaveBranchException(ts('Cannot perform action ":action", one or more repositories do not have the required branch ":branch"', [
                 ':action' => $action,
                 ':branch' => $branch
             ]));
@@ -608,6 +636,8 @@ throw new UnderConstructionException();
      */
     public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static
     {
+        $this->checkAnyHaveBranch($branch, ts('create branch'));
+
         foreach ($this as $o_repository) {
             $o_repository->createBranch($branch, $reset, $remote, $set_upstream);
         }
@@ -643,7 +673,7 @@ throw new UnderConstructionException();
      * @return static
      */
     public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
-    {;
+    {
         $this->checkAllHaveBranch($branch, ts('select branch'), $auto_create);
 
         foreach ($this as $o_repository) {
@@ -792,18 +822,119 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag The tag that any of the repositories must have
+     *
+     * @return bool
+     */
+    public function anyHaveTag(string $tag): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->tagExists($tag)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if not any repositories have the specified tag
+     *
+     * @param string $tag              The tag that must exist in any repositories
+     * @param string $action              The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesTagExistsException
+     */
+    public function checkAnyHaveTag(string $tag, string $action): static
+    {
+        if ($this->anyHaveTag($tag)) {
+            throw new RepositoriesTagExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified tag ":tag"', [
+                ':action' => $action,
+                ':tag' => $tag
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if any repository is on the specified tag
+     *
+     * @param string $tag              The tag that any of the repositories must have
+     * @param bool   $auto_create [false] If true, will automatically create the tag on each repository where it does
+     * *                                  not yet exist
+     * @return bool
+     */
+    public function allHaveTag(string $tag, bool $auto_create = false): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->tagExists($tag)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesNotAllHaveTagException if not all repositories have the specified tag
+     *
+     * @param string $tag    The tag that must exist in all repositories
+     * @param string $action The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveTagException
+     */
+    public function checkAllHaveTag(string $tag, string $action): static
+    {
+        if (!$this->anyHaveTag($tag)) {
+            throw new RepositoriesNotAllHaveTagException(ts('Cannot perform action ":action", one or more repositories do not have the required tag ":tag"', [
+                ':action' => $action,
+                ':tag' => $tag
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Creates the specified tag for all repositories
      *
-     * @param string      $name            The name for the tag
+     * @param string      $tag             The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
      * @param bool        $signed  [FALSE] If true
      * @return static
      */
-    public function createTag(string $name, ?string $message = null, bool $signed = false): static
+    public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
+    {
+        $this->checkAnyHaveTag($tag, ts('create tag'));
+
+        foreach ($this as $o_repository) {
+            $o_repository->createTag($tag, $message, $signed);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Creates the specified lightweight tag for all repositories
+     *
+     * @param string $name The name for the tag
+     * @return static
+     */
+    public function createLightweightTag(string $name): static
     {
         foreach ($this as $o_repository) {
-            $o_repository->createTag($name, $message, $signed);
+            $o_repository->createLightweightTag($name);
         }
 
         return $this;
@@ -821,7 +952,7 @@ throw new UnderConstructionException();
     public function selectTag(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
         foreach ($this as $o_repository) {
-            $o_repository->selectTag($branch, $auto_create, $upstream);
+            $o_repository->selectTag($branch);
         }
 
         return $this;

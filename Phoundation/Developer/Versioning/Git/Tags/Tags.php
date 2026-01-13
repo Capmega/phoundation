@@ -16,7 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Tags;
 
-use Phoundation\Core\Log\Log;
+use Phoundation\Cli\Cli;
+
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Traits\TraitStaticMethodNewWithRepository;
@@ -58,163 +59,25 @@ class Tags extends IteratorCore implements Interfaces\TagsInterface
 
 
     /**
-     * Creates a new tag
+     * Creates and returns a CLI table for the data in this list
      *
-     * @param string    $tag     The name for the annotated tag
-     * @param string    $message The message for the annotated tag
-     * @param bool|null $signed  If true, will sign the tag (requires git is configured to do so)
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
      *
-     * @return static
+     * @return $this
      */
-    public function tag(string $tag, string $message, ?bool $signed = null): static
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
     {
-        $this->o_git->createTag($tag, $message, $signed);
-        return $this;
-    }
+        $source = [];
 
-
-    /**
-     * Pushes all local tags to the specified remote
-     *
-     * @param string      $repository
-     * @param string|null $branch
-     *
-     * @return static
-     */
-    public function push(string $repository, ?string $branch = null): static
-    {
-        $output = $this->git->clearArguments()
-                            ->addArgument('push')
-                            ->addArguments([
-                                $repository,
-                                $branch,
-                                '--tags',
-                            ])
-                            ->executeReturnArray();
-
-        Log::notice($output, 4, false);
-        return $this;
-    }
-
-
-// Obsolete code, must be removed
-//    /**
-//     * Returns the directory for this ChangedFiles object
-//     *
-//     * @param PhoDirectoryInterface $directory
-//     *
-//     * @return static
-//     */
-//    public function setDirectory(PhoDirectoryInterface $directory): static
-//    {
-//        $this->setGitDirectory($directory);
-//
-//        $results = Process::new('git')
-//                          ->setExecutionDirectory(new PhoDirectory(
-//                              $this->o_path,
-//                              PhoRestrictions::newWritableObject($this->o_path)
-//                          ))
-//                          ->addArgument('tag')
-//                          ->addArgument('--quiet')
-//                          ->addArgument('--no-color')
-//                          ->executeReturnArray();
-//
-//        foreach ($results as $line) {
-//            if (str_starts_with($line, '*')) {
-//                $this->source[substr($line, 2)] = true;
-//
-//            } else {
-//                $this->source[substr($line, 2)] = false;
-//            }
-//        }
-//
-//        return $this;
-//    }
-//
-//
-//    /**
-//     * Creates and returns a CLI table for the data in this list
-//     *
-//     * @param array|string|null $columns
-//     * @param array             $filters
-//     * @param string|null       $id_column
-//     *
-//     * @return static
-//     */
-//    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'tag'): static
-//    {
-//        $list = [];
-//
-//        foreach ($this->getSource() as $tag => $selected) {
-//            $list[$tag] = ['selected' => $selected ? '*' : ''];
-//        }
-//
-//        $filters = array_replace(
-//            $filters,
-//            [
-//                'tag'   => tr('Tag'),
-//                'selected' => tr('Selected'),
-//            ]
-//        );
-//
-//        Cli::displayTable(
-//            $list,
-//            $filters,
-//            $id_column
-//        );
-//
-//        return $this;
-//    }
-
-
-
-
-
-
-
-    /**
-     * Returns a list of all available tags
-     *
-     * @return IteratorInterface
-     */
-    public function list(): IteratorInterface
-    {
-        return $this->o_git->clearArguments()
-                           ->addArgument('tag')
-                           ->executeReturnIterator();
-    }
-
-
-    /**
-     * Deletes the specified tag
-     *
-     * @param string      $tag
-     * @param string|null $remote
-     *
-     * @return static
-     */
-    public function delete(string $tag, ?string $remote = null): static
-    {
-        if ($remote) {
-            $this->o_git->clearArguments()
-                        ->addArgument('push')
-                        ->addArguments([
-                            $remote,
-                            '--delete',
-                            $tag,
-                        ])
-                        ->executeNoReturn();
-
-        } else {
-            $this->o_git->clearArguments()
-                        ->addArgument('tag')
-                        ->addArguments([
-                            '-d',
-                            $tag,
-                        ])
-                        ->executeNoReturn();
+        foreach ($this as $key => $value) {
+            $source[$key] = [
+                'tag' => $value,
+            ];
         }
 
+        Cli::displayTable($source, $columns, $id_column);
         return $this;
     }
 }
