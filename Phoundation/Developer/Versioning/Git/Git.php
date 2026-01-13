@@ -1024,13 +1024,11 @@ class Git extends Versioning implements GitInterface
             if (Arrays::containsNeedles($e->getDataKey('output'), ['You are not currently on a branch'])) {
                 throw GitNoBranchSelectedException::new(ts('Cannot pull on repository ":repository", it has no branch selected', [
                     ':repository' => $this->o_directory,
-                ]))
-                ->setData([
+                ]))->setData([
                     ':repository' => $this->o_directory,
                     ':branch'     => $this->getSelectedBranch(),
                     ':type'       => $this->getSelectedType(),
-                ])
-                ->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
+                ])->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
                     ':repository' => $this->o_directory,
                     ':type'       => $this->getSelectedType(),
                 ]));
