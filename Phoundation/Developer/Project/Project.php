@@ -759,7 +759,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         if (!$default) {
             // Select the current branch
-            $default = $this->o_git->getCurrentBranch();
+            $default = $this->o_git->getSelectedBranch();
 
             Log::notice(ts('Using project branch ":branch"', [
                 ':branch' => $default,
@@ -1068,7 +1068,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         if (!$branch) {
-            $branch = $this->o_git->getCurrentBranch();
+            $branch = $this->o_git->getSelectedBranch();
             Log::notice(ts('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));

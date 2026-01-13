@@ -117,12 +117,12 @@ interface RepositoriesInterface extends DataIteratorInterface
     /**
      * Creates the specified tag for all repositories
      *
-     * @param string      $name          The name for the tag to delete
+     * @param string      $tag           The name for the tag to delete
      * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
      *
      * @return static
      */
-    public function deleteTag(string $name, string|bool $remote = true): static;
+    public function deleteTag(string $tag, string|bool $remote = true): static;
 
     /**
      * Executes a "git fetch" on all repositories

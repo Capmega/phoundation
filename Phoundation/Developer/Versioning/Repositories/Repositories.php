@@ -905,6 +905,30 @@ throw new UnderConstructionException();
 
 
     /**
+     * Checks if all repositories have the requested suffix or version tag available, and if not, throws a RepositoriesVersionTagNotExistsException
+     *
+     * @param string $phoundation_version
+     * @param string $project_version
+     * @param string $phoundation_tag
+     *
+     * @param string $project_tag
+     *
+     * @return static
+     */
+    public function checkAllHaveSuffixOrVersionTag(string $phoundation_version, string $project_version, string $phoundation_tag, string $project_tag): static
+    {
+        foreach ($this as $o_repository) {
+            $tag     = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+
+            $o_repository->checkHasSuffixOrVersionTag($version, $tag);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Creates the specified tag for all repositories
      *
      * @param string      $tag             The name for the tag
@@ -962,15 +986,96 @@ throw new UnderConstructionException();
     /**
      * Creates the specified tag for all repositories
      *
-     * @param string      $name          The name for the tag to delete
+     * @param string      $tag           The name for the tag to delete
      * @param string|bool $remote [true] If true or string with value, will delete the branch on the default (for true) or specified remote
      *
      * @return static
      */
-    public function deleteTag(string $name, string|bool $remote = true): static
+    public function deleteTag(string $tag, string|bool $remote = true): static
     {
+        $this->checkAnyIsOnTag($tag, ts('delete tag'));
+showdie();
         foreach ($this as $o_repository) {
-            $o_repository->deleteTag($name, $remote);
+            $o_repository->deleteTag($tag, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Synchronizes all selected tag repositories so they are all on the correct tag
+     *
+     * @param string|null $suffix
+     *
+     * @return static
+     */
+    public function selectAutoTag(?string $suffix): static
+    {
+        $project_version = Project::getVersion();
+        $project_version = Strings::untilReverse($project_version, '.');
+        $project_tag  = $project_version . ($suffix ? '-' . $suffix : null);
+
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
+        $phoundation_tag  = $phoundation_version . ($suffix ? '-' . $suffix : null);
+
+        // Before we start, make sure all target repositories have either the suffix tag already available or if not,
+        $this->checkAllHaveSuffixOrVersionTag($phoundation_version, $project_version, $phoundation_tag, $project_tag);
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot select tages on repositories, one or more repositories has changes'));
+            }
+        }
+
+        $this->verifyProjectRepositoryVersion(ts('select tag'), true);
+
+        // Go over each repository, switch each to the correct tag
+        foreach ($this as $o_repository) {
+            $tag  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+
+            // Can we switch to the tag, or do we have to create and push it first?
+            if ($o_repository->tagExists($tag)) {
+                Log::action(ts('Selecting auto-tag ":tag" for ":type" repository ":repository"', [
+                    ':tag'     => $tag,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->selectTag($tag);
+
+            } elseif ($suffix) {
+                // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX tag, IF we have VERSION tag available
+                if (!$o_repository->tagExists($version)) {
+                    throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
+                        ':tag'     => $tag,
+                        ':repository' => $o_repository->getName(),
+                        ':version'    => $version,
+                    ]));
+                }
+
+                Log::action(ts('Creating and pushing required tag ":tag" from version tag ":version" for ":type" repository ":repository"', [
+                    ':tag'     => $tag,
+                    ':version'    => $version,
+                    ':type'       => $o_repository->getType(),
+                    ':repository' => $o_repository->getName(),
+                ]));
+
+                $o_repository->selectTag($version)
+                             ->createTag($tag)
+                             ->push($o_repository->selectRemoteRepository(), $tag);
+
+            } else {
+                // Problem! The repository does not have the requested tag which is an exact version, without a suffix.
+                // We cannot create the tag automatically, because from where?!
+                throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
+                    ':tag'     => $tag,
+                    ':repository' => $o_repository->getName(),
+                    ':version'    => $version,
+                ]));
+            }
         }
 
         return $this;

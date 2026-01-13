@@ -51,7 +51,7 @@ interface GitInterface
      *
      * @return string
      */
-    public function getCurrentBranch(): string;
+    public function getSelectedBranch(): string;
 
     /**
      * Returns the current git branch for this path
@@ -305,5 +305,21 @@ interface GitInterface
      * @return array
      */
     public function stashShow(): array;
+
+    /**
+     * Returns the current git tag for this directory
+     *
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public function tagExists(string $tag): bool;
+
+    /**
+     * Returns the current git branch for this directory
+     *
+     * @return string
+     */
+    public function getSelectedTag(): string;
 }
 

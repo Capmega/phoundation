@@ -234,11 +234,12 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if the specified tag exists in this repository
      *
-     * @param string $tag The tag to test for existence
+     * @param string $tag                        The tag to test for existence
+     * @param bool   $check_branches_too [false] If true will check if the tag exists as a branch name as well
      *
      * @return bool
      */
-    public function tagExists(string $tag): bool;
+    public function tagExists(string $tag, bool $check_branches_too = false): bool;
 
     /**
      * @return static
@@ -282,4 +283,21 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
+
+    /**
+     * Checks if this repository has the requested suffix or version tag available, and if not, throws a RepositoriesHaveChangesException
+     *
+     * @param string $version
+     * @param string $tag
+     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @return static
+     */
+    public function checkHasSuffixOrVersionTag(string $version, string $tag, bool $check_tags_too = true): static;
+
+    /**
+     * Returns the current git branch for this repository
+     *
+     * @return string
+     */
+    public function getSelectedTag(): string;
 }

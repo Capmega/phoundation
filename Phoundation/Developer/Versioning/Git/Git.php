@@ -147,7 +147,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return string
      */
-    public function getCurrentBranch(): string
+    public function getSelectedBranch(): string
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('branch')
@@ -155,6 +155,32 @@ class Git extends Versioning implements GitInterface
 
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
+                return trim(Strings::from($line, '*'));
+            }
+        }
+
+        throw new GitException(tr('No branch selected for directory ":directory"', [
+            ':directory' => $this->o_directory,
+        ]));
+    }
+
+
+    /**
+     * Returns the current git branch for this directory
+     *
+     * @return string
+     */
+    public function getSelectedTag(): string
+    {
+        $tags   = $this->getTags();
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('branch')
+                                  ->executeReturnArray();
+
+show($tags);
+        foreach ($output as $line) {
+            if (str_starts_with(trim($line), '*')) {
+showdie($line);
                 return trim(Strings::from($line, '*'));
             }
         }
@@ -263,7 +289,7 @@ class Git extends Versioning implements GitInterface
             ]));
         }
 
-        $current = $this->getCurrentBranch();
+        $current = $this->getSelectedBranch();
         $output  = $this->o_process->clearArguments()
                                    ->addArguments(['checkout', ($reset ? '-B' : '-b')])
                                    ->addArgument($branch)
