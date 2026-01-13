@@ -26,6 +26,9 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => true
+    ],
+    'arguments' => [
+        '-r,--not-remote' => false
     ]
 ]);
 
@@ -34,27 +37,36 @@ CliDocumentation::setUsage('./pho development repositories branches delete
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will delete the branches with the specified suffix for all known phoundation repositories, ensuring all repositories are on the right branch
+This command will delete the branches with the specified branch for all known phoundation repositories, ensuring all repositories are on the right branch
 
 
 ARGUMENTS
 
 
--r, --not-remote                        If specified will NOT remove the branches from the default remote repository'));
+BRANCH_NAME                             The name of the branch to delete
+
+
+OPTIONAL ARGUMENTS
+
+
+[-r, --not-remote]                      If specified will NOT remove the branches from the default remote repository
+
+[-F, --force]                           If specified, will forcibly delete the branch, even when there are reasons not 
+                                        to, like the branch containing changes that have not been merged anywhere yet'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('suffix')->matchesRegex('/^[a-z0-9-]+$/i')
+                     ->select('branch')->matchesRegex('/^[a-z0-9-]+$/i')
                      ->select('-r,--not-remote')->isOptional()->isBoolean()
                      ->validate();
 
 
-// Load all known repositories and delete the requested branch
+// Load all available repositories and delete the requested branch
 $o_repositories = Repositories::new()->load();
 
 Log::cli(ts('Deleting branches for ":count" repositories, this might take a few seconds...', [
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->deleteBranch($argv['suffix'], !$argv['not_remote']);
+$o_repositories->deleteAutoBranch($argv['branch'], !$argv['not_remote']);

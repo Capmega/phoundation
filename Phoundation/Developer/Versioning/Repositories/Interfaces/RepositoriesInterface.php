@@ -99,4 +99,24 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return RepositoryInterface
      */
     public function getRandom(): RepositoryInterface;
+
+    /**
+     * Deletes the specified branch from all known repositories
+     *
+     * @param string $branch
+     * @param bool   $remote
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, bool $remote = true): static;
+
+    /**
+     * Deletes the specified tag from all known repositories
+     *
+     * @param string $tag
+     * @param bool   $remote
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, bool $remote = true): static;
 }

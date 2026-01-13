@@ -360,12 +360,41 @@ throw new UnderConstructionException();
     /**
      * Deletes the specified branch from all known repositories
      *
+     * @param string $branch
+     * @param bool   $remote
+     *
+     * @return static
+     */
+    public function deleteBranch(string $branch, bool $remote = true): static
+    {
+        $this->checkAnyIsOnBranch($branch, ts('delete branch'));
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                    ':branch' => $branch
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct branch
+        foreach ($this as $o_repository) {
+            $o_repository->deleteBranch($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Deletes the specified branch from all known repositories
+     *
      * @param string $suffix
      * @param bool   $remote
      *
      * @return static
      */
-    public function deleteBranch(string $suffix, bool $remote = true): static
+    public function deleteAutoBranch(string $suffix, bool $remote = true): static
     {
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
@@ -499,6 +528,35 @@ throw new UnderConstructionException();
 
 
     /**
+     * Deletes the specified tag from all known repositories
+     *
+     * @param string $tag
+     * @param bool   $remote
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, bool $remote = true): static
+    {
+        $this->checkAnyIsOnTag($tag, ts('delete tag'));
+
+        if ($this->hasChanges()) {
+            if (!FORCE) {
+                throw new RepositoriesHaveChangesException(ts('Cannot tag ":tag" from repositories, one or more repositories has changes', [
+                    ':tag' => $tag
+                ]));
+            }
+        }
+
+        // Go over each repository, switch each to the correct tag
+        foreach ($this as $o_repository) {
+            $o_repository->deleteTag($tag, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Deletes the specified tag from all repositories
      *
      * @param string $suffix
@@ -513,12 +571,12 @@ throw new UnderConstructionException();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         $this->verifyProjectRepositoryVersion(ts('delete tag'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnTag($project_branch    , ts('delete tag'));
+             ->checkAnyIsOnBranch($phoundation_branch, ts('delete auto tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkAnyIsOnTag($project_branch       , ts('delete auto tag'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
+                throw new RepositoriesHaveChangesException(ts('Cannot delete auto branch ":branch" from repositories, one or more repositories has changes', [
                     ':branch' => $suffix
                 ]));
             }

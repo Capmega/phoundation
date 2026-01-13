@@ -145,7 +145,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function deleteAutoBranch(string $branch, string|false $remote_repository = false): static;
+    public function deleteBranch(string $branch, string|false $remote_repository = false): static;
 
     /**
      * Returns true if the current git branch for this repository is equal to the specified branch
@@ -239,4 +239,39 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function loadDetails(): static;
+
+    /**
+     * Deletes the specified tag from this repository (and optionally the selected remote as well)
+     *
+     * @param string      $tag
+     * @param string|bool $remote_repository
+     *
+     * @return static
+     */
+    public function deleteTag(string $tag, string|bool $remote_repository = false): static;
+
+    /**
+     * Creates the specified new tag in this repository
+     *
+     * @param string $tag
+     *
+     * @return static
+     */
+    public function selectTag(string $tag): static;
+
+    /**
+     * Returns the size of the repository working tree in bytes
+     *
+     * @return int
+     */
+    public function getWorkingTreeSize(): int;
+
+    /**
+     * Creates the specified new branch in this repository
+     *
+     * @param string $branch
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch): static;
 }

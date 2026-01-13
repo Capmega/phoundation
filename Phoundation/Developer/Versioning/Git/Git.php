@@ -539,7 +539,34 @@ class Git extends Versioning implements GitInterface
      */
     public function selectBranch(string $branch): static
     {
-        return $this->checkout($branch);
+        if (array_key_exists($branch, $this->getBranches(true))) {
+            return $this->checkout($branch);
+        }
+
+        throw new GitException(ts('Cannot select branch ":branch" for repository ":repository", the branch does not exist', [
+            ':branch'     => $branch,
+            ':repository' => $this->o_directory,
+        ]));
+    }
+
+
+    /**
+     * "Selects" the specified tag for this repository (Equivalent to git checkout tag)
+     *
+     * @param string $tag
+     *
+     * @return static
+     */
+    public function selectTag(string $tag): static
+    {
+        if (array_key_exists($tag, $this->getTags())) {
+            return $this->checkout($tag);
+        }
+
+        throw new GitException(ts('Cannot select tag ":tag" for repository ":repository", the tag does not exist', [
+            ':tag'        => $tag,
+            ':repository' => $this->o_directory,
+        ]));
     }
 
 

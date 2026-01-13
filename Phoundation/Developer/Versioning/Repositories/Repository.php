@@ -591,7 +591,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return static
      */
-    public function deleteAutoBranch(string $branch, string|bool $remote_repository = false): static
+    public function deleteBranch(string $branch, string|bool $remote_repository = false): static
     {
         // Select what remote to use, if any
         $remote_repository = $this->selectRemoteRepository($remote_repository);
@@ -706,7 +706,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return static
      */
-    public function deleteAutoTag(string $tag, string|bool $remote_repository = false): static
+    public function deleteTag(string $tag, string|bool $remote_repository = false): static
     {
         // Select what remote to use, if any
         $remote_repository = $this->selectRemoteRepository($remote_repository);
