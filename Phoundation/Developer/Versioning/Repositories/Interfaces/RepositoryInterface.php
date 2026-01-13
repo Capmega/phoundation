@@ -125,9 +125,9 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedBranch(): string;
+    public function getSelectedBranch(): ?string;
 
     /**
      * Returns true if the requested branch exists for this repository
@@ -168,7 +168,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return Repository
      */
-    public function checkIsOnBranch(string $branch, string $action): static;
+    public function checkIsNotOnBranch(string $branch, string $action): static;
 
     /**
      * Returns the specified repository, or the configured default
@@ -297,7 +297,7 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedTag(): string;
+    public function getSelectedTag(): ?string;
 }

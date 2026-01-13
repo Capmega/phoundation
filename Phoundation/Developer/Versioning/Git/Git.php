@@ -145,9 +145,10 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the current git branch for this directory
      *
-     * @return string
+     * @param bool $return_if_detached [false] If true will return the current branch if HEAD is detached
+     * @return string|null
      */
-    public function getSelectedBranch(): string
+    public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
         $output = $this->o_process->clearArguments()
                                   ->addArgument('branch')
@@ -155,7 +156,17 @@ class Git extends Versioning implements GitInterface
 
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
-                return trim(Strings::from($line, '*'));
+                $return = trim(Strings::from($line, '*'));
+
+                if (preg_match_all('/^\(HEAD detached at (.+?)\)$/', $return, $matches)) {
+                    if (!$return_if_detached) {
+                        return null;
+                    }
+
+                    $return = $matches[1][0];
+                }
+
+                return $return;
             }
         }
 
@@ -168,26 +179,25 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the current git branch for this directory
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedTag(): string
+    public function getSelectedTag(): ?string
     {
-        $tags   = $this->getTags();
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('branch')
-                                  ->executeReturnArray();
-
-show($tags);
-        foreach ($output as $line) {
-            if (str_starts_with(trim($line), '*')) {
-showdie($line);
-                return trim(Strings::from($line, '*'));
-            }
+        if ($this->getSelectedBranch()) {
+            // A branch was selected, so no tag can be selected
+            return null;
         }
 
-        throw new GitException(tr('No branch selected for directory ":directory"', [
-            ':directory' => $this->o_directory,
-        ]));
+        $tags = $this->getTags();
+        $tag  = $this->getSelectedBranch(true);
+
+        if (array_key_exists($tag, $tags)) {
+            // This is an existing tag, it is the correct tag
+            return $tag;
+        }
+
+        // No branch or tag is selected, so likely were in detached mode
+        return null;
     }
 
 

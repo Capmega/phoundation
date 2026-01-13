@@ -42,6 +42,7 @@ interface GitInterface
     /**
      * Clone the specified URL to this path
      *
+     * @param string $url
      * @return static
      */
     public function clone(string $url): static;
@@ -49,9 +50,9 @@ interface GitInterface
     /**
      * Returns the current git branch for this path
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedBranch(): string;
+    public function getSelectedBranch(): ?string;
 
     /**
      * Returns the current git branch for this path
@@ -318,8 +319,8 @@ interface GitInterface
     /**
      * Returns the current git branch for this directory
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedTag(): string;
+    public function getSelectedTag(): ?string;
 }
 

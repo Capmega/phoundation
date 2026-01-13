@@ -225,7 +225,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      * @throws RepositoriesException
      */
-    public function checkAnyHaveBranch(string $branch, string $action, bool $auto_create = false): static;
+    public function checkNoneHaveBranch(string $branch, string $action, bool $auto_create = false): static;
 
     /**
      * Returns true if any repository is on the specified branch
@@ -264,7 +264,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      * @throws RepositoriesTagExistsException
      */
-    public function checkAnyHaveTag(string $tag, string $action): static;
+    public function checkNoneHaveTag(string $tag, string $action): static;
 
     /**
      * Returns true if any repository is on the specified tag

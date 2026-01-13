@@ -487,9 +487,9 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedBranch(): string
+    public function getSelectedBranch(): ?string
     {
         return $this->o_git->getSelectedBranch();
     }
@@ -498,9 +498,9 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @return string
+     * @return string|null
      */
-    public function getSelectedTag(): string
+    public function getSelectedTag(): ?string
     {
         return $this->o_git->getSelectedTag();
     }
@@ -515,9 +515,6 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function isOnBranch(string $branch): bool
     {
-show($this->getName());
-show($branch);
-show($this->o_git->getSelectedBranch());
         return $this->o_git->getSelectedBranch() === $branch;
     }
 
@@ -530,7 +527,7 @@ show($this->o_git->getSelectedBranch());
      *
      * @return static
      */
-    public function checkIsOnBranch(string $branch, string $action): static
+    public function checkIsNotOnBranch(string $branch, string $action): static
     {
         if ($this->isOnBranch($branch)) {
             throw RepositoriesException::new(ts('Cannot perform action ":action" on branch ":branch" of repository ":repository", the repository is using the branch right now', [
@@ -788,7 +785,7 @@ show($this->o_git->getSelectedBranch());
      */
     public function isOnTag(string $tag): bool
     {
-        return $this->o_git->getSelectedBranch() === $tag;
+        return $this->o_git->getSelectedTag() === $tag;
     }
 
 

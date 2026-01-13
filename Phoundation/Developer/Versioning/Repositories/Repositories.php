@@ -485,7 +485,7 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesBranchExistsException
      */
-    public function checkAnyHaveBranch(string $branch, string $action, bool $auto_create = false): static
+    public function checkNoneHaveBranch(string $branch, string $action, bool $auto_create = false): static
     {
         if ($this->anyHaveBranch($branch, $auto_create)) {
             throw new RepositoriesBranchExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified branch ":branch"', [
@@ -590,10 +590,10 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesException
      */
-    public function checkAnyIsOnBranch(string $branch, string $action): static
+    public function checkNoneIsOnBranch(string $branch, string $action): static
     {
         foreach ($this as $o_repository) {
-            $o_repository->checkIsOnBranch($branch, $action);
+            $o_repository->checkIsNotOnBranch($branch, $action);
         }
 
         return $this;
@@ -636,7 +636,7 @@ throw new UnderConstructionException();
      */
     public function createBranch(string $branch, bool $reset = false, ?string $remote = null, bool $set_upstream = false): static
     {
-        $this->checkAnyHaveBranch($branch, ts('create branch'));
+        $this->checkNoneHaveBranch($branch, ts('create branch'));
 
         foreach ($this as $o_repository) {
             $o_repository->createBranch($branch, $reset, $remote, $set_upstream);
@@ -779,8 +779,8 @@ throw new UnderConstructionException();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         $this->verifyProjectRepositoryVersion(ts('delete branch'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnBranch($project_branch    , ts('delete branch'));
+             ->checkNoneIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneIsOnBranch($project_branch    , ts('delete branch'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
@@ -811,7 +811,7 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesException
      */
-    public function checkAnyIsOnTag(string $tag, string $action): static
+    public function checkNoneIsOnTag(string $tag, string $action): static
     {
         foreach ($this as $o_repository) {
             $o_repository->checkIsOnTag($tag, $action);
@@ -849,7 +849,7 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesTagExistsException
      */
-    public function checkAnyHaveTag(string $tag, string $action): static
+    public function checkNoneHaveTag(string $tag, string $action): static
     {
         if ($this->anyHaveTag($tag)) {
             throw new RepositoriesTagExistsException(ts('Cannot perform action ":action", one or more repositories already have the specified tag ":tag"', [
@@ -939,7 +939,8 @@ throw new UnderConstructionException();
      */
     public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static
     {
-        $this->checkAnyHaveTag($tag, ts('create tag'));
+        $this->checkNoneHaveTag($tag, ts('create tag'));
+showdie();
 
         foreach ($this as $o_repository) {
             $o_repository->createTag($tag, $message, $signed);
@@ -993,8 +994,8 @@ throw new UnderConstructionException();
      */
     public function deleteTag(string $tag, string|bool $remote = true): static
     {
-        $this->checkAnyIsOnTag($tag, ts('delete tag'));
-showdie();
+        $this->checkNoneIsOnTag($tag, ts('delete tag'));
+
         foreach ($this as $o_repository) {
             $o_repository->deleteTag($tag, $remote);
         }
@@ -1097,8 +1098,8 @@ showdie();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         $this->verifyProjectRepositoryVersion(ts('delete tag'))
-             ->checkAnyIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkAnyIsOnTag($project_branch , ts('delete tag'));
+             ->checkNoneIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneIsOnTag($project_branch , ts('delete tag'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
