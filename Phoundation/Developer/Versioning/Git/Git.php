@@ -944,12 +944,12 @@ class Git extends Versioning implements GitInterface
     /**
      * Pull the remote changes from the remote repository / branch
      *
-     * @param string $repository
-     * @param string $branch
+     * @param string|null $repository
+     * @param string|null $branch
      *
      * @return static
      */
-    public function pull(string $repository, string $branch): static
+    public function pull(?string $repository, ?string $branch): static
     {
         $this->verifyBranch($branch);
 

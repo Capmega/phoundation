@@ -301,7 +301,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Pulling branch "branch" on ":type" type repository ":repository" from remote ":remote"', [
+        Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
             ':branch'     => $branch,
