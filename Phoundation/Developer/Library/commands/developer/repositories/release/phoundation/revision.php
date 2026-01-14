@@ -19,6 +19,7 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
 use Phoundation\Filesystem\PhoDirectory;
 
@@ -53,8 +54,6 @@ $argv = ArgvValidator::new()
 // Synchronize all available repositories
 $o_repositories = Repositories::new()->load();
 
-Log::cli(ts('Releasing revision, this might take a few seconds...', [
-    ':count' => $o_repositories->getCount()
-]), 'action');
+Log::cli(ts('Releasing revision, this might take a few seconds...'), 'action');
 
-$o_repositories->releaseRevision($argv['number']);
+$o_repositories->releaseRevision(EnumPhoundationClass::phoundation, $argv['number']);

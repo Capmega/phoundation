@@ -301,7 +301,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return EnumPhoundationClass
      */
-    public function getClass(): EnumPhoundationClass;
+    public function detectClass(): EnumPhoundationClass;
 
     /**
      * Returns true if the type for this object is the same as the specified type

@@ -612,9 +612,15 @@ throw new UnderConstructionException();
      */
     public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool
     {
+show($phoundation_version);
+show($project_version);
+show($phoundation_branch);
+show($project_branch);
         foreach ($this as $o_repository) {
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+show($branch);
+show($version);
 
             if (!$o_repository->hasBranchOrVersionBranch($version, $branch)) {
                 return false;
@@ -1251,13 +1257,13 @@ showdie();
      *
      * @return $this
      */
-    public function releaseRevision(EnumPhoundationClass $class, int $increase = 1): static
+    public function releaseRevision(EnumPhoundationClass $class, ?int $increase = 1): static
     {
         $this->checkAllHaveCorrectVersionSelected(ts('release ' . $class->value));
-
+showdie('YAY!');
         foreach ($this as $o_repository) {
             if ($o_repository->isClass($class)) {
-                $o_repository->upgradeRevision($increase);
+                $o_repository->upgradeRevision($increase ?? 1);
             }
         }
 

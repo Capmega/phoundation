@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveVersionSelectedException;
@@ -340,4 +341,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @throws RepositoriesNotAllHaveVersionSelectedException
      */
     public function checkAllHaveCorrectVersionSelected(string $action): static;
+
+    /**
+     * Will upgrade the revision part of the version of class repositories by the specified number
+     *
+     * @param EnumPhoundationClass $class    The class of repository to upgrade, either "phoundation" or "project" or "cdn"
+     * @param int|null             $increase [1] The amount to increase the release part of the version by
+     *
+     * @return $this
+     */
+    public function releaseRevision(EnumPhoundationClass $class, ?int $increase = 1): static;
 }

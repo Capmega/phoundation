@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryClass;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPathObject;
@@ -64,6 +65,7 @@ class Repository extends DataEntry implements RepositoryInterface
     use TraitDataEntryName;
     use TraitDataEntryDescription;
     use TraitDataEntryBranch;
+    use TraitDataEntryClass;
 
 
     /**
@@ -77,7 +79,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $this->setPermittedColumns(['branch', 'class'])
              ->addEventHandler('loaded', function () {
-                 $this->setClass($this->getClass())
+                 $this->setClass($this->detectClass()->value)
                       ->setBranch($this->getSelectedBranch(true));
              });
 
@@ -909,13 +911,15 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * @param int $increase [1] The number to increase the release part of the version
+     * Upgrades the revision version section of this repository
+     *
+     * @param int|null $increase [1] The number to increase the release part of the version
      *
      * @return static
      */
-    public function upgradeRevision(int $increase = 1): static
+    public function upgradeRevision(?int $increase = 1): static
     {
-        return $this->upgrade(EnumVersionSections::revision, $increase);
+        return $this->upgrade(EnumVersionSections::revision, $increase ?? 1);
     }
 
 
@@ -923,15 +927,16 @@ class Repository extends DataEntry implements RepositoryInterface
      * Upgrade this repository
      *
      * @param EnumVersionSections $section      The section of the version to upgrade
-     * @param int                 $increase [1] The number to increase the release part of the version
+     * @param int|null            $increase [1] The number to increase the release part of the version
      *
      * @return static
      */
-    public function upgrade(EnumVersionSections $section, int $increase = 1): static
+    public function upgrade(EnumVersionSections $section, ?int $increase = 1): static
     {
+showdie();
         $this->hasBranchOrVersionBranch();
 
-        switch ($this->getClass()) {
+        switch ($this->detectClass()) {
             case EnumPhoundationClass::phoundation:
 
 
@@ -946,7 +951,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return EnumPhoundationClass
      */
-    public function getClass(): EnumPhoundationClass
+    public function detectClass(): EnumPhoundationClass
     {
         switch ($this->getName()) {
             case 'phoundation':
@@ -997,7 +1002,7 @@ class Repository extends DataEntry implements RepositoryInterface
             $class = $class->value;
         }
 
-        return $this->getClass() === $class;
+        return $this->detectClass() === $class;
     }
 
 
