@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer repositories branches select
+ * Command developer repositories tags select
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will synchronize the branches for all known phoundation repositories
+ * This command will synchronize the tags for all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -20,7 +20,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
-use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
@@ -30,16 +29,16 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branches select
+CliDocumentation::setUsage('./pho development repositories tags select
 ./pho development rp br sl');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will synchronize the branches for all known phoundation repositories, ensuring all repositories are on the right branch
+This command will synchronize the tags for all known phoundation repositories, ensuring all repositories are on the right tag
 
-The selected branch for this project should match the specified version, with optionally a suffix 
+The selected tag for this project should match the specified version, with optionally a suffix 
 
-The selected branch for all other repositories should match the Phoundation version, with optionally a suffix 
+The selected tag for all other repositories should match the Phoundation version, with optionally a suffix 
 
 
 ARGUMENTS
@@ -57,8 +56,8 @@ $argv = ArgvValidator::new()
 // Synchronize all available repositories
 $o_repositories = Repositories::new()->load();
 
-Log::cli(ts('Automatically selecting branches for ":count" repositories, this might take a few seconds...', [
+Log::cli(ts('Automatically selecting tags for ":count" repositories, this might take a few seconds...', [
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectAutoBranch($argv['suffix']);
+$o_repositories->selectAutoTag($argv['suffix']);

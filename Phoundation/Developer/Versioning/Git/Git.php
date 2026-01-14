@@ -20,8 +20,11 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
+use Phoundation\Developer\Versioning\Git\Exception\GitHasNoRemoteBranchException;
+use Phoundation\Developer\Versioning\Git\Exception\GitNoBranchSelectedException;
 use Phoundation\Developer\Versioning\Git\Exception\GitTagNotExistException;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
@@ -31,6 +34,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoFile;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Interfaces\ProcessInterface;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Arrays;
@@ -139,6 +143,60 @@ class Git extends Versioning implements GitInterface
     {
         $this->verifyBranch($branch);
         return array_key_exists($branch, $this->getBranches($from_all));
+    }
+
+
+    /**
+     * Returns true if this repository has a branch selected
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(): bool
+    {
+        return (bool) $this->getSelectedBranch();
+    }
+
+
+    /**
+     * Returns true if this repository has a tag selected
+     *
+     * @return bool
+     */
+    public function hasTagSelected(): bool
+    {
+        return (bool) $this->getSelectedTag();
+    }
+
+
+    /**
+     * Returns the git selected type (branch, tag, detached)
+     *
+     * @return EnumGitSelected
+     */
+    public function getSelectedType(): EnumGitSelected
+    {
+        if ($this->hasBranchSelected()) {
+            return EnumGitSelected::branch;
+        }
+
+        if ($this->hasTagSelected()) {
+            return EnumGitSelected::tag;
+        }
+
+        return EnumGitSelected::detached;
+    }
+
+
+    /**
+     * Returns true if the selected type for this repository matches the specified type
+     *
+     * @param EnumGitSelected $selected
+     *
+     * @return bool
+     */
+    public function hasSelectedType(EnumGitSelected $selected): bool
+    {
+        return $this->getSelectedType() === $selected;
     }
 
 
@@ -944,22 +1002,53 @@ class Git extends Versioning implements GitInterface
     /**
      * Pull the remote changes from the remote repository / branch
      *
-     * @param string $repository
-     * @param string $branch
+     * @param string|null $repository
+     * @param string|null $branch
      *
      * @return static
      */
-    public function pull(string $repository, string $branch): static
+    public function pull(?string $repository, ?string $branch): static
     {
         $this->verifyBranch($branch);
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('pull')
-                                  ->addArgument($this->getDefaultRemote($repository))
-                                  ->addArgument($branch)
-                                  ->executeReturnArray();
+        try {
+            $output = $this->o_process->clearArguments()
+                                      ->addArgument('pull')
+                                      ->addArgument($this->getDefaultRemote($repository))
+                                      ->addArgument($branch)
+                                      ->executeReturnArray();
 
-        Log::notice($output, 1, false);
+            Log::notice($output, 1, false);
+
+        } catch (ProcessFailedException $e) {
+            if (Arrays::containsNeedles($e->getDataKey('output'), ['You are not currently on a branch'])) {
+                throw GitNoBranchSelectedException::new(ts('Cannot pull on repository ":repository", it has no branch selected', [
+                    ':repository' => $this->o_directory,
+                ]))->setData([
+                    ':repository' => $this->o_directory,
+                    ':branch'     => $this->getSelectedBranch(),
+                    ':type'       => $this->getSelectedType(),
+                ])->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
+                    ':repository' => $this->o_directory,
+                    ':type'       => $this->getSelectedType(),
+                ]));
+            }
+
+            if (Arrays::containsNeedles($e->getDataKey('output'), ['You asked to pull from the remote', 'a branch. Because this is not the default configured remote', 'your current branch, you must specify a branch on the command'])) {
+                if (empty($branch)) {
+                    throw GitHasNoRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository" without specifying a remote branch, this repository branch has no upstream configured yet', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]))->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]));
+                }
+            }
+
+            throw $e;
+        }
+
         return $this;
     }
 
@@ -1047,17 +1136,18 @@ class Git extends Versioning implements GitInterface
     /**
      * Throws an OutOfBoundsException if the specified branch name is invalid
      *
-     * @param string $branch
+     * @param string|null $branch
      *
      * @return static
-     * @throws OutOfBoundsException
      */
-    protected function verifyBranch(string $branch): static
+    protected function verifyBranch(?string $branch): static
     {
-        if (str_starts_with($branch, ':')) {
-            throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
-                ':branch' => $branch
-            ]));
+        if ($branch) {
+            if (str_starts_with($branch, ':')) {
+                throw new OutOfBoundsException(ts('Invalid git branch name ":branch" specified', [
+                    ':branch' => $branch
+                ]));
+            }
         }
 
         return $this;

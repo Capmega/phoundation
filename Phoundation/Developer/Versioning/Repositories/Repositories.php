@@ -20,6 +20,7 @@ use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
@@ -29,7 +30,10 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchEx
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagSelectedException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveVersionSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
@@ -586,7 +590,7 @@ throw new UnderConstructionException();
      * @return static
      * @throws RepositoriesException
      */
-    public function checkNoneIsOnBranch(string $branch, string $action): static
+    public function checkNoneAreOnBranch(string $branch, string $action): static
     {
         foreach ($this as $o_repository) {
             $o_repository->checkIsNotOnBranch($branch, $action);
@@ -602,7 +606,37 @@ throw new UnderConstructionException();
      * @param string $phoundation_version
      * @param string $project_version
      * @param string $phoundation_branch
+     * @param string $project_branch
      *
+     * @return bool
+     */
+    public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool
+    {
+show($phoundation_version);
+show($project_version);
+show($phoundation_branch);
+show($project_branch);
+        foreach ($this as $o_repository) {
+            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+show($branch);
+show($version);
+
+            if (!$o_repository->hasBranchOrVersionBranch($version, $branch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
+     *
+     * @param string $phoundation_version
+     * @param string $project_version
+     * @param string $phoundation_branch
      * @param string $project_branch
      *
      * @return static
@@ -613,7 +647,43 @@ throw new UnderConstructionException();
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
-            $o_repository->checkHasSuffixOrVersionBranch($version, $branch);
+            $o_repository->checkHasBranchOrVersionBranch($version, $branch);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if all repositories have a branch selected
+     *
+     * @return bool
+     */
+    public function allHaveBranchSelected(): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->hasBranchSelected()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified branch selected
+     *
+     * @param string $action The action that will be executed that requires all repositories to have a branch selected
+     *
+     * @return static
+     */
+    public function checkAllHaveBranchSelected(string $action): static
+    {
+        if (!$this->allHaveBranchSelected()) {
+            throw new RepositoriesNotAllHaveBranchSelectedException(ts('Cannot execute action ":action", not all repositories have a branch selected', [
+                ':action' => $action
+            ]));
         }
 
         return $this;
@@ -775,8 +845,8 @@ throw new UnderConstructionException();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         $this->verifyProjectRepositoryVersion(ts('delete branch'))
-             ->checkNoneIsOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
-             ->checkNoneIsOnBranch($project_branch    , ts('delete branch'));
+             ->checkNoneAreOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneAreOnBranch($project_branch    , ts('delete branch'));
 
         if ($this->hasChanges()) {
             if (!FORCE) {
@@ -1094,7 +1164,7 @@ showdie();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
         $this->verifyProjectRepositoryVersion(ts('delete tag'))
-             ->checkNoneIsOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
+             ->checkNoneAreOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkNoneIsOnTag($project_branch , ts('delete tag'));
 
         if ($this->hasChanges()) {
@@ -1109,6 +1179,42 @@ showdie();
         foreach ($this as $o_repository) {
             $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $o_repository->deleteTag($branch, $remote);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if all repositories have a tag selected
+     *
+     * @return bool
+     */
+    public function allHaveTagSelected(): bool
+    {
+        foreach ($this as $o_repository) {
+            if (!$o_repository->hasTagSelected()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified tag selected
+     *
+     * @param string $action The action that will be executed that requires all repositories to have a tag selected
+     *
+     * @return static
+     */
+    public function checkAllHaveTagSelected(string $action): static
+    {
+        if (!$this->allHaveTagSelected()) {
+            throw new RepositoriesNotAllHaveTagSelectedException(ts('Cannot execute action ":action", not all repositories have a tag selected', [
+                ':action' => $action
+            ]));
         }
 
         return $this;
@@ -1140,5 +1246,67 @@ showdie();
         }
 
         return $phoundation;
+    }
+
+
+    /**
+     * Will upgrade the revision part of the version of class repositories by the specified number
+     *
+     * @param EnumPhoundationClass $class    The class of repository to upgrade, either "phoundation" or "project" or "cdn"
+     * @param int                  $increase [1] The amount to increase the release part of the version by
+     *
+     * @return $this
+     */
+    public function releaseRevision(EnumPhoundationClass $class, ?int $increase = 1): static
+    {
+        $this->checkAllHaveCorrectVersionSelected(ts('release ' . $class->value));
+showdie('YAY!');
+        foreach ($this as $o_repository) {
+            if ($o_repository->isClass($class)) {
+                $o_repository->upgradeRevision($increase ?? 1);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if all repositories have the correct version branch or tag selected
+     *
+     * @return bool
+     */
+    public function allHaveCorrectVersionSelected(): bool
+    {
+        $project_version = Project::getVersion();
+        $project_version = Strings::untilReverse($project_version, '.');
+        $project_branch  = $project_version;
+
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
+        $phoundation_branch  = $phoundation_version;
+
+        // Before we start, make sure all target repositories have either the suffix branch already available or if not,
+        return $this->allHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
+    }
+
+
+    /**
+     * Throws a RepositoriesNotAllHaveVersionSelectedException not if all repositories have the correct version branch or tag selected
+     *
+     * @param string $action The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveVersionSelectedException
+     */
+    public function checkAllHaveCorrectVersionSelected(string $action): static
+    {
+        if (!$this->allHaveCorrectVersionSelected()) {
+            throw new RepositoriesNotAllHaveVersionSelectedException(ts('Cannot execute action ":action", not all repositories have a version selected', [
+                ':action' => $action
+            ]));
+        }
+
+        return $this;
     }
 }

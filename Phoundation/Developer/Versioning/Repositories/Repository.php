@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryClass;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryPathObject;
@@ -29,6 +30,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Versioning\Git\Branches\Branches;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
@@ -49,7 +51,7 @@ use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
-
+use Phoundation\Utils\Enums\EnumVersionSections;
 
 class Repository extends DataEntry implements RepositoryInterface
 {
@@ -63,6 +65,7 @@ class Repository extends DataEntry implements RepositoryInterface
     use TraitDataEntryName;
     use TraitDataEntryDescription;
     use TraitDataEntryBranch;
+    use TraitDataEntryClass;
 
 
     /**
@@ -74,9 +77,10 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
-        $this->setPermittedColumns(['branch'])
+        $this->setPermittedColumns(['branch', 'class'])
              ->addEventHandler('loaded', function () {
-                 $this->setBranch($this->o_git->getSelectedBranch(true));
+                 $this->setClass($this->detectClass()->value)
+                      ->setBranch($this->getSelectedBranch(true));
              });
 
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
@@ -301,7 +305,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Pulling branch "branch" on ":type" type repository ":repository" from remote ":remote"', [
+        Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
             ':branch'     => $branch,
@@ -484,11 +488,13 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the current git branch for this repository
      *
+     * @param bool $return_if_detached If true, will return the selected branch, even if it is not a branch
+     *
      * @return string|null
      */
-    public function getSelectedBranch(): ?string
+    public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
-        return $this->o_git->getSelectedBranch();
+        return $this->o_git->getSelectedBranch($return_if_detached);
     }
 
 
@@ -672,7 +678,7 @@ class Repository extends DataEntry implements RepositoryInterface
      * @param bool   $check_all      [false] If true will also check remote repositories
      * @return static
      */
-    public function checkHasSuffixOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static
+    public function checkHasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static
     {
         if (!$this->hasBranchOrVersionBranch($version, $branch, $check_tags_too, $check_all)) {
             if ($branch and ($version !== $branch)) {
@@ -774,6 +780,28 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns true if this repository has a branch selected
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(): bool
+    {
+        return $this->o_git->hasBranchSelected();
+    }
+
+
+    /**
+     * Returns true if this repository has a tag selected
+     *
+     * @return bool
+     */
+    public function hasTagSelected(): bool
+    {
+        return $this->o_git->hasTagSelected();
+    }
+
+
+    /**
      * Returns true if the current git tag for this repository is equal to the specified tag
      *
      * @param string $tag
@@ -799,7 +827,7 @@ class Repository extends DataEntry implements RepositoryInterface
         if ($this->isOnBranch($tag)) {
             throw RepositoriesException::new(ts('Cannot perform action ":action" on tag ":tag" of repository ":repository", the repository is using the tag right now', [
                 ':action'     => $action,
-                ':tag'     => $tag,
+                ':tag'        => $tag,
                 ':repository' => $this->getDisplayName()
             ]))->makeWarning();
         }
@@ -879,6 +907,102 @@ class Repository extends DataEntry implements RepositoryInterface
         }
 
         return $this;
+    }
+
+
+    /**
+     * Upgrades the revision version section of this repository
+     *
+     * @param int|null $increase [1] The number to increase the release part of the version
+     *
+     * @return static
+     */
+    public function upgradeRevision(?int $increase = 1): static
+    {
+        return $this->upgrade(EnumVersionSections::revision, $increase ?? 1);
+    }
+
+
+    /**
+     * Upgrade this repository
+     *
+     * @param EnumVersionSections $section      The section of the version to upgrade
+     * @param int|null            $increase [1] The number to increase the release part of the version
+     *
+     * @return static
+     */
+    public function upgrade(EnumVersionSections $section, ?int $increase = 1): static
+    {
+showdie();
+        $this->hasBranchOrVersionBranch();
+
+        switch ($this->detectClass()) {
+            case EnumPhoundationClass::phoundation:
+
+
+            case EnumPhoundationClass::project:
+            case EnumPhoundationClass::cdn:
+        }
+    }
+
+
+    /**
+     * Returns the platform for this repository
+     *
+     * @return EnumPhoundationClass
+     */
+    public function detectClass(): EnumPhoundationClass
+    {
+        switch ($this->getName()) {
+            case 'phoundation':
+                // no break;
+            case 'phoundation-data':
+                // no break;
+            case 'phoundation-plugins':
+                // no break;
+            case 'phoundation-templates':
+                return EnumPhoundationClass::phoundation;
+        }
+
+        if ($this->isType('cdn')) {
+            return EnumPhoundationClass::cdn;
+        }
+
+        return EnumPhoundationClass::project;
+    }
+
+
+    /**
+     * Returns true if the type for this object is the same as the specified type
+     *
+     * @param EnumPhoundationType|string $type
+     *
+     * @return bool
+     */
+    public function isType(EnumPhoundationType|string $type): bool
+    {
+        if ($type instanceof EnumPhoundationType) {
+            $type = $type->value;
+        }
+
+        return $this->getType() === $type;
+    }
+
+
+    /**
+     * Returns true if the platform for this object is the same as the specified platform
+     *
+     * @param EnumPhoundationClass|string $class
+     *
+     * @return bool
+     */
+    public function isClass(EnumPhoundationClass|string $class): bool
+    {
+        if ($class instanceof EnumPhoundationClass) {
+            $class = $class->value;
+        }
+
+        return $this->detectClass() === $class;
     }
 
 

@@ -969,7 +969,7 @@ class Sql implements SqlInterface
             Log::success(static::getConnectorLogPrefix() . ts('Connected to database with PDO connect string ":connect" in ":time"', [
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 4),
-            ]), 4);
+            ]), 3);
 
             Log::printr($this->configuration['attributes'], 2, echo_header: false);
 

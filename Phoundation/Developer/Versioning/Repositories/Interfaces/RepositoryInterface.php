@@ -3,6 +3,8 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
+use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Repositories\Repository;
@@ -121,9 +123,11 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns the current git branch for this repository
      *
+     * @param bool $return_if_detached If true, will return the selected branch, even if it is not a branch
+     *
      * @return string|null
      */
-    public function getSelectedBranch(): ?string;
+    public function getSelectedBranch(bool $return_if_detached = false): ?string;
 
     /**
      * Returns true if the requested branch exists for this repository
@@ -184,7 +188,7 @@ interface RepositoryInterface extends DataEntryInterface
      * @param bool   $check_all      [false] If true will also check remote repositories
      * @return static
      */
-    public function checkHasSuffixOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static;
+    public function checkHasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static;
 
     /**
      * Returns true if this repository has the requested suffix or version branch available
@@ -291,4 +295,50 @@ interface RepositoryInterface extends DataEntryInterface
      * @return string|null
      */
     public function getSelectedTag(): ?string;
+
+    /**
+     * Returns the platform for this repository
+     *
+     * @return EnumPhoundationClass
+     */
+    public function detectClass(): EnumPhoundationClass;
+
+    /**
+     * Returns true if the type for this object is the same as the specified type
+     *
+     * @param EnumPhoundationType|string $type
+     *
+     * @return bool
+     */
+    public function isType(EnumPhoundationType|string $type): bool;
+
+    /**
+     * Returns true if the platform for this object is the same as the specified platform
+     *
+     * @param EnumPhoundationClass|string $class
+     *
+     * @return bool
+     */
+    public function isClass(EnumPhoundationClass|string $class): bool;
+
+    /**
+     * @param int $increase [1] The number to increase the release part of the version
+     *
+     * @return $this
+     */
+    public function upgradeRevision(int $increase = 1): static;
+
+    /**
+     * Returns true if this repository has a branch selected
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(): bool;
+
+    /**
+     * Returns true if this repository has a tag selected
+     *
+     * @return bool
+     */
+    public function hasTagSelected(): bool;
 }

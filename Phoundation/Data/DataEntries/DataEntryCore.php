@@ -1408,8 +1408,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setOnLoadNotExists($on_not_exists)
                             ->setIdentifier($identifier->getIdentifier())
                             ->setSourceDirect($identifier->getSourceUnprocessed())
-                            ->setObjectState($identifier->getObjectState())
-                            ->triggerEvent('loaded');
+                            ->setObjectState($identifier->getObjectState());
             }
 
             throw new OutOfBoundsException(tr('Specified DataEntry identifier ":has" is incompatible with this object\'s class ":should"', [
@@ -1430,6 +1429,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if (empty($this->identifier)) {
             // Oh noes, no identifier specified!
+            $this->triggerEvent('no-identifier');
+
             switch ($this->on_null_identifier) {
                 case EnumLoadParameters::null:
                     return null;
@@ -1460,8 +1461,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
                 if ($o_data_entry) {
                     // This DataEntry was found in the cache, all is done!
-                    return $o_data_entry->setIsLoaded()
-                                        ->ready(true);
+                    return $o_data_entry->ready(true);
                 }
 
                 if ($this->debug) {
@@ -2220,7 +2220,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Done!
-        return $this->ready();
+        return $this->ready(true);
     }
 
 
@@ -2255,7 +2255,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         // Done!
-        return $this->ready();
+        return $this->ready(true);
     }
 
 
@@ -5393,7 +5393,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_modified            = false;
         $this->is_loading             = false;
         $this->is_saved               = false;
-        $this->is_loaded              = $is_loaded;
+
+        $this->setIsLoaded($is_loaded);
 
         return $this;
     }
@@ -5461,11 +5462,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Sets the flag that this DataEntry object was loaded from global cache
      *
+     * @param bool|null $value
+     *
      * @return static
      */
-    public function setIsLoaded(): static
+    protected function setIsLoaded(?bool $value = null): static
     {
-        $this->is_loaded = true;
+        $this->is_loaded = $value ?? true;
+
+        if ($value ?? true) {
+            return $this->triggerEvent('loaded');
+        }
+
         return $this;
     }
 

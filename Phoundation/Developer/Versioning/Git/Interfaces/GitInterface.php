@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
+use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -323,5 +324,36 @@ interface GitInterface
      * @return string|null
      */
     public function getSelectedTag(): ?string;
+
+    /**
+     * Returns true if this repository has a branch selected
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(): bool;
+
+    /**
+     * Returns true if this repository has a tag selected
+     *
+     * @return bool
+     */
+    public function hasTagSelected(): bool;
+
+    /**
+     * Returns the git selected type (branch, tag, detached)
+     *
+     * @return EnumGitSelected
+     */
+    public function getSelectedType(): EnumGitSelected;
+
+    /**
+     * Returns true if the selected type for this repository matches the specified type
+     *
+     * @param EnumGitSelected $selected
+     *
+     * @return bool
+     */
+    public function hasSelectedType(EnumGitSelected $selected): bool;
 }
+
 

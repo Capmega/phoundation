@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories fetch
+ * Command developer repositories fetch
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *

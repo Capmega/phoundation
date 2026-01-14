@@ -94,9 +94,9 @@ class VersionFile extends VersionCore implements VersionFileInterface
      *
      * @return static
      */
-    protected function increaseSection(int $by_value, int $section): static
+    protected function increaseSectionDirectly(int $by_value, int $section): static
     {
-        parent::increaseSection($by_value, $section);
+        parent::increaseSectionDirectly($by_value, $section);
         return $this->autoSave();
     }
 
@@ -109,9 +109,9 @@ class VersionFile extends VersionCore implements VersionFileInterface
      *
      * @return static
      */
-    protected function decreaseSection(int $by_value, int $section): static
+    protected function decreaseSectionDirectly(int $by_value, int $section): static
     {
-        parent::decreaseSection($by_value, $section);
+        parent::decreaseSectionDirectly($by_value, $section);
         return $this->autoSave();
     }
 

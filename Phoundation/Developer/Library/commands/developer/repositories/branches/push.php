@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories pull
+ * Command developer repositories pull
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
