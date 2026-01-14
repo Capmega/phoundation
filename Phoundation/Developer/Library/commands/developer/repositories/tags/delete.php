@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories tags create
+ * Command developer repositories tags create
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *

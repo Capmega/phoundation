@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories branches delete
+ * Command developer repositories branches delete
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *

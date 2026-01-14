@@ -20,14 +20,13 @@ use Phoundation\Data\Traits\TraitDataStringSource;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Enums\EnumVersionSections;
 use Phoundation\Utils\Exception\VersionCannotBeModifiedException;
 use Phoundation\Utils\Interfaces\VersionInterface;
-use Phoundation\Utils\Traits\TraitDataEventHandler;
 
 
 class VersionCore implements VersionInterface
 {
-    use TraitDataEventHandler;
     use TraitDataStringSource {
         setSource as protected __setSource;
     }
@@ -89,6 +88,64 @@ class VersionCore implements VersionInterface
 
 
     /**
+     * Increases the specified version section by the specified amount
+     *
+     * @param EnumVersionSections|string $section      The section to increase
+     * @param int                        $by_value [1] The amount to increase the version section by
+     *
+     * @return static
+     */
+    public function increaseSection(EnumVersionSections|string $section, int $by_value = 1): static
+    {
+        if (is_string($section)) {
+            $section = EnumVersionSections::from($section);
+        }
+
+        switch ($section) {
+            case EnumVersionSections::major:
+                return $this->increaseMajor($by_value);
+
+            case EnumVersionSections::minor:
+                return $this->increaseMinor($by_value);
+
+            case EnumVersionSections::revision:
+                return $this->increaseRevision($by_value);
+        }
+
+        throw new OutOfBoundsException(ts('Invalid section ":section" specified', ['section' => $section]));
+    }
+
+
+    /**
+     * Decreases the specified version section by the specified amount
+     *
+     * @param EnumVersionSections|string $section      The section to increase
+     * @param int                        $by_value [1] The amount to increase the version section by
+     *
+     * @return static
+     */
+    public function decreaseSection(EnumVersionSections|string $section, int $by_value = 1): static
+    {
+        if (is_string($section)) {
+            $section = EnumVersionSections::from($section);
+        }
+
+        switch ($section) {
+            case EnumVersionSections::major:
+                return $this->increaseMajor($by_value);
+
+            case EnumVersionSections::minor:
+                return $this->increaseMinor($by_value);
+
+            case EnumVersionSections::revision:
+                return $this->increaseRevision($by_value);
+        }
+
+        throw new OutOfBoundsException(ts('Invalid section ":section" specified', ['section' => $section]));
+    }
+
+
+    /**
      * Increases the major version by the specified amount
      *
      * @param int $by_value [1] The amount to increase the major version by
@@ -97,7 +154,7 @@ class VersionCore implements VersionInterface
      */
     public function increaseMajor(int $by_value = 1): static
     {
-        return $this->increaseSection($by_value, 0);
+        return $this->increaseSectionDirectly($by_value, 0);
     }
 
 
@@ -110,7 +167,7 @@ class VersionCore implements VersionInterface
      */
     public function increaseMinor(int $by_value = 1): static
     {
-        return $this->increaseSection($by_value, 1);
+        return $this->increaseSectionDirectly($by_value, 1);
     }
 
 
@@ -123,7 +180,7 @@ class VersionCore implements VersionInterface
      */
     public function increaseRevision(int $by_value = 1): static
     {
-        return $this->increaseSection($by_value, 2);
+        return $this->increaseSectionDirectly($by_value, 2);
     }
 
 
@@ -136,7 +193,7 @@ class VersionCore implements VersionInterface
      */
     public function decreaseMajor(int $by_value = 1): static
     {
-        return $this->decreaseSection($by_value, 0);
+        return $this->decreaseSectionDirectly($by_value, 0);
     }
 
 
@@ -149,7 +206,7 @@ class VersionCore implements VersionInterface
      */
     public function decreaseMinor(int $by_value = 1): static
     {
-        return $this->decreaseSection($by_value, 1);
+        return $this->decreaseSectionDirectly($by_value, 1);
     }
 
 
@@ -162,7 +219,7 @@ class VersionCore implements VersionInterface
      */
     public function decreaseRevision(int $by_value = 1): static
     {
-        return $this->decreaseSection($by_value, 2);
+        return $this->decreaseSectionDirectly($by_value, 2);
     }
 
 
@@ -174,7 +231,7 @@ class VersionCore implements VersionInterface
      *
      * @return static
      */
-    protected function increaseSection(int $by_value, int $section): static
+    protected function increaseSectionDirectly(int $by_value, int $section): static
     {
         $this->checkCanModify()->checkModifier($by_value);
 
@@ -194,7 +251,7 @@ class VersionCore implements VersionInterface
      *
      * @return static
      */
-    protected function decreaseSection(int $by_value, int $section): static
+    protected function decreaseSectionDirectly(int $by_value, int $section): static
     {
         $this->checkCanModify()->checkModifier($by_value);
 

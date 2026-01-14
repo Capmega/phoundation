@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveVersionSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use ReturnTypeWillChange;
@@ -285,4 +286,58 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @throws RepositoriesNotAllHaveTagException
      */
     public function checkAllHaveTag(string $tag, string $action): static;
+
+    /**
+     * Returns true if all repositories have a tag selected
+     *
+     * @return bool
+     */
+    public function allHaveTagSelected(): bool;
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified tag selected
+     *
+     * @param string $action The action that will be executed that requires all repositories to have a tag selected
+     *
+     * @return static
+     */
+    public function checkAllHaveTagSelected(string $action): static;
+
+    /**
+     * Returns true if all repositories have a branch selected
+     *
+     * @return bool
+     */
+    public function allHaveBranchSelected(): bool;
+
+    /**
+     * Throws a RepositoriesException if any of the available repositories currently has the specified branch selected
+     *
+     * @param string $action The action that will be executed that requires all repositories to have a branch selected
+     *
+     * @return static
+     */
+    public function checkAllHaveBranchSelected(string $action): static;
+
+    /**
+     * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
+     *
+     * @param string $phoundation_version
+     * @param string $project_version
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return bool
+     */
+    public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool;
+
+    /**
+     * Throws a RepositoriesNotAllHaveVersionSelectedException not if all repositories have the correct version branch or tag selected
+     *
+     * @param string $action The action displayed in the exception, if thrown
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveVersionSelectedException
+     */
+    public function checkAllHaveCorrectVersionSelected(string $action): static;
 }

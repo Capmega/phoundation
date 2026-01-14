@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer git repositories scan
+ * Command developer repositories scan
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
