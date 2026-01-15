@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -354,6 +355,24 @@ interface GitInterface
      * @return bool
      */
     public function hasSelectedType(EnumGitSelected $selected): bool;
+
+    /**
+     * Moves or renames the specified source file to the target
+     *
+     * @param PhoFileInterface $source
+     * @param PhoFileInterface $target
+     *
+     * @return static
+     */
+    public function mv(PhoFileInterface $source, PhoFileInterface $target): static;
+
+    /**
+     * Moves or renames the specified source file to the target
+     *
+     * @param PhoFileInterface $source
+     * @param PhoFileInterface $target
+     *
+     * @return static
+     */
+    public function move(PhoFileInterface $source, PhoFileInterface $target): static;
 }
-
-

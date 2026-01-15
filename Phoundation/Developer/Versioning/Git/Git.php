@@ -829,7 +829,41 @@ class Git extends Versioning implements GitInterface
 
 
     /**
-     * Resets the current branch to the specified revision
+     * Moves or renames the specified source file to the target
+     *
+     * @param PhoFileInterface $source
+     * @param PhoFileInterface $target
+     *
+     * @return static
+     */
+    public function mv(PhoFileInterface $source, PhoFileInterface $target): static
+    {
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('mv')
+                                  ->addArguments([$source, $target])
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Moves or renames the specified source file to the target
+     *
+     * @param PhoFileInterface $source
+     * @param PhoFileInterface $target
+     *
+     * @return static
+     */
+    public function move(PhoFileInterface $source, PhoFileInterface $target): static
+    {
+        return $this->mv($source, $target);
+    }
+
+
+    /**
+     * Commits the current indexed files to the git database
      *
      * @param string    $message
      * @param bool|null $signed
@@ -843,6 +877,23 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('-m')
                                   ->addArgument($message)
                                   ->addArgument($this->selectSigned($signed) ? '-s' : null)
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
+     * Cancels the last commit made to the git database and places the changes back as changes in the working tree
+     *
+     * @return static
+     */
+    public function uncommit(): static
+    {
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('reset')
+                                  ->addArgument('HEAD^')
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
