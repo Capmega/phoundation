@@ -4579,7 +4579,7 @@ class Arrays extends Utils
 
 
     /**
-     * Returns true if the specified source contains any or all of the specified needles
+     * Returns an array with all entries of the specified array source that contain the specified needles
      *
      * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
      *
@@ -4587,10 +4587,11 @@ class Arrays extends Utils
      * @param array|string            $needles The needles that must be matches
      * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
      *
-     * @return bool
+     * @return array|null
      */
-    public static function containsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): bool
+    public static function getContainsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): ?array
     {
+        $return  = [];
         $source  = Arrays::force($source);
         $needles = Arrays::force($needles);
 
@@ -4610,20 +4611,23 @@ class Arrays extends Utils
             }
 
             $value = (string) $value;
+            $tests = $needles;
 
             // Check for all needles
-            foreach ($needles as $needle_id => $needle) {
+            foreach ($tests as $needle_id => $needle) {
                 if (str_contains($value, $needle)) {
-                    unset($needles[$needle_id]);
+                    unset($tests[$needle_id]);
 
-                    if (empty($needles)) {
+                    if (empty($tests)) {
                         // All needles have matched!
-                        return true;
+                        $return[] = $value;
+                        break;
                     }
 
                     if (!$all) {
                         // Only a single needle must match
-                        return true;
+                        $return[] = $value;
+                         break;
                     }
 
                     // There are still needles left, continue testing
@@ -4631,7 +4635,24 @@ class Arrays extends Utils
             }
         }
 
-        return false;
+        return get_null($return);
+    }
+
+
+    /**
+     * Returns true if the specified source contains any or all of the specified needles
+     *
+     * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
+     *
+     * @param IteratorInterface|array $source  The source array to test
+     * @param array|string            $needles The needles that must be matches
+     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     *
+     * @return bool
+     */
+    public static function containsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): bool
+    {
+        return (bool) Arrays::getContainsNeedles($source, $needles, $all);
     }
 
 
