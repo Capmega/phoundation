@@ -983,4 +983,16 @@ interface IteratorInterface extends IteratorBaseInterface
      * @return static
      */
     public function setExceptionOnGet(bool $exception): static;
+
+    /**
+     * Executes the callback function on each entry in this Iterator
+     *
+     * Note: When setup to automatically ensure objects, all
+     *
+     * @param callable $callback The callback to execute on each entry in the iterator
+     * @param bool     $ensure_objects
+     *
+     * @return static
+     */
+    public function onEach(callable $callback, bool $ensure_objects = true): static;
 }

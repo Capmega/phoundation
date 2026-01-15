@@ -2345,6 +2345,33 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
+     * Executes the callback function on each entry in this Iterator
+     *
+     * Note: When setup to automatically ensure objects, all
+     *
+     * @param callable $callback The callback to execute on each entry in the iterator
+     * @param bool     $ensure_objects
+     *
+     * @return static
+     */
+    public function onEach(callable $callback, bool $ensure_objects = true): static
+    {
+        if ($ensure_objects) {
+            foreach ($this as $entry) {
+                $callback($entry);
+            }
+
+        } else {
+            foreach ($this->source as $entry) {
+                $callback($entry);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Ensure the entry we're going to return is from DataEntryInterface interface
      *
      * @param string|float|int|null $key
