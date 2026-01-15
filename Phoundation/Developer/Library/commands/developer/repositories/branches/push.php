@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer repositories pull
+ * Command developer repositories push
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will pull all known phoundation repositories
+ * This command will push all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -28,14 +28,14 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories pull
-./pho dv rp pl
-./pho development rp pl -A
-./pho development rp pull -A --remote origin');
+CliDocumentation::setUsage('./pho development repositories push
+./pho dv rp ps
+./pho development rp ps -A
+./pho development rp push -A --remote origin');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will execute a pull on all known phoundation repositories 
+This command will execute a push on all known phoundation repositories 
 
 
 ARGUMENTS
@@ -47,9 +47,9 @@ ARGUMENTS
 OPTIONAL ARGUMENTS
 
 
-[-b, --branch BRANCH_NAME]                     If specified, will pull from the specified remote branch (must exist)
+[-b, --branch BRANCH_NAME]                     If specified, will push from the specified remote branch (must exist)
 
-[-r, --remote REMOTE_REPOSITORY]               If specified, will pull from the specified remote repository (must exist)'));
+[-r, --remote REMOTE_REPOSITORY]               If specified, will push from the specified remote repository (must exist)'));
 
 
 // Get command line arguments
@@ -59,5 +59,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute git pull on all known repositories
-Repositories::new()->load()->pull($argv['remote'], $argv['branch']);
+// Execute git push on all known repositories
+Repositories::new()->load()->push($argv['remote'], $argv['branch']);
