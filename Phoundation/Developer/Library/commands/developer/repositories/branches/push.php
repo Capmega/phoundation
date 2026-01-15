@@ -17,7 +17,9 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesChangesException;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
 
 
@@ -59,5 +61,16 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+try {
 // Execute git push on all known repositories
-Repositories::new()->load()->push($argv['remote'], $argv['branch']);
+    Repositories::new()->load()->push($argv['remote'], $argv['branch']);
+
+} catch (RepositoriesChangesException $e) {
+    // Could not push, some repositories have changes. List the affected repositories here
+    Log::cli($e->getMessage(), 'warning');
+
+    foreach ($e->getDataKey('repositories') as $repository) {
+        Log::cli($repository, 'debug');
+    }
+}
+

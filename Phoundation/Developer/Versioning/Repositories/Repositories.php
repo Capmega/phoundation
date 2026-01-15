@@ -34,6 +34,7 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHa
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveVersionSelectedException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesChangesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
@@ -271,6 +272,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
+        $o_changes = $this->getRepositoriesWithChanges();
+
+        if ($o_changes->getCount()) {
+            throw RepositoriesChangesException::new(ts('Cannot push repositories, there are still repositories with changes'))
+                                              ->setData(['repositories' => $o_changes->getSourceKeys()]);
+        }
+
         foreach ($this as $o_repository) {
             $o_repository->push($remote, $branch, $set_upstream);
         }
@@ -344,23 +352,6 @@ throw new UnderConstructionException();
 
 
     /**
-     * Returns true when any of the available repositories has changes
-     *
-     * @return bool
-     */
-    public function hasChanges(): bool
-    {
-        foreach ($this as $o_repository) {
-            if ($o_repository->getStatusObject()->scanChanges()->getCount()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
-    /**
      * Returns an array containing the status for all repositories
      *
      * @return StatusFilesInterface
@@ -372,10 +363,6 @@ throw new UnderConstructionException();
         foreach ($this as $o_repository) {
             $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
             $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
-//'repository' => $o_repository->getName(),
-//'branch'     => $o_repository->getCurrentBranch(),
-//'file'       => $file,
-//'status'     => $status->getReadableStatus()
         }
 
         return $o_return;
@@ -601,6 +588,62 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns a Repositories object with all the repositories that have changes
+     *
+     * @return RepositoriesInterface
+     */
+    public function getRepositoriesWithChanges(): RepositoriesInterface
+    {
+        $return = [];
+
+        foreach ($this as $o_repository) {
+            if ($o_repository->hasChanges()) {
+                $return[$o_repository->getName()] = $o_repository;
+            }
+        }
+
+        return Repositories::newFromSource($return);
+    }
+
+
+    /**
+     * Returns true when any of the available repositories has changes
+     *
+     * @return bool
+     */
+    public function anyHaveChanges(): bool
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->hasChanges()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesSomeHaveChangesException if not all repositories have the specified branch
+     *
+     * @param string $action
+     *
+     * @return static
+     * @throws RepositoriesChangesException
+     */
+    public function checkNoneHaveChanges(string $action): static
+    {
+        if (!$this->anyHaveChanges()) {
+            throw RepositoriesChangesException::new(ts('Cannot perform action ":action", one or more repositories have changes', [
+                ':action' => $action,
+            ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'));
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
      *
      * @param string $phoundation_version
@@ -770,7 +813,7 @@ show($version);
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
 
-        if ($this->hasChanges()) {
+        if ($this->anyHaveChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot select branches on repositories, one or more repositories has changes'));
             }
@@ -848,7 +891,7 @@ show($version);
              ->checkNoneAreOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkNoneAreOnBranch($project_branch    , ts('delete branch'));
 
-        if ($this->hasChanges()) {
+        if ($this->anyHaveChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
                     ':branch' => $suffix
@@ -1090,7 +1133,7 @@ showdie();
         // Before we start, make sure all target repositories have either the suffix tag already available or if not,
         $this->checkAllHaveSuffixOrVersionTag($phoundation_version, $project_version, $phoundation_tag, $project_tag);
 
-        if ($this->hasChanges()) {
+        if ($this->anyHaveChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot select tages on repositories, one or more repositories has changes'));
             }
@@ -1167,7 +1210,7 @@ showdie();
              ->checkNoneAreOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkNoneIsOnTag($project_branch , ts('delete tag'));
 
-        if ($this->hasChanges()) {
+        if ($this->anyHaveChanges()) {
             if (!FORCE) {
                 throw new RepositoriesHaveChangesException(ts('Cannot branch ":branch" from repositories, one or more repositories has changes', [
                     ':branch' => $suffix

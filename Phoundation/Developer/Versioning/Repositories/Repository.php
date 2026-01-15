@@ -45,12 +45,14 @@ use Phoundation\Developer\Versioning\Git\Traits\TraitDataEntryBranch;
 use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesChangesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionTagNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Enums\EnumVersionSections;
 
 class Repository extends DataEntry implements RepositoryInterface
@@ -281,7 +283,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Pushing branch "branch" on ":type" type repository ":repository" to remote ":remote"', [
+        Log::action(ts('Pushing branch ":branch" on ":type" type repository ":repository" to remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
             ':branch'     => $branch,
@@ -798,6 +800,37 @@ class Repository extends DataEntry implements RepositoryInterface
     public function hasTagSelected(): bool
     {
         return $this->o_git->hasTagSelected();
+    }
+
+
+    /**
+     * Returns true if this repository has changes on the working tree
+     *
+     * @return bool
+     */
+    public function hasChanges(): bool
+    {
+        return (bool) $this->getStatusObject()->scanChanges()->getCount();
+    }
+
+
+    /**
+     * Throws a RepositoriesSomeHaveChangesException if not all repositories have the specified branch
+     *
+     * @param string $action
+     *
+     * @return static
+     */
+    public function checkHasNoChanges(string $action): static
+    {
+        if (!$this->hasChanges()) {
+            throw RepositoriesChangesException::new(ts('Cannot perform action ":action" on repository ":repository", the repository has changes', [
+                ':action'     => $action,
+                ':repository' => $this->getName(),
+            ]))->addHint(ts('To fix this issue, please first commit the changes, and try again'));
+        }
+
+        return $this;
     }
 
 

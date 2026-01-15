@@ -70,7 +70,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return bool
      */
-    public function hasChanges(): bool;
+    public function anyHaveChanges(): bool;
 
     /**
      * Returns true if the current git branch for this repository is equal to the specified branch
@@ -351,4 +351,20 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return $this
      */
     public function releaseRevision(EnumPhoundationClass $class, ?int $increase = 1): static;
+
+    /**
+     * Throws a RepositoriesNotAllHaveBranchException if not all repositories have the specified branch
+     *
+     * @param string $action
+     *
+     * @return static
+     */
+    public function checkNoneHaveChanges(string $action): static;
+
+    /**
+     * Returns a Repositories object with all the repositories that have changes
+     *
+     * @return RepositoriesInterface
+     */
+    public function getRepositoriesWithChanges(): RepositoriesInterface;
 }

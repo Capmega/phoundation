@@ -21,6 +21,7 @@ namespace Phoundation\Developer\Versioning\Git;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
+use Phoundation\Developer\Versioning\Git\Exception\GitBranchIsBehindRemoteBranchException;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
 use Phoundation\Developer\Versioning\Git\Exception\GitException;
 use Phoundation\Developer\Versioning\Git\Exception\GitHasNoRemoteBranchException;
@@ -985,16 +986,78 @@ class Git extends Versioning implements GitInterface
     {
         $this->verifyBranch($branch);
 
-        $output = $this->o_process->clearArguments()
-                                  ->addArgument('push')
-                                  ->addArgument($set_upstream ? '-u' : null)
-                                  ->addArguments([
-                                      $this->getDefaultRemote($repository),
-                                      $branch,
-                                  ])
-                                  ->executeReturnArray();
+        try {
+            $output = $this->o_process->clearArguments()
+                                      ->addArgument('push')
+                                      ->addArgument($set_upstream ? '-u' : null)
+                                      ->addArguments([
+                                          $this->getDefaultRemote($repository),
+                                          $branch,
+                                      ])
+                                      ->executeReturnArray();
 
-        Log::notice($output, 1, false);
+            Log::notice($output, 1, false);
+
+        } catch (ProcessFailedException $e) {
+            if (Arrays::containsNeedles($e->getDataKey('output'), ['failed to push some refs to'])) {
+                if (Arrays::containsNeedles($e->getDataKey('output'), ['Updates were rejected because a pushed branch tip is behind its remote'])) {
+                    // Is the current branch that we are trying to push amongst the branches that failed to push? If not, we're all fine!
+                    $branches = Arrays::getContainsNeedles($e->getDataKey('output'), ['! [rejected]']);
+
+                    if ($branches) {
+                        foreach ($branches as $check_branch) {
+                            // Clean the branch, check if its the one we are interested in
+                            $check_branch = Strings::from($check_branch, '! [rejected]');
+                            $check_branch = trim($check_branch);
+                            $check_branch = Strings::until($check_branch, '->');
+                            $check_branch = trim($check_branch);
+
+                            if ($check_branch === $branch) {
+                                throw GitBranchIsBehindRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository", the branch is behind its remote branch', [
+                                    ':branch'     => $this->getSelectedBranch(),
+                                    ':repository' => $this->o_directory,
+                                ]))->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git pull" on branch ":branch"', [
+                                    ':branch'     => $this->getSelectedBranch(),
+                                    ':repository' => $this->o_directory,
+                                ]));
+                            }
+                        }
+                    }
+
+                    // The branch causing the issue is NOT the branch we are interested in, we should be able to safely ignore this exception
+                    Log::notice($e->getDataKey('output'), 1, false);
+                    return $this;
+                }
+            }
+
+            if (Arrays::containsNeedles($e->getDataKey('output'), ['You are not currently on a branch'])) {
+                throw GitNoBranchSelectedException::new(ts('Cannot execute a general push on repository ":repository", it has no branch selected', [
+                    ':repository' => $this->o_directory,
+                ]))->setData([
+                    ':repository' => $this->o_directory,
+                    ':branch'     => $this->getSelectedBranch(),
+                    ':type'       => $this->getSelectedType(),
+                ])->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
+                    ':repository' => $this->o_directory,
+                    ':type'       => $this->getSelectedType(),
+                ]));
+            }
+
+            if (Arrays::containsNeedles($e->getDataKey('output'), ['You asked to pull from the remote', 'a branch. Because this is not the default configured remote', 'your current branch, you must specify a branch on the command'])) {
+                if (empty($branch)) {
+                    throw GitHasNoRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository" without specifying a remote branch, this repository branch has no upstream configured yet', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]))->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]));
+                }
+            }
+
+            throw $e;
+        }
+
         return $this;
     }
 

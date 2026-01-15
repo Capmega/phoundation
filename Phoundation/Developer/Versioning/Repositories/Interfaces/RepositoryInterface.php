@@ -341,4 +341,20 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function hasTagSelected(): bool;
+
+    /**
+     * Returns true if this repository has changes on the working tree
+     *
+     * @return bool
+     */
+    public function hasChanges(): bool;
+
+    /**
+     * Throws a RepositoriesSomeHaveChangesException if not all repositories have the specified branch
+     *
+     * @param string $action
+     *
+     * @return static
+     */
+    public function checkHasNoChanges(string $action): static;
 }
