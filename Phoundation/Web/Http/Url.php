@@ -205,8 +205,8 @@ class Url implements UrlInterface
                 $base = Request::getRoutingParametersObject()->getRootUrl();
 
             } catch (OutOfBoundsException $e) {
-                // Routing parameters are not yet available, assume /
-                $base = '/';
+                // Routing parameters are not yet available, assume the project root URL
+                $base = Domains::getRootUrl();
             }
 
         } else {
