@@ -45,7 +45,13 @@ The selected branch for all other repositories should match the Phoundation vers
 ARGUMENTS
 
 
--'));
+-
+
+
+OPTIONAL ARGUMENTS
+
+
+SUFFIX                                  If specified, will select (and create as needed) the branch VERSION-SUFFIX for each repository'));
 
 
 // Get command line arguments
