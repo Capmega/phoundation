@@ -24,7 +24,7 @@ trait TraitDataEntryPlatform
      *
      * @return string|null
      */
-    public function detectClass(): ?string
+    public function getPlatform(): ?string
     {
         return $this->getTypesafe('string', 'platform');
     }
