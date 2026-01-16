@@ -20,10 +20,10 @@ namespace Phoundation\Web\Html\Components\Input;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataEventHandler;
 use Phoundation\Data\Traits\TraitDataSelector;
 use Phoundation\Data\Traits\TraitDataWidth;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Utils\Traits\TraitDataEventHandler;
 use Stringable;
 
 

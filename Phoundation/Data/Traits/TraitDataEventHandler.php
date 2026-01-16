@@ -3,7 +3,8 @@
 /**
  * Trait TraitDataEvent
  *
- *
+ * This Trait is deprecated and should no longer be used. It has been replaced by Utils\Events class which has its own Trait to include that event handler in
+ * other object classes
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -16,7 +17,6 @@
 declare(strict_types=1);
 
 namespace Phoundation\Data\Traits;
-
 
 use Phoundation\Data\Exception\EventException;
 use Phoundation\Data\Exception\EventNotAllowedException;
@@ -34,6 +34,7 @@ trait TraitDataEventHandler
      * Looks like: ['key'] => ['event', 'clear_after_run']
      *
      * @var array $event_handlers
+     * @deprecated
      */
     protected array $event_handlers = [];
 
@@ -41,6 +42,7 @@ trait TraitDataEventHandler
      * Tracks the event keys that are allowed for the current object
      *
      * @var array $allowed_events
+     * @deprecated
      */
     protected array $allowed_events = [];
 
@@ -49,6 +51,7 @@ trait TraitDataEventHandler
      * Returns the list of allowed events for this object
      *
      * @return array
+     * @deprecated
      */
     public function getAllowedEvents(): array
     {
@@ -62,6 +65,7 @@ trait TraitDataEventHandler
      * @param array $events
      *
      * @return static
+     * @deprecated
      */
     protected function setAllowedEvents(array $events): static
     {
@@ -76,6 +80,7 @@ trait TraitDataEventHandler
      * @param IteratorInterface|array $events
      *
      * @return static
+     * @deprecated
      */
     protected function addAllowedEvents(IteratorInterface|array $events): static
     {
@@ -101,6 +106,7 @@ trait TraitDataEventHandler
      * @param string $event
      *
      * @return static
+     * @deprecated
      */
     protected function addAllowedEvent(string $event): static
     {
@@ -113,6 +119,7 @@ trait TraitDataEventHandler
      * Clears the list of allowed events for this object
      *
      * @return static
+     * @deprecated
      */
     protected function clearAllowedEvents(): static
     {
@@ -127,6 +134,7 @@ trait TraitDataEventHandler
      * @param string $event
      *
      * @return bool
+     * @deprecated
      */
     protected function eventIsAllowed(string $event): bool
     {
@@ -144,6 +152,7 @@ trait TraitDataEventHandler
      * @param string $event
      *
      * @return static
+     * @deprecated
      */
     protected function checkEventIsAllowed(string $event): static
     {
@@ -165,6 +174,7 @@ trait TraitDataEventHandler
      * @param string|null $in_script
      *
      * @return array
+     * @deprecated
      */
     public function getEventHandler(string $event, ?string $in_script = null): mixed
     {
@@ -172,7 +182,7 @@ trait TraitDataEventHandler
             $handler = $this->event_handlers[$event]['event'];
 
             if ($this->event_handlers[$event]['clear']) {
-                $this->clearEventHandlerDeprecated($event);
+                $this->clearEventHandler($event);
             }
 
             if (is_callable($handler)) {
@@ -200,10 +210,11 @@ trait TraitDataEventHandler
      * @param bool   $clear_after_execute
      *
      * @return static
+     * @deprecated
      */
-    public function addEventHandlerDeprecated(string $event, mixed $handler, bool $clear_after_execute = false): static
+    public function addEventHandler(string $event, mixed $handler, bool $clear_after_execute = false): static
     {
-        return $this->setEventHandlerDeprecated($event, $handler, $clear_after_execute);
+        return $this->setEventHandler($event, $handler, $clear_after_execute);
     }
 
 
@@ -215,8 +226,9 @@ trait TraitDataEventHandler
      * @param bool   $clear_after_execute
      *
      * @return static
+     * @deprecated
      */
-    public function setEventHandlerDeprecated(string $event, mixed $handler, bool $clear_after_execute = false): static
+    public function setEventHandler(string $event, mixed $handler, bool $clear_after_execute = false): static
     {
         $this->checkEventIsAllowed($event);
 
@@ -244,8 +256,9 @@ trait TraitDataEventHandler
      * @param string $event
      *
      * @return static
-     */
-    public function clearEventHandlerDeprecated(string $event): static
+    * @deprecated
+    */
+    public function clearEventHandler(string $event): static
     {
         unset($this->event_handlers[$event]);
         return $this;
@@ -256,8 +269,9 @@ trait TraitDataEventHandler
      * Returns a list of all defined event handlers
      *
      * @return array
+     * @deprecated
      */
-    public function getEventHandlersDeprecated(): array
+    public function getEventHandlers(): array
     {
         return $this->event_handlers;
     }
@@ -269,14 +283,15 @@ trait TraitDataEventHandler
      * @param IteratorInterface|array|null $events
      *
      * @return TraitDataEventHandler
+     * @deprecated
      */
-    public function setEventHandlersDeprecated(IteratorInterface|array|null $events): static
+    public function setEventHandlers(IteratorInterface|array|null $events): static
     {
         $this->event_handlers = [];
 
         if ($events) {
             foreach ($events as $event => $handler) {
-                $this->setEventHandlerDeprecated($event, $handler);
+                $this->setEventHandler($event, $handler);
             }
         }
 
