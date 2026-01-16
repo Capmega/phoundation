@@ -1002,6 +1002,8 @@ showdie();
             case EnumPhoundationClass::project:
             case EnumPhoundationClass::cdn:
         }
+
+        return $this;
     }
 
 
