@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveVersionSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesTagExistsException;
@@ -387,4 +388,16 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return array
      */
     public function getWithWrongBranchSelected(string $phoundation_branch, string $project_branch): array;
+
+    /**
+     * Checks if all repositories have the requested project or phoundation branch selected, and if not, throws a RepositoriesNotAllHaveBranchSelectedException
+     *
+     * @param string $action
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveBranchSelectedException
+     */
+    public function checkAllHaveBranchSelected(string $action, string $phoundation_branch, string $project_branch): static;
 }
