@@ -43,7 +43,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataOverrideNonProductionLockout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug\Debug;
