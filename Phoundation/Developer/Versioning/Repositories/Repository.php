@@ -786,9 +786,9 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return bool
      */
-    public function hasBranchSelected(): bool
+    public function hasTypeBranchSelected(): bool
     {
-        return $this->o_git->hasBranchSelected();
+        return $this->o_git->hasTypeBranchSelected();
     }
 
 
@@ -797,9 +797,35 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return bool
      */
-    public function hasTagSelected(): bool
+    public function hasTypeTagSelected(): bool
     {
-        return $this->o_git->hasTagSelected();
+        return $this->o_git->hasTypeTagSelected();
+    }
+
+
+    /**
+     * Returns true if this repository has the specified branch selected
+     *
+     * @param string $branch The branch that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(string $branch): bool
+    {
+        return $this->o_git->hasBranchSelected($branch);
+    }
+
+
+    /**
+     * Returns true if this repository has the specified tag selected
+     *
+     * @param string $tag The tag that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasTagSelected(string $tag): bool
+    {
+        return $this->o_git->hasTagSelected($tag);
     }
 
 

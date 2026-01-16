@@ -148,11 +148,37 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Returns true if the current git repository has the specified branch selected
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(string $branch): bool
+    {
+        return $this->getSelectedBranch() === $branch;
+    }
+
+
+    /**
+     * Returns true if the current git repository has the specified tag selected
+     *
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public function hasTagSelected(string $tag): bool
+    {
+        return $this->getSelectedTag() === $tag;
+    }
+
+
+    /**
      * Returns true if this repository has a branch selected
      *
      * @return bool
      */
-    public function hasBranchSelected(): bool
+    public function hasTypeBranchSelected(): bool
     {
         return (bool) $this->getSelectedBranch();
     }
@@ -163,7 +189,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return bool
      */
-    public function hasTagSelected(): bool
+    public function hasTypeTagSelected(): bool
     {
         return (bool) $this->getSelectedTag();
     }
@@ -176,11 +202,11 @@ class Git extends Versioning implements GitInterface
      */
     public function getSelectedType(): EnumGitSelected
     {
-        if ($this->hasBranchSelected()) {
+        if ($this->hasTypeBranchSelected()) {
             return EnumGitSelected::branch;
         }
 
-        if ($this->hasTagSelected()) {
+        if ($this->hasTypeTagSelected()) {
             return EnumGitSelected::tag;
         }
 

@@ -293,7 +293,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return bool
      */
-    public function allHaveTagSelected(): bool;
+    public function allHaveTypeTagSelected(): bool;
 
     /**
      * Throws a RepositoriesException if any of the available repositories currently has the specified tag selected
@@ -302,14 +302,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function checkAllHaveTagSelected(string $action): static;
+    public function checkAllHaveTypeTagSelected(string $action): static;
 
     /**
      * Returns true if all repositories have a branch selected
      *
      * @return bool
      */
-    public function allHaveBranchSelected(): bool;
+    public function allHaveTypeBranchSelected(): bool;
 
     /**
      * Throws a RepositoriesException if any of the available repositories currently has the specified branch selected
@@ -318,7 +318,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return static
      */
-    public function checkAllHaveBranchSelected(string $action): static;
+    public function checkAllHaveTypeBranchSelected(string $action): static;
 
     /**
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
@@ -367,4 +367,24 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return RepositoriesInterface
      */
     public function getRepositoriesWithChanges(): RepositoriesInterface;
+
+    /**
+     * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
+     *
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return bool
+     */
+    public function allHaveBranchSelected(string $phoundation_branch, string $project_branch): bool;
+
+    /**
+     * Returns an array with all the repositories that do not have the requested project or phoundation branch selected
+     *
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return array
+     */
+    public function getWithWrongBranchSelected(string $phoundation_branch, string $project_branch): array;
 }

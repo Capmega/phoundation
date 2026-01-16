@@ -644,6 +644,76 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns true if all repositories have the requested project or phoundation branch selected
+     *
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return bool
+     */
+    public function allHaveBranchSelected(string $phoundation_branch, string $project_branch): bool
+    {
+        foreach ($this as $o_repository) {
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+
+            if (!$o_repository->hasBranchSelected($branch)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Returns an array with all the repositories that do not have the requested project or phoundation branch selected
+     *
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return array
+     */
+    public function getWithWrongBranchSelected(string $phoundation_branch, string $project_branch): array
+    {
+        $return = [];
+
+        foreach ($this as $o_repository) {
+            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+
+            if (!$o_repository->hasBranchSelected($branch)) {
+                $return[$o_repository->getName()] = $o_repository->getName();
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Checks if all repositories have the requested project or phoundation branch selected, and if not, throws a RepositoriesNotAllHaveBranchSelectedException
+     *
+     * @param string $action
+     * @param string $phoundation_branch
+     * @param string $project_branch
+     *
+     * @return static
+     * @throws RepositoriesNotAllHaveBranchSelectedException
+     */
+    public function checkAllHaveBranchSelected(string $action, string $phoundation_branch, string $project_branch): static
+    {
+        if ($this->allHaveBranchSelected($phoundation_branch, $project_branch)) {
+            return $this;
+        }
+
+        throw RepositoriesNotAllHaveBranchSelectedException::new(ts('Cannot perform action ":action", one or more repositories have the wrong branch selected', [
+            ':action' => $action,
+        ]))->setData([
+            'repositories' => $this->getWithWrongBranchSelected($phoundation_branch, $project_branch)
+        ])->addHint(ts('To perform this action, please ensure all repositories have the correct branch, then try again. You can try ./pho developers repositories branches select-auto to automatically have all repositories on the right branch'));
+    }
+
+
+    /**
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
      *
      * @param string $phoundation_version
@@ -655,15 +725,9 @@ throw new UnderConstructionException();
      */
     public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool
     {
-show($phoundation_version);
-show($project_version);
-show($phoundation_branch);
-show($project_branch);
         foreach ($this as $o_repository) {
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
-show($branch);
-show($version);
 
             if (!$o_repository->hasBranchOrVersionBranch($version, $branch)) {
                 return false;
@@ -702,10 +766,10 @@ show($version);
      *
      * @return bool
      */
-    public function allHaveBranchSelected(): bool
+    public function allHaveTypeBranchSelected(): bool
     {
         foreach ($this as $o_repository) {
-            if (!$o_repository->hasBranchSelected()) {
+            if (!$o_repository->hasTypeBranchSelected()) {
                 return false;
             }
         }
@@ -721,9 +785,9 @@ show($version);
      *
      * @return static
      */
-    public function checkAllHaveBranchSelected(string $action): static
+    public function checkAllHaveTypeBranchSelected(string $action): static
     {
-        if (!$this->allHaveBranchSelected()) {
+        if (!$this->allHaveTypeBranchSelected()) {
             throw new RepositoriesNotAllHaveBranchSelectedException(ts('Cannot execute action ":action", not all repositories have a branch selected', [
                 ':action' => $action
             ]));
@@ -1233,10 +1297,10 @@ showdie();
      *
      * @return bool
      */
-    public function allHaveTagSelected(): bool
+    public function allHaveTypeTagSelected(): bool
     {
         foreach ($this as $o_repository) {
-            if (!$o_repository->hasTagSelected()) {
+            if (!$o_repository->hasTypeTagSelected()) {
                 return false;
             }
         }
@@ -1252,9 +1316,9 @@ showdie();
      *
      * @return static
      */
-    public function checkAllHaveTagSelected(string $action): static
+    public function checkAllHaveTypeTagSelected(string $action): static
     {
-        if (!$this->allHaveTagSelected()) {
+        if (!$this->allHaveTypeTagSelected()) {
             throw new RepositoriesNotAllHaveTagSelectedException(ts('Cannot execute action ":action", not all repositories have a tag selected', [
                 ':action' => $action
             ]));
@@ -1296,7 +1360,7 @@ showdie();
      * Will upgrade the revision part of the version of class repositories by the specified number
      *
      * @param EnumPhoundationClass $class    The class of repository to upgrade, either "phoundation" or "project" or "cdn"
-     * @param int                  $increase [1] The amount to increase the release part of the version by
+     * @param int|null             $increase [1] The amount to increase the release part of the version by
      *
      * @return $this
      */

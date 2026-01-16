@@ -331,14 +331,14 @@ interface GitInterface
      *
      * @return bool
      */
-    public function hasBranchSelected(): bool;
+    public function hasTypeBranchSelected(): bool;
 
     /**
      * Returns true if this repository has a tag selected
      *
      * @return bool
      */
-    public function hasTagSelected(): bool;
+    public function hasTypeTagSelected(): bool;
 
     /**
      * Returns the git selected type (branch, tag, detached)
@@ -375,4 +375,22 @@ interface GitInterface
      * @return static
      */
     public function move(PhoFileInterface $source, PhoFileInterface $target): static;
+
+    /**
+     * Returns true if the current git repository has the specified branch selected
+     *
+     * @param string $branch
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(string $branch): bool;
+
+    /**
+     * Returns true if the current git repository has the specified tag selected
+     *
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public function hasTagSelected(string $tag): bool;
 }

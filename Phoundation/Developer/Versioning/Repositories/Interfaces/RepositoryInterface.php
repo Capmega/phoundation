@@ -333,14 +333,14 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function hasBranchSelected(): bool;
+    public function hasTypeBranchSelected(): bool;
 
     /**
      * Returns true if this repository has a tag selected
      *
      * @return bool
      */
-    public function hasTagSelected(): bool;
+    public function hasTypeTagSelected(): bool;
 
     /**
      * Returns true if this repository has changes on the working tree
@@ -357,4 +357,22 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function checkHasNoChanges(string $action): static;
+
+    /**
+     * Returns true if this repository has the specified branch selected
+     *
+     * @param string $branch The branch that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasBranchSelected(string $branch): bool;
+
+    /**
+     * Returns true if this repository has the specified tag selected
+     *
+     * @param string $tag The tag that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasTagSelected(string $tag): bool;
 }
