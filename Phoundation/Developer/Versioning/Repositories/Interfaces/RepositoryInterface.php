@@ -7,6 +7,7 @@ use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -180,25 +181,30 @@ interface RepositoryInterface extends DataEntryInterface
     public function selectRemoteRepository(string|bool|null $repository = null): ?string;
 
     /**
-     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
+     * Checks if this repository has the requested suffix or version branch available, and if not, throws a
+     * RepositoriesHaveChangesException
      *
-     * @param string $version
-     * @param string $branch
-     * @param bool   $check_tags_too [false]
-     * @param bool   $check_all      [false] If true will also check remote repositories
+     * @param string|null $version
+     * @param string      $branch
+     * @param bool        $check_tags_too [false]
+     * @param bool        $check_all      [false] If true will also check remote repositories
      * @return static
+     * @throws RepositoriesHaveChangesException
      */
-    public function checkHasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static;
+    public function checkHasBranchOrVersionBranch(?string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static;
 
     /**
      * Returns true if this repository has the requested suffix or version branch available
      *
-     * @param string $version
-     * @param string $branch
+     * @param string|null $version                The version branch that will be checked if it exists. If NULL, will
+     *                                            not check for this version
+     * @param string      $branch                 The branch that will be checked if it exists.
+     * @param bool        $check_tags_too [false] If true will also check in the tags list
+     * @param bool        $check_all      [false] If true will also check remote repositories
      *
      * @return bool
      */
-    public function hasBranchOrVersionBranch(string $version, string $branch): bool;
+    public function hasBranchOrVersionBranch(?string $version, string $branch, bool $check_tags_too = false, bool $check_all = false): bool;
 
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository

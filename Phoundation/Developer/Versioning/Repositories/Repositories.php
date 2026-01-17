@@ -370,14 +370,14 @@ throw new UnderConstructionException();
 
 
     /**
-     * Gets the project repository object, verifies its on the correct branch, and returns it
+     * Checks that the project repository has the correct version (with or without suffix) specified
      *
      * @param string $action
      * @param bool   $no_suffix
      *
      * @return static
      */
-    protected function verifyProjectRepositoryVersion(string $action, bool $no_suffix = false): static
+    protected function checkProjectRepositoryVersion(string $action, bool $no_suffix = false): static
     {
         // Check the current main project repository first
         // The repository version MUST match the configured version
@@ -433,7 +433,7 @@ throw new UnderConstructionException();
             }
 
         } catch (NotExistsException) {
-            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, could not find the project repository', [
+            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on project repositories, could not find the project main repository', [
                 ':action' => $action
             ]))->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
         }
@@ -633,7 +633,7 @@ throw new UnderConstructionException();
      */
     public function checkNoneHaveChanges(string $action): static
     {
-        if (!$this->anyHaveChanges()) {
+        if ($this->anyHaveChanges()) {
             throw RepositoriesChangesException::new(ts('Cannot perform action ":action", one or more repositories have changes', [
                 ':action' => $action,
             ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'));
@@ -741,18 +741,25 @@ throw new UnderConstructionException();
     /**
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
      *
-     * @param string $phoundation_version
-     * @param string $project_version
-     * @param string $phoundation_branch
-     * @param string $project_branch
-     *
+     * @param string $phoundation_version        The version that should exist if this repository is a Phoundation
+     *                                           repository
+     * @param string $project_version            The version that should exist if this repository is a project
+     *                                           repository
+     * @param string $phoundation_branch         The branch that should exist if this repository is a Phoundation
+     *                                           repository
+     * @param string $project_branch             The branch that should exist if this repository is a project repository
+     * @param bool $check_versions        [true] If true will check version and branch. If false, will only check branch
      * @return static
      */
-    public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): static
+    public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch, bool $check_versions = true): static
     {
         foreach ($this as $o_repository) {
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            $version = null;
+
+            if ($check_versions) {
+                $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            }
 
             $o_repository->checkHasBranchOrVersionBranch($version, $branch);
         }
@@ -876,16 +883,12 @@ throw new UnderConstructionException();
         $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
-        $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch);
-
-        if ($this->anyHaveChanges()) {
-            if (!FORCE) {
-                throw new RepositoriesHaveChangesException(ts('Cannot select branches on repositories, one or more repositories has changes'));
-            }
-        }
-
-        $this->verifyProjectRepositoryVersion(ts('select branch'), true);
-
+        // Make sure none of the repositories have changes
+        // ???
+        $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
+             ->checkNoneHaveChanges(ts('select auto-branch'))
+             ->checkProjectRepositoryVersion(ts('select auto-branch'), true);
+showdie('GODVERDOMME');
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
@@ -953,7 +956,7 @@ throw new UnderConstructionException();
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
-        $this->verifyProjectRepositoryVersion(ts('delete branch'))
+        $this->checkProjectRepositoryVersion(ts('delete branch'))
              ->checkNoneAreOnBranch($phoundation_branch, ts('delete branch')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkNoneAreOnBranch($project_branch    , ts('delete branch'));
 
@@ -1040,9 +1043,9 @@ throw new UnderConstructionException();
     /**
      * Returns true if any repository is on the specified tag
      *
-     * @param string $tag              The tag that any of the repositories must have
+     * @param string $tag                 The tag that any of the repositories must have
      * @param bool   $auto_create [false] If true, will automatically create the tag on each repository where it does
-     * *                                  not yet exist
+     *                                    not yet exist
      * @return bool
      */
     public function allHaveTag(string $tag, bool $auto_create = false): bool
@@ -1205,7 +1208,7 @@ showdie();
             }
         }
 
-        $this->verifyProjectRepositoryVersion(ts('select tag'), true);
+        $this->checkProjectRepositoryVersion(ts('select tag'), true);
 
         // Go over each repository, switch each to the correct tag
         foreach ($this as $o_repository) {
@@ -1272,7 +1275,7 @@ showdie();
         $phoundation_branch = Project::getPhoundationRequiredVersion();
         $phoundation_branch = Strings::untilReverse($phoundation_branch, '.') . ($suffix ? '-' . $suffix : null);
 
-        $this->verifyProjectRepositoryVersion(ts('delete tag'))
+        $this->checkProjectRepositoryVersion(ts('delete tag'))
              ->checkNoneAreOnBranch($phoundation_branch, ts('delete tag')) // TODO This is not correct, MAYBE a phoundation repository could have the same version branch as the project repository? Improve this
              ->checkNoneIsOnTag($project_branch , ts('delete tag'));
 

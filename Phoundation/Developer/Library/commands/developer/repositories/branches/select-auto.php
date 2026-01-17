@@ -71,4 +71,4 @@ Log::cli(ts('Automatically selecting branches for ":count" repositories, this mi
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectAutoBranch($argv['suffix'], !$argv['no-create']);
+$o_repositories->selectAutoBranch($argv['suffix'], !$argv['no_create']);
