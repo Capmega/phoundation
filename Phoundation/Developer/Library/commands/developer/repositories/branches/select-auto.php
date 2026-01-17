@@ -51,12 +51,16 @@ ARGUMENTS
 OPTIONAL ARGUMENTS
 
 
-SUFFIX                                  If specified, will select (and create as needed) the branch VERSION-SUFFIX for each repository'));
+[SUFFIX]                                If specified, will select (and create as needed) the branch VERSION-SUFFIX for 
+                                        each repository
+
+[-c, --no-create]                       If the resolved auto branch does not exist, do not automatically create it'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
+                     ->select('-c,--no-create')->isOptional()->isBoolean()
                      ->validate();
 
 
@@ -67,4 +71,4 @@ Log::cli(ts('Automatically selecting branches for ":count" repositories, this mi
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectAutoBranch($argv['suffix']);
+$o_repositories->selectAutoBranch($argv['suffix'], !$argv['no-create']);

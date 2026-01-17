@@ -400,4 +400,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @throws RepositoriesNotAllHaveBranchSelectedException
      */
     public function checkAllHaveBranchSelected(string $action, string $phoundation_branch, string $project_branch): static;
+
+    /**
+     * Synchronizes all selected branch repositories so they are all on the correct branch
+     *
+     * @param string|null $suffix             If specified, will select VERSIONBRANCH-SUFFIX instead of VERSIONBRANCH
+     * @param bool        $auto_create [true] If true, will automatically create the branch if it does not exist for
+     *                                        each repository
+     * @return static
+     */
+    public function selectAutoBranch(?string $suffix, bool $auto_create = true): static;
 }

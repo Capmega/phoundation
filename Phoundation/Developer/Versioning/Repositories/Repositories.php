@@ -860,11 +860,12 @@ throw new UnderConstructionException();
     /**
      * Synchronizes all selected branch repositories so they are all on the correct branch
      *
-     * @param string|null $suffix
-     *
+     * @param string|null $suffix             If specified, will select VERSIONBRANCH-SUFFIX instead of VERSIONBRANCH
+     * @param bool        $auto_create [true] If true, will automatically create the branch if it does not exist for
+     *                                        each repository
      * @return static
      */
-    public function selectAutoBranch(?string $suffix): static
+    public function selectAutoBranch(?string $suffix, bool $auto_create = true): static
     {
         $project_version = Project::getVersion();
         $project_version = Strings::untilReverse($project_version, '.');
@@ -919,7 +920,8 @@ throw new UnderConstructionException();
 
                 $o_repository->selectBranch($version)
                              ->createBranch($branch)
-                             ->push($o_repository->selectRemoteRepository(), $branch);
+                             ->push($o_repository->selectRemoteRepository(), $branch)
+                             ->selectBranch($branch);
 
             } else {
                 // Problem! The repository does not have the requested branch which is an exact version, without a suffix.
