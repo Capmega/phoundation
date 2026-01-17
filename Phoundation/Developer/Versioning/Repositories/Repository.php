@@ -46,6 +46,7 @@ use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectGit;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesChangesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionTagNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
@@ -575,15 +576,20 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if this repository has the requested suffix or version branch available
      *
-     * @param string $version
-     * @param string $branch
-     * @param bool   $check_tags_too [false] If true will also check in the tags list
-     * @param bool   $check_all      [false] If true will also check remote repositories
+     * @param string|null $version                The version branch that will be checked if it exists. If NULL, will
+     *                                            not check for this version
+     * @param string      $branch                 The branch that will be checked if it exists.
+     * @param bool        $check_tags_too [false] If true will also check in the tags list
+     * @param bool        $check_all      [false] If true will also check remote repositories
      *
      * @return bool
      */
-    public function hasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = false, bool $check_all = false): bool
+    public function hasBranchOrVersionBranch(?string $version, string $branch, bool $check_tags_too = false, bool $check_all = false): bool
     {
+        if ($version === null) {
+            return $this->branchExists($branch, $check_tags_too, $check_all);
+        }
+
         return $this->branchExists($version, $check_tags_too, $check_all) or $this->branchExists($branch, $check_tags_too, $check_all);
     }
 
@@ -672,15 +678,17 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Checks if this repository has the requested suffix or version branch available, and if not, throws a RepositoriesHaveChangesException
+     * Checks if this repository has the requested suffix or version branch available, and if not, throws a
+     * RepositoriesHaveChangesException
      *
-     * @param string $version
-     * @param string $branch
-     * @param bool   $check_tags_too [false] If true will also check in the tags list
-     * @param bool   $check_all      [false] If true will also check remote repositories
+     * @param string|null $version
+     * @param string      $branch
+     * @param bool        $check_tags_too [false]
+     * @param bool        $check_all      [false] If true will also check remote repositories
      * @return static
+     * @throws RepositoriesHaveChangesException
      */
-    public function checkHasBranchOrVersionBranch(string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static
+    public function checkHasBranchOrVersionBranch(?string $version, string $branch, bool $check_tags_too = true, bool $check_all = false): static
     {
         if (!$this->hasBranchOrVersionBranch($version, $branch, $check_tags_too, $check_all)) {
             if ($branch and ($version !== $branch)) {

@@ -173,13 +173,14 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
 
             foreach ($columns as $column => $label) {
                 switch ($column) {
-                    case 'repository':
-                        $entry[$column] = $o_status->getRepositoryObject()?->getDisplayName();
-                        break;
-
-                    case 'library':
-                        $entry[$column] = $o_status->getLibraryObject()->getDisplayName();
-                        break;
+// TODO Implement these options
+//                    case 'repository':
+//                        $entry[$column] = $o_status->getRepositoryObject()?->getDisplayName();
+//                        break;
+//
+//                    case 'library':
+//                        $entry[$column] = $o_status->getLibraryObject()->getDisplayName();
+//                        break;
 
                     case 'branch':
                         $entry[$column] = $o_status->getRepositoryObject()?->getCurrentBranch();

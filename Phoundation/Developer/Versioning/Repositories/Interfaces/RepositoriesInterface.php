@@ -410,4 +410,19 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      */
     public function selectAutoBranch(?string $suffix, bool $auto_create = true): static;
+
+    /**
+     * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
+     *
+     * @param string $phoundation_version        The version that should exist if this repository is a Phoundation
+     *                                           repository
+     * @param string $project_version            The version that should exist if this repository is a project
+     *                                           repository
+     * @param string $phoundation_branch         The branch that should exist if this repository is a Phoundation
+     *                                           repository
+     * @param string $project_branch             The branch that should exist if this repository is a project repository
+     * @param bool $check_versions        [true] If true will check version and branch. If false, will only check branch
+     * @return static
+     */
+    public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch, bool $check_versions = true): static;
 }
