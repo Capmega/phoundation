@@ -643,9 +643,11 @@ throw new UnderConstructionException();
     public function checkNoneHaveChanges(string $action): static
     {
         if ($this->anyHaveChanges()) {
-            throw RepositoriesChangesException::new(ts('Cannot perform action ":action", one or more repositories have changes', [
-                ':action' => $action,
-            ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'));
+            if (!FORCE) {
+                throw RepositoriesChangesException::new(ts('Cannot perform action ":action", one or more repositories have changes', [
+                    ':action' => $action,
+                ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'));
+            }
         }
 
         return $this;
