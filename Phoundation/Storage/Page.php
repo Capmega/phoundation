@@ -123,7 +123,7 @@ class Page extends DataEntry implements PageInterface
                                                },
                                            ])
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               // Ensure category exists and that it's a category id or category name
+                                               // Ensure category exists and that it is a category id or category name
                                                $o_validator->orColumn('parents_id')
                                                          ->isName()
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` 

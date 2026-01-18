@@ -104,7 +104,7 @@ trait TraitMethodsVirtualColumns {
                 }
 
             } catch (DataEntryColumnsNotDefinedException $e) {
-                // We're trying to set a column that doesn't exist in the Definitions object
+                // We are trying to set a column that doesn't exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Virtual columns configuration for table ":table" in class ":class" contains column ":column" but that column does not exist in the definitions for this class', [
                     ':table'  => $table,
                     ':class'  => $this::class,
@@ -322,7 +322,7 @@ trait TraitMethodsVirtualColumns {
         if (array_key_exists($table, $this->virtual_configuration)) {
             // Configuration exists, but it may be a partial configuration setup in the DataEntry class itself
             if (array_key_exists('class', $this->virtual_configuration[$table])) {
-                // "class" configuration exists too, this is a complete configuration, we're done
+                // "class" configuration exists too, this is a complete configuration, we are done
                 return $this->virtual_configuration[$table];
             }
         }

@@ -2545,7 +2545,7 @@ class Definition implements DefinitionInterface
     protected function validateNumberTypeInput(string $key, string|float|int $value): void
     {
         if (is_callable(isset_get($this->source['element']))) {
-            // We can't validate data types for this since it's a callback function
+            // We cannot validate data types for this since it is a callback function
             return;
         }
 
@@ -3108,7 +3108,7 @@ class Definition implements DefinitionInterface
      *          - the column is required
      *          - the object in the column is new
      *          - the flag for "get_render_html_required_attribute_for_new" is false
-     *       If all of these criteria are met, this method will return true, or just if the column isn't required to
+     *       If all of these criteria are met, this method will return true, or just if the column  is not required to
      *       begin with.
      *
      * @param bool $get_real_value
@@ -3225,7 +3225,7 @@ class Definition implements DefinitionInterface
     protected function validateTextTypeElement(string $key, string|float|int|null $value): static
     {
         if (is_callable(isset_get($this->source['element']))) {
-            // We can't validate data types for this since it's a callback function
+            // We cannot validate data types for this since it is a callback function
             return $this;
         }
 
@@ -3740,7 +3740,7 @@ class Definition implements DefinitionInterface
 
         if (!$this->getRender()) {
             if (!$this->getForceValidations()) {
-                // This column renders so we're fine validating it
+                // This column renders so we are fine validating it
                 $o_validator->doNotValidate();
                 return false;
             }
@@ -3750,7 +3750,7 @@ class Definition implements DefinitionInterface
         $this->validateProcessEmptyValues($o_validator, $column);
 
         if ($this->o_data_entry?->isApplying()) {
-            // If we're applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
+            // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
             if ($this->validateProcessAppliedReadonlyDisabled($o_validator, $column)) {
                 // Yeah, this column is readonly / disabled and shouldn't be validated (and not saved either)
                 return false;
@@ -3878,14 +3878,14 @@ class Definition implements DefinitionInterface
     protected function validateProcessAppliedNotRendering(ValidatorInterface $o_validator, string $column): bool
     {
         if ($this->getRender()) {
-            // This column renders so we're fine validating it
+            // This column renders so we are fine validating it
             return false;
         }
 
-        // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
-        // If the user submitted it, they're messing around, don't allow it!
+        // This column  is not rendered (so not sent to the user) which means that it CANNOT be submitted.
+        // If the user submitted it, they are messing around, don't allow it!
         if ($o_validator->get($column)) {
-            // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
+            // This column  is not rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...
                 Incident::new()
@@ -4039,7 +4039,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
@@ -4073,7 +4073,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
@@ -4140,11 +4140,11 @@ class Definition implements DefinitionInterface
     public function getCliColumn(): ?string
     {
         if (PLATFORM_WEB or !$this->o_data_entry->isApplying()) {
-            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
+            // We are either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }
 
-        // We're on the command line and data is being applied. We're working with data from the $argv command line
+        // We are on the command line and data is being applied. We are working with data from the $argv command line
         if (empty($this->source['cli_column'])) {
             // This column cannot be modified on the command line, no definition available
             return null;

@@ -101,7 +101,7 @@ class Log implements LogInterface
     protected static bool $screen_enabled = true;
 
     /**
-     * Keeps track of what log files we're logging to
+     * Keeps track of what log files we are logging to
      */
     protected static array $streams = [];
 
@@ -212,7 +212,7 @@ class Log implements LogInterface
      */
     protected function __construct()
     {
-        // Ensure that the log class hasn't been initialized yet
+        // Ensure that the log class  has not been initialized yet
         if (static::$init) {
             return;
         }
@@ -555,7 +555,7 @@ class Log implements LogInterface
 
         // Validate the specified log level
         if ($real_threshold > 9) {
-            // This is an "always log!" message, which only are displayed if we're running in debug mode
+            // This is an "always log!" message, which only are displayed if we are running in debug mode
             if (Debug::isEnabled()) {
                 if ($real_threshold > 10) {
                     // Yeah, this is not okay
@@ -888,7 +888,7 @@ class Log implements LogInterface
 
             static::$last_message = $messages;
 
-            // If logging to the standard log output failed, or we're initializing the log, then write to the system log
+            // If logging to the standard log output failed, or we are initializing the log, then write to the system log
             if (static::$failed) {
                 static::toAlternateLog(Strings::force($messages));
                 static::$lock = false;
@@ -1305,7 +1305,7 @@ class Log implements LogInterface
         }
 
         if (static::$failed) {
-            // If the log is in failed mode, we can't switch to a different file
+            // If the log is in failed mode, we cannot switch to a different file
             static::toAlternateLog(tr('Not switching log file to ":file", log is running in failed mode', [
                 ':file' => $file,
             ]));
@@ -1582,7 +1582,7 @@ class Log implements LogInterface
                 }
 
             } catch (Throwable $g) {
-                // Okay, this is messed up, we can't even log to system logs.
+                // Okay, this is messed up, we cannot even log to system logs.
                 static::toAlternateLog('Failed to log message because: ' . $g->getMessage());
             }
 
@@ -1591,7 +1591,7 @@ class Log implements LogInterface
             throw $e;
 
         } catch (Throwable $f) {
-            // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
+            // Okay WT actual F is going on here? We cannot log to our own files, we cannot log to system files. THIS
             // we won't stand for!
             throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files', $e)
                               ->addData(['original exception' => $e]);

@@ -291,7 +291,7 @@ class Debug
         if (!isset(static::$enabled)) {
             // Avoid endless loops
             if ($loop) {
-                // We're in a loop!
+                // We are in a loop!
                 return false;
             }
 
@@ -1077,7 +1077,7 @@ class Debug
             return 1;
         }
 
-        // They're the same, so ordering doesn't matter
+        // They are the same, so ordering doesn't matter
         return 0;
     }
 
@@ -1355,7 +1355,7 @@ class Debug
     {
         $offset = 0;
 
-        // We'll use function call caching here, make sure the cache is cleared before we start
+        // We will use function call caching here, make sure the cache is cleared before we start
         FunctionCall::clearCache();
 
         while (true) {
@@ -1363,7 +1363,7 @@ class Debug
                 $call = new FunctionCall($offset++, true);
 
             } catch (OutOfBoundsException) {
-                // We're out of scope, the specified method / class does not exist
+                // We are out of scope, the specified method / class does not exist
                 break;
             }
 
@@ -1402,7 +1402,7 @@ class Debug
         $offset = 0;
         $return = null;
 
-        // We'll use function call caching here, make sure cache is cleared before we start
+        // We will use function call caching here, make sure cache is cleared before we start
         FunctionCall::clearCache();
 
         while (true) {
@@ -1410,7 +1410,7 @@ class Debug
                 $call = new FunctionCall($offset++, true);
 
             } catch (OutOfBoundsException) {
-                // We're out of scope, the specified method / class does not exist
+                // We are out of scope, the specified method / class does not exist
                 break;
             }
 

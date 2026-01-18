@@ -111,7 +111,7 @@ trait TraitDataIdentifier
             }
 
             if ($this->isNotNew()) {
-                // This DataEntry object already contains data from a source, it can't set the identifier anymore
+                // This DataEntry object already contains data from a source, it cannot set the identifier anymore
                 throw DataEntryException::new(tr('Cannot set identifier ":identifier" for DataEntry class ":class", the object already contains source data', [
                     ':class'      => $this::class,
                     ':identifier' => $identifier,

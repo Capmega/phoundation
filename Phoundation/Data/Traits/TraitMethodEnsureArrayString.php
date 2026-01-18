@@ -44,7 +44,7 @@ trait TraitMethodEnsureArrayString
 
 
     /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
+     * Ensure the entry we are going to return is from DataEntryInterface interface
      *
      * @param string|float|int $key
      * @param bool             $allow_scalar

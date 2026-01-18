@@ -123,7 +123,7 @@ class Cache extends Database implements CacheInterface
                 throw $e;
             }
 
-            // Alternate connector isn't allowed, continue with cache disabled
+            // Alternate connector  is not allowed, continue with cache disabled
             Cache::setEnabled(false);
             Incident::new($e)->save();
         }
@@ -365,7 +365,7 @@ class Cache extends Database implements CacheInterface
                     ]), $e);
 
                 } catch (ConnectorNotExistsException $e) {
-                    // So the "cache" connector has not been configured either, we can't use cache, disable it and
+                    // So the "cache" connector has not been configured either, we cannot use cache, disable it and
                     // register an incident about this
                     Cache::setEnabled(false);
 

@@ -569,7 +569,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
         $diff    = array_diff($this->selected, $results);
 
         if (empty($diff)) {
-            // The selected key(s) exist in the source, we're good
+            // The selected key(s) exist in the source, we are good
             return $this;
         }
 
@@ -900,13 +900,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     {
         // Does the key match?
         if (array_key_exists($key, $this->selected)) {
-            // If $this->selected[$value] is false, it means it's a key
+            // If $this->selected[$value] is false, it means it is a key
             return ($this->selected[$key] ? null : ' selected');
         }
 
         // Does the value match?
         if (array_key_exists($value, $this->selected)) {
-            // If $this->selected[$value] is true, it means it's a value
+            // If $this->selected[$value] is true, it means it is a value
             return ($this->selected[$value] ? ' selected' : null);
         }
 

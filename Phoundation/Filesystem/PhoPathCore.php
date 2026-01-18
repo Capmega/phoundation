@@ -617,7 +617,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Makes the specified path absolute if it's not
+     * Makes the specified path absolute if it is not
      *
      * The start character will be treated as follows:
      *
@@ -652,7 +652,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (static::onDomain($path)) {
-            // This is a domain:/file URL, it's already absolute
+            // This is a domain:/file URL, it is already absolute
             return static::ensureDirectorySlash($path);
         }
 
@@ -1045,7 +1045,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns the stream for this file if it's opened. Will return NULL if closed
+     * Returns the stream for this file if it is opened. Will return NULL if closed
      *
      * @return mixed
      */
@@ -1195,7 +1195,7 @@ class PhoPathCore implements PhoPathInterface
             // Nope, the path basename really does not exist!
         }
 
-        // Maybe a section of the path isn't mounted?
+        // Maybe a section of the path  is not mounted?
         if ($this->auto_mount and $auto_mount) {
             if ($this->attemptAutoMount()) {
                 // The path was auto mounted, so try again!
@@ -1870,7 +1870,7 @@ class PhoPathCore implements PhoPathInterface
 
         rename($this->source, $o_target->getSource());
 
-        // Update this object path and restrictions to the target, and we're done
+        // Update this object path and restrictions to the target, and we are done
         return $this->setSource($o_target->getSource())
                     ->setRestrictionsObject($o_target->getRestrictionsObject());
     }
@@ -2303,7 +2303,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        // If the object file exists and is writable, then we're done.
+        // If the object file exists and is writable, then we are done.
         if (is_readable($this->source)) {
             return true;
         }
@@ -2422,7 +2422,7 @@ class PhoPathCore implements PhoPathInterface
         $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
         if (static::onDomain($real)) {
-            // This is a domain:/file URL, we can't make this real
+            // This is a domain:/file URL, we cannot make this real
             return $path;
         }
 
@@ -2503,7 +2503,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true);
 
-        // If the object file exists and is writable, then we're done.
+        // If the object file exists and is writable, then we are done.
         if (is_writable($this->source)) {
             return true;
         }
@@ -3451,7 +3451,7 @@ class PhoPathCore implements PhoPathInterface
     {
         $exists = file_exists($this->source);
         if (!$exists and $auto_mount) {
-            // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
+            // Oh noes! This path doesn't exist! Maybe a path  is not mounted?
             $this->attemptAutoMount();
         }
 
@@ -4109,11 +4109,11 @@ class PhoPathCore implements PhoPathInterface
         $target = PhoPath::new($target, $restrictions ?? $this->o_restrictions);
 
         if (empty($alternate_path)) {
-            // We'll create the symlinks in the same directory as where we're linking from. Use "target" object
+            // We will create the symlinks in the same directory as where we are linking from. Use "target" object
             $alternate_path = clone $target;
 
         } else {
-            // We'll create the symlink in a different directory than where we're linking from. Ensure "alternate_path"
+            // We will create the symlink in a different directory than where we are linking from. Ensure "alternate_path"
             // is a Path object
             $alternate_path = PhoPath::new($alternate_path, $target->o_restrictions);
         }
@@ -5030,7 +5030,7 @@ class PhoPathCore implements PhoPathInterface
     public function isSameAs(PhoPathInterface $path): bool
     {
         if ($this->getRealPath()->getSource() === $path->getRealPath()->getSource()){
-            // Doh, it's the same path!
+            // Doh, it is the same path!
             return true;
         }
 

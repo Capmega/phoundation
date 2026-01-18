@@ -328,7 +328,7 @@ class Csrf
 
 
     /**
-     * Ensure that the CSRF buffer isn't running crazy large
+     * Ensure that the CSRF buffer  is not running crazy large
      *
      * @return void
      */

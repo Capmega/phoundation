@@ -360,7 +360,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * t    Number of days in the given month    28 through 31
      *
      * Year    ---    ---
-     * L    Whether it's a leap year    1 if it is a leap year, 0 otherwise.
+     * L    Whether it is a leap year    1 if it is a leap year, 0 otherwise.
      * o    ISO 8601 week-numbering year. This has the same value as Y, except that if the ISO week number (W) belongs
      *      to the previous or next year, that year is used instead.    Examples: 1999 or 2003
      * X    An expanded full numeric representation of a year, at least 4 digits, with - for years BCE, and + for years

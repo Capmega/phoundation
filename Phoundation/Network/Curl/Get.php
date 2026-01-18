@@ -191,7 +191,7 @@ class Get extends Curl
 
         // Prepare headers
         if (!$this->request_headers) {
-            // Send default headers. Check if we're sending files. If so, use multipart
+            // Send default headers. Check if we are sending files. If so, use multipart
             if (empty($multipart)) {
                 $this->addRequestHeaders([
                     'Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',

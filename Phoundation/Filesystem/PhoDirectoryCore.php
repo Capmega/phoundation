@@ -331,7 +331,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         while ($this->source) {
             // Restrict location access
             if ($this->o_restrictions->isRestricted($this->source, true)) {
-                // We're out of our territory, stop scanning!
+                // We are out of our territory, stop scanning!
                 break;
             }
 
@@ -349,7 +349,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             }
 
             if ($until_directory and ($this->source === $until_directory)) {
-                // We've cleaned until the requested directory, so we're good!
+                // We have cleaned until the requested directory, so we are good!
                 break;
             }
 
@@ -363,7 +363,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 $this->delete(false, $sudo, use_run_file: $use_run_file);
             } catch (PhoException $e) {
                 // The directory WAS empty, but cannot be removed
-                // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
+                // In all probability, a parallel process added a new content in this directory, so it is no longer empty.
                 // Just register the event and leave it be.
                 Log::warning(ts('Failed to remove empty pattern ":pattern" with exception ":e"', [
                     ':pattern' => $this->source,
@@ -372,7 +372,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 break;
             }
 
-            // Go one entry up, check if we're still within restrictions, and continue deleting
+            // Go one entry up, check if we are still within restrictions, and continue deleting
             $this->source = dirname($this->source) . '/';
         }
     }
@@ -579,7 +579,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
                 try {
                     // Make sure that the parent directory is writable when creating the directory
-                    // Since we're modifying the item $id of $count, be sure to get matching restrictions
+                    // Since we are modifying the item $id of $count, be sure to get matching restrictions
                     $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
 
                     PhoDirectory::new(dirname($source), $this->o_restrictions->getParent($count - $id)->makeWritable())
@@ -603,7 +603,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                         ]);
                     }
 
-                    // We're okay, the directory already exists
+                    // We are okay, the directory already exists
                 }
             }
 
@@ -1064,14 +1064,14 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 if (is_dir($this->source . $file)) {
                     // This is a directory
                     if (!$directory) {
-                        // But we're looking for non directories
+                        // But we are looking for non directories
                         unset($files[$id]);
                         continue;
                     }
                 } else {
                     // This is a non directory file
                     if ($directory) {
-                        // But we're looking for directories
+                        // But we are looking for directories
                         unset($files[$id]);
                         continue;
                     }
@@ -1323,7 +1323,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             ]));
         }
 
-        // We're mounted and from the right source, yay!
+        // We are mounted and from the right source, yay!
         return $this;
     }
 

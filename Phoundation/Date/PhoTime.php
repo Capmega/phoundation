@@ -526,7 +526,7 @@ class PhoTime
             $seconds2 = $periods[$i + 1][0];
             $name2    = $periods[$i + 1][1];
 
-            // Only show it if it's greater than 0
+            // Only show it if it is greater than 0
             if (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) {
                 $output .= ($count2 == 1) ? ', 1 ' . $name2 : ", $count2 {$name2}s";
             }

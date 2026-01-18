@@ -2182,7 +2182,7 @@ trait TraitProcessVariables
 
         } else {
             // Run files were disabled for normal execution, or a command was executed using basic execution.
-            // Either way, we can't know the PID
+            // Either way, we cannot know the PID
             $pid = -1;
         }
 

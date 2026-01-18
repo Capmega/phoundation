@@ -632,7 +632,7 @@ class JsonPage implements JsonPageInterface
     {
         switch ($this->action_after) {
             case EnumJsonAfterReply::die:
-                // We're done, kill the connection % process (default)
+                // We are done, kill the connection % process (default)
                 exit();
 
             case EnumJsonAfterReply::continue:

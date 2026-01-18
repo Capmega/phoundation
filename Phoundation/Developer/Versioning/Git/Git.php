@@ -1078,7 +1078,7 @@ class Git extends Versioning implements GitInterface
         } catch (ProcessFailedException $e) {
             if (Arrays::containsNeedles($e->getDataKey('output'), ['failed to push some refs to'])) {
                 if (Arrays::containsNeedles($e->getDataKey('output'), ['Updates were rejected because a pushed branch tip is behind its remote'])) {
-                    // Is the current branch that we are trying to push amongst the branches that failed to push? If not, we're all fine!
+                    // Is the current branch that we are trying to push amongst the branches that failed to push? If not, we are all fine!
                     $branches = Arrays::getContainsNeedles($e->getDataKey('output'), ['! [rejected]']);
 
                     if ($branches) {

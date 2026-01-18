@@ -34,7 +34,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 throw new UnderConstructionException();
 
-// Only show sign-in page if we're a guest user
+// Only show sign-in page if we are a guest user
 if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302, reason_warning: tr('Lost password page is only available to guest users'));
 }

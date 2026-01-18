@@ -120,7 +120,7 @@ class Bundler
         }
         // Initialize for new bundle
         $this->newBundle($files, $extension);
-        // Do we already have a VALID bundle file available? If so, we're done
+        // Do we already have a VALID bundle file available? If so, we are done
         if ($this->bundleExists()) {
             return $this->bundle_file;
         }

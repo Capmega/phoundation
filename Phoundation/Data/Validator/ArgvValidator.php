@@ -374,7 +374,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             throw new ValidatorException(tr('Cannot select another cli argument again after using ArgvValidator::selectAll() as that method has selected all arguments, there is nothing left to select'));
         }
 
-        // Once ArgvValidator::selectAll() has been executed once, we can't ever select anything else!
+        // Once ArgvValidator::selectAll() has been executed once, we cannot ever select anything else!
         static::$select_all = $select_all;
     }
 
@@ -492,8 +492,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         }
 
         if (!$field and str_starts_with((string) $value, '-')) {
-            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently can't
-            // We're looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
+            // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently cannot
+            // We are looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
             // the value back on the arguments list
             $this->source[] = $value;
             $value          = null;
@@ -672,7 +672,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             foreach ($arguments as $argument) {
                 if ($next === 'all') {
-                    // We're requesting all values for all specified keys. It will return null in case the specified key
+                    // We are requesting all values for all specified keys. It will return null in case the specified key
                     // does not exist
                     $value = $this->argument($argument, 'all', $test);
 
@@ -704,7 +704,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             };
         }
 
-        // Find the location of the specified singular key. If not found, we're done, return null
+        // Find the location of the specified singular key. If not found, we are done, return null
         if (($argument_array_key = array_search($arguments, static::$argv, true)) === false) {
             return null;
         }
@@ -1043,7 +1043,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      *
      * @note If the key already exists in the internal argv source, then an exception will be thrown
      *
-     * @note The specified key will be tested against backup command line arguments to ensure the key can't be added
+     * @note The specified key will be tested against backup command line arguments to ensure the key cannot be added
      *       from STDIN AND be specified on the command line
      *
      * @param string $key

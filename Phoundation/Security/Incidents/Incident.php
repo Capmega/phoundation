@@ -537,7 +537,7 @@ class Incident extends DataEntryCore implements IncidentInterface
     public function throw(?string $exception = null, bool $non_production_environment_only = false): static
     {
         if ($non_production_environment_only and Core::isProductionEnvironment()) {
-            // We're on a production environment and can continue after registering the incident
+            // We are on a production environment and can continue after registering the incident
             return $this;
         }
 
@@ -663,7 +663,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                             return $return . implode(PHP_EOL, $lines);
 
                                         } catch (JsonException $e) {
-                                            // We couldn't decode it! Why? Let's move on, it's not THAT important... yet
+                                            // We couldn't decode it! Why? Let's move on, it is not THAT important... yet
                                             Log::warning($e);
 
                                             return isset_get($value);

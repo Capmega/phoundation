@@ -59,7 +59,7 @@ class Paging
 
 
     /**
-     * Returns the current page that we're at
+     * Returns the current page that we are at
      *
      * @param int|null $page
      *

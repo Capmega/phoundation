@@ -290,7 +290,7 @@ class Core implements CoreInterface
     protected static bool $ignore_readonly = false;
 
     /**
-     * Tracks if we're running unit Tests
+     * Tracks if we are running unit Tests
      *
      * @var bool $unit_test_mode
      */
@@ -487,7 +487,7 @@ class Core implements CoreInterface
             $path = dirname(dirname($_SERVER['SCRIPT_FILENAME']));
 
             while (str_contains($path, '/data')) {
-                // We're inside a data directory. Keep moving up
+                // We are inside a data directory. Keep moving up
                 $path = dirname($path);
             }
 
@@ -521,7 +521,7 @@ class Core implements CoreInterface
             Core::startPlatform();
             Core::defineProjectDirectories();
 
-            // Check if we're in readonly mode
+            // Check if we are in readonly mode
             Core::$state    = 'startup';
             Core::$readonly = (bool) Core::getReadonlyMode();
 
@@ -626,7 +626,7 @@ class Core implements CoreInterface
 
 
     /**
-     * Checks what platform we're running on and sets definitions for those
+     * Checks what platform we are running on and sets definitions for those
      *
      * @return void
      */
@@ -800,7 +800,7 @@ class Core implements CoreInterface
      */
     public static function setReady(): void
     {
-        // We're done, transfer control to script
+        // We are done, transfer control to script
         Core::$ready = true;
     }
 
@@ -812,7 +812,7 @@ class Core implements CoreInterface
      */
     public static function setScriptState(): void
     {
-        // We're done, transfer control to script
+        // We are done, transfer control to script
         Core::$state = 'script';
         Core::$script = true;
     }
@@ -1157,7 +1157,7 @@ class Core implements CoreInterface
 
                 // The system crashed before Core was ready
                 if (CliAutoComplete::isActive()) {
-                    // If we're in autocomplete mode, so we're fine as it can end before Core is ready
+                    // If we are in autocomplete mode, so we are fine as it can end before Core is ready
                     exit();
                 }
 
@@ -1287,7 +1287,7 @@ class Core implements CoreInterface
         static $loop = false;
 
         if ($loop) {
-            // We're in a loop!
+            // We are in a loop!
             return false;
         }
 
@@ -1296,7 +1296,7 @@ class Core implements CoreInterface
         try {
             if ($production === null) {
                 if (!defined('ENVIRONMENT')) {
-                    // Oops, we're so early in startup that we don't have an environment available yet!
+                    // Oops, we are so early in startup that we don't have an environment available yet!
                     // Assume production!
                     $loop = false;
 
@@ -2543,7 +2543,7 @@ class Core implements CoreInterface
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
         if (Core::inStartupState()) {
-            // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
+            // Wut? We are not even ready to go! Likely we don't have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                               ->setCode($errno)
@@ -2900,7 +2900,7 @@ class Core implements CoreInterface
                         ]));
 
                     } else {
-                        // Only notify and register developer incident if we're on production
+                        // Only notify and register developer incident if we are on production
                         if (!Core::isProductionEnvironment()) {
                             // We CAN only notify if Core is ready
                             if (Core::getReady()) {
@@ -3200,7 +3200,7 @@ class Core implements CoreInterface
 
         if (Core::isReady($state)) {
             if (!Config::hasSections()) {
-                // Configuration isn't available yet, we cannot even know if we are in debug mode or not!
+                // Configuration  is not available yet, we cannot even know if we are in debug mode or not!
                 // Try sending the right response code and content type headers so that at least there will be a visible
                 // page with the right mimetype
                 if (!headers_sent()) {

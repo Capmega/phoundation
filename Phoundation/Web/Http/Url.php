@@ -512,7 +512,7 @@ class Url implements UrlInterface
     {
         if ($this->is_absolute === null) {
             if (!$this->canMakeAbsolute()) {
-                // Links that can't be made absolute (#, mailto:, etc) are considered already absolute
+                // Links that cannot be made absolute (#, mailto:, etc) are considered already absolute
                 $this->is_absolute = true;
 
             } else {
@@ -589,7 +589,7 @@ class Url implements UrlInterface
     public function makeWww(bool $use_configured_root = false): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -617,7 +617,7 @@ class Url implements UrlInterface
     public function makeCdn(?string $extension = null): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -665,7 +665,7 @@ class Url implements UrlInterface
     protected function makeJson(string $type, bool $use_configured_root = false): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -718,7 +718,7 @@ class Url implements UrlInterface
         }
 
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -1200,7 +1200,7 @@ class Url implements UrlInterface
         $this->is_absolute = null;
 
         if (empty($this->source)) {
-            // There is no URL to work with, we're done
+            // There is no URL to work with, we are done
             $this->source = Request::getUrl();
             $extension    = '';
         }
@@ -1266,7 +1266,7 @@ class Url implements UrlInterface
         }
 
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -1803,11 +1803,11 @@ class Url implements UrlInterface
     public function isExternal(bool $check_sub_domains = true): bool
     {
         if ($this->isValid()) {
-            // This isn't even a complete URL, must be internal, there is no domain name expected here
+            // This  is not even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
 
-        // We have a complete URL, so there is a domain name in there. Check if it's a "local" (ie, on this server)
+        // We have a complete URL, so there is a domain name in there. Check if it is a "local" (ie, on this server)
         // domain name
         return !$this->getDomainType($check_sub_domains);
     }
@@ -1844,7 +1844,7 @@ class Url implements UrlInterface
      *
      * @param bool $check_sub_domains
      *
-     * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
+     * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it is on an external
      */
     public function getDomainType(bool $check_sub_domains = true): ?string
     {
@@ -1896,7 +1896,7 @@ class Url implements UrlInterface
         $queries = Strings::from($url, '?', needle_required: true);
 
         if ($queries) {
-            // Get all individual queries and ensure they're encoded
+            // Get all individual queries and ensure they are encoded
             $url     = Strings::until($url, '?', needle_required: true);
             $queries = explode('&', $queries);
 

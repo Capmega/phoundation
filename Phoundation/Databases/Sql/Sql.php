@@ -973,7 +973,7 @@ class Sql implements SqlInterface
 
             Log::printr($this->configuration['attributes'], 2, echo_header: false);
 
-            // Yay, we're using the database!
+            // Yay, we are using the database!
             $this->database = $this->configuration['database'];
 
             if ($this->configuration['timezones_name']) {
@@ -1018,7 +1018,7 @@ class Sql implements SqlInterface
                         // no break
 
                     case 'system/init/init':
-                        // This is not an issue, we're either dropping DB or initializing it.
+                        // This is not an issue, we are either dropping DB or initializing it.
                         $this->connect(false);
 
                         return $this;
@@ -1318,7 +1318,7 @@ class Sql implements SqlInterface
         $database = $this->getDatabaseName($database);
 
         if ($database === $this->getCurrentDatabase()) {
-            // We're already using this database, no need to switch
+            // We are already using this database, no need to switch
             return $this;
         }
 

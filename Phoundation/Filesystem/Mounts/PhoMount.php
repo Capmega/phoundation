@@ -265,7 +265,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
 
 
     /**
-     * Will automatically mount this target if it isn't mounted yet and configured for auto mount
+     * Will automatically mount this target if it  is not mounted yet and configured for auto mount
      *
      * Returns null if the target path is mounted correctly
      *
@@ -296,7 +296,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
             return null;
         }
 
-        // The target path mount part isn't mounted!
+        // The target path mount part  is not mounted!
         if (!$this->getAutoMount()) {
             return false;
         }

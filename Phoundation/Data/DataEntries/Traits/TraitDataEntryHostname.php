@@ -93,8 +93,8 @@ trait TraitDataEntryHostname
             }
 
         } catch (SqlTableDoesNotExistException $e) {
-            // Crap, the table we're working on doesn't exist, WTF? No biggie, we're likely in init mode, and
-            // then we can ignore this issue as we're likely working from configuration instead
+            // Crap, the table we are working on doesn't exist, WTF? No biggie, we are likely in init mode, and
+            // then we can ignore this issue as we are likely working from configuration instead
             if (!Core::inInitState()) {
                 throw $e;
             }

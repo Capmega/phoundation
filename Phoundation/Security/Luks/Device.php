@@ -342,7 +342,7 @@ class Device extends PhoFile
     {
         if (empty($this->device_name)) {
             if ($force) {
-                // It's closed, what more do you want?
+                // It is closed, what more do you want?
                 Log::warning(ts('Will not close LUKS file ":file", the file is not open', [
                     ':file'   => $this->source,
                 ]), 2);

@@ -1411,9 +1411,9 @@ class Response implements ResponseInterface
                 $current = (string) Url::newCurrent();
 
                 if (Strings::until($redirect, '?') !== Strings::until($current, '?')) {
-                    // We're at a different page. Should we redirect to the specified page?
+                    // We are at a different page. Should we redirect to the specified page?
                     if (!Response::skipRedirect()) {
-                        // No, it's not, redirect!
+                        // No, it is not, redirect!
                         Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
                             ':user' => Session::getUserObject()
                                               ->getLogId(),
@@ -1777,7 +1777,7 @@ class Response implements ResponseInterface
                 http_response_code(500);
 
             } catch (Throwable) {
-                // Yeah, we can't set HTTP code either, body probably has already been sent then.
+                // Yeah, we cannot set HTTP code either, body probably has already been sent then.
             }
             throw new ResponseHeadersException(tr('Failed to send HTTP headers'), $e);
         }
@@ -1857,11 +1857,11 @@ class Response implements ResponseInterface
     {
         // Only send when on WEB platform
         if (PLATFORM_WEB) {
-            // Don't send data if we're going to sign-out when the session terminates, which will cause a HTTP redirect
+            // Don't send data if we are going to sign-out when the session terminates, which will cause a HTTP redirect
             if (!Session::getSignOutOnExit()) {
                 // ????
                 if (isset(static::$page_headers)) {
-                    // TODO All this here makes zero sense? We're sending HTTP headers, but caching? Go over this, fix!
+                    // TODO All this here makes zero sense? We are sending HTTP headers, but caching? Go over this, fix!
                     // Only cache if there are headers. If Response::buildHeaders() returned null this means that the headers
                     // have already been sent before, probably by a debugging function like Debug::show(). DON'T CACHE!
                     $length = Response::sendHttpHeaders();
@@ -2092,7 +2092,7 @@ class Response implements ResponseInterface
         // Create local ETAG
         static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
-        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
+        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we are doing this for a good reason...
         if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary

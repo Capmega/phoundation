@@ -85,7 +85,7 @@ class Grid extends Container
         if (!($row instanceof GridRow)) {
             // This is not a row!
             if (!($row instanceof GridColumn)) {
-                // This is not even a column, it's content. Put it in a column first
+                // This is not even a column, it is content. Put it in a column first
                 $row = GridColumn::new()
                                  ->setContent($row)
                                  ->useForm($use_form);

@@ -3,7 +3,7 @@
 /**
  * Page index
  *
- * This is the default page redirected to from sign-in. It's useful as a dashboard, show messages, etc
+ * This is the default page redirected to from sign-in. It is useful as a dashboard, show messages, etc
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

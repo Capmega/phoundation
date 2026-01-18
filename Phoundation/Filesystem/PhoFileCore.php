@@ -107,7 +107,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 //        is_file($source);
 //        PhoDirectory::new($destination)
 //                 ->ensure();
-//        // Ensure we're not overwriting anything!
+//        // Ensure we are not overwriting anything!
 //        if (file_exists($destination . $real)) {
 //            $real = Strings::untilReverse($real, '.') . '_' . substr(uniqid(), -8, 8) . '.' . Strings::fromReverse($real, '.');
 //        }
@@ -548,7 +548,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
             }
 
             if ($until_line and (++$count >= $until_line)) {
-                // We're done, get out
+                // We are done, get out
                 break;
             }
         }
@@ -1285,7 +1285,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
-            // If we're replacing in the same file, then don't have to check
+            // If we are replacing in the same file, then don't have to check
             $target->getParentDirectoryObject()->ensure();
             $target->checkNotExists();
         }

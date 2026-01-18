@@ -143,7 +143,7 @@ class Request implements RequestInterface
     protected static ?string $hash = null;
 
     /**
-     * The number of page levels that we're recursed in. Typically, this will be 0, but when executing pages from within
+     * The number of page levels that we are recursed in. Typically, this will be 0, but when executing pages from within
      * pages, recursing down, each time it will go up by one until that page is finished, then it will be lowered again
      *
      * @var int $stack_level
@@ -588,7 +588,7 @@ class Request implements RequestInterface
         if (PLATFORM_WEB) {
             return (int) $_SERVER['SERVER_PORT'];
         }
-        // We're on a command line
+        // We are on a command line
         $config = config()->getArray('web.domains.primary');
         if (array_key_exists('port', $config)) {
             // Return configured WWW port
@@ -1041,7 +1041,7 @@ class Request implements RequestInterface
 
         if ($page) {
             if (array_get_safe($_SERVER, 'SCRIPT_URI') === $page) {
-                // The current location is the default page, we're good
+                // The current location is the default page, we are good
                 return;
             }
 
@@ -1182,7 +1182,7 @@ class Request implements RequestInterface
     {
         if (!$strict) {
             if ($method === EnumHttpRequestMethod::upload) {
-                // Upload isn't a real method, its POST
+                // Upload  is not a real method, its POST
                 $method = EnumHttpRequestMethod::post;
             }
 
@@ -1236,7 +1236,7 @@ class Request implements RequestInterface
     protected static function detectRequestType(string $target): void
     {
         if (PLATFORM_CLI) {
-            // We're running on the command line
+            // We are running on the command line
             $request_type = EnumRequestTypes::cli;
 
         } else {
@@ -1296,7 +1296,7 @@ class Request implements RequestInterface
 
         // Is this a system page though? System pages require no rights to be viewed.
         if (Request::getRequestType() === EnumRequestTypes::system) {
-            // Hurrah, it's a bo, eh, system page! System pages require no rights. Everyone can see 404, 500, etc...
+            // Hurrah, it is a bo, eh, system page! System pages require no rights. Everyone can see 404, 500, etc...
             return true;
         }
 
@@ -1338,7 +1338,7 @@ class Request implements RequestInterface
             $rights_redirect = 403;
         }
 
-        // Do the specified rights exist at all? If they aren't defined then no wonder this user doesn't have them
+        // Do the specified rights exist at all? If they  are not defined then no wonder this user doesn't have them
         if (Rights::getNotExist($rights)) {
             // One or more of the rights do not exist
             Incident::new()
@@ -1471,11 +1471,11 @@ class Request implements RequestInterface
         if (static::$request_type !== EnumRequestTypes::unknown) {
             $fail = true;
 
-            // We already have a request type determined, so we already have an appropriate response object initialized as well. We can't just change from
+            // We already have a request type determined, so we already have an appropriate response object initialized as well. We cannot just change from
             // generating a web page to returning an API output, for example, so check if the change is allowed
             switch ($request_type) {
                 case static::$request_type:
-                    // The new request type matches the initial request type, we can continue. The response won't be reset, so we're done here
+                    // The new request type matches the initial request type, we can continue. The response won't be reset, so we are done here
                     return;
 
                 case EnumRequestTypes::system:

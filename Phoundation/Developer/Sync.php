@@ -63,21 +63,21 @@ class Sync
     protected bool $lock = true;
 
     /**
-     * Tracks the environment we're in
+     * Tracks the environment we are in
      *
      * @var string $environment
      */
     protected string $environment;
 
     /**
-     * Tracks the configuration for the environment we're in
+     * Tracks the configuration for the environment we are in
      *
      * @var array $configuration
      */
     protected array $configuration;
 
     /**
-     * Tracks the configuration for the environment we're in
+     * Tracks the configuration for the environment we are in
      *
      * @var array $environment_config
      */
@@ -494,12 +494,12 @@ class Sync
         foreach ($this->dump_files as $file) {
             // Build source / target strings
             if ($from) {
-                // We're syncing FROM a server TO LOCAL
+                // We are syncing FROM a server TO LOCAL
                 $source = $from->getHostname() . ':' . $this->source_temp_path . $file;
                 $target = $this->target_temp_path . $file;
 
             } else {
-                // We're syncing FROM LOCAL TO a server
+                // We are syncing FROM LOCAL TO a server
                 $source = $this->target_temp_path . $file;
                 $target = $from->getHostname() . ':' . $this->source_temp_path . $file;
             }
@@ -680,7 +680,7 @@ class Sync
             ]));
         }
 
-        // From here it's an array
+        // From here it is an array
         return in_array($connector_name, $this->configuration['sync']['connectors']);
     }
 

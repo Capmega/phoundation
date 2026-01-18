@@ -1148,7 +1148,7 @@ throw new ObsoleteException();
                 }
 
                 // Either the specified DataEntry object has no value for its unique column, or the unique column
-                // matches the specified key. Either way, we're good to go
+                // matches the specified key. Either way, we are good to go
 
             } else {
                 $key = $value->getUniqueColumnValue();
@@ -1176,7 +1176,7 @@ throw new ObsoleteException();
                     }
                 }
 
-                // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
+                // Either the specified DataEntry object is new or the id matches the specified key, we are good to go
             } else {
                 // Key was not specified, use the ID from the DataEntry object as key
                 $key = $value->getId();
@@ -1268,7 +1268,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
+     * Ensure the entry we are going to return is from DataEntryInterface interface
      *
      * @param string|float|int|null $key
      * @param bool                  $force
@@ -1582,7 +1582,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Returns true if this DataIterator has data loaded into it's source
+     * Returns true if this DataIterator has data loaded into it is source
      *
      * Data will be considered loaded into the source if either it was specified as a source during constructor, or
      * whendata was loaded using the DataIterator::load() method
@@ -1679,7 +1679,7 @@ throw new ObsoleteException();
             }
         }
 
-        // Apply will first validate, so we know ALL has been validated before we're saving
+        // Apply will first validate, so we know ALL has been validated before we are saving
         foreach ($source as $data_entry_id => $data_entry_source) {
             $this->get($data_entry_id, $require_clean_source)?->apply(true, $data_entry_source);
         }

@@ -109,7 +109,7 @@ if ($argv['no_password']) {
                 continue;
             }
 
-            // Yeah, we're done retrying
+            // Yeah, we are done retrying
             throw PasswordFailedException::new('Failed to setup a password for the user');
         }
     }

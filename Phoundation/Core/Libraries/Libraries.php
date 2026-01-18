@@ -1270,7 +1270,7 @@ return;
                                                WHERE  `library` = "core"');
 
             if ($version >= 6000) {
-                // Once core_versions supports vendors, it will ALWAYS support vendors, we're done!
+                // Once core_versions supports vendors, it will ALWAYS support vendors, we are done!
                 $true = true;
             }
         }
@@ -1306,7 +1306,7 @@ return;
                                                WHERE  `library` = "core"');
 
             if ($version >= 9000) {
-                // Once core_versions supports vendors (0.9.0 and up), it will ALWAYS support vendors, we're done!
+                // Once core_versions supports vendors (0.9.0 and up), it will ALWAYS support vendors, we are done!
                 $true = true;
             }
         }

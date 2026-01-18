@@ -402,7 +402,7 @@ class MysqlDump extends Command implements MysqlDumpInterface
             $file  = new PhoFile($file);
 
         } elseif ($this->gzip) {
-            // If we're making a gzipped file, make sure it has the .gz extension
+            // If we are making a gzipped file, make sure it has the .gz extension
             $file->ensureExtension('.gz');
         }
 

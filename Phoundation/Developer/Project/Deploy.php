@@ -35,7 +35,7 @@ use Throwable;
 class Deploy implements DeployInterface
 {
     /**
-     * The project we're deploying
+     * The project we are deploying
      *
      * @var ProjectInterface $project
      */

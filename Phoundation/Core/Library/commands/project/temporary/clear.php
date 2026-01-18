@@ -46,7 +46,7 @@ $argv = ArgvValidator::new()
 $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP));
 
 
-// Clear the specified temporary directory and we're done
+// Clear the specified temporary directory and we are done
 PhoFile::new(
     ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'],
     PhoRestrictions::newWritableObject($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)

@@ -100,8 +100,8 @@ trait TraitDataEntryName
             }
 
         } catch (SqlNoDatabaseSelectedException |SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
-            // Crap, the table (or entire database!) that we're working on doesn't exist, WTF? No biggie, we're likely
-            // in init mode, and then we can ignore this issue as we're likely working from configuration DataEntries
+            // Crap, the table (or entire database!) that we are working on doesn't exist, WTF? No biggie, we are likely
+            // in init mode, and then we can ignore this issue as we are likely working from configuration DataEntries
             // instead
             if (!Core::inInitState()) {
                 throw $e;

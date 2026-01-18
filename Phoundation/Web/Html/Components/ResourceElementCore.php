@@ -365,7 +365,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
             return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->getId(), $this->getName(), $this->getValue()], force_single_line: true);
         }
 
-        // This object can't be cached
+        // This object cannot be cached
         return null;
     }
 

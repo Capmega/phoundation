@@ -156,7 +156,7 @@ class SystemRequest implements SystemRequestInterface
 
         } else {
             if (config()->getBoolean('security.web.monitor.urls.failed', true)) {
-                // Don't register anything if we're in readonly mode
+                // Don't register anything if we are in readonly mode
                 if (!Core::getReadonly()) {
                     // Don't register 404's on favicon requests
                     if (!Route::isFaviconRequest()) {

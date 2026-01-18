@@ -471,7 +471,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        // Apply validators as well? Only if datatype test hasn't failed yet
+        // Apply validators as well? Only if datatype test  has not failed yet
         if (isset($this->validators)) {
             foreach ($this->validators as $name => $o_validator) {
                 if (!$o_validator($value)) {
@@ -1640,7 +1640,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
                 }
 
             } elseif (!$all) {
-                // only one needs to be in the array, we found one, we're good!
+                // only one needs to be in the array, we found one, we are good!
                 return true;
             }
         }
@@ -2372,7 +2372,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
+     * Ensure the entry we are going to return is from DataEntryInterface interface
      *
      * @param string|float|int|null $key
      * @param bool                  $force
@@ -2387,7 +2387,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         if ($this->ensure_objects or $force) {
             if (is_object($this->source[$key])) {
-                // Already object, assume it's the right type
+                // Already object, assume it is the right type
                 return $this->source[$key];
             }
 

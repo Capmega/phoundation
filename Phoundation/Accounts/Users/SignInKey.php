@@ -286,7 +286,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
 
         if (!str_starts_with($target, (DIRECTORY_WEB . 'pages/system/'))) {
-            // For this URL, we're trying to display a system page instead. Allow too
+            // For this URL, we are trying to display a system page instead. Allow too
             return true;
         }
 

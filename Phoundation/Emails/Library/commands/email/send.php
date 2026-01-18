@@ -114,7 +114,7 @@ try {
     }
 
 } catch (ConfigPathDoesNotExistsException $e) {
-    // Phoundation isn't properly configured
+    // Phoundation  is not properly configured
     Log::error(ts('Cannot send email because the configuration paths "email.from.email" and or "email.from.name" are not correctly configured'), 10);
 }
 

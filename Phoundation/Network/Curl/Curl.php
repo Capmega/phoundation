@@ -172,7 +172,7 @@ abstract class Curl implements CurlInterface
     protected ?array $result_cookies = null;
 
     /**
-     * The status information about this request. NULL if it hasn't been executed yet
+     * The status information about this request. NULL if it  has not been executed yet
      *
      * @var array|null $result_status
      */

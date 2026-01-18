@@ -138,7 +138,7 @@ class Rights extends DataIterator implements RightsInterface
         // Save each right in this list if it doesn't exist
         foreach ($rights as $right) {
             if (is_numeric($right)) {
-                // This is an ID, not a name. Right names can't be numeric
+                // This is an ID, not a name. Right names cannot be numeric
                 throw new OutOfBoundsException(tr('Cannot add right ":right", it is numeric. Right names must not be numeric', [
                     ':right' => $right,
                 ]));

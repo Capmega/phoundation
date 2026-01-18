@@ -119,7 +119,7 @@ class ScanImage extends Command
                 preg_match_all('/^(--?[a-z0-9-]+)/', $section, $matches);
                 $entry['key'] = $matches[1][0];
 
-                // Remove the key from the section we're working on
+                // Remove the key from the section we are working on
                 $section = Strings::from($section, $entry['key']);
                 $section = trim($section);
 

@@ -513,10 +513,10 @@ class Plugins extends Project
             $file = Strings::from($path, '/');
             $path = Strings::until($path, '/');
 
-            // If it's a file within a tracked plugin, that's file
+            // If it is a file within a tracked plugin, that's file
             if (!$file) {
                 if (!$info->getStatus()->isTracked()) {
-                    // This Plugin isn't tracked yet, ensure its removed!
+                    // This Plugin  is not tracked yet, ensure its removed!
                     $phoundation_plugins = Arrays::removeValues($phoundation_plugins, $path);
                 }
             }

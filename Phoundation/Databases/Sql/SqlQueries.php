@@ -552,7 +552,7 @@ class SqlQueries
         $query = strtolower($query);
 
         if (str_starts_with($query, 'insert') or str_starts_with($query, 'update')) {
-            // This is a write query, check if we're not in readonly mode
+            // This is a write query, check if we are not in readonly mode
             Core::checkReadonly('write query');
         }
     }

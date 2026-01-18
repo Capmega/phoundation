@@ -274,7 +274,7 @@ $o_user_card = Card::new()
                                              ->addButton(isset_get($o_button_impersonate)));
 
 
-// Build the additional cards only if we're not working on a new user
+// Build the additional cards only if we are not working on a new user
 if (!$o_user->isNew()) {
     $o_roles_card = Card::new()
                         ->setCollapseSwitch(true)

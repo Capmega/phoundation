@@ -33,7 +33,7 @@ use Phoundation\Web\Requests\Response;
 Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::head);
 
 
-// Only show sign-in page if we're a guest user
+// Only show sign-in page if we are a guest user
 if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', reason_warning: tr('Sign-in page is only available to guest users'));
 }

@@ -207,7 +207,7 @@ class Domains
             static::$primary_web_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['web']))->getHost();
 
             if (!static::$primary_web_domain) {
-                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
+                // Whoops! We didn't get our primary domain from configuration, likely configuration  is not available yet
                 // Assume the current domain is the primary domain instead
                 static::$primary_web_domain = Domains::getCurrent();
 
@@ -235,7 +235,7 @@ class Domains
             static::$primary_cdn_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['cdn']))->getHost();
 
             if (!static::$primary_cdn_domain) {
-                // Whoops! We didn't get our primary domain from configuration, likely configuration isn't available yet
+                // Whoops! We didn't get our primary domain from configuration, likely configuration  is not available yet
                 // Assume the current domain is the primary domain instead
                 static::$primary_cdn_domain = Domains::getCurrent();
 
@@ -262,7 +262,7 @@ class Domains
 
             if ($configuration === null) {
                 if (!Core::isState('setup')) {
-                    // In set up we won't have configuration and that is fine. If we're not in set up, then it is not
+                    // In set up we won't have configuration and that is fine. If we are not in set up, then it is not
                     // so fine
                     throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
@@ -381,7 +381,7 @@ class Domains
                 Response::redirect(Url::newRootDomainUrl());
             }
 
-            // The specified domain isn't configured
+            // The specified domain  is not configured
             throw new ConfigPathDoesNotExistsException(tr('Cannot get root URL for domain ":domain", there is no configuration for that domain', [
                 ':domain' => $domain,
             ]));

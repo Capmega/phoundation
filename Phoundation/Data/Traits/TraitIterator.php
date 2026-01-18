@@ -95,25 +95,25 @@ trait TraitIterator
             return false;
         }
 
-        // The entry MIGHT exist, but we can't be 100% sure if the source array has a NULL key!
+        // The entry MIGHT exist, but we cannot be 100% sure if the source array has a NULL key!
         // Weird PHP quirk coming up due to isset() / array_key_exists() not being typesafe...
         if ($key === null) {
             // key() will give NULL when the internal array pointer is out of range, great! However, this  messes up
             // when having an array with '', null or 0 because isset() and or array_key_exists() will both claim that
-            // the current key exists (meaning, we're still in range) while in reality we're out of range and the key
+            // the current key exists (meaning, we are still in range) while in reality we are out of range and the key
             // doesn't exist.
-            // We can't check if IteratorCore::source[null] exists because IteratorCore::source[""] will also respond to that,
+            // We cannot check if IteratorCore::source[null] exists because IteratorCore::source[""] will also respond to that,
             // same goes for isset() and array_key_exists()
             // current() will also return NULL when out of range, so assume that IteratorCore::source[null]
-            // has a non-NULL value. If we're really in range, current() will give a non-NULL value, like
-            // IteratorCore::source[null], and we'll know we're in range. If they are not equal (current() gives NULL) then
-            // we're out of range.
+            // has a non-NULL value. If we are really in range, current() will give a non-NULL value, like
+            // IteratorCore::source[null], and we'll know we are in range. If they are not equal (current() gives NULL) then
+            // we are out of range.
             // However... This will still fail if some clever dipshit decides to use an array with an empty key with
             // a null value, like [null => null, 'a' => 'a'] or [null, 'a' => 'a']
             $exists = current($this->source) === $this->source[null];
 
             if (!$exists) {
-                // Yay, the current value doesn't match the empty key value; we're out of range
+                // Yay, the current value doesn't match the empty key value; we are out of range
                 return false;
             }
 
@@ -124,7 +124,7 @@ trait TraitIterator
             }
         }
 
-        // We're okay!
+        // We are okay!
         return true;
     }
 

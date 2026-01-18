@@ -3,7 +3,7 @@
 /**
  * Class NoTtyException
  *
- * This exception is thrown in case we're not on a console or don't have an (interactive) TTY
+ * This exception is thrown in case we are not on a console or don't have an (interactive) TTY
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

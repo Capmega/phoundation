@@ -3,7 +3,7 @@
 /**
  * Enum EnumUnits
  *
- * Used to track whether we're using metric or imperial (seriously? 2025? still?) units
+ * Used to track whether we are using metric or imperial (seriously? 2025? still?) units
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

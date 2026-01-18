@@ -220,7 +220,7 @@ class Session implements SessionInterface
     public static function getIpAddress(): ?string
     {
         if (PLATFORM_CLI) {
-            // We're on command line interface, there is no IP!
+            // We are on command line interface, there is no IP!
             return null;
         }
 
@@ -331,7 +331,7 @@ class Session implements SessionInterface
             Response::redirect();
         }
 
-        // Check the detected domain against the configured domain. If it doesn't match then check if it's a registered
+        // Check the detected domain against the configured domain. If it doesn't match then check if it is a registered
         // whitelabel domain
         if (static::$domain === Request::getDomain()) {
             // This is the primary domain
@@ -587,7 +587,7 @@ class Session implements SessionInterface
 
         } catch (Exception $e) {
             if ($e->getCode() == 403) {
-                // TODO Check if any of this is still required? we're no longer using page_show...
+                // TODO Check if any of this is still required? we are no longer using page_show...
                 Core::writeRegister(403, 'page_show');
 
             } else {
@@ -786,11 +786,11 @@ class Session implements SessionInterface
                     throw new UnderConstructionException();
 
                 case EnumRequestTypes::file:
-                    // FILE requests can't ever cookies
+                    // FILE requests cannot ever cookies
                     break;
 
                 case EnumRequestTypes::ajax:
-                    // AJAX requests can't create cookies automatically
+                    // AJAX requests cannot create cookies automatically
                     break;
 
                 default:
@@ -865,7 +865,7 @@ class Session implements SessionInterface
              * URL cloaking was enabled and requires strict checking.
              *
              * Ensure that we have a cloaked URL users_id and that it matches the sessions users_id
-             * Only check cloaking rules if we aren't displaying a system page
+             * Only check cloaking rules if we  are not displaying a system page
              */
             if (!Request::isRequestType(EnumRequestTypes::system)) {
                 if (empty($core->register['url_cloak_users_id'])) {
@@ -1020,7 +1020,7 @@ class Session implements SessionInterface
      *
      * * This page is not a standard HTML page request
      * * Auto sign out is disabled for this user session
-     * * The current user for this session is guest, which can't sign out
+     * * The current user for this session is guest, which cannot sign out
      * * The current page is sign-out, or sign-in
      *
      * @param bool $force
@@ -1317,7 +1317,7 @@ class Session implements SessionInterface
      */
     protected static function loadUser(int $users_id): UserInterface
     {
-        // Create a new user object and ensure it's still good to go
+        // Create a new user object and ensure it is still good to go
         try {
             // This user is loaded by the session object and should NOT use meta-tracking!
             return User::new()
@@ -1856,7 +1856,7 @@ class Session implements SessionInterface
         }
 
         if (!$user->canBeImpersonated()) {
-            // Impersonation isn't allowed
+            // Impersonation  is not allowed
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
@@ -2115,7 +2115,7 @@ class Session implements SessionInterface
             if (isset($_SESSION['user']['impersonate_id'])) {
                 // This session was impersonation a user. Don't sign out, stop impersonating
                 try {
-                    // We're impersonating a user, return to the original user.
+                    // We are impersonating a user, return to the original user.
                     $url            = array_get_safe($_SESSION['user'], 'impersonate_url');
                     $users_id       = array_get_safe($_SESSION['user'], 'id');
                     $impersonate_id = array_get_safe($_SESSION['user'], 'impersonate_id');
@@ -2433,7 +2433,7 @@ class Session implements SessionInterface
     {
         // Only auto sign-out when not guest user
         if (!Session::getUserObject()->isGuest()) {
-            // Only sign-out if we're not on the sign-out page!
+            // Only sign-out if we are not on the sign-out page!
             if (Url::newCurrent()->removeAllQueries()->getSource() !== Url::new('signout')->makeWww()->getSource()) {
                 // Only auto sign-out when last_activity timed out
                 if (isset($_SESSION['last_activity']) and (($_SESSION['last_activity'] + $auto_sign_out) < microtime(true))) {
@@ -2504,7 +2504,7 @@ class Session implements SessionInterface
             PostValidator::new()->set(Session::get('auto_sign_out_submit_button_value'), Session::get('auto_sign_out_submit_button_name'));
         }
 
-        // Yay, we're cleared for submission! Clear the submit-and-signout codes so they won't be used again
+        // Yay, we are cleared for submission! Clear the submit-and-signout codes so they won't be used again
         Session::clearAutoSignoutSubmit();
         Session::setSignOutOnExit($auto_sign_out);
     }

@@ -690,7 +690,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         ]);
 
         // NOTE: Non User::class objects likely authenticate against different databases and as such, those users will
-        // have non-existing user ids which can't be used for "created_by" column
+        // have non-existing user ids which cannot be used for "created_by" column
         $authentication->setCreatedBy(($user::class === User::class) ? $user->getId() : null)
                        ->setStatus('password-incorrect')
                        ->save();
@@ -886,7 +886,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         if (!$this->saveBecauseModified($force)) {
-            // THis user hasn't been modified, there is nothing to save!
+            // THis user  has not been modified, there is nothing to save!
             return $this;
         }
 
@@ -931,7 +931,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                  ->notifyRoleAccountsAboutWrite();
         }
 
-        // Save was successful! If we're saving the current user, then update the session
+        // Save was successful! If we are saving the current user, then update the session
         if (Session::iSpecificUser($this)) {
             if (!$this->isSystemUser()) {
                 Log::action(ts('Current session user ":user" changed in database, refreshing session user data', [
@@ -1494,7 +1494,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         $nickname = trim((string) $nickname);
 
-        // Ensure nickname isn't system or guest
+        // Ensure nickname  is not system or guest
         switch (strtolower($nickname)) {
             case 'guest':
                 if ($this->isGuest()) {
@@ -2691,7 +2691,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
+     * Returns true if this is a new entry that  has not been written to the database yet
      *
      * @return bool
      */

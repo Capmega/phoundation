@@ -71,7 +71,7 @@ class Web
 //            /*
 //             * Use current domain.
 //             * Current domain MAY not be the same as the configured domain, so
-//             * always use $_SESSION[domain] unless we're at the point where
+//             * always use $_SESSION[domain] unless we are at the point where
 //             * sessions are not available (yet) or are not available (cli, for
 //             * example). In that case, fall back on the configured domain
 //             * $_CONFIG[domain]

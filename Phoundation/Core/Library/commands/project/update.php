@@ -137,7 +137,7 @@ if ($argv['local']) {
     Project::checkUpdates();
 
 } else {
-    // Perform an update from the remote repositories. This should be the default unless you're a Phoundation developer
+    // Perform an update from the remote repositories. This should be the default unless you are a Phoundation developer
     Log::information(ts('Updating Phoundation...'), 10);
     Project::update();
 }

@@ -328,7 +328,7 @@ class Project implements ProjectInterface
             ':environment' => $environment,
         ]));
 
-        // If we're removing the environment that is currently used then remove it from memory too
+        // If we are removing the environment that is currently used then remove it from memory too
         if (static::$environment->getName() === $environment) {
             static::$environment = null;
         }
@@ -963,7 +963,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             ]), $e);
         }
 
-        // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
+        // ATTENTION! Next up, we are going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
@@ -1163,7 +1163,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             ]), $e);
         }
 
-        // ATTENTION! Next up, we're going to delete the Phoundation main libraries! To avoid any next commands not
+        // ATTENTION! Next up, we are going to delete the Phoundation main libraries! To avoid any next commands not
         // finding files they require, include them here so that we have them available in memory
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Commands/Rsync.php');
         include_once(DIRECTORY_ROOT . 'Phoundation/Os/Processes/Enum/EnumExecuteMethod.php');
@@ -1273,7 +1273,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                             $git->add($file);
 
                         } else {
-                            // Ensure it's not added yet
+                            // Ensure it is not added yet
                             $git->reset('HEAD', $file);
                         }
                     }

@@ -97,7 +97,7 @@ interface PhoPathInterface extends Stringable
     public function getRootname(): string;
 
     /**
-     * Returns the stream for this file if it's opened. Will return NULL if closed
+     * Returns the stream for this file if it is opened. Will return NULL if closed
      *
      * @return mixed
      */
@@ -1437,7 +1437,7 @@ interface PhoPathInterface extends Stringable
     public function parentDirectoryMatchesRegex(string $regular_expression): bool;
 
     /**
-     * Makes the specified path absolute if it's not
+     * Makes the specified path absolute if it is not
      *
      * The start character will be treated as follows:
      *

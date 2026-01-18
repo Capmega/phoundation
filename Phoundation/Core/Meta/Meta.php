@@ -117,7 +117,7 @@ class Meta implements MetaInterface
                 $this->loadFromDatabase($id);
 
             } else {
-                // We're assuming this ID exists in the meta system
+                // We are assuming this ID exists in the meta system
                 $this->id = $id;
             }
 

@@ -486,7 +486,7 @@ class CliCommand
         }
 
         if (Core::getMaintenanceMode()) {
-            // We're running in maintenance mode, limit command execution to system/
+            // We are running in maintenance mode, limit command execution to system/
             $return['limit']  = ['system/', 'project/', 'info'];
             $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only "./pho project ..." commands are available right now. If maintenance mode is stuck then please run "./pho project modes maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => Core::getMaintenanceMode(),
@@ -698,7 +698,7 @@ class CliCommand
 
         if (!config()->getEnvironment()) {
             // Config class didn't get environment, this means the process died somewhere during startup.
-            // We can't log using the Log class, so die with the exit message
+            // We cannot log using the Log class, so die with the exit message
             if (PLATFORM_CLI) {
                 echo Strings::ensureEndsWith($exit_message, PHP_EOL);
                 exit($exit_code);
@@ -710,7 +710,7 @@ class CliCommand
         }
 
         if (is_object($exit_code)) {
-            // Specified exit code is an exception, we're in trouble...
+            // Specified exit code is an exception, we are in trouble...
             $e         = $exit_code;
             $exit_code = $exit_code->getCode();
         }
@@ -1092,7 +1092,7 @@ class CliCommand
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
                 // This command has no auto complete support, so if we execute the command it won't go for auto
-                // complete but execute normally, which is not what we want. We're done here.
+                // complete but execute normally, which is not what we want. We are done here.
                 exit();
             }
 
@@ -1729,7 +1729,7 @@ return 'under construction';
         // Hide all command line arguments
         ArgvValidator::hideData($argv);
 
-        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart, and
+        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it  is not we are going to restart, and
         // we will need the $argv as-is
         global $argv;
 
@@ -1855,7 +1855,7 @@ return 'under construction';
             Core::writeRegister($argv['language'] ?? config()->getString('locale.languages.default', 'en'), 'system', 'language');
 
             if ($argv['auto_complete']) {
-                // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
+                // We are in auto complete mode. Show only direct output, don't use any color, don't log to screen
                 Log::disableScreen();
 
                 $argv['no_color'] = true;

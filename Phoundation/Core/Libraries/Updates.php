@@ -374,12 +374,12 @@ abstract class Updates implements UpdatesInterface
                     break;
 
                 case 0:
-                    // It's the same version, ignore it
+                    // It is the same version, ignore it
                     break;
 
                 case 1:
                     // This IS a higher version! But is it the next? Let's see...
-                    // Either it's the first we found ($found ie empty) or it's lower than the currently found one.
+                    // Either it is the first we found ($found ie empty) or it is lower than the currently found one.
                     if (!$found or Version::compare($version, $found) === -1) {
                         // This is the lowest version, yay!
                         $found = $version;
@@ -508,7 +508,7 @@ abstract class Updates implements UpdatesInterface
     {
         $result = false;
 
-        // Only execute post_* files if we're not in TEST mode
+        // Only execute post_* files if we are not in TEST mode
         // Execute the post_once
         if (array_key_exists('post_once', $this->updates)) {
             if (!$this->databaseVersionExists('post_once')) {

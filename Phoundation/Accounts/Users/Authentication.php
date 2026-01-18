@@ -279,7 +279,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
             return parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException) {
-            // Core is readonly we can't write to the database!
+            // Core is readonly we cannot write to the database!
             Log::warning(ts('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session' => Session::getId(),
                 ':user'    => Session::getUserObject()->getLogId(),

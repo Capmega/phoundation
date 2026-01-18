@@ -120,7 +120,7 @@ class MySql extends Command
         // Get file and database information
         $threshold = Log::setThreshold(3);
 
-        // If we're importing the system database, then switch to init mode!
+        // If we are importing the system database, then switch to init mode!
         if ($this->o_connector->getDatabase() === sql()->getDatabase()) {
             Core::enableInitState();
         }
@@ -305,7 +305,7 @@ class MySql extends Command
      * Import all timezones in MySQL
      *
      * @note: This was designed for Ubuntu Linux, and currently any support for other operating systems is NON-EXISTENT
-     *        I'll gladly add support later if I ever have time
+     *        I will gladly add support later if I ever have time
      *
      * @param string $password
      *

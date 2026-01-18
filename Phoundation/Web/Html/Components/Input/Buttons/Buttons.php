@@ -227,7 +227,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Returns if the current pointer is valid or not
      *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
+     * @todo Is this really really required? Since we are using internal array pointers anyway, it always SHOULD be valid
      * @return bool
      */
     public function valid(): bool

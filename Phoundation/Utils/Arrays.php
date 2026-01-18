@@ -376,7 +376,7 @@ class Arrays extends Utils
 
 
     /**
-     * Ensure that the specified $params source is an array. If it's a numeric value, convert it to
+     * Ensure that the specified $params source is an array. If it is a numeric value, convert it to
      * [$numeric_key => $params]. If its string value, convert it to [$string_key => $params]
      *
      * @param mixed       $params  A parameter array
@@ -571,7 +571,7 @@ class Arrays extends Utils
     public static function getRandomValues(array $source, int $count = 1): array
     {
         if ($count === 1) {
-            // WTF PHP? I can't have a list of 1 item?
+            // WTF PHP? I cannot have a list of 1 item?
             return Arrays::keepKeys($source, [array_rand($source, 1)]);
         }
 
@@ -2313,7 +2313,7 @@ class Arrays extends Utils
 
         for ($pos = 0; $pos < strlen($source); $pos++) {
             if (!$pos) {
-                // First row. Do we start with a separator? If so, we're in end mode
+                // First row. Do we start with a separator? If so, we are in end mode
                 if ($source[$pos] === $separator) {
                     $start = false;
                     $key   = null;
@@ -4553,7 +4553,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so don't consider any other needles.
                             break;
                         }
 
@@ -4564,7 +4564,7 @@ class Arrays extends Utils
                     // This needle didn't match
 
                     if ($flags['all']) {
-                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so don't consider any other needles.
                         $needles_match = false;
                         break;
                     }
@@ -4709,7 +4709,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so don't consider any other needles.
                             break;
                         }
 
@@ -4719,7 +4719,7 @@ class Arrays extends Utils
 
                     // At this point, this needle didn't match
                     if ($flags['all']) {
-                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so don't consider any other needles.
                         $needles_match = false;
                         break;
                     }

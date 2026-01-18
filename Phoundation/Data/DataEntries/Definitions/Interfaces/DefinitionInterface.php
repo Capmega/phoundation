@@ -554,7 +554,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
@@ -813,7 +813,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *          - the column is required
      *          - the object in the column is new
      *          - the flag for "get_render_html_required_attribute_for_new" is false
-     *       If all of these criteria are met, this method will return true, or just if the column isn't required to
+     *       If all of these criteria are met, this method will return true, or just if the column  is not required to
      *       begin with.
      *
      * @param bool $get_real_value

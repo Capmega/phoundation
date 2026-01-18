@@ -25,7 +25,7 @@ use Phoundation\Web\Requests\Response;
 
 Request::executeSystem('404');
 
-// Only show sign-up page if we're a guest user
+// Only show sign-up page if we are a guest user
 if (!Session::getUserObject()->isGuest()) {
     Response::redirect('prev', 302);
 }

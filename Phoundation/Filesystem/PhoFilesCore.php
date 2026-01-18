@@ -282,7 +282,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                 }
 
                 if (!str_starts_with($file, '/')) {
-                    // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
+                    // Prefix the file with the parent path ONLY IF it is not absolute and a parent was specified
                     $file = $this->o_parent_directory?->getSource() . $file;
                 }
 

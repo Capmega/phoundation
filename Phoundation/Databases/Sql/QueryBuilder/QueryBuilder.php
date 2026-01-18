@@ -354,7 +354,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @param EnumLoadParameters|null                   $on_not_exists
      *
      * @return static|null
-     * @todo Improve this method, DataIterator objects have a $like argument that isn't passed here?
+     * @todo Improve this method, DataIterator objects have a $like argument that  is not passed here?
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {

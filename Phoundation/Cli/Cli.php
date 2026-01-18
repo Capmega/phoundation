@@ -150,7 +150,7 @@ class Cli
 
                         foreach (Arrays::force($row, null) as $header => $value) {
                             if (is_numeric($header)) {
-                                // The columns are numeric, we can't auto display headers
+                                // The columns are numeric, we cannot auto display headers
                                 $display_headers = false;
                                 $headers[$header] = $header;
                                 continue;

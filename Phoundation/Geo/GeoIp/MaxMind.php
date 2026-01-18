@@ -109,7 +109,7 @@ class MaxMind extends GeoIp
 
         } catch (AddressNotFoundException $e) {
             if (isset($cityDbReader) and str_contains($e->getMessage(), '127.0.0.1')) {
-                // THIS... IS... LOCALHOST!!!! We can't get any GeoIP data from this address.
+                // THIS... IS... LOCALHOST!!!! We cannot get any GeoIP data from this address.
                 // Spoof the IP address, use the public IP address for this machine
                 Log::warning(ts('Connection is localhost, finding public IP address of this machine to spoof IP'));
 

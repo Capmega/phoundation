@@ -49,12 +49,12 @@ trait TraitDataStaticRestrictions
      * Sets the server and filesystem restrictions for this object
      *
      * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
-     * @param bool                                       $write          If $restrictions aren't specified as a
+     * @param bool                                       $write          If $restrictions  are not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
      *                                                                   convert that into a FsRestrictions object and
      *                                                                   this is the $write modifier for that object
-     * @param string|null                                $label          If $restrictions aren't specified as a
+     * @param string|null                                $label          If $restrictions  are not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
      *                                                                   convert that into a FsRestrictions object and

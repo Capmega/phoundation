@@ -304,7 +304,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected static bool $has_been_validated = false;
 
     /**
-     * Tracks unclean fields that were specified but not validated because they're unknown
+     * Tracks unclean fields that were specified but not validated because they are unknown
      *
      * @var array|null $unclean
      */
@@ -1220,7 +1220,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * This method will make the selected field optional and use the specified $default instead
      *
-     * This means that either it may not exist, or it's contents may be NULL
+     * This means that either it may not exist, or it is contents may be NULL
      *
      * @param mixed $default
      *
@@ -1612,7 +1612,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                             break;
                         }
 
-                        // We're allowing only soft failures, and a hard failure was detected
+                        // We are allowing only soft failures, and a hard failure was detected
                         // no break
 
                     case EnumSoftHard::none:
@@ -1657,7 +1657,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         case 'int':
                             $this->source[$column] = (int) $this->source[$column];
 
-                            // We're forcing numbers to be 0 but that might cause problems with database id's
+                            // We are forcing numbers to be 0 but that might cause problems with database id's
                             if (empty($this->source[$column]) and $o_definition->hasRealInputType(EnumInputType::dbid)) {
                                 // Database ID's CANNOT be zero
                                 $this->source[$column] = null;
@@ -1894,7 +1894,7 @@ throw new ObsoleteException();
             return true;
         }
 
-        // DEBUG CODE: In case of errors with validation, it's very useful to have these debugged here
+        // DEBUG CODE: In case of errors with validation, it is very useful to have these debugged here
         // show($this->selected_field);
         // show($value);
         // show($this->selected_is_optional);
@@ -1903,12 +1903,12 @@ throw new ObsoleteException();
             // Value 0 IS CONSIDERED A VALUE
             if (!is_numeric($value)) {
                 if (!$this->selected_is_optional) {
-                    // At this point we know we MUST have a value, so we're bad here
+                    // At this point we know we MUST have a value, so we are bad here
                     $this->addFailure(tr('is required'));
                     return true;
                 }
 
-                // If the value is set or not doesn't matter, it's okay
+                // If the value is set or not doesn't matter, it is okay
                 $value                      = $this->selected_optional;
                 $this->selected_is_default  = true;
                 $this->process_value_failed = true;
@@ -1916,7 +1916,7 @@ throw new ObsoleteException();
             }
         }
 
-        // The field has a value, we're okay
+        // The field has a value, we are okay
         return false;
     }
 
@@ -5089,7 +5089,7 @@ die();
 
             if ($url->isValid()) {
                 if ($url->hasHost($domain)) {
-                    // Now we're good!
+                    // Now we are good!
                     return;
 
                 } else {

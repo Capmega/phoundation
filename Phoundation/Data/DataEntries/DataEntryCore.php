@@ -318,14 +318,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected EnumLoadParameters $on_not_exists = EnumLoadParameters::exception;
 
     /**
-     * Tracks columns that aren't defined but permitted anyway
+     * Tracks columns that  are not defined but permitted anyway
      *
      * @var array|null $permitted_columns
      */
     protected ?array $permitted_columns = null;
 
     /**
-     * Tracks whether this object will allow columns that aren't permitted
+     * Tracks whether this object will allow columns that  are not permitted
      *
      * @var bool $allow_unpermitted_columns
      */
@@ -759,7 +759,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             };
         }
 
-        // If it's not numeric, then it must be a string, so it must have been the unique column
+        // If it is not numeric, then it must be a string, so it must have been the unique column
         $return = static::getUniqueColumn();
 
         if ($return) {
@@ -928,7 +928,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
+     * Returns true if this is a new entry that  has not been written to the database yet
      *
      * @return bool
      */
@@ -1145,7 +1145,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $o_definition = null;
 
         } else {
-            // If the key is defined as readonly or disabled, it cannot be updated unless it's a new object or a
+            // If the key is defined as readonly or disabled, it cannot be updated unless it is a new object or a
             // static value.
             $o_definition = $this->getDefinitionsObject()->get($key);
 
@@ -1327,7 +1327,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they can't be stored in the database.
+     * readonly mode automatically as they cannot be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -1451,7 +1451,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->getUseCache()) {
-            // Connector classes can't be cached!
+            // Connector classes cannot be cached!
             if (!is_a($this, Connector::class)) {
                 // Try loading the DataEntry object from cache
                 // TODO This is not working correctly, if we return a different dataentry it may cause issues with parent::load() in overriding methods, etc... Fix this!
@@ -2151,7 +2151,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         continue;
                     }
 
-                    // Columns that aren't virtual can just be copied directly
+                    // Columns that  are not virtual can just be copied directly
                     // Don't process columns that will not render
                     if ($o_definition->getVirtual() and $o_definition->getRender()) {
                         // Try to resolve this column using the get method for that column
@@ -2394,7 +2394,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $source['status'] = 'configuration';
             $source['name']   = $identifier;
 
-            // Create a DataTypeInterface object but since we can't write configuration, make it readonly!
+            // Create a DataTypeInterface object but since we cannot write configuration, make it readonly!
             return $source;
         }
 
@@ -2486,14 +2486,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
         } catch (SqlTableDoesNotExistException $e) {
-            // The table for this object does not exist. This means that we're missing an init, perhaps, or maybe
-            // even the entire databese doesn't exist? Maybe we're in init or sync mode? Allow the system to continue
+            // The table for this object does not exist. This means that we are missing an init, perhaps, or maybe
+            // even the entire databese doesn't exist? Maybe we are in init or sync mode? Allow the system to continue
             // to check if this entry perhaps is configured, so we can continue
             if (!Core::inInitState()) {
                 throw $e;
             }
 
-            // We're in project init state, act as if the entry simply doesn't exist
+            // We are in project init state, act as if the entry simply doesn't exist
         }
     }
 
@@ -2572,7 +2572,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns whether this object will allow columns that aren't permitted
+     * Returns whether this object will allow columns that  are not permitted
      *
      * @return bool
      */
@@ -2583,7 +2583,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Sets whether this object will allow columns that aren't permitted
+     * Sets whether this object will allow columns that  are not permitted
      *
      * @param bool $allow
      *
@@ -2614,7 +2614,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @return array|null
      */
@@ -2629,7 +2629,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *
@@ -2643,7 +2643,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *
@@ -2704,7 +2704,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($this->is_applying and !$force) {
             if ($o_definition->getReadonly() or $o_definition->getDisabled() or !$o_definition->getRender()) {
                 if (!$o_definition->getForceValidations()) {
-                    // Apply can't update readonly or disabled columns
+                    // Apply cannot update readonly or disabled columns
                     return false;
                 }
 
@@ -2822,7 +2822,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         if ($e instanceof DataEntryTypeException) {
             if ($force) {
-                // Type errors with forced copy values means that we're working with an untrusted source and datatype
+                // Type errors with forced copy values means that we are working with an untrusted source and datatype
                 // mismatch may happen, but we'll ignore it. Forced feeding!
                 return;
             }
@@ -3680,7 +3680,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they can't be stored in the database.
+     * readonly mode automatically as they cannot be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -4565,7 +4565,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or  has not been written to disk
      *       yet
      *
      * @param bool $load
@@ -4822,7 +4822,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or  has not been written to disk
      *       yet
      *
      * @return array
@@ -5172,7 +5172,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if ($insert) {
-                // We're about to insert, make sure to filter columns that aren't allowed for the first insert
+                // We are about to insert, make sure to filter columns that  are not allowed for the first insert
                 if (in_array($column, $this->columns_filter_on_insert)) {
                     continue;
                 }
@@ -5237,7 +5237,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->is_validated = true;
 
             } else {
-                // The data in this object hasn't been validated yet! Do so now...
+                // The data in this object  has not been validated yet! Do so now...
                 if ($this->debug) {
                     Log::dump('VALIDATING "' . static::class . '" DATA ENTRY WITH ID "' . $this->getLogId() . '"', echo_header: false);
                 }

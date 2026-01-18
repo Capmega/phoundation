@@ -102,7 +102,7 @@ class DefinitionFactory
                                 ->setSize(6)
                                 ->setLabel(tr('Category'))
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                    // Ensure categories id exists and that it's or category
+                                    // Ensure categories id exists and that it is or category
                                     $o_validator->orColumn('categories_name')
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
@@ -139,7 +139,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure category exists and that it's a category id or category name
+                             // Ensure category exists and that it is a category id or category name
                              $o_validator->orColumn('categories_id')
                                        ->isName()
                                        ->setColumnFromQuery('categories_id', 'SELECT `id` 
@@ -211,7 +211,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure server exists and that it's a server id or server name
+                             // Ensure server exists and that it is a server id or server name
                              $o_validator->orColumn('servers_id')
                                        ->isName()
                                        ->setColumnFromQuery('servers_id', 'SELECT `id` 
@@ -280,7 +280,7 @@ class DefinitionFactory
                                 ->setSize(6)
                                 ->setLabel(tr('Company'))
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                    // Ensure companies id exists and that it's or company
+                                    // Ensure companies id exists and that it is or company
                                     $o_validator->orColumn('companies_name')
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
@@ -317,7 +317,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure the company exists and that it's or company
+                             // Ensure the company exists and that it is or company
                              $o_validator->orColumn('companies_id')
                                        ->isName()
                                        ->setColumnFromQuery('companies_id', 'SELECT `id` 
@@ -394,7 +394,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure language exists and that it's or language
+                             // Ensure language exists and that it is or language
                              $o_validator->orColumn('languages_id')
                                        ->orColumn('languages_code')
                                        ->isName()
@@ -433,7 +433,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure language exists and that it's or language
+                             // Ensure language exists and that it is or language
                              $o_validator->orColumn('languages_id')
                                        ->orColumn('languages_name')
                                        ->isName()
@@ -470,7 +470,7 @@ class DefinitionFactory
                                 ->setSize(6)
                                 ->setLabel(tr('Provider'))
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                    // Ensure providers id exists and that it's or provider
+                                    // Ensure providers id exists and that it is or provider
                                     $o_validator->orColumn('providers_name')
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
@@ -506,7 +506,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure provider exists and that it's providers id or providers name
+                             // Ensure provider exists and that it is providers id or providers name
                              $o_validator->orColumn('providers_id')
                                        ->isName()
                                        ->setColumnFromQuery('providers_id', 'SELECT `id` 
@@ -542,7 +542,7 @@ class DefinitionFactory
                                 ->setSize(6)
                                 ->setLabel(tr('Customer'))
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                    // Ensure customers id exists and that it's or customer
+                                    // Ensure customers id exists and that it is or customer
                                     $o_validator->orColumn('customers_name')
                                               ->isDbId()
                                               ->isQueryResult('SELECT `id` 
@@ -578,7 +578,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure customer exists and that it's or customer
+                             // Ensure customer exists and that it is or customer
                              $o_validator->orColumn('customers_id')
                                        ->isName()
                                        ->setColumnFromQuery('customers_id', 'SELECT `id` 
@@ -651,7 +651,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure timezone exists and that it's or timezone
+                             // Ensure timezone exists and that it is or timezone
                              $o_validator->orColumn('timezones_id')
                                        ->orColumn('timezones_code')
                                        ->isName()
@@ -689,7 +689,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure timezone exists and that it's or timezone
+                             // Ensure timezone exists and that it is or timezone
                              $o_validator->orColumn('timezones_id')
                                        ->orColumn('timezones_name')
                                        ->isCode()
@@ -766,7 +766,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure country exists and that it's or countries_id
+                             // Ensure country exists and that it is or countries_id
                              $o_validator->orColumn('countries_id')
                                        ->orColumn('countries_code')
                                        ->isName()
@@ -804,7 +804,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure country exists and that it's or countries_id
+                             // Ensure country exists and that it is or countries_id
                              $o_validator->orColumn('countries_id')
                                        ->orColumn('countries_name')
                                        ->isCode()
@@ -882,7 +882,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure state exists and that it's or states_id
+                             // Ensure state exists and that it is or states_id
                              $o_validator->orColumn('states_id')
                                        ->orColumn('states_code')
                                        ->isName()
@@ -922,7 +922,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure state exists and that it's or states_id
+                             // Ensure state exists and that it is or states_id
                              $o_validator->orColumn('states_id')
                                        ->orColumn('states_name')
                                        ->isCode()
@@ -1001,7 +1001,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure city exists and that it's or cities_id
+                             // Ensure city exists and that it is or cities_id
                              $o_validator->orColumn('cities_id')
                                        ->orColumn('cities_code')
                                        ->isName()
@@ -1040,7 +1040,7 @@ class DefinitionFactory
                              },
                          ])
                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                             // Ensure city exists and that it's or cities_id
+                             // Ensure city exists and that it is or cities_id
                              $o_validator->orColumn('cities_id')
                                        ->orColumn('cities_name')
                                        ->isCode()

@@ -701,7 +701,7 @@ class Library implements LibraryInterface
             ]);
         }
 
-        // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
+        // Get the highest version. If it is lower than requested, insert the requested version so that we are exactly at
         // the right version
         if (Libraries::supportsVendors()) {
             $int_current = sql()->getColumn('SELECT MAX(`version`) 
@@ -786,7 +786,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a commands/ directory, we're fine
+            // This library doesn't have a commands/ directory, we are fine
             return;
         }
 
@@ -814,7 +814,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a hooks/ directory, we're fine
+            // This library doesn't have a hooks/ directory, we are fine
             return;
         }
 
@@ -842,7 +842,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a web/ directory, we're fine
+            // This library doesn't have a web/ directory, we are fine
             return;
         }
 
@@ -870,7 +870,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a config/ directory, we're fine
+            // This library doesn't have a config/ directory, we are fine
             return;
         }
 
@@ -898,7 +898,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a data/ directory, we're fine
+            // This library doesn't have a data/ directory, we are fine
             return;
         }
 
@@ -926,7 +926,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a Tests/ directory, we're fine
+            // This library doesn't have a Tests/ directory, we are fine
             return;
         }
 
@@ -954,7 +954,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a cron/ directory, we're fine
+            // This library doesn't have a cron/ directory, we are fine
             return;
         }
 

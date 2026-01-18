@@ -1093,7 +1093,7 @@ class Strings extends Utils
                 $plaintext = trim($plaintext, '<br />');
 
                 if ($plaintext == '') {
-                    // Remove an element, set it's outertext as an empty string
+                    // Remove an element, set it is outertext as an empty string
                     $element->outertext = '';
 
                 } else {
@@ -2851,7 +2851,7 @@ class Strings extends Utils
 
 
     /**
-     * Strips all control characters (ASCII characters under 32) unless they're specified to be kept
+     * Strips all control characters (ASCII characters under 32) unless they are specified to be kept
      *
      * @param string            $source  The string to strip the characters from
      * @param string            $replace The string to replace the control characters with
@@ -2956,7 +2956,7 @@ class Strings extends Utils
 
 
     /**
-     * Returns the source if it's a string, the key value if it's an array, or the object key value if it's a DataEntryInterface object
+     * Returns the source if it is a string, the key value if it is an array, or the object key value if it is a DataEntryInterface object
      *
      * @note Returns NULL if the to-be returned value is empty
      *

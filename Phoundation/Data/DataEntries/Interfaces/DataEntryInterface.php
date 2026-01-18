@@ -71,7 +71,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they can't be stored in the database.
+     * readonly mode automatically as they cannot be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -203,7 +203,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function getCliColumns(): array;
 
     /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
+     * Returns true if this is a new entry that  has not been written to the database yet
      *
      * @return bool
      */
@@ -352,7 +352,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or  has not been written to disk
      *       yet
      *
      * @param bool $load
@@ -855,14 +855,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function hasException(): bool;
 
     /**
-     * Returns whether this object will allow columns that aren't permitted
+     * Returns whether this object will allow columns that  are not permitted
      *
      * @return bool
      */
     public function getAllowUnpermittedColumns(): bool;
 
     /**
-     * Sets whether this object will allow columns that aren't permitted
+     * Sets whether this object will allow columns that  are not permitted
      *
      * @param bool $allow
      *
@@ -880,14 +880,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function columnIsPermitted(string $column): bool;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @return array|null
      */
     public function getPermittedColumns(): ?array;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *
@@ -896,7 +896,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function setPermittedColumns(array|string|null $columns): static;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *

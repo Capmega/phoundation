@@ -103,7 +103,7 @@ class Databases
             throw new OutOfBoundsException(tr('Cannot return Connector object because no connector name is specified'));
         }
 
-        // Connectors::get() will automatically load the required connector object if it isn't loaded yet
+        // Connectors::get() will automatically load the required connector object if it  is not loaded yet
         return static::getConnectorsObject()->get($connector);
     }
 
@@ -165,7 +165,7 @@ class Databases
         $connector_name = $o_connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$databases)) {
-            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            // This connector  is not registered yet, so connect and add it to the "connectors" list
             static::$databases[$connector_name] = new $class($o_connector, $connect, $use_database);
         }
 
@@ -193,7 +193,7 @@ class Databases
         }
 
         if (!array_key_exists($connector_name, static::$databases)) {
-            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            // This connector  is not registered yet, so connect and add it to the "connectors" list
             static::$databases[$connector_name] = new Cache($connector_name, allow_alternate_connector: $allow_alternate_connector);
         }
 

@@ -163,7 +163,7 @@ class Anchor extends SpanCore implements AnchorInterface
         if ($this->child_element) {
             // Render the parent first and use it as content
             if ($this->content) {
-                // This A element already has content, can't have a parent AND content!
+                // This A element already has content, cannot have a parent AND content!
                 throw new OutOfBoundsException(tr('Cannot render A element, it has child element ":child" and content ":content". It must have one or the other', [
                     ':parent'  => get_class($this->child_element),
                     ':content' => $this->content,

@@ -134,7 +134,7 @@ class Version
                 };
         }
 
-        // If the second version has post in it, it's easier as we have already processed all "post" version1
+        // If the second version has post in it, it is easier as we have already processed all "post" version1
         if (str_starts_with($version2, 'post')) {
             return 1;
         }

@@ -1758,7 +1758,7 @@ class Config implements ConfigInterface
                     }
 
                 } catch (ConfigParseFailedException $f) {
-                    // Keep on throwing, we want to know it's a parsing error
+                    // Keep on throwing, we want to know it is a parsing error
                     throw $f;
 
                 } catch (Throwable $f) {

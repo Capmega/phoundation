@@ -501,14 +501,14 @@ class Memcached implements MemcachedInterface
      *                                  authentication requirement.
      * auth_errors           0          Number of failed authentication tries of clients.
      * bytes                 6775829    Number of bytes currently used for caching items, this server currently uses
-     *                                  ~6 MB of it's maximum allowed (limit_maxbytes) 1 GB cache size.
+     *                                  ~6 MB of it is maximum allowed (limit_maxbytes) 1 GB cache size.
      * bytes_read            880545081  Total number of bytes received from the network by this server.
      * bytes_written         3607442137 Total number of bytes send to the network by this server.
      * cas_badval            0          The "cas" command is some kind of Memcached's way to avoid locking. 'cas' calls
      *                                  with bad identifier are counted in this stats key.
      * cas_hits              0          Number of successful 'cas' commands.
      * cas_misses            0          'cas' calls fail if the value has been changed since it was requested from the
-     *                                  cache. We're currently not using "cas" at all, so all three cas values are zero.
+     *                                  cache. We are currently not using "cas" at all, so all three cas values are zero.
      * cmd_flush             0          The "flush_all" command clears the whole cache and shouldn't be used during
      *                                  normal operation.
      * cmd_get               1626823    Number of 'get' commands received since server startup not counting if they were
@@ -533,16 +533,16 @@ class Memcached implements MemcachedInterface
      *                                  call to an existing key.
      * decr_misses           0          'decr' command calls to undefined keys.
      * delete_hits           138707     Stored keys may be deleted using the 'delete' command, this system doesn't
-     *                                  delete cached data itself, but it's using the Memcached to avoid recaching-races
+     *                                  delete cached data itself, but it is using the Memcached to avoid recaching-races
      *                                  and the race keys are deleted once the race is over and fresh content has been
      *                                  cached.
      * delete_misses         107095     Number of 'delete' commands for keys not existing within the cache. These 107k
      *                                  failed deletes are deletions of non existent race keys (see above).
      * evictions             0          Number of objects removed from the cache to free up memory for new items because
-     *                                  Memcached reached it's maximum memory setting (limit_maxbytes).
+     *                                  Memcached reached it is maximum memory setting (limit_maxbytes).
      * get_hits              391283     Number of successful "get" commands (cache hits) since startup, divide them by
      *                                  the "cmd_get" value to get the cache hitrate: This server was able to serve 24%
-     *                                  of it's get requests from the cache, the live servers of this installation
+     *                                  of it is get requests from the cache, the live servers of this installation
      *                                  usually have more than 98% hits.
      * get_misses            1235540    Number of failed 'get' requests because nothing was cached for this key or the
      *                                  cached value was too old.
@@ -552,7 +552,7 @@ class Memcached implements MemcachedInterface
      * incr_misses           0          Number of failed "incr" commands (see incr_hits).
      * limit_maxbytes        1073741824 Maximum configured cache size (set on the command line while starting the
      *                                  memcached server), look at the "bytes" value for the actual usage.
-     * listen_disabled_num   0          Number of denied connection attempts because memcached reached it's configured
+     * listen_disabled_num   0          Number of denied connection attempts because memcached reached it is configured
      *                                  connection limit ('-c' command line argument).
      * pid                   24040      Current process ID of the Memcached task.
      * pointer_size          64         Number of bits of the hostsystem, may show '32' instead of '64' if the running
