@@ -97,7 +97,7 @@ $o_documentation_card = Card::new()
                                           <p>Query results containing columns with password information will be automatically filtered</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('SQL report'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'            , tr('Home')),

@@ -176,7 +176,7 @@ $documentation = Card::new()
                                    <p>Please ensure your information is up to date.</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('My profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([

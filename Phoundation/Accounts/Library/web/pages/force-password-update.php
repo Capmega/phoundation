@@ -70,7 +70,7 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Please update your password before continuing...'));
 
 

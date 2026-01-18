@@ -34,7 +34,7 @@ GetValidator::new()->validate();
 Request::requiresAllRights('reports');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('About'));
 Response::setHeaderTitle(tr('About'));
 Response::setDescription(tr(''));

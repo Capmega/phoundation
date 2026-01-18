@@ -52,7 +52,7 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Please sign in'));
 
 

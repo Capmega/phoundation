@@ -38,7 +38,7 @@ switch (Request::getRequestType()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(500);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('500 - Internal Server Error');

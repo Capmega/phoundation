@@ -25,7 +25,7 @@ use Phoundation\Web\Requests\Response;
 GetValidator::new()->validate();
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Calendar'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([

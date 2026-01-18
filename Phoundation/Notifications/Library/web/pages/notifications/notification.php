@@ -98,7 +98,7 @@ $o_documentation_card = Card::new()
                                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Notification'));
 Response::setHeaderSubTitle($notification->getDisplayId());
 Response::setBreadcrumbs([

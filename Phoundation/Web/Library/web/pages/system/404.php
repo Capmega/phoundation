@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Response;
 $e = Core::readRegister('e');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(404);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('404 - Page not found');

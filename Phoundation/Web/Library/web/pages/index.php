@@ -24,7 +24,7 @@ use Phoundation\Web\Requests\Response;
 GetValidator::new()->validate();
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));

@@ -32,7 +32,7 @@ Request::requiresAllRights('security');
 GetValidator::new()->validate();
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Security portal'));
 Response::setHeaderTitle(tr('Security portal'));
 Response::setDescription(tr(''));

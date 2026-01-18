@@ -124,7 +124,7 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setRenderMainWrapper(false);
 Response::setPageTitle(tr('Request a new password'));
 

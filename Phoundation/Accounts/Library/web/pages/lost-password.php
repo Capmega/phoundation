@@ -133,7 +133,7 @@ if (Request::isPostRequestMethod()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
 

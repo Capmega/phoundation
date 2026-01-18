@@ -67,7 +67,7 @@ $o_documentation_card = Card::new()
                             ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
 
 
-// Set page meta data
+// Set page meta-data
 $o_url = Url::new('/reports/security/incidents.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 );
