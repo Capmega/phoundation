@@ -60,4 +60,4 @@ Log::cli(ts('Automatically selecting tags for ":count" repositories, this might 
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectAutoTag($argv['suffix']);
+$o_repositories->selectVersionTag($argv['suffix']);

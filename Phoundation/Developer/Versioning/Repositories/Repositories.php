@@ -21,6 +21,9 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
+use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
+use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
+use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
@@ -181,6 +184,12 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     #[ReturnTypeWillChange] public function current(): RepositoryInterface
     {
+        if (empty($this->source)) {
+            // This method is called when somebody tries a foreach() on this object, but there are no repositories
+            throw NoRepositoriesAvailableException::new(ts('Cannot iterate over repositories, no repositories available or loaded'))
+                                                  ->addHint(ts('Ensure this Repositories object has loaded the repositories, and ensure repositories are available in the database, run "./pho developer repositories scan" to scan for repositories'));
+        }
+
         return parent::current();
     }
 
@@ -741,18 +750,29 @@ throw new UnderConstructionException();
     /**
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
      *
-     * @param string $phoundation_version        The version that should exist if this repository is a Phoundation
-     *                                           repository
-     * @param string $project_version            The version that should exist if this repository is a project
-     *                                           repository
-     * @param string $phoundation_branch         The branch that should exist if this repository is a Phoundation
-     *                                           repository
-     * @param string $project_branch             The branch that should exist if this repository is a project repository
-     * @param bool $check_versions        [true] If true will check version and branch. If false, will only check branch
+     * @param string|null $suffix                     The optional suffix to use
+     * @param string|null $phoundation_version        The version that should exist if this repository is a Phoundation
+     *                                                repository
+     * @param string|null $project_version            The version that should exist if this repository is a project
+     *                                                repository
+     * @param string|null $phoundation_branch         The branch that should exist if this repository is a Phoundation
+     *                                                repository
+     * @param string|null $project_branch             The branch that should exist if this repository is a project
+     *                                                repository
+     * @param bool        $check_versions      [true] If true will check version and branch. If false, will only check
+     *                                                branch
      * @return static
      */
-    public function checkAllHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch, bool $check_versions = true): static
+    public function checkAllHaveSuffixOrVersionBranch(?string $suffix, ?string &$phoundation_version = null, ?string &$project_version = null, ?string &$phoundation_branch = null, ?string &$project_branch = null, bool $check_versions = true): static
     {
+        $project_version = Project::getVersion();
+        $project_version = Strings::untilReverse($project_version, '.');
+        $project_branch  = $project_version . ($suffix ? '-' . $suffix : null);
+
+        $phoundation_version = Project::getPhoundationRequiredVersion();
+        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
+        $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
+
         foreach ($this as $o_repository) {
             $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $version = null;
@@ -865,27 +885,19 @@ throw new UnderConstructionException();
 
 
     /**
-     * Synchronizes all selected branch repositories so they are all on the correct branch
+     * Selects the correct version branch for all repositories so they are all on the correct branch
      *
      * @param string|null $suffix             If specified, will select VERSIONBRANCH-SUFFIX instead of VERSIONBRANCH
      * @param bool        $auto_create [true] If true, will automatically create the branch if it does not exist for
      *                                        each repository
      * @return static
      */
-    public function selectAutoBranch(?string $suffix, bool $auto_create = true): static
+    public function selectVersionBranch(?string $suffix, bool $auto_create = true): static
     {
-        $project_version = Project::getVersion();
-        $project_version = Strings::untilReverse($project_version, '.');
-        $project_branch  = $project_version . ($suffix ? '-' . $suffix : null);
-
-        $phoundation_version = Project::getPhoundationRequiredVersion();
-        $phoundation_version = Strings::untilReverse($phoundation_version, '.');
-        $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
-
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         // Make sure none of the repositories have changes
         // ???
-        $this->checkAllHaveSuffixOrVersionBranch($phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
+        $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
              ->checkNoneHaveChanges(ts('select auto-branch'))
              ->checkProjectRepositoryVersion(ts('select auto-branch'), true);
 
@@ -949,7 +961,7 @@ throw new UnderConstructionException();
      *
      * @return static
      */
-    public function deleteAutoBranch(string $suffix, string|bool $remote = true): static
+    public function deleteVersionBranch(string $suffix, string|bool $remote = true): static
     {
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
@@ -1189,7 +1201,7 @@ showdie();
      *
      * @return static
      */
-    public function selectAutoTag(?string $suffix): static
+    public function selectVersionTag(?string $suffix): static
     {
         $project_version = Project::getVersion();
         $project_version = Strings::untilReverse($project_version, '.');
@@ -1268,7 +1280,7 @@ showdie();
      * @param bool $remote
      * @return static
      */
-    public function deleteAutoTag(string $suffix, bool $remote = true): static
+    public function deleteVersionTag(string $suffix, bool $remote = true): static
     {
         $project_branch     = Project::getVersion();
         $project_branch     = Strings::untilReverse($project_branch, '.') . ($suffix ? '-' . $suffix : null);
@@ -1386,9 +1398,13 @@ showdie('YAY!');
     /**
      * Returns true if all repositories have the correct version branch or tag selected
      *
+     * @param string|null $phoundation_version Will contain the Phoundation version
+     * @param string|null $project_version     Will contain the project version
+     * @param string|null $phoundation_branch  Will contain the project version
+     * @param string|null $project_branch
      * @return bool
      */
-    public function allHaveCorrectVersionSelected(): bool
+    public function allHaveCorrectVersionSelected(?string &$phoundation_version = null, ?string &$project_version = null, ?string &$phoundation_branch = null, ?string &$project_branch = null): bool
     {
         $project_version = Project::getVersion();
         $project_version = Strings::untilReverse($project_version, '.');
@@ -1419,6 +1435,53 @@ showdie('YAY!');
             ]));
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the suffix for the project main repository, or NULL if no suffix has been selected
+     *
+     * @return string|null
+     */
+    public function detectProjectSuffix(): ?string
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->hasType('project')) {
+                return $o_repository->getSuffix();
+            }
+        }
+
+        throw RepositoryNotExistException::new(ts('Could not detect project suffix, could not find the project repository'))
+                                         ->addHint(ts('Try running "./pho developer repositories scan" to find the missing repository'));
+    }
+
+
+    /**
+     * Updates the current suffixed version branches, and updates it from the base version in all repositories
+     *
+     * @return static
+     */
+    public function updateSelectedSuffixedVersionBranches(): static
+    {
+        $this->checkAllHaveSuffixOrVersionBranch($this->detectProjectSuffix());
+
+        foreach ($this as $o_repository) {
+            $o_repository->updateSelectedSuffixedVersionBranch();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
+     *
+     * @param string $version
+     * @return static
+     */
+    public function updateAllSuffixedVersionBranches(string $version): static
+    {
         return $this;
     }
 }

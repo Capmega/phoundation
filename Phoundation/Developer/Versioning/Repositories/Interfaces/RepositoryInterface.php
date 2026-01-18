@@ -381,4 +381,36 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function hasTagSelected(string $tag): bool;
+
+    /**
+     * Update the version suffix branch from its version base branch
+     *
+     * @return static
+     */
+    public function updateSelectedSuffixedVersionBranch(): static;
+
+    /**
+     * Returns true if the DataEntry object has the specified type
+     *
+     * @param string $type          The type to compare against
+     * @param bool   $strict [true] If true, will do a strict comparison (===), weak comparison (==) if false
+     * @return bool
+     */
+    public function hasType(string $type, bool $strict = true): bool;
+
+    /**
+     * Returns the type for this object
+     *
+     * @return string|null
+     */
+    public function getType(): ?string;
+
+    /**
+     * Sets the type for this object
+     *
+     * @param string|null $type
+     *
+     * @return static
+     */
+    public function setType(?string $type): static;
 }

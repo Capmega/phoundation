@@ -53,7 +53,6 @@ use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Utils\Enums\EnumVersionSections;
 
 class Repository extends DataEntry implements RepositoryInterface
@@ -1105,6 +1104,17 @@ showdie();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Update the version suffix branch from its version base branch
+     *
+     * @return static
+     */
+    public function updateSelectedSuffixedVersionBranch(): static
+    {
+
     }
 
 

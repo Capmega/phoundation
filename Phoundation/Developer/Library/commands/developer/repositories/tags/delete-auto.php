@@ -72,4 +72,4 @@ Log::cli(ts('Deleting tags for ":count" repositories, this might take a few seco
     ':count' => $o_repositories->getCount()
 ]), 'action');
 
-$o_repositories->deleteAutoTag($argv['suffix'], !$argv['not_remote']);
+$o_repositories->deleteVersionTag($argv['suffix'], !$argv['not_remote']);
