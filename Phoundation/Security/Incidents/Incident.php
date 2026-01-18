@@ -383,30 +383,30 @@ class Incident extends DataEntryCore implements IncidentInterface
                 // no break
 
             case 'medium':
-                Log::warning(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
-                    ':id'       => $this->getId(),
-                    ':severity' => $severity,
-                    ':title'    => $this->getTitle(),
-                    ':body'     => $this->getBody(),
-                ]), (is_integer($this->log) ? $this->log : 7), echo_screen: false);
-
-                if ($details) {
-                    Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false, echo_screen: false);
-                }
-
-                break;
-
-            default:
-                Log::error(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
-                    ':id'       => $this->getId(),
-                    ':severity' => $severity,
-                    ':title'    => $this->getTitle(),
-                    ':body'     => $this->getBody(),
-                ]), (is_integer($this->log) ? $this->log : 9), echo_screen: false);
-
-                if ($details) {
-                    Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false, echo_screen: false);
-                }
+//                Log::warning(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
+//                    ':id'       => $this->getId(),
+//                    ':severity' => $severity,
+//                    ':title'    => $this->getTitle(),
+//                    ':body'     => $this->getBody(),
+//                ]), (is_integer($this->log) ? $this->log : 7), echo_screen: false);
+//
+//                if ($details) {
+//                    Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false, echo_screen: false);
+//                }
+//
+//                break;
+//
+//            default:
+//                Log::error(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
+//                    ':id'       => $this->getId(),
+//                    ':severity' => $severity,
+//                    ':title'    => $this->getTitle(),
+//                    ':body'     => $this->getBody(),
+//                ]), (is_integer($this->log) ? $this->log : 9), echo_screen: false);
+//
+//                if ($details) {
+//                    Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false, echo_screen: false);
+//                }
         }
 
         return $this;

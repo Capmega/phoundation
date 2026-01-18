@@ -1611,11 +1611,10 @@ class Request implements RequestInterface
      *
      * @param PhoFileInterface|string|int $target
      * @param bool                        $flush
-     * @param bool                        $die
      *
      * @return string|null
      */
-    protected static function doExecute(PhoFileInterface|string|int $target, bool $flush, bool $die): ?string
+    protected static function doExecute(PhoFileInterface|string|int $target, bool $flush): ?string
     {
         // Set target and check if we have this target in the cache
         try {
@@ -1725,6 +1724,11 @@ class Request implements RequestInterface
      */
     #[NoReturn] protected static function processFileNotFoundException(FileNotExistException $e, PhoFileInterface|string $target): never
     {
+        if (!Session::hasStartedUp()) {
+            // Start session here because processing the file not found will need it
+            Session::start();
+        }
+
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
             // don't, hard fail because this method will normally execute a system page, and we just saw those don't
@@ -1746,7 +1750,7 @@ class Request implements RequestInterface
             ':target' => $target,
         ]));
 
-        throw Http404Exception::new(tr('The requested system page ":page" does not exist', [
+        throw Http404Exception::new(tr('The requested page ":page" does not exist', [
             ':page' => $target,
         ]));
     }
