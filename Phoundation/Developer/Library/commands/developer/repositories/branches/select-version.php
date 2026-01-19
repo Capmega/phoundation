@@ -54,7 +54,9 @@ OPTIONAL ARGUMENTS
 [SUFFIX]                                If specified, will select (and create as needed) the branch VERSION-SUFFIX for 
                                         each repository
 
-[-c, --no-create]                       If the resolved auto branch does not exist, do not automatically create it'));
+[-c, --no-create]                       If the resolved auto branch does not exist, do not automatically create it
+
+[-R, --results]                         If specified will display the resulting branches'));
 
 
 // Get command line arguments
@@ -72,3 +74,15 @@ Log::cli(ts('Automatically selecting branches for ":count" repositories, this mi
 ]), 'action');
 
 $o_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
+
+
+// Display results?
+if (RESULTS) {
+    // List available repositories
+    Repositories::new()->load()->displayCliTable([
+        'name'     => ts('Repository name'),
+        'platform' => ts('Platform'),
+        'type'     => ts('Type'),
+        'branch'   => ts('Branch (or tag)'),
+    ]);
+}
