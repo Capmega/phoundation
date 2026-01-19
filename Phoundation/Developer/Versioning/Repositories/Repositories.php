@@ -22,7 +22,6 @@ use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
-use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
@@ -156,7 +155,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * @param Stringable|string|float|int $key
      * @param mixed|null                  $default
      * @param bool|null                   $exception
-     * @return mixed
+     * @return RepositoryInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
     {
@@ -167,7 +166,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Returns a random Repository
      *
-     * @return mixed
+     * @return RepositoryInterface
      */
     #[ReturnTypeWillChange] public function getRandom(): RepositoryInterface
     {
@@ -180,7 +179,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return mixed
+     * @return RepositoryInterface
      */
     #[ReturnTypeWillChange] public function current(): RepositoryInterface
     {
