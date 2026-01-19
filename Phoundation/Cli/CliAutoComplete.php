@@ -3,7 +3,7 @@
 /**
  * Class AutoComplete
  *
- * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it  has not been yet.
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
  *
  * The class supports autocompletion of commands, global system arguments, command arguments and command values.
  * Commands must use Documentation::setAutoComplete() for this
@@ -97,7 +97,7 @@ use Stringable;
 class CliAutoComplete
 {
     /**
-     * The word location for the auto complete. NULL if auto complete  has not been enabled
+     * The word location for the auto complete. NULL if auto complete hasn't been enabled
      *
      * @var int|null $position
      */
@@ -162,7 +162,7 @@ class CliAutoComplete
             '-O,--order-by'                  => true,
             '-P,--page'                      => true,
             '-Q,--verbose'                   => false,
-            '-R,--rebuild-commands'          => false,
+            '-R,--results'                   => false,
             '-S,--service'                   => true,
             '-T,--test'                      => false,
             '-U,--usage'                     => false,
@@ -177,6 +177,7 @@ class CliAutoComplete
             '--no-validation'                => false,
             '--no-password-validation'       => false,
             '--show-passwords'               => false,
+            '--rebuild-commands'             => false,
             '--si'                           => false,
             '--status'                       => true,
             '--sudo'                         => false,
@@ -322,7 +323,7 @@ class CliAutoComplete
      */
     #[NoReturn] public static function processArguments(array $argument_definitions): never
     {
-        // Get the word where we are <TAB>bing on
+        // Get the word where we're <TAB>bing on
         if (static::$position >= 0) {
             $previous_word = isset_get(ArgvValidator::getArguments()[static::$position - 1]);
             $word          = isset_get(ArgvValidator::getArguments()[static::$position]);
@@ -477,7 +478,7 @@ class CliAutoComplete
      */
     protected static function processDefinition(string $name, mixed $definition, ?string $word): IteratorInterface|array|string|null
     {
-        // If no definitions were given, we are done
+        // If no definitions were given, we're done
         if (is_null($definition)) {
             return null;
         }
@@ -607,7 +608,7 @@ class CliAutoComplete
             $o_definitions = $o_definitions->getSource();
         }
 
-        // Get the word where we are <TAB>bing on
+        // Get the word where we're <TAB>bing on
         $word = isset_get(ArgvValidator::getArguments()[static::$position]);
         $word = trim((string) $word);
 
@@ -645,7 +646,7 @@ class CliAutoComplete
             $position_data = $definitions[$position];
 
             if ($position_data === true) {
-                // Argument is required but we cannot autocomplete it
+                // Argument is required but we can't autocomplete it
 
             } else {
                 if (is_array($position_data)) {
@@ -748,7 +749,7 @@ class CliAutoComplete
                 if ($results) {
                     // bash_completion contains rule for Phoundation
                     if (!$force) {
-                        // We are done
+                        // We're done
                         return;
                     }
 

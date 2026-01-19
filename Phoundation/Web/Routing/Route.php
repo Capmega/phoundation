@@ -310,7 +310,7 @@ class Route
     public static function startup(): void
     {
         try {
-            // Check what environment we are in
+            // Check what environment we're in
             $environment = get_null(getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT));
 
             if (empty($environment)) {
@@ -352,6 +352,7 @@ class Route
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
             define('QUIET'     , get_null(getenv('QUIET'))      ?? false);
+            define('RESULTS'   , get_null(getenv('RESULTS'))    ?? false);
 
             Log::setVerbose(get_null(getenv('VERBOSE')) ?? false);
             Log::setQuiet(get_null(getenv('QUIET'))     ?? false);
@@ -380,7 +381,7 @@ class Route
 
             // Check for configured maintenance mode
             if (config()->getBoolean('system.maintenance', false)) {
-                // We are in maintenance mode, have to show maintenance page.
+                // We're in maintenance mode, have to show maintenance page.
                 Request::executeSystem(503);
             }
 
@@ -445,7 +446,7 @@ class Route
                 throw new RouteException(tr('Will not route to resolved file "index.php" as this would cause an endless loop'));
             }
 
-            // The route is a PHP file, so execute it. The Page object will take care of everything, even if it is an
+            // The route is a PHP file, so execute it. The Page object will take care of everything, even if it's an
             // attachment that the client will download instead of view in the browser.
             Request::execute($o_file);
         }
@@ -529,7 +530,7 @@ class Route
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {
-            // We are running in maintenance mode, show the maintenance page
+            // We're running in maintenance mode, show the maintenance page
             Log::warning('WARNING: Not processing routes, system is in maintenance mode');
             static::executeSystem(503);
         }
@@ -1302,7 +1303,7 @@ class Route
                 }
 
                 if (!$translated) {
-                    // Page was not translated, ie it is still the original, and no translation was found.
+                    // Page was not translated, ie it's still the original, and no translation was found.
                     Log::warning(ts('Requested language ":language" does not have a translation available in the language map for route ":route"', [
                         ':language' => $language,
                         ':route'    => static::$route,
@@ -1350,9 +1351,9 @@ class Route
                 }
             }
 
-            // Go over all $_GET variables and ensure they are allowed
+            // Go over all $_GET variables and ensure they're allowed
             foreach (GetValidator::new() as $key => $action) {
-                // This key must be allowed, or we are done
+                // This key must be allowed, or we're done
                 if (empty(static::$pass_get_variables[$key])) {
                     Log::warning(ts('Matched route ":route" contains GET key ":key" which is not specifically allowed by the pass_get_variables list, cancelling match', [
                         ':route' => static::$route,
