@@ -737,6 +737,14 @@ class CliCommand
                     ':exitcode' => $exit_code,
                 ]), 10);
 
+                // Display hints?
+                if ($e->hasHints()) {
+                    foreach (Arrays::force($e->getHints()) as $hint) {
+                        Log::warning(ts('Hint: '), 10, echo_newline: false);
+                        Log::notice($hint, 10);
+                    }
+                }
+
             } else {
                 $exit_code = $exit_code ?? 255;
 
