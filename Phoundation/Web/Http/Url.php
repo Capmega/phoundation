@@ -1687,6 +1687,36 @@ class Url implements UrlInterface
 
 
     /**
+     * This method will replace the current file value after the + with the specified value
+     *
+     * @param Stringable|string|int $value                         The new value for the + value
+     * @param bool                  $auto_fix_missing_plus [false] If true, and the file does not contain a required
+     *                                                             plus symbol, the method will add the "+ID" part right
+     *                                                             before the .extension of the filename
+     * @return $this
+     */
+    public function replacePlusValue(Stringable|string|int $value, bool $auto_fix_missing_plus = false): static
+    {
+        $file = Strings::fromReverse($this->source, '/');
+
+        if (!str_contains($file, '+')) {
+            if (!$auto_fix_missing_plus) {
+                throw UrlException::new(ts('Cannot replace plus value for URL ":url", it contains no plus file', [
+                    ':url' => $this->source
+                ]))->addHint(ts('This method can only be used on URLs like for example "https://domain.com/path/path/file+23874.html", the filename of the URL MUST have the format filename+ID.extension'));
+            }
+
+            $extension = Strings::fromReverse($file, '.');
+            $file      = Strings::untilReverse($file, '.') . '+0000.' . $extension;
+        }
+
+        $file         = preg_replace('/\+\d+\./', '+' . $value . '.', $file);
+        $this->source = Strings::untilReverse($this->source, '/') . '/' . $file;
+        return $this;
+    }
+
+
+    /**
      * Adds the specified single key/value query to this URL
      *
      * @param mixed      $value
