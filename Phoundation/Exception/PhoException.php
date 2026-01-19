@@ -361,7 +361,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      *
      * @return static
      */
-    public function setHint(array|string $hint): static
+    public function setHints(array|string $hint): static
     {
         return $this->addHint($hint);
     }
@@ -372,9 +372,20 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      *
      * @return array|string|null
      */
-    public function getHint(): array|string|null
+    public function getHints(): array|string|null
     {
         return $this->getDataKey('hint');
+    }
+
+
+    /**
+     * Returns true if this exception has onr or more hints attached
+     *
+     * @return bool
+     */
+    public function hasHints(): bool
+    {
+        return (bool) $this->getDataKey('hint');
     }
 
 

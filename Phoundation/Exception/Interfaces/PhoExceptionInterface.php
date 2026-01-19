@@ -436,7 +436,7 @@ interface PhoExceptionInterface extends PoadInterface
      *
      * @return static
      */
-    public function setHint(array|string $hint): static;
+    public function setHints(array|string $hint): static;
 
 
     /**
@@ -444,5 +444,12 @@ interface PhoExceptionInterface extends PoadInterface
      *
      * @return array|string|null
      */
-    public function getHint(): array|string|null;
+    public function getHints(): array|string|null;
+
+    /**
+     * Returns true if this exception has onr or more hints attached
+     *
+     * @return bool
+     */
+    public function hasHints(): bool;
 }
