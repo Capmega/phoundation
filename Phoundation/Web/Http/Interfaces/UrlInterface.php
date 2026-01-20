@@ -15,7 +15,6 @@ use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
-use Stringable;
 
 interface UrlInterface
 {
@@ -206,10 +205,11 @@ interface UrlInterface
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasSomeRights(array|string $rights): bool;
+    public function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool;
 
     /**
      * Returns true if the user has ALL the specified rights
@@ -430,15 +430,4 @@ interface UrlInterface
      * @return string|null
      */
     public function getFromHostAndLanguage(): ?string;
-
-    /**
-     * This method will replace the current file value after the + with the specified value
-     *
-     * @param Stringable|string|int $value                         The new value for the + value
-     * @param bool                  $auto_fix_missing_plus [false] If true, and the file does not contain a required
-     *                                                             plus symbol, the method will add the "+ID" part right
-     *                                                             before the .extension of the filename
-     * @return $this
-     */
-    public function replacePlusValue(Stringable|string|int $value, bool $auto_fix_missing_plus = false): static;
 }
