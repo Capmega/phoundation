@@ -1260,6 +1260,27 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
+     * This method will validate that the specified key is NOT set
+     *
+     * @param int|string $field
+     *
+     * @return static
+     */
+    public function requiresNotField(int|string $field): static
+    {
+        if (!$this->selected_is_default) {
+            if (empty($this->source[$field])) {
+                $this->addSoftFailure(tr('cannot be combined with field ":field"', [
+                    ':field' => $field,
+                ]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * This method will make sure that either this field OR the other specified field optionally will have a value
      *
      * @param string $field
