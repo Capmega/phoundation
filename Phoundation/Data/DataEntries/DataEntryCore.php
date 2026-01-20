@@ -904,7 +904,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        $this->o_definitions = $o_definitions->add(DefinitionFactory::newDivider('meta-divider')
+        $this->o_definitions = $o_definitions->add(DefinitionFactory::newDivider('meta_divider')
                                                                     ->addPreRenderFunctions(function(DefinitionInterface $o_definition, array $source, mixed $value) {
                                                                         // Only render this when displaying meta-elements
                                                                         $o_definition->setRender(!$this->isNew() and
@@ -4396,7 +4396,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getDeleteLockReason(): ?string
     {
         // By default, all DataEntry objects CAN be deleted. Implement more detailed logic for specific DataEntry classes as needed
-        return null;
+        return $this->isModified() ? tr('Object ":class" is modified and needs to be saved first', [':class' => static::class]) : null;
     }
 
 
@@ -4463,9 +4463,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if (static::getUniqueColumn()) {
-                // When deleting an entry, the unique column goes to NULL
+                // When deleting an entry, the unique column goes to NULL.
+                // Since the unique column likely is required for saving validation, set is_validated to true
                 $this->unique_value = $this->getUniqueColumnValue();
-                $this->set(null, static::getUniqueColumn())->save();
+                $this->set(null, static::getUniqueColumn())
+                     ->is_validated = true;
             }
 
             return $this->setStatus('deleted', $comments, $auto_save);
