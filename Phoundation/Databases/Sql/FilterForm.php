@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql;
 
 use Phoundation\Data\DataEntries\Definitions\Definition;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Definitions;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Validator\PostValidator;
@@ -47,13 +48,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                             ->setDefinitionRender('users_id'  , false)
                             ->setDefinitionRender('status'    , false);
 
-        $this->o_definitions->add(Definition::new('query')
-                                            ->setLabel(tr('Query'))
-                                            ->setSize(12)
-                                            ->setOptional(true)
-                                            ->setAutoSubmit(true)
-                                            ->setElement(EnumElement::textarea)
-                                            ->setRows(10));
+        $this->o_definitions->add(DefinitionFactory::newDescription('query')
+                                                   ->setLabel(tr('Query'))
+                                                   ->setSize(12)
+                                                   ->setOptional(true)
+                                                   ->setAutoSubmit(true)
+                                                   ->setCliColumn('-q,--query "QUERY"')
+                                                   ->setRows(10));
 
         $this->o_definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
 
