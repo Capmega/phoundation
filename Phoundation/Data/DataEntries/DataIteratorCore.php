@@ -61,6 +61,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Requests\Request;
+use Plugins\Medinet\Programs\Interfaces\ProgramsInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -171,8 +172,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         parent::__construct($source);
 
         // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
-
         $this->is_loaded = (bool) $source;
         $this->use_cache = Cache::getEnabled();
     }
@@ -1259,9 +1258,9 @@ throw new ObsoleteException();
     protected function loadObject(IdentifierInterface|array|string|int|null $identifier): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
-                                           ->setDebug($this->debug)
+                                           ->setDebug($this->getDebug())
                                            ->setMetaEnabled($this->getMetaEnabled())
-                                           ->setRestrictionsObject($this->o_restrictions)
+                                           ->setRestrictionsObject($this->getRestrictionsObject())
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
     }

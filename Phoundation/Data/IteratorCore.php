@@ -150,12 +150,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false)
+             ->setExceptionOnGet(true);
+
         if ($source) {
             $this->setSource($source);
         }
-
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType())
-             ->setExceptionOnGet(true);
     }
 
 
@@ -194,15 +194,15 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Sets the source
+     * Sets the source for this Iterator class
      *
-     * @param IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null
-     * @param array|null                                       $execute
+     * @param IteratorInterface|PDOStatement|array|string|null $source  [null] The new source for this iterator
+     * @param array|null                                       $execute [null] Optional query values in case the specified source is an SQL query
      *
      * @return static
      *
      * @TODO: implement $filter_meta for iterators
-     *
+     * @TODO: This ::setSource() method should pass the given source through checkDataTypeAndContent() and possibly auto ensureObject() in case the type does not match
      */
     public function setSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
