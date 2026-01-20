@@ -581,12 +581,12 @@ class Incident extends DataEntryCore implements IncidentInterface
      */
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $o_definitions->removeKeys('meta-divider')
+        $o_definitions->removeKeys('meta_divider')
 
                       ->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('meta-divider'))
+                      ->add(DefinitionFactory::newDivider('meta_divider'))
 
                       ->add(Definition::new('type')
                                       ->setLabel(tr('Incident type'))
