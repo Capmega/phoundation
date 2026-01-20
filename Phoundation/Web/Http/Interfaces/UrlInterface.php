@@ -206,10 +206,11 @@ interface UrlInterface
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasSomeRights(array|string $rights): bool;
+    public function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool;
 
     /**
      * Returns true if the user has ALL the specified rights
