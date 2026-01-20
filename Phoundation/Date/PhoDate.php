@@ -21,15 +21,17 @@ use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Exception\DateException;
+use Phoundation\Date\Interfaces\PhoDateInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Stringable;
 use Throwable;
 
 
-class PhoDate extends PhoDateTime
+class PhoDate extends PhoDateTime implements PhoDateInterface
 {
     /**
      * Returns the source of this PhoDateTime object
@@ -484,4 +486,45 @@ class PhoDate extends PhoDateTime
 //
 //        return tr('Right now');
 //    }
+
+
+    /**
+     * Converts the given month name (Nov, November, 11) to the month number (11)
+     *
+     * @param Stringable|string|int|null $month               The month value to convert. Must be a valid full month name, a valid three-letter month code, or a
+     *                                                        month number [1-12]
+     * @param bool                       $permit_null [false] If true, allows (and returns) NULL values for dates
+     *
+     * @return int|null
+     */
+    public static function convertMonthNameToNumber(Stringable|string|int|null $month, bool $permit_null = false): ?int
+    {
+        if ($month === null) {
+            if ($permit_null) {
+                return null;
+            }
+
+            throw new OutOfBoundsException(ts('Cannot convert specified month to its corresponding number, the specified value is NULL and NULL values are not allowed'));
+        }
+
+        $month = strtolower((string) $month);
+
+        return match ($month) {
+            'jan', 'january'  , '1' => 1,
+            'feb', 'february' , '2' => 2,
+            'mar', 'march'    , '3' => 3,
+            'apr', 'april'    , '4' => 4,
+            'may'             , '5' => 5,
+            'jun', 'june'     , '6' => 6,
+            'jul', 'july'     , '7' => 7,
+            'aug', 'august'   , '8' => 8,
+            'sep', 'september', '9' => 9,
+            'oct', 'october'  , '10' => 10,
+            'nov', 'november' , '11' => 11,
+            'dec', 'december' , '12' => 12,
+            default => throw new DateException(ts('Cannot convert specified month ":month" to its corresponding number, the value is not a valid month. Please specify the full month name, the three letter code, or the month number (1-12)', [
+                ':month' => $month
+            ]))
+        };
+    }
 }

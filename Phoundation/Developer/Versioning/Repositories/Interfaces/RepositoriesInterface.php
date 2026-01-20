@@ -101,6 +101,7 @@ interface RepositoriesInterface extends DataIteratorInterface
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface;
 
     /**
+     * Returns a random entry
      *
      * @return RepositoryInterface
      */

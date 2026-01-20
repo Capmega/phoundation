@@ -739,7 +739,7 @@ class CliCommand
 
                 // Display hints?
                 if ($e->hasHints()) {
-                    foreach (Arrays::force($e->getHints()) as $hint) {
+                    foreach (Arrays::force($e->getHints(), null) as $hint) {
                         Log::warning(ts('Hint: '), 10, echo_newline: false);
                         Log::notice($hint, 10);
                     }
@@ -1761,7 +1761,7 @@ return 'under construction';
                                  ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                                  ->select('-P,--page', true)->isOptional(1)->isNatural(false)
                                  ->select('-Q,--quiet')->isOptional(false)->isBoolean()
-                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
+                                 ->select('-R,--results')->isOptional(false)->isBoolean()
                                  ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
                                  ->select('-T,--test')->isOptional(false)->isBoolean()
                                  ->select('-U,--usage')->isOptional(false)->isBoolean()
@@ -1771,6 +1771,7 @@ return 'under construction';
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                                 ->select('--rebuild-commands')->isOptional(false)->isBoolean()
                                  ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('--deleted')->isOptional(false)->isBoolean()
                                  ->select('--iec')->isOptional(false)->isBoolean()
@@ -1851,6 +1852,7 @@ return 'under construction';
             define('TEST'      , $argv['test']);
             define('VERBOSE'   , $argv['verbose']);
             define('QUIET'     , $argv['quiet']);
+            define('RESULTS'   , $argv['results']);
 
             if ($argv['log_level']) {
                 Log::setThreshold($argv['log_level']);
@@ -2306,7 +2308,9 @@ return 'under construction';
 
 [-Q, --quiet]                           Will hide all non data output 
 
-[-R, --rebuild-commands]                If specified will rebuild the cache for all CLI commands         
+[-R, --results]                         (Used for programs that perform actions quietly) If specified, will display the 
+                                        results of the action. Only works on those programs that support it, others will 
+                                        quietly ignore it 
 
 [-S, --service COMMAND]                 If specified, will convert the specified command into a SystemD service and 
                                         execute the specified systemd systemctl command
@@ -2350,6 +2354,8 @@ return 'under construction';
 [--no-password-validation]              Will not validate passwords.
                                         WARNING: This may result in weak and or compromised passwords in your database
                                         
+[--rebuild-commands]                    If specified will rebuild the cache for all CLI commands         
+
 [--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
                                         data output will show passwords in the clear!
 
