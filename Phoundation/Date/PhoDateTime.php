@@ -27,6 +27,7 @@ use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
+use Phoundation\Date\Exception\DateException;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
