@@ -85,6 +85,13 @@ trait TraitButtonProperties
      */
     protected bool $floating = false;
 
+    /**
+     * Auto disabling buttons
+     *
+     * @var bool $disable_after_click
+     */
+    protected bool $disable_after_click = false;
+
 
     /**
      * Set the button type
@@ -97,6 +104,11 @@ trait TraitButtonProperties
     {
         $this->setElement('button');
         $this->button_type = $type;
+
+        if ($type === EnumButtonType::submit) {
+            // By default, all submit buttons will disable themselves automatically after submission
+            $this->setDisableAfterClick(true);
+        }
 
         return $this;
     }
@@ -123,6 +135,31 @@ trait TraitButtonProperties
     public function getButtonType(): ?EnumButtonType
     {
         return $this->button_type;
+    }
+
+
+    /**
+     * Returns if the button is disabled after a mouse click, or not
+     *
+     * @return bool
+     */
+    public function getDisableAfterClick(): bool
+    {
+        return $this->disable_after_click;
+    }
+
+
+    /**
+     * Set if the button is disabled after a mouse click, or not
+     *
+     * @param bool $disable_after_click
+     *
+     * @return Button
+     */
+    public function setDisableAfterClick(bool $disable_after_click): static
+    {
+        $this->disable_after_click = $disable_after_click;
+        return $this;
     }
 
 

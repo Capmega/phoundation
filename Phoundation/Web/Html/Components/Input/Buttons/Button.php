@@ -22,6 +22,7 @@ use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Html\Traits\TraitUrlRightsRendering;
@@ -132,6 +133,15 @@ class Button extends Input implements ButtonInterface
      */
     public function render(): ?string
     {
+        if ($this->getDisableAfterClick()) {
+            $this->addClass('button-disable-click');
+            $o_script = Script::new('$(".button-disable-click").on("click", function (e) {
+                // Disable this button and submit
+                $(e.target).prop("disabled", true);
+                $(e.target).closest("form").submit();
+            })');
+        }
+
         if (empty($this->getContent())) {
             // Content takes the value
             throw new OutOfBoundsException(tr('Cannot render ":class" button object with name ":name", no content specified', [
@@ -191,6 +201,6 @@ class Button extends Input implements ButtonInterface
             }
         }
 
-        return $this->__render();
+        return $this->__render() . isset_get($o_script);
     }
 }
