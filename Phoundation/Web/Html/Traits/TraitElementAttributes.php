@@ -519,7 +519,7 @@ trait TraitElementAttributes
      */
     public function getTooltipTitle(): ?string
     {
-        return $this->o_tooltip->getTitle();
+        return $this->getTooltipObject()->getTitle();
     }
 
 
