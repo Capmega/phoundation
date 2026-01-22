@@ -16,8 +16,11 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Validator\GetValidator;
+use Phoundation\Utils\Enums\EnumModifierKeys;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Requests\Response;
 
 
@@ -34,3 +37,35 @@ Response::setBreadcrumbs([
     Breadcrumb::new('/', tr('Home')),
     Breadcrumb::new('' , tr('Dashboard')),
 ]);
+
+
+return Button::new()
+             ->setContent('hello!')
+             ->setTitle('This is the real title!')
+             ->setRequireKeysToEnable([EnumModifierKeys::ctrl, EnumModifierKeys::alt], 'blergh') . Script::new('
+console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
+console.log(window.phoundation);
+
+             
+             window.phoundation.addModifierkeyDownCallback("ctrl alt", function () {
+                $buttons = $(".button-disable-click");
+                $buttons.prop("title", $buttons.data("tooltip"))
+                        .prop("disabled", false)
+                        .removeClass("disabled");
+console.log("ctrl alt DOWN!");                        
+             });
+             
+             window.phoundation.addModifierkeyUpCallback("ctrl alt", function () {
+                $buttons = $(".button-disable-click");
+                $buttons.prop("tooltip", $buttons.data("require-keys-tooltip"))
+                        .prop("disabled", true)
+                        .addClass("disabled");
+console.log("ctrl alt UP!");                        
+             });
+             
+console.log("Registered modifiers: ");
+console.log(window.phoundation.getModifierkeyDownCallbacks("ctrl alt"));
+console.log(window.phoundation.getModifierkeyUpCallbacks("ctrl alt"));
+             
+             ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+

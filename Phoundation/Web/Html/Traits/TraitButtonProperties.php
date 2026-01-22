@@ -18,6 +18,9 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Data\Traits\TraitDataUrlObject;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumModifierKeys;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -92,6 +95,20 @@ trait TraitButtonProperties
      */
     protected bool $disable_after_click = false;
 
+    /**
+     * Tracks if the button is disabled and requires one or more keys down to enable
+     *
+     * @var array|null $require_keys_to_enable
+     */
+    protected ?array $require_keys_to_enable = null;
+
+    /**
+     * Tracks if the "keys to enable button" code is for the specified HTML class, or for this button uniquely
+     *
+     * @var string|null $require_keys_to_enable_class
+     */
+    protected ?string $require_keys_to_enable_class = null;
+
 
     /**
      * Set the button type
@@ -159,6 +176,51 @@ trait TraitButtonProperties
     public function setDisableAfterClick(bool $disable_after_click): static
     {
         $this->disable_after_click = $disable_after_click;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return array|null
+     */
+    public function getRequireKeysToEnable(): ?array
+    {
+        return $this->require_keys_to_enable;
+    }
+
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableClass(): ?string
+    {
+        return $this->require_keys_to_enable_class;
+    }
+
+
+    /**
+     * Sets if the button is disabled and requires one or more keys down to enable
+     *
+     * @param EnumModifierKeys|array|null  $keys         The buttons that need to be pressed down to enable the button
+     * @param string|null                  $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
+     *                                                   JavaScript will apply to the unique button ID
+     *
+     * @return Button
+     */
+    public function setRequireKeysToEnable(EnumModifierKeys|array|null $keys, ?string $class = null): static
+    {
+        if (str_contains($class, ' ')) {
+            throw OutOfBoundsException::new(ts('The specified class ":class" contains spaces, which is not allowed', [
+                'class' => $class
+            ]));
+        }
+
+        $this->require_keys_to_enable_class = $class;
+        $this->require_keys_to_enable       = get_null(Arrays::force($keys, null));
         return $this;
     }
 
