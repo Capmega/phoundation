@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Documents;
 
 use Phoundation\Content\Documents\Exception\PdfPasswordProtectedException;
+use Phoundation\Content\Documents\Interfaces\PdfInterface;
 use Phoundation\Data\Entry;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Traits\TraitDataPassword;
@@ -28,7 +29,8 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
 
-class Pdf extends PhoFile
+
+class Pdf extends PhoFile implements PdfInterface
 {
     use TraitDataPassword;
 
@@ -47,13 +49,17 @@ class Pdf extends PhoFile
     /**
      * Makes this PDF file password protected
      *
-     * @param string $password
+     * @param string       $password      The password to encrypt the file with
+     * @param PhoFile|null $o_output_file The output file. If not specified, this method will encrypt the file itself
      *
      * @return static
      */
-    public function addPassword(string $password): static
+    public function addPassword(string $password, ?PhoFile $o_output_file = null): static
     {
-        //qpdf --password=yourpassword --decrypt input.pdf output.pdf
+        Process::new()->setCommand('qpdf')
+                      ->addArguments(['--password=' . $password])
+                      ->addArguments(['--encrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+
         return $this;
     }
 
@@ -61,13 +67,17 @@ class Pdf extends PhoFile
     /**
      * Removes the password from this PDF file
      *
-     * @param string $password
+     * @param string       $password      The password to encrypt the file with
+     * @param PhoFile|null $o_output_file The output file. If not specified, this method will decrypt the file itself
      *
      * @return static
      */
-    public function removePassword(string $password): static
+    public function removePassword(string $password, ?PhoFile $o_output_file = null): static
     {
-        //qpdf --password=yourpassword --decrypt input.pdf output.pdf
+        Process::new()->setCommand('qpdf')
+               ->addArguments(['--password=' . $password])
+               ->addArguments(['--decrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+
         return $this;
     }
 
