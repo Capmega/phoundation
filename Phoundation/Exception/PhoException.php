@@ -274,8 +274,8 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
     /**
      * Returns true if the exception message matches the specified needle(s)
      *
-     * @param array|string $needle
-     * @param bool         $case_insensitive
+     * @param array|string $needle                  The needle that must be found in the data
+     * @param bool         $case_insensitive [true] If true, will do a case-insensitive search
      *
      * @return bool
      */
@@ -661,13 +661,31 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
     /**
      * Returns true if the exception data matches the specified needle(s)
      *
-     * @param array|string $needle
+     * @param array|string $needle                  The needle that must be found in the data
+     * @param string|null  $key              [null] If specified, will search only in the subset for the specified key, else will search all data
+     * @param bool         $case_insensitive [true] If true, will do a case-insensitive search
      *
      * @return bool
      */
-    public function dataContains(array|string $needle): bool
+    public function dataContains(array|string $needle, ?string $key = null, bool $case_insensitive = true): bool
     {
-        return str_contains(Strings::force($this->data), $needle);
+        // Get source and ensure it is a string
+        if ($key) {
+            $data = Strings::force(array_get_safe($this->data, $key));
+
+        } else {
+            $data = Strings::force($this->data);
+        }
+
+        $needle = Strings::force($needle);
+
+        // Do we compare case-insensitive? If so, make everything lowercase first (I wish PHP could do direct case-insensitive comparisons)
+        if ($case_insensitive) {
+            $needle = strtolower($needle);
+            $data   = strtolower($data);
+        }
+
+        return str_contains($data, $needle);
     }
 
 
