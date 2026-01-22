@@ -4741,5 +4741,89 @@ class Arrays extends Utils
 
         return Arrays::checkMatch($needles, $flags, $return);
     }
+
+
+    /**
+     * Returns the specified source (string, array, or IteratorInterface object) in lowercase
+     *
+     * If the specified source is an array, all (string) values in the array will be made lowercase
+     *
+     * If the specified source is an IteratorInterface object, all (string) values in the Iterator array source will be made lowercase
+     *
+     * @param IteratorInterface|array|string $source
+     *
+     * @return IteratorInterface|array|string
+     */
+    public static function strToLower(IteratorInterface|array|string $source): IteratorInterface|array|string
+    {
+        // Is the specified source a string
+        if (is_string($source)) {
+            // By here, $value is a string. Make only this lowercase
+            return strtolower($source);
+        }
+
+        $class = false;
+
+        // Is the specified source an Iterator?
+        if ($source instanceof IteratorInterface) {
+            $class  = $source::class;
+            $source = $source->getSource();
+        }
+
+        // Is the specified source an array
+        foreach ($source as &$value) {
+            if (is_string($value)) {
+                $value = strtolower($value);
+            }
+        }
+
+        if ($class) {
+            $source = new $class($source);
+        }
+
+        return $source;
+    }
+
+
+    /**
+     * Returns the specified source (string, array, or IteratorInterface object) in uppercase
+     *
+     * If the specified source is an array, all (string) values in the array will be made lowercase
+     *
+     * If the specified source is an IteratorInterface object, all (string) values in the Iterator array source will be made lowercase
+     *
+     * @param IteratorInterface|array|string $source
+     *
+     * @return IteratorInterface|array|string
+     */
+    public static function strToUpper(IteratorInterface|array|string $source): IteratorInterface|array|string
+    {
+        // Is the specified source a string
+        if (is_string($source)) {
+            // By here, $value is a string. Make only this lowercase
+            return strtolower($source);
+        }
+
+        $class = false;
+
+        // Is the specified source an Iterator?
+        if ($source instanceof IteratorInterface) {
+            $class  = $source::class;
+            $source = $source->getSource();
+        }
+
+        // Is the specified source an array
+        foreach ($source as &$value) {
+            if (is_string($value)) {
+                $value = strtolower($value);
+            }
+        }
+
+        if ($class) {
+            $source = new $class($source);
+        }
+
+        return $source;
+    }
 }
 
