@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Html\Traits\TraitUrlRightsRendering;
 use Stringable;
@@ -175,14 +176,22 @@ class Button extends Input implements ButtonInterface
 
             if ($this->getRequireKeysToEnableClass()) {
                 $this->addClass($this->getRequireKeysToEnableClass());
-                $script .= Script::new('$(".button-enable-keys").on("click", function (e) {
-                    var keys = "' . Json::encode($this->getRequireKeysToEnable()) . '";
-                })');
 
-            } else {
-                $script .= Script::new('$(".button-enable-keys").on("click", function (e) {
+               $script .= Script::new('
+                    window.phoundation.addModifierkeyDownCallback("' . Strings::force($this->getRequireKeysToEnable(), ',') . '", function () {
+                    $buttons = $(".button-disable-click");
+                    $buttons.prop("title", $buttons.data("tooltip"))
+                            .prop("disabled", false)
+                            .removeClass("disabled");
+                    });
                     
-                })');
+                    window.phoundation.addModifierkeyUpCallback("' . Strings::force($this->getRequireKeysToEnable(), ',') . '", function () {
+                    $buttons = $(".button-disable-click");
+                    $buttons.prop("title", $buttons.data("require-keys-tooltip"))
+                            .prop("disabled", true)
+                            .addClass("disabled");
+                    });            
+                ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
         }
 
