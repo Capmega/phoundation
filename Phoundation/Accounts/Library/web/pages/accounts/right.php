@@ -23,6 +23,8 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -90,18 +92,10 @@ if (!$o_right->isNew()) {
                      ->setContent(tr('Audit'));
 
     if ($o_right->isDeleted()) {
-        $o_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Undelete'));
+        $o_delete = UndeleteButton::new()->setFloatRight(true);
 
     } else {
-        $o_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Delete'));
+        $o_delete = DeleteButton::new()->setFloatRight(true);
     }
 
     $o_users = $o_right->getUsersObject();

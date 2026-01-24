@@ -44,7 +44,7 @@ $o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
                     ->setContent($o_filters)
-                    ->setButtonsObject(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true));
+                    ->setButtonsObject(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', float_right: true));
 
 
 // Button clicked?
@@ -147,7 +147,7 @@ $o_users_card = Card::new()
                                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')))
                   ->useForm(true)
                   ->setButtonsObject(Buttons::new()
-                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', right: true)
+                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', float_right: true)
                                             ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true)
                                             ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
 

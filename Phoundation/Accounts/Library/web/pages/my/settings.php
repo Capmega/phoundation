@@ -58,7 +58,7 @@ $settings_card = Card::new()
                      ->setTitle(tr('Edit your account settings'))
                      ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
                      ->setButtonsObject(Buttons::new()
-                                               ->addButton(tr('Save'), right: true)
+                                               ->addButton(tr('Save'), float_right: true)
                                                ->addButton(isset_get($delete))
                                                ->addButton(isset_get($audit)));
 
