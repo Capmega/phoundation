@@ -513,9 +513,9 @@ function in_source(array $source, string|int $key): bool
  *
  * @return bool
  */
-function is_enum(mixed $source)
+function is_enum(mixed $source): bool
 {
-    return (is_object($source) and ($source instanceof UnitEnum));
+    return $source instanceof UnitEnum;
 }
 
 
