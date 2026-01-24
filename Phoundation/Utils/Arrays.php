@@ -20,6 +20,7 @@ use Closure;
 use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Core\Interfaces\IntegerableInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -4583,14 +4584,18 @@ class Arrays extends Utils
      *
      * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
      *
-     * @param IteratorInterface|array $source  The source array to test
-     * @param array|string            $needles The needles that must be matches
-     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     * @param IteratorInterface|array|string|null $source          The source array to test
+     * @param array|string                        $needles         The needles that must be matches
+     * @param bool                                $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
      *
-     * @return array|null
+     * @return array
      */
-    public static function getContainsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): ?array
+    public static function getContainsNeedles(IteratorInterface|array|string|null $source, array|string $needles, bool $all = false): array
     {
+        if (empty($source)) {
+            return [];
+        }
+
         $return  = [];
         $source  = Arrays::force($source);
         $needles = Arrays::force($needles);
@@ -4635,7 +4640,7 @@ class Arrays extends Utils
             }
         }
 
-        return get_null($return);
+        return $return;
     }
 
 
@@ -4644,13 +4649,13 @@ class Arrays extends Utils
      *
      * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
      *
-     * @param IteratorInterface|array $source  The source array to test
-     * @param array|string            $needles The needles that must be matches
-     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     * @param IteratorInterface|array|string|null $source          The source array to test
+     * @param array|string                        $needles         The needles that must be matches
+     * @param bool                                $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
      *
      * @return bool
      */
-    public static function containsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): bool
+    public static function containsNeedles(IteratorInterface|array|string|null $source, array|string $needles, bool $all = false): bool
     {
         return (bool) Arrays::getContainsNeedles($source, $needles, $all);
     }
@@ -4780,6 +4785,49 @@ class Arrays extends Utils
 
                 // Value is not 0-31, but we will ignore that
                 continue;
+            }
+        }
+
+        unset($value);
+        return $source;
+    }
+
+
+    /**
+     * Will convert all values in the source array to scalar if they can be converted but are not scalar yet.
+     *
+     * @param IteratorInterface|array $source
+     *
+     * @return IteratorInterface|array
+     */
+    public static function ensureScalar(IteratorInterface|array $source): IteratorInterface|array
+    {
+        foreach ($source as $key => &$value) {
+            if (is_scalar($value)) {
+                continue;
+            }
+
+            if (is_enum($value)) {
+                // Get the scalar value behind the enum
+                $value = $value->value;
+            }
+
+            if ($value instanceof Stringable) {
+                $value = (string) $value;
+            }
+
+            if ($value instanceof IntegerableInterface) {
+                $value = (int) $value;
+            }
+
+            if (!is_scalar($value)) {
+                throw OutOfBoundsException::new(tr('Cannot convert source value for key ":key" to scalar, it does not support scalar conversion', [
+                    ':key' => $key,
+                ]))->setData([
+                    'source'  => $source,
+                    'key'     => $key,
+                    'value'   => $value,
+                ]);
             }
         }
 
