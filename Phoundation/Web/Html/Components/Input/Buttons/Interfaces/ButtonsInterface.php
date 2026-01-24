@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -42,11 +45,11 @@ interface ButtonsInterface extends ElementsBlockInterface
      * @param EnumDisplayMode                                     $mode
      * @param EnumButtonType|\Stringable|string                   $type_or_url
      * @param bool                                                $outline
-     * @param bool                                                $right
+     * @param bool                                                $float_right
      *
      * @return static
      */
-    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static;
+    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $float_right = false): static;
 
 
     /**
@@ -114,4 +117,40 @@ interface ButtonsInterface extends ElementsBlockInterface
      * @return void
      */
     public function rewind(): void;
+
+    /**
+     * Adds a single "Delete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addDeleteButton(bool $float_right = false): static;
+
+    /**
+     * Adds a single "Undelete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addUndeleteButton(bool $float_right = false): static;
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addAuditButton(bool $float_right = false): static;
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addLockButton(bool $float_right = false): static;
 }

@@ -76,17 +76,69 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
 
     /**
-     * Adds a single button to button list
+     * Adds a single "Delete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addDeleteButton(bool $float_right = false): static
+    {
+        return $this->addButton(DeleteButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Undelete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addUndeleteButton(bool $float_right = false): static
+    {
+        return $this->addButton(UndeleteButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addAuditButton(bool $float_right = false): static
+    {
+        return $this->addButton(AuditButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addLockButton(bool $float_right = false): static
+    {
+        return $this->addButton(LockButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single button to the button list
      *
      * @param ButtonInterface|DropdownButtonInterface|string|null $button
      * @param EnumDisplayMode                                     $mode
      * @param EnumButtonType|Stringable|string                    $type_or_url
      * @param bool                                                $outline
-     * @param bool                                                $right
+     * @param bool                                                $float_right
      *
      * @return static
      */
-    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $float_right = false): static
     {
         if (!$button) {
             // Don't add anything
@@ -103,7 +155,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($value ?? $button)
-                            ->setFloatRight($right)
+                            ->setFloatRight($float_right)
                             ->setMode($mode)
                             ->setName('submit-button');
 

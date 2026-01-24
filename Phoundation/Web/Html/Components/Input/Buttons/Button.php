@@ -170,26 +170,32 @@ class Button extends Input implements ButtonInterface
             ]);
 
             $this->setDisabled(true)
-                 ->addData($this->getTitle(), 'tooltip')
-                 ->addData($title           , 'require-keys-tooltip')
+                 ->addData($this->getTitle(), 'title')
+                 ->addData($title           , 'require-keys-title')
                  ->setTitle($title);
 
             if ($this->getRequireKeysToEnableClass()) {
                 $this->addClass($this->getRequireKeysToEnableClass());
 
                $script .= Script::new('
-                    window.phoundation.addModifierkeyDownCallback("' . Strings::force($this->getRequireKeysToEnable(), ',') . '", function () {
-                    $buttons = $(".button-disable-click");
-                    $buttons.prop("title", $buttons.data("tooltip"))
-                            .prop("disabled", false)
-                            .removeClass("disabled");
+                    window.phoundation.addModifierkeyDownCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                        $(".button-require-modifiers").each(function (index, button) {
+                            $button = $(button);
+
+                            $(button).prop("title", $button.data("title") || "")
+                                     .prop("disabled", false)
+                                     .removeClass("disabled");
+                        });
                     });
                     
-                    window.phoundation.addModifierkeyUpCallback("' . Strings::force($this->getRequireKeysToEnable(), ',') . '", function () {
-                    $buttons = $(".button-disable-click");
-                    $buttons.prop("title", $buttons.data("require-keys-tooltip"))
-                            .prop("disabled", true)
-                            .addClass("disabled");
+                    window.phoundation.addModifierkeyUpCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                        $(".button-require-modifiers").each(function (index, button) {
+                            $button = $(button);
+
+                            $(button).prop("title", $button.data("require-keys-title") || "")
+                                     .prop("disabled", true)
+                                     .addClass("disabled");
+                        });
                     });            
                 ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
