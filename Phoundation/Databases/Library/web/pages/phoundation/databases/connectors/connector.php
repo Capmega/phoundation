@@ -22,8 +22,12 @@ use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\SaveButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -39,7 +43,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId(false, true)
                    ->validate();
 
-$connector = Connector::new()->loadThis($get['id']);
+$o_connector = Connector::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -49,17 +53,17 @@ if (Request::isPostRequestMethod()) {
             case tr('Test'):
                 // Test the connector
                 try {
-                    $connector->test();
+                    $o_connector->test();
 
                     Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been tested successfully', [
-                        ':connector' => $connector->getDisplayName(),
+                        ':connector' => $o_connector->getDisplayName(),
                     ]));
 
                 } catch (\Phoundation\Exception\PhoException $e) {
                     Log::error($e);
 
                     Response::getFlashMessagesObject()->addWarning(tr('The connector ":connector" test failed, please check the logs', [
-                        ':connector' => $connector->getDisplayName(),
+                        ':connector' => $o_connector->getDisplayName(),
                     ]));
                 }
 
@@ -68,43 +72,27 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Save'):
                 // Update connector, roles, emails, and phones
-                $connector->apply(false)->save();
+                $o_connector->apply(false)->save();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been saved', [
-                    ':connector' => $connector->getDisplayName(),
+                    ':connector' => $o_connector->getDisplayName(),
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::new('/phoundation/databases/connectors/connector+' . $connector->getId() . '.html')->makeWww());
+                Response::redirect(Url::new('/phoundation/databases/connectors/connector+' . $o_connector->getId() . '.html')->makeWww());
 
             case tr('Delete'):
-                $connector->delete();
+                $o_connector->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been deleted', [
-                    ':connector' => $connector->getDisplayName(),
-                ]));
-
-                Response::redirect();
-
-            case tr('Lock'):
-                $connector->lock();
-                Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been locked', [
-                    ':connector' => $connector->getDisplayName(),
-                ]));
-
-                Response::redirect();
-
-            case tr('Unlock'):
-                $connector->unlock();
-                Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been unlocked', [
-                    ':connector' => $connector->getDisplayName(),
+                    ':connector' => $o_connector->getDisplayName(),
                 ]));
 
                 Response::redirect();
 
             case tr('Undelete'):
-                $connector->undelete();
+                $o_connector->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been undeleted', [
-                    ':connector' => $connector->getDisplayName(),
+                    ':connector' => $o_connector->getDisplayName(),
                 ]));
 
                 Response::redirect();
@@ -113,118 +101,89 @@ if (Request::isPostRequestMethod()) {
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessagesObject()->addMessage($e);
-        $connector->forceApply();
+        $o_connector->forceApply();
     }
 }
 
 
 // Save button
-if (!$connector->getReadonly()) {
-    $save = Button::new()
-                  ->setContent(tr('Save'))
-                  ->setContent(tr('Save'));
+if (!$o_connector->getReadonly()) {
+    $o_save = SaveButton::new();
 }
 
 
 // Buttons.
-if (!$connector->isNew()) {
-    if (!$connector->isReadonly()) {
-        if ($connector->isDeleted()) {
-            $delete = Button::new()
-                            ->setFloatRight(true)
-                            ->setMode(EnumDisplayMode::warning)
-                            ->setOutlined(true)
-                            ->setContent(tr('Undelete'))
-                            ->setContent(tr('Undelete'));
+if (!$o_connector->isNew()) {
+    if (!$o_connector->isReadonly()) {
+        if ($o_connector->isDeleted()) {
+            $o_delete = UndeleteButton::new()
+                                      ->setFloatRight(true);
 
         } else {
-            $delete = Button::new()
-                            ->setFloatRight(true)
-                            ->setMode(EnumDisplayMode::warning)
-                            ->setOutlined(true)
-                            ->setContent(tr('Delete'))
-                            ->setContent(tr('Delete'));
-
-            if ($connector->isLocked()) {
-                $lock = Button::new()
-                              ->setFloatRight(true)
-                              ->setMode(EnumDisplayMode::warning)
-                              ->setContent(tr('Unlock'))
-                              ->setContent(tr('Unlock'));
-
-            } else {
-                $lock = Button::new()
-                              ->setFloatRight(true)
-                              ->setMode(EnumDisplayMode::warning)
-                              ->setContent(tr('Lock'))
-                              ->setContent(tr('Lock'));
-            }
+            $o_delete = DeleteButton::new()
+                                    ->setFloatRight(true);
 
             // Audit button.
-            $audit = Button::new()
-                           ->setFloatRight(true)
-                           ->setMode(EnumDisplayMode::information)
-                           ->setUrlObject('/audit/meta+' . $connector->getMetaId() . '.html')
-                           ->setContent(tr('Audit'))
-                           ->setContent(tr('Audit'));
+            $o_audit = AuditButton::new()
+                                  ->setFloatRight(true)
+                                  ->setUrlObject('/audit/meta+' . $o_connector->getMetaId() . '.html');
         }
     }
 
     // Test button.
-    $test = Button::new()
-                  ->setFloatRight(true)
-                  ->setMode(EnumDisplayMode::information)
-                  ->setContent(tr('Test'))
-                  ->setContent(tr('Test'));
+    $o_test = Button::new()
+                    ->setFloatRight(true)
+                    ->setMode(EnumDisplayMode::information)
+                    ->setContent(tr('Test'))
+                    ->setContent(tr('Test'));
 }
 
 
 // Build the "connector" form
-$connector_card = Card::new()
-                      ->setCollapseSwitch(true)
-                      ->setMaximizeSwitch(true)
-                      ->setTitle(tr('Edit connector :name', [':name' => $connector->getDisplayName()]))
-                      ->setContent($connector->getHtmlDataEntryFormObject())
-                      ->setButtonsObject(Buttons::new()
-                                                ->addButton(isset_get($save))
-                                                ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
-                                                ->addButton(isset_get($test))
-                                                ->addButton(isset_get($audit))
-                                                ->addButton(isset_get($delete))
-                                                ->addButton(isset_get($lock))
-                                                ->addButton(isset_get($impersonate)));
+$o_connector_card = Card::new()
+                        ->setCollapseSwitch(true)
+                        ->setMaximizeSwitch(true)
+                        ->setTitle(tr('Edit connector :name', [':name' => $o_connector->getDisplayName()]))
+                        ->setContent($o_connector->getHtmlDataEntryFormObject())
+                        ->setButtonsObject(Buttons::new()
+                                                  ->addButton(isset_get($o_save))
+                                                  ->addBackButton(Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
+                                                  ->addButton(isset_get($o_test))
+                                                  ->addButton(isset_get($o_audit))
+                                                  ->addButton(isset_get($o_delete))
+                                                  ->addButton(isset_get($impersonate)));
 
 
 // Build relevant links
 $o_relevant_card = Card::new()
-                     ->setMode(EnumDisplayMode::info)
-                     ->setTitle(tr('Relevant links'))
-                     ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases')));
+                       ->setMode(EnumDisplayMode::info)
+                       ->setTitle(tr('Relevant links'))
+                       ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases')));
 
 
 // Build documentation
 $o_documentation_card = Card::new()
-                          ->setMode(EnumDisplayMode::info)
-                          ->setTitle(tr('Documentation'))
-                          ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
-                                        <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
-                                        <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
+                            ->setMode(EnumDisplayMode::info)
+                            ->setTitle(tr('Documentation'))
+                            ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
+                                          <p>Debitis pariatur tempora quia dolores minus sint repellendus accusantium. Ipsam hic molestiae vel beatae modi et. Voluptate suscipit nisi fugit vel. Animi suscipit suscipit est excepturi est eos.</p>
+                                          <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
 // Set page meta-data
-Response::setPageTitle(tr('Connector :connector', [':connector' => $connector->getDisplayName()]));
+Response::setPageTitle(tr('Connector :connector', [':connector' => $o_connector->getDisplayName()]));
 Response::setHeaderTitle(tr('Connector'));
-Response::setHeaderSubTitle($connector->getDisplayName() . ($connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
+Response::setHeaderSubTitle($o_connector->getDisplayName() . ($o_connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                                                , tr('Home')),
     Breadcrumb::new('/system-administration.html'                      , tr('System administration')),
     Breadcrumb::new('/phoundation/databases.html'                      , tr('Databases')),
     Breadcrumb::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
-    Breadcrumb::new(''                                                 , $connector->getDisplayName()),
+    Breadcrumb::new(''                                                 , $o_connector->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($connector_card                     , EnumDisplaySize::nine, true)
+           ->addGridColumn($o_connector_card                       , EnumDisplaySize::nine, true)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

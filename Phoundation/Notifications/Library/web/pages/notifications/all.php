@@ -99,7 +99,7 @@ $o_notifications_card = Card::new()
                             ->useForm(true)
                             ->setButtonsObject(Buttons::new()->addButton(tr('Mark all as read')));
 
-$o_notifications_card->getForm()
+$o_notifications_card->getFormObject()
                      ->setAction(Url::newCurrent())
                      ->setRequestMethod(EnumHttpRequestMethod::post);
 

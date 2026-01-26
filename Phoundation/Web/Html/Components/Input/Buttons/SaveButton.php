@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class DeleteButton
+ * Class SaveButton
  *
- * This class is an extension of the Button class, and is used specifically to pre-configure delete buttons to ensure that all delete buttons look and behave
+ * This class is an extension of the Button class, and is used specifically to pre-configure save buttons to ensure that all save buttons look and behave
  * exactly the same
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -21,8 +21,7 @@ use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
-
-class DeleteButton extends Button
+class SaveButton extends Button
 {
     /**
      * DeleteButton class constructor
@@ -35,20 +34,20 @@ class DeleteButton extends Button
 
         $this->setRequireKeysToEnable($this->getConfiguredModifierKeysToEnableDeleteButton(), 'button-lock')
              ->setButtonType(EnumButtonType::submit)
-             ->setContent($content ?? tr('Delete'), $make_safe)
+             ->setContent($content ?? tr('Save'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
              ->setMode($this->getConfiguredMode());
     }
 
 
     /**
-     * Returns the configured modifier keys to enable this delete button
+     * Returns the configured modifier keys to enable this save button
      *
      * @return array
      */
     public function getConfiguredModifierKeysToEnableDeleteButton(): array
     {
-        return config()->getArray('web.html.components.buttons.delete.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('web.html.components.buttons.save.modifier-keys', []);
     }
 
 
@@ -59,7 +58,7 @@ class DeleteButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.delete.outlined', true);
+        return config()->getBoolean('web.html.components.buttons.save.outlined', false);
     }
 
 
@@ -70,6 +69,6 @@ class DeleteButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.delete.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.save.mode', 'primary'));
     }
 }

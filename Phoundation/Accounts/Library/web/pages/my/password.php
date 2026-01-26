@@ -96,7 +96,7 @@ if (Request::isPostRequestMethod()) {
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton(tr('Save'), float_right: true);
+                  ->addSaveButton(true);
 
 
 // Build the "user" form

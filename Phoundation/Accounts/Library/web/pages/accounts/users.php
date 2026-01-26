@@ -41,10 +41,10 @@ GetValidator::new()->validate();
 // Build the "filters" card
 $o_filters      = FilterForm::new();
 $o_filters_card = Card::new()
-                    ->setCollapseSwitch(true)
-                    ->setTitle('Filters')
-                    ->setContent($o_filters)
-                    ->setButtonsObject(Buttons::new()->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', float_right: true));
+                      ->setCollapseSwitch(true)
+                      ->setTitle('Filters')
+                      ->setContent($o_filters)
+                      ->setButtonsObject(Buttons::new()->->addCreateButton(Url::new('/accounts/user.html'), true));
 
 
 // Button clicked?
@@ -143,16 +143,15 @@ $o_users_card = Card::new()
                                            'created_on'    => tr('Created on'),
                                        ])
                                        ->setRowUrls('/accounts/user+:ROW.html')
-                                       ->setTopButtons(Buttons::new()
-                                                              ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html')))
+                                       ->setTopButtons(Buttons::new()->addCreateButton(Url::new('/accounts/user.html'))))
                   ->useForm(true)
                   ->setButtonsObject(Buttons::new()
-                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/user.html', float_right: true)
-                                            ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true)
-                                            ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
+                                            ->addCreateButton(Url::new('/accounts/user.html'), true)
+                                            ->addDeleteButton(true)
+                                            ->addLockButton(true));
 
 
-$o_users_card->getForm()
+$o_users_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 
@@ -184,5 +183,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_users_card        , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card  . $o_users_card        , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

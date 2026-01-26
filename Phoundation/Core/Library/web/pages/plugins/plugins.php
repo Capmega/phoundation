@@ -71,7 +71,7 @@ $plugins_card = Card::new()
                ->useForm(true)
                ->setButtonsObject(Buttons::new()->addButton(tr('Scan')));
 
-$plugins_card->getForm()
+$plugins_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 

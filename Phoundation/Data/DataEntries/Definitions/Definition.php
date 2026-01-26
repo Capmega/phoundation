@@ -2233,6 +2233,30 @@ class Definition implements DefinitionInterface
             case EnumInputType::button:
                 // no break
 
+            case EnumInputType::back_button:
+                // no break
+
+            case EnumInputType::save_button:
+                // no break
+
+            case EnumInputType::audit_button:
+                // no break
+
+            case EnumInputType::create_button:
+                // no break
+
+            case EnumInputType::delete_button:
+                // no break
+
+            case EnumInputType::undelete_button:
+                // no break
+
+            case EnumInputType::lock_button:
+                // no break
+
+            case EnumInputType::unlock_button:
+                // no break
+
             case EnumInputType::submit:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
@@ -3972,6 +3996,24 @@ class Definition implements DefinitionInterface
                      // no break
 
                  case EnumInputType::reset:
+                     // no break
+
+                 case EnumInputType::create_button:
+                     // no break
+
+                 case EnumInputType::audit_button:
+                     // no break
+
+                 case EnumInputType::delete_button:
+                     // no break
+
+                 case EnumInputType::undelete_button:
+                     // no break
+
+                 case EnumInputType::lock_button:
+                     // no break
+
+                 case EnumInputType::unlock_button:
                     return false;
             }
 

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Class DeleteButton
+ * Class CreateButton
  *
- * This class is an extension of the Button class, and is used specifically to pre-configure delete buttons to ensure that all delete buttons look and behave
- * exactly the same
+ * This class is an extension of the Button class, and is used specifically to pre-configure create buttons to ensure that all create buttons look and
+ * behave exactly the same
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,10 +22,10 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
-class DeleteButton extends Button
+class CreateButton extends Button
 {
     /**
-     * DeleteButton class constructor
+     * CreateButton class constructor
      *
      * @param callable|float|RenderInterface|int|string|null $content
      * @param bool                                           $make_safe
@@ -33,22 +33,22 @@ class DeleteButton extends Button
     public function __construct(callable|float|RenderInterface|int|string|null $content = null, bool $make_safe = false) {
         parent::__construct($content, $make_safe);
 
-        $this->setRequireKeysToEnable($this->getConfiguredModifierKeysToEnableDeleteButton(), 'button-lock')
+        $this->setRequireKeysToEnable($this->getConfiguredModifierKeysToEnableCreateButton(), 'button-lock')
              ->setButtonType(EnumButtonType::submit)
-             ->setContent($content ?? tr('Delete'), $make_safe)
+             ->setContent($content ?? tr('Create'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
              ->setMode($this->getConfiguredMode());
     }
 
 
     /**
-     * Returns the configured modifier keys to enable this delete button
+     * Returns the configured modifier keys to enable this create button
      *
      * @return array
      */
-    public function getConfiguredModifierKeysToEnableDeleteButton(): array
+    public function getConfiguredModifierKeysToEnableCreateButton(): array
     {
-        return config()->getArray('web.html.components.buttons.delete.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('web.html.components.buttons.create.modifier-keys', []);
     }
 
 
@@ -59,7 +59,7 @@ class DeleteButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.delete.outlined', true);
+        return config()->getBoolean('web.html.components.buttons.create.outlined', false);
     }
 
 
@@ -70,6 +70,6 @@ class DeleteButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.delete.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.create.mode', 'primary'));
     }
 }

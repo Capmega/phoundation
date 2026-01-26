@@ -48,7 +48,7 @@ $customers_card = Card::new()
                                                    ->setRowUrls('/business/customer+:ROW.html'));
 
 // TODO Is this necessary? Default form action should be current and default method should be POST already
-$customers_card->getForm()
+$customers_card->getFormObject()
                ->setAction(Url::newCurrent())
                ->setRequestMethod(EnumHttpRequestMethod::post);
 

@@ -41,8 +41,8 @@ $plugin_card = Card::new()
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
                    ->setContent($plugin->getHtmlDataEntryFormObject())
                    ->setButtonsObject(Buttons::new()
-                                             ->addButton('Submit')
-                                             ->addButton('Back', EnumDisplayMode::secondary, '/plugins/plugins.html', true));
+                                             ->addSaveButton()
+                                             ->addBackButton(Url::newPrevious('/plugins/plugins.html'), true));
 
 
 // Build relevant links

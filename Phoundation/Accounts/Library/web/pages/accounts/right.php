@@ -24,7 +24,6 @@ use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
-use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -92,7 +91,11 @@ if (!$o_right->isNew()) {
                      ->setContent(tr('Audit'));
 
     if ($o_right->isDeleted()) {
-        $o_delete = UndeleteButton::new()->setFloatRight(true);
+        $o_delete = Button::new()
+                          ->setFloatRight(true)
+                          ->setMode(EnumDisplayMode::warning)
+                          ->setOutlined(true)
+                          ->setContent(tr('Undelete'));
 
     } else {
         $o_delete = DeleteButton::new()->setFloatRight(true);
@@ -142,8 +145,8 @@ $o_card = Card::new()
               ->setContent($o_right->getHtmlDataEntryFormObject())
               ->useForm(true)
               ->setButtonsObject(Buttons::new()
-                                        ->addButton(tr('Save'))
-                                        ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/rights.html'), true)
+                                        ->addSaveButton()
+                                        ->addBackButton(Url::newPrevious('/accounts/rights.html'), true)
                                         ->addButton(isset_get($o_delete))
                                         ->addButton(isset_get($o_audit)));
 

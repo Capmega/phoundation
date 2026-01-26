@@ -120,15 +120,15 @@ $o_rights_card = Card::new()
                                            ])
                                            ->setRowUrls('/accounts/right+:ROW.html')
                                            ->setTopButtons(Buttons::new()
-                                                                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')))
+                                                                  ->addCreateButton(Url::new('/accounts/right.html')))
                      ->useForm(true)
                      ->setButtonsObject(Buttons::new()
-                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
+                                               ->addCreateButton(Url::new('/accounts/right.html'))
                                                ->addDeleteButton(float_right: true));
 
 
 // Add form for the "rights" card
-$o_rights_card->getForm()
+$o_rights_card->getFormObject()
               ->setAction(Url::newCurrent())
               ->setRequestMethod(EnumHttpRequestMethod::post);
 

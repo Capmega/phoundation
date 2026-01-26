@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -76,6 +77,67 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
 
     /**
+     * Adds a single "Save" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addSaveButton(bool $float_right = false): static
+    {
+        return $this->addButton(SaveButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Back" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where the audit button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addBackButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(BackButton::new()
+                                           ->setUrlObject($_url)
+                                           ->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Create" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where this button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addCreateButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(CreateButton::new()
+                                            ->setUrlObject($_url)
+                                            ->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where the audit button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addAuditButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(AuditButton::new()
+                                           ->setUrlObject($_url)
+                                           ->setFloatRight($float_right));
+    }
+
+
+    /**
      * Adds a single "Delete" button to the button list
      *
      * @param bool $float_right [false] If true, will add a float-right class to the button
@@ -102,20 +164,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
 
     /**
-     * Adds a single "Audit" button to the button list
-     *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
-     *
-     * @return static
-     */
-    public function addAuditButton(bool $float_right = false): static
-    {
-        return $this->addButton(AuditButton::new()->setFloatRight($float_right));
-    }
-
-
-    /**
-     * Adds a single "Audit" button to the button list
+     * Adds a single "Lock" button to the button list
      *
      * @param bool $float_right [false] If true, will add a float-right class to the button
      *
@@ -124,6 +173,19 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     public function addLockButton(bool $float_right = false): static
     {
         return $this->addButton(LockButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Unlock" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addUnlockButton(bool $float_right = false): static
+    {
+        return $this->addButton(UnlockButton::new()->setFloatRight($float_right));
     }
 
 
