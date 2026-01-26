@@ -37,7 +37,7 @@ ARGUMENTS
 CliDocumentation::setUsage('./pho developer git bfg');
 
 
-// Get all arguments, don't validate as that is up to composer to do
+// Get all arguments, do not validate as that is up to composer to do
 $argv = ArgvValidator::getArguments();
 
 

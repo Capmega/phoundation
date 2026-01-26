@@ -779,12 +779,12 @@ class Log implements LogInterface
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
         if (!static::$enabled) {
-            // Logging has been disabled, don't do anything
+            // Logging has been disabled, do not do anything
             return false;
         }
 
         if (static::$init) {
-            // Don't log anything while locked, initializing, or while dealing with a Log internal failure
+            // Do not log anything while locked, initializing, or while dealing with a Log internal failure
             // Check if we passed the log threshold. If not, discard the message
             if (!static::passesThreshold($threshold)) {
                 return false;
@@ -874,13 +874,13 @@ class Log implements LogInterface
             }
 
             // Make sure the log message is clean and readable.
-            // Don't truncate as we might have huge log messages!
-            // If no or an empty class was specified, we don't clean
+            // Do not truncate as we might have huge log messages!
+            // If no or an empty class was specified, we do not clean
             if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
             }
 
-            // Don't log the same message twice in a row
+            // Do not log the same message twice in a row
             if (($threshold > 0) and (static::$last_message === $messages) and (static::$filter_double)) {
                 static::$lock = false;
                 return false;
@@ -904,7 +904,7 @@ class Log implements LogInterface
 
             if (!$messages) {
                 if (!is_numeric($messages)) {
-                    // Don't log empty messages
+                    // Do not log empty messages
                     static::$lock = false;
 
                     if (Debug::isEnabled()) {
@@ -1196,7 +1196,7 @@ class Log implements LogInterface
             // Redetermine the log class
             if ($exception instanceof PhoException) {
                 if ($exception->hasBeenLogged()) {
-                    // This exception has already been logged, don't log again
+                    // This exception has already been logged, do not log again
                     return false;
                 }
 
@@ -1300,7 +1300,7 @@ class Log implements LogInterface
     public static function setFile(?string $file = null): ?string
     {
         if (!static::getFileEnabled()) {
-            // Logging to file is disabled, don't set a file
+            // Logging to file is disabled, do not set a file
             return static::$file;
         }
 
@@ -1522,7 +1522,7 @@ class Log implements LogInterface
             return count($lines);
 
         } catch (Throwable $e) {
-            // Don't crash the process because of this, log it and return -1 to indicate an exception
+            // Do not crash the process because of this, log it and return -1 to indicate an exception
             Log::exception($e);
             Log::error(tr('Failed to write backtrace to log because of exception ":e" cause by backtrace specified below', [
                 ':e' => $e->getMessage(),
@@ -1563,7 +1563,7 @@ class Log implements LogInterface
      */
     protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): bool
     {
-        // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
+        // Do not ever let the system crash because of a log issue, so we catch all possible exceptions
         static::$lock = false;
 
         try {

@@ -821,7 +821,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      *                     This is the case by default. Returns int.
      *                     </p><p><code>IPV6_MULTICAST_LOOP</code> - Analogous to <code>IP_MULTICAST_LOOP</code>,
      *                     but for IPv6. Returns int.</p><p><code>IP_MULTICAST_TTL</code> - The ime-to-live of outgoing
-     *                     IPv4 multicast packets. This should be a value between 0 (don't leave the interface)
+     *                     IPv4 multicast packets. This should be a value between 0 (do not leave the interface)
      *                     and 255. The default value is 1 (only the local network is reached). Returns int.</p><p>
      *                     <code>IPV6_MULTICAST_HOPS</code> - Analogous to <code>IP_MULTICAST_TTL</code>, but for IPv6 packets. The value -1
      *                     is also accepted, meaning the route default should be used. Returns int.</p>

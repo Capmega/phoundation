@@ -48,7 +48,7 @@ trait TraitDataStaticBooleanEnabledLocal
     public static function setEnabledLocal(?bool $enabled_local): void
     {
         if ($enabled_local === null) {
-            // Don't modify the enabled flag, keep the default
+            // Do not modify the enabled flag, keep the default
             return;
         }
 

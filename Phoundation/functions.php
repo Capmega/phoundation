@@ -775,7 +775,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
             ]);
         }
 
-        // Don't throw an exception, return null instead.
+        // Do not throw an exception, return null instead.
         return null;
     }
 
@@ -973,7 +973,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
             ]);
         }
 
-        // Don't throw an exception, return null instead.
+        // Do not throw an exception, return null instead.
         return null;
     }
 
@@ -2252,7 +2252,7 @@ function get_numeric(mixed $source, bool $allow_null = true): float|int|null
         }
     }
 
-    // Arrays, resources, objects we don't understand, it is all is zero
+    // Arrays, resources, objects we do not understand, it is all is zero
     return 0;
 }
 

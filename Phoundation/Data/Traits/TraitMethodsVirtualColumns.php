@@ -87,7 +87,7 @@ trait TraitMethodsVirtualColumns {
     protected function setVirtualData(string $table, mixed $value, string $column): static
     {
         if ($this->get($table . '_' . $column) === $value) {
-            // The column has not changed, don't change anything
+            // The column has not changed, do not change anything
             return $this;
         }
 

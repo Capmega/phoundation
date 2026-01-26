@@ -35,7 +35,7 @@ class Interfaces
     {
         $ips = static::listIps();
         // Filter local IP's?
-        // Todo find a better way to handle this, as 172.* is typically used by virtual machines, so don't have internet
+        // Todo find a better way to handle this, as 172.* is typically used by virtual machines, so do not have internet
         // Todo ideally we would need to know if the interface has internet access before we return its ip
         if (!$allow_localhosts) {
             foreach ($ips as $id => $ip) {

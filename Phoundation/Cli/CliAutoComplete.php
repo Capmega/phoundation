@@ -646,7 +646,7 @@ class CliAutoComplete
             $position_data = $definitions[$position];
 
             if ($position_data === true) {
-                // Argument is required but we can't autocomplete it
+                // Argument is required but we cannot autocomplete it
 
             } else {
                 if (is_array($position_data)) {

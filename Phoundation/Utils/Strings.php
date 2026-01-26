@@ -691,7 +691,7 @@ class Strings extends Utils
      */
     protected static function searchKeyword(Stringable|string $source, Stringable|string|int|float $keyword, bool $regex = false, bool $unicode = true): bool
     {
-        // Ensure keywords are trimmed, and don't search for empty keywords
+        // Ensure keywords are trimmed, and do not search for empty keywords
         $source  = (string) $source;
         $keyword = trim((string) $keyword);
 

@@ -1865,7 +1865,7 @@ return 'under construction';
             Core::writeRegister($argv['language'] ?? config()->getString('locale.languages.default', 'en'), 'system', 'language');
 
             if ($argv['auto_complete']) {
-                // We are in auto complete mode. Show only direct output, don't use any color, don't log to screen
+                // We are in auto complete mode. Show only direct output, do not use any color, do not log to screen
                 Log::disableScreen();
 
                 $argv['no_color'] = true;

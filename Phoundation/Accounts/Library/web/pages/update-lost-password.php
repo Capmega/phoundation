@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
         $user = Session::getUserObject();
 
         if ($user->hasPassword($post['password'])) {
-            // User used the same password, don't update
+            // User used the same password, do not update
             Response::getFlashMessagesObject()->addSuccess(tr('You supplied your actual password, password was not updated'));
             $updated = false;
 

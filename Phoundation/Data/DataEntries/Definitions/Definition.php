@@ -1471,7 +1471,7 @@ class Definition implements DefinitionInterface
     public function setValue(Stringable|callable|string|float|int|bool|null $value, bool $only_when_new = false): static
     {
         if ($only_when_new and !$this->o_data_entry->isNew()) {
-            // Don't set this value, only set it on new entries
+            // Do not set this value, only set it on new entries
             return $this;
         }
 
@@ -2200,7 +2200,7 @@ class Definition implements DefinitionInterface
                         $o_validator->isDescription();
                      }, 'description');
 
-                // Don't set the value
+                // Do not set the value
                 return $this;
 
             case EnumInputType::checkbox:
@@ -3883,7 +3883,7 @@ class Definition implements DefinitionInterface
         }
 
         // This column  is not rendered (so not sent to the user) which means that it CANNOT be submitted.
-        // If the user submitted it, they are messing around, don't allow it!
+        // If the user submitted it, they are messing around, do not allow it!
         if ($o_validator->get($column)) {
             // This column  is not rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
@@ -3905,7 +3905,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        // Don't validate this column and try to apply static value
+        // Do not validate this column and try to apply static value
         $this->validateProcessStaticValue($o_validator, $column);
         $o_validator->doNotValidate();
         return true;
@@ -3923,7 +3923,7 @@ class Definition implements DefinitionInterface
     protected function validateProcessNoValidationOrDefaults(ValidatorInterface $o_validator, string $column): bool
     {
         if ($this->getNoValidation() or $this->getIgnored()) {
-            // Don't perform validations, or ignore the column completely
+            // Do not perform validations, or ignore the column completely
             $o_validator->doNotValidate();
 
             Log::warning(ts('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
@@ -4021,7 +4021,7 @@ class Definition implements DefinitionInterface
             return $this->o_data_entry->getMetaColumns();
         }
 
-        // There is no data entry specified, we don't know anything about meta columns!
+        // There is no data entry specified, we do not know anything about meta columns!
         return [];
     }
 

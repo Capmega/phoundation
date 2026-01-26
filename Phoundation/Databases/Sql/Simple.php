@@ -563,7 +563,7 @@
 //
 //                } elseif ($value === null) {
 //                    if (!$use_value) {
-//                        // Do NOT use a value, so also don't add an execute value
+//                        // Do NOT use a value, so also do not add an execute value
 //                        $filter = ' ' . $column . ' ';
 //
 //                    } else {

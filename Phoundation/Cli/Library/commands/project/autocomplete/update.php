@@ -30,7 +30,7 @@ ARGUMENTS
 -');
 
 
-// Don't allow any arguments at all
+// Do not allow any arguments at all
 ArgvValidator::new()->validate();
 
 

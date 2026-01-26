@@ -1285,7 +1285,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
-            // If we are replacing in the same file, then don't have to check
+            // If we are replacing in the same file, then do not have to check
             $target->getParentDirectoryObject()->ensure();
             $target->checkNotExists();
         }

@@ -89,7 +89,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
-            // Don't add anything
+            // Do not add anything
             return $this;
         }
 

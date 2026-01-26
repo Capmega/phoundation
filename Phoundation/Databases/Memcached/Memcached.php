@@ -516,8 +516,8 @@ class Memcached implements MemcachedInterface
      * cmd_set               2279784    Number of 'set' commands serviced since startup.
      * connection_structures 42         Number of internal connection handles currently held by the server. May be used
      *                                  as some kind of 'maximum parallel connection count' but the server may destroy
-     *                                  connection structures (don't know if he ever does) or prepare some without
-     *                                  having actual connections for them (also don't know if he does). 42 maximum
+     *                                  connection structures (do not know if he ever does) or prepare some without
+     *                                  having actual connections for them (also do not know if he does). 42 maximum
      *                                  connections and 34 current connections (curr_connections) sounds reasonable, the
      *                                  live servers also have about 10% more connection_structures than
      *                                  curr_connections.

@@ -263,7 +263,7 @@ trait TraitUrlRightsRendering
                         break;
 
                     case EnumAnchorRenderRightsFail::not:
-                        // Don't render the anchor at all
+                        // Do not render the anchor at all
                         return false;
 
                     case EnumAnchorRenderRightsFail::fail:

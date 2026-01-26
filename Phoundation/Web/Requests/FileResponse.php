@@ -372,7 +372,7 @@ class FileResponse extends PhoFile
     {
         // Do we need compression?
         if ($this->compression === 'auto') {
-            // Detect if the file is already compressed. If so, we don't need the server to try to compress the data
+            // Detect if the file is already compressed. If so, we do not need the server to try to compress the data
             // stream too because it won't do anything (possibly make it even worse)
             $this->compression = !$this->isCompressed();
         }

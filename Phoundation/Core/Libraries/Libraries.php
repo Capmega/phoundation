@@ -1110,12 +1110,12 @@ return;
                     'Tests/bootstrap.php',
                 ];
 
-                // Don't loads file in the LIBRARY/Library path
+                // Do not loads file in the LIBRARY/Library path
                 if (str_contains($test, '/library/')) {
                     return;
                 }
 
-                // Don't load the following specific files
+                // Do not load the following specific files
                 if (str_ends_with($test, 'Tests/bootstrap.php')) {
                     return;
                 }
@@ -1167,12 +1167,12 @@ return;
                         'Tests/bootstrap.php',
                     ];
 
-                    // Don't loads file in the LIBRARY/Library path
+                    // Do not loads file in the LIBRARY/Library path
                     if (str_contains($test, '/library/')) {
                         return;
                     }
 
-                    // Don't load the following specific files
+                    // Do not load the following specific files
                     if (str_ends_with($test, 'Tests/bootstrap.php')) {
                         return;
                     }

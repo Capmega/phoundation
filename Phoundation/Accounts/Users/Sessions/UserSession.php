@@ -53,7 +53,7 @@ class UserSession implements UserSessionInterface
     public function __construct(string|bool|null $identifier = false, bool $exception = true)
     {
         if (empty($identifier)) {
-            // Don't load any session data at all
+            // Do not load any session data at all
             return;
         }
 

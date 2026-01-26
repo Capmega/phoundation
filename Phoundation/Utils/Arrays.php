@@ -625,13 +625,13 @@ class Arrays extends Utils
             } else {
                 if (!$value and !is_numeric($value)) {
                     if ($filter_empty) {
-                        // Don't add this value at all
+                        // Do not add this value at all
                         continue;
                     }
 
                     if ($value === null) {
                         if ($filter_null) {
-                            // Don't add this value at all
+                            // Do not add this value at all
                             continue;
                         }
                     }
@@ -788,7 +788,7 @@ class Arrays extends Utils
     public static function limit(IteratorInterface|array $source, int|false $count, bool $return_source = true): array
     {
         if ($count === false) {
-            // Don't filter anything
+            // Do not filter anything
             return $source;
         }
 
@@ -1694,7 +1694,7 @@ class Arrays extends Utils
                         $source_value = Arrays::hideSensitive($source_value, $keys, $hide, $empty, $recurse);
 
                     } else {
-                        // If we don't recurse, we'll hide the entire subarray
+                        // If we do not recurse, we'll hide the entire subarray
                         $source_value = Arrays::hideSensitive($source_value, $hide, $empty);
                     }
 
@@ -4553,7 +4553,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We are in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
                             break;
                         }
 
@@ -4564,7 +4564,7 @@ class Arrays extends Utils
                     // This needle didn't match
 
                     if ($flags['all']) {
-                        // We are in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;
                         break;
                     }
@@ -4709,7 +4709,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We are in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
                             break;
                         }
 
@@ -4719,7 +4719,7 @@ class Arrays extends Utils
 
                     // At this point, this needle didn't match
                     if ($flags['all']) {
-                        // We are in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;
                         break;
                     }

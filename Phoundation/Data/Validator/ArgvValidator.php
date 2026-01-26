@@ -493,7 +493,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
         if (!$field and str_starts_with((string) $value, '-')) {
             // TODO Improve argument handling here. We should be able to mix "--modifier modifiervalue value" with "value --modifier modifiervalue" but with this design we currently cannot
-            // We are looking not for a modifier, but for a command or value. This is a modifier, so don't use it. Put
+            // We are looking not for a modifier, but for a command or value. This is a modifier, so do not use it. Put
             // the value back on the arguments list
             $this->source[] = $value;
             $value          = null;

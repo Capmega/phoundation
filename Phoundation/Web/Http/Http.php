@@ -207,7 +207,7 @@ class Http
 //            $url = isset_get($_SERVER['HTTP_REFERER']);
 //
 //            if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
-//                // Don't redirect to the same page! If the referrer was this page, then drop back to the index page
+//                // Do not redirect to the same page! If the referrer was this page, then drop back to the index page
 //                $url = config()->get('web.redirects.index', '/');
 //            }
 //

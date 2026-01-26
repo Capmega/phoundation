@@ -124,7 +124,7 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @param array|string $rights
      *
-     * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which don't
+     * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which do not
      * @return bool
      */
     public function ensureRightsExist(array|string $rights): bool

@@ -46,7 +46,7 @@ class Domains
     /**
      * The configured primary WEB domain
      *
-     * @todo Improve this, don't have variables for web, cdn, etc. What if we get 10 more types?
+     * @todo Improve this, do not have variables for web, cdn, etc. What if we get 10 more types?
      * @var string|null $primary_web_domain
      */
     protected static ?string $primary_web_domain = null;
