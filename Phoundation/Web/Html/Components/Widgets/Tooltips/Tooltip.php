@@ -33,7 +33,7 @@ use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipPlacement;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Enums\EnumTooltipTrigger;
 use Phoundation\Web\Html\Components\Widgets\Tooltips\Interfaces\TooltipInterface;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
-
+use Phoundation\Web\Html\Html;
 
 class Tooltip extends Element implements TooltipInterface
 {
@@ -212,15 +212,16 @@ class Tooltip extends Element implements TooltipInterface
 
 
     /**
-     * Sets the tooltip title for this element
+     * Sets the HTML title element attribute
      *
-     * @param string|false|null $title
+     * @param string|false|null $title            The title for the tooltip
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
-    public function setTitle(string|false|null $title): static
+    public function setTitle(string|false|null $title, bool $make_safe = true): static
     {
-        $this->o_data->set(get_null(get_value_unless_false($this->getTitle(), $title)), 'title');
+        $this->o_data->set(get_null(get_value_unless_false($this->getTitle(), Html::safe($title, $make_safe))), 'title');
 
         return $this;
     }

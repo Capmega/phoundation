@@ -326,7 +326,8 @@ trait TraitElementAttributes
     /**
      * Sets the HTML title element attribute
      *
-     * @param string|false|null $title
+     * @param string|false|null $title            The title for this object
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
@@ -1113,6 +1114,17 @@ trait TraitElementAttributes
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true when this object is neither readonly nor disabled
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return !($this->getReadonly() or $this->getDisabled());
     }
 
 

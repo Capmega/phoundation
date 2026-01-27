@@ -242,14 +242,14 @@ interface UserInterface extends DataEntryInterface
 
 
     /**
-     * Sets the title for this user
+     * Sets the HTML title element attribute
      *
-     * @param string|false|null $title
+     * @param string|false|null $title            The title for this flash message
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
-    public function setTitle(string|false|null $title): static;
-
+    public function setTitle(string|false|null $title, bool $make_safe = true): static;
 
     /**
      * Returns the keywords for this user
