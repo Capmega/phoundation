@@ -1536,11 +1536,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         $this->checkOpen('eachCsvLine')
              ->checkIsText();
 
-        if (!$buffer) {
-            $buffer = $this->getBufferSize();
-        }
-
-        while (($line = fgetcsv($this->stream, $buffer, $separator, $enclosure, $escape)) !== false) {
+        while (($line = fgetcsv($this->stream, $buffer ?? $this->getBufferSize(), $separator, $enclosure, $escape)) !== false) {
             $callback(array_combine($fields, $line));
         }
 
