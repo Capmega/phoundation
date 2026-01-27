@@ -156,9 +156,9 @@ class Button extends Input implements ButtonInterface
             $this->addClass('button-disable-click');
             $script .= Script::new('$(".button-disable-click").on("click", function (e) {
                 // Disable this button and submit
-                $(e.target).prop("disabled", true);
                 $(e.target).closest("form").submit();
-            })')->render();
+                $(e.target).addClass("disabled").prop("readonly", true);
+            })');
         }
 
         if ($this->getRequireKeysToEnable()) {
@@ -175,30 +175,36 @@ class Button extends Input implements ButtonInterface
                  ->setTitle($title);
 
             if ($this->getRequireKeysToEnableClass()) {
+                // We will apply this to a class of buttons
+                $selector = '.' . $this->getRequireKeysToEnableClass();
                 $this->addClass($this->getRequireKeysToEnableClass());
 
-               $script .= Script::new('
-                    window.phoundation.addModifierkeyDownCallback("' . $this->getRequireKeysToEnableString() . '", function () {
-                        $(".button-require-modifiers").each(function (index, button) {
-                            $button = $(button);
-
-                            $(button).prop("title", $button.data("title") || "")
-                                     .prop("disabled", false)
-                                     .removeClass("disabled");
-                        });
-                    });
-                    
-                    window.phoundation.addModifierkeyUpCallback("' . $this->getRequireKeysToEnableString() . '", function () {
-                        $(".button-require-modifiers").each(function (index, button) {
-                            $button = $(button);
-
-                            $(button).prop("title", $button.data("require-keys-title") || "")
-                                     .prop("disabled", true)
-                                     .addClass("disabled");
-                        });
-                    });            
-                ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+            } else {
+                // We will apply this to this single button
+                $selector = '.' . $this->getRequireKeysToEnableClass();
             }
+
+            $script .= Script::new('
+                window.phoundation.addModifierkeyDownCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                    $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                        $button = $(button);
+
+                        $(button).prop("title", $button.data("title") || "")
+                                 .prop("disabled", false)
+                                 .removeClass("disabled");
+                    });
+                });
+                
+                window.phoundation.addModifierkeyUpCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                    $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                        $button = $(button);
+
+                        $(button).prop("title", $button.data("require-keys-title") || "")
+                                 .prop("disabled", true)
+                                 .addClass("disabled");
+                    });
+                });            
+            ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
         }
 
         if (empty($this->getContent())) {
