@@ -330,10 +330,15 @@ trait TraitElementAttributes
      *
      * @return static
      */
-    public function setTitle(string|false|null $title): static
+    public function setTitle(string|false|null $title, bool $make_safe = true): static
     {
         $this->title = get_value_unless_false($this->title, $title);
         $this->title = get_null($this->title);
+
+        if ($make_safe) {
+            $this->title = Html::safe($this->title);
+        }
+
         return $this;
     }
 
