@@ -22,6 +22,7 @@ use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Request;
 
@@ -31,11 +32,11 @@ class Csrf
     /**
      * Adds a CSRF hidden input HTML element to the render string if CSRF is enabled
      *
-     * @param string|null $render
+     * @param RenderInterface|string|null $render
      *
      * @return string|null
      */
-    public static function addHiddenElement(?string $render): ?string
+    public static function addHiddenElement(RenderInterface|string|null $render): ?string
     {
         return $render . static::getHiddenElement();
     }

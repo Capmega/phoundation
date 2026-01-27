@@ -181,7 +181,7 @@ class Button extends Input implements ButtonInterface
 
             } else {
                 // We will apply this to this single button
-                $selector = '.' . $this->getRequireKeysToEnableClass();
+                $selector = '#' . $this->getId();
             }
 
             $script .= Script::new('
@@ -215,8 +215,10 @@ class Button extends Input implements ButtonInterface
             ]));
 
         } else {
-            // By default, use the content as value
-            $this->setValue(strip_tags($this->getContent()));
+            if (!$this->getValue()) {
+                // By default, use the content as value
+                $this->setValue(strip_tags($this->getContent()));
+            }
         }
 
         if (empty($this->getName()) and !$this->getReadonly() and !$this->getDisabled()) {

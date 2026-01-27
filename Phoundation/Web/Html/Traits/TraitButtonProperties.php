@@ -232,18 +232,24 @@ trait TraitButtonProperties
     /**
      * Sets if the button is disabled and requires one or more keys down to enable
      *
-     * @param EnumModifierKeys|array|null  $keys         The buttons that need to be pressed down to enable the button
-     * @param string|null                  $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
-     *                                                   JavaScript will apply to the unique button ID
+     * @param EnumModifierKeys|array|true|null $keys  [true] The buttons that need to be pressed down to enable the button
+     * @param string|null                      $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
+     *                                                       JavaScript will apply to the unique button ID
      *
-     * @return Button
+     * @return static
      */
-    public function setRequireKeysToEnable(EnumModifierKeys|array|null $keys, ?string $class = null): static
+    public function setRequireKeysToEnable(EnumModifierKeys|array|true|null $keys = true, ?string $class = null): static
     {
         if (Arrays::containsNeedles($class, ' ')) {
             throw OutOfBoundsException::new(ts('The specified class ":class" contains spaces, which is not allowed', [
                 'class' => $class
             ]));
+        }
+
+        if ($keys === true) {
+            // Use the system-wide default modifier keys
+            $keys  = $this->getDefaultRequireKeysToEnable();
+            $class = $class ?? $this->getDefaultRequireKeysToEnableClass();
         }
 
         $this->require_keys_to_enable_class = $class;
@@ -254,6 +260,28 @@ trait TraitButtonProperties
         }
 
         return $this->removeClass('button-require-modifiers');
+    }
+
+
+    /**
+     * Returns the default keys to enable a button
+     *
+     * @return array
+     */
+    public function getDefaultRequireKeysToEnable(): array
+    {
+        return config()->getArray('web.html.components.buttons.default.modifier-keys', ['ctrl', 'alt']);
+    }
+
+
+    /**
+     * Returns the default keys to enable a button class
+     *
+     * @return string
+     */
+    public function getDefaultRequireKeysToEnableClass(): string
+    {
+        return config()->getString('web.html.components.buttons.default.class', 'button-lock');
     }
 
 
