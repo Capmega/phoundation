@@ -23,8 +23,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Plugins\Medinet\Claims\FilterForm;
-
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 
 trait TraitMethodsVirtualColumns {
     use TraitMethodsGetTypesafe;
@@ -214,7 +213,7 @@ trait TraitMethodsVirtualColumns {
 
         foreach ($columns as $column => $table_column) {
             try {
-                if ($this instanceof FilterForm) {
+                if ($this instanceof FilterFormInterface) {
                     // For filter form use object::getForce() because the column that is being searched for likely is
                     // not rendered and because of that will return NULL for object::get()
                     $value = $this->getForce($table_column);
