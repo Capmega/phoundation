@@ -42,12 +42,12 @@ interface FlashMessageInterface extends ElementsBlockInterface
     /**
      * Sets the flash message title
      *
-     * @param string|false|null $title
-     * @param bool              $make_safe
+     * @param string|false|null $title            The title for this flash message
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
-    public function setTitle(string|false|null $title, bool $make_safe = false): static;
+    public function setTitle(string|false|null $title, bool $make_safe = true): static;
 
 
     /**

@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Traits;
 
 
+use Phoundation\Web\Html\Html;
+
 trait TraitDataEntryTitle
 {
     /**
@@ -33,12 +35,13 @@ trait TraitDataEntryTitle
     /**
      * Sets the title for this object
      *
-     * @param string|false|null $title
+     * @param string|false|null $title            The title for this object
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
-    public function setTitle(string|false|null $title): static
+    public function setTitle(string|false|null $title, bool $make_safe = true): static
     {
-        return $this->set(get_null(get_value_unless_false($this->getTitle(), $title)), 'title');
+        return $this->set(get_null(get_value_unless_false($this->getTitle(), Html::safe($title, $make_safe))), 'title');
     }
 }
