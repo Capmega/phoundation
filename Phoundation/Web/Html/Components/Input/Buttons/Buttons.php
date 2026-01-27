@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -76,17 +77,130 @@ class Buttons extends ElementsBlock implements ButtonsInterface
 
 
     /**
-     * Adds a single button to button list
+     * Adds a single "Save" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addSaveButton(bool $float_right = false): static
+    {
+        return $this->addButton(SaveButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Back" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where the audit button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addBackButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(BackButton::new()
+                                           ->setUrlObject($_url)
+                                           ->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Create" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where this button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addCreateButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(CreateButton::new()
+                                            ->setUrlObject($_url)
+                                            ->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Audit" button to the button list
+     *
+     * @param UrlInterface $_url                The URL where the audit button should point to
+     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addAuditButton(UrlInterface $_url, bool $float_right = false): static
+    {
+        return $this->addButton(AuditButton::new()
+                                           ->setUrlObject($_url)
+                                           ->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Delete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addDeleteButton(bool $float_right = false): static
+    {
+        return $this->addButton(DeleteButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Undelete" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addUndeleteButton(bool $float_right = false): static
+    {
+        return $this->addButton(UndeleteButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Lock" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addLockButton(bool $float_right = false): static
+    {
+        return $this->addButton(LockButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single "Unlock" button to the button list
+     *
+     * @param bool $float_right [false] If true, will add a float-right class to the button
+     *
+     * @return static
+     */
+    public function addUnlockButton(bool $float_right = false): static
+    {
+        return $this->addButton(UnlockButton::new()->setFloatRight($float_right));
+    }
+
+
+    /**
+     * Adds a single button to the button list
      *
      * @param ButtonInterface|DropdownButtonInterface|string|null $button
      * @param EnumDisplayMode                                     $mode
      * @param EnumButtonType|Stringable|string                    $type_or_url
      * @param bool                                                $outline
-     * @param bool                                                $right
+     * @param bool                                                $float_right
      *
      * @return static
      */
-    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
+    public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $float_right = false): static
     {
         if (!$button) {
             // Do not add anything
@@ -103,7 +217,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($value ?? $button)
-                            ->setFloatRight($right)
+                            ->setFloatRight($float_right)
                             ->setMode($mode)
                             ->setName('submit-button');
 

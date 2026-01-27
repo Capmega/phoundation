@@ -28,7 +28,7 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
      *
      * @return FormInterface|null
      */
-    public function getForm(): ?FormInterface;
+    public function getFormObject(): ?FormInterface;
 
 
     /**

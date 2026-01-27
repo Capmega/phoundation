@@ -104,11 +104,11 @@ $o_roles_card = Card::new()
                                          ])
                                          ->setRowUrls('/accounts/role+:ROW.html')
                                          ->setTopButtons(Buttons::new()
-                                                                ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')))
+                                                                ->addCreateButton(Url::new('/accounts/role.html'))))
                   ->useForm(true)
                   ->setButtonsObject(Buttons::new()
-                                            ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/role.html')
-                                            ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                                            ->addCreateButton(Url::new('/accounts/role.html'))
+                                            ->addDeleteButton(true));
 
 
 // Build relevant links

@@ -61,9 +61,9 @@ if (Request::isPostRequestMethod()) {
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton('Submit')
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/customers.html'), true)
-                  ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $customer->getMetaId() . '.html', false, true);
+                  ->addSaveButton()
+                  ->addBackButton(Url::newPrevious('/accounts/customers.html'), true)
+                  ->addAuditButton(Url::new('/audit/meta+' . $customer->getMetaId() . '.html'), true);
 
 
 // Build the customer form

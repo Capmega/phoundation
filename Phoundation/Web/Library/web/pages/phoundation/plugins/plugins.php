@@ -40,7 +40,7 @@ use Phoundation\Web\Requests\Response;
 // Build "plugins" table
 $buttons = Buttons::new()
                   ->addButton(tr('Add'), EnumDisplayMode::primary, '/phoundation/plugins/plugin.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::danger, EnumButtonType::submit, true, true)
+                  ->addDeleteButton(true)
                   ->addButton(tr('Disable'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 
@@ -54,7 +54,7 @@ $plugins_card = Card::new()
                ->useForm(true)
                ->setButtonsObject($buttons);
 
-$plugins_card->getForm()
+$plugins_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 

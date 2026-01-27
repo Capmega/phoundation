@@ -38,6 +38,7 @@ use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Sanitize;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
@@ -271,19 +272,14 @@ class Phone extends DataEntry implements PhoneInterface
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The date when this user was phone verified. Empty if not yet verified')))
 
-                    ->add(DefinitionFactory::newButton('delete')
+                    ->add(DefinitionFactory::newDeleteButton('delete')
                                            ->setSize(2)
                                            ->setOptional(true)
                                            ->setVirtual(true)
-                                           ->setLabel(tr('Delete'))
                                            ->setOutput(function (DefinitionInterface $definition, string $key, string $field_name, array $source) {
-                                               return Button::new()
-                                                            ->setButtonType(EnumButtonType::submit)
-                                                            ->setBlock(true)
-                                                            ->setMode(EnumDisplayMode::danger)
-                                                            ->setOutlined(true)
-                                                            ->setValue('delete_' . $source['id'])
-                                                            ->setContent(tr('Delete'));
+                                               return DeleteButton::new()
+                                                                  ->setBlock(true)
+                                                                  ->setValue('delete_' . $source['id']);
                                            }))
 
                     ->add(DefinitionFactory::newDescription()

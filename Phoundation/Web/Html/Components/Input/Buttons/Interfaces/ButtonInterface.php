@@ -58,4 +58,45 @@ interface ButtonInterface
      * @return string|null
      */
     public function render(): ?string;
+
+    /**
+     * Returns if the button is disabled after a mouse click, or not
+     *
+     * @return bool
+     */
+    public function getDisableAfterClick(): bool;
+
+    /**
+     * Set if the button is disabled after a mouse click, or not
+     *
+     * @param bool $disable_after_click
+     *
+     * @return Button
+     */
+    public function setDisableAfterClick(bool $disable_after_click): static;
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return ?array
+     */
+    public function getRequireKeysToEnable(): ?array;
+
+    /**
+     * Sets if the button is disabled and requires one or more keys down to enable
+     *
+     * @param array|null  $keys         The buttons that need to be pressed down to enable the button
+     * @param string|null $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the JavaScript will apply to
+     *                                  the unique button ID
+     *
+     * @return Button
+     */
+    public function setRequireKeysToEnable(?array $keys, ?string $class = null): static;
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableClass(): ?string;
 }

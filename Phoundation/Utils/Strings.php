@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Utils;
 
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Cli\CliColor;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Interfaces\ArrayableInterface;
@@ -24,6 +25,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\ArraySourceInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
@@ -2550,21 +2552,28 @@ class Strings extends Utils
     /**
      * Force the specified source to be a string
      *
-     * @param mixed             $source
-     * @param Stringable|string $separator
+     * This method will one way or another convert the specified source data to a string.
+     *
+     * @param mixed             $source    The value to force to datatype string
+     * @param Stringable|string $separator The separator to use when merging multiple array (or Iterator) items into one string
      *
      * @return string
      */
     public static function force(mixed $source, Stringable|string $separator = ','): string
     {
+        if (empty($source)) {
+            return '';
+        }
+
         if (!is_scalar($source)) {
             if (!is_array($source)) {
-                if (!$source) {
-                    return '';
-                }
-
                 if (is_object($source)) {
-                    if ($source instanceof IteratorBase) {
+                    if (is_enum($source)) {
+                        return (string) $source->value;
+                    }
+
+                    if ($source instanceof IteratorInterface) {
+                        // An iterator is basically an array. Try again, but this time with the array source from the Iterator type object
                         return Strings::force($source->getSource(), $separator);
                     }
 
@@ -2581,6 +2590,13 @@ class Strings extends Utils
 
                 return gettype($source);
             }
+
+            // Ensure array sub values are all strings
+            foreach ($source as &$value) {
+                $value = Strings::force($value, $separator);
+            }
+
+            unset($value);
 
             // Encoding?
             if ($separator === 'json') {
@@ -3005,5 +3021,100 @@ class Strings extends Utils
         ]))->addData([
             'source' => $source,
         ]);
+    }
+
+
+    /**
+     * Converts the specified ASCII integer to the name it represents
+     *
+     * @param int  $value        The value to convert
+     * @param bool $code  [true] The type of ASCII identifier we want returned; The character code, the name, or the informal name
+     *
+     * @return string
+     */
+    public static function getAsciiNames(int $value, bool $code = true): string
+    {
+        static $codes = [
+            0 => 'NUL',
+            1 => 'SOH',
+            2 => 'STX',
+            3 => 'ETX',
+            4 => 'EOT',
+            5 => 'ENQ',
+            6 => 'ACK',
+            7 => 'BEL',
+            8 => 'BS',
+            9 => 'HT',
+            10 => 'LF',
+            11 => 'VT',
+            12 => 'FF',
+            13 => 'CR',
+            14 => 'SO',
+            15 => 'SI',
+            16 => 'DLE',
+            17 => 'DC1',
+            18 => 'DC2',
+            19 => 'DC3',
+            20 => 'DC4',
+            21 => 'NAK',
+            22 => 'SYN',
+            23 => 'ETB',
+            24 => 'CAN',
+            25 => 'EM',
+            26 => 'SUB',
+            27 => 'ESC',
+            28 => 'FS',
+            29 => 'GS',
+            30 => 'RS',
+            31 => 'US',
+        ];
+
+        static $names = [
+            0 => 'null',
+            1 => 'start of heading',
+            2 => 'start of text',
+            3 => 'end of text',
+            4 => 'end of transmission',
+            5 => 'enquiry',
+            6 => 'acknowledge',
+            7 => 'bell',
+            8 => 'backspace',
+            9 => 'horizontal tab',
+            10 => 'line feed',
+            11 => 'vertical tab',
+            12 => 'form feed',
+            13 => 'carriage return',
+            14 => 'shift out',
+            15 => 'shift in',
+            16 => 'data link escape',
+            17 => 'device control 1',
+            18 => 'device control 2',
+            19 => 'device control 3',
+            20 => 'device control 4',
+            21 => 'negative acknowledge',
+            22 => 'synchronous idle',
+            23 => 'end of transmission block',
+            24 => 'cancel',
+            25 => 'end of medium',
+            26 => 'substitute',
+            27 => 'escape',
+            28 => 'file separator',
+            29 => 'group separator',
+            30 => 'record separator',
+            31 => 'unit separator',
+        ];
+
+        // Validate
+        if (($value < 0) or ($value > 31)) {
+            throw new OutOfBoundsException(tr('Cannot convert source key ":key" value ":value" to its ASCII code or name, the value must be an integer value between 0 and 31', [
+                ':value' => $value
+            ]));
+        }
+
+        if ($code) {
+            return $codes[$value];
+        }
+
+        return $names[$value];
     }
 }

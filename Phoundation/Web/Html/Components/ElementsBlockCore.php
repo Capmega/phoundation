@@ -210,7 +210,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      */
     public function setFormAction(Stringable|string|null $action): static
     {
-        $this->getForm()->setAction($action);
+        $this->getFormObject()->setAction($action);
         return $this;
     }
 
@@ -220,7 +220,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      *
      * @return FormInterface|null
      */
-    public function getForm(): ?FormInterface
+    public function getFormObject(): ?FormInterface
     {
         return $this->form;
     }
