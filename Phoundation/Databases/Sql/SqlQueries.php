@@ -25,6 +25,7 @@ use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 class SqlQueries
 {
@@ -574,12 +575,12 @@ class SqlQueries
     /**
      * Ensures that the specified source string is surrounded by quotes
      *
-     * @param string $source The source string to manipulate
-     * @param string $quote  The quote to use, defaults to ` (backtick)
+     * @param Stringable|string|null $source     The source string to manipulate
+     * @param string                 $quote  [`] The quote to use, defaults to ` (backtick)
      *
      * @return string
      */
-    public static function ensureQuotes(string $source, string $quote = '`'): string
+    public static function ensureQuotes(Stringable|string|null $source, string $quote = '`'): string
     {
         return Strings::ensureSurroundedWith($source, $quote);
     }

@@ -298,7 +298,10 @@ class QueryObject implements QueryObjectInterface
      */
     public function addFrom(?string $from, ?array $execute = null): static
     {
-        $this->froms[] = $from;
+        if ($from) {
+            $this->froms[] = $from;
+        }
+
         return $this->addExecuteArray($execute);
     }
 

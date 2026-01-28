@@ -156,7 +156,12 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function execute(bool $debug = false): PDOStatement
     {
+        if (empty($this->froms)) {
+            throw new QueryBuilderException(tr('Cannot build query, no "FROM" tables specified'));
+        }
+
         $this->query = $this->getQuery($debug);
+
         return sql($this->o_connector)->query($this->query, $this->executes);
     }
 
