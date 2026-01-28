@@ -258,7 +258,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function getFrom(): ?string
     {
-        return array_value_first($this->froms);
+        return array_value_first($this->froms, false);
     }
 
 
