@@ -2410,7 +2410,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         // Build up the roles select object
         $roles = Roles::new();
         $roles->setQueryBuilderObject(QueryBuilder::new($roles)
-                                            ->setSelects('`accounts_roles`.`id`, 
+                                            ->setSelect('`accounts_roles`.`id`, 
                                                          CONCAT(
                                                              UPPER(LEFT(`accounts_roles`.`name`, 1)), 
                                                              SUBSTRING(`accounts_roles`.`name`, 2)

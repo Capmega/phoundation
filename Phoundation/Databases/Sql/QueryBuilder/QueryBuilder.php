@@ -182,8 +182,8 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             $predefine();
         }
 
-        if ($this->selects) {
-            $query .= 'SELECT ' . Strings::ensureEndsNotWith(trim(implode(', ', $this->selects)), ',') . PHP_EOL . 'FROM `' . implode('`, `', $this->froms) . '` ';
+        if ($this->select) {
+            $query .= 'SELECT ' . Strings::ensureEndsNotWith(trim(implode(', ', $this->select)), ',') . PHP_EOL . 'FROM `' . implode('`, `', $this->froms) . '` ';
 
         } elseif ($this->delete) {
             if (empty($this->wheres)) {
@@ -345,7 +345,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function isBuilt(): bool
     {
-        return $this->selects and $this->wheres;
+        return $this->select and $this->wheres;
     }
 
 

@@ -47,9 +47,9 @@ class QueryObject implements QueryObjectInterface
     /**
      * Select part of query
      *
-     * @var array $selects
+     * @var array $select
      */
-    protected array $selects = [];
+    protected array $select = [];
 
     /**
      * Delete query
@@ -166,7 +166,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function reset(): static
     {
-        $this->selects    = [];
+        $this->select     = [];
         $this->froms      = [];
         $this->wheres     = [];
         $this->joins      = [];
@@ -189,7 +189,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function addSource(array $source): static
     {
-        $this->selects    = array_merge($this->selects    ?? [], array_get_safe($source, 'selects'   , []));
+        $this->select     = array_merge($this->select     ?? [], array_get_safe($source, 'selects'   , []));
         $this->froms      = array_merge($this->froms      ?? [], array_get_safe($source, 'froms'     , []));
         $this->wheres     = array_merge($this->wheres     ?? [], array_get_safe($source, 'wheres'    , []));
         $this->joins      = array_merge($this->joins      ?? [], array_get_safe($source, 'joins'     , []));
@@ -212,7 +212,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function setSource(array $source): static
     {
-        $this->selects    = array_get_safe($source, 'selects');
+        $this->select     = array_get_safe($source, 'selects');
         $this->froms      = array_get_safe($source, 'froms');
         $this->wheres     = array_get_safe($source, 'wheres');
         $this->joins      = array_get_safe($source, 'joins');
@@ -237,7 +237,7 @@ class QueryObject implements QueryObjectInterface
     public function getSource(): array
     {
         return [
-            'selects'    => $this->selects,
+            'selects'    => $this->select,
             'froms'      => $this->froms,
             'wheres'     => $this->wheres,
             'joins'      => $this->joins,
@@ -365,9 +365,9 @@ class QueryObject implements QueryObjectInterface
      *
      * @return array
      */
-    public function getSelects(): array
+    public function getSelect(): array
     {
-        return $this->selects;
+        return $this->select;
     }
 
 
@@ -379,9 +379,9 @@ class QueryObject implements QueryObjectInterface
      *
      * @return static
      */
-    public function setSelects(?string $select, ?array $execute = null): static
+    public function setSelect(?string $select, ?array $execute = null): static
     {
-        $this->selects = [];
+        $this->select = [];
 
         return $this->addSelect($select, $execute);
     }
@@ -406,7 +406,7 @@ class QueryObject implements QueryObjectInterface
         }
 
         if ($select) {
-            $this->selects[] = $select;
+            $this->select[] = $select;
         }
 
         return $this->addExecuteArray($execute);
@@ -422,7 +422,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function setDelete(bool $delete): static
     {
-        if ($this->selects) {
+        if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add DELETE', []));
         }
 
@@ -445,7 +445,7 @@ class QueryObject implements QueryObjectInterface
      */
     public function addUpdate(?string $update, ?array $execute = null): static
     {
-        if ($this->selects) {
+        if ($this->select) {
             throw new OutOfBoundsException(tr('SELECT part of query has already been added, cannot add UPDATE', []));
         }
 

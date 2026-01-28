@@ -165,7 +165,7 @@ interface QueryObjectInterface
      *
      * @return static
      */
-    public function setSelects(string $select, ?array $execute = null): static;
+    public function setSelect(string $select, ?array $execute = null): static;
 
     /**
      * Sets the "FROM" part of the query
@@ -256,7 +256,7 @@ interface QueryObjectInterface
      *
      * @return array
      */
-    public function getSelects(): array;
+    public function getSelect(): array;
 
     /**
      * Returns the JOINS parts of the query

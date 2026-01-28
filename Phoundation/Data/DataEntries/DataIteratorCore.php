@@ -358,7 +358,7 @@ throw new ObsoleteException();
                                                  ->setMetaEnabled($this->getMetaEnabled())
                                                  ->setConnectorObject($this->getConnectorObject())
                                                  ->setFrom($this->getTable())
-                                                 ->setSelects($this->getSqlSelectColumns());
+                                                 ->setSelect($this->getSqlSelectColumns());
 
             if ($this->status_filter !== false) {
                 $this->o_query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
@@ -1740,7 +1740,7 @@ throw new ObsoleteException();
     {
         // Tell the QueryBuilder object to only use the specified columns
         parent::setColumns($columns);
-        $this->getQueryBuilderObject()->setSelects($this->getSqlSelectColumns());
+        $this->getQueryBuilderObject()->setSelect($this->getSqlSelectColumns());
 
         return $this;
     }
