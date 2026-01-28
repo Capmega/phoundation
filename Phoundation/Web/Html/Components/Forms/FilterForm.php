@@ -620,6 +620,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @param bool   $require_clean_source
      *
      * @return static
+     * @todo Check if the $class variable still really is necessary now that the applied values are tracked
      */
     protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
