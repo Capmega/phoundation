@@ -357,6 +357,7 @@ throw new ObsoleteException();
                                                  ->setDebug($this->debug)
                                                  ->setMetaEnabled($this->getMetaEnabled())
                                                  ->setConnectorObject($this->getConnectorObject())
+                                                 ->setFrom($this->getTable())
                                                  ->setSelects($this->getSqlSelectColumns());
 
             if ($this->status_filter !== false) {
@@ -556,10 +557,17 @@ throw new ObsoleteException();
     /**
      * Returns what SQL columns will be used in loading data
      *
-     * @return string
+     * @return string|null
      */
-    public function getSqlSelectColumns(): string
+    public function getSqlSelectColumns(): ?string
     {
+        $table = static::getTable();
+
+        if (empty($table)) {
+            // If this DataIterator has no table specified, we cannot return select columns
+            return null;
+        }
+
         if ($this->columns) {
             $return = [];
 
@@ -571,8 +579,9 @@ throw new ObsoleteException();
             return implode(', ', $return);
         }
 
+
         // Load all columns
-        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes(static::getTable()) . '.* ';
+        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes($table) . '.* ';
     }
 
 
