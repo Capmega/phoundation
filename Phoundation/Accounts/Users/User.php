@@ -954,7 +954,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         if ($this->isCreated()) {
             if ($this->isSystemUser()) {
-                // Don't add roles to these users
+                // Do not add roles to these users
                 return $this;
             }
 
@@ -1000,7 +1000,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function notifyRoleAccountsAboutWrite(): static
     {
         if (Core::inInitState()) {
-            // Don't notify for actions executed during INIT state
+            // Do not notify for actions executed during INIT state
             return $this;
         }
 
@@ -1068,7 +1068,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if ($this->isSystemUser()) {
-            // Yeah, we don't notify the system users
+            // Yeah, we do not notify the system users
             return $this;
         }
 
@@ -3432,7 +3432,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                if ($o_validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
-                                                       // Can't save a profile image with a user that does not yet exist in the database
+                                                       // Cannot save a profile image with a user that does not yet exist in the database
                                                        $o_validator->addSoftFailure(tr('requires that the user is saved first'));
 
                                                    } else {

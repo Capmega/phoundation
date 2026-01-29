@@ -642,7 +642,7 @@ class PhoPathCore implements PhoPathInterface
         $path = str_replace('//', '/', $path);
 
         if ($absolute_prefix === false) {
-            // Don't make it absolute at all
+            // Do not make it absolute at all
             return static::ensureDirectorySlash((string) $path);
         }
 
@@ -856,7 +856,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function ensureExtensionMatchesMimetype(): static
     {
-        // Can't really check extensions if we got multiple
+        // Cannot really check extensions if we got multiple
         $this->ensureSingleExtension();
 
         if ($this->extensionMatchesMimetype()) {
@@ -897,7 +897,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function checkExtensionMatchesMimetype(): static
     {
-        // Can't really check extensions if we got multiple
+        // Cannot really check extensions if we got multiple
         $this->ensureSingleExtension();
 
         if ($this->extensionMatchesMimetype()) {
@@ -1262,7 +1262,7 @@ class PhoPathCore implements PhoPathInterface
     public function attemptAutoMount(): bool
     {
         if (!Core::getReady()) {
-            // Can't use auto mounter until core is ready
+            // Cannot use auto mounter until core is ready
             return false;
         }
 
@@ -3987,7 +3987,7 @@ class PhoPathCore implements PhoPathInterface
             $this->delete(use_run_file: false);
 
         } else {
-            // The source doesn't exist, so we don't have to move anything out of place or delete afterward
+            // The source doesn't exist, so we do not have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
             $o_target->rename($this);
         }

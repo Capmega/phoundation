@@ -402,7 +402,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     {
         $mimetype_restrictions = $this->getMimetypeRestrictions();
 
-        // Ensure we don't have too many files uploaded per mimetype
+        // Ensure we do not have too many files uploaded per mimetype
         foreach ($mimetype_restrictions as $mimetypes => $restrictions) {
             if (!static::$mimetypes_groups->keyExists($mimetypes)) {
                 // No file with this mimetype was uploaded

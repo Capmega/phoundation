@@ -167,7 +167,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     public function table(string $name): Table
     {
-        // If we don't have this table yet, create it now
+        // If we do not have this table yet, create it now
         if (!array_key_exists($name, $this->tables)) {
             $this->tables[$name] = new Table($name, $this->sql, $this);
         }

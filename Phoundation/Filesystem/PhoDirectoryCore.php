@@ -515,7 +515,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
         if ($remove_terminating_slash) {
             if ($path === '/') {
-                // Root path is just what it is, it is a slash, don't remove it!
+                // Root path is just what it is, it is a slash, do not remove it!
                 return '/';
             }
 
@@ -1800,7 +1800,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
             if (is_link($file)) {
                 if (!$pass_symlinks) {
-                    // Do not continue, this is a symlink, don't count the size
+                    // Do not continue, this is a symlink, do not count the size
                     continue;
                 }
             }

@@ -247,7 +247,7 @@ abstract class Updates implements UpdatesInterface
             unset($this->versions_exists);
 
         } catch (PhoException $e) {
-            // In init mode, we don't do warnings, only full exceptions
+            // In init mode, we do not do warnings, only full exceptions
             $e->setWarning(false);
             throw $e;
         }

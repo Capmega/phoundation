@@ -48,7 +48,7 @@ trait TraitDataStaticBooleanEnabledWeb
     public static function setEnabledWeb(?bool $enabled_web): void
     {
         if ($enabled_web === null) {
-            // Don't modify the enabled flag, keep the default
+            // Do not modify the enabled flag, keep the default
             return;
         }
 

@@ -109,7 +109,7 @@ if (Request::isPostRequestMethod()) {
             }
 
         } catch (DataEntryNotExistsException $e) {
-            // Specified email does not exist. Just ignore it because we don't want to give away if the email exists or
+            // Specified email does not exist. Just ignore it because we do not want to give away if the email exists or
             // not
         }
 

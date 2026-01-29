@@ -245,7 +245,7 @@ class Debug
             try {
                 static::show($value, $sort, $trace_offset, $quiet, var_dump: $var_dump);
 
-                // Don't log within Log::write() or tr() to avoid endless loops
+                // Do not log within Log::write() or tr() to avoid endless loops
                 if (!function_was_called('Log::write()') and !function_was_called('tr()')) {
                     Core::setShutdownState();
 
@@ -284,7 +284,7 @@ class Debug
         static $loop = false;
 
         if (Core::inBootState()) {
-            // Can't read config and as such neither the debug configuration
+            // Cannot read config and as such neither the debug configuration
             return false;
         }
 
@@ -851,7 +851,7 @@ class Debug
         }
         // Parse backtrace data and build the log lines
         foreach ($backtrace as $step) {
-            // We usually don't want to see arguments as that clogs up BADLY
+            // We usually do not want to see arguments as that clogs up BADLY
             unset($step['args']);
 
             // Remove unneeded information depending on the specified display
@@ -1149,7 +1149,7 @@ class Debug
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
 
-        // Debug::enabled() already logs the query, don't log it again
+        // Debug::enabled() already logs the query, do not log it again
         if (!Debug::isEnabled()) {
             Log::printr(Strings::ensureEndsWith($query, ';'));
         }

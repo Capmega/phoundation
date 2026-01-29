@@ -510,18 +510,18 @@ class PhoDate extends PhoDateTime implements PhoDateInterface
         $month = strtolower((string) $month);
 
         return match ($month) {
-            'jan', 'january'  , '1' => 1,
-            'feb', 'february' , '2' => 2,
-            'mar', 'march'    , '3' => 3,
-            'apr', 'april'    , '4' => 4,
-            'may'             , '5' => 5,
-            'jun', 'june'     , '6' => 6,
-            'jul', 'july'     , '7' => 7,
-            'aug', 'august'   , '8' => 8,
-            'sep', 'september', '9' => 9,
-            'oct', 'october'  , '10' => 10,
-            'nov', 'november' , '11' => 11,
-            'dec', 'december' , '12' => 12,
+            'jan', 'january'  ,  '1' , '01' => 1,
+            'feb', 'february' ,  '2' , '02' => 2,
+            'mar', 'march'    ,  '3' , '03' => 3,
+            'apr', 'april'    ,  '4' , '04' => 4,
+            'may'             ,  '5' , '05' => 5,
+            'jun', 'june'     ,  '6' , '06' => 6,
+            'jul', 'july'     ,  '7' , '07' => 7,
+            'aug', 'august'   ,  '8' , '08' => 8,
+            'sep', 'september',  '9' , '09' => 9,
+            'oct', 'october'  , '10'        => 10,
+            'nov', 'november' , '11'        => 11,
+            'dec', 'december' , '12'        => 12,
             default => throw new DateException(ts('Cannot convert specified month ":month" to its corresponding number, the value is not a valid month. Please specify the full month name, the three letter code, or the month number (1-12)', [
                 ':month' => $month
             ]))

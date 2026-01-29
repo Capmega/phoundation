@@ -394,7 +394,7 @@ class Plugins extends Project
 
 
     /**
-     * Stashes those libraries that are not in the official Phoundation repository so that they don't get copied
+     * Stashes those libraries that are not in the official Phoundation repository so that they do not get copied
      *
      * @return bool
      */

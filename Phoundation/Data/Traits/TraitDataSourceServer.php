@@ -45,7 +45,7 @@ trait TraitDataSourceServer
      *
      * @return static
      */
-    public function setSourceServer(?ServerInterface $source_server): static
+    public function setSourceServerObject(?ServerInterface $source_server): static
     {
         $this->source_server = $source_server;
         return $this;

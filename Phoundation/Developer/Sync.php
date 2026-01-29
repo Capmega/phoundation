@@ -510,8 +510,8 @@ class Sync
                  ->setTarget($target)
                  ->setArchive(true)
                  ->setVerbose(true)
-                 ->setSourceServer($from)
-                 ->setTargetServer($to)
+                 ->setSourceServerObject($from)
+                 ->setTargetServerObject($to)
                  ->setRemoteSudo((bool) $this->configuration['sudo'])
                  ->execute();
 

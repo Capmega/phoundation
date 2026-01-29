@@ -48,7 +48,7 @@ trait TraitDataStaticBooleanEnabled
     public static function setEnabled(?bool $enabled): void
     {
         if ($enabled === null) {
-            // Don't modify the enabled flag, keep the default
+            // Do not modify the enabled flag, keep the default
             return;
         }
 

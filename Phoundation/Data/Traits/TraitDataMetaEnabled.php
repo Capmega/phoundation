@@ -51,7 +51,7 @@ trait TraitDataMetaEnabled
     public function setMetaEnabled(?bool $meta_enabled): static
     {
         if ($meta_enabled === null) {
-            // Don't modify the meta_enabled flag, keep the default
+            // Do not modify the meta_enabled flag, keep the default
             return $this;
         }
 

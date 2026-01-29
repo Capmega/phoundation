@@ -1285,7 +1285,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
-            // If we are replacing in the same file, then don't have to check
+            // If we are replacing in the same file, then do not have to check
             $target->getParentDirectoryObject()->ensure();
             $target->checkNotExists();
         }
@@ -1522,6 +1522,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     /**
      * Executes the specified callback function on each line of this text file
      *
+     * @param array    $fields
      * @param callable $callback
      * @param int|null $buffer
      * @param string   $separator
@@ -1530,17 +1531,13 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      *
      * @return static
      */
-    public function eachCsvLine(callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
+    public function eachCsvLine(array $fields, callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
     {
         $this->checkOpen('eachCsvLine')
              ->checkIsText();
 
-        if (!$buffer) {
-            $buffer = $this->getBufferSize();
-        }
-
-        while (($line = fgetcsv($this->stream, $buffer, $separator, $enclosure, $escape)) !== false) {
-            $callback($line);
+        while (($line = fgetcsv($this->stream, $buffer ?? $this->getBufferSize(), $separator, $enclosure, $escape)) !== false) {
+            $callback(array_combine($fields, $line));
         }
 
         return $this;

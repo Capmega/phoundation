@@ -101,7 +101,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
     {
         if (empty($this->content)) {
             if (!$this->render_on_empty_content) {
-                // Don't render components that have no content
+                // Do not render components that have no content
                 return null;
             }
         }

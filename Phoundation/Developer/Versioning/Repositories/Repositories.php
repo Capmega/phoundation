@@ -165,7 +165,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Returns a random Repository
+     * Returns a random Repository object
      *
      * @return RepositoryInterface
      */
@@ -176,7 +176,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Returns the current Repository
+     * Returns the current Repository object
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *

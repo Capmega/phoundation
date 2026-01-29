@@ -555,22 +555,22 @@ class Url implements UrlInterface
         }
 
         if (str_starts_with($this->source, '#')) {
-            // This is a valid but "do nothing" link, don't do anything
+            // This is a valid but "do nothing" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'mailto:')) {
-            // This is a valid "mailto" link, don't do anything
+            // This is a valid "mailto" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'tel:')) {
-            // This is a valid "tel:" link, don't do anything
+            // This is a valid "tel:" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'javascript:')) {
-            // This is a valid "javascript:" link, don't do anything
+            // This is a valid "javascript:" link, do not do anything
             return false;
         }
 
@@ -1715,7 +1715,7 @@ class Url implements UrlInterface
             }
 
         } else {
-            // This URL has no queries yet, so we don't need to check anything, we can just attach the query
+            // This URL has no queries yet, so we do not need to check anything, we can just attach the query
             $this->source .= '?' . $key . '=' . $value;
         }
 
@@ -1745,7 +1745,7 @@ class Url implements UrlInterface
                  * FOREIGN1 > English > Foreign2.
                  *
                  * Also add a / in front of $return before replacing to ensure
-                 * we don't accidentally replace sections like "services/" with
+                 * we do not accidentally replace sections like "services/" with
                  * "servicen/" with Spanish URL's
                  */
                 $return = str_replace('/' . $this->url_params['from_language'] . '/', '/en/', '/' . $return);

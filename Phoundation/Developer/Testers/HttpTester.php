@@ -47,7 +47,7 @@ class HttpTester
     protected UrlsInterface $o_failed_urls;
 
     /**
-     * Tracks the URL's that don't exist (give a 404)
+     * Tracks the URL's that do not exist (give a 404)
      *
      * @var UrlsInterface $o_not_exists_urls
      */

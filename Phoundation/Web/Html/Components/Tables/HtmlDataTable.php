@@ -244,7 +244,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                              // No break
 
                          case 'N/A':
-                             // Don't convert these values
+                             // Do not convert these values
                              break;
 
                          default:

@@ -691,7 +691,7 @@ class Strings extends Utils
      */
     protected static function searchKeyword(Stringable|string $source, Stringable|string|int|float $keyword, bool $regex = false, bool $unicode = true): bool
     {
-        // Ensure keywords are trimmed, and don't search for empty keywords
+        // Ensure keywords are trimmed, and do not search for empty keywords
         $source  = (string) $source;
         $keyword = trim((string) $keyword);
 
@@ -1133,9 +1133,9 @@ class Strings extends Utils
      * /code
      *
      */
-    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
+    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, int $instance = 1, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return Strings::until(Strings::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
+        return Strings::until(Strings::from($source, $start, $instance, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 

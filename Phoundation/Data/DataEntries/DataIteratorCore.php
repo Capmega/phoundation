@@ -1471,7 +1471,7 @@ throw new ObsoleteException();
         $entry       = new $entry();
         $o_definitions = $entry->getDefinitionsObject();
 
-        // Ensure all entry definition columns are available, apply default values where they don't
+        // Ensure all entry definition columns are available, apply default values where they do not
         foreach ($source as &$value) {
             $value['status'] = 'configuration';
 

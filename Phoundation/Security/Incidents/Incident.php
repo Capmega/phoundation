@@ -318,7 +318,7 @@ class Incident extends DataEntryCore implements IncidentInterface
             parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException) {
-            // Can't save incidents when Core is in readonly mode!
+            // Cannot save incidents when Core is in readonly mode!
             Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
                 ':user'     => Session::getUserObject()->getLogId(),
@@ -515,7 +515,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
 
             case EnumSeverity::unknown:
-                // Don't know, assume its severe?
+                // Do not know, assume its severe?
                 return true;
         }
 
@@ -581,12 +581,12 @@ class Incident extends DataEntryCore implements IncidentInterface
      */
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $o_definitions->removeKeys('meta-divider')
+        $o_definitions->removeKeys('meta_divider')
 
                       ->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('meta-divider'))
+                      ->add(DefinitionFactory::newDivider('meta_divider'))
 
                       ->add(Definition::new('type')
                                       ->setLabel(tr('Incident type'))

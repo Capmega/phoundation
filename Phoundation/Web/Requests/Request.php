@@ -625,7 +625,7 @@ class Request implements RequestInterface
 
         if ($default) {
             if (is_bool($default)) {
-                // We don't have a referer, return the current URL instead
+                // We do not have a referer, return the current URL instead
                 return Url::newCurrent();
             }
 
@@ -1548,7 +1548,7 @@ class Request implements RequestInterface
     {
         try {
             if ($e and (Debug::isEnabled() and $http_code > 0)) {
-                // In debug mode we don't show pretty pages, we dump all the exception data on screen
+                // In debug mode we do not show pretty pages, we dump all the exception data on screen
                 throw $e;
             }
 
@@ -1731,7 +1731,7 @@ class Request implements RequestInterface
 
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
-            // don't, hard fail because this method will normally execute a system page, and we just saw those don't
+            // do not, hard fail because this method will normally execute a system page, and we just saw those do not
             // exist for some reason
             throw new SystemPageNotFoundException(tr('The requested system page ":page" does not exist', [
                 ':page' => $target,

@@ -42,7 +42,7 @@ class Mkdir extends Command
                  ->executeReturnArray();
 
         } catch (ProcessFailedException $e) {
-            // The command mkdir failed, most of the time either $file doesn't exist, or we don't have access to change the mode
+            // The command mkdir failed, most of the time either $file doesn't exist, or we do not have access to change the mode
             static::handleException('mkdir', $e, function ($e, $first_line, $last_line) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($first_line, 'not a directory')) {

@@ -99,7 +99,7 @@ class SystemRequest implements SystemRequestInterface
         $request_path = match (Request::getRequestType()) {
             EnumRequestTypes::api  => DIRECTORY_WEB . 'api/',
             EnumRequestTypes::ajax => DIRECTORY_WEB . 'ajax/',
-            default                => DIRECTORY_WEB . 'pages/', // HTML plus anything we don't know gets an HTML page
+            default                => DIRECTORY_WEB . 'pages/', // HTML plus anything we do not know gets an HTML page
         };
 
         try {
@@ -156,9 +156,9 @@ class SystemRequest implements SystemRequestInterface
 
         } else {
             if (config()->getBoolean('security.web.monitor.urls.failed', true)) {
-                // Don't register anything if we are in readonly mode
+                // Do not register anything if we are in readonly mode
                 if (!Core::getReadonly()) {
-                    // Don't register 404's on favicon requests
+                    // Do not register 404's on favicon requests
                     if (!Route::isFaviconRequest()) {
                         Incident::new()
                                 ->setSeverity(EnumSeverity::low)
@@ -188,7 +188,7 @@ class SystemRequest implements SystemRequestInterface
             }
         }
 
-        // Clear all method restrictions as we don't need them for system pages
+        // Clear all method restrictions as we do not need them for system pages
         Request::getMethodRestrictionsObject()->clear();
 
         // Remove all GET and POST data to prevent any of it being used from here on out
@@ -261,7 +261,7 @@ class SystemRequest implements SystemRequestInterface
     {
         // System page failed to display? That is weird... Display an exception page template instead
         try {
-            // We don't have a nice page for this system code
+            // We do not have a nice page for this system code
             Log::warning(ts('The ":code" page failed to show with an exception, showing ":code" template message instead and logging exception below', [
                 ':code' => $variables['code'],
             ]));

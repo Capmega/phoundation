@@ -63,7 +63,7 @@ class Web
 //        $url = (string) $url;
 //
 //        if (preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url)) {
-//            // Absolute URL specified, don't modify
+//            // Absolute URL specified, do not modify
 //            return $url;
 //        }
 //
@@ -110,7 +110,7 @@ class Web
 //                 * FOREIGN1 > English > Foreign2.
 //                 *
 //                 * Also add a / in front of $return before replacing to ensure
-//                 * we don't accidentally replace sections like "services/" with
+//                 * we do not accidentally replace sections like "services/" with
 //                 * "servicen/" with Spanish URL's
 //                 */
 //                $return = str_replace('/' . $from_language . '/', '/en/', '/' . $return);

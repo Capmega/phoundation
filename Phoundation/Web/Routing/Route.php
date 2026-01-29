@@ -1198,9 +1198,9 @@ class Route
     {
         if (static::$until) {
             // Store the request as a rule until it expires. Apply semi-permanent routing for this IP
-            // Remove the "S" flag since we don't want to store the rule again in subsequent loads
+            // Remove the "S" flag since we do not want to store the rule again in subsequent loads
             // Remove the "H" flag since subsequent requests may not be a hack attempt. Since we are going to act as
-            // if the rule AND URI apply, we don't know really, avoid unneeded red flags
+            // if the rule AND URI apply, we do not know really, avoid unneeded red flags
             foreach (static::$flags as $id => $flag) {
                 switch ($flag[0]) {
                     case 'H':

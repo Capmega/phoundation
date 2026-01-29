@@ -385,7 +385,7 @@ class Cli
 
 
     /**
-     * Checks if we have a TTY and throws exception if we don't
+     * Checks if we have a TTY and throws exception if we do not
      *
      * @param mixed  $file_descriptor
      * @param string $tty_name

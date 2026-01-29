@@ -69,7 +69,7 @@ class Zip extends Command implements ZipInterface
             return $this->getExecutionDirectory();
 
         } catch (ProcessFailedException $e) {
-            // The command unzip failed, most of the time either $file doesn't exist, or we don't have access
+            // The command unzip failed, most of the time either $file doesn't exist, or we do not have access
             static::handleException('unzip', $e, function () use ($target) {
                 PhoFile::new($target)->checkReadable();
             });
@@ -101,7 +101,7 @@ class Zip extends Command implements ZipInterface
             return $target;
 
         } catch (ProcessFailedException $e) {
-            // The command zip failed, most of the time either $file doesn't exist, or we don't have access
+            // The command zip failed, most of the time either $file doesn't exist, or we do not have access
             static::handleException('zip', $e, function ($e) {
                 PhoPath::new($this->source_path)->checkReadable('zip', $e);
             });
