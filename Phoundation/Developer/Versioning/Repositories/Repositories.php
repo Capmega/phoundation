@@ -1444,7 +1444,8 @@ showdie('YAY!');
 
 
     /**
-     * Returns the suffix for the project main repository, or NULL if no suffix has been selected
+     * Returns the version suffix from the currently selected branch for the project main repository, or NULL if the
+     * project branch is not on a version with suffix
      *
      * @return string|null
      */
@@ -1456,20 +1457,72 @@ showdie('YAY!');
             }
         }
 
-        throw RepositoryNotExistException::new(ts('Could not detect project suffix, could not find the project repository'))
+        throw RepositoryNotExistException::new(ts('Could not detect project branch version suffix, could not find the project repository'))
                                          ->addHint(ts('Try running "./pho developer repositories scan" to find the missing repository'));
+    }
+
+
+    /**
+     * Returns the currently selected for the project main repository, or NULL if no suffix has been selected
+     *
+     * @return string
+     */
+    public function detectProjectBranch(): string
+    {
+        foreach ($this as $o_repository) {
+            if ($o_repository->hasType('project')) {
+                return $o_repository->getBranch();
+            }
+        }
+
+        throw RepositoryNotExistException::new(ts('Could not detect project branch, could not find the project repository'))
+                                         ->addHint(ts('Try running "./pho developer repositories scan" to find the missing repository'));
+    }
+
+
+    /**
+     * Returns true if the project is on a version branch with suffix
+     *
+     * @return bool
+     */
+    public function hasProjectSuffix(): bool
+    {
+        return (bool) $this->detectProjectSuffix();
+    }
+
+
+    /**
+     * Throws a RepositoriesException if the curren
+     *
+     * @param string $action the action that is to be taken if this test passes
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkHasProjectSuffix(string $action): static
+    {
+        if ($this->hasProjectSuffix()) {
+            return $this;
+        }
+
+        throw RepositoriesException::new(ts('Cannot execute action ":action", the project repositories are on a version branch ":branch" that has no suffix', [
+            ':action' => $action,
+            ':branch' => $this->detectProjectBranch()
+        ]))->makeWarning();
     }
 
 
     /**
      * Updates the current suffixed version branches, and updates it from the base version in all repositories
      *
+     * @param bool $all_version_branches [false] If true, will not only update the current suffix branch, but will
+     *                                           update all branches for the same version
      * @return static
      */
-    public function updateSelectedSuffixedVersionBranches(): static
+    public function updateSuffixedVersionBranches(bool $all_version_branches = false): static
     {
-        $this->checkAllHaveSuffixOrVersionBranch($this->detectProjectSuffix());
-
+        $this->checkAllHaveSuffixOrVersionBranch($this->checkHasProjectSuffix(ts('update suffix branches'))
+                                                      ->detectProjectSuffix());
+showdie('YAY');
         foreach ($this as $o_repository) {
             $o_repository->updateSelectedSuffixedVersionBranch();
         }

@@ -32,6 +32,7 @@ use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Branches\Branches;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Git;
@@ -54,6 +55,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Enums\EnumVersionSections;
+use Phoundation\Utils\Strings;
 
 class Repository extends DataEntry implements RepositoryInterface
 {
@@ -460,7 +462,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return BranchesInterface
      */
-    public function getBranchesObject(): BranchesInterface
+    public function getBranchObject(): BranchesInterface
     {
         return Branches::new($this);
     }
@@ -1011,6 +1013,100 @@ showdie();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnVersionBranch(): bool
+    {
+        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: true);
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch that has a suffix
+     *
+     * @return bool
+     */
+    public function isOnVersionSuffixBranch(): bool
+    {
+        return Strings::isVersion(Strings::until($this->getBranch(), '-')) and Strings::from($this->getBranch(), '-');
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkIsOnVersionBranch(): static
+    {
+        if (!$this->isOnVersionBranch()) {
+            throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on a version branch', [
+                ':repository' => $this->getName(),
+                ':branch'     => $this->getBranch(),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnCorrectVersionBranch(): bool
+    {
+        return $this->isOnVersionBranch() and $this->hasBranchSelected(Project::getVersion());
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkIsOnCorrectVersionBranch(): static
+    {
+        if (!$this->isOnVersionBranch()) {
+            throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on the (required) correct version branch ":version"', [
+                ':repository' => $this->getName(),
+                ':branch'     => $this->getBranch(),
+                ':version'    => Project::getVersion(),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the suffix for this repository version branch, if any. Will return NULL if on a suffix less branch
+     *
+     * If the current branch is not a version branch, a RepositoriesException will be thrown
+     *
+     * @param bool $require_correct_version
+     * @return string|null
+     * @throws RepositoriesException
+     */
+    public function getSuffix(bool $require_correct_version = false): ?string
+    {
+        if ($require_correct_version) {
+            $this->checkIsOnCorrectVersionBranch();
+
+        } else {
+            $this->checkIsOnVersionBranch();
+        }
+
+        return get_null(Strings::from($this->getBranch(), '-', needle_required: true));
     }
 
 

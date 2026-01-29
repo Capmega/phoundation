@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer repositories show
+ * Command developer git repositories show
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -77,7 +77,7 @@ $o_repository->getRemotesObject()->displayCliTable();
 // Display branches
 Log::cli(' ');
 Log::cli(ts('Branches:'), 'information');
-$o_repository->getBranchesObject()->displayCliTable();
+$o_repository->getBranchObject()->displayCliTable();
 
 
 // Display tags

@@ -433,9 +433,11 @@ interface RepositoriesInterface extends DataIteratorInterface
     /**
      * Updates the current suffixed version branches, and updates it from the base version in all repositories
      *
+     * @param bool $all_version_branches [false] If true, will not only update the current suffix branch, but will
+     *                                           update all branches for the same version
      * @return static
      */
-    public function updateSelectedSuffixedVersionBranches(): static;
+    public function updateSuffixedVersionBranches(bool $all_version_branches = false): static;
 
     /**
      * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
@@ -462,4 +464,27 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return string|null
      */
     public function detectProjectSuffix(): ?string;
+
+    /**
+     * Returns true if the project is on a version branch with suffix
+     *
+     * @return bool
+     */
+    public function hasProjectSuffix(): bool;
+
+    /**
+     * Throws a RepositoriesException if the curren
+     *
+     * @param string $action the action that is to be taken if this test passes
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkHasProjectSuffix(string $action): static;
+
+    /**
+     * Returns the currently selected for the project main repository, or NULL if no suffix has been selected
+     *
+     * @return string
+     */
+    public function detectProjectBranch(): string;
 }

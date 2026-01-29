@@ -5,12 +5,15 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Utils\Strings;
 
 interface RepositoryInterface extends DataEntryInterface
 {
@@ -413,4 +416,49 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function setType(?string $type): static;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnVersionBranch(): bool;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnCorrectVersionBranch(): bool;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     */
+    public function checkIsOnVersionBranch(): static;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     */
+    public function checkIsOnCorrectVersionBranch(): static;
+
+    /**
+     * Returns the suffix for this repository version branch, if any. Will return NULL if on a suffix less branch
+     *
+     * If the current branch is not a version branch, an  will be thrown
+     *
+     * @param bool $require_correct_version
+     * @return string|null
+     */
+    public function getSuffix(bool $require_correct_version = false): ?string;
+
+    /**
+     * Returns true if this repository is currently on a version branch that has a suffix
+     *
+     * @return bool
+     */
+    public function isOnVersionSuffixBranch(): bool;
 }

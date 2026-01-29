@@ -57,7 +57,7 @@ $argv = ArgvValidator::new()
 
 
 // Switch the branch!
-Repository::new($argv['repository'])->getBranchesObject()->displayCliTable([
+Repository::new($argv['repository'])->getBranchObject()->displayCliTable([
     'branch' => ts('Branch'),
 ]);
 
