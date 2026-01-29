@@ -1453,7 +1453,7 @@ showdie('YAY!');
     {
         foreach ($this as $o_repository) {
             if ($o_repository->hasType('project')) {
-                return $o_repository->getSuffix();
+                return $o_repository->getCurrentSuffix();
             }
         }
 
@@ -1522,7 +1522,7 @@ showdie('YAY!');
     {
         $this->checkAllHaveSuffixOrVersionBranch($this->checkHasProjectSuffix(ts('update suffix branches'))
                                                       ->detectProjectSuffix());
-showdie('YAY');
+
         foreach ($this as $o_repository) {
             $o_repository->updateSelectedSuffixedVersionBranch();
         }

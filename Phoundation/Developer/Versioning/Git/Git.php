@@ -106,8 +106,7 @@ class Git extends Versioning implements GitInterface
      */
     public function setDirectoryObject(PhoDirectoryInterface $o_directory): static
     {
-        $this->o_directory = $o_directory->makeAbsolute()
-                                         ->checkReadable();
+        $this->o_directory = $o_directory->makeAbsolute()->checkReadable();
         $this->o_process   = Process::new('git')
                                     ->setExecutionDirectory($this->o_directory)
                                     ->setTimeout(300);
@@ -129,8 +128,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('clone')
                                   ->addArgument($url)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -146,7 +145,6 @@ class Git extends Versioning implements GitInterface
     public function branchExists(string $branch, bool $from_all = false): bool
     {
         $this->verifyBranch($branch);
-
         return array_key_exists($branch, $this->getBranches($from_all));
     }
 
@@ -209,6 +207,7 @@ class Git extends Versioning implements GitInterface
         if ($this->hasTypeBranchSelected()) {
             return EnumGitSelected::branch;
         }
+
         if ($this->hasTypeTagSelected()) {
             return EnumGitSelected::tag;
         }
@@ -242,19 +241,23 @@ class Git extends Versioning implements GitInterface
         $output = $this->o_process->clearArguments()
                                   ->addArgument('branch')
                                   ->executeReturnArray();
+
         foreach ($output as $line) {
             if (str_starts_with(trim($line), '*')) {
                 $return = trim(Strings::from($line, '*'));
+
                 if (preg_match_all('/^\(HEAD detached at (.+?)\)$/', $return, $matches)) {
                     if (!$return_if_detached) {
                         return null;
                     }
+
                     $return = $matches[1][0];
                 }
 
                 return $return;
             }
         }
+
         throw new GitException(tr('No branch selected for directory ":directory"', [
             ':directory' => $this->o_directory,
         ]));
@@ -272,8 +275,10 @@ class Git extends Versioning implements GitInterface
             // A branch was selected, so no tag can be selected
             return null;
         }
+
         $tags = $this->getTags();
         $tag  = $this->getSelectedBranch(true);
+
         if (array_key_exists($tag, $tags)) {
             // This is an existing tag, it is the correct tag
             return $tag;
@@ -322,15 +327,16 @@ class Git extends Versioning implements GitInterface
     public function selectBranch(string $branch, bool $auto_create = false, string|bool $upstream = false): static
     {
         $this->verifyBranch($branch);
+
         if (!$this->branchExists($branch)) {
             // The requested branch does not exist!
             if (!$auto_create) {
                 throw GitBranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
                     ':branch'     => $branch,
                     ':repository' => $this->o_directory
-                ]))
-                                                ->addHint(ts('Set $auto_create to true to automatically create the requested branch from the currently selected branch if it does not exist'));
+                ]))->addHint(ts('Set $auto_create to true to automatically create the requested branch from the currently selected branch if it does not exist'));
             }
+
             // Auto create this branch first before selecting it
             $this->createBranch($branch, upstream: $upstream);
         }
@@ -349,13 +355,13 @@ class Git extends Versioning implements GitInterface
     public function selectTag(string $tag): static
     {
         $this->verifyTag($tag);
+
         if (!$this->tagExists($tag)) {
             // The requested tag does not exist!
             throw GitTagNotExistException::new(ts('Cannot set current tag to ":tag" on repository ":repository", the tag does not exist', [
                 ':tag'        => $tag,
                 ':repository' => $this->o_directory
-            ]))
-                                         ->addHint(ts('Set $auto_create to true to automatically create the requested tag from the currently selected tag if it does not exist'));
+            ]))->addHint(ts('Set $auto_create to true to automatically create the requested tag from the currently selected tag if it does not exist'));
         }
 
         return $this->checkout($tag);
@@ -376,18 +382,22 @@ class Git extends Versioning implements GitInterface
     public function createBranch(string $branch, bool $reset = false, string|bool $upstream = false): static
     {
         $this->verifyBranch($branch);
+
         if ($this->branchExists($branch)) {
             throw new GitException(ts('Cannot create new branch ":branch" on repository ":repository", the branch already exists', [
                 ':branch'     => $branch,
                 ':repository' => $this->o_directory
             ]));
         }
+
         $current = $this->getSelectedBranch();
         $output  = $this->o_process->clearArguments()
                                    ->addArguments(['checkout', ($reset ? '-B' : '-b')])
                                    ->addArgument($branch)
                                    ->executeReturnArray();
+
         Log::notice($output, 1, false);
+
         if ($upstream) {
             return $this->push($this->getDefaultRemote($upstream), $branch, true);
         }
@@ -408,12 +418,13 @@ class Git extends Versioning implements GitInterface
     public function deleteBranch(string $branch, bool $force = false): static
     {
         $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArguments(['branch', '-d', ($force or FORCE ? '-f' : null)])
                                   ->addArgument($branch)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -430,11 +441,14 @@ class Git extends Versioning implements GitInterface
     {
         $this->checkRemoteExists($remote)
              ->verifyBranch($branch);
+
         if ($this->branchExists($branch, true)) {
             $output = $this->o_process->clearArguments()
                                       ->addArguments(['push', $remote, ':' . $branch])
                                       ->executeReturnArray();
+
             Log::notice($output, 1, false);
+
         } else {
             Log::warning(ts('Not deleting branch ":branch" from remote ":remote" from repository ":repository", the branch does not exist on the remote', [
                 ':branch'     => $branch,
@@ -458,16 +472,17 @@ class Git extends Versioning implements GitInterface
     public function getBranches(bool $all = false): array
     {
         $source  = [];
-        $results = $this->o_process
-            ->clearArguments()
-            ->addArgument('branch')
-            ->addArgument('--quiet')
-            ->addArgument((ALL or $all) ? '-a' : null)
-            ->addArgument('--no-color')
-            ->executeReturnArray();
+        $results = $this->o_process->clearArguments()
+                                   ->addArgument('branch')
+                                   ->addArgument('--quiet')
+                                   ->addArgument((ALL or $all) ? '-a' : null)
+                                   ->addArgument('--no-color')
+                                   ->executeReturnArray();
+
         foreach ($results as $line) {
             if (str_starts_with($line, '*')) {
                 $source[substr($line, 2)] = true;
+
             } else {
                 $source[substr($line, 2)] = false;
             }
@@ -488,12 +503,13 @@ class Git extends Versioning implements GitInterface
     public function deleteTag(string $tag, bool $force = false): static
     {
         $this->verifyTag($tag);
+
         $output = $this->o_process->clearArguments()
                                   ->addArguments(['tag', '-d', ($force or FORCE ? '-f' : null)])
                                   ->addArgument($tag)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -508,7 +524,6 @@ class Git extends Versioning implements GitInterface
     public function tagExists(string $tag): bool
     {
         $this->verifyTag($tag);
-
         return array_key_exists($tag, $this->getTags());
     }
 
@@ -523,13 +538,15 @@ class Git extends Versioning implements GitInterface
      */
     public function deleteTagRemote(string $tag, string $remote): static
     {
-        $this->checkRemoteExists($remote)
-             ->verifyTag($tag);
+        $this->checkRemoteExists($remote)->verifyTag($tag);
+
         if ($this->tagExists($tag)) {
             $output = $this->o_process->clearArguments()
                                       ->addArguments(['push', $remote, ':' . $tag])
                                       ->executeReturnArray();
+
             Log::notice($output, 1, false);
+
         } else {
             Log::warning(ts('Not deleting tag ":tag" from remote ":remote" from repository ":repository", the tag does not exist on the remote', [
                 ':tag'        => $tag,
@@ -553,8 +570,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('tag')
                                   ->addArgument('-l')
                                   ->executeReturnArray();
-        Log::notice($return, 1, false);
 
+        Log::notice($return, 1, false);
         return Arrays::valueToKeys($return);
     }
 
@@ -1130,40 +1147,45 @@ class Git extends Versioning implements GitInterface
     public function pull(?string $repository, ?string $branch): static
     {
         $this->verifyBranch($branch);
+
         try {
             $output = $this->o_process->clearArguments()
                                       ->addArgument('pull')
                                       ->addArgument($this->getDefaultRemote($repository))
                                       ->addArgument($branch)
                                       ->executeReturnArray();
+
             Log::notice($output, 1, false);
+
         } catch (ProcessFailedException $e) {
             if (Arrays::containsNeedles($e->getDataKey('output'), ['You are not currently on a branch'])) {
                 throw GitNoBranchSelectedException::new(ts('Cannot pull on repository ":repository", it has no branch selected', [
                     ':repository' => $this->o_directory,
                 ]))
-                                                  ->setData([
-                                                      ':repository' => $this->o_directory,
-                                                      ':branch'     => $this->getSelectedBranch(),
-                                                      ':type'       => $this->getSelectedType(),
-                                                  ])
-                                                  ->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
-                                                      ':repository' => $this->o_directory,
-                                                      ':type'       => $this->getSelectedType(),
-                                                  ]));
+                ->setData([
+                    ':repository' => $this->o_directory,
+                    ':branch'     => $this->getSelectedBranch(),
+                    ':type'       => $this->getSelectedType(),
+                ])
+                ->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
+                    ':repository' => $this->o_directory,
+                    ':type'       => $this->getSelectedType(),
+                ]));
             }
+
             if (Arrays::containsNeedles($e->getDataKey('output'), ['You asked to pull from the remote', 'a branch. Because this is not the default configured remote', 'your current branch, you must specify a branch on the command'])) {
                 if (empty($branch)) {
                     throw GitHasNoRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository" without specifying a remote branch, this repository branch has no upstream configured yet', [
                         ':branch'     => $this->getSelectedBranch(),
                         ':repository' => $this->o_directory,
                     ]))
-                                                       ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
-                                                           ':branch'     => $this->getSelectedBranch(),
-                                                           ':repository' => $this->o_directory,
-                                                       ]));
+                    ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]));
                 }
             }
+
             throw $e;
         }
 
@@ -1187,8 +1209,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument($all ? '--all' : null)
                                   ->addArgument($repository)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -1203,8 +1225,8 @@ class Git extends Versioning implements GitInterface
         $output = $this->o_process->clearArguments()
                                   ->addArguments(['fetch', '--all'])
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -1219,12 +1241,13 @@ class Git extends Versioning implements GitInterface
     public function merge(string $branch): static
     {
         $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('merge')
                                   ->addArgument($branch)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -1239,12 +1262,13 @@ class Git extends Versioning implements GitInterface
     public function rebase(string $branch): static
     {
         $this->verifyBranch($branch);
+
         $output = $this->o_process->clearArguments()
                                   ->addArgument('rebase')
                                   ->addArgument($branch)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 

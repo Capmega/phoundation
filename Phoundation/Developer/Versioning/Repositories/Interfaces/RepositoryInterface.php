@@ -453,7 +453,7 @@ interface RepositoryInterface extends DataEntryInterface
      * @param bool $require_correct_version
      * @return string|null
      */
-    public function getSuffix(bool $require_correct_version = false): ?string;
+    public function getCurrentSuffix(bool $require_correct_version = false): ?string;
 
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
@@ -461,4 +461,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isOnVersionSuffixBranch(): bool;
+
+    /**
+     * Returns the version (without the suffix) for this repository version branch, if any.
+     *
+     * If the current branch is not a version branch, NULL will be returned
+     *
+     * @return string|null
+     */
+    public function getCurrentVersion(): ?string;
 }

@@ -1089,6 +1089,23 @@ showdie();
 
 
     /**
+     * Returns the version (without the suffix) for this repository version branch, if any.
+     *
+     * If the current branch is not a version branch, NULL will be returned
+     *
+     * @return string|null
+     */
+    public function getCurrentVersion(): ?string
+    {
+        if ($this->isOnVersionBranch()) {
+            return $this->getBranch();
+        }
+
+        return null;
+    }
+
+
+    /**
      * Returns the suffix for this repository version branch, if any. Will return NULL if on a suffix less branch
      *
      * If the current branch is not a version branch, a RepositoriesException will be thrown
@@ -1097,7 +1114,7 @@ showdie();
      * @return string|null
      * @throws RepositoriesException
      */
-    public function getSuffix(bool $require_correct_version = false): ?string
+    public function getCurrentSuffix(bool $require_correct_version = false): ?string
     {
         if ($require_correct_version) {
             $this->checkIsOnCorrectVersionBranch();
@@ -1210,7 +1227,8 @@ showdie();
      */
     public function updateSelectedSuffixedVersionBranch(): static
     {
-
+        $this->o_git->merge($this->getCurrentVersion());
+        return $this;
     }
 
 
