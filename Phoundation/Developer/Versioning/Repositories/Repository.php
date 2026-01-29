@@ -310,7 +310,7 @@ class Repository extends DataEntry implements RepositoryInterface
         Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
-            ':branch'     => $branch,
+            ':branch'     => $branch ?? ($this->getSelectedBranch() . ' (' . ts('current') . ')'),
             ':remote'     => $remote,
         ]));
 
