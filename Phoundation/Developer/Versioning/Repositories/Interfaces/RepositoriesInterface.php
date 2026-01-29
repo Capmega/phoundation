@@ -96,7 +96,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @param mixed                       $default
      * @param bool|null                   $exception
      *
-     * @return mixed
+     * @return RepositoryInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface;
 

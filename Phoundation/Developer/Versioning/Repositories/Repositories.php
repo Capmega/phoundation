@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
+use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
@@ -888,12 +889,13 @@ throw new UnderConstructionException();
     /**
      * Selects the correct version branch for all repositories so they are all on the correct branch
      *
-     * @param string|null $suffix             If specified, will select VERSIONBRANCH-SUFFIX instead of VERSIONBRANCH
-     * @param bool        $auto_create [true] If true, will automatically create the branch if it does not exist for
-     *                                        each repository
+     * @param string|null $suffix        If specified, will select VERSIONBRANCH-SUFFIX instead of VERSIONBRANCH
+     * @param bool $auto_create   [true] If true, will automatically create the branch if it does not exist for
+     *                                   each repository
+     * @param bool $auto_pull     [true]
      * @return static
      */
-    public function selectVersionBranch(?string $suffix, bool $auto_create = true): static
+    public function selectVersionBranch(?string $suffix, bool $auto_create = true, bool $auto_pull = true): static
     {
         // Before we start, make sure all target repositories have either the suffix branch already available or if not,
         // Make sure none of the repositories have changes
@@ -915,7 +917,8 @@ throw new UnderConstructionException();
                     ':repository' => $o_repository->getName(),
                 ]));
 
-                $o_repository->selectBranch($branch);
+                $o_repository->selectBranch($branch)
+                             ->pull();
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available
