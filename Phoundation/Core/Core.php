@@ -3046,7 +3046,7 @@ class Core implements CoreInterface
 
                 // Display hints?
                 if ($e->hasHints()) {
-                    foreach (Arrays::force($e->getHints()) as $hint) {
+                    foreach (Arrays::force($e->getHints(), null) as $hint) {
                         Log::warning(ts('Hint: '), 10, echo_newline: false);
                         Log::notice($hint, 10);
                     }
