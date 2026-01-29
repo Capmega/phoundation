@@ -35,11 +35,11 @@ interface FilterFormInterface extends DataEntryFormInterface
     /**
      * Sets the date range mounting id
      *
-     * @param string|null $id
+     * @param string|null $selector
      *
      * @return static
      */
-    public function setDateRangeSelector(?string $id): static;
+    public function setDateRangeSelector(?string $selector): static;
 
 
     /**
