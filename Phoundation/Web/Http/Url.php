@@ -1689,12 +1689,13 @@ class Url implements UrlInterface
     /**
      * Adds the specified single key/value query to this URL
      *
-     * @param mixed      $value
-     * @param string|int $key
+     * @param mixed      $value                   The value for the query to be added to the URL
+     * @param string|int $key                     The key for the query to be added to the URL
+     * @param bool       $skip_null_values [true] If true will not add the key/value combination if the value equals NULL
      *
      * @return static
      */
-    public function addQuery(mixed $value, string|int $key): static
+    public function addQuery(mixed $value, string|int $key, bool $skip_null_values = true): static
     {
         if ($value === null) {
             return $this;
@@ -1706,7 +1707,7 @@ class Url implements UrlInterface
         if (str_contains($this->source, '?')) {
             if (str_contains($this->source, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
-                $replace      = Strings::cut($this->source, $key . '=', '&', false);
+                $replace      = Strings::cut($this->source, $key . '=', '&', needles_required: false);
                 $this->source = str_replace($key . '=' . $replace, $key . '=' . $value, $this->source);
 
             } else {
