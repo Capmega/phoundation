@@ -2142,7 +2142,7 @@ class Log implements LogInterface
      *
      * @see  Log::write()
      */
-    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10, string $tencolor = 'blue', string $ten_dot = '#'): bool
+    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10, string $tencolor = 'blue', string $ten_dot = ':'): bool
     {
         static $count = 0, $internal_each = 0, $ten_count = 0;
 
