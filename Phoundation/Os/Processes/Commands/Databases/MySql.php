@@ -192,6 +192,7 @@ class MySql extends Command
     public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): ?int
     {
         $password_file = static::createPasswordFile();
+
         try {
             // Build the process parameters, then execute
             $this->setCommand('mysql')
@@ -216,6 +217,7 @@ class MySql extends Command
             }
 
             $results = $this->execute($method);
+
             Log::notice($results, 4);
             static::deletePasswordFile();
             return null;
@@ -225,6 +227,7 @@ class MySql extends Command
             if ($password_file) {
                 static::deletePasswordFile();
             }
+
             throw $e;
         }
     }
