@@ -24,9 +24,9 @@ class Version extends VersionCore
      *
      * @param string $version The version to work with
      */
-    public function __construct(string $version)
+    public function __construct(string $version, bool $short_version = false)
     {
-        $this->setSource($version);
+        $this->setSource($version, $short_version);
     }
 
 
@@ -35,8 +35,8 @@ class Version extends VersionCore
      *
      * @param string $version The version to work with
      */
-    public static function new(string $version)
+    public static function new(string $version, bool $short_version = false)
     {
-        return new static($version);
+        return new static($version, $short_version);
     }
 }
