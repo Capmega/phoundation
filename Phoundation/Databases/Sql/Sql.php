@@ -30,6 +30,7 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -2267,31 +2268,74 @@ class Sql implements SqlInterface
      */
     public function fixFkOnNonStandardKeys(): static
     {
-showdie($this->getFkOnNonStandardKeys()->getSource());
+        $database = sql()->getCurrentDatabase();
+
+        foreach ($this->getFkOnNonStandardKeys() as $data) {
+            sql()->use($data['constraint_schema']);
+
+            // Get source and target objects and get a list of foreign keys
+            $_target       = sql()->getSchemaObject()->getTableObject($data['target_table']);
+            $_foreign_keys = $_target->getForeignKeysToColumn($data['target_column']);
+
+            // Remove the foreign key from all the sources first
+            $_foreign_keys->forEachField(function ($_entry) use ($data) {
+                $_source = sql()->getSchemaObject()->getTableObject($_entry->get('source_table'));
+
+                if ($_source->foreignKeyExists($_entry->get('foreign_key_name'))) {
+                    $_source->alter()->dropForeignKey($_entry->get('foreign_key_name'));
+                }
+            });
+
+            // Now remove the faulty index if it exists
+            if ($_target->indexExists($data['target_column'])) {
+                $_target->alter()->dropIndex($data['target_column']);
+            }
+
+            // Add the correct unique index
+            $_target->alter()->addIndex('UNIQUE KEY ' . $data['target_column'] . '(' . $data['target_column'] . ')');
+
+            // Reapply the foreign key from the source to the target
+            $_foreign_keys->forEachField(function ($_entry) use ($data) {
+                sql()->getSchemaObject()->getTableObject($_entry->get('source_table'))
+                                        ->alter()
+                                        ->addForeignKey('CONSTRAINT `' . $_entry->get('foreign_key_name') . '` FOREIGN KEY (`' . $_entry->get('source_column') . '`) REFERENCES `' . $_entry->get('target_table') . '` (`' . $_entry->get('target_column') . '`) ON DELETE RESTRICT');
+            });
+        }
+
+        sql()->use($database);
+        return $this;
     }
 
 
     /**
      * Returns an Iterator object containing all the table columns that are the target of a foreign key but have a normal index, not the required UNIQUE index
      *
+     * @note Query was taken from https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4, but slightly modified for use in Phoundation
+     *
      * @return IteratorInterface
      */
     public function getFkOnNonStandardKeys(): IteratorInterface
     {
         $results = sql()->listKeyValues('SELECT
-                                           fk.constraint_schema,
+                                           CONCAT(fk.constraint_schema, fk.constraint_name) AS identifier,
+                                           fk.constraint_schema, 
                                            fk.constraint_name,
-                                           "",
-                                           fk.parent_fk_definition AS fk_definition,
-                                           fk.REFERENCED_TABLE_NAME AS target_table,
+                                           fk.source_fk_definition   AS fk_definition,
+                                           fk.source_table           AS source_table,
+                                           fk.source_column          AS source_column,
+                                           fk.REFERENCED_TABLE_NAME  AS target_table,
+                                           fk.REFERENCED_COLUMN_NAME AS target_column,
                                            "##fkToNonUniqueKey"
                                          FROM (
                                            SELECT
                                              rc.constraint_schema,
                                              rc.constraint_name,
-                                             CONCAT(rc.table_name, "(", GROUP_CONCAT(kc.column_name ORDER BY kc.ORDINAL_POSITION), ")") AS parent_fk_definition,
+                                             rc.table_name  AS source_table,
+                                             GROUP_CONCAT(kc.column_name ORDER BY kc.ORDINAL_POSITION) AS source_column,
+                                             CONCAT(rc.table_name, "(", GROUP_CONCAT(kc.column_name ORDER BY kc.ORDINAL_POSITION), ")") AS source_fk_definition,
                                              CONCAT(kc.REFERENCED_TABLE_SCHEMA, ".", kc.REFERENCED_TABLE_NAME, "(", GROUP_CONCAT(kc.REFERENCED_COLUMN_NAME ORDER BY kc.POSITION_IN_UNIQUE_CONSTRAINT), ")") AS target_fk_definition,
-                                             rc.REFERENCED_TABLE_NAME
+                                             rc.REFERENCED_TABLE_NAME,
+                                             kc.REFERENCED_COLUMN_NAME
                                            FROM
                                              information_schema.REFERENTIAL_CONSTRAINTS rc
                                            JOIN
@@ -2307,7 +2351,8 @@ showdie($this->getFkOnNonStandardKeys()->getSource());
                                              rc.constraint_schema,
                                              rc.constraint_name,
                                              rc.table_name,
-                                             rc.REFERENCED_TABLE_NAME
+                                             rc.REFERENCED_TABLE_NAME,
+                                             kc.REFERENCED_COLUMN_NAME
                                          ) fk
                                          LEFT JOIN (
                                            SELECT
@@ -2322,7 +2367,7 @@ showdie($this->getFkOnNonStandardKeys()->getSource());
                                          ) unique_idx ON fk.target_fk_definition = unique_idx.fk_definition
                                          WHERE
                                            unique_idx.fk_definition IS NULL;');
-showdie($results);
+
         return new Iterator($results);
      }
  }

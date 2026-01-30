@@ -52,10 +52,9 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute the import for the specified driver
+// Execute the fixing for the specified connector
 Log::information(ts('Attempting to automatically fix non-unique indices for foreign key targets'), 10);
-
 
 sql($argv['connector'])->disableRestrictFkOnNonStandardKeys()
                        ->fixFkOnNonStandardKeys()
-;
+                       ->enableRestrictFkOnNonStandardKeys();

@@ -90,7 +90,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute the import for the specified driver
+// Execute the import for the specified connector
 Log::information(ts('Executing database import'), 10);
 
 try {

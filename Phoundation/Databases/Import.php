@@ -186,6 +186,7 @@ class Import
                 // Re-enable strict FK key checks on MySQL
                 sql()->enableRestrictFkOnNonStandardKeys(function () {
                     // But first make sure that all non-UNIQUE indices are fixed!
+                    Log::warning(ts('Detected MySQL version >8.4, checking and fixing any foreign key target columns without unique indexm this may take a second...'), 10);
                     sql()->fixFkOnNonStandardKeys();
                 });
 
