@@ -89,7 +89,6 @@ $argv = ArgvValidator::new()
 //    ->setBody($argv['body'])
 //    ->send();
 
-
 // Send emails directly using PHPMailer
 $to   = User::new()->load($argv['to']);
 $mail = new PHPMailer();
@@ -102,7 +101,7 @@ $mail->Timeout = Email::getDefaultTimeout();;
 
 $mail->isSMTP();
 $mail->isHTML($argv['html']);
-$mail->addAddress($to->getEmail(), $to->getDisplayName());
+$mail->addAddress(get_null(config()->getString('email.redirect.all', '')) ?? $to->getEmail(), $to->getDisplayName());
 
 try {
     if ($argv['from']) {
