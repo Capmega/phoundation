@@ -26,11 +26,14 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision
      *
-     * @param float       $start
-     * @param float       $stop
-     * @param string      $precision
-     * @param int         $decimals
-     * @param string|null $zero_label
+     * $precision can be
+     *
+     * @param float       $start             The start time
+     * @param float       $stop              The stop time
+     * @param string      $precision  [auto] The precision to use. Must be one of "auto", "second", "seconds", "minute", "minutes", "hour" , "hours", "day" ,
+     *                                       "days", "week" , "weeks", "month" , "months", "year"  , "years"
+     * @param int         $decimals   [2]    The amount of decimals to include in the milli / micro seconds portion
+     * @param string|null $zero_label [null] The label to use for time sections that are zero. Use NULL (default) to hide these
      *
      * @return string|null
      */
