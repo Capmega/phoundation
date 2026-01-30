@@ -85,9 +85,9 @@ interface RepositoriesInterface extends DataIteratorInterface
     /**
      * Returns the current RepositoryInterface object
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    public function current(): RepositoryInterface;
+    public function current(): ?RepositoryInterface;
 
     /**
      * Returns the entry with the specified identifier
@@ -96,16 +96,16 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @param mixed                       $default
      * @param bool|null                   $exception
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface;
 
     /**
      * Returns a random entry
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    public function getRandom(): RepositoryInterface;
+    public function getRandom(): ?RepositoryInterface;
 
     /**
      * Creates the specified tag for all repositories

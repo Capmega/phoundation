@@ -11,7 +11,7 @@ THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS * Command developer patch
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Developer
  */
 
 
