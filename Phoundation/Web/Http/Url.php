@@ -1706,7 +1706,7 @@ class Url implements UrlInterface
         if (str_contains($this->source, '?')) {
             if (str_contains($this->source, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
-                $replace      = Strings::cut($this->source, $key . '=', '&', false);
+                $replace      = Strings::cut($this->source, $key . '=', '&', needles_required: false);
                 $this->source = str_replace($key . '=' . $replace, $key . '=' . $value, $this->source);
 
             } else {
