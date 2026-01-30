@@ -1227,6 +1227,13 @@ showdie();
      */
     public function updateSelectedSuffixedVersionBranch(): static
     {
+showdie($this->getCurrentVersion());
+        Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
+            ':repository' => $this->getName(),
+            ':branch'     => $this->getSelectedBranch(),
+            ':version'    => $this->getCurrentVersion(),
+        ]));
+
         $this->o_git->merge($this->getCurrentVersion());
         return $this;
     }

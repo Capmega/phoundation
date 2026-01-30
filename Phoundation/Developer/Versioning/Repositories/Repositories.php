@@ -1520,8 +1520,9 @@ showdie('YAY!');
      */
     public function updateSuffixedVersionBranches(bool $all_version_branches = false): static
     {
-        $this->checkAllHaveSuffixOrVersionBranch($this->checkHasProjectSuffix(ts('update suffix branches'))
-                                                      ->detectProjectSuffix());
+        $this->checkNoneHaveChanges(ts('select auto-branch'))
+             ->checkHasProjectSuffix(ts('update suffix branches'))
+             ->checkAllHaveSuffixOrVersionBranch($this->detectProjectSuffix());
 
         foreach ($this as $o_repository) {
             $o_repository->updateSelectedSuffixedVersionBranch();
