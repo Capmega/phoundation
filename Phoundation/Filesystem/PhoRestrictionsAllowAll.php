@@ -19,7 +19,7 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Filesystem\Exception\RestrictionsException;
 use Phoundation\Filesystem\Exception\WriteRestrictionsException;
-use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Stringable;
 use Throwable;
@@ -30,7 +30,7 @@ class PhoRestrictionsAllowAll extends PhoRestrictions implements PhoRestrictions
     /**
      * @inheritDoc
      */
-    public function addPath(PhoDirectoryInterface|string|null $directory, bool $write = false): static
+    public function addPath(PhoPathInterface|string|null $directory, bool $write = false): static
     {
         return $this;
     }
