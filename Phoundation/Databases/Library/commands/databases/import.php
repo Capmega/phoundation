@@ -106,6 +106,8 @@ try {
     throw $e->makeWarning();
 }
 
+Log::success(ts('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'), 10);
+
 
 // Execute init?
 if ($argv['no_init']) {
