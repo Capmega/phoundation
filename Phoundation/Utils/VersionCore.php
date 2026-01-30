@@ -33,21 +33,43 @@ class VersionCore implements VersionInterface
 
 
     /**
+     * Tracks if this version is a short version or not
+     *
+     * @var bool $short_version
+     */
+    protected bool $short_version = false;
+
+
+    /**
+     * Returns true if this version is a short version
+     *
+     * @return bool
+     */
+    public function getShortVersion(): bool
+    {
+        return $this->short_version;
+    }
+
+
+    /**
      * Sets the source for this Version object
      *
-     * @param string|int|null $source The source for this Version object
+     * @param string|int|null $source                The source for this Version object
+     * @param bool            $short_version [false] If true will work with short versions (8.4) instead of long versions (8.4.3)
      *
      * @return static
      */
-    public function setSource(string|int|null $source): static
+    public function setSource(string|int|null $source, bool $short_version = false): static
     {
+        $this->short_version = $short_version;
+
         if ($source !== null) {
             if (is_int($source)) {
                 $source = VersionCore::convertIntegerToString($source);
             }
 
             // Make sure we have a valid version!
-            Validate::new($source)->isVersion();
+            Validate::new($source)->isVersion(short_version: $short_version);
         }
 
         return $this->__setSource($source);
@@ -516,16 +538,18 @@ class VersionCore implements VersionInterface
     /**
      * Compares versions with support for "post", "post_once", "post_always"
      *
-     * @param string $version1 First version
-     * @param string $version2 Second version
+     * @param VersionInterface|string $version1               First version to compare
+     * @param VersionInterface|string $version2               Second version to compare
+     * @param bool                    $short_version1 [false] If true, the first version is expected to be a short version (8.4) instead of a long version (8.4.3)
+     * @param bool                    $short_version2 [false] If true, the second version is expected to be a short version (8.4) instead of a long version (8.4.3)
      *
      * @return int
      */
-    protected function compare(string $version1, string $version2): int
+    protected function compare(VersionInterface|string $version1, VersionInterface|string $version2, bool $short_version1 = false, bool $short_version2 = false): int
     {
         // Check if versions are valid
-        Validate::new($version1)->isVersion(11, true);
-        Validate::new($version2)->isVersion(11, true);
+        $version1 = Validate::new($version1)->isVersion(phoundation_versions: true, short_version: $short_version1)->getSource();
+        $version2 = Validate::new($version2)->isVersion(phoundation_versions: true, short_version: $short_version2)->getSource();
 
         // Process if the first version has "post" in it
         switch ($version1) {
@@ -548,6 +572,69 @@ class VersionCore implements VersionInterface
             return 1;
         }
 
-        return version_compare($version1, $version2);
+        return version_compare($version1 . ($short_version1 ? '.0' : null), $version2 . ($short_version2 ? '.0' : null));
+    }
+
+
+    /**
+     * Returns true if $version1 is higher than $version2
+     *
+     * @param VersionInterface|string $version1               The first version to compare, should be higher to return true
+     * @param VersionInterface|string $version2               The second version to compare, should be higher to return false
+     * @param bool                    $short_version1 [false] If true, expects a short version (8.4) instead of a long version (8.4.3)
+     * @param bool                    $short_version2 [false] If true, expects a short version (8.4) instead of a long version (8.4.3)
+     * @param bool                    $or_equal_to    [false] If true, will return true when the specified version is equal to this version
+     *
+     * @return bool
+     */
+    protected function __isHigherThan(VersionInterface|string $version1, VersionInterface|string $version2, bool $short_version1 = false, bool $short_version2 = false, bool $or_equal_to = false): bool
+    {
+        switch ($this->compare($version1, $version2, $short_version1, $short_version2)) {
+            case 1:
+                return true;
+
+            case 0:
+                if ($or_equal_to) {
+                    return true;
+                }
+
+            // no break
+
+            case -1:
+                // no break
+
+            default:
+                return false;
+        }
+    }
+
+
+    /**
+     * Returns true if the specified version is higher than the current version
+     *
+     * @param VersionInterface|string $version               The version to compare to
+     * @param bool                    $or_equal_to   [false] If true, will return true when the specified version is equal to this version
+     * @param bool                    $short_version [false] If true will work with short versions (8.4) instead of long versions (8.4.3)
+     *
+     * @return bool
+     */
+    public function isHigherThan(VersionInterface|string $version, bool $or_equal_to = false, bool $short_version = false): bool
+    {
+        return $this->__isHigherThan($this, $version, $this->short_version, $short_version, $or_equal_to);
+    }
+
+
+    /**
+     * Returns true if the specified version is lower than the current version
+     *
+     * @param VersionInterface|string $version               The version to compare to
+     * @param bool                    $or_equal_to   [false] If true, will return true when the specified version is equal to this version
+     * @param bool                    $short_version [false] If true will work with short versions (8.4) instead of long versions (8.4.3)
+     *
+     * @return bool
+     */
+    public function isLowerThan(VersionInterface|string $version, bool $or_equal_to = false, bool $short_version = false): bool
+    {
+        return $this->__isHigherThan($version, $this, $short_version, $this->short_version, $or_equal_to);
     }
 }

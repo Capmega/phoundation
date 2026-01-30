@@ -20,6 +20,7 @@ use Phoundation\Accounts\Users\Password;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Utils\Interfaces\VersionInterface;
 use Phoundation\Utils\Strings;
 
 
@@ -261,16 +262,21 @@ class Validate
      * Validates if the selected field is a valid version number
      *
      * @param int|null $characters
-     * @param bool     $phoundation_versions If true, the versions 'post_once' and 'post_always' will be allowed as a
-     *                                       valid version
+     * @param bool     $phoundation_versions [false] If true, the versions 'post_once' and 'post_always' will be allowed as a
+     *                                               valid version
+     * @param bool     $short_version        [false] If true, will work with short versions (8.4) instead of long versions (8.4.3)
      *
      * @return static
      */
-    public function isVersion(?int $characters = 11, bool $phoundation_versions = false): static
+    public function isVersion(?int $characters = 11, bool $phoundation_versions = false, bool $short_version = false): static
     {
+        if ($this->source instanceof VersionInterface) {
+            $this->source = $this->source->getSource();
+        }
+
         $this->hasMaxCharacters($characters);
 
-        if (!Strings::isVersion($this->source, $phoundation_versions)) {
+        if (!Strings::isVersion($this->source, $phoundation_versions, $short_version)) {
             throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
         }
 
