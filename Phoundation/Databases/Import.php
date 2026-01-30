@@ -26,6 +26,7 @@ use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Enums\EnumSqlVendor;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -157,14 +158,14 @@ class Import
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * Imports the MySQL database
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
      * @return static
      */
     public function import(): static
     {
         $this->o_file->checkExists();
-
         switch ($this->driver) {
             case 'mysql':
                 Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
@@ -173,12 +174,20 @@ class Import
                     ':database' => $this->getConnectorObject()->getDatabase(),
                 ]));
 
+                sql()->disableRestrictFkOnNonStandardKeys();
+
                 MySql::new()
                      ->setTimeout($this->timeout)
                      ->setConnectorObject($this->getConnectorObject())
                      ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
                      ->create($this->database ?? $this->getConnectorObject()->getDatabase())
                      ->import($this->o_file);
+
+                // Re-enable strict FK key checks on MySQL
+                sql()->enableRestrictFkOnNonStandardKeys(function () {
+                    // But first make sure that all non-UNIQUE indices are fixed!
+                    sql()->fixFkOnNonStandardKeys();
+                });
 
                 Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->o_file,
