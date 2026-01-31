@@ -22,20 +22,15 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks;
 
 use Phoundation\Core\Core;
-use Phoundation\Core\Hooks\Exception\HooksException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileNotReadableException;
-use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\P;
 use Throwable;
 
 

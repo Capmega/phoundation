@@ -22,7 +22,6 @@ use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
-use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
@@ -103,13 +102,24 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
+     * Returns the table name used by this object
+     *
+     * @return string|null
+     */
+    public static function getTable(): ?string
+    {
+        return 'developer_repositories';
+    }
+
+
+    /**
      * Returns the unique column for this class
      *
      * @return string|null
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'name';
+        return 'path';
     }
 
 
@@ -156,9 +166,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * @param Stringable|string|float|int $key
      * @param mixed|null                  $default
      * @param bool|null                   $exception
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface
     {
         return parent::get($key, $default, $exception);
     }
@@ -167,9 +177,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Returns a random Repository object
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function getRandom(): RepositoryInterface
+    #[ReturnTypeWillChange] public function getRandom(): ?RepositoryInterface
     {
         return parent::getRandom();
     }
@@ -180,9 +190,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): RepositoryInterface
+    #[ReturnTypeWillChange] public function current(): ?RepositoryInterface
     {
         if (empty($this->source)) {
             // This method is called when somebody tries a foreach() on this object, but there are no repositories
@@ -343,7 +353,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
             if (Repository::isPhoundation($o_repository_path)) {
-                if (!Repository::exists($o_repository_path->getBasename())) {
+                if (!Repository::exists(['path' => $o_repository_path->getSource()])) {
                     Repository::newFromPathObject($o_repository_path)->save();
                 }
             }
@@ -367,14 +377,15 @@ throw new UnderConstructionException();
      */
     public function getStatusObject(): StatusFilesInterface
     {
-        $o_return = StatusFiles::new();
+        $_status_files = StatusFiles::new();
 
+showdie($this->get('phoundation')->getStatusObject()->scanChanges()->getSourceKeys());
         foreach ($this as $o_repository) {
-            $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
-            $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+            $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
+            $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
         }
 
-        return $o_return;
+        return $_status_files;
     }
 
 
@@ -391,6 +402,7 @@ throw new UnderConstructionException();
         // Check the current main project repository first
         // The repository version MUST match the configured version
         try {
+show(Project::getDirectoryName());
             $o_repository = $this->get(Project::getDirectoryName());
             $branch       = $o_repository->getSelectedBranch();
             $version      = Project::getVersion();
@@ -897,12 +909,12 @@ throw new UnderConstructionException();
      */
     public function selectVersionBranch(?string $suffix, bool $auto_create = true, bool $auto_pull = true): static
     {
-        // Before we start, make sure all target repositories have either the suffix branch already available or if not,
+        // Before we start, make sure all target repositories have either the suffix branch already available or if not
         // Make sure none of the repositories have changes
-        // ???
+        // Make sure the project repository is on the right version
         $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
-             ->checkNoneHaveChanges(ts('select auto-branch'))
-             ->checkProjectRepositoryVersion(ts('select auto-branch'), true);
+             ->checkNoneHaveChanges(ts('select version branch'))
+             ->checkProjectRepositoryVersion(ts('select version branch'), true);
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
@@ -911,7 +923,7 @@ throw new UnderConstructionException();
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->branchExists($branch)) {
-                Log::action(ts('Selecting auto-branch ":branch" for ":type" repository ":repository"', [
+                Log::action(ts('Selecting version branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $o_repository->getType(),
                     ':repository' => $o_repository->getName(),
