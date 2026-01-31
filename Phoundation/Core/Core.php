@@ -3121,6 +3121,12 @@ class Core implements CoreInterface
         Log::error(ts('Exception data:'), 10);
         Log::error($e, 10);
 
+        // Remove all caching headers
+        if (!headers_sent()) {
+            Response::setHttpCode(500);
+            http_response_code(500);
+        }
+
         // Rethrow exception to avoid lots of "if" statements - this way, we can just catch the right one
         try {
             throw $e;
@@ -3181,8 +3187,6 @@ class Core implements CoreInterface
             header_remove('Content-Type');
             header('Content-Type: text/html');
             header('Content-length: 1048576'); // Required or browser won't show half the information
-            Response::setHttpCode(500);
-            http_response_code(500);
         }
 
         try {
@@ -3230,9 +3234,6 @@ class Core implements CoreInterface
         if ($e->getCode() === 'validation') {
             $e->setCode(400);
         }
-
-        // Show nice error page
-        Core::executeUncaughtExceptionSystemPage(500, $e);
 
         // TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
         switch (Request::getRequestType()) {
@@ -3494,6 +3495,9 @@ class Core implements CoreInterface
             // Try to show a pretty error page
             Request::executeSystem($page, $e, $message);
         }
+
+        Response::setHttpCode(abs($page));
+        http_response_code(abs($page));
     }
 
 
