@@ -401,10 +401,8 @@ throw new UnderConstructionException();
         // Check the current main project repository first
         // The repository version MUST match the configured version
         try {
-show(Project::getDirectoryName());
             $o_repository = $this->get(Project::getDirectoryName());
-show($o_repository);
-            $branch       = $o_repository->getSelectedBranch();
+            $branch       = $o_repository->getSelectedBranch(true);
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
