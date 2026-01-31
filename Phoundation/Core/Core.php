@@ -3126,6 +3126,9 @@ class Core implements CoreInterface
             throw $e;
 
         } catch (ValidationFailedException $e) {
+            Response::setHttpCode(400);
+            http_response_code(400);
+
             Log::warning($e->getMessage(), 10);
 
             if ($e->hasData()) {
@@ -3181,8 +3184,6 @@ class Core implements CoreInterface
             header_remove('Content-Type');
             header('Content-Type: text/html');
             header('Content-length: 1048576'); // Required or browser won't show half the information
-            Response::setHttpCode(500);
-            http_response_code(500);
         }
 
         try {
