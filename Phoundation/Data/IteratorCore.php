@@ -150,8 +150,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function __construct(IteratorInterface|PDOStatement|array|string|null $source = null)
     {
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false)
-             ->setExceptionOnGet(true);
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
 
         if ($source) {
             $this->setSource($source);
@@ -432,7 +431,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $this->source[] = $value;
 
         } else {
-            if (array_key_exists($key, $this->source) and $exception) {
+            if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
                     ':key'   => $key,
                     ':class' => static::class,
@@ -619,7 +618,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             array_unshift($this->source, $value);
 
         } else {
-            if (array_key_exists($key, $this->source) and $exception) {
+            if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
                 throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
                     ':key'   => $key,
                     ':class' => static::class,
@@ -668,7 +667,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and $exception) {
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
                 ':key'    => $key,
                 ':before' => $before,
@@ -717,7 +716,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and $exception) {
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
                 ':key'   => $key,
                 ':after' => $after,
@@ -768,7 +767,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and $exception) {
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
                 ':key'    => $key,
                 ':before' => $before,
@@ -819,7 +818,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and $exception) {
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
             throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
                 ':key'   => $key,
                 ':after' => $after,
@@ -965,7 +964,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         // Add each entry
         foreach (Arrays::force($source) as $key => $value) {
-            $this->add($value, $clear_keys ? null : $key, exception: $exception);
+            $this->add($value, $clear_keys ? null : $key, exception: ($exception ?? $this->exception_on_get));
         }
 
         return $this;
@@ -1165,7 +1164,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getLongestValueLength(?string $key = null, bool $exception = false): int
     {
-        return Arrays::getLongestValueLength($this->source, $key, $exception);
+        return Arrays::getLongestValueLength($this->source, $key, $exception ?? $this->exception_on_get);
     }
 
 
@@ -1179,7 +1178,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getShortestValueLength(?string $key = null, bool $exception = false): int
     {
-        return Arrays::getShortestValueLength($this->source, $key, $exception);
+        return Arrays::getShortestValueLength($this->source, $key, $exception ?? $this->exception_on_get);
     }
 
 
@@ -1703,7 +1702,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             ]));
         }
 
-        $value = $this->get($key, exception: $exception);
+        $value = $this->get($key, exception: $exception ?? $this->exception_on_get);
         $value = $this->ensureSourceValueHasColumns($value, $columns);
 
         return new static(Arrays::keepKeys($value, $columns));
@@ -1723,10 +1722,10 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function keyHasValue(Stringable|string|float|int $key, mixed $value, bool $strict = true, bool $exception = true): bool
     {
         if ($strict) {
-            return $this->get($key, exception: $exception) === $value;
+            return $this->get($key, exception: $exception ?? $this->exception_on_get) === $value;
         }
 
-        return $this->get($key, exception: $exception) == $value;
+        return $this->get($key, exception: $exception ?? $this->exception_on_get) == $value;
     }
 
 

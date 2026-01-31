@@ -637,7 +637,7 @@ throw new ObsoleteException();
             return $this->ensureObject($key);
         }
 
-        if ($exception) {
+        if ($exception ?? $this->exception_on_get) {
             throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
                 ':key'   => $key,
                 ':class' => static::class,
