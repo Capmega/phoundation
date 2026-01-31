@@ -1052,10 +1052,12 @@ class Git extends Versioning implements GitInterface
     /**
      * Push the local changes to the remote repository / branch
      *
-     * @param string|null $repository   [null]  The remote repository to push to. If null, will push to the default repository
+     * @param string|null $repository   [null]  The remote repository to push to. If null, will push to the default
+     *                                          repository
      * @param string|null $branch       [null]  If specified will push only this branch
      * @param bool        $push_tags    [true]  If true, will push the tags as well
-     * @param bool        $set_upstream [false] If true, will add the -u modifier to the git push command, automatically setting the target as the upstream
+     * @param bool        $set_upstream [false] If true, will add the -u modifier to the git push command, automatically
+     *                                          setting the target as the upstream
      *                                  branch
      *
      * @return static
@@ -1063,6 +1065,7 @@ class Git extends Versioning implements GitInterface
     public function push(?string $repository = null, ?string $branch = null, bool $push_tags = true, bool $set_upstream = false): static
     {
         $this->verifyBranch($branch);
+
         try {
             $output = $this->o_process->clearArguments()
                                       ->addArgument('push')
@@ -1072,63 +1075,71 @@ class Git extends Versioning implements GitInterface
                                           $branch,
                                       ])
                                       ->executeReturnArray();
+
             Log::notice($output, 1, false);
+
         } catch (ProcessFailedException $e) {
             if (Arrays::containsNeedles($e->getDataKey('output'), ['failed to push some refs to'])) {
                 if (Arrays::containsNeedles($e->getDataKey('output'), ['Updates were rejected because a pushed branch tip is behind its remote'])) {
                     // Is the current branch that we are trying to push amongst the branches that failed to push? If not, we are all fine!
                     $branches = Arrays::getContainsNeedles($e->getDataKey('output'), ['! [rejected]']);
+
                     if ($branches) {
                         foreach ($branches as $check_branch) {
-                            // Clean the branch, check if its the one we are interested in
+                            // Clean the branch, check if it is the one we are interested in
                             $check_branch = Strings::from($check_branch, '! [rejected]');
                             $check_branch = trim($check_branch);
                             $check_branch = Strings::until($check_branch, '->');
                             $check_branch = trim($check_branch);
+
                             if ($check_branch === $branch) {
                                 throw GitBranchIsBehindRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository", the branch is behind its remote branch', [
                                     ':branch'     => $this->getSelectedBranch(),
                                     ':repository' => $this->o_directory,
                                 ]))
-                                                                            ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git pull" on branch ":branch"', [
-                                                                                ':branch'     => $this->getSelectedBranch(),
-                                                                                ':repository' => $this->o_directory,
-                                                                            ]));
+                                ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git pull" on branch ":branch"', [
+                                    ':branch'     => $this->getSelectedBranch(),
+                                    ':repository' => $this->o_directory,
+                                ]));
                             }
                         }
                     }
+
                     // The branch causing the issue is NOT the branch we are interested in, we should be able to safely ignore this exception
                     Log::notice($e->getDataKey('output'), 1, false);
 
                     return $this;
                 }
             }
+
             if (Arrays::containsNeedles($e->getDataKey('output'), ['You are not currently on a branch'])) {
                 throw GitNoBranchSelectedException::new(ts('Cannot execute a general push on repository ":repository", it has no branch selected', [
                     ':repository' => $this->o_directory,
                 ]))
-                                                  ->setData([
-                                                      ':repository' => $this->o_directory,
-                                                      ':branch'     => $this->getSelectedBranch(),
-                                                      ':type'       => $this->getSelectedType(),
-                                                  ])
-                                                  ->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
-                                                      ':repository' => $this->o_directory,
-                                                      ':type'       => $this->getSelectedType(),
-                                                  ]));
+                ->setData([
+                    ':repository' => $this->o_directory,
+                    ':branch'     => $this->getSelectedBranch(),
+                    ':type'       => $this->getSelectedType(),
+                ])
+                ->addHint(ts('The repository ":repository" currently has a ":type" selected. To continue, first select a branch instead', [
+                    ':repository' => $this->o_directory,
+                    ':type'       => $this->getSelectedType(),
+                ]));
             }
+
             if (Arrays::containsNeedles($e->getDataKey('output'), ['You asked to pull from the remote', 'a branch. Because this is not the default configured remote', 'your current branch, you must specify a branch on the command'])) {
                 if (empty($branch)) {
                     throw GitHasNoRemoteBranchException::new(ts('Cannot pull branch ":branch" on repository ":repository" without specifying a remote branch, this repository branch has no upstream configured yet', [
                         ':branch'     => $this->getSelectedBranch(),
                         ':repository' => $this->o_directory,
                     ]))
-                                                       ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
-                                                           ':branch'     => $this->getSelectedBranch(),
-                                                           ':repository' => $this->o_directory,
-                                                       ]));
+                    ->addHint(ts('This could potentially be fixed by going to the repository directory ":repository" and executing "git branch --set-upstream-to=origin/:branch"', [
+                        ':branch'     => $this->getSelectedBranch(),
+                        ':repository' => $this->o_directory,
+                    ]));
                 }
             }
+
             throw $e;
         }
 
@@ -1196,9 +1207,10 @@ class Git extends Versioning implements GitInterface
     /**
      * Pull the remote changes from the remote repository / branch
      *
-     * @param string|null $repository        The repository to pull from. If not specified, the "origin" default will be used, unless an upstream was specified
-     *                                       for the current branch
-     * @param bool        $all               [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     * @param string|null $repository        The repository to pull from. If not specified, the "origin" default will be
+     *                                       used, unless an upstream was specified for the current branch
+     * @param bool        $all        [true] Will execute git fetch --all, fetch all remotes, except for the ones that
+     *                                       has the remote.
      *
      * @return static
      */

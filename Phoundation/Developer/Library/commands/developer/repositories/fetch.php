@@ -56,10 +56,9 @@ OPTIONAL ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('-a')->isOptional()->isBoolean()
                      ->select('-r,--remote')->isOptional()->isCode()
                      ->validate();
 
 
 // Execute git pull on all known repositories
-Repositories::new()->load()->fetch($argv['remote'] ?? false, $argv['a']);
+Repositories::new()->load()->fetch($argv['remote'] ?? false, ALL);
