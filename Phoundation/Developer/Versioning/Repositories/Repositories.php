@@ -95,7 +95,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $this->construct($o_parent_path);
 
         $this->setKeysAreUniqueColumn(true)
-             ->setInjectSourceDirectly(false);
+             ->setInjectSourceDirectly(false)
+             ->setExceptionOnGet(true);
 
         $this->query = 'SELECT `developer_repositories`.* FROM `developer_repositories` WHERE `status` IS NULL';
     }
