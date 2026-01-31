@@ -461,4 +461,18 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isOnVersionSuffixBranch(): bool;
+
+    /**
+     * Marks this repository as disabled so that it will no longer be used for any action
+     *
+     * @return static
+     */
+    public function disable(): static;
+
+    /**
+     * Marks this repository as enabled so that it can be used again for any action
+     *
+     * @return static
+     */
+    public function enable(): static;
 }

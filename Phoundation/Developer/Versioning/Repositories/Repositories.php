@@ -119,7 +119,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'name';
+        return 'path';
     }
 
 
@@ -353,7 +353,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
             if (Repository::isPhoundation($o_repository_path)) {
-                if (!Repository::exists($o_repository_path->getBasename())) {
+                if (!Repository::exists(['path' => $o_repository_path->getSource()])) {
                     Repository::newFromPathObject($o_repository_path)->save();
                 }
             }
@@ -377,14 +377,15 @@ throw new UnderConstructionException();
      */
     public function getStatusObject(): StatusFilesInterface
     {
-        $o_return = StatusFiles::new();
+        $_status_files = StatusFiles::new();
 
+showdie($this->get('phoundation')->getStatusObject()->scanChanges()->getSourceKeys());
         foreach ($this as $o_repository) {
-            $o_return->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
-            $o_return->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+            $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
+            $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
         }
 
-        return $o_return;
+        return $_status_files;
     }
 
 
