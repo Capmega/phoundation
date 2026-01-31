@@ -514,7 +514,7 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @param bool $return_if_detached If true, will return the selected branch, even if it is not a branch
+     * @param bool $return_if_detached [false] If true, will return the selected branch, even if it is not a branch
      *
      * @return string|null
      */

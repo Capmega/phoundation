@@ -403,6 +403,7 @@ throw new UnderConstructionException();
         try {
 show(Project::getDirectoryName());
             $o_repository = $this->get(Project::getDirectoryName());
+show($o_repository);
             $branch       = $o_repository->getSelectedBranch();
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
