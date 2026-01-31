@@ -10,7 +10,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Developer
  */
 
 
@@ -53,34 +53,34 @@ $argv = ArgvValidator::new()
 
 
 // Display repository details
-$o_repository = Repository::new($argv['name']);
-$o_repository->displayCliForm();
+$_repository = Repository::new($argv['name']);
+$_repository->displayCliForm();
 
 
 // Display repository size
 Log::cli(' ');
 Log::cli(ts('Size:'), 'information');
 Log::cli(ts('Git database: :size', [
-    ':size' => Numbers::getHumanReadableAndPreciseBytes($o_repository->getGitSize())
+    ':size' => Numbers::getHumanReadableAndPreciseBytes($_repository->getGitSize())
 ]));
 Log::cli(ts('Working tree: :size', [
-    ':size' => Numbers::getHumanReadableAndPreciseBytes($o_repository->getSize())
+    ':size' => Numbers::getHumanReadableAndPreciseBytes($_repository->getSize())
 ]));
 
 
 // Display remotes
 Log::cli(' ');
 Log::cli(ts('Remotes:'), 'information');
-$o_repository->getRemotesObject()->displayCliTable();
+$_repository->getRemotesObject()->displayCliTable();
 
 
 // Display branches
 Log::cli(' ');
 Log::cli(ts('Branches:'), 'information');
-$o_repository->getBranchesObject()->displayCliTable();
+$_repository->getBranchesObject()->displayCliTable();
 
 
 // Display tags
 Log::cli(' ');
 Log::cli(ts('Tags:'), 'information');
-$o_repository->getTagsObject()->displayCliTable();
+$_repository->getTagsObject()->displayCliTable();

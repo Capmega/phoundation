@@ -62,7 +62,7 @@ class Rm extends Command
             }
 
         } catch (ProcessFailedException $e) {
-            // The command rm failed, most of the time either $file doesn't exist, or we don't have access to change the mode
+            // The command rm failed, most of the time either $file doesn't exist, or we do not have access to change the mode
             static::handleException('rm', $e, function ($e, $first_line, $last_line) use ($file) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {

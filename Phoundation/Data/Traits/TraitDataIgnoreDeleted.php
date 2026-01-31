@@ -47,7 +47,7 @@ trait TraitDataIgnoreDeleted
     public function setIgnoreDeleted(?bool $ignore_deleted): static
     {
         if ($ignore_deleted === null) {
-            // Don't modify the ignore_deleted flag, keep the default
+            // Do not modify the ignore_deleted flag, keep the default
             return $this;
         }
 

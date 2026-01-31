@@ -2129,7 +2129,7 @@ trait TraitProcessVariables
     protected function setPid(string|array|null $output = null): void
     {
         if (!$this->register_run_file) {
-            // Don't register PID information
+            // Do not register PID information
             return;
         }
 
@@ -2159,7 +2159,7 @@ trait TraitProcessVariables
                 ]));
             }
 
-            // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
+            // Delete the run file but do not clean up as when the process terminates, cleanup will happen automatically
             PhoFile::new($this->run_file, PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
                    ->delete(false, use_run_file: false);
 

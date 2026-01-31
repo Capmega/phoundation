@@ -2274,7 +2274,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Removes duplicate values from this Iterator
      *
      * @param int $flags Sorting type flags:
-     *                   SORT_REGULAR - compare items normally (don't change types)
+     *                   SORT_REGULAR - compare items normally (do not change types)
      *                   SORT_NUMERIC - compare items numerically
      *                   SORT_STRING - compare items as strings
      *                   SORT_LOCALE_STRING - compare items as strings, based on the current locale

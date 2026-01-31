@@ -501,7 +501,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         $directory = PhoDirectory::newRootObject(true, 'Project::fixFileModes');
 
-        // Don't check for root user, check sudo access to these commands individually, perhaps the user has it?
+        // Do not check for root user, check sudo access to these commands individually, perhaps the user has it?
         Command::checkSudoAvailable('chown,chmod,mkdir,touch,rm', PhoRestrictions::new('/bin,/usr/bin'), true);
 
         // Fix file modes, first make everything readonly

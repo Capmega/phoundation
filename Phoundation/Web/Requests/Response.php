@@ -645,7 +645,7 @@ class Response implements ResponseInterface
                 'rel'   => 'apple-touch-icon',
                 'sizes' => $size,
                 'href'  => Url::new($url . 'apple-touch-icon-' . $size . '.png')->makeImg(),
-                'type'  => 'image/png', // Require these files to always be PNG as we don't want to do a mimetype lookup because apple likes being a ...
+                'type'  => 'image/png', // Require these files to always be PNG as we do not want to do a mimetype lookup because apple likes being a ...
             ], 'apple-touch-icon-' . $size . '.png');
 
             if (config()->getBoolean('web.icons.apple.precomposed', true)) {
@@ -654,7 +654,7 @@ class Response implements ResponseInterface
                     'rel'   => 'apple-touch-icon-precomposed',
                     'sizes' => $size,
                     'href'  => Url::new($url . 'apple-touch-icon-' . $size . '-precomposed.png')->makeImg(),
-                    'type'  => 'image/png', // Require these files to always be PNG as we don't want to do a mimetype lookup because apple likes being a ...
+                    'type'  => 'image/png', // Require these files to always be PNG as we do not want to do a mimetype lookup because apple likes being a ...
                 ], 'apple-touch-icon-' . $size . '-precomposed.png');
             }
         }
@@ -772,7 +772,7 @@ class Response implements ResponseInterface
         } else {
             foreach ($http_headers as $header => $value) {
                 if ($value === false) {
-                    // Don't add this header
+                    // Do not add this header
                     continue;
                 }
 
@@ -1838,8 +1838,6 @@ class Response implements ResponseInterface
 
         // Validate status code
         // TODO implement
-
-
         static::$http_code = $code;
     }
 
@@ -1857,7 +1855,7 @@ class Response implements ResponseInterface
     {
         // Only send when on WEB platform
         if (PLATFORM_WEB) {
-            // Don't send data if we are going to sign-out when the session terminates, which will cause a HTTP redirect
+            // Do not send data if we are going to sign-out when the session terminates, which will cause a HTTP redirect
             if (!Session::getSignOutOnExit()) {
                 // ????
                 if (isset(static::$page_headers)) {
@@ -1919,7 +1917,7 @@ class Response implements ResponseInterface
 
 
     /**
-     * Returns NULL output if the request method was HEAD (don't return output, only headers)
+     * Returns NULL output if the request method was HEAD (do not return output, only headers)
      *
      * @return void
      */

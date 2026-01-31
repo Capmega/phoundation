@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Commands\Databases;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Interfaces\TimerInterface;
 use Phoundation\Core\Log\Log;
+use Phoundation\Core\Timer;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataHostnamePort;
 use Phoundation\Data\Traits\TraitDataStringSource;
@@ -114,10 +116,12 @@ class MySql extends Command
      * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
      *
      * @param PhoFileInterface $file
+     * @return TimerInterface
      */
-    public function import(PhoFileInterface $file): void
+    public function import(PhoFileInterface $file): TimerInterface
     {
-        // Get file and database information
+        // Start timer and get file and database information
+        $_timer    = Timer::new('mysql import');
         $threshold = Log::setThreshold(3);
 
         // If we are importing the system database, then switch to init mode!
@@ -179,6 +183,8 @@ class MySql extends Command
                     ':type' => $file->getMimetype(),
                 ]));
         }
+
+        return $_timer->stop();
     }
 
 
@@ -192,6 +198,7 @@ class MySql extends Command
     public function execute(EnumExecuteMethod $method = EnumExecuteMethod::passthru): ?int
     {
         $password_file = static::createPasswordFile();
+
         try {
             // Build the process parameters, then execute
             $this->setCommand('mysql')
@@ -216,6 +223,7 @@ class MySql extends Command
             }
 
             $results = $this->execute($method);
+
             Log::notice($results, 4);
             static::deletePasswordFile();
             return null;
@@ -225,6 +233,7 @@ class MySql extends Command
             if ($password_file) {
                 static::deletePasswordFile();
             }
+
             throw $e;
         }
     }

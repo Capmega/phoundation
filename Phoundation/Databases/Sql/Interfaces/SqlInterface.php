@@ -8,12 +8,14 @@ use PDO;
 use PDOStatement;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Databases\Enums\EnumSqlVendor;
 use Phoundation\Databases\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-
+use Phoundation\Utils\Interfaces\VersionInterface;
 
 interface SqlInterface extends DatabaseInterface
 {
@@ -471,4 +473,63 @@ interface SqlInterface extends DatabaseInterface
      * @return bool
      */
     public function exists(string $table, string|int|float $column, string|int|null $value, ?int $id = null, string $id_column = 'id'): bool;
+
+
+    /**
+     * Returns the vendor for this MySQL database connection
+     *
+     * @return EnumSqlVendor
+     */
+    public function getVendor(): EnumSqlVendor;
+
+    /**
+     * Returns true if the vendor for this SQL connection is equal to the specified vendor
+     *
+     * @param EnumSqlVendor $_vendor The vendor to compare to
+     *
+     * @return bool
+     */
+    public function isVendor(EnumSqlVendor $_vendor): bool;
+
+    /**
+     * Returns the version for this SQL database connection
+     *
+     * @return string
+     */
+    public function getVersion(): string;
+
+    /**
+     * Returns a Version object with the version for this SQL database connection
+     *
+     * @return VersionInterface
+     */
+    public function getVersionObject(): VersionInterface;
+
+    /**
+     * Turns restrict_fk_on_non_standard_key off for MySQL > 8.4 servers
+     *
+     * @return static
+     */
+    public function disableRestrictFkOnNonStandardKeys(): static;
+
+    /**
+     * Turns restrict_fk_on_non_standard_key on for MySQL > 8.4 servers
+     *
+     * @return static
+     */
+    public function enableRestrictFkOnNonStandardKeys(): static;
+
+    /**
+     * Will try to automatically fix any table keys that have foreign keys on them, but lack a UNIQUE index
+     *
+     * @return static
+     */
+    public function fixFkOnNonStandardKeys(): static;
+
+    /**
+     * Returns an Iterator object containing all the table columns that are the target of a foreign key but have a normal index, not the required UNIQUE index
+     *
+     * @return IteratorInterface
+     */
+    public function getFkOnNonStandardKeys(): IteratorInterface;
 }

@@ -723,7 +723,7 @@ class PhoDateTimeFormats
                    static::normalizeNumber($matches[3]);
         }
 
-        // This is a human-readable date like "tomorrow", or "-3 days", don't touch!
+        // This is a human-readable date like "tomorrow", or "-3 days", do not touch!
         return $date;
     }
 

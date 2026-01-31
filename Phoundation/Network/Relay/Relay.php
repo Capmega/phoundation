@@ -155,7 +155,7 @@ class Relay
         // Relay filtered headers
         foreach ($headers as $header) {
             $test = strtolower($header);
-            // Transfer filter may screw things up, don't use it.
+            // Transfer filter may screw things up, do not use it.
             if (str_contains($test, 'transfer')) {
                 continue;
             }

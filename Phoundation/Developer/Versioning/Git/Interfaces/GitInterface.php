@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
@@ -393,4 +394,21 @@ interface GitInterface
      * @return bool
      */
     public function hasTagSelected(string $tag): bool;
+
+    /**
+     * Returns the commit objects in reverse chronological order
+     *
+     * @return array
+     */
+    public function listRevisions(): array;
+
+    /**
+     * Searches the entire git history for the specified keyword
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function searchHistory(string $keyword, bool $grouped = true): IteratorInterface;
 }

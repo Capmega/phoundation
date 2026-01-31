@@ -573,18 +573,28 @@ class Strings extends Utils
 
 
     /**
-     * Return if the specified source is a valid version or not
+     * Returns if the specified source is a valid version or not
      *
-     * @see    https://semver.org/
+     * @see https://semver.org/
      *
-     * @param Stringable|string $source
-     * @param bool              $phoundation_version
+     * @param Stringable|string $source                      The version to test
+     * @param bool              $phoundation_version [false] If true, allows also special Phoundation negative versions,
+     *                                                       and special Phoundation versions "post_once" and
+     *                                                       "post_always"
+     * @param bool              $short_version       [false] If true, expects a major.minor version type, instead of a
+     *                                                       major.minor.revision version
+     * @return bool                                          Returns true if the specified string is a version format
+     *                                                       string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/", or
+     *                                                       "/^\d{1,3}\.\d{1,3}$/" if $short_version is set to true
      *
-     * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/".
-     *              False if not
      */
-    public static function isVersion(Stringable|string $source, bool $phoundation_version = false): bool
+    public static function isVersion(Stringable|string $source, bool $phoundation_version = false, bool $short_version = false): bool
     {
+        if ($short_version) {
+            // The supplied version MUST be a short version of only major.minor, add revision 0 for testing purposes
+            $source .= '.0';
+        }
+
         if ($phoundation_version) {
             switch ($source) {
                 case 'post_once':
@@ -691,7 +701,7 @@ class Strings extends Utils
      */
     protected static function searchKeyword(Stringable|string $source, Stringable|string|int|float $keyword, bool $regex = false, bool $unicode = true): bool
     {
-        // Ensure keywords are trimmed, and don't search for empty keywords
+        // Ensure keywords are trimmed, and do not search for empty keywords
         $source  = (string) $source;
         $keyword = trim((string) $keyword);
 
@@ -1133,9 +1143,9 @@ class Strings extends Utils
      * /code
      *
      */
-    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
+    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, int $instance = 1, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return Strings::until(Strings::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
+        return Strings::until(Strings::from($source, $start, $instance, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 

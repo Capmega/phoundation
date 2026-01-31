@@ -188,7 +188,7 @@ class DataEntryFormRows implements DataEntryFormRowsInterface
                 $column_count = 0;
 
             } else {
-                // Hidden elements don't display anything beyond the hidden <input>
+                // Hidden elements do not display anything beyond the hidden <input>
                 if ($o_definition->getHidden()) {
                     $render .= $column->render();
                 }

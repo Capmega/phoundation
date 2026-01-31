@@ -253,7 +253,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
 
                     if ($o_definition->isMeta()) {
                         // This is an immutable meta-column, virtual column, or readonly column.
-                        // In creation mode we are not even going to show this, in edit mode don't put a column name because
+                        // In creation mode we are not even going to show this, in edit mode do not put a column name because
                         // users  are not even supposed to be able to submit this
                         if (empty($source['id'])) {
                             continue;
@@ -282,7 +282,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     $o_definition->setDisabled($o_definition->getDisabled() or $this->getDisabled());
 
                     if ($o_definition->getDisabled() or $o_definition->getReadonly()) {
-                        // This is an immutable column. Don't add a column names as users  are not supposed to submit this.
+                        // This is an immutable column. Do not add a column names as users  are not supposed to submit this.
                         $field_name = '';
                         $o_definition->setPrefix(null)->setColumn(null);
                     }

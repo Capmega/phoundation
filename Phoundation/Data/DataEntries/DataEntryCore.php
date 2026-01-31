@@ -370,7 +370,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->use_cache = Cache::getEnabled();
 
         if ($identifier === false) {
-            // If the identifier is false, don't automatically initialize the DataEntry object
+            // If the identifier is false, do not automatically initialize the DataEntry object
             $this->ready();
             return;
         }
@@ -411,7 +411,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $enabled = config()->getBoolean('developer.dataentries.destruct.modified.check', false);
 
             if ($enabled) {
-                // Can't destroy a modified DataEntry object without either resetting it or saving it
+                // Cannot destroy a modified DataEntry object without either resetting it or saving it
                 if (!Core::getErrorState() and !PhoException::hasBeenCreated()) {
                     throw DataEntryNotSavedException::new(tr('Cannot destroy the ":class" object, it has unsaved modifications', [
                         ':class' => $this::class
@@ -745,7 +745,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($identifier instanceof DataEntryInterface) {
-            // Specified identifier is actually a data entry, we don't need a column
+            // Specified identifier is actually a data entry, we do not need a column
             return null;
         }
 
@@ -2135,7 +2135,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($this->o_definitions) {
             foreach ($this->o_definitions as $column => $o_definition) {
                 if (!$o_definition->getContainsData()) {
-                    // Don't process data-less columns
+                    // Do not process data-less columns
                     continue;
                 }
 
@@ -2152,7 +2152,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     }
 
                     // Columns that  are not virtual can just be copied directly
-                    // Don't process columns that will not render
+                    // Do not process columns that will not render
                     if ($o_definition->getVirtual() and $o_definition->getRender()) {
                         // Try to resolve this column using the get method for that column
                         $method = $o_definition->getDataEntryMethodName('get');
@@ -2680,7 +2680,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function mustCopyKeyToSource(DefinitionInterface $o_definition, Stringable|string|float|int $key, bool $force): bool
     {
         if ($this->columns and !array_key_exists($key, $this->columns)) {
-            // Don't copy this column
+            // Do not copy this column
             if ($this->debug) {
                 Log::dump(ts('NOT COPYING VALUE FOR ":key" TO SOURCE, KEY NOT SPECIFIED IN COLUMNS', [
                     ':key' => $key,
@@ -2758,7 +2758,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
             } else {
-                // The current key is empty in the specified source and exists in the internal source, don't update
+                // The current key is empty in the specified source and exists in the internal source, do not update
                 continue;
             }
 
@@ -3521,7 +3521,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     }
 
                     if (array_get_safe($this->source, $key) != array_get_safe($data, $key)) {
-                        // If both records were empty (from NULL to 0 for example) then don't register
+                        // If both records were empty (from NULL to 0 for example) then do not register
                         if (array_get_safe($this->source,$key) or array_get_safe($data,$key)) {
                             $diff['from'][$key] = (string) array_get_safe($this->source,$key);
                             $diff['to'][$key]   = (string) array_get_safe($data,$key);

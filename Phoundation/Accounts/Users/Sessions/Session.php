@@ -518,7 +518,7 @@ class Session implements SessionInterface
     protected static function configureCookies(): void
     {
         if (Request::isRequestType(EnumRequestTypes::api)) {
-            // API calls don't handle cookies, sessions are done manually
+            // API calls do not handle cookies, sessions are done manually
             return;
         }
 
@@ -638,7 +638,7 @@ class Session implements SessionInterface
             // Do we have the memcached driver loaded?
             Memcached::checkDriver();
 
-            // Remove the memcached session prefix, we don't want or need people to know we use memcached
+            // Remove the memcached session prefix, we do not want or need people to know we use memcached
             ini_set('memcached.sess_prefix'       , '');
             ini_set('memcached.sess_lock_retries' , config()->getPositiveInteger('web.sessions.memcached.lock-retries' , 10));
             ini_set('memcached.sess_lock_wait_min', config()->getPositiveInteger('web.sessions.memcached.lock-wait-min', 1000));
@@ -710,7 +710,7 @@ class Session implements SessionInterface
     protected static function detectCrawler(): bool
     {
         if (isset_get(Core::readRegister('session', 'client')['type']) === 'crawler') {
-            // Don't send cookies to crawlers!
+            // Do not send cookies to crawlers!
             Log::information(ts('Detected crawler ":crawler"', [
                 ':crawler' => Core::readRegister('session', 'client'),
             ]));
@@ -1133,7 +1133,7 @@ class Session implements SessionInterface
     {
         switch (Request::getRequestType()) {
             case EnumRequestTypes::api:
-                // API's don't do cookies at all
+                // API's do not do cookies at all
                 // For now, hard code that all API calls will be system user
                 // TODO Improve upon this, API's should allow manual login, shared keys for authentication, etc...
                 static::$user = User::newSystem();
@@ -1906,7 +1906,7 @@ class Session implements SessionInterface
         }
 
         if ($user->hasAllRights('god')) {
-            // Can't impersonate a god level user!
+            // Cannot impersonate a god level user!
             Authentication::new()
                           ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
@@ -2113,7 +2113,7 @@ class Session implements SessionInterface
 
         try {
             if (isset($_SESSION['user']['impersonate_id'])) {
-                // This session was impersonation a user. Don't sign out, stop impersonating
+                // This session was impersonation a user. Do not sign out, stop impersonating
                 try {
                     // We are impersonating a user, return to the original user.
                     $url            = array_get_safe($_SESSION['user'], 'impersonate_url');

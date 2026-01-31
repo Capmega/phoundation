@@ -69,7 +69,7 @@ class PhoDirectory extends PhoDirectoryCore
      *
      * @return static
      */
-    public static function newDataTmpObject(bool $writable = false, ?string $sub_directory = null): static
+    public static function newDataTmpObject(bool $writable = true, ?string $sub_directory = null): static
     {
         $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
 

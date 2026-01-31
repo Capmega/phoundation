@@ -312,4 +312,28 @@ interface PhoFileInterface extends PhoPathInterface
      * @return static
      */
     public function uploadWithSpeedRate(bool $attachment, string|int $bytes_per_second, ?string $description = null, bool $exit = true): static;
+
+    /**
+     * Executes the specified callback function on each line of this text file
+     *
+     * @param callable $callback
+     * @param int|null $buffer
+     *
+     * @return static
+     */
+    public function eachLine(callable $callback, ?int $buffer = null): static;
+
+    /**
+     * Executes the specified callback function on each line of this text file
+     *
+     * @param array    $fields
+     * @param callable $callback
+     * @param int|null $buffer
+     * @param string   $separator
+     * @param string   $enclosure
+     * @param string   $escape
+     *
+     * @return static
+     */
+    public function eachCsvLine(array $fields, callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static;
 }

@@ -507,7 +507,7 @@ class PhoDateInterval extends \DateInterval implements Stringable
         $round    = static::getRoundFactor($round);
         $limit    = static::getLimitFactor($limit);
         $return   = [];
-        $interval = clone $this; // Don't work on THIS interval or next operations may work with borked data
+        $interval = clone $this; // Do not work on THIS interval or next operations may work with borked data
         if ($interval->y) {
             if ($limit < 7) {
                 $interval->m += ($interval->y * 12);

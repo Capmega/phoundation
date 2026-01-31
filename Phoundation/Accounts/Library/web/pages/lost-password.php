@@ -78,10 +78,10 @@ if (Request::isPostRequestMethod()) {
 
         $key  = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
 
-        Pho::new('email send')->setDebug(true)
+        Pho::new('email send')
            ->setArguments([
                '--html',
-               '--to'     , Core::isProductionEnvironment() ? $user->getEmail() : Email::getDefaultDeveloperAddress(),
+               '--to'     , $user->getEmail(),
                '--subject', tr('Lost password request'),
                '--body'   , tr('Hello :user, this email is sent because you (or somebody) requested a password reset because they lost the password for this account.<br><br>If you did not request this, please notify your systems administrator.<br><br>If you did request this, please click :here to continue.<br><br>If you cannot click on the previous link, then please copy / paste the following link into a new browser page:<br>:alt', [
                    ':user' => $user->getDisplayName(),

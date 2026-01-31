@@ -161,7 +161,6 @@ class Rsync extends Command implements RsyncInterface
     public function setDelete(bool $delete): static
     {
         $this->delete = $delete;
-
         return $this;
     }
 
@@ -187,7 +186,6 @@ class Rsync extends Command implements RsyncInterface
     public function setProgress(bool $progress): static
     {
         $this->progress = $progress;
-
         return $this;
     }
 
@@ -213,7 +211,6 @@ class Rsync extends Command implements RsyncInterface
     public function setExclude(array|string $paths): static
     {
         $this->exclude = [];
-
         return $this->addExclude($paths);
     }
 
@@ -243,7 +240,6 @@ class Rsync extends Command implements RsyncInterface
     public function clearExclude(): static
     {
         $this->exclude = [];
-
         return $this;
     }
 
@@ -269,7 +265,6 @@ class Rsync extends Command implements RsyncInterface
     public function setArchive(bool $archive): static
     {
         $this->archive = $archive;
-
         return $this;
     }
 
@@ -295,7 +290,6 @@ class Rsync extends Command implements RsyncInterface
     public function setVerbose(bool $verbose): static
     {
         $this->verbose = $verbose;
-
         return $this;
     }
 
@@ -321,7 +315,6 @@ class Rsync extends Command implements RsyncInterface
     public function setQuiet(bool $quiet): static
     {
         $this->quiet = $quiet;
-
         return $this;
     }
 
@@ -381,7 +374,6 @@ class Rsync extends Command implements RsyncInterface
     public function setRsyncPath(?string $rsync_path): static
     {
         $this->rsync_path = $rsync_path;
-
         return $this;
     }
 
@@ -407,7 +399,6 @@ class Rsync extends Command implements RsyncInterface
     public function setSafeLink(bool $safe_links): static
     {
         $this->safe_links = $safe_links;
-
         return $this;
     }
 
@@ -433,7 +424,6 @@ class Rsync extends Command implements RsyncInterface
     public function setCompress(bool $compress): static
     {
         $this->compress = $compress;
-
         return $this;
     }
 
@@ -451,6 +441,7 @@ class Rsync extends Command implements RsyncInterface
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }
+
         // If port is a non-default SSH port, then generate the RSH variable
         if (empty($this->rsh)) {
             if ($this->source_server) {
@@ -459,25 +450,28 @@ class Rsync extends Command implements RsyncInterface
             } elseif ($this->target_server) {
                 $this->port = $this->target_server->getPort();
             }
+
             if ($this->port) {
                 $this->rsh = 'ssh -p ' . $this->port;
             }
         }
+
         // Build the process parameters, then execute
-        $this->addArgument($this->progress ? '--progress' : null)
-             ->addArgument($this->archive ? '-a' : null)
-             ->addArgument($this->quiet ? '-q' : null)
-             ->addArgument($this->verbose ? '-v' : null)
-             ->addArgument($this->compress ? '-z' : null)
+        $this->addArgument($this->progress   ? '--progress'   : null)
+             ->addArgument($this->archive    ? '-a'           : null)
+             ->addArgument($this->quiet      ? '-q'           : null)
+             ->addArgument($this->verbose    ? '-v'           : null)
+             ->addArgument($this->compress   ? '-z'           : null)
              ->addArgument($this->safe_links ? '--safe-links' : null)
-             ->addArgument($this->delete ? '--delete' : null)
-             ->addArgument($this->rsh ? '-e' : null)
+             ->addArgument($this->delete     ? '--delete'     : null)
+             ->addArgument($this->rsh        ? '-e'           : null)
              ->addArgument($this->rsh)
-             ->addArgument($this->ssh_key ? '-i' : null)
+             ->addArgument($this->ssh_key    ? '-i'           : null)
              ->addArgument($this->ssh_key)
              ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
              ->addArgument($this->source)
              ->addArgument($this->target);
+
         foreach ($this->exclude as $exclude) {
             $this->addArgument('--exclude=' . escapeshellarg($exclude), false, false);
         }

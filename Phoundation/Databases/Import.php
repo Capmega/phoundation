@@ -26,6 +26,8 @@ use Phoundation\Data\Traits\TraitDataPort;
 use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
+use Phoundation\Databases\Enums\EnumSqlVendor;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -157,32 +159,46 @@ class Import
 
 
     /**
-     * Execute the rsync operation and return the PID (background) or -1
+     * Imports the MySQL database
      *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
      * @return static
      */
     public function import(): static
     {
         $this->o_file->checkExists();
-
         switch ($this->driver) {
             case 'mysql':
                 Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
                     ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->o_file->getSize()),
                     ':file'     => $this->o_file->getRootname(),
-                    ':database' => $this->getConnectorObject()->getDatabase(),
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
 
-                MySql::new()
-                     ->setTimeout($this->timeout)
-                     ->setConnectorObject($this->getConnectorObject())
-                     ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
-                     ->create($this->database ?? $this->getConnectorObject()->getDatabase())
-                     ->import($this->o_file);
+                sql()->disableRestrictFkOnNonStandardKeys();
+
+                $_timer = MySql::new()
+                               ->setTimeout($this->timeout)
+                               ->setConnectorObject($this->getConnectorObject())
+                               ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
+                               ->create($this->database ?? $this->getConnectorObject()->getDatabase())
+                               ->import($this->o_file);
+
+                Log::success(ts('Finished importing database ":database" in ":time"', [
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
+                    ':time'     => $_timer->getDifference(),
+                ]), 10);
+
+                // Re-enable strict FK key checks on MySQL
+                sql()->enableRestrictFkOnNonStandardKeys(function () {
+                    // But first make sure that all non-UNIQUE indices are fixed!
+                    Log::warning(ts('Detected MySQL version >8.4, checking and fixing any foreign key target columns without unique indexm this may take a second...'), 10);
+                    sql()->fixFkOnNonStandardKeys();
+                });
 
                 Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->o_file,
-                    ':database' => $this->database,
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
                 break;
 

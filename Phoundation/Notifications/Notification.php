@@ -743,7 +743,7 @@ FILES variables:
         $user    = User::new()->load($user);
 
         if (!config()->getBoolean('notifications.send.enabled', true) and !$this->override_non_production_lockout) {
-            // We are not in production environment, don't send any notifications!
+            // We are not in production environment, do not send any notifications!
             Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),
                 ':user'  => $user->getEmail()
@@ -841,7 +841,7 @@ FILES variables:
             $this->log();
 
         } else {
-            // Notification was already logged, don't log again
+            // Notification was already logged, do not log again
             Log::error(ts('Not saving previous notification ":title", there is no system database available', [
                 ':title' => $this->getTitle()
             ]));

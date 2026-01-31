@@ -5,8 +5,8 @@
  *
  *
  *
- * @author    Sven Olaf Oostenbrink <sven@medinet.ca>
- * @license   This plugin is developed by Medinet and may only be used by others with explicit written authorization
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Network
  */

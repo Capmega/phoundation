@@ -101,7 +101,7 @@ interface FilterFormInterface extends DataEntryFormInterface
      *
      * @note This method is one of the very few object::getStatus() methods that might return FALSE. The reason for that
      *       is that "not selected" would normally return NULL, but status NULL actually (mostly) means "normal". So
-     *       here, FALSE means "don't filter", NULL means "filter on status NULL", and any string means "Filter on this
+     *       here, FALSE means "do not filter", NULL means "filter on status NULL", and any string means "Filter on this
      *       string"
      *
      * @return string|false|null

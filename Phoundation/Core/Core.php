@@ -1030,7 +1030,7 @@ class Core implements CoreInterface
 
         // If we get here...
         // The Config object has no environment and won't be able to load configuration. This means that the process is
-        // exiting during startup. As such, we won't have logging either. Don't do cleanup, don't do anything. Just exit
+        // exiting during startup. As such, we won't have logging either. Do not do cleanup, do not do anything. Just exit
     }
 
 
@@ -1296,7 +1296,7 @@ class Core implements CoreInterface
         try {
             if ($production === null) {
                 if (!defined('ENVIRONMENT')) {
-                    // Oops, we are so early in startup that we don't have an environment available yet!
+                    // Oops, we are so early in startup that we do not have an environment available yet!
                     // Assume production!
                     $loop = false;
 
@@ -1432,7 +1432,7 @@ class Core implements CoreInterface
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
-            // TODO Don't access $_SESSION data like this directly, get it from Session class methods instead
+            // TODO Do not access $_SESSION data like this directly, get it from Session class methods instead
             define('LANGUAGE', $language);
             define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
@@ -2221,7 +2221,7 @@ class Core implements CoreInterface
                 }
 
             } else {
-                // The key doesn't exist, so we don't have to worry about the sub key
+                // The key doesn't exist, so we do not have to worry about the sub key
                 return;
             }
 
@@ -2543,7 +2543,7 @@ class Core implements CoreInterface
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
         if (Core::inStartupState()) {
-            // Wut? We are not even ready to go! Likely we don't have configuration available, so we cannot even send out
+            // Wut? We are not even ready to go! Likely we do not have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                               ->setCode($errno)
@@ -2885,7 +2885,7 @@ class Core implements CoreInterface
      */
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
-        // Don't register warning exceptions
+        // Do not register warning exceptions
         if ((!$e instanceof PhoException) or !$e->isWarning()) {
             // This is a "bad" exception
             if (Core::getReadonly()) {
@@ -2894,7 +2894,7 @@ class Core implements CoreInterface
             } else {
                 if (defined('ENVIRONMENT')) {
                     if ($e instanceof EnvironmentNotExistsException) {
-                        // Don't register the uncaught exception incident, the exception is the environment does not exist
+                        // Do not register the uncaught exception incident, the exception is the environment does not exist
                         Log::error(ts('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
                             ':environment' => ENVIRONMENT
                         ]));
@@ -2967,7 +2967,7 @@ class Core implements CoreInterface
 
                 } catch (Throwable $f) {
                     if (!CliAutoComplete::isActive()) {
-                        // Don't use tr() over here because we might be in failed mode where tr() is not available
+                        // Do not use tr() over here because we might be in failed mode where tr() is not available
                         Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
 
                         if (!($f instanceof PhoException) or !$f->isWarning()) {
@@ -3121,6 +3121,12 @@ class Core implements CoreInterface
         Log::error(ts('Exception data:'), 10);
         Log::error($e, 10);
 
+        // Remove all caching headers
+        if (!headers_sent()) {
+            Response::setHttpCode(500);
+            http_response_code(500);
+        }
+
         // Rethrow exception to avoid lots of "if" statements - this way, we can just catch the right one
         try {
             throw $e;
@@ -3181,8 +3187,6 @@ class Core implements CoreInterface
             header_remove('Content-Type');
             header('Content-Type: text/html');
             header('Content-length: 1048576'); // Required or browser won't show half the information
-            Response::setHttpCode(500);
-            http_response_code(500);
         }
 
         try {
@@ -3230,9 +3234,6 @@ class Core implements CoreInterface
         if ($e->getCode() === 'validation') {
             $e->setCode(400);
         }
-
-        // Show nice error page
-        Core::executeUncaughtExceptionSystemPage(500, $e);
 
         // TODO Change this so that we only return HTML for HTML requests, NOT json requests. With debug on, JsonPage should return full data reports!
         switch (Request::getRequestType()) {
@@ -3486,7 +3487,7 @@ class Core implements CoreInterface
         if (!Debug::isEnabled() or ($page < 0)) {
             foreach ($classes as $class) {
                 if (($e instanceof $class)) {
-                    // Don't try to display a pretty error page, this exception is too severe
+                    // Do not try to display a pretty error page, this exception is too severe
                     Core::exit(1, $e->getMessage());
                 }
             }
@@ -3494,6 +3495,9 @@ class Core implements CoreInterface
             // Try to show a pretty error page
             Request::executeSystem($page, $e, $message);
         }
+
+        Response::setHttpCode(abs($page));
+        http_response_code(abs($page));
     }
 
 

@@ -286,7 +286,7 @@ class Poad
                     }
 
                 } else {
-                    // Don't automatically add headers and footers, just return the data
+                    // Do not automatically add headers and footers, just return the data
                     $return = $this->source['source'];
                 }
 
