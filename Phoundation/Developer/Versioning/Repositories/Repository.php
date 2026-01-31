@@ -134,7 +134,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'path';
+        return 'name';
     }
 
 

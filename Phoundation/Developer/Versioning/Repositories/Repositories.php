@@ -120,7 +120,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'path';
+        return 'name';
     }
 
 
@@ -453,8 +453,9 @@ throw new UnderConstructionException();
             }
 
         } catch (NotExistsException) {
-            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on project repositories, could not find the project main repository', [
-                ':action' => $action
+            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on project repositories, could not find the project main repository ":repository"', [
+                ':action'     => $action,
+                ':repository' => Project::getDirectoryName()
             ]))->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
         }
 
