@@ -40,7 +40,7 @@ use Throwable;
 use ValueError;
 
 
-class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTimeInterface
+class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 {
     /**
      * Returns a new DateTime object
@@ -1088,9 +1088,9 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current year
+     * Returns the current year of this datetime
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1101,9 +1101,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current month of the year
+     * Returns a new DateTime object with this date, but with the specified year
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $year The year to use for the new date
+     *
+     * @return static
+     */
+    public function setYear(int $year): static
+    {
+        return $this->setDate($year, $this->getMonth(), $this->getDay());
+    }
+
+
+    /**
+     * Returns the current month of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1114,9 +1127,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current week of the year
+     * Returns a new DateTime object with this date, but with the specified month
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $month The month to use for the new date
+     *
+     * @return static
+     */
+    public function setMonth(int $month): static
+    {
+        return $this->setDate($this->getYear(), $month, $this->getDay());
+    }
+
+
+    /**
+     * Returns the current week of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1127,9 +1153,9 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current day of the month
+     * Returns the current day of this datetime
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1140,11 +1166,24 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current hour of the day
+     * Returns a new DateTime object with this date, but with the specified day
+     *
+     * @param int $day The day to use for the new date
+     *
+     * @return static
+     */
+    public function setDay(int $day): static
+    {
+        return $this->setDate($this->getYear(), $this->getMonth(), $day);
+    }
+
+
+    /**
+     * Returns the current hour of this datetime
      *
      * @note will return the hour in 24 hours format
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1155,9 +1194,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current minute of the hour
+     * Returns a new DateTime object with this date, but with the specified hour
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $hour The hour to use for the new date
+     *
+     * @return static
+     */
+    public function setHour(int $hour): static
+    {
+        return $this->setTime($hour, $this->getMinute(), $this->getSecond(), $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current minute of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1168,9 +1220,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current second of the minute
+     * Returns a new DateTime object with this date, but with the specified minute
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $minute The minute to use for the new date
+     *
+     * @return static
+     */
+    public function setMinute(int $minute): static
+    {
+        return $this->setTime($this->getHour(), $minute, $this->getSecond(), $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current second of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1181,9 +1246,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current millisecond of the second
+     * Returns a new DateTime object with this date, but with the specified second
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $second The second to use for the new date
+     *
+     * @return static
+     */
+    public function setSecond(int $second): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $second, $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current millisecond of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1194,15 +1272,187 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current microsecond of the second
+     * Returns a new DateTime object with this date, but with the specified millisecond
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $millisecond The millisecond to use for the new date
+     *
+     * @return static
+     */
+    public function SetMillisecond(int $millisecond): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $this->getSecond(), $millisecond);
+    }
+
+
+    /**
+     * Returns the current microsecond of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
     public function getMicroSecond(DateTimeZone|string|null $timezone = null): int
     {
         return (int) PhoDateTime::new($this, $timezone)->format('u');
+    }
+
+
+    /**
+     * Returns a new DateTime object with this date, but with the specified microsecond
+     *
+     * @param int $microsecond The microsecond to use for the new date
+     *
+     * @return static
+     */
+    public function SetMicrosecond(int $microsecond): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $this->getSecond(), $microsecond);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified years
+     *
+     * @param array|string|int         $values          One or more of the years(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasYear(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getYear($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified months
+     *
+     * @param array|string|int         $values          One or more of the months(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMonth(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMonth($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified weeks
+     *
+     * @param array|string|int         $values          One or more of the weeks(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasWeek(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getWeek($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified days
+     *
+     * @param array|string|int         $values          One or more of the day(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasDay(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getDay($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified hour
+     *
+     * @param array|string|int         $values          One or more of the hour(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasHour(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getHour($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified minutes
+     *
+     * @param array|string|int         $values          One or more of the minutes(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMinute(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMinute($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified seconds
+     *
+     * @param array|string|int         $values          One or more of the second(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasSecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getSecond($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified milliseconds
+     *
+     * @param array|string|int         $values          One or more of the millisecond(s) that this date object must
+     *                                                  have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMillisecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMillisecond($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified microseconds
+     *
+     * @param array|string|int         $values          One or more of the microsecond(s) that this date object must
+     *                                                  have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMicroSecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMicroSecond($timezone), $values, $strict);
     }
 
 
