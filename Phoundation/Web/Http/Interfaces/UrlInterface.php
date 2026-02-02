@@ -430,4 +430,11 @@ interface UrlInterface
      * @return string|null
      */
     public function getFromHostAndLanguage(): ?string;
+
+    /**
+     * Adds the queries from the current page to this URL object
+     *
+     * @return static
+     */
+    public function addCurrentQueries(): static;
 }
