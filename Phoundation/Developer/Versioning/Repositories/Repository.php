@@ -55,6 +55,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Enums\EnumVersionSections;
+use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 
 class Repository extends DataEntry implements RepositoryInterface
@@ -66,7 +67,9 @@ class Repository extends DataEntry implements RepositoryInterface
     use TraitDataEntryPathObject {
       setPath as protected __setPath;
     }
-    use TraitDataEntryName;
+    use TraitDataEntryName {
+        setName as protected __setName;
+    }
     use TraitDataEntryDescription;
     use TraitDataEntryBranch;
     use TraitDataEntryClass;
@@ -134,7 +137,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'path';
+        return 'name';
     }
 
 
@@ -269,6 +272,27 @@ class Repository extends DataEntry implements RepositoryInterface
 
         $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
         return $this;
+    }
+
+
+    /**
+     * Sets the name for this Repository object and ensures it is unique
+     *
+     * @param string|null $name                The name for this repository
+     * @param bool        $set_seo_name [true] If true, will also set the seo_name property
+     *
+     * @return static
+     */
+    public function setName(?string $name, bool $set_seo_name = true): static
+    {
+        // Name might not be be unique, use Seo::unique() to enforce uniqueness
+        $name = get_null(trim((string) $name));
+
+        if ($name) {
+            $name = Seo::unique($name, Repository::getTable(), $this->getId(false));
+        }
+
+        return $this->__setName($name);
     }
 
 

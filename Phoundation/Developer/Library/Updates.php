@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.1';
+        return '0.9.2';
     }
 
 
@@ -118,14 +118,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_developer_repositories_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
 
-        })->addUpdate('0.9.1', function () {
+        })->addUpdate('0.9.2', function () {
+            // Ensure unique index on developer_repositories.name column
+
+            // Since this is just about repositories on local machines, we can quite safely delete the contents of the table. Do NOT use truncate, just in case
+            // there are references to these repositories
+            sql()->query('DELETE FROM `developer_repositories`');
+
             $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
 
             if ($_table->indexExists('name')) {
                 $_table->alter()->dropIndex('name');
             }
 
-            $_table->alter()->addIndex('INDEX `name` (`name`)');
+            $_table->alter()->addIndex('UNIQUE `name` (`name`)');
         });
     }
 }

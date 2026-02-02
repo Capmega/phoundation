@@ -120,7 +120,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'path';
+        return 'name';
     }
 
 
