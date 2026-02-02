@@ -629,32 +629,20 @@ throw new ObsoleteException();
      * @param mixed                       $default
      * @param bool|null                   $exception
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?DataEntryInterface
     {
-        // Does this entry exist?
-        if (array_key_exists($key, $this->source)) {
-            return $this->ensureObject($key);
-        }
-
-        if ($exception) {
-            throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
-                ':key'   => $key,
-                ':class' => static::class,
-            ]));
-        }
-
-        return null;
+        return parent::get($key, $default, $exception);
     }
 
 
     /**
      * Returns a random entry
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getRandom(): mixed
+    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface
     {
         if (empty($this->source)) {
             return null;
@@ -1321,9 +1309,9 @@ throw new ObsoleteException();
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): mixed
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
     {
         return $this->ensureObject(key($this->source));
     }

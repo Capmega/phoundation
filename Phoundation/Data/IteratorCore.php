@@ -154,8 +154,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $this->setSource($source);
         }
 
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType())
-             ->setExceptionOnGet(true);
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
     }
 
 
