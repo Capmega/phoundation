@@ -493,13 +493,13 @@ throw new ObsoleteException();
     /**
      * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
      *
-     * @param bool $value
+     * @param bool $keys_are_unique_column
      *
      * @return static
      */
-    public function setKeysAreUniqueColumn(bool $value): static
+    public function setKeysAreUniqueColumn(bool $keys_are_unique_column): static
     {
-        $this->keys_are_unique_column = $value;
+        $this->keys_are_unique_column = $keys_are_unique_column;
         return $this;
     }
 
@@ -629,32 +629,20 @@ throw new ObsoleteException();
      * @param mixed                       $default
      * @param bool|null                   $exception
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?DataEntryInterface
     {
-        // Does this entry exist?
-        if (array_key_exists($key, $this->source)) {
-            return $this->ensureObject($key);
-        }
-
-        if ($exception) {
-            throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
-                ':key'   => $key,
-                ':class' => static::class,
-            ]));
-        }
-
-        return null;
+        return parent::get($key, $default, $exception);
     }
 
 
     /**
-     * Returns the random entry
+     * Returns a random entry
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function getRandom(): mixed
+    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface
     {
         if (empty($this->source)) {
             return null;
@@ -883,6 +871,13 @@ throw new ObsoleteException();
                                                             ->list($this->query, $this->execute);
         }
 
+        // Ensure all source objects are converted to arrays for this
+        foreach ($this->source as &$value) {
+            if (is_object($value)) {
+                $value = $value->getSource();
+            }
+        }
+
         return parent::displayCliTable($columns, $filters, $id_column);
     }
 
@@ -976,16 +971,16 @@ throw new ObsoleteException();
      *
      * This method reads in $size entries at the time, erases them, and continues onto the next until all are erased
      *
-     * @param int $size
+     * @param int $chunk_size
      *
      * @return void
      */
-    public static function truncate(int $size = 10): void
+    public static function eraseAll(int $chunk_size = 10): void
     {
         Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
 
         do {
-            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $size);
+            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $chunk_size);
             $iterator->erase();
             Log::dot(1);
 
@@ -1002,6 +997,18 @@ throw new ObsoleteException();
                 ]))
                 ->setNotifyRoles('developer')
                 ->save();
+    }
+
+
+    /**
+     * Truncates the table controlled by this DataIterator
+     *
+     * @return void
+     */
+    public static function truncate(): void
+    {
+        Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
+        sql()->query('TRUNCATE `' . static::getTable() . '`');
     }
 
 
@@ -1141,7 +1148,7 @@ throw new ObsoleteException();
                 }
 
                 // Either the specified DataEntry object has no value for its unique column, or the unique column
-                // matches the specified key. Either way, we're good to go
+                // matches the specified key. Either way, we are good to go
 
             } else {
                 $key = $value->getUniqueColumnValue();
@@ -1169,7 +1176,7 @@ throw new ObsoleteException();
                     }
                 }
 
-                // Either the specified DataEntry object is new or the id matches the specified key, we're good to go
+                // Either the specified DataEntry object is new or the id matches the specified key, we are good to go
             } else {
                 // Key was not specified, use the ID from the DataEntry object as key
                 $key = $value->getId();
@@ -1261,7 +1268,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
+     * Ensure the entry we are going to return is from DataEntryInterface interface
      *
      * @param string|float|int|null $key
      * @param bool                  $force
@@ -1314,9 +1321,9 @@ throw new ObsoleteException();
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return mixed
+     * @return DataEntryInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): mixed
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
     {
         return $this->ensureObject(key($this->source));
     }
@@ -1425,7 +1432,7 @@ throw new ObsoleteException();
         $this->setIsLoading(true)
              ->selectQuery($identifiers, $like);
 
-        cache('dataentries')->get($this->getCacheKey(), function ()  use ($identifiers) {
+        cache('dataentries')->getOrGenerate($this->getCacheKey(), function ()  use ($identifiers) {
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
@@ -1464,7 +1471,7 @@ throw new ObsoleteException();
         $entry       = new $entry();
         $o_definitions = $entry->getDefinitionsObject();
 
-        // Ensure all entry definition columns are available, apply default values where they don't
+        // Ensure all entry definition columns are available, apply default values where they do not
         foreach ($source as &$value) {
             $value['status'] = 'configuration';
 
@@ -1575,7 +1582,7 @@ throw new ObsoleteException();
 
 
     /**
-     * Returns true if this DataIterator has data loaded into it's source
+     * Returns true if this DataIterator has data loaded into it is source
      *
      * Data will be considered loaded into the source if either it was specified as a source during constructor, or
      * whendata was loaded using the DataIterator::load() method
@@ -1672,7 +1679,7 @@ throw new ObsoleteException();
             }
         }
 
-        // Apply will first validate, so we know ALL has been validated before we're saving
+        // Apply will first validate, so we know ALL has been validated before we are saving
         foreach ($source as $data_entry_id => $data_entry_source) {
             $this->get($data_entry_id, $require_clean_source)?->apply(true, $data_entry_source);
         }

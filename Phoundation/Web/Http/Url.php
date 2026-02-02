@@ -205,8 +205,8 @@ class Url implements UrlInterface
                 $base = Request::getRoutingParametersObject()->getRootUrl();
 
             } catch (OutOfBoundsException $e) {
-                // Routing parameters are not yet available, assume /
-                $base = '/';
+                // Routing parameters are not yet available, assume the project root URL
+                $base = Domains::getRootUrl();
             }
 
         } else {
@@ -512,7 +512,7 @@ class Url implements UrlInterface
     {
         if ($this->is_absolute === null) {
             if (!$this->canMakeAbsolute()) {
-                // Links that can't be made absolute (#, mailto:, etc) are considered already absolute
+                // Links that cannot be made absolute (#, mailto:, etc) are considered already absolute
                 $this->is_absolute = true;
 
             } else {
@@ -555,22 +555,22 @@ class Url implements UrlInterface
         }
 
         if (str_starts_with($this->source, '#')) {
-            // This is a valid but "do nothing" link, don't do anything
+            // This is a valid but "do nothing" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'mailto:')) {
-            // This is a valid "mailto" link, don't do anything
+            // This is a valid "mailto" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'tel:')) {
-            // This is a valid "tel:" link, don't do anything
+            // This is a valid "tel:" link, do not do anything
             return false;
         }
 
         if (str_starts_with($this->source, 'javascript:')) {
-            // This is a valid "javascript:" link, don't do anything
+            // This is a valid "javascript:" link, do not do anything
             return false;
         }
 
@@ -589,7 +589,7 @@ class Url implements UrlInterface
     public function makeWww(bool $use_configured_root = false): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -617,7 +617,7 @@ class Url implements UrlInterface
     public function makeCdn(?string $extension = null): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -665,7 +665,7 @@ class Url implements UrlInterface
     protected function makeJson(string $type, bool $use_configured_root = false): static
     {
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -718,7 +718,7 @@ class Url implements UrlInterface
         }
 
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -1200,7 +1200,7 @@ class Url implements UrlInterface
         $this->is_absolute = null;
 
         if (empty($this->source)) {
-            // There is no URL to work with, we're done
+            // There is no URL to work with, we are done
             $this->source = Request::getUrl();
             $extension    = '';
         }
@@ -1266,7 +1266,7 @@ class Url implements UrlInterface
         }
 
         if (!$this->canMakeAbsolute()) {
-            // This URL can't be made into something else
+            // This URL cannot be made into something else
             return $this;
         }
 
@@ -1706,7 +1706,7 @@ class Url implements UrlInterface
         if (str_contains($this->source, '?')) {
             if (str_contains($this->source, $key . '=')) {
                 // The query already exists in the specified URL, replace it.
-                $replace      = Strings::cut($this->source, $key . '=', '&', false);
+                $replace      = Strings::cut($this->source, $key . '=', '&', needles_required: false);
                 $this->source = str_replace($key . '=' . $replace, $key . '=' . $value, $this->source);
 
             } else {
@@ -1715,7 +1715,7 @@ class Url implements UrlInterface
             }
 
         } else {
-            // This URL has no queries yet, so we don't need to check anything, we can just attach the query
+            // This URL has no queries yet, so we do not need to check anything, we can just attach the query
             $this->source .= '?' . $key . '=' . $value;
         }
 
@@ -1745,7 +1745,7 @@ class Url implements UrlInterface
                  * FOREIGN1 > English > Foreign2.
                  *
                  * Also add a / in front of $return before replacing to ensure
-                 * we don't accidentally replace sections like "services/" with
+                 * we do not accidentally replace sections like "services/" with
                  * "servicen/" with Spanish URL's
                  */
                 $return = str_replace('/' . $this->url_params['from_language'] . '/', '/en/', '/' . $return);
@@ -1803,11 +1803,11 @@ class Url implements UrlInterface
     public function isExternal(bool $check_sub_domains = true): bool
     {
         if ($this->isValid()) {
-            // This isn't even a complete URL, must be internal, there is no domain name expected here
+            // This  is not even a complete URL, must be internal, there is no domain name expected here
             return false;
         }
 
-        // We have a complete URL, so there is a domain name in there. Check if it's a "local" (ie, on this server)
+        // We have a complete URL, so there is a domain name in there. Check if it is a "local" (ie, on this server)
         // domain name
         return !$this->getDomainType($check_sub_domains);
     }
@@ -1844,7 +1844,7 @@ class Url implements UrlInterface
      *
      * @param bool $check_sub_domains
      *
-     * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it's on an external
+     * @return string|null web in case its on a WWW domain, cdn in case its on a CDN domain, NULL if it is on an external
      */
     public function getDomainType(bool $check_sub_domains = true): ?string
     {
@@ -1896,7 +1896,7 @@ class Url implements UrlInterface
         $queries = Strings::from($url, '?', needle_required: true);
 
         if ($queries) {
-            // Get all individual queries and ensure they're encoded
+            // Get all individual queries and ensure they are encoded
             $url     = Strings::until($url, '?', needle_required: true);
             $queries = explode('&', $queries);
 

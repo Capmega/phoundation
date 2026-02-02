@@ -63,7 +63,7 @@ class Web
 //        $url = (string) $url;
 //
 //        if (preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url)) {
-//            // Absolute URL specified, don't modify
+//            // Absolute URL specified, do not modify
 //            return $url;
 //        }
 //
@@ -71,7 +71,7 @@ class Web
 //            /*
 //             * Use current domain.
 //             * Current domain MAY not be the same as the configured domain, so
-//             * always use $_SESSION[domain] unless we're at the point where
+//             * always use $_SESSION[domain] unless we are at the point where
 //             * sessions are not available (yet) or are not available (cli, for
 //             * example). In that case, fall back on the configured domain
 //             * $_CONFIG[domain]
@@ -110,7 +110,7 @@ class Web
 //                 * FOREIGN1 > English > Foreign2.
 //                 *
 //                 * Also add a / in front of $return before replacing to ensure
-//                 * we don't accidentally replace sections like "services/" with
+//                 * we do not accidentally replace sections like "services/" with
 //                 * "servicen/" with Spanish URL's
 //                 */
 //                $return = str_replace('/' . $from_language . '/', '/en/', '/' . $return);

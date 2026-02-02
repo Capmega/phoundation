@@ -21,16 +21,29 @@ use Exception;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Exception\DateException;
+use Phoundation\Date\Interfaces\PhoDateInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
+use Stringable;
 use Throwable;
 
 
-class PhoDate
+class PhoDate extends PhoDateTime implements PhoDateInterface
 {
+    /**
+     * Returns the source of this PhoDateTime object
+     *
+     * @return string
+     */
+    public function getSource(): string
+    {
+        return $this->format('Y-m-d');
+    }
+
+
     /**
      * ???
      *
@@ -54,7 +67,9 @@ class PhoDate
                 31536000 => tr('This year'),
             ];
         }
+
         usort($periods);
+
         foreach ($periods as $time => $label) {
             if ($timestamp < $time) {
                 return $label;
@@ -401,74 +416,115 @@ class PhoDate
     }
 
 
+//    /**
+//     * Returns a string representation of how long ago the specified date was, from now
+//     *
+//     * @param PhoDate|PhoDateTimeInterface|string|int $date
+//     * @param bool                           $microseconds
+//     *
+//     * @return string
+//     */
+//    public static function getAge(PhoDate|DateTime|string|int $date, bool $microseconds = false): string
+//    {
+//        if (!is_object($date)) {
+//            if (is_integer($date)) {
+//                $timestamp = $date;
+//                $date      = new DateTime();
+//                $date->setTimestamp($timestamp);
+//
+//            } else {
+//                $date = new DateTime($date);
+//            }
+//        }
+//
+//        $now  = new DateTime();
+//        $diff = $now->diff($date);
+//
+//        if ($diff->y) {
+//            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
+//                ':count' => $diff->y
+//            ]));
+//        }
+//
+//        if ($diff->m) {
+//            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
+//                ':count' => $diff->m
+//            ]));
+//        }
+//
+//        if ($diff->d) {
+//            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
+//                ':count' => $diff->d
+//            ]));
+//        }
+//
+//        if ($diff->h) {
+//            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
+//                ':count' => $diff->h
+//            ]));
+//        }
+//
+//        if ($diff->i) {
+//            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
+//                ':count' => $diff->i
+//            ]));
+//        }
+//
+//        if ($diff->s) {
+//            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
+//                ':count' => $diff->s
+//            ]));
+//        }
+//
+//        if ($microseconds) {
+//            if (isset($diff->u) and $diff->u) {
+//                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
+//                    ':count' => $diff->s
+//                ]));
+//            }
+//        }
+//
+//        return tr('Right now');
+//    }
+
+
     /**
-     * Returns a string representation of how long ago the specified date was, from now
+     * Converts the given month name (Nov, November, 11) to the month number (11)
      *
-     * @param PhoDate|PhoDateTimeInterface|string|int $date
-     * @param bool                           $microseconds
+     * @param Stringable|string|int|null $month               The month value to convert. Must be a valid full month name, a valid three-letter month code, or a
+     *                                                        month number [1-12]
+     * @param bool                       $permit_null [false] If true, allows (and returns) NULL values for dates
      *
-     * @return string
+     * @return int|null
      */
-    public static function getAge(PhoDate|DateTime|string|int $date, bool $microseconds = false): string
+    public static function convertMonthNameToNumber(Stringable|string|int|null $month, bool $permit_null = false): ?int
     {
-        if (!is_object($date)) {
-            if (is_integer($date)) {
-                $timestamp = $date;
-                $date      = new DateTime();
-                $date->setTimestamp($timestamp);
-
-            } else {
-                $date = new DateTime($date);
+        if ($month === null) {
+            if ($permit_null) {
+                return null;
             }
+
+            throw new OutOfBoundsException(ts('Cannot convert specified month to its corresponding number, the specified value is NULL and NULL values are not allowed'));
         }
 
-        $now  = new DateTime();
-        $diff = $now->diff($date);
+        $month = strtolower((string) $month);
 
-        if ($diff->y) {
-            return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [
-                ':count' => $diff->y
-            ]));
-        }
-
-        if ($diff->m) {
-            return Strings::plural($diff->m, tr(':count month', [':count' => $diff->m]), tr(':count months', [
-                ':count' => $diff->m
-            ]));
-        }
-
-        if ($diff->d) {
-            return Strings::plural($diff->d, tr(':count day', [':count' => $diff->d]), tr(':count days', [
-                ':count' => $diff->d
-            ]));
-        }
-
-        if ($diff->h) {
-            return Strings::plural($diff->h, tr(':count hour', [':count' => $diff->h]), tr(':count hours', [
-                ':count' => $diff->h
-            ]));
-        }
-
-        if ($diff->i) {
-            return Strings::plural($diff->i, tr(':count minute', [':count' => $diff->i]), tr(':count minutes', [
-                ':count' => $diff->i
-            ]));
-        }
-
-        if ($diff->s) {
-            return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count seconds', [
-                ':count' => $diff->s
-            ]));
-        }
-
-        if ($microseconds) {
-            if (isset($diff->u) and $diff->u) {
-                return Strings::plural($diff->s, tr(':count second', [':count' => $diff->s]), tr(':count microseconds', [
-                    ':count' => $diff->s
-                ]));
-            }
-        }
-
-        return tr('Right now');
+        return match ($month) {
+            'jan', 'january'  ,  '1' , '01' => 1,
+            'feb', 'february' ,  '2' , '02' => 2,
+            'mar', 'march'    ,  '3' , '03' => 3,
+            'apr', 'april'    ,  '4' , '04' => 4,
+            'may'             ,  '5' , '05' => 5,
+            'jun', 'june'     ,  '6' , '06' => 6,
+            'jul', 'july'     ,  '7' , '07' => 7,
+            'aug', 'august'   ,  '8' , '08' => 8,
+            'sep', 'september',  '9' , '09' => 9,
+            'oct', 'october'  , '10'        => 10,
+            'nov', 'november' , '11'        => 11,
+            'dec', 'december' , '12'        => 12,
+            default => throw new DateException(ts('Cannot convert specified month ":month" to its corresponding number, the value is not a valid month. Please specify the full month name, the three letter code, or the month number (1-12)', [
+                ':month' => $month
+            ]))
+        };
     }
 }

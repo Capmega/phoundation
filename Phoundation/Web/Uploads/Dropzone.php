@@ -393,13 +393,13 @@ class Dropzone implements DropzoneInterface
 
             if ($max_files < $this->parallel_uploads) {
                 throw new OutOfBoundsException(tr('The max_files parameter cannot be lower than the parallel_uploads value ":value"', [
-                    ':value' => $this->max_files,
+                    ':value' => $max_files,
                 ]));
             }
 
             if ($max_files > ini_get('max_file_uploads')) {
                 throw new PhpConfigurationException(tr('The max_files value ":value" is higher than the maximum allowed by PHP configuration of ":php"', [
-                    ':value' => $this->max_files,
+                    ':value' => $max_files,
                     ':php'    => ini_get('max_file_uploads'),
                 ]));
             }

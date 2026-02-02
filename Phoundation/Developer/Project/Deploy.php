@@ -35,7 +35,7 @@ use Throwable;
 class Deploy implements DeployInterface
 {
     /**
-     * The project we're deploying
+     * The project we are deploying
      *
      * @var ProjectInterface $project
      */
@@ -142,7 +142,7 @@ class Deploy implements DeployInterface
             $this->configuration['force']         = ($this->env_config['force'] or FORCE);
 
             if (!$this->env_config['ignore_changes']) {
-                if ($this->project->getGit()->hasChanges()) {
+                if ($this->project->getGitObject()->hasChanges()) {
                     throw new DeployException(tr('The project has pending git changes. Please commit or stash first'));
                 }
             }

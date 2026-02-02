@@ -9,7 +9,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Developer
  */
 
 
@@ -20,6 +20,21 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Git\Git;
 use Phoundation\Filesystem\PhoDirectory;
 
+
+// Start documentation
+CliDocumentation::setAutoComplete([
+    'positions' => [
+        0 => function ($word) {
+            return PhoDirectory::newRootObject()->scan($word);
+        },
+        1 => function ($word) {
+            return PhoDirectory::newRootObject()->scan($word);
+        }
+    ],
+    'arguments' => [
+        '-h,--hard' => false
+    ]
+]);
 
 CliDocumentation::setUsage('./pho development git reset [BRANCH] [FILE] [--hard]
 ./pho dev git reset [BRANCH] [FILE] [--hard]');

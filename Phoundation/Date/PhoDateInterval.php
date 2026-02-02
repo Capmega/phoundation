@@ -137,7 +137,7 @@ class PhoDateInterval extends \DateInterval implements Stringable
             }
 
         } elseif (is_int($date_interval)) {
-            // Diff will always give a tiny number of micro/milliseconds difference. Since we're on seconds resolution
+            // Diff will always give a tiny number of micro/milliseconds difference. Since we are on seconds resolution
             // here, we can round that off
             $round_up      = not_null($round_up, true);
             $date_interval = PhoDateTime::new($date_interval . ' seconds')
@@ -507,7 +507,7 @@ class PhoDateInterval extends \DateInterval implements Stringable
         $round    = static::getRoundFactor($round);
         $limit    = static::getLimitFactor($limit);
         $return   = [];
-        $interval = clone $this; // Don't work on THIS interval or next operations may work with borked data
+        $interval = clone $this; // Do not work on THIS interval or next operations may work with borked data
         if ($interval->y) {
             if ($limit < 7) {
                 $interval->m += ($interval->y * 12);

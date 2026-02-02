@@ -52,7 +52,7 @@ $argv = ArgvValidator::new()
 try {
     // Dump all keys
     foreach (cache($argv['connector'])->getAllKeys() as $key) {
-        Log::printr(cache($argv['connector'])->get($key), echo_header: false);
+        Log::printr(cache($argv['connector'])->getOrGenerate($key), echo_header: false);
         Log::cli();
     }
 

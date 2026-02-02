@@ -46,7 +46,6 @@ class TableAlter extends SchemaAbstract
         ]);
 
         $this->name = $name;
-
         return $this;
     }
 
@@ -399,7 +398,7 @@ class TableAlter extends SchemaAbstract
     public function dropForeignKey(string $foreign_key): static
     {
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', false) . '`');
+            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', needles_required: false) . '`');
         }
 
         return $this;

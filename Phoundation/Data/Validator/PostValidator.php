@@ -229,7 +229,7 @@ class PostValidator extends Validator
             $key   = (string) key($button);
             $value = (string) current($button);
 
-            // Quick validate button value. Don't allow weird shit
+            // Quick validate button value. Do not allow weird shit
             if ($key) {
                 if ((strlen($key) > 255) or !ctype_print($key)) {
                     throw ValidationFailedException::new(tr('Invalid submit button specified'))
@@ -361,11 +361,11 @@ class PostValidator extends Validator
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = false): static
     {
         if (($value === null) and $skip_null_values) {
-            // Don't permit empty values
+            // Do not permit empty values
             return $this;
         }
 
-        // Don't permit empty keys, quietly drop them
+        // Do not permit empty keys, quietly drop them
         $key = trim((string) $key);
 
         if (!$key) {

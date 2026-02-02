@@ -41,7 +41,7 @@ use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
 use Phoundation\Data\Traits\TraitDataMethodPickValidatorInterface;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -304,7 +304,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     protected static bool $has_been_validated = false;
 
     /**
-     * Tracks unclean fields that were specified but not validated because they're unknown
+     * Tracks unclean fields that were specified but not validated because they are unknown
      *
      * @var array|null $unclean
      */
@@ -444,7 +444,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         if (array_key_exists($to_key, $this->source)) {
             // Target already exists, should we overwrite?
             if (!$overwrite) {
-                // Don't overwrite, don't change anything
+                // Do not overwrite, do not change anything
                 return $this;
             }
         }
@@ -474,11 +474,87 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *       unless $also_if_selected_is_default is true
      *
      * @param IteratorInterface|array|string $keys
+     * @param bool                           $also_if_selected_is_default If true, and the specified column is not empty but contains a default value, it will
+     *                                                                    be treated as if it is empty
+     *
+     * @return static
+     */
+    public function requiresColumnsEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
+    {
+        $keys = Arrays::force($keys);
+
+        if (empty($keys)) {
+            throw new OutOfBoundsException(tr('Cannot test field ":field" for required keys being empty, no keys were specified', [
+                ':field' => $this->selected_field
+            ]));
+        }
+
+        return $this->validateValues(function (&$value) use ($keys, $also_if_selected_is_default) {
+            $restricted = [];
+
+            if (!$this->hasOptionalValue($value) or $also_if_selected_is_default) {
+                // Ensure we have clean keys to test, test all keys
+                foreach ($keys as $key) {
+                    $clean_key = Strings::ensureBeginsNotWith($key, '-');
+                    $clean_key = str_replace('-', '_', $clean_key);
+
+                    // This key likely WILL exist (because if not specified, it would be defaulted or already failed)
+                    // So do not test with array_key_exists() but with empty() instead, NULL or "" or false will be used as
+                    // "not specified"
+                    if (!empty($this->source[$clean_key])) {
+                        $restricted[] = $key;
+                    }
+                }
+
+                // Any keys missing?
+                switch (count($restricted)) {
+                    case 0:
+                        // All required fields are empty, yay!
+                        break;
+
+                    case 1:
+                        // 1 field failed
+                        $value = [];
+                        $this->addSoftFailure(tr('requires that the field ":key" is not specified', [
+                            ':key' => current($restricted),
+                        ]));
+
+                        break;
+
+                    default:
+                        // Multiple fields failed
+                        $value = [];
+                        $this->addSoftFailure(tr('requires that the fields ":key" are not specified', [
+                            ':key' => Strings::force($restricted, ', '),
+                        ]));
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Requires that the specified keys are available for this key to be valid
+     *
+     * @note This test does not count as an "executed test" to be able to select the next key. If only this test was
+     *       executed for the selected key, and a next key will be selected, an ValidationFailedException exception will
+     *       still be thrown
+     *
+     * @note This test requires that the specified keys have already been tested before, as it does not know what keys
+     *       will be tested after, and if they will default or not
+     *
+     * @note This test will not test for the existence of the specified key, as they SHOULD exist (See previous note) so
+     *       it will test if they are not empty. If the specified keys are empty, the field will fail.
+     *
+     * @note This will only require the specified keys are not empty if the currently selected field is not default,
+     *       unless $also_if_selected_is_default is true
+     *
+     * @param IteratorInterface|array|string $keys
      * @param bool                           $also_if_selected_is_default
      *
      * @return static
      */
-    public function requiresNotEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
+    public function requiresColumnsNotEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static
     {
         $keys = Arrays::force($keys);
 
@@ -1144,7 +1220,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * This method will make the selected field optional and use the specified $default instead
      *
-     * This means that either it may not exist, or it's contents may be NULL
+     * This means that either it may not exist, or it is contents may be NULL
      *
      * @param mixed $default
      *
@@ -1172,8 +1248,29 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     public function requiresField(int|string $field): static
     {
         if (!$this->selected_is_default) {
-            if (!array_key_exists($field, $this->source)) {
+            if (empty($this->source[$field])) {
                 $this->addSoftFailure(tr('requires field ":field" to have a valid value as well', [
+                    ':field' => $field,
+                ]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * This method will validate that the specified key is NOT set
+     *
+     * @param int|string $field
+     *
+     * @return static
+     */
+    public function requiresNotField(int|string $field): static
+    {
+        if (!$this->selected_is_default) {
+            if (empty($this->source[$field])) {
+                $this->addSoftFailure(tr('cannot be combined with field ":field"', [
                     ':field' => $field,
                 ]));
             }
@@ -1263,7 +1360,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         return $this->validateValues(function ($selected_value) use ($argument, $value, $required_equivalence, $strict) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+                // Validation already failed, do not test anything more
                 return '';
             }
 
@@ -1308,7 +1405,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         return $this->validateValues(function ($value) use ($field, $strict) {
             if ($this->process_value_failed) {
-                // Validation already failed, don't test anything more
+                // Validation already failed, do not test anything more
                 return '';
             }
 
@@ -1536,7 +1633,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                             break;
                         }
 
-                        // We're allowing only soft failures, and a hard failure was detected
+                        // We are allowing only soft failures, and a hard failure was detected
                         // no break
 
                     case EnumSoftHard::none:
@@ -1581,7 +1678,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                         case 'int':
                             $this->source[$column] = (int) $this->source[$column];
 
-                            // We're forcing numbers to be 0 but that might cause problems with database id's
+                            // We are forcing numbers to be 0 but that might cause problems with database id's
                             if (empty($this->source[$column]) and $o_definition->hasRealInputType(EnumInputType::dbid)) {
                                 // Database ID's CANNOT be zero
                                 $this->source[$column] = null;
@@ -1706,7 +1803,7 @@ throw new ObsoleteException();
                     default:
                         if (!in_array($field, $this->selected_fields)) {
                             // TODO Does this still hold true? meta columns should NEVER be submitted!!!
-                            // These fields were never selected, so we don't know them. Are they meta-columns? If so, ignore
+                            // These fields were never selected, so we do not know them. Are they meta-columns? If so, ignore
                             // them because they will have been set manually (DataEntry::apply() will ignore meta columns)
                             if (empty($this->meta_columns) or !in_array($field, $this->meta_columns)) {
                                 $unclean[$field] = [
@@ -1818,7 +1915,7 @@ throw new ObsoleteException();
             return true;
         }
 
-        // DEBUG CODE: In case of errors with validation, it's very useful to have these debugged here
+        // DEBUG CODE: In case of errors with validation, it is very useful to have these debugged here
         // show($this->selected_field);
         // show($value);
         // show($this->selected_is_optional);
@@ -1827,12 +1924,12 @@ throw new ObsoleteException();
             // Value 0 IS CONSIDERED A VALUE
             if (!is_numeric($value)) {
                 if (!$this->selected_is_optional) {
-                    // At this point we know we MUST have a value, so we're bad here
+                    // At this point we know we MUST have a value, so we are bad here
                     $this->addFailure(tr('is required'));
                     return true;
                 }
 
-                // If the value is set or not doesn't matter, it's okay
+                // If the value is set or not doesn't matter, it is okay
                 $value                      = $this->selected_optional;
                 $this->selected_is_default  = true;
                 $this->process_value_failed = true;
@@ -1840,7 +1937,7 @@ throw new ObsoleteException();
             }
         }
 
-        // The field has a value, we're okay
+        // The field has a value, we are okay
         return false;
     }
 
@@ -1862,7 +1959,7 @@ throw new ObsoleteException();
             $this->ensureSelected();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // In the span of multiple Tests on one value, one test failed, don't execute the rest of the Tests
+                // In the span of multiple Tests on one value, one test failed, do not execute the rest of the Tests
                 return $this;
             }
 
@@ -2027,7 +2124,7 @@ throw new ObsoleteException();
             $this->isNumeric();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2056,7 +2153,7 @@ throw new ObsoleteException();
             $this->isNumeric();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2083,7 +2180,7 @@ throw new ObsoleteException();
         $this->isInteger();
 
         if ($this->process_value_failed or $this->selected_is_default) {
-            // Validation already failed or defaulted, don't test anything more
+            // Validation already failed or defaulted, do not test anything more
             return $this;
         }
 
@@ -2253,7 +2350,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2289,7 +2386,7 @@ throw new ObsoleteException();
             $this->isNumeric();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2328,7 +2425,7 @@ throw new ObsoleteException();
             $this->isFloat();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return $this;
             }
 
@@ -2352,7 +2449,7 @@ throw new ObsoleteException();
             $this->isFloat();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return $this;
             }
 
@@ -2380,7 +2477,7 @@ throw new ObsoleteException();
             $this->isNatural();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return $this;
             }
 
@@ -2417,7 +2514,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2470,7 +2567,7 @@ throw new ObsoleteException();
                 $this->isScalar();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
+                    // Validation already failed or defaulted, do not test anything more
                     return;
                 }
 
@@ -2516,7 +2613,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, $min_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2549,7 +2646,7 @@ throw new ObsoleteException();
             }
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2578,7 +2675,7 @@ throw new ObsoleteException();
             }
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2596,6 +2693,11 @@ throw new ObsoleteException();
             }
 
             if (strlen($value) > $max_characters) {
+show($this->selected_field);
+show($max_characters);
+show($value);
+showbacktrace();
+die();
                 $this->addSoftFailure(tr('must have ":count" characters or less', [':count' => $max_characters]));
             }
         });
@@ -2619,7 +2721,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2653,7 +2755,7 @@ throw new ObsoleteException();
             $this->hasMaxCharacters();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2684,7 +2786,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2711,7 +2813,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2737,7 +2839,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2761,7 +2863,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2787,7 +2889,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2817,7 +2919,7 @@ throw new ObsoleteException();
             $this->isNumeric();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2854,7 +2956,7 @@ throw new ObsoleteException();
             $this->isNumeric();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2888,7 +2990,7 @@ throw new ObsoleteException();
             $this->isFloat();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2920,7 +3022,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2951,7 +3053,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -2999,7 +3101,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3094,7 +3196,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3128,7 +3230,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3180,7 +3282,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3248,7 +3350,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3281,7 +3383,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3292,7 +3394,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, Arrays::getLongestValueLength($array));
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 $this->addSoftFailure(tr('must be one of ":list"', [':list' => $array]));
                 return;
             }
@@ -3321,7 +3423,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3349,7 +3451,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3377,7 +3479,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3402,7 +3504,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3427,7 +3529,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3452,7 +3554,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3477,7 +3579,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3501,7 +3603,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3526,7 +3628,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3551,7 +3653,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3594,7 +3696,7 @@ throw new ObsoleteException();
                 $this->isScalar();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
+                    // Validation already failed or defaulted, do not test anything more
                     return;
                 }
 
@@ -3627,6 +3729,7 @@ throw new ObsoleteException();
      * @param array|string|null $formats
      *
      * @return static
+     * @todo Either remove $formats or implement it
      * @todo Add locale support instead , see https://www.php.net/manual/en/book.intl.php and
      *       https://stackoverflow.com/questions/8827514/get-date-format-according-to-the-locale-in-php (INTL section)
      */
@@ -3640,7 +3743,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3670,7 +3773,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3793,7 +3896,7 @@ throw new ObsoleteException();
             $this->isNumeric()->isPositive();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3826,7 +3929,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(18); // 00:00:00.000000 AM
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3878,7 +3981,7 @@ throw new ObsoleteException();
                  ->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3920,7 +4023,7 @@ throw new ObsoleteException();
                  ->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -3960,7 +4063,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4003,7 +4106,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4049,7 +4152,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4087,7 +4190,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 64);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4118,7 +4221,7 @@ throw new ObsoleteException();
             $this->isScalar();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4156,7 +4259,7 @@ throw new ObsoleteException();
             $this->isArray();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4183,7 +4286,7 @@ throw new ObsoleteException();
             $this->isArray();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4210,7 +4313,7 @@ throw new ObsoleteException();
             $this->isArray();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4235,7 +4338,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(128);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4293,7 +4396,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(64);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4320,7 +4423,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 16, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4346,7 +4449,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4369,7 +4472,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4397,7 +4500,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4419,7 +4522,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4446,7 +4549,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 32, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4472,7 +4575,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4498,7 +4601,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 2);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4651,7 +4754,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4679,7 +4782,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4707,7 +4810,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4735,7 +4838,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4763,7 +4866,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4791,7 +4894,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 2048, 1);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4818,7 +4921,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4839,12 +4942,12 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if (static::passwordsDisabled()) {
-                // Don't test passwords
+                // Do not test passwords
                 return;
             }
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4885,7 +4988,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 128, 10);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4910,7 +5013,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4934,7 +5037,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4962,7 +5065,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -4991,7 +5094,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, $max_characters, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5007,7 +5110,7 @@ throw new ObsoleteException();
 
             if ($url->isValid()) {
                 if ($url->hasHost($domain)) {
-                    // Now we're good!
+                    // Now we are good!
                     return;
 
                 } else {
@@ -5059,7 +5162,7 @@ throw new ObsoleteException();
             $this->isUrl($domain, $max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5084,7 +5187,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 128, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5109,7 +5212,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5136,7 +5239,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, 128, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5163,7 +5266,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters(48);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5196,7 +5299,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5233,7 +5336,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5270,7 +5373,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5304,7 +5407,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5335,7 +5438,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding, true, null, 3);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5364,7 +5467,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(3)->hasMaxCharacters($max_characters);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5390,7 +5493,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5423,7 +5526,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($value_or_function, $failure) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5459,7 +5562,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($failure, $o_connector) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5498,7 +5601,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5578,11 +5681,39 @@ throw new ObsoleteException();
 //                $this->isDateTime();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
+                    // Validation already failed or defaulted, do not test anything more
                     return;
                 }
 
                 $value = PhoDateTime::new($value);
+            }
+        });
+    }
+
+
+    /**
+     * Makes the current field a boolean value
+     *
+     * This method ensures that the specified array key is a boolean
+     *
+     * @return static
+     */
+    public function sanitizeToDate(): static
+    {
+        $this->test_count++;
+
+        return $this->validateValues(function (&$value) {
+            if (!$this->hasOptionalValue($value)) {
+                $this->isDate();
+// TODO Change this to isDateTime() when the PhoDate class is ready
+//                $this->isDateTime();
+
+                if ($this->process_value_failed or $this->selected_is_default) {
+                    // Validation already failed or defaulted, do not test anything more
+                    return;
+                }
+
+                $value = PhoDate::new($value);
             }
         });
     }
@@ -5604,7 +5735,7 @@ throw new ObsoleteException();
                 $this->isTime();
 
                 if ($this->process_value_failed or $this->selected_is_default) {
-                    // Validation already failed or defaulted, don't test anything more
+                    // Validation already failed or defaulted, do not test anything more
                     return;
                 }
 
@@ -5639,7 +5770,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($class, $identifier, $method) {
             if (!$this->hasOptionalValue($value)) {
-                // Since we cannot know what identifier column value we may expect, we don't know if it should be a
+                // Since we cannot know what identifier column value we may expect, we do not know if it should be a
                 // database id, a code, a name, etcetera, so no prior validations are possible here
                 $value = $class::new()->$method($identifier);
             }
@@ -5661,7 +5792,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($function) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5688,7 +5819,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5717,7 +5848,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5744,7 +5875,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5772,7 +5903,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5800,7 +5931,7 @@ throw new ObsoleteException();
             $this->isString();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5826,7 +5957,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5859,7 +5990,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5894,7 +6025,7 @@ throw new ObsoleteException();
             $this->hasEncoding($encoding);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -5933,7 +6064,7 @@ throw new ObsoleteException();
                     $this->hasEncoding($encoding, true, null, 2);
 
                     if ($this->process_value_failed or $this->selected_is_default) {
-                        // Validation already failed or defaulted, don't test anything more
+                        // Validation already failed or defaulted, do not test anything more
                         return;
                     }
 
@@ -5960,7 +6091,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6002,7 +6133,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($separator, $enclosure, $escape) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6036,7 +6167,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6062,7 +6193,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6091,7 +6222,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($characters) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
             try {
@@ -6122,7 +6253,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6154,7 +6285,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6188,7 +6319,7 @@ throw new ObsoleteException();
             $this->isUrl();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6223,7 +6354,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($characters) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6253,7 +6384,7 @@ throw new ObsoleteException();
             if ($pre or $post) {
                 if ($this->process_value_failed or $this->selected_is_default) {
                     if (!$this->selected_is_default) {
-                        // Validation already failed or defaulted, don't test anything more
+                        // Validation already failed or defaulted, do not test anything more
                         return $this;
                     }
 
@@ -6287,7 +6418,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($callback) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return $this;
             }
 
@@ -6309,7 +6440,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6335,7 +6466,7 @@ throw new ObsoleteException();
 
         return $this->validateValues(function (&$value) use ($callback) {
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6365,7 +6496,7 @@ throw new ObsoleteException();
             $this->isPhoneNumber();
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6388,7 +6519,7 @@ throw new ObsoleteException();
             $this->sanitizeTrim()->hasMinCharacters(10)->hasMaxCharacters(30);
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6739,12 +6870,12 @@ throw new ObsoleteException();
             }
 
             if (!$enabled or !$encoding) {
-                // Don't check encoding
+                // Do not check encoding
                 return;
             }
 
             if ($this->process_value_failed or $this->selected_is_default) {
-                // Validation already failed or defaulted, don't test anything more
+                // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
@@ -6769,7 +6900,7 @@ throw new ObsoleteException();
     {
         $this->test_count++;
 
-        return $this->validateValues(function (&$value) use ($failure) {
+        return $this->validateValues(function (&$selected_value) use ($value, $failure) {
             if (!$this->hasOptionalValue($value)) {
                 if ($value) {
                     $this->addSoftFailure($failure);

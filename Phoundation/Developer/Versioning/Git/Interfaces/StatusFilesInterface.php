@@ -33,11 +33,11 @@ interface StatusFilesInterface extends PhoFilesInterface
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param PhoDirectoryInterface $target_path
+     * @param PhoDirectoryInterface $o_target_path
      *
      * @return static
      */
-    public function patch(PhoDirectoryInterface $target_path): static;
+    public function patch(PhoDirectoryInterface $o_target_path): static;
 
 
     /**

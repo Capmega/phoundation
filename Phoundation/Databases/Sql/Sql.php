@@ -30,13 +30,16 @@ use Phoundation\Core\Exception\CoreReadonlyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Core\Timers;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Exception\ConnectorException;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorsInterface;
+use Phoundation\Databases\Enums\EnumSqlVendor;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlAmbiguousColumnException;
@@ -67,7 +70,9 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Servers\Servers;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Interfaces\VersionInterface;
 use Phoundation\Utils\Strings;
+use Phoundation\Utils\Version;
 use Throwable;
 
 
@@ -969,11 +974,11 @@ class Sql implements SqlInterface
             Log::success(static::getConnectorLogPrefix() . ts('Connected to database with PDO connect string ":connect" in ":time"', [
                 ':connect' => $connect_string,
                 ':time'    => PhoTime::difference($start, microtime(true), 'auto', 4),
-            ]), 4);
+            ]), 3);
 
             Log::printr($this->configuration['attributes'], 2, echo_header: false);
 
-            // Yay, we're using the database!
+            // Yay, we are using the database!
             $this->database = $this->configuration['database'];
 
             if ($this->configuration['timezones_name']) {
@@ -1018,7 +1023,7 @@ class Sql implements SqlInterface
                         // no break
 
                     case 'system/init/init':
-                        // This is not an issue, we're either dropping DB or initializing it.
+                        // This is not an issue, we are either dropping DB or initializing it.
                         $this->connect(false);
 
                         return $this;
@@ -1318,7 +1323,7 @@ class Sql implements SqlInterface
         $database = $this->getDatabaseName($database);
 
         if ($database === $this->getCurrentDatabase()) {
-            // We're already using this database, no need to switch
+            // We are already using this database, no need to switch
             return $this;
         }
 
@@ -2143,4 +2148,226 @@ class Sql implements SqlInterface
             ]), 'debug', 9);
         }
     }
-}
+
+
+    /**
+     * Returns the vendor for this SQL database connection
+     *
+     * @return EnumSqlVendor
+     */
+    public function getVendor(): EnumSqlVendor
+    {
+        $version = $this->getColumn('SELECT VERSION()');
+        $version = strtolower($version);
+
+        if (str_contains($version, 'mariadb')) {
+            return EnumSqlVendor::mariadb;
+        }
+
+        return EnumSqlVendor::oracle;
+
+//        // TODO Add test for postgres! Right now we're just assuming but we don't even know if Phoundation would run on a postgres DB
+//        return EnumSqlVendor::postgres;
+    }
+
+
+    /**
+     * Returns true if the vendor for this SQL connection is equal to the specified vendor
+     *
+     * @param EnumSqlVendor $_vendor The vendor to compare to
+     *
+     * @return bool
+     */
+    public function isVendor(EnumSqlVendor $_vendor): bool
+    {
+        return $this->getVendor() === $_vendor;
+    }
+
+
+    /**
+     * Returns the version for this SQL database connection
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        $version = $this->getColumn('SELECT VERSION()');
+        $version = strtolower($version);
+
+        return Strings::until($version, '-');
+    }
+
+
+    /**
+     * Returns a Version object with the version for this SQL database connection
+     *
+     * @return VersionInterface
+     */
+    public function getVersionObject(): VersionInterface
+    {
+        return new Version($this->getVersion());
+    }
+
+
+    /**
+     * Turns restrict_fk_on_non_standard_key off for MySQL > 8.4 servers
+     *
+     * This method is only allowed on MySQL servers 8.4 and up. Any other databases or versions will be ignored
+     *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     * @return static
+     */
+    public function disableRestrictFkOnNonStandardKeys(): static
+    {
+        if (sql($this->getConnectorObject())->isVendor(EnumSqlVendor::oracle)) {
+            // Oracle MySQL 8.4 and up may have issues
+            if (sql($this->getConnectorObject())->getVersionObject()->isHigherThan('8.4', short_version: true)) {
+                // This is MySQL 8.4 or up.
+                sql()->query('set global restrict_fk_on_non_standard_key=OFF;');
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Turns restrict_fk_on_non_standard_key on for MySQL > 8.4 servers
+     *
+     * This method is only allowed on MySQL servers 8.4 and up. Any other databases or versions will be ignored
+     *
+     * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
+     *
+     * @param callable|null $pre_enable_callback If specified, this callback will be executed before the setting is turned on IF the key get set (only gets set
+     *                                           on MySQL 8.4 and up)
+     *
+     * @return static
+     */
+    public function enableRestrictFkOnNonStandardKeys(?callable $pre_enable_callback = null): static
+    {
+        if (sql($this->getConnectorObject())->isVendor(EnumSqlVendor::oracle)) {
+            // Oracle MySQL 8.4 and up may have issues
+            if (sql($this->getConnectorObject())->getVersionObject()->isHigherThan('8.4', short_version: true)) {
+                // This is MySQL 8.4 or up.
+                if ($pre_enable_callback) {
+                    $pre_enable_callback();
+                }
+
+                sql()->query('set global restrict_fk_on_non_standard_key=ON;');
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Will try to automatically fix any table keys that have foreign keys on them, but lack a UNIQUE index
+     *
+     * @return static
+     */
+    public function fixFkOnNonStandardKeys(): static
+    {
+        $database = sql()->getCurrentDatabase();
+
+        foreach ($this->getFkOnNonStandardKeys() as $data) {
+            sql()->use($data['constraint_schema']);
+
+            // Get source and target objects and get a list of foreign keys
+            $_target       = sql()->getSchemaObject()->getTableObject($data['target_table']);
+            $_foreign_keys = $_target->getForeignKeysToColumn($data['target_column']);
+
+            // Remove the foreign key from all the sources first
+            $_foreign_keys->forEachField(function ($_entry) use ($data) {
+                $_source = sql()->getSchemaObject()->getTableObject($_entry->get('source_table'));
+
+                if ($_source->foreignKeyExists($_entry->get('foreign_key_name'))) {
+                    $_source->alter()->dropForeignKey($_entry->get('foreign_key_name'));
+                }
+            });
+
+            // Now remove the faulty index if it exists
+            if ($_target->indexExists($data['target_column'])) {
+                $_target->alter()->dropIndex($data['target_column']);
+            }
+
+            // Add the correct unique index
+            $_target->alter()->addIndex('UNIQUE KEY ' . $data['target_column'] . '(' . $data['target_column'] . ')');
+
+            // Reapply the foreign key from the source to the target
+            $_foreign_keys->forEachField(function ($_entry) use ($data) {
+                sql()->getSchemaObject()->getTableObject($_entry->get('source_table'))
+                                        ->alter()
+                                        ->addForeignKey('CONSTRAINT `' . $_entry->get('foreign_key_name') . '` FOREIGN KEY (`' . $_entry->get('source_column') . '`) REFERENCES `' . $_entry->get('target_table') . '` (`' . $_entry->get('target_column') . '`) ON DELETE RESTRICT');
+            });
+        }
+
+        sql()->use($database);
+        return $this;
+    }
+
+
+    /**
+     * Returns an Iterator object containing all the table columns that are the target of a foreign key but have a normal index, not the required UNIQUE index
+     *
+     * @note Query was taken from https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4, but slightly modified for use in Phoundation
+     *
+     * @return IteratorInterface
+     */
+    public function getFkOnNonStandardKeys(): IteratorInterface
+    {
+        $results = sql()->listKeyValues('SELECT
+                                           CONCAT(fk.constraint_schema, fk.constraint_name) AS identifier,
+                                           fk.constraint_schema, 
+                                           fk.constraint_name,
+                                           fk.source_fk_definition   AS fk_definition,
+                                           fk.source_table           AS source_table,
+                                           fk.source_column          AS source_column,
+                                           fk.REFERENCED_TABLE_NAME  AS target_table,
+                                           fk.REFERENCED_COLUMN_NAME AS target_column,
+                                           "##fkToNonUniqueKey"
+                                         FROM (
+                                           SELECT
+                                             rc.constraint_schema,
+                                             rc.constraint_name,
+                                             rc.table_name  AS source_table,
+                                             GROUP_CONCAT(kc.column_name ORDER BY kc.ORDINAL_POSITION) AS source_column,
+                                             CONCAT(rc.table_name, "(", GROUP_CONCAT(kc.column_name ORDER BY kc.ORDINAL_POSITION), ")") AS source_fk_definition,
+                                             CONCAT(kc.REFERENCED_TABLE_SCHEMA, ".", kc.REFERENCED_TABLE_NAME, "(", GROUP_CONCAT(kc.REFERENCED_COLUMN_NAME ORDER BY kc.POSITION_IN_UNIQUE_CONSTRAINT), ")") AS target_fk_definition,
+                                             rc.REFERENCED_TABLE_NAME,
+                                             kc.REFERENCED_COLUMN_NAME
+                                           FROM
+                                             information_schema.REFERENTIAL_CONSTRAINTS rc
+                                           JOIN
+                                             information_schema.KEY_COLUMN_USAGE kc
+                                           ON
+                                             rc.constraint_schema = kc.constraint_schema AND
+                                             rc.constraint_name = kc.constraint_name AND
+                                             rc.constraint_schema = kc.REFERENCED_TABLE_SCHEMA AND
+                                             rc.REFERENCED_TABLE_NAME = kc.REFERENCED_TABLE_NAME AND
+                                             kc.REFERENCED_TABLE_NAME IS NOT NULL AND
+                                             kc.REFERENCED_COLUMN_NAME IS NOT NULL
+                                           GROUP BY
+                                             rc.constraint_schema,
+                                             rc.constraint_name,
+                                             rc.table_name,
+                                             rc.REFERENCED_TABLE_NAME,
+                                             kc.REFERENCED_COLUMN_NAME
+                                         ) fk
+                                         LEFT JOIN (
+                                           SELECT
+                                             CONCAT(table_schema, ".", table_name, "(", GROUP_CONCAT(column_name ORDER BY seq_in_index), ")") AS fk_definition
+                                           FROM
+                                             INFORMATION_SCHEMA.STATISTICS
+                                           WHERE
+                                             sub_part IS NULL AND
+                                             non_unique = 0  -- Only consider unique indexes
+                                           GROUP BY
+                                             table_schema, table_name, index_name
+                                         ) unique_idx ON fk.target_fk_definition = unique_idx.fk_definition
+                                         WHERE
+                                           unique_idx.fk_definition IS NULL;');
+
+        return new Iterator($results);
+     }
+ }

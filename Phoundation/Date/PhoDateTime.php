@@ -27,6 +27,7 @@ use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
+use Phoundation\Date\Exception\DateException;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -360,7 +361,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      * t    Number of days in the given month    28 through 31
      *
      * Year    ---    ---
-     * L    Whether it's a leap year    1 if it is a leap year, 0 otherwise.
+     * L    Whether it is a leap year    1 if it is a leap year, 0 otherwise.
      * o    ISO 8601 week-numbering year. This has the same value as Y, except that if the ISO week number (W) belongs
      *      to the previous or next year, that year is used instead.    Examples: 1999 or 2003
      * X    An expanded full numeric representation of a year, at least 4 digits, with - for years BCE, and + for years
@@ -1252,27 +1253,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns a string representation of how long ago the specified date was, from now
+     * Returns a string representation of how long ago the specified date was, from now or from the specified date
      *
      * @param PhoDate|PhoDateTimeInterface|string|int|null $date
-     * @param bool                                $microseconds
+     * @param bool                                         $reverse
+     * @param bool                                         $microseconds
      *
      * @return string
      */
-    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $microseconds = false): string
+    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $reverse = false, bool $microseconds = false): string
     {
-        if (!is_object($date)) {
-            if (is_integer($date)) {
-                $timestamp = $date;
-                $date      = new PhoDateTime();
-                $date->setTimestamp($timestamp);
+        if ($reverse) {
+            $diff = $this->diff(new PhoDateTime($date));
 
-            } else {
-                $date = new PhoDateTime($date);
-            }
+        } else {
+            $diff = PhoDateTime::new($date)->diff($this);
         }
-
-        $diff = $this->diff($date);
 
         if ($diff->y) {
             return Strings::plural($diff->y, tr(':count year', [':count' => $diff->y]), tr(':count years', [

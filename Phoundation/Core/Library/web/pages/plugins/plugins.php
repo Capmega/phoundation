@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Core
  */
 
 
@@ -91,7 +91,7 @@ $o_documentation_card = Card::new()
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Plugins'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/', tr('Home')),

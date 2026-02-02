@@ -279,7 +279,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
             return parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException) {
-            // Core is readonly we can't write to the database!
+            // Core is readonly we cannot write to the database!
             Log::warning(ts('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session' => Session::getId(),
                 ':user'    => Session::getUserObject()->getLogId(),
@@ -463,13 +463,13 @@ class Authentication extends DataEntry implements AuthenticationInterface
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
         // Ensure status will be limited to the defined possible states
-        $o_definitions->removeKeys('meta-divider')
+        $o_definitions->removeKeys('meta_divider')
                       ->get('status')->setSource(static::getStatuses());
 
         $o_definitions->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('meta-divider'))
+                      ->add(DefinitionFactory::newDivider('meta_divider'))
 
                       ->add(DefinitionFactory::newData('account')
                                              ->setLabel(tr('Used user account'))

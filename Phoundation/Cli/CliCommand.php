@@ -41,6 +41,7 @@ use Phoundation\Content\Media\Audio\Success;
 use Phoundation\Core\Core;
 use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Exception\ProjectException;
+use Phoundation\Core\Exception\SystemCacheException;
 use Phoundation\Core\Libraries\Libraries;
 use Phoundation\Core\Log\Log;
 use Phoundation\Core\Tmp;
@@ -485,7 +486,7 @@ class CliCommand
         }
 
         if (Core::getMaintenanceMode()) {
-            // We're running in maintenance mode, limit command execution to system/
+            // We are running in maintenance mode, limit command execution to system/
             $return['limit']  = ['system/', 'project/', 'info'];
             $return['reason'] = tr('system has been placed in maintenance mode by user ":user" and only "./pho project ..." commands are available right now. If maintenance mode is stuck then please run "./pho project modes maintenance disable" to disable maintenance mode. Please note that all web requests are being blocked as well during maintenance mode!', [
                 ':user' => Core::getMaintenanceMode(),
@@ -697,7 +698,7 @@ class CliCommand
 
         if (!config()->getEnvironment()) {
             // Config class didn't get environment, this means the process died somewhere during startup.
-            // We can't log using the Log class, so die with the exit message
+            // We cannot log using the Log class, so die with the exit message
             if (PLATFORM_CLI) {
                 echo Strings::ensureEndsWith($exit_message, PHP_EOL);
                 exit($exit_code);
@@ -709,7 +710,7 @@ class CliCommand
         }
 
         if (is_object($exit_code)) {
-            // Specified exit code is an exception, we're in trouble...
+            // Specified exit code is an exception, we are in trouble...
             $e         = $exit_code;
             $exit_code = $exit_code->getCode();
         }
@@ -735,6 +736,14 @@ class CliCommand
                     ':usage'    => Numbers::getHumanReadableAndPreciseBytes(memory_get_peak_usage()),
                     ':exitcode' => $exit_code,
                 ]), 10);
+
+                // Display hints?
+                if ($e->hasHints()) {
+                    foreach (Arrays::force($e->getHints(), null) as $hint) {
+                        Log::warning(ts('Hint: '), 10, echo_newline: false);
+                        Log::notice($hint, 10);
+                    }
+                }
 
             } else {
                 $exit_code = $exit_code ?? 255;
@@ -923,7 +932,7 @@ class CliCommand
 //            $run_dir = DIRECTORY_ROOT . 'data/system/run/';
 //            $command = $core->register['command'];
 //
-//            PhoDirectory::ensure(dirname($run_dir . $command));
+//            PhoDirectory::createDirectory(dirname($run_dir . $command));
 //
 //            if ($close) {
 //                if (!$executed) {
@@ -1091,7 +1100,7 @@ class CliCommand
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
                 // This command has no auto complete support, so if we execute the command it won't go for auto
-                // complete but execute normally, which is not what we want. We're done here.
+                // complete but execute normally, which is not what we want. We are done here.
                 exit();
             }
 
@@ -1194,31 +1203,24 @@ class CliCommand
             $file .= '/';
             $next  = array_get_safe($commands, $position + 1);
 
-            if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
-                if (file_exists($file . $command)) {
-                    if (!is_dir($file . $command)) {
-                        // This is the file! Adjust the CliAutoComplete position if it's active because we'll be one
-                        // position ahead of what is expected
-                        if (CliAutoComplete::isActive()) {
-                            CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
-                        }
+            // TODO Fix this! With the next IF, auto complete effectively is disabled for commands that have the same name as their parent directory, because the auto suggest has to show a mix of both optional other sub commands of the parent directory AND the auto suggest data for that command.
+            if (!CliAutoComplete::isActive()) {
+                if (!$next or (!file_exists($file . $next) and !file_exists($file . $next . '.php'))) {
+                    if (file_exists($file . $command . '.php')) {
+                        if (!is_dir($file . $command . '.php')) {
+                            // This is the file! Adjust the CliAutoComplete position if it is active because we will be one
+                            // position ahead of what is expected
+                            if (CliAutoComplete::isActive()) {
+                                CliAutoComplete::setPosition(CliAutoComplete::getPosition() + 1);
+                            }
 
-                        return $file . $command;
+                            return $file . $command;
+                        }
                     }
                 }
             }
 
             // Continue scanning
-        }
-
-        // Here we're still in a directory. If a file exists in that directory with the same name as the directory
-        //  itself, then that is the one that will be executed. For example, ./pho project init will execute
-        // DIRECTORY_COMMANDS/system/init/init
-        if (file_exists($file . $command)) {
-            if (!is_dir($file . $command)) {
-                // Yup, this is it, guys!
-                return $file . $command;
-            }
         }
 
         // Check if there are commands before the current <TAB>
@@ -1238,9 +1240,9 @@ class CliCommand
         $commands = Arrays::replaceValuesWithCallbackReturn($commands, function ($key, $value) { return strip_extension($value); });
         $commands = Arrays::removeMatchingValues($commands, '/^\./', flags: Utils::MATCH_REGEX);
 
-        // We're stuck in a directory still, no command to execute.
+        // We are stuck in a directory still, no command to execute.
         // Add the available files to display to help the user
-        throw CliCommandNotFoundException::new(tr('The specified command ":file" does not exist', [
+        throw CliCommandNotFoundException::new(tr('The specified command ":file" is a group, please specify a sub command', [
             ':file' => Strings::from($file, DIRECTORY_COMMANDS)
         ]))
         ->makeWarning()
@@ -1353,7 +1355,7 @@ class CliCommand
             CliDocumentation::setHelp(tr('This is the Phoundation CLI interface command "pho". For more basic information please execute the command ./pho intro which will print an introduction text to Phoundation
             
             
-GLOBAL SYSTEM ARGUMENTS
+GLOBAL OPTIONAL SYSTEM ARGUMENTS
             
             
 ') . CliCommand::getHelpGlobalArguments(), false);
@@ -1725,6 +1727,7 @@ return 'under construction';
      * Startup for Command Line Interface
      *
      * @return void
+     * @throws SystemCacheException | CliCommandException
      * @todo Refactor this monstrosity into smaller methods
      */
     protected static function processSystemArguments(): void
@@ -1734,7 +1737,7 @@ return 'under construction';
         // Hide all command line arguments
         ArgvValidator::hideData($argv);
 
-        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it isn't we're going to restart, and
+        // USe global $argv ONLY if CliCommand::PhoUidMatch() is true because if it  is not we are going to restart, and
         // we will need the $argv as-is
         global $argv;
 
@@ -1757,16 +1760,18 @@ return 'under construction';
                                  ->select('-N,--no-audio')->isOptional(false)->isBoolean()
                                  ->select('-O,--order-by', true)->isOptional()->hasMinCharacters(1)->hasMaxCharacters(128)
                                  ->select('-P,--page', true)->isOptional(1)->isNatural(false)
-                                 ->select('-Q,--verbose')->isOptional(false)->isBoolean()
-                                 ->select('-R,--rebuild-commands')->isOptional(false)->isBoolean()
+                                 ->select('-Q,--quiet')->isOptional(false)->isBoolean()
+                                 ->select('-R,--results')->isOptional(false)->isBoolean()
                                  ->select('-S,--service', true)->isOptional()->hasMaxcharacters(2048)
                                  ->select('-T,--test')->isOptional(false)->isBoolean()
                                  ->select('-U,--usage')->isOptional(false)->isBoolean()
-                                 ->select('-V,--version')->isOptional(false)->isBoolean()
+                                 ->select('--version')->isOptional(false)->isBoolean()
+                                 ->select('-V,--verbose')->isOptional(false)->isBoolean()
                                  ->select('-W,--no-warnings')->isOptional(false)->isBoolean()
                                  ->select('-X,--ignore-readonly')->isOptional(false)->isBoolean()
                                  ->select('-Y,--clear-tmp')->isOptional(false)->isBoolean()
                                  ->select('-Z,--clear-caches')->isOptional(false)->isBoolean()
+                                 ->select('--rebuild-commands')->isOptional(false)->isBoolean()
                                  ->select('--auto-complete', true)->isOptional()->hasMaxCharacters(8192)
                                  ->select('--deleted')->isOptional(false)->isBoolean()
                                  ->select('--iec')->isOptional(false)->isBoolean()
@@ -1800,8 +1805,7 @@ return 'under construction';
                 // The Environment was manually specified on the command line
                 $environment = $argv['environment'];
 
-            }
-            else {
+            } else {
                 // Get environment variable from the shell environment
                 $environment = getenv('PHOUNDATION_ENVIRONMENT_' . PROJECT);
             }
@@ -1847,18 +1851,21 @@ return 'under construction';
             define('STATUS'    , $argv['status']);
             define('TEST'      , $argv['test']);
             define('VERBOSE'   , $argv['verbose']);
+            define('QUIET'     , $argv['quiet']);
+            define('RESULTS'   , $argv['results']);
 
             if ($argv['log_level']) {
                 Log::setThreshold($argv['log_level']);
             }
 
+            Log::setQuiet($argv['quiet']);
             Log::setVerbose($argv['verbose']);
 
             // Set requested language
             Core::writeRegister($argv['language'] ?? config()->getString('locale.languages.default', 'en'), 'system', 'language');
 
             if ($argv['auto_complete']) {
-                // We're in auto complete mode. Show only direct output, don't use any color, don't log to screen
+                // We are in auto complete mode. Show only direct output, do not use any color, do not log to screen
                 Log::disableScreen();
 
                 $argv['no_color'] = true;
@@ -1904,8 +1911,8 @@ return 'under construction';
 
             // Set timeout
             if ($argv['timeout']) {
-                // User set timeout
-                Core::setTimeout((int)$argv['timeout']);
+                // User set timeout, this cannot be overridden
+                Core::setTimeout((int) $argv['timeout'], false);
 
             } else {
                 // Use default timeout
@@ -2012,10 +2019,11 @@ return 'under construction';
                     throw new CoreException(tr('Both FORCE and TEST modes where specified, these modes are mutually exclusive'));
                 }
 
-                Log::warning(ts('Running in FORCE mode'));
+                if (!QUIET) {
+                    Log::warning(ts('Running in FORCE mode'), 10);
+                }
 
-            }
-            elseif (TEST) {
+            } elseif (TEST) {
                 Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
             }
 
@@ -2063,6 +2071,7 @@ return 'under construction';
             if ($argv['clear_caches']) {
                 // Clear all caches
                 try {
+                    Core::setTimeout(config()->getInteger('system.timeouts.cache-rebuild', 300));
                     Core::enableInitState();
                     Log::setVerbose(true);
                     Cache::clearAll();
@@ -2073,7 +2082,7 @@ return 'under construction';
                 } catch (Throwable $e) {
                     // Something went wrong, reset Log VERBOSE setting to avoid spamming extra lines on top of Exception
                     Log::setVerbose(VERBOSE);
-                    throw $e;
+                    throw new SystemCacheException(ts('Failed to clear and rebuild system caches'), $e);
                 }
             }
 
@@ -2098,6 +2107,10 @@ return 'under construction';
             CliCommand::$service = $argv['service'];
 
         } catch (Throwable $e) {
+            if ($e instanceof SystemCacheException) {
+                throw $e;
+            }
+
             throw new CliCommandException(ts('Failed to process system arguments because: ') . $e->getMessage(), $e);
         }
     }
@@ -2246,7 +2259,7 @@ return 'under construction';
      */
     public static function getHelpGlobalArguments(): string
     {
-        return tr('[-A, --all]                             If set, the system will run in ALL mode, which typically will display normally
+        return ts('[-A, --all]                             If set, the system will run in ALL mode, which typically will display normally
                                         hidden information like deleted entries. Only used by specific commands, check
                                         --help on commands to see if and how this flag is used.
 
@@ -2261,9 +2274,9 @@ return 'under construction';
                                         run unless you specify the environment manually using these flags. The
                                         environment has to exist as a ROOT/config/ENVIRONMENT.yaml file
 
-[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override certain
-                                        restrictions. See --help for information on how specific commands deal with this
-                                        flag
+[-F, --force]                           If specified, will run the CLI command in FORCE mode, which will override 
+                                        certain restrictions. See --help for information on how specific commands deal 
+                                        with this flag
 
 [-G, --prefix]                          Will suppress the DATETIME - LOGLEVEL - PROCESS ID - GLOBAL PROCESS ID prefix
                                         that normally begins each log line output
@@ -2293,9 +2306,11 @@ return 'under construction';
 [-P, --page PAGE]                       If specified, and used by the command (only commands that display tables) will
                                         show the table on the specified page. Defaults to 1
 
-[-Q, --verbose]                         Will print more output during log startup and shutdown
+[-Q, --quiet]                           Will hide all non data output 
 
-[-R, --rebuild-commands]                If specified will rebuild the cache for all CLI commands         
+[-R, --results]                         (Used for programs that perform actions quietly) If specified, will display the 
+                                        results of the action. Only works on those programs that support it, others will 
+                                        quietly ignore it 
 
 [-S, --service COMMAND]                 If specified, will convert the specified command into a SystemD service and 
                                         execute the specified systemd systemctl command
@@ -2308,19 +2323,10 @@ return 'under construction';
 
 [-U, --usage]                           Prints various command usage examples for the typed command
 
-[-V, --version]                         Will display the current version for your Phoundation installation
-                                        
+[-V, --verbose]                         Will print more output during log startup and shutdown
+
 [-W, --no-warnings]                     Will only use "error" type exceptions with backtrace and extra information,
                                         instead of displaying only the main exception message for warnings
-
-[--ignore-readonly]                     If specified will make the system ignore readonly mode that would normally 
-                                        prohibit it from writing to disk or database.
-                                        WARNING: When the system is in readonly mode, there usually is a good reason for 
-                                                 it (For example: The system is in the middle of an update or upgrade), 
-                                                 so use this option with care! Use this only when you know what you are 
-                                                 doing or when you are prepared to deal with the consequences! 
-
-
 
 [-Y, --clear-tmp]                       Will clear all temporary data in ROOT/data/tmp, and memcached
 
@@ -2328,9 +2334,17 @@ return 'under construction';
 
 [--deleted]                             Will show deleted DataEntry records
 
-[--iec]                                 Will display human readable amounts of data in IEC units (International Electrotechnical Commission, 1_024 = 1KB, 
-                                        1_048_576 = 1MB, etc) 
+[--iec]                                 Will display human readable amounts of data in IEC units (International 
+                                        Electrotechnical Commission, 1_024 = 1KB, 1_048_576 = 1MB, etc) 
                                         NOTE: Cannot be used with --si  
+
+[--ignore-readonly]                     If specified will make the system ignore readonly mode that would normally 
+                                        prohibit it from writing to disk or database.
+                                        
+                                        WARNING: When the system is in readonly mode, there usually is a good reason for 
+                                                 it (For example: The system is in the middle of an update or upgrade), 
+                                                 so use this option with care! Use this only when you know what you are 
+                                                 doing or when you are prepared to deal with the consequences! 
 
 [--limit NUMBER]                        Will limit table output to the number of specified fields
 
@@ -2340,10 +2354,13 @@ return 'under construction';
 [--no-password-validation]              Will not validate passwords.
                                         WARNING: This may result in weak and or compromised passwords in your database
                                         
+[--rebuild-commands]                    If specified will rebuild the cache for all CLI commands         
+
 [--show-passwords]                      Will display passwords visibly on the command line. Both typed passwords and
                                         data output will show passwords in the clear!
 
-[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 1_000_000 = 1MB, etc)
+[--si]                                  Will display human readable amounts of data in SI units (1_000 = 1KB, 
+                                        1_000_000 = 1MB, etc)
                                         NOTE: Cannot be used with --iec  
 
 [--status STRING]                       If specified the system will only display entries with the specified status
@@ -2352,6 +2369,8 @@ return 'under construction';
 
 [--timezone STRING]                     Sets the specified timezone for the command you are executing
 
+[--version]                             Will display the current version for your Phoundation installation
+                                        
 ', [':environment' => 'PHOUNDATION_' . PROJECT . '_ENVIRONMENT']);
     }
 }

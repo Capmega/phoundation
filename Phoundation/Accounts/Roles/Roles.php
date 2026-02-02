@@ -341,10 +341,10 @@ class Roles extends DataIterator implements RolesInterface
                 // Remove the rights related to this role
                 foreach ($o_rights as $o_right) {
 
-                    // Ensure this right isn't also given by another role
+                    // Ensure this right  is not also given by another role
                     foreach ($o_right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
-                            // Don't remove this right, another role gives it too.
+                            // Do not remove this right, another role gives it too.
                             continue 2;
                         }
                     }

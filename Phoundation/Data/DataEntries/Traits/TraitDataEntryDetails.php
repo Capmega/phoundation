@@ -90,7 +90,7 @@ trait TraitDataEntryDetails
 
         if (is_array($details) and $key === null) {
             foreach ($details as &$value) {
-                // Don't store ArrayableInterface or Stringable objects, get their sources instead
+                // Do not store ArrayableInterface or Stringable objects, get their sources instead
                 $value = $this->getDetailsSource($value);
             }
 

@@ -112,7 +112,7 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
      */
     public function create(bool $force = false): static
     {
-        $this->source = static::$directory->addFile($this->command . '/' . $this->pid)->getSource();
+        $this->source = static::$directory->addPath($this->command . '/' . $this->pid)->getSource();
         return parent::create();
     }
 
@@ -140,7 +140,7 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
         $directory = static::findCommandDirectory($this->command);
 
         if (!$directory) {
-            // The command currently isn't running
+            // The command currently  is not running
             return null;
         }
 
@@ -209,7 +209,7 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
                             return;
                         }
 
-                        // Ensure that this PID exist, and that it's the correct process
+                        // Ensure that this PID exist, and that it is the correct process
                         $process = Ps::new()->ps($pid);
                         $cmd     = Strings::from($process['cmd'], '/pho ');
 
@@ -229,7 +229,7 @@ showdie($cmd);
         PhoDirectory::new(static::$directory)
                  ->execute()
                  ->setRecurse(true)
-                 ->onDirectoryOnly(function (string $directory) {
+                 ->onDirectoriesOnly(function (string $directory) {
 // TODO
                  });
     }
@@ -367,7 +367,7 @@ showdie($cmd);
         $directory = static::findCommandDirectory($this->command);
 
         if (!$directory) {
-            // The command currently isn't running
+            // The command currently  is not running
             return [];
         }
 

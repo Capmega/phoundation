@@ -166,7 +166,7 @@ class Import extends \Phoundation\Developer\Project\Import
         Log::action(ts('Processing GeoNames Geo files and moving to directory ":directory"', [':directory' => $target_path]));
         try {
             // Clean source path GeoLite2 directories and garbage path and move the current data files to the garbage
-            PhoFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addDirectory(DIRECTORY_DATA . 'garbage/', true))
+            PhoFile::new(DIRECTORY_DATA . 'garbage/geonames', $restrictions->addPath(DIRECTORY_DATA . 'garbage/', true))
                 ->delete();
             $previous = PhoDirectory::new($target_path, $restrictions)
                                     ->move(DIRECTORY_DATA . 'garbage/');
@@ -461,7 +461,7 @@ class Import extends \Phoundation\Developer\Project\Import
         if (!$database) {
             $database = 'geonames';
         }
-        // Disable meta tracking during import as there is a LOT of data and we don't really care much about who dunnit
+        // Disable meta tracking during import as there is a LOT of data and we do not really care much about who dunnit
         // for this data
         Meta::disable();
         // Re-enable meta data

@@ -126,4 +126,13 @@ interface TableInterface extends SchemaAbstractInterface
      * @return IteratorInterface
      */
     public function getIndices(bool $cache = true): IteratorInterface;
+
+    /**
+     * Returns a list of table columns that have foreign keys pointed at the specified column
+     *
+     * @param string $column The column of this table to which the foreign keys have to point
+     *
+     * @return IteratorInterface
+     */
+    public function getForeignKeysToColumn(string $column): IteratorInterface;
 }

@@ -237,7 +237,7 @@ class Config implements ConfigInterface
         if (empty($environment)) {
             $environment = static::$default_environment;
 
-            // Still empty? This means we don't have a default environment either
+            // Still empty? This means we do not have a default environment either
             if (empty($environment)) {
                 if (!static::$allow_empty_environment) {
                     throw ConfigException::new('Cannot set empty environment, this is currently not allowed');
@@ -332,9 +332,9 @@ class Config implements ConfigInterface
     public function get(string|array $path = '', mixed $default = null, bool $allow_user_configuration = false, bool $use_cache = true): mixed
     {
         if (empty($this->environment)) {
-            // We don't really have an environment, don't check configuration
+            // We do not really have an environment, do not check configuration
             if (!static::$allow_empty_environment) {
-                // NOTE: Don't use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
+                // NOTE: Do not use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
                 throw ConfigException::new('Cannot access configuration, environment has not been determined yet');
             }
 
@@ -347,7 +347,7 @@ class Config implements ConfigInterface
         if ($this->failed) {
             // Config class failed, return all default values when not NULL
             if ($default === null) {
-                // NOTE: Don't use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
+                // NOTE: Do not use tr() or ts() here as functions may not be loaded yet, and it can lead to endless loops
                 throw new ConfigFailedException('Cannot get configuration, Config object has failed status "' . $this->failed . '"');
             }
 
@@ -1675,7 +1675,7 @@ class Config implements ConfigInterface
             }
 
             if (!$this->environment) {
-                // We don't really have an environment, don't read configuration
+                // We do not really have an environment, do not read configuration
                 return false;
             }
 
@@ -1758,7 +1758,7 @@ class Config implements ConfigInterface
                     }
 
                 } catch (ConfigParseFailedException $f) {
-                    // Keep on throwing, we want to know it's a parsing error
+                    // Keep on throwing, we want to know it is a parsing error
                     throw $f;
 
                 } catch (Throwable $f) {

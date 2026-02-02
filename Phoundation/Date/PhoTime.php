@@ -18,7 +18,6 @@ namespace Phoundation\Date;
 
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Strings;
-use Phoundation\Web\Html\Components\P;
 
 
 class PhoTime
@@ -26,11 +25,14 @@ class PhoTime
     /**
      * Returns the difference in times with the pointed precision
      *
-     * @param float       $start
-     * @param float       $stop
-     * @param string      $precision
-     * @param int         $decimals
-     * @param string|null $zero_label
+     * $precision can be
+     *
+     * @param float       $start             The start time
+     * @param float       $stop              The stop time
+     * @param string      $precision  [auto] The precision to use. Must be one of "auto", "second", "seconds", "minute", "minutes", "hour" , "hours", "day" ,
+     *                                       "days", "week" , "weeks", "month" , "months", "year"  , "years"
+     * @param int         $decimals   [2]    The amount of decimals to include in the milli / micro seconds portion
+     * @param string|null $zero_label [null] The label to use for time sections that are zero. Use NULL (default) to hide these
      *
      * @return string|null
      */
@@ -526,7 +528,7 @@ class PhoTime
             $seconds2 = $periods[$i + 1][0];
             $name2    = $periods[$i + 1][1];
 
-            // Only show it if it's greater than 0
+            // Only show it if it is greater than 0
             if (($count2 = floor(($since - ($seconds * $count)) / $seconds2)) != 0) {
                 $output .= ($count2 == 1) ? ', 1 ' . $name2 : ", $count2 {$name2}s";
             }

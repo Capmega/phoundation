@@ -75,7 +75,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
     public function require(EnumHttpRequestMethod $method, bool $strict = false): static
     {
         if ($method === EnumHttpRequestMethod::upload) {
-            // UPLOAD isn't a real method, use POST request instead
+            // UPLOAD  is not a real method, use POST request instead
             $method = EnumHttpRequestMethod::post;
             $upload = true;
         }
@@ -138,7 +138,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
     {
         if (!$strict) {
             if ($method === EnumHttpRequestMethod::upload) {
-                // Upload isn't a real method, its POST
+                // Upload  is not a real method, its POST
                 $method = EnumHttpRequestMethod::post;
             }
 
@@ -164,7 +164,7 @@ class RequestMethodRestrictions implements RequestMethodRestrictionsInterface
     public function restrict(EnumHttpRequestMethod $method, bool $strict = false): static
     {
         if ($method === EnumHttpRequestMethod::upload) {
-            // Upload isn't a real method
+            // Upload  is not a real method
             $method = EnumHttpRequestMethod::post;
             $upload = true;
         }

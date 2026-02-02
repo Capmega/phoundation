@@ -56,7 +56,7 @@ trait TraitCacheStatistics
      */
     public static function getCount(): int
     {
-        Log::warning('Implement Cache::getCount()');
+        Log::warning('Implement Cache::getCount()', 4);
         return 0;
     }
 

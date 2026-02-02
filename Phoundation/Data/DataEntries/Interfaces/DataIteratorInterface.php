@@ -430,9 +430,9 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets if the source keys will be the DataEntry object id or DataEntry unique identifier
      *
-     * @param bool $value
+     * @param bool $keys_are_unique_column
      *
      * @return static
      */
-    public function setKeysAreUniqueColumn(bool $value): static;
+    public function setKeysAreUniqueColumn(bool $keys_are_unique_column): static;
 }

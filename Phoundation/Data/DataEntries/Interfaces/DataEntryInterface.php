@@ -21,6 +21,8 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
@@ -69,7 +71,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they can't be stored in the database.
+     * readonly mode automatically as they cannot be stored in the database.
      *
      * DataEntries from the database will also have their status checked. If the status is "deleted", then a
      * DataEntryDeletedException will be thrown
@@ -201,7 +203,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function getCliColumns(): array;
 
     /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
+     * Returns true if this is a new entry that  has not been written to the database yet
      *
      * @return bool
      */
@@ -350,7 +352,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Returns the meta-information for this entry
      *
-     * @note Returns NULL if this class has no support for meta-information available, or hasn't been written to disk
+     * @note Returns NULL if this class has no support for meta-information available, or  has not been written to disk
      *       yet
      *
      * @param bool $load
@@ -853,14 +855,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function hasException(): bool;
 
     /**
-     * Returns whether this object will allow columns that aren't permitted
+     * Returns whether this object will allow columns that  are not permitted
      *
      * @return bool
      */
     public function getAllowUnpermittedColumns(): bool;
 
     /**
-     * Sets whether this object will allow columns that aren't permitted
+     * Sets whether this object will allow columns that  are not permitted
      *
      * @param bool $allow
      *
@@ -878,14 +880,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function columnIsPermitted(string $column): bool;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @return array|null
      */
     public function getPermittedColumns(): ?array;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *
@@ -894,20 +896,13 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function setPermittedColumns(array|string|null $columns): static;
 
     /**
-     * Returns a list of columns that aren't defined, but are permitted for use
+     * Returns a list of columns that  are not defined, but are permitted for use
      *
      * @param array|string|null $columns
      *
      * @return static
      */
     public function addPermittedColumns(array|string|null $columns): static;
-
-    /**
-     * Returns true if this DataEntry object was loaded from cache
-     *
-     * @return static
-     */
-    public function setIsLoaded(): static;
 
     /**
      * Returns the source without processing any data first
@@ -971,4 +966,37 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return mixed
      */
     public function getOriginalUniqueColumnValue(): mixed;
+
+    /**
+     * Returns the server restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function getRestrictionsObject(): PhoRestrictionsInterface;
+
+    /**
+     * Sets the server and filesystem restrictions for this object
+     *
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param bool                                       $write          If $restrictions is not specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $write modifier for that object
+     * @param string|null                                $label          If $restrictions is not specified as a
+     *                                                                   FsRestrictions class, but as a path string, or
+     *                                                                   array of path strings, then this method will
+     *                                                                   convert that into a FsRestrictions object and
+     *                                                                   this is the $label modifier for that object
+     */
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+
+    /**
+     * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
+     *
+     * @param PhoRestrictionsInterface|null $o_restrictions
+     *
+     * @return PhoRestrictionsInterface
+     */
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 }

@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
         $user = Session::getUserObject();
 
         if ($user->hasPassword($post['password'])) {
-            // User used the same password, don't update
+            // User used the same password, do not update
             Response::getFlashMessagesObject()->addSuccess(tr('You supplied your actual password, password was not updated'));
             $updated = false;
 
@@ -103,7 +103,7 @@ if (isset($updated)) {
     // Yay, the password was updated! Now, auto sign-in so that the user won't have to sign in manually
     Session::signIn($user->getEmail(), $post['password']);
 
-    // Set page meta data
+    // Set page meta-data
     Response::setPageTitle(tr('Your password has been updated, please go to the sign-in page in to continue...'));
 
     // Render the page
@@ -112,7 +112,7 @@ if (isset($updated)) {
     ]);
 
 } else {
-    // Set page meta data
+    // Set page meta-data
     Response::setPageTitle(tr('Please update your password before continuing...'));
 
     // Render the page

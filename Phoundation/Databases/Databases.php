@@ -19,7 +19,6 @@ namespace Phoundation\Databases;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\Enums\EnumCacheGroups;
 use Phoundation\Cache\Interfaces\CacheInterface;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Databases\Connectors\Connectors;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -37,7 +36,6 @@ use Phoundation\Databases\Redis\Redis;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Web\Html\Components\P;
 
 class Databases
 {
@@ -103,7 +101,7 @@ class Databases
             throw new OutOfBoundsException(tr('Cannot return Connector object because no connector name is specified'));
         }
 
-        // Connectors::get() will automatically load the required connector object if it isn't loaded yet
+        // Connectors::get() will automatically load the required connector object if it  is not loaded yet
         return static::getConnectorsObject()->get($connector);
     }
 
@@ -165,7 +163,7 @@ class Databases
         $connector_name = $o_connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$databases)) {
-            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            // This connector  is not registered yet, so connect and add it to the "connectors" list
             static::$databases[$connector_name] = new $class($o_connector, $connect, $use_database);
         }
 
@@ -193,7 +191,7 @@ class Databases
         }
 
         if (!array_key_exists($connector_name, static::$databases)) {
-            // This connector isn't registered yet, so connect and add it to the "connectors" list
+            // This connector  is not registered yet, so connect and add it to the "connectors" list
             static::$databases[$connector_name] = new Cache($connector_name, allow_alternate_connector: $allow_alternate_connector);
         }
 

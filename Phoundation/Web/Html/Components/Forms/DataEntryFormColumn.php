@@ -91,7 +91,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         }
 
         if ($o_definition->getHidden()) {
-            // Hidden elements don't display anything beyond the hidden <input>
+            // Hidden elements do not display anything beyond the hidden <input>
             return $this->column_component . $scripts;
         }
 

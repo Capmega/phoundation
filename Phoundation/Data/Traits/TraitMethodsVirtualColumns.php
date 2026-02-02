@@ -23,8 +23,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
-use Plugins\Medinet\Claims\FilterForm;
-
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 
 trait TraitMethodsVirtualColumns {
     use TraitMethodsGetTypesafe;
@@ -87,7 +86,7 @@ trait TraitMethodsVirtualColumns {
     protected function setVirtualData(string $table, mixed $value, string $column): static
     {
         if ($this->get($table . '_' . $column) === $value) {
-            // The column has not changed, don't change anything
+            // The column has not changed, do not change anything
             return $this;
         }
 
@@ -104,7 +103,7 @@ trait TraitMethodsVirtualColumns {
                 }
 
             } catch (DataEntryColumnsNotDefinedException $e) {
-                // We're trying to set a column that doesn't exist in the Definitions object
+                // We are trying to set a column that doesn't exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Virtual columns configuration for table ":table" in class ":class" contains column ":column" but that column does not exist in the definitions for this class', [
                     ':table'  => $table,
                     ':class'  => $this::class,
@@ -168,7 +167,7 @@ trait TraitMethodsVirtualColumns {
                     ':object'     => $configuration['class'],
                     ':class'      => static::class,
                     ':identifier' => Json::encode($identifier),
-                ]));
+                ]), 3);
 
                 $o_object = $configuration['class']::new()
                                                    ->setDebug($this->getDebug())
@@ -214,7 +213,7 @@ trait TraitMethodsVirtualColumns {
 
         foreach ($columns as $column => $table_column) {
             try {
-                if ($this instanceof FilterForm) {
+                if ($this instanceof FilterFormInterface) {
                     // For filter form use object::getForce() because the column that is being searched for likely is
                     // not rendered and because of that will return NULL for object::get()
                     $value = $this->getForce($table_column);
@@ -322,7 +321,7 @@ trait TraitMethodsVirtualColumns {
         if (array_key_exists($table, $this->virtual_configuration)) {
             // Configuration exists, but it may be a partial configuration setup in the DataEntry class itself
             if (array_key_exists('class', $this->virtual_configuration[$table])) {
-                // "class" configuration exists too, this is a complete configuration, we're done
+                // "class" configuration exists too, this is a complete configuration, we are done
                 return $this->virtual_configuration[$table];
             }
         }

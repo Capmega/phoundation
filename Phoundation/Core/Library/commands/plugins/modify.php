@@ -22,16 +22,16 @@ use Phoundation\Databases\Sql\Limit;
 
 
 CliDocumentation::setAutoComplete([
-                                      'positions' => [
-                                          0 => [
-                                              'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::getShellAutoCompletion(),
-                                              'noword' => 'SELECT `name` FROM `core_plugins` WHERE                       (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::getShellAutoCompletion(),
-                                          ],
-                                      ],
-                                      'arguments' => [
-                                          '-p,--priority' => true,
-                                      ],
-                                  ]);
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT `name` FROM `core_plugins` WHERE `name` LIKE :word AND (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::getShellAutoCompletion(),
+            'noword' => 'SELECT `name` FROM `core_plugins` WHERE                       (`status` IS NULL OR `status` != "deleted") LIMIT ' . Limit::getShellAutoCompletion(),
+        ],
+    ],
+    'arguments' => [
+        '-p,--priority' => true,
+    ],
+]);
 
 CliDocumentation::setUsage('./pho plugins modify PLUGIN [OPTIONS]');
 

@@ -65,7 +65,6 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Utils;
-use Phoundation\Web\Html\Components\P;
 use RuntimeException;
 use Throwable;
 
@@ -343,6 +342,54 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
 
 
     /**
+     * Adds a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function addHint(array|string $hint): static
+    {
+        return $this->addData($hint, 'hint');
+    }
+
+
+    /**
+     * Sets a hint to possibly solve the exception to the exception
+     *
+     * @param array|string $hint
+     *
+     * @return static
+     */
+    public function setHints(array|string $hint): static
+    {
+        return $this->addHint($hint);
+    }
+
+
+    /**
+     * Returns any possible hints to possibly solve the exception that may have been added to the exception
+     *
+     * @return array|string|null
+     */
+    public function getHints(): array|string|null
+    {
+        return $this->getDataKey('hint');
+    }
+
+
+    /**
+     * Returns true if this exception has onr or more hints attached
+     *
+     * @return bool
+     */
+    public function hasHints(): bool
+    {
+        return (bool) $this->getDataKey('hint');
+    }
+
+
+    /**
      * Sets the specified data for this exception
      *
      * @param mixed $data
@@ -351,7 +398,13 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
      */
     public function setData(mixed $data): static
     {
-        $this->data = Arrays::force($data, null);
+        $data       = Arrays::force($data, null);
+        $this->data = [];
+
+        // Remove ":" from keys, as they are sometimes (accidentally) added due to ts() use
+        foreach ($data as $key => $value) {
+            $this->data[Strings::ensureBeginsNotWith($key, ':')] = $value;
+        }
 
         return $this;
     }
@@ -698,7 +751,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                 $key = Strings::getRandom();
             }
 
-            $this->data[$key] = $data;
+            $this->data[Strings::ensureBeginsNotWith($key, ':')] = $data;
         }
 
         return $this;

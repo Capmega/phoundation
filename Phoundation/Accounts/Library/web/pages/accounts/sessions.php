@@ -73,7 +73,7 @@ $o_documentation_card = Card::new()
 
 
 if ($o_user) {
-// Set page meta data
+// Set page meta-data
     Response::setHeaderTitle(tr('Sessions for user'));
     Response::setHeaderSubTitle($o_user->getDisplayName());
     Response::setBreadcrumbs([
@@ -84,7 +84,7 @@ if ($o_user) {
     ]);
 
 } else {
-    // Set page meta data
+    // Set page meta-data
     Response::setHeaderTitle(tr('User sessions'));
     Response::setBreadcrumbs([
         Breadcrumb::new('/'                   , tr('Home')),

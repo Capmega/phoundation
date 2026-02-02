@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Developer
+ * @package   Phoundation\Core
  */
 
 
@@ -701,7 +701,7 @@ class Library implements LibraryInterface
             ]);
         }
 
-        // Get the highest version. If it's lower than requested, insert the requested version so that we're exactly at
+        // Get the highest version. If it is lower than requested, insert the requested version so that we are exactly at
         // the right version
         if (Libraries::supportsVendors()) {
             $int_current = sql()->getColumn('SELECT MAX(`version`) 
@@ -786,7 +786,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a commands/ directory, we're fine
+            // This library doesn't have a commands/ directory, we are fine
             return;
         }
 
@@ -814,7 +814,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a hooks/ directory, we're fine
+            // This library doesn't have a hooks/ directory, we are fine
             return;
         }
 
@@ -842,7 +842,63 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a web/ directory, we're fine
+            // This library doesn't have a web/ directory, we are fine
+            return;
+        }
+
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
+    }
+
+
+    /**
+     * Ensures that the Library/config directory contents are symlinked in DIRECTORY_WEB
+     *
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
+     *
+     * @return void
+     * @todo Add support for command sharing!
+     */
+    public function rebuildConfigCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
+    {
+        Log::action(ts('Rebuilding config page cache for library ":library"', [
+            ':library' => $this->getName(),
+        ]), 3);
+
+        $path         = Strings::slash($this->directory) . 'Library/config/';
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library doesn't have a config/ directory, we are fine
+            return;
+        }
+
+        $path->symlinkTreeToTarget($cache, $tmp, rename: true);
+    }
+
+
+    /**
+     * Ensures that the Library/data directory contents are symlinked in DIRECTORY_WEB
+     *
+     * @param PhoDirectoryInterface $cache
+     * @param PhoDirectoryInterface $tmp
+     *
+     * @return void
+     * @todo Add support for command sharing!
+     */
+    public function rebuildDataCache(PhoDirectoryInterface $cache, PhoDirectoryInterface $tmp): void
+    {
+        Log::action(ts('Rebuilding data page cache for library ":library"', [
+            ':library' => $this->getName(),
+        ]), 3);
+
+        $path         = Strings::slash($this->directory) . 'Library/data/';
+        $restrictions = PhoRestrictions::newWritableObject([$path, DIRECTORY_TMP]);
+        $path         = PhoDirectory::new($path, $restrictions);
+
+        if (!$path->exists()) {
+            // This library doesn't have a data/ directory, we are fine
             return;
         }
 
@@ -870,7 +926,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a Tests/ directory, we're fine
+            // This library doesn't have a Tests/ directory, we are fine
             return;
         }
 
@@ -898,7 +954,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library does not have a cron/ directory, we're fine
+            // This library doesn't have a cron/ directory, we are fine
             return;
         }
 

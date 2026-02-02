@@ -52,7 +52,7 @@ Script::new()
           })');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Demo dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
 Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));

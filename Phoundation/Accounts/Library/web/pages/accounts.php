@@ -32,7 +32,7 @@ Request::requiresAllRights('accounts');
 GetValidator::new()->validate();
 
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Accounts portal'));
 Response::setHeaderTitle(tr('Accounts portal'));
 Response::setDescription(tr(''));

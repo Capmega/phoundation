@@ -205,10 +205,11 @@ interface UrlInterface
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
+     * @param string|null  $always_match
      *
      * @return bool
      */
-    public function hasSomeRights(array|string $rights): bool;
+    public function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool;
 
     /**
      * Returns true if the user has ALL the specified rights
@@ -225,7 +226,7 @@ interface UrlInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function addRight(RightInterface|string|null $o_right): static;
 
@@ -234,7 +235,7 @@ interface UrlInterface
      *
      * @param RightInterface|string|null $o_right
      *
-     * @return $this
+     * @return static
      */
     public function removeRight(RightInterface|string|null $o_right): static;
 

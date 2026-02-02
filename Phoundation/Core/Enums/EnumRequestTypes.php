@@ -5,7 +5,7 @@
  *
  * This enum contains all the possible types of requests that can be made to the phoundation platform
  *
- * Sometimes it can be useful or required to know what kind of request we're processing. Is the request made by command
+ * Sometimes it can be useful or required to know what kind of request we are processing. Is the request made by command
  * line or HTTP? We can use PLATFORM_CLI or PLATFORM_WEB for that too, but if we need more detail (Are we processing
  * an AJAX request or an API request?) we use Request::getRequestType() which will return the request type using this
  * EnumRequestTypes enum
@@ -25,9 +25,9 @@
  *
  * CLI:     A request made by the command line
  *
- * OTHER:   Any kind of request that isn't covered by the above list
+ * OTHER:   Any kind of request that  is not covered by the above list
  *
- * UNKNOWN: System doesn't know yet what type of request we're currently handling, should only happen very early on at
+ * UNKNOWN: System doesn't know yet what type of request we are currently handling, should only happen very early on at
  *          the startup phase
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

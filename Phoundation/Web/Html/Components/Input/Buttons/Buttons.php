@@ -89,7 +89,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     public function addButton(ButtonInterface|DropdownButtonInterface|string|null $button, EnumDisplayMode $mode = EnumDisplayMode::primary, EnumButtonType|Stringable|string $type_or_url = EnumButtonType::submit, bool $outline = false, bool $right = false): static
     {
         if (!$button) {
-            // Don't add anything
+            // Do not add anything
             return $this;
         }
 
@@ -227,7 +227,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Returns if the current pointer is valid or not
      *
-     * @todo Is this really really required? Since we're using internal array pointers anyway, it always SHOULD be valid
+     * @todo Is this really really required? Since we are using internal array pointers anyway, it always SHOULD be valid
      * @return bool
      */
     public function valid(): bool

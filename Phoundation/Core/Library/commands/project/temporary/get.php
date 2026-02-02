@@ -39,5 +39,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Get persistent temporary directory and we're done
+// Get persistent temporary directory and we are done
 Log::cli(PhoDirectory::newTemporaryObject($argv['public'], true)->getSource());

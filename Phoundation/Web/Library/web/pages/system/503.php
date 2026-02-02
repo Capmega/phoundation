@@ -38,7 +38,7 @@ switch (Request::getRequestType()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(503);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('503 - Service Unavailable');

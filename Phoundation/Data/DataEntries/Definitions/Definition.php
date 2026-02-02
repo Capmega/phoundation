@@ -27,7 +27,7 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataDataEntry;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ArgvValidatorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -544,10 +544,9 @@ class Definition implements DefinitionInterface
     {
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($failure, $o_connector) {
             $o_validator->isUnique($failure, $o_connector);
-        });
+        }, 'unique');
 
         return $this->setKey($failure    , 'unique');
-        return $this->setKey($o_connector, 'unique_connector');
     }
 
 
@@ -576,7 +575,7 @@ class Definition implements DefinitionInterface
         if ($no_validation) {
             $this->addValidationFunction(function (ValidatorInterface $o_validator) {
                 $o_validator->doNotValidate();
-            });
+            }, 'no_validation');
         }
 
         return $this->setKey($no_validation, 'no_validation');
@@ -1165,7 +1164,7 @@ class Definition implements DefinitionInterface
 
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $strict) {
             $o_validator->isInArray($value, $strict);
-        });
+        }, 'data');
 
         return $this->setKey($value, 'data');
     }
@@ -1472,7 +1471,7 @@ class Definition implements DefinitionInterface
     public function setValue(Stringable|callable|string|float|int|bool|null $value, bool $only_when_new = false): static
     {
         if ($only_when_new and !$this->o_data_entry->isNew()) {
-            // Don't set this value, only set it on new entries
+            // Do not set this value, only set it on new entries
             return $this;
         }
 
@@ -1543,7 +1542,7 @@ class Definition implements DefinitionInterface
                         if ($this->getMaxLength()) {
                             $o_validator->hasMaxCharacters($this->getMaxLength());
                         }
-                    });
+                    }, 'element');
             }
         }
 
@@ -1937,7 +1936,7 @@ class Definition implements DefinitionInterface
                         if ($this->getMax()) {
                              $o_validator->isLessThan($this->getMax(), true);
                         }
-                     });
+                     }, 'number');
                 break;
 
             case EnumInputType::year:
@@ -1950,7 +1949,7 @@ class Definition implements DefinitionInterface
                         if ($this->getMax() ?? 9999) {
                             $o_validator->isLessThan($this->getMax() ?? 9999, true);
                         }
-                     });
+                     }, 'year');
                 break;
 
             case EnumInputType::month:
@@ -1963,7 +1962,7 @@ class Definition implements DefinitionInterface
                         if ($this->getMax() ?? 12) {
                             $o_validator->isLessThan($this->getMax() ?? 12, true);
                         }
-                     });
+                     }, 'month');
                 break;
 
             case EnumInputType::week:
@@ -1976,7 +1975,7 @@ class Definition implements DefinitionInterface
                         if ($this->getMax() ?? 52) {
                             $o_validator->isLessThan($this->getMax() ?? 52, true);
                         }
-                     });
+                     }, 'week');
                 break;
 
             case EnumInputType::day:
@@ -1990,28 +1989,28 @@ class Definition implements DefinitionInterface
                         if ($this->getMax() ?? 31) {
                             $o_validator->isLessThan($this->getMax() ?? 31, true);
                         }
-                     });
+                     }, 'day');
                 break;
 
             case EnumInputType::datetime_local:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->sanitizeToDateTime();
-                     });
+                     }, 'datetime_local');
                 break;
 
             case EnumInputType::date:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeToDateTime();
-                     });
+                         $o_validator->sanitizeToDate();
+                     }, 'date');
                 break;
 
             case EnumInputType::color:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isColor();
-                     });
+                     }, 'color');
                 break;
 
             case EnumInputType::dbid:
@@ -2020,7 +2019,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isDbId();
-                     });
+                     }, 'dbid');
                 break;
 
             case EnumInputType::natural:
@@ -2031,7 +2030,7 @@ class Definition implements DefinitionInterface
                      ->setMin(0)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isNatural();
-                     });
+                     }, 'natural');
                 break;
 
             case EnumInputType::integer:
@@ -2040,7 +2039,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isInteger();
-                     });
+                     }, 'integer');
                 break;
 
             case EnumInputType::positiveInteger:
@@ -2050,7 +2049,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isInteger()
                                    ->isMoreThan(0, true);
-                     });
+                     }, 'positive_integer');
                 break;
 
             case EnumInputType::negativeInteger:
@@ -2060,7 +2059,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isInteger()
                                    ->isLessThan(0, true);
-                     });
+                     }, 'negative_integer');
                 break;
 
             case EnumInputType::float:
@@ -2069,7 +2068,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isFloat();
-                     });
+                     }, 'float');
                 break;
 
             case EnumInputType::name:
@@ -2078,7 +2077,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isName();
-                     });
+                     }, 'name');
                 break;
 
             case EnumInputType::variable:
@@ -2090,14 +2089,14 @@ class Definition implements DefinitionInterface
                      ->setMaxLength(128)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isEmail();
-                     });
+                     }, 'email');
                 break;
 
             case EnumInputType::time:
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isTime();
-                     });
+                     }, 'time');
                 break;
 
             case EnumInputType::url:
@@ -2107,7 +2106,7 @@ class Definition implements DefinitionInterface
                      ->setMaxLength(2048)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isUrl();
-                     });
+                     }, 'url');
                 break;
 
             case EnumInputType::phone:
@@ -2118,7 +2117,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->sanitizePhoneNumber();
-                     });
+                     }, 'phone');
                 break;
 
             case EnumInputType::phones:
@@ -2127,7 +2126,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isPhoneNumbers();
-                     });
+                     }, 'phones');
                 break;
 
             case EnumInputType::username:
@@ -2136,7 +2135,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isUsername();
-                     });
+                     }, 'username');
                 break;
 
             case EnumInputType::path:
@@ -2154,7 +2153,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->setRestrictionsObject($this->o_restrictions)
                                    ->isDirectory($this->in_directories);
-                     });
+                     }, 'path');
                 break;
 
             case EnumInputType::file:
@@ -2172,7 +2171,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->setRestrictionsObject($this->o_restrictions)
                                    ->isFile($this->in_directories);
-                     });
+                     }, 'file');
                 break;
 
             case EnumInputType::code:
@@ -2181,7 +2180,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isCode(null, null);
-                     });
+                     }, 'code');
                 break;
 
             case EnumInputType::description:
@@ -2199,9 +2198,9 @@ class Definition implements DefinitionInterface
                         }
 
                         $o_validator->isDescription();
-                     });
+                     }, 'description');
 
-                // Don't set the value
+                // Do not set the value
                 return $this;
 
             case EnumInputType::checkbox:
@@ -2212,7 +2211,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->isBoolean();
-                     });
+                     }, 'boolean');
                 break;
 
             case EnumInputType::array_json:
@@ -2220,7 +2219,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeJson();
-                     });
+                     }, 'array_json');
                 break;
 
             case EnumInputType::array_serialized:
@@ -2228,7 +2227,7 @@ class Definition implements DefinitionInterface
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeSerialized();
-                     });
+                     }, 'array_serialized');
                 break;
 
             case EnumInputType::button:
@@ -2238,7 +2237,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->hasMaxCharacters(255)->isVariable();
-                     });
+                     }, 'button');
                 break;
 
             case EnumInputType::password:
@@ -2254,14 +2253,14 @@ class Definition implements DefinitionInterface
                         if ($this->getMaxLength() ?? 8192) {
                             $o_validator->hasMaxCharacters($this->getMaxLength() ?? 8192);
                         }
-                     });
+                     }, 'password');
                 break;
 
             case EnumInputType::select:
                 $this->setElement(EnumElement::select)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->sanitizeTrim();
-                     });
+                     }, 'select');
                 break;
 
             case EnumInputType::search:
@@ -2283,7 +2282,7 @@ class Definition implements DefinitionInterface
                         }
 
                         $o_validator->isDescription();
-                     });
+                     }, 'auto_suggest');
                 break;
 
             case EnumInputType::reset:
@@ -2291,7 +2290,7 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
                          $o_validator->addSoftFailure(tr('is not supported'));
-                     });
+                     }, 'reset');
                 break;
 
             case EnumInputType::radio:
@@ -2372,21 +2371,30 @@ class Definition implements DefinitionInterface
     /**
      * Adds the specified validation function to the validation functions list for this definition
      *
-     * @param callable $function
-     * @param bool     $set_content_test_done
-     *
+     * @param callable    $function
+     * @param bool        $set_content_test_done
+     * @param string|null $name
      * @return static
      */
-    public function addValidationFunction(callable $function, bool $set_content_test_done = false): static
+    public function addValidationFunction(callable $function, ?string $name = null, bool $set_content_test_done = false): static
     {
-        // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
-        $this->validations[] = function (ValidatorInterface $o_validator) use ($function, $set_content_test_done) {
+        $function = function (ValidatorInterface $o_validator) use ($function, $set_content_test_done) {
             if ($set_content_test_done) {
                 $o_validator->setContentTestDone();
             }
 
             $function($o_validator);
         };
+
+
+        if ($name) {
+            // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
+            $this->validations[$name] = $function;
+
+        } else {
+            // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
+            $this->validations[] = $function;
+        }
 
         return $this;
     }
@@ -2418,7 +2426,7 @@ class Definition implements DefinitionInterface
 
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
             $o_validator->isMoreThan($value, $equal);
-        });
+        }, 'min');
 
         return $this->setKey($value, 'min');
     }
@@ -2451,7 +2459,7 @@ class Definition implements DefinitionInterface
 
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
             $o_validator->isLessThan($value, $equal);
-        });
+        }, 'max');
 
         return $this->setKey($value, 'max');
     }
@@ -2484,7 +2492,7 @@ class Definition implements DefinitionInterface
 
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
             $o_validator->isAfter($value, $equal);
-        });
+        }, 'minimum_date');
 
         return $this->setKey($value, 'minimum_date');
     }
@@ -2517,7 +2525,7 @@ class Definition implements DefinitionInterface
 
         $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
             $o_validator->isBefore($value, $equal);
-        });
+        }, 'maximum_date');
 
         return $this->setKey($value, 'maximum_date');
     }
@@ -2537,7 +2545,7 @@ class Definition implements DefinitionInterface
     protected function validateNumberTypeInput(string $key, string|float|int $value): void
     {
         if (is_callable(isset_get($this->source['element']))) {
-            // We can't validate data types for this since it's a callback function
+            // We cannot validate data types for this since it is a callback function
             return;
         }
 
@@ -2601,7 +2609,7 @@ class Definition implements DefinitionInterface
              ->validateTextTypeElement('minlength', $value)
              ->addValidationFunction(function (ValidatorInterface $o_validator) use ($value) {
                  $o_validator->hasMinCharacters($value);
-             });
+             }, 'minlength');
 
         return $this->setKey($value, 'minlength');
     }
@@ -2630,7 +2638,7 @@ class Definition implements DefinitionInterface
         $this->ensureInputType(EnumInputType::text)
              ->addValidationFunction(function (ValidatorInterface $o_validator) use ($value) {
                  $o_validator->hasMaxCharacters($value);
-             });
+             }, 'maxlength');
 
         return $this->setKey($value, 'maxlength');
     }
@@ -2867,7 +2875,7 @@ class Definition implements DefinitionInterface
                 // The submitted user data value must be in the definition source
                 $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($source, $strict) {
                     $o_validator->isInArray(array_keys($source), $strict);
-                });
+                }, 'source');
             }
         }
 
@@ -2915,7 +2923,7 @@ class Definition implements DefinitionInterface
                 // The submitted user transform value must be in the definition source
                 $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($source) {
                     $o_validator->isInArray(array_keys($source))->sanitizeSearchReplace($source);
-                });
+                }, 'transform');
             }
         }
 
@@ -3100,7 +3108,7 @@ class Definition implements DefinitionInterface
      *          - the column is required
      *          - the object in the column is new
      *          - the flag for "get_render_html_required_attribute_for_new" is false
-     *       If all of these criteria are met, this method will return true, or just if the column isn't required to
+     *       If all of these criteria are met, this method will return true, or just if the column  is not required to
      *       begin with.
      *
      * @param bool $get_real_value
@@ -3217,7 +3225,7 @@ class Definition implements DefinitionInterface
     protected function validateTextTypeElement(string $key, string|float|int|null $value): static
     {
         if (is_callable(isset_get($this->source['element']))) {
-            // We can't validate data types for this since it's a callback function
+            // We cannot validate data types for this since it is a callback function
             return $this;
         }
 
@@ -3732,7 +3740,7 @@ class Definition implements DefinitionInterface
 
         if (!$this->getRender()) {
             if (!$this->getForceValidations()) {
-                // This column renders so we're fine validating it
+                // This column renders so we are fine validating it
                 $o_validator->doNotValidate();
                 return false;
             }
@@ -3742,7 +3750,7 @@ class Definition implements DefinitionInterface
         $this->validateProcessEmptyValues($o_validator, $column);
 
         if ($this->o_data_entry?->isApplying()) {
-            // If we're applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
+            // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
             if ($this->validateProcessAppliedReadonlyDisabled($o_validator, $column)) {
                 // Yeah, this column is readonly / disabled and shouldn't be validated (and not saved either)
                 return false;
@@ -3870,14 +3878,14 @@ class Definition implements DefinitionInterface
     protected function validateProcessAppliedNotRendering(ValidatorInterface $o_validator, string $column): bool
     {
         if ($this->getRender()) {
-            // This column renders so we're fine validating it
+            // This column renders so we are fine validating it
             return false;
         }
 
-        // This column isn't rendered (so not sent to the user) which means that it CANNOT be submitted.
-        // If the user submitted it, they're messing around, don't allow it!
+        // This column  is not rendered (so not sent to the user) which means that it CANNOT be submitted.
+        // If the user submitted it, they are messing around, do not allow it!
         if ($o_validator->get($column)) {
-            // This column isn't rendered and shouldn't have a value whilst applying unless forced processing.
+            // This column  is not rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...
                 Incident::new()
@@ -3897,7 +3905,7 @@ class Definition implements DefinitionInterface
             }
         }
 
-        // Don't validate this column and try to apply static value
+        // Do not validate this column and try to apply static value
         $this->validateProcessStaticValue($o_validator, $column);
         $o_validator->doNotValidate();
         return true;
@@ -3915,7 +3923,7 @@ class Definition implements DefinitionInterface
     protected function validateProcessNoValidationOrDefaults(ValidatorInterface $o_validator, string $column): bool
     {
         if ($this->getNoValidation() or $this->getIgnored()) {
-            // Don't perform validations, or ignore the column completely
+            // Do not perform validations, or ignore the column completely
             $o_validator->doNotValidate();
 
             Log::warning(ts('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
@@ -4013,7 +4021,7 @@ class Definition implements DefinitionInterface
             return $this->o_data_entry->getMetaColumns();
         }
 
-        // There is no data entry specified, we don't know anything about meta columns!
+        // There is no data entry specified, we do not know anything about meta columns!
         return [];
     }
 
@@ -4031,7 +4039,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
@@ -4065,7 +4073,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * If true, the value can't be modified and this element will be shown as disabled on HTML clients
+     * If true, the value cannot be modified and this element will be shown as disabled on HTML clients
      *
      * @note Defaults to false
      *
@@ -4132,11 +4140,11 @@ class Definition implements DefinitionInterface
     public function getCliColumn(): ?string
     {
         if (PLATFORM_WEB or !$this->o_data_entry->isApplying()) {
-            // We're either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
+            // We are either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }
 
-        // We're on the command line and data is being applied. We're working with data from the $argv command line
+        // We are on the command line and data is being applied. We are working with data from the $argv command line
         if (empty($this->source['cli_column'])) {
             // This column cannot be modified on the command line, no definition available
             return null;

@@ -22,12 +22,14 @@ use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Filesystem\Exception\NoPathSpecifiedException;
+use Phoundation\Filesystem\Exception\NoRestrictionsSpecifiedException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -85,9 +87,9 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @return PhoPathInterface|null
+     * @return PhoDirectoryInterface|null
      */
-    public function getParentDirectory(): ?PhoPathInterface
+    public function getParentDirectoryObject(): ?PhoDirectoryInterface
     {
         return $this->o_parent_directory;
     }
@@ -98,14 +100,14 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @note By default, will then load the files in that path
      *
-     * @param PhoPathInterface|null $parent_directory
+     * @param PhoDirectoryInterface|null $o_parent_directory
      * @param bool                  $load
      *
      * @return PhoFiles
      */
-    public function setParentDirectoryObject(?PhoPathInterface $parent_directory, bool $load = true): static
+    public function setParentDirectoryObject(?PhoDirectoryInterface $o_parent_directory, bool $load = true): static
     {
-        $this->o_parent_directory = $parent_directory;
+        $this->o_parent_directory = $o_parent_directory;
 
         if ($load) {
             return $this->load();
@@ -126,7 +128,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             throw new NoPathSpecifiedException(tr('Cannot load files, no parent directory specified'));
         }
 
-        $this->setSource($this->o_parent_directory->scan());
+        return $this->setSource($this->o_parent_directory->scan());
     }
 
 
@@ -159,16 +161,16 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param Stringable|string             $target
+     * @param PhoPathInterface|string       $target
      * @param PhoRestrictionsInterface|null $o_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
-        $o_restrictions = $this->ensureRestrictions($o_restrictions);
+        $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
         PhoDirectory::new($target, $o_restrictions)->ensure();
 
         foreach ($this->source as $file) {
@@ -232,7 +234,13 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
             while (true) {
                 switch ($current) {
                     case '':
-                        return $this->added_empty;
+                        // $current MIGHT be an object that, converted to string, gets "" (__toString() returns an empty string for that object), which can lead
+                        // to a foreach($this) on an Iterator to skip over all entries. To avoid this, test for this here
+                        if ($current === '') {
+                            return $this->added_empty;
+                        }
+
+                        break 2;
 
                     case '.':
                         // No break
@@ -274,19 +282,26 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                 }
 
                 if (!str_starts_with($file, '/')) {
-                    // Prefix the file with the parent path ONLY IF it's not absolute and a parent was specified
+                    // Prefix the file with the parent path ONLY IF it is not absolute and a parent was specified
                     $file = $this->o_parent_directory?->getSource() . $file;
                 }
 
-                if (is_dir($file)) {
-                    $file = PhoDirectory::new($file, $this->o_restrictions);
+                try {
+                    if (is_dir($file)) {
+                        $file = PhoDirectory::new($file, $this->o_restrictions);
 
-                } elseif (file_exists($file)) {
-                    $file = PhoFile::new($file, $this->o_restrictions);
+                    } elseif (file_exists($file)) {
+                        $file = PhoFile::new($file, $this->o_restrictions);
 
-                } else {
-                    // Non-existing file, just return the path
-                    $file = PhoPath::new($file, $this->o_restrictions);
+                    } else {
+                        // Non-existing file, just return the path
+                        $file = PhoPath::new($file, $this->o_restrictions);
+                    }
+
+                } catch (NoRestrictionsSpecifiedException $e) {
+                    throw NoRestrictionsSpecifiedException::new(tr('Cannot convert source filename ":file" to a PhoFile object, this PhoFiles object does not have a required PhoRestrictions object set', [
+                        ':file' => $file
+                    ]), $e);
                 }
 
                 continue;
@@ -298,11 +313,15 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
                 continue;
             }
 
-            throw new OutOfBoundsException(tr('Iterator ":class" key ":key" contains unsupported data ":data"', [
+            throw OutOfBoundsException::new(tr('Iterator ":class" key ":key" contains unsupported value ":value"', [
                 ':class' => static::class,
                 ':key'   => $key,
-                ':data'  => $file,
-            ]));
+                ':value' => $file,
+            ]))->addData([
+                'iterator class'                => static::class,
+                'accepted datatypes or classes' => PhoPathInterface::class,
+                'value datatype or class'       => get_class_or_datatype($file),
+            ]);
         }
 
         return $this;

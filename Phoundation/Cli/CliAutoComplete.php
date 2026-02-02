@@ -162,7 +162,7 @@ class CliAutoComplete
             '-O,--order-by'                  => true,
             '-P,--page'                      => true,
             '-Q,--verbose'                   => false,
-            '-R,--rebuild-commands'          => false,
+            '-R,--results'                   => false,
             '-S,--service'                   => true,
             '-T,--test'                      => false,
             '-U,--usage'                     => false,
@@ -177,6 +177,7 @@ class CliAutoComplete
             '--no-validation'                => false,
             '--no-password-validation'       => false,
             '--show-passwords'               => false,
+            '--rebuild-commands'             => false,
             '--si'                           => false,
             '--status'                       => true,
             '--sudo'                         => false,
@@ -245,7 +246,6 @@ class CliAutoComplete
 
                 CliAutoComplete::showResults($data['commands']);
             }
-
         }
 
         if (static::$position > count($cli_commands)) {
@@ -646,7 +646,7 @@ class CliAutoComplete
             $position_data = $definitions[$position];
 
             if ($position_data === true) {
-                // Argument is required but we can't autocomplete it
+                // Argument is required but we cannot autocomplete it
 
             } else {
                 if (is_array($position_data)) {

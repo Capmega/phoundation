@@ -111,7 +111,7 @@ if ($argv['local']) {
     // Perform an update from local repositories on this computer
     try {
         if ($argv['no_phoundation']) {
-            // Don't update Phoundation libraries
+            // Do not update Phoundation libraries
             Log::warning('Not updating phoundation core files', 10);
         } else {
             Log::action(ts('Pulling updates from local Phoundation installation...'), 10);
@@ -120,7 +120,7 @@ if ($argv['local']) {
         }
 
         if ($argv['no_plugins']) {
-            // Don't update the plugins nor the templates
+            // Do not update the plugins nor the templates
             Log::warning('Not updating plugins nor templates', 10);
         } else {
             Log::action(ts('Pulling updates from local Phoundation plugins installation...'), 10);
@@ -132,12 +132,12 @@ if ($argv['local']) {
     }
 
 } elseif ($argv['check']) {
-    // Don't update, check instead
+    // Do not update, check instead
     Log::information(ts('Checking for Phoundation updates...'), 10);
     Project::checkUpdates();
 
 } else {
-    // Perform an update from the remote repositories. This should be the default unless you're a Phoundation developer
+    // Perform an update from the remote repositories. This should be the default unless you are a Phoundation developer
     Log::information(ts('Updating Phoundation...'), 10);
     Project::update();
 }

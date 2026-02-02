@@ -23,11 +23,22 @@ interface PackagesInterface extends IteratorInterface
     /**
      * Installs the required packages for this operating system
      *
-     * @param Stringable|string|null $operating_system
+     * @param array|string $packages
      *
      * @return static
      */
-    public function install(Stringable|string|null $operating_system = null): static;
+    public function install(array|string $packages): static;
+
+
+    /**
+     * Removes the specified packages from the system
+     *
+     * @param array|string $packages
+     * @param bool         $purge
+     *
+     * @return static
+     */
+    public function remove(array|string $packages, bool $purge = false): static;
 
 
     /**

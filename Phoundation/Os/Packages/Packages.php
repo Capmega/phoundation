@@ -16,14 +16,12 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Packages;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Packages\Interfaces\PackagesInterface;
-use Phoundation\Os\Processes\Commands\Command;
-use Phoundation\Os\Processes\Exception\ProcessesException;
+use Phoundation\Os\Processes\Commands\Apt;
 use Stringable;
 
 
@@ -45,7 +43,7 @@ class Packages extends Iterator implements PackagesInterface
             ]));
         }
         if (!$packages or (($packages instanceof PackagesInterface) and $packages->isEmpty())) {
-            throw new OutOfBoundsException(tr('Cannot add packages for operating system ":operating_system", no pacakges specified', [
+            throw new OutOfBoundsException(tr('Cannot add packages for operating system ":operating_system", no packages specified', [
                 ':operating_system' => $operating_system,
             ]));
         }
@@ -57,55 +55,88 @@ class Packages extends Iterator implements PackagesInterface
 
 
     /**
-     * Installs the required packages for this operating system
+     * Installs the specified packages on the system
      *
-     * @param Stringable|string|null $operating_system
+     * @param array|string $packages
      *
      * @return static
      */
-    public function install(Stringable|string|null $operating_system = null): static
+    public function install(array|string $packages): static
     {
-        throw new UnderConstructionException();
-        $operating_system = $this->getOperatingSystem()
-                                 ->default($operating_system);
-        $manager          = $this->getManager($operating_system);
-        if (!$this->keyExists($operating_system)) {
-            throw new OutOfBoundsException(tr('Cannot install packages, operating system ":os" is not defined', [
-                ':os' => $operating_system,
-            ]));
-        }
-        if (
-            $this->get($operating_system)
-                 ->isEmpty()
-        ) {
-            throw new OutOfBoundsException(tr('Cannot install packages, no packages available for operating system ":os"', [
-                ':os' => $operating_system,
-            ]));
-        }
-        switch ($manager) {
-            case 'apt':
-                if (!Command::checkSudoAvailable('apt-get', PhoRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
-                    throw new ProcessesException(tr('This process does not have sudo access to apt-get', [
-                        ':command' => $command,
-                    ]));
-                }
-                break;
-            case 'yum':
-                if (!Command::checkSudoAvailable('yum', PhoRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
-                    throw new ProcessesException(tr('This process does not have sudo access to yum', [
-                        ':command' => $command,
-                    ]));
-                }
-                break;
-            default:
-                throw new OutOfBoundsException(tr('Unsupported package manager ":manager" detected', [
-                    ':manager' => $manager,
-                ]));
-        }
-        // TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
-        //                    AptGet::new()->install($this->packages);
-        //                    return $this->setInternalCommand($command, $which_command);
+        Log::action(ts('Installing packages ":packages"', [':packages' => $packages]));
+        Apt::new()->install($packages);
+
+        return $this;
     }
+
+
+    /**
+     * Removes the specified packages from the system
+     *
+     * @param array|string $packages
+     * @param bool         $purge
+     *
+     * @return static
+     */
+    public function remove(array|string $packages, bool $purge = false): static
+    {
+        Log::action(ts('Removing packages ":packages"', [':packages' => $packages]));
+        Apt::new()->remove($packages, $purge);
+
+        return $this;
+    }
+
+
+//    /**
+//     * Installs the required packages for this operating system
+//     *
+//     * @param Stringable|string|null $operating_system
+//     *
+//     * @return static
+//     */
+//    public function install(Stringable|string|null $operating_system = null): static
+//    {
+//        throw new UnderConstructionException();
+//        $operating_system = $this->getOperatingSystem()
+//                                 ->default($operating_system);
+//        $manager          = $this->getManager($operating_system);
+//        if (!$this->keyExists($operating_system)) {
+//            throw new OutOfBoundsException(tr('Cannot install packages, operating system ":os" is not defined', [
+//                ':os' => $operating_system,
+//            ]));
+//        }
+//        if (
+//            $this->get($operating_system)
+//                 ->isEmpty()
+//        ) {
+//            throw new OutOfBoundsException(tr('Cannot install packages, no packages available for operating system ":os"', [
+//                ':os' => $operating_system,
+//            ]));
+//        }
+//        switch ($manager) {
+//            case 'apt':
+//                if (!Command::checkSudoAvailable('apt-get', PhoRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+//                    throw new ProcessesException(tr('This process does not have sudo access to apt-get', [
+//                        ':command' => $command,
+//                    ]));
+//                }
+//                break;
+//            case 'yum':
+//                if (!Command::checkSudoAvailable('yum', PhoRestrictions::new('/bin,/usr/bin,/sbin,/usr/sbin'))) {
+//                    throw new ProcessesException(tr('This process does not have sudo access to yum', [
+//                        ':command' => $command,
+//                    ]));
+//                }
+//                break;
+//            default:
+//                throw new OutOfBoundsException(tr('Unsupported package manager ":manager" detected', [
+//                    ':manager' => $manager,
+//                ]));
+//        }
+//        // TODO Implement this! Have apt-file actually search for the command, match /s?bin/COMMAND or /usr/s?bin/COMMAND
+//        //                    AptGet::new()->install($this->packages);
+//        //                    return $this->setInternalCommand($command, $which_command);
+//    }
 
 
     /**

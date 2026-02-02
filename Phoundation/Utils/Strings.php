@@ -573,18 +573,28 @@ class Strings extends Utils
 
 
     /**
-     * Return if the specified source is a valid version or not
+     * Returns if the specified source is a valid version or not
      *
-     * @see    https://semver.org/
+     * @see https://semver.org/
      *
-     * @param Stringable|string $source
-     * @param bool              $phoundation_version
+     * @param Stringable|string $source                      The version to test
+     * @param bool              $phoundation_version [false] If true, allows also special Phoundation negative versions,
+     *                                                       and special Phoundation versions "post_once" and
+     *                                                       "post_always"
+     * @param bool              $short_version       [false] If true, expects a major.minor version type, instead of a
+     *                                                       major.minor.revision version
+     * @return bool                                          Returns true if the specified string is a version format
+     *                                                       string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/", or
+     *                                                       "/^\d{1,3}\.\d{1,3}$/" if $short_version is set to true
      *
-     * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/".
-     *              False if not
      */
-    public static function isVersion(Stringable|string $source, bool $phoundation_version = false): bool
+    public static function isVersion(Stringable|string $source, bool $phoundation_version = false, bool $short_version = false): bool
     {
+        if ($short_version) {
+            // The supplied version MUST be a short version of only major.minor, add revision 0 for testing purposes
+            $source .= '.0';
+        }
+
         if ($phoundation_version) {
             switch ($source) {
                 case 'post_once':
@@ -691,7 +701,7 @@ class Strings extends Utils
      */
     protected static function searchKeyword(Stringable|string $source, Stringable|string|int|float $keyword, bool $regex = false, bool $unicode = true): bool
     {
-        // Ensure keywords are trimmed, and don't search for empty keywords
+        // Ensure keywords are trimmed, and do not search for empty keywords
         $source  = (string) $source;
         $keyword = trim((string) $keyword);
 
@@ -1093,7 +1103,7 @@ class Strings extends Utils
                 $plaintext = trim($plaintext, '<br />');
 
                 if ($plaintext == '') {
-                    // Remove an element, set it's outertext as an empty string
+                    // Remove an element, set it is outertext as an empty string
                     $element->outertext = '';
 
                 } else {
@@ -1133,9 +1143,9 @@ class Strings extends Utils
      * /code
      *
      */
-    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, bool $needles_required = true, bool $case_insensitive = false): string
+    public static function cut(Stringable|string|int|null $source, Stringable|string|int $start, Stringable|string|int $stop, int $instance = 1, bool $needles_required = true, bool $case_insensitive = false): string
     {
-        return Strings::until(Strings::from($source, $start, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
+        return Strings::until(Strings::from($source, $start, $instance, needle_required: $needles_required, case_insensitive: $case_insensitive), $stop, needle_required: $needles_required, case_insensitive: $case_insensitive);
     }
 
 
@@ -2851,7 +2861,7 @@ class Strings extends Utils
 
 
     /**
-     * Strips all control characters (ASCII characters under 32) unless they're specified to be kept
+     * Strips all control characters (ASCII characters under 32) unless they are specified to be kept
      *
      * @param string            $source  The string to strip the characters from
      * @param string            $replace The string to replace the control characters with
@@ -2956,7 +2966,7 @@ class Strings extends Utils
 
 
     /**
-     * Returns the source if it's a string, the key value if it's an array, or the object key value if it's a DataEntryInterface object
+     * Returns the source if it is a string, the key value if it is an array, or the object key value if it is a DataEntryInterface object
      *
      * @note Returns NULL if the to-be returned value is empty
      *
@@ -3003,7 +3013,7 @@ class Strings extends Utils
         throw OutOfBoundsException::new(tr('Cannot extract string, specified source must be either scalar, or and array, or an ":class" type object with a key specified to extract a value from', [
             ':class' => EntryInterface::class
         ]))->addData([
-            ':source' => $source,
+            'source' => $source,
         ]);
     }
 }

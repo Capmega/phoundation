@@ -30,7 +30,6 @@ class UpdateLostPasswordPage extends Page
         // This page must build its own body
         // Set page meta-data
         Response::setPageTitle(tr('Your new password has been updated'));
-
         parent::__construct($name);
     }
 }

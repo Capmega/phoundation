@@ -28,7 +28,7 @@ use Phoundation\Web\Requests\Response;
 $e = Core::readRegister('e');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(400);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('400 - Bad Request');

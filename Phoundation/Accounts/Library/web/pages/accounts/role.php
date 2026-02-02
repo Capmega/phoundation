@@ -166,7 +166,7 @@ $o_rights_card = Card::new()
                      ->setContent($o_role->getRightsHtmlDataEntryForm());
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Role'));
 Response::setHeaderSubTitle($o_role->getDisplayName());
 Response::setBreadcrumbs([

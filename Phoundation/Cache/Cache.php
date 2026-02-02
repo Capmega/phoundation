@@ -123,7 +123,7 @@ class Cache extends Database implements CacheInterface
                 throw $e;
             }
 
-            // Alternate connector isn't allowed, continue with cache disabled
+            // Alternate connector  is not allowed, continue with cache disabled
             Cache::setEnabled(false);
             Incident::new($e)->save();
         }
@@ -365,7 +365,7 @@ class Cache extends Database implements CacheInterface
                     ]), $e);
 
                 } catch (ConnectorNotExistsException $e) {
-                    // So the "cache" connector has not been configured either, we can't use cache, disable it and
+                    // So the "cache" connector has not been configured either, we cannot use cache, disable it and
                     // register an incident about this
                     Cache::setEnabled(false);
 
@@ -438,6 +438,8 @@ class Cache extends Database implements CacheInterface
         Libraries::rebuildCronCache();
         Libraries::rebuildTestsCache();
         Libraries::rebuildCommandsCache();
+        Libraries::rebuildConfigCache();
+        Libraries::rebuildDataCache();
 
         static::$has_been_cleared = true;
 
@@ -560,7 +562,7 @@ class Cache extends Database implements CacheInterface
      *
      * @return PoadInterface|array|string|float|int|null
      */
-    public function get(Stringable|string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
+    public function getOrGenerate(Stringable|string|float|int|null $key, ?callable $callback = null, bool $process_headers_footers = true): PoadInterface|array|string|float|int|null
     {
         static::$cache_lookups++;
 
@@ -681,7 +683,7 @@ class Cache extends Database implements CacheInterface
      *
      * @return void
      */
-    public function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
+    public static function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void
     {
         $auto_commit = $auto_commit ?? config()->getBoolean('cache.system.commit.auto', false);
 
@@ -698,7 +700,7 @@ class Cache extends Database implements CacheInterface
                 $git->add($directory)
                     ->commit($message, config()->getBoolean('cache.system.commit.signed', false) or $signed);
 
-                Log::success($this->log(ts('Committed system cache update to git')));
+                Log::success(ts('Committed system cache update to git'));
             }
         }
     }

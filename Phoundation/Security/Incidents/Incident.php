@@ -195,7 +195,6 @@ class Incident extends DataEntryCore implements IncidentInterface
     public function setLog(int|bool $level): static
     {
         $this->log = $level;
-
         return $this;
     }
 
@@ -218,7 +217,7 @@ class Incident extends DataEntryCore implements IncidentInterface
             }
 
             if ($exception instanceof PhoException) {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
+                $this->setTitle(tr('Encountered exception'))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity($exception->isWarning() ? EnumSeverity::medium : EnumSeverity::high)
@@ -231,7 +230,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                      ]);
 
             } else {
-                $this->setTitle(tr('Encountered exception: :e', [':e' => $exception->getMessage()]))
+                $this->setTitle(tr('Encountered exception'))
                      ->setType('exception')
                      ->setUrl(PLATFORM_WEB ? Route::getRequest() : CliCommand::getRequest())
                      ->setSeverity(EnumSeverity::severe)
@@ -319,7 +318,7 @@ class Incident extends DataEntryCore implements IncidentInterface
             parent::save($force, $skip_validation, $comments);
 
         } catch (CoreReadonlyException) {
-            // Can't save incidents when Core is in readonly mode!
+            // Cannot save incidents when Core is in readonly mode!
             Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
                 ':user'     => Session::getUserObject()->getLogId(),
@@ -360,7 +359,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      * @param string $severity
      * @param mixed  $details
      *
-     * @return $this
+     * @return static
      */
     protected function log(string $severity, mixed $details): static
     {
@@ -383,29 +382,29 @@ class Incident extends DataEntryCore implements IncidentInterface
                 // no break
 
             case 'medium':
-                Log::warning(ts('Registered incident :id [:severity]: ":title" because: :body', [
+                Log::warning(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
                     ':title'    => $this->getTitle(),
                     ':body'     => $this->getBody(),
-                ]), (is_integer($this->log) ? $this->log : 7));
+                ]), (is_integer($this->log) ? $this->log : 7), echo_screen: false);
 
                 if ($details) {
-                    Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false);
+                    Log::warning(print_r($details, true), (is_integer($this->log) ? $this->log : 7), clean: false, echo_screen: false);
                 }
 
                 break;
 
             default:
-                Log::error(ts('Registered incident :id [:severity]: ":title" because: :body', [
+                Log::error(ts('Registered incident ":id [:severity]" with title ":title" because: :body', [
                     ':id'       => $this->getId(),
                     ':severity' => $severity,
                     ':title'    => $this->getTitle(),
                     ':body'     => $this->getBody(),
-                ]), (is_integer($this->log) ? $this->log : 9));
+                ]), (is_integer($this->log) ? $this->log : 9), echo_screen: false);
 
                 if ($details) {
-                    Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false);
+                    Log::error(print_r($details, true), (is_integer($this->log) ? $this->log : 9), clean: false, echo_screen: false);
                 }
         }
 
@@ -419,7 +418,7 @@ class Incident extends DataEntryCore implements IncidentInterface
      * @param string     $severity
      * @param array|null $details
      *
-     * @return $this
+     * @return static
      */
     protected function notify(string $severity, ?array $details): static
     {
@@ -516,7 +515,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
 
             case EnumSeverity::unknown:
-                // Don't know, assume its severe?
+                // Do not know, assume its severe?
                 return true;
         }
 
@@ -537,7 +536,7 @@ class Incident extends DataEntryCore implements IncidentInterface
     public function throw(?string $exception = null, bool $non_production_environment_only = false): static
     {
         if ($non_production_environment_only and Core::isProductionEnvironment()) {
-            // We're on a production environment and can continue after registering the incident
+            // We are on a production environment and can continue after registering the incident
             return $this;
         }
 
@@ -582,12 +581,12 @@ class Incident extends DataEntryCore implements IncidentInterface
      */
     protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
     {
-        $o_definitions->removeKeys('meta-divider')
+        $o_definitions->removeKeys('meta_divider')
 
                       ->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('meta-divider'))
+                      ->add(DefinitionFactory::newDivider('meta_divider'))
 
                       ->add(Definition::new('type')
                                       ->setLabel(tr('Incident type'))
@@ -663,7 +662,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                             return $return . implode(PHP_EOL, $lines);
 
                                         } catch (JsonException $e) {
-                                            // We couldn't decode it! Why? Let's move on, it's not THAT important... yet
+                                            // We couldn't decode it! Why? Let's move on, it is not THAT important... yet
                                             Log::warning($e);
 
                                             return isset_get($value);

@@ -26,6 +26,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Traits\TraitDataStaticBoolQuiet;
 use Phoundation\Data\Traits\TraitDataStaticBoolVerbose;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\SqlQueries;
@@ -53,6 +54,7 @@ use Throwable;
 class Log implements LogInterface
 {
     use TraitDataStaticBoolVerbose;
+    use TraitDataStaticBoolQuiet;
 
 
     /**
@@ -99,7 +101,7 @@ class Log implements LogInterface
     protected static bool $screen_enabled = true;
 
     /**
-     * Keeps track of what log files we're logging to
+     * Keeps track of what log files we are logging to
      */
     protected static array $streams = [];
 
@@ -210,7 +212,7 @@ class Log implements LogInterface
      */
     protected function __construct()
     {
-        // Ensure that the log class hasn't been initialized yet
+        // Ensure that the log class  has not been initialized yet
         if (static::$init) {
             return;
         }
@@ -553,7 +555,7 @@ class Log implements LogInterface
 
         // Validate the specified log level
         if ($real_threshold > 9) {
-            // This is an "always log!" message, which only are displayed if we're running in debug mode
+            // This is an "always log!" message, which only are displayed if we are running in debug mode
             if (Debug::isEnabled()) {
                 if ($real_threshold > 10) {
                     // Yeah, this is not okay
@@ -777,12 +779,12 @@ class Log implements LogInterface
     public static function write(mixed $messages = null, ?string $class = null, int $threshold = 10, bool $clean = true, bool $echo_newline = true, string|bool $echo_prefix = true, bool $echo_screen = true): bool
     {
         if (!static::$enabled) {
-            // Logging has been disabled, don't do anything
+            // Logging has been disabled, do not do anything
             return false;
         }
 
         if (static::$init) {
-            // Don't log anything while locked, initializing, or while dealing with a Log internal failure
+            // Do not log anything while locked, initializing, or while dealing with a Log internal failure
             // Check if we passed the log threshold. If not, discard the message
             if (!static::passesThreshold($threshold)) {
                 return false;
@@ -872,13 +874,13 @@ class Log implements LogInterface
             }
 
             // Make sure the log message is clean and readable.
-            // Don't truncate as we might have huge log messages!
-            // If no or an empty class was specified, we don't clean
+            // Do not truncate as we might have huge log messages!
+            // If no or an empty class was specified, we do not clean
             if ($class and $clean) {
                 $messages = Strings::log($messages, 0);
             }
 
-            // Don't log the same message twice in a row
+            // Do not log the same message twice in a row
             if (($threshold > 0) and (static::$last_message === $messages) and (static::$filter_double)) {
                 static::$lock = false;
                 return false;
@@ -886,7 +888,7 @@ class Log implements LogInterface
 
             static::$last_message = $messages;
 
-            // If logging to the standard log output failed, or we're initializing the log, then write to the system log
+            // If logging to the standard log output failed, or we are initializing the log, then write to the system log
             if (static::$failed) {
                 static::toAlternateLog(Strings::force($messages));
                 static::$lock = false;
@@ -902,7 +904,7 @@ class Log implements LogInterface
 
             if (!$messages) {
                 if (!is_numeric($messages)) {
-                    // Don't log empty messages
+                    // Do not log empty messages
                     static::$lock = false;
 
                     if (Debug::isEnabled()) {
@@ -1194,7 +1196,7 @@ class Log implements LogInterface
             // Redetermine the log class
             if ($exception instanceof PhoException) {
                 if ($exception->hasBeenLogged()) {
-                    // This exception has already been logged, don't log again
+                    // This exception has already been logged, do not log again
                     return false;
                 }
 
@@ -1216,6 +1218,7 @@ class Log implements LogInterface
             // Log the initial exception message
             Log::write(tr('Message   : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             Log::write('[E' . ($exception->getCode() ?? 'N/A') . '] ' . $exception->getMessage(), $class, $threshold, false, true, false, $echo_screen);
+            Log::exceptionMessages($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::write(tr('Location  : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
             Log::write(Strings::from($exception->getFile(), DIRECTORY_ROOT) . '@' . $exception->getLine(), $class, $threshold, true, true, false, $echo_screen);
             Log::write(tr('Exception : '), 'information', $threshold, false, false, echo_screen: $echo_screen);
@@ -1225,7 +1228,6 @@ class Log implements LogInterface
             $has_logged = Log::write(Request::getExecutedPath(true), $class, $threshold, true, true, false, $echo_screen);
 
             // Log the exception data, the trace, and previous exception, if any.
-            Log::exceptionMessages($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::exceptionTrace($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
             Log::exceptionData($exception, $threshold, $clean, $echo_newline, $echo_screen);
             Log::previousException($exception, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
@@ -1298,12 +1300,12 @@ class Log implements LogInterface
     public static function setFile(?string $file = null): ?string
     {
         if (!static::getFileEnabled()) {
-            // Logging to file is disabled, don't set a file
+            // Logging to file is disabled, do not set a file
             return static::$file;
         }
 
         if (static::$failed) {
-            // If the log is in failed mode, we can't switch to a different file
+            // If the log is in failed mode, we cannot switch to a different file
             static::toAlternateLog(tr('Not switching log file to ":file", log is running in failed mode', [
                 ':file' => $file,
             ]));
@@ -1520,7 +1522,7 @@ class Log implements LogInterface
             return count($lines);
 
         } catch (Throwable $e) {
-            // Don't crash the process because of this, log it and return -1 to indicate an exception
+            // Do not crash the process because of this, log it and return -1 to indicate an exception
             Log::exception($e);
             Log::error(tr('Failed to write backtrace to log because of exception ":e" cause by backtrace specified below', [
                 ':e' => $e->getMessage(),
@@ -1561,7 +1563,7 @@ class Log implements LogInterface
      */
     protected static function writeExceptionHandler(Throwable $e, mixed $messages = null, int $threshold = 10): bool
     {
-        // Don't ever let the system crash because of a log issue, so we catch all possible exceptions
+        // Do not ever let the system crash because of a log issue, so we catch all possible exceptions
         static::$lock = false;
 
         try {
@@ -1580,7 +1582,7 @@ class Log implements LogInterface
                 }
 
             } catch (Throwable $g) {
-                // Okay, this is messed up, we can't even log to system logs.
+                // Okay, this is messed up, we cannot even log to system logs.
                 static::toAlternateLog('Failed to log message because: ' . $g->getMessage());
             }
 
@@ -1589,7 +1591,7 @@ class Log implements LogInterface
             throw $e;
 
         } catch (Throwable $f) {
-            // Okay WT actual F is going on here? We can't log to our own files, we can't log to system files. THIS
+            // Okay WT actual F is going on here? We cannot log to our own files, we cannot log to system files. THIS
             // we won't stand for!
             throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files', $e)
                               ->addData(['original exception' => $e]);
@@ -1622,6 +1624,7 @@ class Log implements LogInterface
      * Write a command line interface message in the log file and to the screen
      *
      * @param mixed       $messages
+     * @param string|null $class
      * @param int         $threshold
      * @param bool        $clean
      * @param bool        $echo_newline
@@ -1630,7 +1633,7 @@ class Log implements LogInterface
      *
      * @return bool
      */
-    public static function cli(mixed $messages = null, int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
+    public static function cli(mixed $messages = null, ?string $class = 'cli', int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
     {
         if (empty($messages)) {
             $messages = ' ';
@@ -1642,7 +1645,7 @@ class Log implements LogInterface
                     $messages = print_r($messages, true);
                 }
 
-                return Log::write($messages, 'cli', $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
+                return Log::write($messages, $class, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
 
             case 'json':
                 return static::json($messages, $threshold, $clean, $echo_newline, $echo_prefix, $echo_screen);
@@ -1808,6 +1811,11 @@ class Log implements LogInterface
      */
     protected static function logDebugHeader(string $keyword, string $datatype, int $trace = 4, int $threshold = 10, bool $echo_screen = true, string|bool $echo_prefix = true): bool
     {
+        if (QUIET) {
+            // Not logging headers at all!
+            return false;
+        }
+
         return Log::write(tr('Showing debug ":datatype" data with ":keyword" at :location', [
             ':keyword'  => $keyword,
             ':location' => static::getSourceCodeLocationText($trace - 1),
@@ -2090,13 +2098,13 @@ class Log implements LogInterface
     /**
      * Write the specified SQL query as a message in the log file
      *
-     * @param string|PDOStatement $query
-     * @param ?array              $execute
-     * @param int                 $threshold
-     * @param bool                $clean
-     * @param bool                $echo_newline
-     * @param string|bool         $echo_prefix
-     * @param bool                $echo_screen
+     * @param string|PDOStatement $query               The query that should be logged
+     * @param ?array              $execute      [null] If specified, must contain the execution variables to apply when executing the specified query
+     * @param int                 $threshold    [10]   The volume threshold that must be passed to allow this log message to show up in the log files
+     * @param bool                $clean        [true] If true, will first clean the log message from double spaces, etc. before writing it to the log files
+     * @param bool                $echo_newline [true] If true, will ensure the log message has a newline at the end when writing the message to the log files
+     * @param string|bool         $echo_prefix  [true] If true will log the message with the standard log message prefix (datetime, pid, gid, lid, etc.)
+     * @param bool                $echo_screen  [true] If true, will log the entry to the screen as well as the log files (only applies on WEB platform)
      *
      * @return bool
      */
@@ -2116,10 +2124,12 @@ class Log implements LogInterface
      * @note While log_console() will log towards the DIRECTORY_ROOT/data/log/ log files, cli_dot() will only log one
      *       single dot even though on the command line multiple dots may be shown
      *
-     * @param int|true $each
-     * @param string   $color
-     * @param string   $dot
-     * @param boolean  $quiet
+     * @param int|true $each      [10]    How many calls to this method it takes for a single dot to show up in the log files
+     * @param string   $color     [green] The color of the log message
+     * @param string   $dot       [.]     The character to use for the dot
+     * @param int      $threshold [10]    The volume threshold that must be passed for this message to show up in the log files
+     * @param string   $ten_color [blue]  The color of the log message if it is the tenth dot
+     * @param string   $ten_dot   [:]     The character of the log message if it is the tenth dot
      *
      * @return boolean True if a dot was printed, false if not
      * @example
@@ -2134,7 +2144,7 @@ class Log implements LogInterface
      *
      * @see  Log::write()
      */
-    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10, string $tencolor = 'blue', string $ten_dot = '#'): bool
+    public static function dot(int|true $each = 10, string $color = 'green', string $dot = '.', int $threshold = 10, string $ten_color = 'blue', string $ten_dot = ':'): bool
     {
         static $count = 0, $internal_each = 0, $ten_count = 0;
 
@@ -2167,7 +2177,7 @@ class Log implements LogInterface
 
             if (floor($ten_count / 10) >= $internal_each) {
                 $ten_count = 0;
-                Log::write($ten_dot, $tencolor, $threshold, false, false, false, echo_screen: $echo_screen);
+                Log::write($ten_dot, $ten_color, $threshold, false, false, false, echo_screen: $echo_screen);
 
             } else {
                 Log::write($dot, $color, $threshold, false, false, false, echo_screen: $echo_screen);

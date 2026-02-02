@@ -11,6 +11,7 @@ use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
@@ -470,11 +471,11 @@ interface IteratorInterface extends IteratorBaseInterface
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
      * @param ArrayableInterface|Stringable|array|string|int|null $needles
-     * @param int                                                 $flags
-     *
+     * @param int $flags
+     * @param string|null $column
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): IteratorInterface;
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): IteratorInterface;
 
 
     /**
@@ -776,7 +777,7 @@ interface IteratorInterface extends IteratorBaseInterface
      * Removes duplicate values from this Iterator
      *
      * @param int $flags Sorting type flags:
-     *                   SORT_REGULAR - compare items normally (don't change types)
+     *                   SORT_REGULAR - compare items normally (do not change types)
      *                   SORT_NUMERIC - compare items numerically
      *                   SORT_STRING - compare items as strings
      *                   SORT_LOCALE_STRING - compare items as strings, based on the current locale
@@ -907,7 +908,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param bool $ensure_objects
      *
-     * @return $this
+     * @return static
      */
     public function setEnsureObjects(bool $ensure_objects): static;
 
@@ -915,9 +916,9 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Returns the DataEntryInterface parent object
      *
-     * @return DataEntryInterface|RenderInterface|UrlInterface|null
+     * @return DataEntryInterface|PhoPathInterface|RenderInterface|UrlInterface|null;
      */
-    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|RenderInterface|UrlInterface|null;
+    #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|PhoPathInterface|RenderInterface|UrlInterface|null;
 
 
     /**
@@ -979,7 +980,19 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @param bool $exception
      *
-     * @return $this
+     * @return static
      */
     public function setExceptionOnGet(bool $exception): static;
+
+    /**
+     * Executes the callback function on each entry in this Iterator
+     *
+     * Note: When setup to automatically ensure objects, all
+     *
+     * @param callable $callback The callback to execute on each entry in the iterator
+     * @param bool     $ensure_objects
+     *
+     * @return static
+     */
+    public function onEach(callable $callback, bool $ensure_objects = true): static;
 }

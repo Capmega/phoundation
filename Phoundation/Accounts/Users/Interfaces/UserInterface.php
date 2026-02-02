@@ -875,4 +875,11 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function setSessionState(?string $session_state): static;
+
+    /**
+     * Sends a welcome email to the user
+     *
+     * @return static
+     */
+    public function sendWelcomeEmail(): static;
 }

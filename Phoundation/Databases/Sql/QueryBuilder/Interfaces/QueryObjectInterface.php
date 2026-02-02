@@ -206,7 +206,7 @@ interface QueryObjectInterface
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function addSource(array $source): static;
 
@@ -215,7 +215,7 @@ interface QueryObjectInterface
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function setSource(array $source): static;
 

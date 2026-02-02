@@ -21,7 +21,7 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataLogLevel;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoTime;
@@ -366,20 +366,20 @@ trait TraitProcessVariables
     /**
      * Process class constructor
      *
-     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $oExecution_directory_or_restrictions
      */
-    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory_or_restrictions = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $oExecution_directory_or_restrictions = null)
     {
         // Ensure that the run files directory is available
         // Set server filesystem restrictions
         $this->setUseRunFile(PhoDirectory::getWriteEnabled());
 
-        if ($execution_directory_or_restrictions) {
-            if ($execution_directory_or_restrictions instanceof PhoRestrictions) {
-                $this->setRestrictionsObject($execution_directory_or_restrictions);
+        if ($oExecution_directory_or_restrictions) {
+            if ($oExecution_directory_or_restrictions instanceof PhoRestrictions) {
+                $this->setRestrictionsObject($oExecution_directory_or_restrictions);
 
             } else {
-                $this->setExecutionDirectory($execution_directory_or_restrictions);
+                $this->setExecutionDirectory($oExecution_directory_or_restrictions);
             }
         }
 
@@ -1863,9 +1863,8 @@ trait TraitProcessVariables
                 }
 
             } else {
-                // Redirect output to a file
-                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())
-                            ->ensure('output redirect file');
+                // Redirect output to a file. Make sure the parent directory exists first
+                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())->ensure();
 
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
@@ -2130,7 +2129,7 @@ trait TraitProcessVariables
     protected function setPid(string|array|null $output = null): void
     {
         if (!$this->register_run_file) {
-            // Don't register PID information
+            // Do not register PID information
             return;
         }
 
@@ -2160,7 +2159,7 @@ trait TraitProcessVariables
                 ]));
             }
 
-            // Delete the run file but don't clean up as when the process terminates, cleanup will happen automatically
+            // Delete the run file but do not clean up as when the process terminates, cleanup will happen automatically
             PhoFile::new($this->run_file, PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/pids/', true))
                    ->delete(false, use_run_file: false);
 
@@ -2183,7 +2182,7 @@ trait TraitProcessVariables
 
         } else {
             // Run files were disabled for normal execution, or a command was executed using basic execution.
-            // Either way, we can't know the PID
+            // Either way, we cannot know the PID
             $pid = -1;
         }
 

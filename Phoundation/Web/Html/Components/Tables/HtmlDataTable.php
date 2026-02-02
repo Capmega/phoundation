@@ -244,7 +244,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                              // No break
 
                          case 'N/A':
-                             // Don't convert these values
+                             // Do not convert these values
                              break;
 
                          default:
@@ -1220,7 +1220,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     public function render(): ?string
     {
         // HtmlDataTable objects handle caching themselves to avoid Script class output not being cached
-        return cache('html')->get($this->getCacheKey(), function () {
+        return cache('html')->getOrGenerate($this->getCacheKey(), function () {
             $this->setUseCache(false);
 
             // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)

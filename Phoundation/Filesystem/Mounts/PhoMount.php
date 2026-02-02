@@ -30,7 +30,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryNameDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryOptions;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryTimeout;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoMountInterface;
@@ -59,7 +59,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
     {
         parent::__construct($identifier);
 
-        $this->o_restrictions = $this->ensureRestrictions($restrictions);
+        $this->o_restrictions = $this->ensureRestrictionsObject($restrictions);
     }
 
 
@@ -265,7 +265,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
 
 
     /**
-     * Will automatically mount this target if it isn't mounted yet and configured for auto mount
+     * Will automatically mount this target if it  is not mounted yet and configured for auto mount
      *
      * Returns null if the target path is mounted correctly
      *
@@ -296,7 +296,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
             return null;
         }
 
-        // The target path mount part isn't mounted!
+        // The target path mount part  is not mounted!
         if (!$this->getAutoMount()) {
             return false;
         }

@@ -36,16 +36,16 @@ Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
 
 
 // Build users filter card
-$filters      = FilterForm::new();
+$o_filters      = FilterForm::new();
 $o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('SQL query filter')
-                    ->setContent($filters)
+                    ->setContent($o_filters)
                     ->useForm(true);
 
 
 // Only allow SHOW and SELECT queries
-$query = $filters->getQuery();
+$query = $o_filters->getQuery();
 
 
 // Build result table
@@ -63,7 +63,7 @@ try {
     }
 
     $results = DataIterator::new()
-                           ->setQuery($filters->getQuery())
+                           ->setQuery($o_filters->getQuery())
                            ->getHtmlDataTableObject()
                                ->setId('results')
                                ->setCheckboxSelectors(EnumTableIdColumn::visible);
@@ -97,7 +97,7 @@ $o_documentation_card = Card::new()
                                           <p>Query results containing columns with password information will be automatically filtered</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('SQL report'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'            , tr('Home')),

@@ -43,7 +43,7 @@ interface CacheInterface
      *
      * @return PoadInterface|array|string|float|int|null
      */
-    public function get(string $key, ?callable $callback = null): PoadInterface|array|string|float|int|null;
+    public function getOrGenerate(string $key, ?callable $callback = null): PoadInterface|array|string|float|int|null;
 
 
     /**
@@ -55,17 +55,4 @@ interface CacheInterface
      * @return static
      */
     public function set(PoadInterface|array|string|float|int|null $value, Stringable|string|float|int|null $key): static;
-
-
-    /**
-     * Try to automatically commit system cache updates to git
-     *
-     * @param string|null $section
-     * @param bool|null   $auto_commit
-     * @param bool|null   $signed
-     * @param string|null $message
-     *
-     * @return void
-     */
-    public function systemAutoGitCommit(?string $section = null, ?bool $auto_commit = null, ?bool $signed = null, ?string $message = null): void;
 }

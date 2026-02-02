@@ -48,7 +48,7 @@ trait TraitDataStaticBooleanEnabledGlobal
     public static function setEnabledGlobal(?bool $enabled_global): void
     {
         if ($enabled_global === null) {
-            // Don't modify the enabled flag, keep the default
+            // Do not modify the enabled flag, keep the default
             return;
         }
 

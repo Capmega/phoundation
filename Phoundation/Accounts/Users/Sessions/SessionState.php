@@ -60,7 +60,7 @@ class SessionState implements SessionStateInterface
     public static function processRequestStateVariables(): void
     {
         if (!static::requestHasStateVariables()) {
-            // Request has no state variables, we're good
+            // Request has no state variables, we are good
             return;
         }
     }

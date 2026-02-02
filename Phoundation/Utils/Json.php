@@ -209,7 +209,7 @@ class Json
     {
         if (is_string($source)) {
             if (strlen($source) <= $max_size) {
-                // We're already done, no need for more!
+                // We are already done, no need for more!
                 return $source;
             }
 
@@ -228,7 +228,7 @@ class Json
         }
 
         while (strlen($string) > $max_size) {
-            // Okay, we're over max size
+            // Okay, we are over max size
             $keys    = count($source);
             $average = floor((strlen($string) / $keys) - ($keys * 8));
 

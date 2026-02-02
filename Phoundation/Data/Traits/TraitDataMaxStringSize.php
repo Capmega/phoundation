@@ -23,7 +23,7 @@ use Phoundation\Exception\OutOfBoundsException;
 trait TraitDataMaxStringSize
 {
     /**
-     * The max size for strings that we're able to handle
+     * The max size for strings that we are able to handle
      *
      * @var int $max_string_size
      */
@@ -31,7 +31,7 @@ trait TraitDataMaxStringSize
 
 
     /**
-     * Returns the maximum strings size we're able to handle
+     * Returns the maximum strings size we are able to handle
      *
      * @param int|null $max_size
      *
@@ -57,7 +57,7 @@ trait TraitDataMaxStringSize
         }
 
         if ($max_size < 0) {
-            // ? We can't do negative sizes...
+            // ? We cannot do negative sizes...
             throw new OutOfBoundsException(tr('Encountered invalid $max_size value ":value", it must be 0 or higher', [
                 ':value' => $max_size,
             ]));
@@ -69,7 +69,7 @@ trait TraitDataMaxStringSize
 
 
     /**
-     * Sets the maximum strings size we're able to handle
+     * Sets the maximum strings size we are able to handle
      *
      * @param int|null $max_string_size
      *

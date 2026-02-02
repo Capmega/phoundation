@@ -635,7 +635,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
                     }
 
                     if (is_numeric($variable)) {
-                        // This is a number stored as a string, if it's an integer, then type cast it
+                        // This is a number stored as a string, if it is an integer, then type cast it
                         if ((int) $variable == $variable) {
                             return (int) $variable;
                         }
@@ -775,7 +775,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
             ]);
         }
 
-        // Don't throw an exception, return null instead.
+        // Do not throw an exception, return null instead.
         return null;
     }
 
@@ -851,7 +851,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
                     }
 
                     if (is_numeric($variable)) {
-                        // This is a number stored as a string, if it's an integer, then type cast it
+                        // This is a number stored as a string, if it is an integer, then type cast it
                         if ((int) $variable == $variable) {
                             return (int) $variable;
                         }
@@ -973,7 +973,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
             ]);
         }
 
-        // Don't throw an exception, return null instead.
+        // Do not throw an exception, return null instead.
         return null;
     }
 
@@ -1046,7 +1046,7 @@ function is_datatype_or_class(array|string $types, mixed &$variable): bool
                 }
 
                 if (is_numeric($variable)) {
-                    // This is a number stored as a string, if it's an integer, then type cast it
+                    // This is a number stored as a string, if it is an integer, then type cast it
                     if ((int) $variable == $variable) {
                         return true;
                     }
@@ -1237,7 +1237,7 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 function force_natural(mixed $source, int $default = 1, int $start = 1): int
 {
     if (!is_numeric($source)) {
-        // This isn't even a number
+        // This  is not even a number
         return $default;
     }
 
@@ -1741,7 +1741,7 @@ function execute_callback(?callable $callback, ?array $params = null): ?string
  *
  * @note This function is used to execute commands and web pages to give them their own empty function scope
  * @note Any information echo-ed by the targets will be stored in nested buffers and returned by Request::execute() or
- *       -If it's the first target being executed- flushed to the client (web) or console (cli)
+ *       -If it is the first target being executed- flushed to the client (web) or console (cli)
  *
  * @return string| null
  */
@@ -1964,7 +1964,7 @@ function show_system(mixed $source = null, bool $die = true, bool $sort = true):
         $do = true;
 
     } else {
-        // We're in normal running mode, use show() instead
+        // We are in normal running mode, use show() instead
         if ($die) {
             showdie($source, $sort);
         }
@@ -2205,7 +2205,7 @@ function array_value_last(array $source): mixed
 function get_numeric(mixed $source, bool $allow_null = true): float|int|null
 {
     if (is_numeric($source)) {
-        // It's a number!
+        // It is a number!
         if (is_integer($source)) {
             return $source;
         }
@@ -2252,7 +2252,7 @@ function get_numeric(mixed $source, bool $allow_null = true): float|int|null
         }
     }
 
-    // Arrays, resources, objects we don't understand, it's all is zero
+    // Arrays, resources, objects we do not understand, it is all is zero
     return 0;
 }
 

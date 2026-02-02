@@ -107,7 +107,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 //        is_file($source);
 //        PhoDirectory::new($destination)
 //                 ->ensure();
-//        // Ensure we're not overwriting anything!
+//        // Ensure we are not overwriting anything!
 //        if (file_exists($destination . $real)) {
 //            $real = Strings::untilReverse($real, '.') . '_' . substr(uniqid(), -8, 8) . '.' . Strings::fromReverse($real, '.');
 //        }
@@ -238,7 +238,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
         $context      = $context ?? stream_context_create();
-        $restrictions = $this->ensureRestrictions($restrictions);
+        $restrictions = $this->ensureRestrictionsObject($restrictions);
 
         // Check these restrictions and the new file restrictions
         $this->o_restrictions->check($this->source, true);
@@ -548,7 +548,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
             }
 
             if ($until_line and (++$count >= $until_line)) {
-                // We're done, get out
+                // We are done, get out
                 break;
             }
         }
@@ -1285,7 +1285,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
         // Target file must not exist, target parent directory should exist
         if ($this->source !== $target->getSource()) {
-            // If we're replacing in the same file, then don't have to check
+            // If we are replacing in the same file, then do not have to check
             $target->getParentDirectoryObject()->ensure();
             $target->checkNotExists();
         }
@@ -1522,6 +1522,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     /**
      * Executes the specified callback function on each line of this text file
      *
+     * @param array    $fields
      * @param callable $callback
      * @param int|null $buffer
      * @param string   $separator
@@ -1530,17 +1531,13 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      *
      * @return static
      */
-    public function eachCsvLine(callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
+    public function eachCsvLine(array $fields, callable $callback, ?int $buffer = null, string $separator = ',', string $enclosure = '"', string $escape = '\\'): static
     {
         $this->checkOpen('eachCsvLine')
              ->checkIsText();
 
-        if (!$buffer) {
-            $buffer = $this->getBufferSize();
-        }
-
-        while (($line = fgetcsv($this->stream, $buffer, $separator, $enclosure, $escape)) !== false) {
-            $callback($line);
+        while (($line = fgetcsv($this->stream, $buffer ?? $this->getBufferSize(), $separator, $enclosure, $escape)) !== false) {
+            $callback(array_combine($fields, $line));
         }
 
         return $this;

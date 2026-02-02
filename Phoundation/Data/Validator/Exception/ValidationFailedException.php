@@ -93,7 +93,7 @@ class ValidationFailedException extends ValidatorException
         static $processing;
 
         if ($processing) {
-            // We've entered an endless loop!
+            // We have entered an endless loop!
             Log::warning(ts('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
                 ':class' => $this->o_data_entry::class
             ]));

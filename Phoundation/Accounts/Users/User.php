@@ -690,7 +690,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         ]);
 
         // NOTE: Non User::class objects likely authenticate against different databases and as such, those users will
-        // have non-existing user ids which can't be used for "created_by" column
+        // have non-existing user ids which cannot be used for "created_by" column
         $authentication->setCreatedBy(($user::class === User::class) ? $user->getId() : null)
                        ->setStatus('password-incorrect')
                        ->save();
@@ -886,7 +886,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         if (!$this->saveBecauseModified($force)) {
-            // THis user hasn't been modified, there is nothing to save!
+            // THis user  has not been modified, there is nothing to save!
             return $this;
         }
 
@@ -931,7 +931,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                  ->notifyRoleAccountsAboutWrite();
         }
 
-        // Save was successful! If we're saving the current user, then update the session
+        // Save was successful! If we are saving the current user, then update the session
         if (Session::iSpecificUser($this)) {
             if (!$this->isSystemUser()) {
                 Log::action(ts('Current session user ":user" changed in database, refreshing session user data', [
@@ -954,7 +954,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         if ($this->isCreated()) {
             if ($this->isSystemUser()) {
-                // Don't add roles to these users
+                // Do not add roles to these users
                 return $this;
             }
 
@@ -1000,7 +1000,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function notifyRoleAccountsAboutWrite(): static
     {
         if (Core::inInitState()) {
-            // Don't notify for actions executed during INIT state
+            // Do not notify for actions executed during INIT state
             return $this;
         }
 
@@ -1068,29 +1068,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         if ($this->isSystemUser()) {
-            // Yeah, we don't notify the system users
+            // Yeah, we do not notify the system users
             return $this;
         }
 
         if ($this->isCreated()) {
             // Notify the user that their account was created, accompanied by a login link
-            $key = $this->getSigninKey()
-                        ->generate(Url::new('/force-password-update.html')
-                                      ->makeWww());
-
-            $this->notify()
-                 ?->setTitle(tr('An account has been created for you on :project', [
-                     ':project' => Project::getHumanReadableFullName()
-                 ]))
-                 ->setMessage(tr('An account has been created on :project by :user. To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password', [
-                     ':url'     => $key->getUrl(),
-                     ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                     ':user'    => Session::getUserObject()->getDisplayName(),
-                     ':project' => Project::getHumanReadableFullName(),
-                 ]))
-                 ->save()
-                 ->send();
-
+            $this->sendWelcomeEmail();
             return $this;
         }
 
@@ -1112,6 +1096,32 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ->setMessage($message)
                         ->save()
                         ->send();
+
+        return $this;
+    }
+
+
+    /**
+     * Sends a welcome email to the user
+     *
+     * @return static
+     */
+    public function sendWelcomeEmail(): static
+    {
+        $key = $this->getSigninKey()->generate(Url::new('/force-password-update.html')->makeWww());
+
+        $this->notify()
+             ?->setTitle(tr('An account has been created for you on :project', [
+                 ':project' => Project::getHumanReadableFullName()
+             ]))
+             ->setMessage(tr('<p>An account has been created on :project by :user.</p><p>To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password</p>', [
+                 ':url'     => $key->getUrl(),
+                 ':link'    => Anchor::new($key->getUrl(), tr('here')),
+                 ':user'    => Session::getUserObject()->getDisplayName(),
+                 ':project' => Project::getHumanReadableFullName(),
+             ]))
+             ->save()
+             ->send();
 
         return $this;
     }
@@ -1484,7 +1494,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     {
         $nickname = trim((string) $nickname);
 
-        // Ensure nickname isn't system or guest
+        // Ensure nickname  is not system or guest
         switch (strtolower($nickname)) {
             case 'guest':
                 if ($this->isGuest()) {
@@ -1678,6 +1688,17 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function getSigninCount(): ?int
     {
         return $this->getTypesafe('int', 'sign_in_count');
+    }
+
+
+    /**
+     * Returns if the user has ever signed in
+     *
+     * @return bool
+     */
+    public function hasSignedIn(): bool
+    {
+        return (bool) $this->getSigninCount();
     }
 
 
@@ -2588,6 +2609,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             if (Core::isProductionEnvironment() or $this->hasAllRights(ENVIRONMENT)) {
                 return Notification::new()->setUserObject($this);
             }
+
+        } else {
+            Log::warning(ts('Not sending notification to ":user", notifications are disabled', [
+                ':user' => $this->getLogId()
+            ]));
         }
 
         return null;
@@ -2665,7 +2691,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
-     * Returns true if this is a new entry that hasn't been written to the database yet
+     * Returns true if this is a new entry that  has not been written to the database yet
      *
      * @return bool
      */
@@ -3406,7 +3432,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->addValidationFunction(function (ValidatorInterface $o_validator) {
                                                if ($o_validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
-                                                       // Can't save a profile image with a user that does not yet exist in the database
+                                                       // Cannot save a profile image with a user that does not yet exist in the database
                                                        $o_validator->addSoftFailure(tr('requires that the user is saved first'));
 
                                                    } else {

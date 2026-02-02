@@ -97,7 +97,7 @@ interface PhoPathInterface extends Stringable
     public function getRootname(): string;
 
     /**
-     * Returns the stream for this file if it's opened. Will return NULL if closed
+     * Returns the stream for this file if it is opened. Will return NULL if closed
      *
      * @return mixed
      */
@@ -110,9 +110,9 @@ interface PhoPathInterface extends Stringable
      * @param PhoPathInterface|string|null $from
      * @param bool                         $from_required
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string;
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): ?string;
 
     /**
      * Returns true if this object is the specified path
@@ -878,11 +878,11 @@ interface PhoPathInterface extends Stringable
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $target
+     * @param PhoPathInterface|string $o_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface;
+    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface;
 
     /**
      * Ensures that this path is a symlink
@@ -971,11 +971,11 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param PhoRestrictionsInterface|null $o_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictions(?PhoRestrictionsInterface $restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
 
     /**
      * Ensures the existence of the parent directory
@@ -1203,11 +1203,11 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns true if this path is the same as the specified path
      *
-     * @param PhoPathInterface $path
+     * @param PhoPathInterface $_path
      *
      * @return bool
      */
-    public function isSameAs(PhoPathInterface $path): bool;
+    public function isSameAs(PhoPathInterface $_path): bool;
 
     /**
      * Checks that this file is a binary file or throws a FileInvalidFormatException
@@ -1298,9 +1298,10 @@ interface PhoPathInterface extends Stringable
      *
      * If the current path is not a directory, the parent directory object will be returned instead
      *
+     * @param bool $allow_parent If true, and the path is not a directory, the parent directory will be returned instead
      * @return PhoDirectoryInterface
      */
-    public function getDirectoryObject(): PhoDirectoryInterface;
+    public function getDirectoryObject(bool $allow_parent = true): PhoDirectoryInterface;
 
     /**
      * Returns true if the path for this object is in the specified path
@@ -1434,4 +1435,32 @@ interface PhoPathInterface extends Stringable
      * @return bool
      */
     public function parentDirectoryMatchesRegex(string $regular_expression): bool;
+
+    /**
+     * Makes the specified path absolute if it is not
+     *
+     * The start character will be treated as follows:
+     *
+     * . Is DIRECTORY_START
+     * ~ is the current shell's user home directory
+     * / is considered absolute
+     *
+     * @param PhoPathInterface|string|null $path
+     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param bool                         $must_exist
+     *
+     * @return static
+     */
+    public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string;
+
+    /**
+     * Write the specified data to this file
+     *
+     * @param string $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return static
+     */
+    public function setContents(string $data, int $flags = 0, $context = null): static;
 }

@@ -86,7 +86,7 @@ if (Request::isPostRequestMethod()) {
         </body><!-- /.register-box -->
         <?php
 
-        // Set page meta data
+        // Set page meta-data
         Response::setPageTitle(tr('Phoundation setup finished'));
         return;
 
@@ -188,6 +188,6 @@ Response::setRenderMainWrapper(false);
     </body><!-- /.register-box -->
 <?php
 
-// Set page meta data
+// Set page meta-data
 Response::setPageTitle(tr('Setup Phoundation'));
 

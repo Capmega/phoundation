@@ -38,10 +38,8 @@ class Arrays extends Utils
      * Group by options
      */
     const int GROUP_BY_DROP      = 1;
-
     const int GROUP_BY_NULL      = 2;
     const int NO_GROUP_BY        = 3;
-
     const int GROUP_BY_EXCEPTION = 4;
 
 
@@ -378,7 +376,7 @@ class Arrays extends Utils
 
 
     /**
-     * Ensure that the specified $params source is an array. If it's a numeric value, convert it to
+     * Ensure that the specified $params source is an array. If it is a numeric value, convert it to
      * [$numeric_key => $params]. If its string value, convert it to [$string_key => $params]
      *
      * @param mixed       $params  A parameter array
@@ -573,7 +571,7 @@ class Arrays extends Utils
     public static function getRandomValues(array $source, int $count = 1): array
     {
         if ($count === 1) {
-            // WTF PHP? I can't have a list of 1 item?
+            // WTF PHP? I cannot have a list of 1 item?
             return Arrays::keepKeys($source, [array_rand($source, 1)]);
         }
 
@@ -627,13 +625,13 @@ class Arrays extends Utils
             } else {
                 if (!$value and !is_numeric($value)) {
                     if ($filter_empty) {
-                        // Don't add this value at all
+                        // Do not add this value at all
                         continue;
                     }
 
                     if ($value === null) {
                         if ($filter_null) {
-                            // Don't add this value at all
+                            // Do not add this value at all
                             continue;
                         }
                     }
@@ -790,7 +788,7 @@ class Arrays extends Utils
     public static function limit(IteratorInterface|array $source, int|false $count, bool $return_source = true): array
     {
         if ($count === false) {
-            // Don't filter anything
+            // Do not filter anything
             return $source;
         }
 
@@ -1535,7 +1533,6 @@ class Arrays extends Utils
         }
 
         unset($value);
-
         return $source;
     }
 
@@ -1697,7 +1694,7 @@ class Arrays extends Utils
                         $source_value = Arrays::hideSensitive($source_value, $keys, $hide, $empty, $recurse);
 
                     } else {
-                        // If we don't recurse, we'll hide the entire subarray
+                        // If we do not recurse, we'll hide the entire subarray
                         $source_value = Arrays::hideSensitive($source_value, $hide, $empty);
                     }
 
@@ -1921,7 +1918,7 @@ class Arrays extends Utils
             foreach ($row as $column => $value) {
                 $length = (strlen((string) $value) + $add_extra);
 
-                if ($length > $columns[$column]) {
+                if ($length > array_get_safe($columns, $column)) {
                     $columns[$column] = $length;
                 }
 
@@ -2316,7 +2313,7 @@ class Arrays extends Utils
 
         for ($pos = 0; $pos < strlen($source); $pos++) {
             if (!$pos) {
-                // First row. Do we start with a separator? If so, we're in end mode
+                // First row. Do we start with a separator? If so, we are in end mode
                 if ($source[$pos] === $separator) {
                     $start = false;
                     $key   = null;
@@ -4535,8 +4532,8 @@ class Arrays extends Utils
     {
         $return = [];
 
-        foreach ($source as $key => $value) {
-            if ($needles) {
+        if ($needles) {
+            foreach ($source as $key => $value) {
                 $needles_match = false;
 
                 foreach ($needles as $needle) {
@@ -4556,7 +4553,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
                             break;
                         }
 
@@ -4567,21 +4564,95 @@ class Arrays extends Utils
                     // This needle didn't match
 
                     if ($flags['all']) {
-                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;
                         break;
                     }
                 }
 
-            } else {
-                // No needles specified!
-                $needles_match = true;
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
             }
-
-            Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
         }
 
         return Arrays::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Returns an array with all entries of the specified array source that contain the specified needles
+     *
+     * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
+     *
+     * @param IteratorInterface|array $source  The source array to test
+     * @param array|string            $needles The needles that must be matches
+     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     *
+     * @return array|null
+     */
+    public static function getContainsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): ?array
+    {
+        $return  = [];
+        $source  = Arrays::force($source);
+        $needles = Arrays::force($needles);
+
+        if (empty($needles)) {
+            throw OutOfBoundsException::new(ts('Cannot test if all needles are in source, no needles specified'))
+                                      ->setData([
+                                          'source'  => $source,
+                                          'needles' => $needles
+                                      ]);
+        }
+
+        // Test the needles
+        foreach ($source as $value) {
+            if (!is_scalar($value)) {
+                // Only test scalar values
+                continue;
+            }
+
+            $value = (string) $value;
+            $tests = $needles;
+
+            // Check for all needles
+            foreach ($tests as $needle_id => $needle) {
+                if (str_contains($value, $needle)) {
+                    unset($tests[$needle_id]);
+
+                    if (empty($tests)) {
+                        // All needles have matched!
+                        $return[] = $value;
+                        break;
+                    }
+
+                    if (!$all) {
+                        // Only a single needle must match
+                        $return[] = $value;
+                         break;
+                    }
+
+                    // There are still needles left, continue testing
+                }
+            }
+        }
+
+        return get_null($return);
+    }
+
+
+    /**
+     * Returns true if the specified source contains any or all of the specified needles
+     *
+     * NOTE: This method will only test scalar array values. Any non scalar value will be ignored
+     *
+     * @param IteratorInterface|array $source  The source array to test
+     * @param array|string            $needles The needles that must be matches
+     * @param bool                    $all     [false] If true, requires that the specified source contains ALL needles, and not ANY needle
+     *
+     * @return bool
+     */
+    public static function containsNeedles(IteratorInterface|array $source, array|string $needles, bool $all = false): bool
+    {
+        return (bool) Arrays::getContainsNeedles($source, $needles, $all);
     }
 
 
@@ -4638,7 +4709,7 @@ class Arrays extends Utils
                         $needles_match = true;
 
                         if ($flags['any']) {
-                            // We're in "any" mode, and a single needle matched, so don't consider any other needles.
+                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
                             break;
                         }
 
@@ -4648,7 +4719,7 @@ class Arrays extends Utils
 
                     // At this point, this needle didn't match
                     if ($flags['all']) {
-                        // We're in "all" mode, and a single needle failed, so don't consider any other needles.
+                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;
                         break;
                     }

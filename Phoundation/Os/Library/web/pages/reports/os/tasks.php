@@ -114,7 +114,7 @@ $o_documentation_card = Card::new()
                             ->setContent('This page displays all tasks.');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Tasks management'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'       , tr('Home')),

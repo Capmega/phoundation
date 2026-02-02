@@ -16,11 +16,13 @@ declare(strict_types=1);
 
 namespace Phoundation\Cli;
 
+use Phoundation\Cli\Exception\CliRenderException;
 use Phoundation\Cli\Exception\CliNoTtyException;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\PhpException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -126,6 +128,8 @@ class Cli
             ]));
         }
 
+        $display_headers = true;
+
         if ($source) {
             switch (OUTPUT) {
                 case 'json':
@@ -145,6 +149,13 @@ class Cli
                         $exists  = false;
 
                         foreach (Arrays::force($row, null) as $header => $value) {
+                            if (is_numeric($header)) {
+                                // The columns are numeric, we cannot auto display headers
+                                $display_headers = false;
+                                $headers[$header] = $header;
+                                continue;
+                            }
+
                             $value            = str_replace(['_', '-'], ' ', (string) $header);
                             $value            = Strings::capitalize($value) . ':';
                             $headers[$header] = $value;
@@ -155,7 +166,7 @@ class Cli
                         }
 
                         if (!$exists) {
-                            // The specified ID column doesn't exist in the rows, remove it
+                            // The specified ID column does not exist in the rows, remove it
                             unset($headers[$id_column]);
                         }
 
@@ -165,12 +176,25 @@ class Cli
                     }
 
                     // Display header?
-                    foreach (Arrays::force($headers) as $column => $header) {
-                        $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
-                        Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 10, false, false);
-                    }
+                    if ($display_headers and !QUIET) {
+                        foreach (Arrays::force($headers) as $column => $header) {
+                            try {
+                                $column_sizes[$column] = Numbers::getHighest($column_sizes[$column], strlen($header));
+                                Log::cli(CliColor::apply(Strings::size((string) $header, $column_sizes[$column]), 'blue') . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
 
-                    Log::cli(' ');
+                            } catch (PhpException $e) {
+                                if (!array_key_exists($column, $column_sizes)) {
+                                    // The source does not contain the specified column. Continue rendering without this column.
+                                    $not_rendered[$column] = $column;
+                                    continue;
+                                }
+
+                                throw new CliRenderException($e);
+                            }
+                        }
+
+                        Log::cli(' ');
+                    }
 
                     // Display source
                     foreach ($source as $id => $row) {
@@ -188,12 +212,31 @@ class Cli
                                 $value = DataEntry::getHumanReadableStatus($value);
                             }
 
-                            if (is_numeric($column) or array_key_exists($column, $headers)) {
-                                Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 10, false, false);
+                            try {
+                                if (is_numeric($column) or array_key_exists($column, $headers)) {
+                                    Log::cli(Strings::size((string) $value, $column_sizes[$column], ' ', is_numeric($value)) . Strings::size(' ', $column_spacing), 'cli', 10, false, false);
+                                }
+
+                            } catch (PhpException $e) {
+                                if (!array_key_exists($column, $column_sizes)) {
+                                    // The source doesn't contain the specified column. Continue rendering without this column.
+                                    $not_rendered[$column] = $column;
+                                    continue;
+                                }
+
+                                throw new CliRenderException($e);
                             }
                         }
 
                         Log::cli(' ');
+                    }
+
+                    if (isset($not_rendered)) {
+                        foreach ($not_rendered as $column) {
+                            Log::warning(ts('Did not render column ":column" for some or all rows while rendering CLI table, it does not exist in some or all of the source data', [
+                                ':column' => $column,
+                            ]), 10);
+                        }
                     }
             }
 
@@ -268,7 +311,7 @@ class Cli
 
             case 'normal':
                 // Display header
-                if ($key_header and $value_header) {
+                if ($key_header and $value_header and !QUIET) {
                     Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key_header, $key_size), 'cyan') . ' ' . CliColor::apply($value_header, 'cyan'));
                 }
 
@@ -302,7 +345,12 @@ class Cli
                         $value = DataEntry::getHumanReadableStatus($value);
                     }
 
-                    Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
+                    if (QUIET) {
+                        Log::cli($value);
+
+                    } else {
+                        Log::cli(CliColor::apply(Strings::size(' ', $offset) . Strings::size($key, $key_size), 'white') . ' ' . $value);
+                    }
                 }
         }
     }
@@ -337,7 +385,7 @@ class Cli
 
 
     /**
-     * Checks if we have a TTY and throws exception if we don't
+     * Checks if we have a TTY and throws exception if we do not
      *
      * @param mixed  $file_descriptor
      * @param string $tty_name

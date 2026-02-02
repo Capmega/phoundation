@@ -124,7 +124,7 @@ $o_documentation_card = Card::new()
                                           <p>Then please supply your new password twice to avoid typos.</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Change your password'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([

@@ -51,7 +51,7 @@ use Phoundation\Data\Traits\TraitDataDisabled;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataParent;
 use Phoundation\Data\Traits\TraitDataReadonly;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitDataRowCallbacks;
 use Phoundation\Data\Traits\TraitDataStringName;
 use Phoundation\Databases\Sql\Limit;
@@ -154,8 +154,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $this->setSource($source);
         }
 
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType())
-             ->setExceptionOnGet(true);
+        $this->setAcceptedDataTypes(static::getDefaultContentDataType());
     }
 
 
@@ -338,7 +337,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @param bool $ensure_objects
      *
-     * @return $this
+     * @return static
      */
     public function setEnsureObjects(bool $ensure_objects): static
     {
@@ -471,7 +470,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        // Apply validators as well? Only if datatype test hasn't failed yet
+        // Apply validators as well? Only if datatype test  has not failed yet
         if (isset($this->validators)) {
             foreach ($this->validators as $name => $o_validator) {
                 if (!$o_validator($value)) {
@@ -561,6 +560,32 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         return static::new()->setSource($source);
+    }
+
+
+    /**
+     * Same as Arrays::spliceKey() but for this Iterator
+     *
+     * @param string                  $key
+     * @param int|null                $length
+     * @param IteratorInterface|array $replacement
+     * @param bool                    $after
+     * @param array|null              $spliced
+     *
+     * @return static
+     */
+    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static
+    {
+        try {
+            $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
+
+        } catch (OutOfBoundsException $e) {
+            throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
+                ':key' => $key,
+            ]), $e);
+        }
+
+        return $this;
     }
 
 
@@ -657,32 +682,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Same as Arrays::spliceKey() but for this Iterator
-     *
-     * @param string                  $key
-     * @param int|null                $length
-     * @param IteratorInterface|array $replacement
-     * @param bool                    $after
-     * @param array|null              $spliced
-     *
-     * @return static
-     */
-    public function spliceByKey(string $key, ?int $length = null, IteratorInterface|array $replacement = [], bool $after = false, ?array &$spliced = null): static
-    {
-        try {
-            $spliced = Arrays::spliceByKey($this->source, $key, $length, $replacement, $after);
-
-        } catch (OutOfBoundsException $e) {
-            throw new OutOfBoundsException(tr('Failed to splice iterator by key ":key", the key does not exist', [
-                ':key' => $key,
-            ]), $e);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
@@ -726,7 +725,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
-
         return $this;
     }
 
@@ -778,7 +776,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
-
         return $this;
     }
 
@@ -1280,13 +1277,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Returns Iterator with the entries where the values match the specified needles and flags
      *
      * @param ArrayableInterface|Stringable|array|string|int|null $needles
-     * @param int                                                 $flags
-     *
+     * @param int $flags
+     * @param string|null $column
      * @return static
      */
-    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE): static
+    public function getMatchingValues(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_FULL | Utils::MATCH_REQUIRE, ?string $column = null): static
     {
-        return new static(Arrays::keepMatchingValues($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingValues($this->source, $needles, $flags, $column));
     }
 
 
@@ -1642,7 +1639,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
                 }
 
             } elseif (!$all) {
-                // only one needs to be in the array, we found one, we're good!
+                // only one needs to be in the array, we found one, we are good!
                 return true;
             }
         }
@@ -1735,11 +1732,13 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns value for the specified key
      *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
+     * @param Stringable|string|float|int $key       The key in this Iterator object for which to return the value
+     * @param mixed                       $default   The default value to return if the specified key does not exist
+     * @param bool|null                   $exception If true, will throw a NotExistsException if the specified key does
+     *                                               not exist
      *
      * @return mixed
+     * @throws NotExistsException
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
@@ -2274,7 +2273,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      * Removes duplicate values from this Iterator
      *
      * @param int $flags Sorting type flags:
-     *                   SORT_REGULAR - compare items normally (don't change types)
+     *                   SORT_REGULAR - compare items normally (do not change types)
      *                   SORT_NUMERIC - compare items numerically
      *                   SORT_STRING - compare items as strings
      *                   SORT_LOCALE_STRING - compare items as strings, based on the current locale
@@ -2345,7 +2344,34 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Ensure the entry we're going to return is from DataEntryInterface interface
+     * Executes the callback function on each entry in this Iterator
+     *
+     * Note: When setup to automatically ensure objects, all
+     *
+     * @param callable $callback The callback to execute on each entry in the iterator
+     * @param bool     $ensure_objects
+     *
+     * @return static
+     */
+    public function onEach(callable $callback, bool $ensure_objects = true): static
+    {
+        if ($ensure_objects) {
+            foreach ($this as $entry) {
+                $callback($entry);
+            }
+
+        } else {
+            foreach ($this->source as $entry) {
+                $callback($entry);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensure the entry we are going to return is from DataEntryInterface interface
      *
      * @param string|float|int|null $key
      * @param bool                  $force
@@ -2360,7 +2386,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         if ($this->ensure_objects or $force) {
             if (is_object($this->source[$key])) {
-                // Already object, assume it's the right type
+                // Already object, assume it is the right type
                 return $this->source[$key];
             }
 

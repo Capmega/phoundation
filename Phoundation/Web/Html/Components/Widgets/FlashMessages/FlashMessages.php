@@ -114,7 +114,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                 }
 
                 if (str_starts_with($title, '(')) {
-                    // This message is prefixed with the class name. Remove the class name as we don't want to show this to
+                    // This message is prefixed with the class name. Remove the class name as we do not want to show this to
                     // the end users.
                     $title = trim(Strings::from($title, '('));
                 }

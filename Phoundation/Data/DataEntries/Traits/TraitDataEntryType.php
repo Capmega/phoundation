@@ -20,6 +20,23 @@ namespace Phoundation\Data\DataEntries\Traits;
 trait TraitDataEntryType
 {
     /**
+     * Returns true if the DataEntry object has the specified type
+     *
+     * @param string $type          The type to compare against
+     * @param bool   $strict [true] If true, will do a strict comparison (===), weak comparison (==) if false
+     * @return bool
+     */
+    public function hasType(string $type, bool $strict = true): bool
+    {
+        if ($strict) {
+            return $this->getType() === $type;
+        }
+
+        return $this->getType() == $type;
+    }
+
+
+    /**
      * Returns the type for this object
      *
      * @return string|null

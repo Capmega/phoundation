@@ -28,7 +28,7 @@ trait TraitMethodsTableState
     public function getTableState(): ?string
     {
         if (static::getTable()) {
-            $return = cache('values')->get($this->connector . '-table-state-' . static::getTable());
+            $return = cache('values')->getOrGenerate($this->connector . '-table-state-' . static::getTable());
 
             if (empty($return)) {
                 // Initialize a state for this table

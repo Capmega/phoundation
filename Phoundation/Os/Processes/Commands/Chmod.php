@@ -46,7 +46,7 @@ class Chmod extends Command
                  ->executeReturnArray();
 
         } catch (ProcessFailedException $e) {
-            // The command chmod failed, most of the time either $file doesn't exist, or we don't have access to change the mode
+            // The command chmod failed, most of the time either $file doesn't exist, or we do not have access to change the mode
             static::handleException('chmod', $e, function ($e, $first_line, $last_line) use ($file, $mode) {
                 if ($e->getCode() == 1) {
                     if (str_contains($last_line, 'no such file or directory')) {

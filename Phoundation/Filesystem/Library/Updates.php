@@ -18,7 +18,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Library;
 
 use Phoundation\Filesystem\Mimetypes\PhoMimetypesInit;
-
+use Phoundation\Utils\Seo;
 
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
@@ -196,26 +196,30 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.8.1', function () {
             // Add missing mimetype
-            sql()->insert('filesystem_mimetypes', [
-                'name'           => 'text/x-nfo',
-                'seo_name'       => 'text-x-nfo',
-                'extension'      => '.nfo',
-                'mimetype'       => 'text/xml',
-                'primary_part'   => 'text',
-                'secondary_part' => 'x-nfo',
-                'priority'       => 0,
-            ]);
+            if (empty(sql()->getColumn('SELECT `id` FROM `filesystem_mimetypes` WHERE `extension` = ".nfo" AND `name` = "text/x-nfo" AND `mimetype` = "text/xml"'))) {
+                sql()->insert('filesystem_mimetypes', [
+                    'name'           => 'text/x-nfo',
+                    'seo_name'       => Seo::unique('text-x-nfo', 'filesystem_mimetypes'),
+                    'extension'      => '.nfo',
+                    'mimetype'       => 'text/xml',
+                    'primary_part'   => 'text',
+                    'secondary_part' => 'x-nfo',
+                    'priority'       => 0,
+                ]);
+            }
 
-            // Add missing mimetype
-            sql()->insert('filesystem_mimetypes', [
-                'name'           => 'text/x-nfo',
-                'seo_name'       => 'text-x-nfo',
-                'extension'      => '.nfo',
-                'mimetype'       => 'text/x-nfo',
-                'primary_part'   => 'text',
-                'secondary_part' => 'x-nfo',
-                'priority'       => 1,
-            ]);
+            if (empty(sql()->getColumn('SELECT `id` FROM `filesystem_mimetypes` WHERE `extension` = ".nfo" AND `name` = "text/x-nfo" AND `mimetype` = "text/x-nfo"'))) {
+                // Add missing mimetype
+                sql()->insert('filesystem_mimetypes', [
+                    'name'           => 'text/x-nfo',
+                    'seo_name'       => Seo::unique('text-x-nfo', 'filesystem_mimetypes'),
+                    'extension'      => '.nfo',
+                    'mimetype'       => 'text/x-nfo',
+                    'primary_part'   => 'text',
+                    'secondary_part' => 'x-nfo',
+                    'priority'       => 1,
+                ]);
+            }
         });
     }
 }

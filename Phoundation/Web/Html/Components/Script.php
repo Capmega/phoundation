@@ -426,7 +426,7 @@ class Script extends Element implements ScriptInterface
                 return null;
 
             case EnumAttachJavascript::here:
-                // Don't attach the script anywhere, wrap the rendered script in <script> tags and return it
+                // Do not attach the script anywhere, wrap the rendered script in <script> tags and return it
                 return $this->renderScriptTags($render);
 
             case EnumAttachJavascript::bare:
@@ -614,7 +614,7 @@ class Script extends Element implements ScriptInterface
 //                    }
 //
 //                } else {
-//                    // Don't wrap the specified script in an event wrapper
+//                    // Do not wrap the specified script in an event wrapper
 //                    $return = $script['script'];
 //                }
 //

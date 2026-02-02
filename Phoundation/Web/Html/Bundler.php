@@ -19,7 +19,7 @@ namespace Phoundation\Web\Html;
 use Phoundation\Cdn\Cdn;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
@@ -120,7 +120,7 @@ class Bundler
         }
         // Initialize for new bundle
         $this->newBundle($files, $extension);
-        // Do we already have a VALID bundle file available? If so, we're done
+        // Do we already have a VALID bundle file available? If so, we are done
         if ($this->bundleExists()) {
             return $this->bundle_file;
         }
@@ -216,8 +216,8 @@ class Bundler
         // Generate new bundle file. This requires the pub/$files path to be writable
         PhoDirectory::new(dirname($this->bundle_file), $this->o_restrictions)
                  ->execute()
-                 ->setMode(0770)
-                 ->onDirectoryOnly(function () use ($files) {
+                 ->setRequiredMode(0770)
+                 ->onDirectoriesOnly(function () use ($files) {
                      foreach ($files as $file => $data) {
                          $org_file = $file;
                          $file     = $this->directory . $file . $this->extension;

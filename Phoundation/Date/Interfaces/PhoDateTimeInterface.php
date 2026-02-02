@@ -6,10 +6,12 @@ namespace Phoundation\Date\Interfaces;
 
 use DateMalformedStringException;
 use DateTimeZone;
+use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateInterval;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Exception\OutOfBoundsException;
+use Stringable;
 
 interface PhoDateTimeInterface extends \DateTimeInterface
 {

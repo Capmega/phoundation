@@ -185,7 +185,7 @@ class QueryObject implements QueryObjectInterface
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function addSource(array $source): static
     {
@@ -208,7 +208,7 @@ class QueryObject implements QueryObjectInterface
      *
      * @param array $source
      *
-     * @return $this
+     * @return static
      */
     public function setSource(array $source): static
     {

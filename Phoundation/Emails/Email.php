@@ -128,6 +128,72 @@ class Email extends DataEntry
 
 
     /**
+     * Returns the configured default hostname for sending emails
+     *
+     * @return string|null
+     */
+    public static function getDefaultHostname(): ?string
+    {
+        return get_null(config()->getString('email.defaults.hostname', ''));
+    }
+
+
+    /**
+     * Returns the configured default port for sending emails
+     *
+     * @return int
+     */
+    public static function getDefaultPort(): int
+    {
+        return get_null(config()->getInteger('email.defaults.port', 25));
+    }
+
+
+    /**
+     * Returns the configured default email address for developer emails
+     *
+     * @return string|null
+     */
+    public static function getDefaultDeveloperAddress(): ?string
+    {
+        return get_null(config()->getString('email.defaults.developer', ''));
+    }
+
+
+    /**
+     * Returns the configured default from email address for developer emails
+     *
+     * @return string|null
+     */
+    public static function getDefaultFromAddress(): ?string
+    {
+        return get_null(config()->getString('email.defaults.from.email', ''));
+    }
+
+
+    /**
+     * Returns the configured default from email name for developer emails
+     *
+     * @return string|null
+     */
+    public static function getDefaultFromName(): ?string
+    {
+        return get_null(config()->getString('email.defaults.from.name', ''));
+    }
+
+
+    /**
+     * Returns the configured default connect timeout for emails
+     *
+     * @return int|null
+     */
+    public static function getDefaultTimeout(): ?int
+    {
+        return get_null(config()->getInteger('email.defaults.timeout', 5));
+    }
+
+
+    /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
      * @param DefinitionsInterface $o_definitions

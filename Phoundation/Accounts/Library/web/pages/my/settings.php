@@ -81,7 +81,7 @@ $o_documentation_card = Card::new()
                           ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('My settings'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([

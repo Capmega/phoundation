@@ -34,13 +34,10 @@ ARGUMENTS
           'remove',
       ])->executeReturnString(), 'Arguments:'));
 
-CliDocumentation::setUsage('
-./pho composer remove vendor/package1
-./pho composer remove vendor/package:1.0.*
-');
+CliDocumentation::setUsage('./pho developer git bfg');
 
 
-// Get all arguments, don't validate as that is up to composer to do
+// Get all arguments, do not validate as that is up to composer to do
 $argv = ArgvValidator::getArguments();
 
 

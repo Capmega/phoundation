@@ -70,7 +70,7 @@ class Ps extends Command
     /**
      * Returns all process information about the specified PID
      *
-     * @note The parsing of this data is currently a mess as ps has no proper output formatting beyond "I'll separate
+     * @note The parsing of this data is currently a mess as ps has no proper output formatting beyond "I will separate
      *       the fields by adding a space" which is really fun with arguments that have spaces too. This will be
      *       improved at some later time when this method will be more needed
      *

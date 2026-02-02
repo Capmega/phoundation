@@ -19,6 +19,7 @@ namespace Phoundation\Databases\Connectors;
 use PDOStatement;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
@@ -90,7 +91,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
 
         } catch (SqlException $e) {
             if (!$ignore_sql_exceptions) {
-                // In some cases, we need access to configured connectors while database connectors aren't available
+                // In some cases, we need access to configured connectors while database connectors  are not available
                 // because the database may not exist, or a database version may be so old that the databases_connectors
                 // table doesn't exist. In those cases where we know that this might happen, we will ignore SQL
                 // exceptions and continue loading connectors from configuration
@@ -162,9 +163,9 @@ class Connectors extends DataIterator implements ConnectorsInterface
      * @param mixed                       $default
      * @param bool                        $exception
      *
-     * @return mixed
+     * @return ConnectorInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?ConnectorInterface
     {
         if (empty($key)) {
             throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
@@ -182,5 +183,29 @@ class Connectors extends DataIterator implements ConnectorsInterface
         }
 
         return $o_connector;
+    }
+
+
+    /**
+     * Returns a random connector
+     *
+     * @return DataEntryInterface|null
+     */
+    #[ReturnTypeWillChange] public function getRandom(): ?DataEntryInterface
+    {
+        return parent::getRandom();
+    }
+
+
+    /**
+     * Returns the current entry
+     *
+     * @note overrides the IteratorCore::current() method which returns mixed
+     *
+     * @return DataEntryInterface|null
+     */
+    #[ReturnTypeWillChange] public function current(): ?DataEntryInterface
+    {
+        return parent::current();
     }
 }

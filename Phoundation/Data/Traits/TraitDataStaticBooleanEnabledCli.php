@@ -48,7 +48,7 @@ trait TraitDataStaticBooleanEnabledCli
     public static function setEnabledCli(?bool $enabled_cli): void
     {
         if ($enabled_cli === null) {
-            // Don't modify the enabled flag, keep the default
+            // Do not modify the enabled flag, keep the default
             return;
         }
 

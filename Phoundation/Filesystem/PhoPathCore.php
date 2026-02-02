@@ -28,7 +28,8 @@ use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Exception\NotADirectoryException;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
@@ -365,7 +366,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function __toString(): string
     {
-        return $this->getSource();
+        return (string) $this->getSource();
     }
 
 
@@ -386,9 +387,9 @@ class PhoPathCore implements PhoPathInterface
      * @param PhoPathInterface|string|null $from
      * @param bool                         $from_required
      *
-     * @return string
+     * @return string|null
      */
-    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): string
+    public function getSource(PhoPathInterface|string|null $from = null, bool $from_required = false): ?string
     {
         if ($this->isDirectory()) {
             $return = Strings::slash($this->source);
@@ -616,7 +617,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Makes the specified path absolute if it's not
+     * Makes the specified path absolute if it is not
      *
      * The start character will be treated as follows:
      *
@@ -624,13 +625,13 @@ class PhoPathCore implements PhoPathInterface
      * ~ is the current shell's user home directory
      * / is considered absolute
      *
-     * @param Stringable|string|null      $path
-     * @param Stringable|string|bool|null $absolute_prefix
-     * @param bool                        $must_exist
+     * @param PhoPathInterface|string|null $path
+     * @param Stringable|string|bool|null  $absolute_prefix
+     * @param bool                         $must_exist
      *
      * @return static
      */
-    public static function absolutePath(Stringable|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
+    public static function absolutePath(PhoPathInterface|string|null $path = null, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = true): string
     {
         $path = trim((string) $path);
 
@@ -641,7 +642,7 @@ class PhoPathCore implements PhoPathInterface
         $path = str_replace('//', '/', $path);
 
         if ($absolute_prefix === false) {
-            // Don't make it absolute at all
+            // Do not make it absolute at all
             return static::ensureDirectorySlash((string) $path);
         }
 
@@ -651,7 +652,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (static::onDomain($path)) {
-            // This is a domain:/file URL, it's already absolute
+            // This is a domain:/file URL, it is already absolute
             return static::ensureDirectorySlash($path);
         }
 
@@ -855,7 +856,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function ensureExtensionMatchesMimetype(): static
     {
-        // Can't really check extensions if we got multiple
+        // Cannot really check extensions if we got multiple
         $this->ensureSingleExtension();
 
         if ($this->extensionMatchesMimetype()) {
@@ -896,7 +897,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function checkExtensionMatchesMimetype(): static
     {
-        // Can't really check extensions if we got multiple
+        // Cannot really check extensions if we got multiple
         $this->ensureSingleExtension();
 
         if ($this->extensionMatchesMimetype()) {
@@ -924,6 +925,8 @@ class PhoPathCore implements PhoPathInterface
                 ])
                 ->save()
                 ->throw(FilesystemException::class);
+
+        return $this;
     }
 
 
@@ -1044,7 +1047,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Returns the stream for this file if it's opened. Will return NULL if closed
+     * Returns the stream for this file if it is opened. Will return NULL if closed
      *
      * @return mixed
      */
@@ -1194,7 +1197,7 @@ class PhoPathCore implements PhoPathInterface
             // Nope, the path basename really does not exist!
         }
 
-        // Maybe a section of the path isn't mounted?
+        // Maybe a section of the path  is not mounted?
         if ($this->auto_mount and $auto_mount) {
             if ($this->attemptAutoMount()) {
                 // The path was auto mounted, so try again!
@@ -1261,7 +1264,7 @@ class PhoPathCore implements PhoPathInterface
     public function attemptAutoMount(): bool
     {
         if (!Core::getReady()) {
-            // Can't use auto mounter until core is ready
+            // Cannot use auto mounter until the Core class is ready
             return false;
         }
 
@@ -1374,15 +1377,16 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Checks restrictions against internal rules and throws an exception if no applicable match was found
      *
-     * @param bool           $write
-     * @param Throwable|null $e
+     * @param bool                        $write
+     * @param Throwable|null              $e
+     * @param Stringable|string|bool|null $absolute_prefix
      *
      * @return static
      */
-    public function checkRestrictions(bool $write, ?Throwable $e = null): static
+    public function checkRestrictions(bool $write, ?Throwable $e = null, Stringable|string|bool|null $absolute_prefix = null): static
     {
         // Check restrictions
-        $this->o_restrictions->check(static::realPath($this->source), $write, $e);
+        $this->o_restrictions->check(static::realPath($this->source, $absolute_prefix), $write, $e);
 
         // Check system read / write access
         if ($write) {
@@ -1736,6 +1740,7 @@ class PhoPathCore implements PhoPathInterface
      *                                      be thrown
      *
      * @return static
+     * @throw FileNotReadableException | FileNotExistException
      */
     public function checkReadable(?string $type = null, ?Throwable $previous_e = null): static
     {
@@ -1868,7 +1873,7 @@ class PhoPathCore implements PhoPathInterface
 
         rename($this->source, $o_target->getSource());
 
-        // Update this object path and restrictions to the target, and we're done
+        // Update this object path and restrictions to the target, and we are done
         return $this->setSource($o_target->getSource())
                     ->setRestrictionsObject($o_target->getRestrictionsObject());
     }
@@ -1883,7 +1888,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function switchMode(string|int $mode): string|int
     {
-        $old_mode = $this->getMode();
+        $old_mode = $this->getRequiredMode();
         $this->chmod($mode);
 
         return $old_mode;
@@ -1895,7 +1900,7 @@ class PhoPathCore implements PhoPathInterface
      *
      * @return int
      */
-    public function getMode(): int
+    public function getRequiredMode(): int
     {
         $mode = fileperms($this->getSource());
 
@@ -1916,7 +1921,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getOctalMode(): string
     {
-        return decoct($this->getMode());
+        return decoct($this->getRequiredMode());
     }
 
 
@@ -1938,7 +1943,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getOwnerPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0100) ? 'r' : '-') .
                (($mode & 0x0080) ? 'w' : '-') .
@@ -1954,7 +1959,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getGroupPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0020) ? 'r' : '-') .
                (($mode & 0x0010) ? 'w' : '-') .
@@ -1970,7 +1975,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getWorldPermissions(): string
     {
-        $mode = $this->getMode();
+        $mode = $this->getRequiredMode();
 
         return (($mode & 0x0004) ? 'r' : '-') .
                (($mode & 0x0002) ? 'w' : '-') .
@@ -1997,7 +2002,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0100);
+        return (bool) ($this->getRequiredMode() & 0x0100);
     }
 
 
@@ -2008,7 +2013,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0080);
+        return (bool) ($this->getRequiredMode() & 0x0080);
     }
 
 
@@ -2019,7 +2024,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isOwnerExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0800);
+        return (bool) ($this->getRequiredMode() & 0x0800);
     }
 
 
@@ -2030,7 +2035,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0020);
+        return (bool) ($this->getRequiredMode() & 0x0020);
     }
 
 
@@ -2041,7 +2046,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0010);
+        return (bool) ($this->getRequiredMode() & 0x0010);
     }
 
 
@@ -2052,7 +2057,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isGroupExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0400);
+        return (bool) ($this->getRequiredMode() & 0x0400);
     }
 
 
@@ -2063,7 +2068,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldReadable(): bool
     {
-        return (bool) ($this->getMode() & 0x0004);
+        return (bool) ($this->getRequiredMode() & 0x0004);
     }
 
 
@@ -2074,7 +2079,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldWritable(): bool
     {
-        return (bool) ($this->getMode() & 0x0002);
+        return (bool) ($this->getRequiredMode() & 0x0002);
     }
 
 
@@ -2085,7 +2090,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function isWorldExecutable(): bool
     {
-        return (bool) ($this->getMode() & 0x0200);
+        return (bool) ($this->getRequiredMode() & 0x0200);
     }
 
 
@@ -2218,7 +2223,7 @@ class PhoPathCore implements PhoPathInterface
     public function getModeHumanReadable(): string
     {
         $return = '';
-        $mode   = $this->getMode();
+        $mode   = $this->getRequiredMode();
         $mode   = substr(decoct($mode), -3, 3);
 
         for ($i = 0; $i < 3; $i++) {
@@ -2307,7 +2312,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(false);
 
-        // If the object file exists and is writable, then we're done.
+        // If the object file exists and is writable, then we are done.
         if (is_readable($this->source)) {
             return true;
         }
@@ -2360,12 +2365,59 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
+     * Returns the part of the path that exists, '/' if none of it exists
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getExistingPart(string $path): string
+    {
+        if (str_starts_with($path, '/')) {
+            while (!file_exists($path)) {
+                $path = dirname($path);
+            }
+
+            return $path;
+        }
+
+        if (trim($path)) {
+            throw FilesystemException::new(ts('Cannot check for existing part of path ":path", the path is not absolute', [
+                ':path' => $path,
+            ]))->setData([
+                'path' => $path,
+            ]);
+        }
+
+        throw FilesystemException::new(ts('Cannot check for existing part, no path specified'));
+    }
+
+
+    /**
+     * Returns the realpath of the specified path without the need for the path to actually exists
+     *
+     * NOTE: This method does this by finding the part of the path that does exist, getting a realpath of THAT part, and then adding the rest to it.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function getRealPathSafe(string $path): string
+    {
+        $existing     = static::getExistingPart($path);
+        $not_existing = Strings::from($path, $existing);
+
+        return realpath($existing) . $not_existing;
+    }
+
+
+    /**
      * Returns the absolute and real path for the specified path
      *
      * While PHP realpath() call may return false if the specified path does not exist, this method will both ensure the
      * parent directory of the specified path exists and a valid absolute and real path is always returned
      *
-     * @param string                      $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      * @param bool                        $resolve_basename
@@ -2373,12 +2425,13 @@ class PhoPathCore implements PhoPathInterface
      * @return string
      * @todo add InstanceCache support
      */
-    public static function realPath(string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
+    public static function realPath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string
     {
+        $path = trim((string) $path);
         $real = PhoPath::absolutePath($path, $absolute_prefix, $must_exist);
 
         if (static::onDomain($real)) {
-            // This is a domain:/file URL, we can't make this real
+            // This is a domain:/file URL, we cannot make this real
             return $path;
         }
 
@@ -2386,8 +2439,14 @@ class PhoPathCore implements PhoPathInterface
         // Use FsRestrictionsAllowAll as FsRestrictions will use PhoPathCore::realPath() and cause endless loops!
         $base   = basename($real);
         $parent = dirname($real);
-        $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
-        $parent = realpath($parent);
+
+        if ($must_exist) {
+            $parent = PhoDirectory::new($parent, new PhoRestrictionsAllowAll())->ensure()->getSource();
+            $parent = realpath($parent);
+
+        } else {
+            $parent = static::getRealPathSafe($parent);
+        }
 
         if (!$parent) {
             throw new FilesystemException(tr('Failed to convert parent of path ":path" into a realpath', [
@@ -2453,7 +2512,7 @@ class PhoPathCore implements PhoPathInterface
         // Check filesystem restrictions
         $this->checkRestrictions(true);
 
-        // If the object file exists and is writable, then we're done.
+        // If the object file exists and is writable, then we are done.
         if (is_writable($this->source)) {
             return true;
         }
@@ -2494,6 +2553,17 @@ class PhoPathCore implements PhoPathInterface
     public function isLinkAndTargetExists(): bool
     {
         return is_link($this->source) and file_exists($this->source);
+    }
+
+
+    /**
+     * Returns true if the file is a symlink AND its target exists
+     *
+     * @return bool
+     */
+    public function isLinkAndTargetDoesNotExist(): bool
+    {
+        return is_link($this->source) and !file_exists($this->source);
     }
 
 
@@ -2740,14 +2810,14 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns a normalized path that has all ./ and ../ resolved
      *
-     * @param Stringable|string           $path
+     * @param PhoPathInterface|string     $path
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
      *
      * @return ?string string The real directory extrapolated from the specified $directory, if exists. False if
      *                 whatever was specified does not exist.
      */
-    protected static function normalizePath(Stringable|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
+    protected static function normalizePath(PhoPathInterface|string $path, Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): ?string
     {
         $path = trim((string) $path);
 
@@ -2905,15 +2975,22 @@ class PhoPathCore implements PhoPathInterface
      *
      * If the current path is not a directory, the parent directory object will be returned instead
      *
+     * @param bool $allow_parent If true, and the path is not a directory, the parent directory will be returned instead
      * @return PhoDirectoryInterface
      */
-    public function getDirectoryObject(): PhoDirectoryInterface
+    public function getDirectoryObject(bool $allow_parent = true): PhoDirectoryInterface
     {
         if ($this->isDirectory()) {
             return PhoDirectory::new($this);
         }
 
-        return $this->getParentDirectoryObject();
+        if ($allow_parent) {
+            return $this->getParentDirectoryObject();
+        }
+
+        throw new NotADirectoryException(ts('Cannot get a directory for the path ":path", it is not a directory and the parent is not allowed to be returned', [
+            ':path' => $this->source,
+        ]));
     }
 
 
@@ -3383,7 +3460,7 @@ class PhoPathCore implements PhoPathInterface
     {
         $exists = file_exists($this->source);
         if (!$exists and $auto_mount) {
-            // Oh noes! This path doesn't exist! Maybe a path isn't mounted?
+            // Oh noes! This path doesn't exist! Maybe a path  is not mounted?
             $this->attemptAutoMount();
         }
 
@@ -3503,7 +3580,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Write the specified data to this file
+     * Wrapper for PhoPathCore::setContents()
      *
      * @param string $data
      * @param int    $flags
@@ -3512,6 +3589,21 @@ class PhoPathCore implements PhoPathInterface
      * @return static
      */
     public function putContents(string $data, int $flags = 0, $context = null): static
+    {
+        return $this->setContents($data, $flags, $context);
+    }
+
+
+    /**
+     * Write the specified data to this file
+     *
+     * @param string $data
+     * @param int    $flags
+     * @param null   $context
+     *
+     * @return static
+     */
+    public function setContents(string $data, int $flags = 0, $context = null): static
     {
         Log::notice(ts('Putting ":count" bytes to file ":file"', [
             ':file'  => $this->getRootname(),
@@ -3881,28 +3973,35 @@ class PhoPathCore implements PhoPathInterface
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $target
+     * @param PhoPathInterface|string $o_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $target): PhoPathInterface
+    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface
     {
-        $target = PhoPath::new($target);
+        if (!$o_target->exists()) {
+            throw new FileNotExistException(ts('Cannot replace path ":source" with target ":target", the target does not exist', [
+                ':source' => $this->source,
+                ':target' => $o_target,
+            ]));
+        }
+
+        $o_target = PhoPath::new($o_target);
 
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
-            $target->rename($new);
+            $o_target->rename($new);
             $this->delete(use_run_file: false);
 
         } else {
-            // The source doesn't exist, so we don't have to move anything out of place or delete afterward
+            // The source doesn't exist, so we do not have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
-            $target->rename($this);
+            $o_target->rename($this);
         }
 
-        return $target;
+        return $o_target;
     }
 
 
@@ -4019,11 +4118,11 @@ class PhoPathCore implements PhoPathInterface
         $target = PhoPath::new($target, $restrictions ?? $this->o_restrictions);
 
         if (empty($alternate_path)) {
-            // We'll create the symlinks in the same directory as where we're linking from. Use "target" object
+            // We will create the symlinks in the same directory as where we are linking from. Use "target" object
             $alternate_path = clone $target;
 
         } else {
-            // We'll create the symlink in a different directory than where we're linking from. Ensure "alternate_path"
+            // We will create the symlink in a different directory than where we are linking from. Ensure "alternate_path"
             // is a Path object
             $alternate_path = PhoPath::new($alternate_path, $target->o_restrictions);
         }
@@ -4090,8 +4189,6 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getFilesObject(bool $reload = false): PhoFilesInterface
     {
-        $this->checkRestrictions(false);
-
         if (empty($this->files) or $reload) {
             $this->checkReadable('directory');
 
@@ -4193,19 +4290,19 @@ class PhoPathCore implements PhoPathInterface
     {
         if ($this->exists()) {
             // Delete all symlinks
-            Find::new($this->o_restrictions)
-                ->setExecutionDirectory(new PhoDirectory($this))
+            Find::new()
                 ->setPathObject($this)
                 ->setType('l')
-                ->setDelete(true);
+                ->setDelete(true)
+                ->executeNoReturn();
 
             // Delete all empty directories
-            Find::new($this->o_restrictions)
-                ->setExecutionDirectory(new PhoDirectory($this))
+            Find::new()
                 ->setPathObject($this)
                 ->setType('d')
                 ->setEmpty(true)
-                ->setDelete(true);
+                ->setDelete(true)
+                ->executeNoReturn();
         }
 
         return $this;
@@ -4935,20 +5032,20 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Returns true if this path is the same as the specified path
      *
-     * @param PhoPathInterface $path
+     * @param PhoPathInterface $_path
      *
      * @return bool
      */
-    public function isSameAs(PhoPathInterface $path): bool
+    public function isSameAs(PhoPathInterface $_path): bool
     {
-        if ($this->getRealPath()->getSource() === $path->getRealPath()->getSource()){
-            // Doh, it's the same path!
+        if ($this->getRealPath() === $_path->getRealPath()){
+            // Doh, it is the same path!
             return true;
         }
 
         // Okay, different path, is it the same file or directory structure anyway?
-        if ($this->getSize() === $path->getSize()) {
-            if ($this->getHash() === $path->getHash()) {
+        if ($this->getSize() === $_path->getSize()) {
+            if ($this->getHash() === $_path->getHash()) {
                 return true;
             }
         }

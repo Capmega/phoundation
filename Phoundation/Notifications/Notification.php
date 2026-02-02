@@ -43,7 +43,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryTrace;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataOverrideNonProductionLockout;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Debug\Debug;
@@ -744,11 +743,11 @@ FILES variables:
         $user    = User::new()->load($user);
 
         if (!config()->getBoolean('notifications.send.enabled', true) and !$this->override_non_production_lockout) {
-            // We're not in production environment, don't send any notifications!
+            // We are not in production environment, do not send any notifications!
             Log::warning(ts('Not sending notification ":title" to user ":user" because notifications sending has been disabled', [
                 ':title' => $this->getTitle(),
                 ':user'  => $user->getEmail()
-            ]), 4);
+            ]), 3);
 
             $sending = false;
             return $this;
@@ -765,7 +764,7 @@ FILES variables:
             Pho::new()
                ->setPhoCommands('email send')
                ->addArgument('-h')
-               ->addArguments(['-t', $user->getEmail()])
+               ->addArguments(['-t', $this->getOverrideEmail() ?? $user->getEmail()])
                ->addArguments(['-s', $this->getTitle()])
                ->addArguments(['-b', $message])
                ->executeBackground();
@@ -787,6 +786,17 @@ FILES variables:
 
         $sending = false;
         return $this;
+    }
+
+
+    /**
+     * Returns a configured email address that (if configured) will always be used for all notifications
+     *
+     * @return string|null
+     */
+    public function getOverrideEmail(): ?string
+    {
+        return get_null(config()->getString('notifications.send.override.email', ''));
     }
 
 
@@ -831,7 +841,7 @@ FILES variables:
             $this->log();
 
         } else {
-            // Notification was already logged, don't log again
+            // Notification was already logged, do not log again
             Log::error(ts('Not saving previous notification ":title", there is no system database available', [
                 ':title' => $this->getTitle()
             ]));

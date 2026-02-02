@@ -102,9 +102,9 @@ class Html
     public static function safe(Stringable|string|float|int|null $html, bool $enabled = true, bool $force_render = false): Stringable|string|null
     {
         if (is_object($html)) {
-            // We don't make objects safe! We know these are renderable objects, but:
-            // a) We'd need to render them before making them safe, even though that may not be wanted yet because we might need to set properties still later
-            // b) it would make the entire content of the object safe, which likely isn't what we want as those types of objects almost always contain HTML.
+            // We do not make objects safe! We know these are renderable objects, but:
+            // a) We would need to render them before making them safe, even though that may not be wanted yet because we might need to set properties still later
+            // b) it would make the entire content of the object safe, which likely  is not what we want as those types of objects almost always contain HTML.
             if ($force_render) {
                 return (string) $html;
             }
@@ -232,7 +232,7 @@ class Html
                 $return .= $params['links'];
 
             } else {
-// :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
+// :OBSOLETE: Links specified as an array only adds more complexity, we are going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
                 foreach ($params['links'] as $data) {
                     $sections = [];
                     foreach ($data as $key => $value) {
@@ -456,7 +456,7 @@ class Html
 
             } else {
                 /*
-                 * Don't wrap the specified script in an event wrapper
+                 * Do not wrap the specified script in an event wrapper
                  */
                 $return = $script['script'];
             }
@@ -1544,7 +1544,7 @@ class Html
     {
         $allowed_attributes = Arrays::force($allowed_attributes);
         /*
-         * If specified, source string is empty, then we're done right away
+         * If specified, source string is empty, then we are done right away
          */
         if (!$source) {
             return '';

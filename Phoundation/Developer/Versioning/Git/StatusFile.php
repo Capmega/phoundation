@@ -19,6 +19,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Developer\Versioning\Git\Exception\GitPatchFailedException;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFileInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusInterface;
+use Phoundation\Developer\Versioning\Git\Traits\TraitDataObjectRepository;
 use Phoundation\Filesystem\PhoFileCore;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -27,12 +28,8 @@ use Phoundation\Os\Processes\Exception\ProcessFailedException;
 
 class StatusFile extends PhoFileCore implements StatusFileInterface
 {
-    /**
-     * The file that has a change
-     *
-     * @var PhoFileInterface $file
-     */
-    protected PhoFileInterface $file;
+    use TraitDataObjectRepository;
+
 
     /**
      * The target in case a file was renamed
@@ -44,9 +41,9 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
     /**
      * The status for this file
      *
-     * @var StatusInterface $status
+     * @var StatusInterface $o_status
      */
-    protected StatusInterface $status;
+    protected StatusInterface $o_status;
 
 
     /**
@@ -54,13 +51,13 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      *
      * @param StatusInterface|string $status
      * @param PhoFileInterface       $file
-     * @param PhoFileInterface       $git_target
+     * @param PhoFileInterface|null  $git_target
      */
-    public function __construct(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target)
+    public function __construct(StatusInterface|string $status, PhoFileInterface $file, ?PhoFileInterface $git_target = null)
     {
-        $this->file       = $file;
+        $this->source     = $file->getSource();
         $this->git_target = $git_target;
-        $this->status     = (is_string($status) ? new Status($status) : $status);
+        $this->o_status   = (is_string($status) ? new Status($status) : $status);
     }
 
 
@@ -69,24 +66,13 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      *
      * @param StatusInterface|string $status
      * @param PhoFileInterface       $file
-     * @param PhoFileInterface       $git_target
+     * @param PhoFileInterface|null  $git_target
      *
      * @return static
      */
-    public static function new(StatusInterface|string $status, PhoFileInterface $file, PhoFileInterface $git_target): static
+    public static function new(StatusInterface|string $status, PhoFileInterface $file, ?PhoFileInterface $git_target = null): static
     {
         return new static($status, $file, $git_target);
-    }
-
-
-    /**
-     * Returns the file name
-     *
-     * @return PhoFileInterface
-     */
-    public function getFile(): PhoFileInterface
-    {
-        return $this->file;
     }
 
 
@@ -102,13 +88,35 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
 
 
     /**
-     * Returns the status for this file
+     * Returns the status object for this file
      *
      * @return StatusInterface
      */
     public function getStatusObject(): StatusInterface
     {
-        return $this->status;
+        return $this->o_status;
+    }
+
+
+    /**
+     * Returns the status for this file
+     *
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->o_status->getStatus();
+    }
+
+
+    /**
+     * Returns the status for this file
+     *
+     * @return string
+     */
+    public function getReadableStatus(): string
+    {
+        return $this->o_status->getReadable();
     }
 
 
@@ -119,7 +127,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function hasConflict(): bool
     {
-        return $this->status->isConflict();
+        return $this->o_status->isConflict();
     }
 
 
@@ -151,9 +159,9 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
             if (str_contains($data, 'patch does not apply')) {
                 throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to file ":file"', [
                     ':patch' => isset_get($patch_file),
-                    ':file'  => $this->file,
+                    ':file'  => $this->source,
                 ]))->addData([
-                    'file' => $this->file,
+                    'file' => $this->source,
                 ]);
             }
 
@@ -174,7 +182,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
                       ->saveDiff($this->git_target->getBasename());
         }
 
-        return Git::new($this->file->getParentDirectoryObject())
-                  ->saveDiff($this->file->getBasename());
+        return Git::new($this->getParentDirectoryObject())
+                  ->saveDiff($this->getBasename());
     }
 }

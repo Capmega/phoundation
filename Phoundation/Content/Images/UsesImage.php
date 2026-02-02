@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Content\Images;
 
 use Phoundation\Content\Images\Interfaces\ImageFileInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 
 
 trait UsesImage

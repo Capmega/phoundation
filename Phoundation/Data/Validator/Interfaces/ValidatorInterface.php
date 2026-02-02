@@ -1473,4 +1473,27 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function skipValidation(): static;
+
+    /**
+     * Requires that the specified keys are available for this key to be valid
+     *
+     * @note This test does not count as an "executed test" to be able to select the next key. If only this test was
+     *       executed for the selected key, and a next key will be selected, an ValidationFailedException exception will
+     *       still be thrown
+     *
+     * @note This test requires that the specified keys have already been tested before, as it does not know what keys
+     *       will be tested after, and if they will default or not
+     *
+     * @note This test will not test for the existence of the specified key, as they SHOULD exist (See previous note) so
+     *       it will test if they are not empty. If the specified keys are empty, the field will fail.
+     *
+     * @note This will only require the specified keys are not empty if the currently selected field is not default,
+     *       unless $also_if_selected_is_default is true
+     *
+     * @param IteratorInterface|array|string $keys
+     * @param bool                           $also_if_selected_is_default
+     *
+     * @return static
+     */
+    public function requiresColumnsEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static;
 }

@@ -102,7 +102,7 @@ class Core implements CoreInterface
     /**
      * Framework version and minimum required PHP version
      */
-    public const string PHOUNDATION_VERSION = '4.15.1';
+    public const string PHOUNDATION_VERSION = '4.18.0';
 
     public const string PHP_MINIMUM_VERSION = '8.3.0';
 
@@ -290,7 +290,7 @@ class Core implements CoreInterface
     protected static bool $ignore_readonly = false;
 
     /**
-     * Tracks if we're running unit Tests
+     * Tracks if we are running unit Tests
      *
      * @var bool $unit_test_mode
      */
@@ -487,7 +487,7 @@ class Core implements CoreInterface
             $path = dirname(dirname($_SERVER['SCRIPT_FILENAME']));
 
             while (str_contains($path, '/data')) {
-                // We're inside a data directory. Keep moving up
+                // We are inside a data directory. Keep moving up
                 $path = dirname($path);
             }
 
@@ -521,7 +521,7 @@ class Core implements CoreInterface
             Core::startPlatform();
             Core::defineProjectDirectories();
 
-            // Check if we're in readonly mode
+            // Check if we are in readonly mode
             Core::$state    = 'startup';
             Core::$readonly = (bool) Core::getReadonlyMode();
 
@@ -626,7 +626,7 @@ class Core implements CoreInterface
 
 
     /**
-     * Checks what platform we're running on and sets definitions for those
+     * Checks what platform we are running on and sets definitions for those
      *
      * @return void
      */
@@ -800,7 +800,7 @@ class Core implements CoreInterface
      */
     public static function setReady(): void
     {
-        // We're done, transfer control to script
+        // We are done, transfer control to script
         Core::$ready = true;
     }
 
@@ -812,7 +812,7 @@ class Core implements CoreInterface
      */
     public static function setScriptState(): void
     {
-        // We're done, transfer control to script
+        // We are done, transfer control to script
         Core::$state = 'script';
         Core::$script = true;
     }
@@ -1030,7 +1030,7 @@ class Core implements CoreInterface
 
         // If we get here...
         // The Config object has no environment and won't be able to load configuration. This means that the process is
-        // exiting during startup. As such, we won't have logging either. Don't do cleanup, don't do anything. Just exit
+        // exiting during startup. As such, we won't have logging either. Do not do cleanup, do not do anything. Just exit
     }
 
 
@@ -1157,7 +1157,7 @@ class Core implements CoreInterface
 
                 // The system crashed before Core was ready
                 if (CliAutoComplete::isActive()) {
-                    // If we're in autocomplete mode, so we're fine as it can end before Core is ready
+                    // If we are in autocomplete mode, so we are fine as it can end before Core is ready
                     exit();
                 }
 
@@ -1287,7 +1287,7 @@ class Core implements CoreInterface
         static $loop = false;
 
         if ($loop) {
-            // We're in a loop!
+            // We are in a loop!
             return false;
         }
 
@@ -1296,7 +1296,7 @@ class Core implements CoreInterface
         try {
             if ($production === null) {
                 if (!defined('ENVIRONMENT')) {
-                    // Oops, we're so early in startup that we don't have an environment available yet!
+                    // Oops, we are so early in startup that we do not have an environment available yet!
                     // Assume production!
                     $loop = false;
 
@@ -1432,7 +1432,7 @@ class Core implements CoreInterface
                 throw new CoreException(tr('Unknown language ":language" specified', [':language' => $language]));
             }
 
-            // TODO Don't access $_SESSION data like this directly, get it from Session class methods instead
+            // TODO Do not access $_SESSION data like this directly, get it from Session class methods instead
             define('LANGUAGE', $language);
             define('LOCALE'  , $language . (empty($_SESSION['location']['country']['code']) ? '' : '_' . $_SESSION['location']['country']['code']));
 
@@ -2221,7 +2221,7 @@ class Core implements CoreInterface
                 }
 
             } else {
-                // The key doesn't exist, so we don't have to worry about the sub key
+                // The key doesn't exist, so we do not have to worry about the sub key
                 return;
             }
 
@@ -2543,7 +2543,7 @@ class Core implements CoreInterface
     public static function phpErrorHandler(int $errno, string $errstr, string $errfile, int $errline): void
     {
         if (Core::inStartupState()) {
-            // Wut? We're not even ready to go! Likely we don't have configuration available, so we cannot even send out
+            // Wut? We are not even ready to go! Likely we do not have configuration available, so we cannot even send out
             // notifications. Just crash with a standard PHP exception
             throw PhpException::new('Core startup PHP ERROR: ' . $errstr)
                               ->setCode($errno)
@@ -2885,7 +2885,7 @@ class Core implements CoreInterface
      */
     protected static function registerUncaughtExceptionIncident(Throwable $e): void
     {
-        // Don't register warning exceptions
+        // Do not register warning exceptions
         if ((!$e instanceof PhoException) or !$e->isWarning()) {
             // This is a "bad" exception
             if (Core::getReadonly()) {
@@ -2894,13 +2894,13 @@ class Core implements CoreInterface
             } else {
                 if (defined('ENVIRONMENT')) {
                     if ($e instanceof EnvironmentNotExistsException) {
-                        // Don't register the uncaught exception incident, the exception is the environment does not exist
+                        // Do not register the uncaught exception incident, the exception is the environment does not exist
                         Log::error(ts('Not attempting to register the following uncaught exception incident in the database, environment ":environment" does not exist', [
                             ':environment' => ENVIRONMENT
                         ]));
 
                     } else {
-                        // Only notify and register developer incident if we're on production
+                        // Only notify and register developer incident if we are on production
                         if (!Core::isProductionEnvironment()) {
                             // We CAN only notify if Core is ready
                             if (Core::getReady()) {
@@ -2913,20 +2913,12 @@ class Core implements CoreInterface
                                                 ->setException($e)
                                                 ->setType(null)
                                                 ->setSeverity(EnumSeverity::severe)
+                                                ->setNotifyRoles('developer')
                                                 ->save();
                                     }
 
                                 } catch (Throwable $f) {
                                     Log::error(ts('Failed to register uncaught exception because of the following exception'));
-                                    Log::error($f);
-                                }
-
-                                try {
-                                    $e->getNotificationObject()
-                                      ->send(false);
-
-                                } catch (Throwable $f) {
-                                    Log::error(ts('Failed to notify developers of uncaught exception because of the following exception'));
                                     Log::error($f);
                                 }
                             }
@@ -2975,7 +2967,7 @@ class Core implements CoreInterface
 
                 } catch (Throwable $f) {
                     if (!CliAutoComplete::isActive()) {
-                        // Don't use tr() over here because we might be in failed mode where tr() is not available
+                        // Do not use tr() over here because we might be in failed mode where tr() is not available
                         Log::warning('Failed to play uncaught exception audio because "' . $f->getMessage() . '"');
 
                         if (!($f instanceof PhoException) or !$f->isWarning()) {
@@ -3036,7 +3028,7 @@ class Core implements CoreInterface
     {
         // Command line command crashed.
         // If not using Debug::enabled() mode, then try to give nice error messages for known issues
-        if (($e instanceof ValidationFailedException) and $e->isWarning()) {
+        if (($e instanceof PhoException) and $e->isWarning()) {
             // This is just a simple validation warning, show warning messages in the exception data
             if (!$e->hasBeenLogged()) {
                 Log::warning($e->getMessage(), 10);
@@ -3051,31 +3043,33 @@ class Core implements CoreInterface
                         }
                     }
                 }
-            }
 
-            Core::exit(255);
-        }
-
-        if (($e instanceof PhoException) and $e->isWarning()) {
-            // This is just a simple general warning, no backtrace and such needed, only show the
-            // principal message
-            Log::warning(ts('Warning: :warning', [':warning' => $e->getMessage()]), 10);
-
-            if ($e instanceof CliNoCommandSpecifiedException) {
-                if ($data = $e->getData()) {
-                    Log::information('Available methods:', 10);
-
-                    foreach ($data['commands'] as $file) {
-                        Log::notice($file, 10);
+                // Display hints?
+                if ($e->hasHints()) {
+                    foreach (Arrays::force($e->getHints(), null) as $hint) {
+                        Log::warning(ts('Hint: '), 10, echo_newline: false);
+                        Log::notice($hint, 10);
                     }
                 }
+            }
 
-            } elseif ($e instanceof CliCommandNotFoundException) {
-                if ($data = $e->getData()) {
-                    Log::information('Available sub-commands:', 10, echo_prefix: false);
+            if (($e instanceof PhoException) and $e->isWarning()) {
+                if ($e instanceof CliNoCommandSpecifiedException) {
+                    if ($data = $e->getData()) {
+                        Log::information('Available methods:', 10);
 
-                    foreach ($data['commands'] as $method) {
-                        Log::notice($method, 10, echo_prefix: false);
+                        foreach ($data['commands'] as $file) {
+                            Log::notice($file, 10);
+                        }
+                    }
+
+                } elseif ($e instanceof CliCommandNotFoundException) {
+                    if ($data = $e->getData()) {
+                        Log::information('Available sub-commands:', 10, echo_prefix: false);
+
+                        foreach ($data['commands'] as $method) {
+                            Log::notice($method, 10, echo_prefix: false);
+                        }
                     }
                 }
             }
@@ -3214,7 +3208,7 @@ class Core implements CoreInterface
 
         if (Core::isReady($state)) {
             if (!Config::hasSections()) {
-                // Configuration isn't available yet, we cannot even know if we are in debug mode or not!
+                // Configuration  is not available yet, we cannot even know if we are in debug mode or not!
                 // Try sending the right response code and content type headers so that at least there will be a visible
                 // page with the right mimetype
                 if (!headers_sent()) {
@@ -3492,7 +3486,7 @@ class Core implements CoreInterface
         if (!Debug::isEnabled() or ($page < 0)) {
             foreach ($classes as $class) {
                 if (($e instanceof $class)) {
-                    // Don't try to display a pretty error page, this exception is too severe
+                    // Do not try to display a pretty error page, this exception is too severe
                     Core::exit(1, $e->getMessage());
                 }
             }

@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Command development repositories scan
+ * Command developer repositories scan
  *
+ * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
+ * This command will scan for phoundation repositories and register them in the database
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,44 +16,81 @@
 
 declare(strict_types=1);
 
+use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
-use Phoundation\Developer\Phoundation\Repositories\Repositories;
-use Phoundation\Utils\Strings;
+use Phoundation\Data\Validator\ArgvValidator;
+use Phoundation\Developer\Debug\Debug;
+use Phoundation\Developer\Versioning\Repositories\Repositories;
+use Phoundation\Filesystem\PhoDirectory;
 
 
-$repositories = Repositories::new()->scan();
+// Start documentation
+CliDocumentation::setAutoComplete([
+    'arguments' => [
+        '-p,--path' => function ($word) {
+            return PhoDirectory::newRootObject()->scan($word);
+        },
+        '-d,--delete-gone' => false
+    ]
+]);
 
-foreach (Repositories::getTypes() as $label => $type) {
-    $list = $repositories->getRepositoryType($type);
+CliDocumentation::setUsage('./pho development repositories scan');
 
-    Log::information(ts(':data repositories', [':data' => $label]), 10, echo_prefix: false);
+CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-    if ($list->isEmpty()) {
-        Log::notice('-', 10, echo_prefix: false);
-        Log::cli(' ');
+This command will scan for phoundation repositories and register them in the database
 
-    } else {
-        foreach ($list as $name => $repository) {
-            Log::write(Strings::size($repository->getName(), 30), 'debug', 10, false, false, false);
-            Log::notice($repository->getSource(), 10, echo_prefix: false);
 
-            $start = true;
+ARGUMENTS
 
-            if ($repository->isVendorsRepository()) {
-                foreach ($repository->getVendors() as $vendor) {
-                    if ($start) {
-                        Log::information(Strings::size('', 30) . Strings::size(tr('Vendors'), 30), 10, false, false, false);
-                        $start = false;
 
-                    } else {
-                        Log::notice(Strings::size('', 60), 10, false, false, false);
-                    }
+- 
 
-                    Log::write(Strings::size($vendor->getName(), 30), 'debug', 10, false, true, false);
-                }
-            }
 
-            Log::cli(' ');
+OPTIONAL ARGUMENTS
+
+
+[-p, --path PATH]                       If specified, will start scanning for GIT repositories from the specified path. Defaults to ":path"
+
+[-d, --delete-gone]                     If specified, any repository that was registered before but not found in the current scan, will be deleted', [
+    ':path' => PhoDirectory::newRootObject()->getParentDirectoryObject()->getParentDirectoryObject()
+]));
+
+
+// Get command line arguments
+$argv = ArgvValidator::new()
+                     ->select('-p,--path', true)->isOptional(PhoDirectory::newRootObject()->getParentDirectoryObject()->getParentDirectoryObject())->isPath()
+                     ->select('-d,--delete-gone')->isOptional()->isBoolean()
+                     ->validate();
+
+
+// Scan for new repositories
+Log::cli(ts('Scanning ":path" for repositories, this might take a few seconds...', [
+    ':path' => $argv['path']
+]), 'action');
+
+$o_repositories     = Repositories::new();
+$permissions_denied = $o_repositories->scan($argv['path'], $argv['delete_gone'])
+                                     ->getNumberOfResultsWithPermissionDenied();
+
+
+// Process permission denied errors
+if ($permissions_denied) {
+    Log::cli(ts('Encountered "permission denied" on  following ":count" paths', [
+        ':count' => $permissions_denied
+    ]), 'warning');
+
+    if (Debug::isEnabled()) {
+        foreach ($o_repositories->getResultsWithPermissionDenied() as $repository) {
+            Log::cli($repository, 'warning');
         }
     }
 }
+
+
+// Done!
+Log::cli(ts('Found ":new" new repositories, deleted ":deleted" repositories, there are ":count" repositories in the database', [
+    ':new'     => $o_repositories->getNewCount(),
+    ':count'   => Repositories::new()->load()->getCount(),
+    ':deleted' => $o_repositories->getDeletedCount()
+]), 'success');

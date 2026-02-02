@@ -60,7 +60,7 @@ if ($argv['rights']) {
 $role = Role::new()->load($argv['role']);
 
 if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as it's a unique identifier
+    // If changing name, ensure it doesn't exist yet as it is a unique identifier
     Role::notExists(['name' => $argv['name']], $role->getId(), true);
 }
 

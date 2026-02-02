@@ -52,15 +52,19 @@ CliDocumentation::setAutoComplete([
 // Get command arguments
 $argv = ArgvValidator::new()
                      ->select('-c,--auto-commit')->isOptional()->isBoolean()
-                     ->select('-s,--sign')->isOptional()->requiresNotEmpty('--auto-commit')->isBoolean()
-                     ->select('-m,--message', true)->isOptional()->requiresNotEmpty('--auto-commit')->isDescription()
+                     ->select('-s,--sign')->isOptional()->requiresColumnsNotEmpty('--auto-commit')->isBoolean()
+                     ->select('-m,--message', true)->isOptional()->requiresColumnsNotEmpty('--auto-commit')->isDescription()
                      ->validate();
 
 
-// Rebuild commands and web cache
-Libraries::rebuildCommandsCache();
-Libraries::rebuildTestsCache();
+// Rebuild system caches
 Libraries::rebuildWebCache();
+Libraries::rebuildHooksCache();
+Libraries::rebuildCronCache();
+Libraries::rebuildTestsCache();
+Libraries::rebuildCommandsCache();
+Libraries::rebuildConfigCache();
+Libraries::rebuildDataCache();
 
 
 // Commit the system web cache?

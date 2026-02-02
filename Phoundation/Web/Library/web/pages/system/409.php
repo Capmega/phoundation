@@ -39,7 +39,7 @@ switch (Request::getRequestType()) {
 }
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(409);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('409 - Conflict');

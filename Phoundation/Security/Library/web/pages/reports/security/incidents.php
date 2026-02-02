@@ -140,7 +140,7 @@ $o_documentation_card = Card::new()
                             ->setContent('This page displays all registered security incidents. All incidents, small or big (For example: user typed wrong password), are registered as security incidents, and are visible in this page.');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Incidents management'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'             , tr('Home')),

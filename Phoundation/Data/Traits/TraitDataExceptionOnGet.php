@@ -43,7 +43,7 @@ trait TraitDataExceptionOnGet
      *
      * @param bool $exception
      *
-     * @return $this
+     * @return static
      */
     public function setExceptionOnGet(bool $exception): static
     {

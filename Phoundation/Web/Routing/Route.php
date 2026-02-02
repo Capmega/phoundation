@@ -351,8 +351,11 @@ class Route
             define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
             define('VERBOSE'   , get_null(getenv('VERBOSE'))    ?? false);
+            define('QUIET'     , get_null(getenv('QUIET'))      ?? false);
+            define('RESULTS'   , get_null(getenv('RESULTS'))    ?? false);
 
             Log::setVerbose(get_null(getenv('VERBOSE')) ?? false);
+            Log::setQuiet(get_null(getenv('QUIET'))     ?? false);
 
             // Check HEAD and OPTIONS requests. If HEAD was requested, just return basic HTTP headers
 // :TODO: Should pages themselves not check for this and perhaps send other headers?
@@ -1195,9 +1198,9 @@ class Route
     {
         if (static::$until) {
             // Store the request as a rule until it expires. Apply semi-permanent routing for this IP
-            // Remove the "S" flag since we don't want to store the rule again in subsequent loads
+            // Remove the "S" flag since we do not want to store the rule again in subsequent loads
             // Remove the "H" flag since subsequent requests may not be a hack attempt. Since we are going to act as
-            // if the rule AND URI apply, we don't know really, avoid unneeded red flags
+            // if the rule AND URI apply, we do not know really, avoid unneeded red flags
             foreach (static::$flags as $id => $flag) {
                 switch ($flag[0]) {
                     case 'H':

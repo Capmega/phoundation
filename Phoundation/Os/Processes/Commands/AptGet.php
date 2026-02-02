@@ -22,21 +22,44 @@ use Phoundation\Core\Log\Log;
 class AptGet extends Command
 {
     /**
-     * Install the specified packages
+     * Installs the specified packages on the system
      *
      * @param array|string $packages
      *
      * @return void
      */
-    public function install(array|string $packages): void
+    public function install(array|string $packages): static
     {
-        Log::action(ts('Installing packages ":packages"', [':packages' => $packages]));
         $this->setCommand('apt-get')
              ->setSudo(true)
              ->addArguments([
                  '-y',
                  'install',
              ])
+             ->addArguments($packages)
+             ->setTimeout(120)
+             ->executePassthru();
+    }
+
+
+    /**
+     * Removes the specified packages from the system
+     *
+     * @param array|string $packages
+     * @param bool         $purge
+     *
+     * @return void
+     */
+    public function remove(array|string $packages, bool $purge = false): static
+    {
+        Log::action(ts('Removing packages ":packages"', [':packages' => $packages]));
+        $this->setCommand('apt')
+             ->setSudo(true)
+             ->addArguments([
+                 'remove',
+                 '-y',
+             ])
+             ->addArgument($purge ? '--purge' : null)
              ->addArguments($packages)
              ->setTimeout(120)
              ->executePassthru();

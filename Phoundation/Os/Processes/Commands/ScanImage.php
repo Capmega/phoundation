@@ -119,7 +119,7 @@ class ScanImage extends Command
                 preg_match_all('/^(--?[a-z0-9-]+)/', $section, $matches);
                 $entry['key'] = $matches[1][0];
 
-                // Remove the key from the section we're working on
+                // Remove the key from the section we are working on
                 $section = Strings::from($section, $entry['key']);
                 $section = trim($section);
 
@@ -167,7 +167,7 @@ class ScanImage extends Command
                     ]));
                 }
 
-                // Remove "advanced" indicator, we don't care
+                // Remove "advanced" indicator, we do not care
                 $section = str_replace('[advanced]', '', $section);
                 $section = trim($section);
 
@@ -307,7 +307,7 @@ class ScanImage extends Command
         -p, --progress             print progress messages
         -o, --output-file=PATH     save output to the given file instead of stdout.
                                    This option is incompatible with --batch.
-        -n, --dont-scan            only set options, don't actually scan
+        -n, --dont-scan            only set options, do not actually scan
         -T, --test                 test backend thoroughly
         -A, --all-options          list all available backend options
         -h, --help                 display this help message and exit

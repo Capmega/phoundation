@@ -20,7 +20,7 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Requests\Response;
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Libraries'));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'           , tr('Home')),

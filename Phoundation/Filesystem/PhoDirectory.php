@@ -39,9 +39,9 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool $persist If specified, the temporary directory will persist and not be removed once the process
      *                      terminates
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newTemporaryObject(bool $public = false, bool $persist = false): PhoDirectoryInterface
+    public static function newTemporaryObject(bool $public = false, bool $persist = false): static
     {
         if (!$persist) {
             // Return a non-persistent temporary directory that will be deleted once this process terminates
@@ -67,9 +67,9 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool        $writable
      * @param string|null $sub_directory
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newDataTmpObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
+    public static function newDataTmpObject(bool $writable = true, ?string $sub_directory = null): static
     {
         $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
 
@@ -86,16 +86,16 @@ class PhoDirectory extends PhoDirectoryCore
      * @param bool        $writable
      * @param string|null $sub_directory
      *
-     * @return PhoDirectoryInterface
+     * @return static
      */
-    public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): PhoDirectoryInterface
+    public static function newCdnObject(bool $writable = false, ?string $sub_directory = null): static
     {
         $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
 
         return static::new(
             DIRECTORY_PROJECT_CDN . $sub_directory,
             PhoRestrictions::new(DIRECTORY_PROJECT_CDN . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -114,7 +114,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_ROOT . $sub_directory,
             PhoRestrictions::new(DIRECTORY_ROOT . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -133,7 +133,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             '/' . $sub_directory,
             PhoRestrictions::new('/' . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -172,8 +172,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_COMMANDS . $sub_directory,
             PhoRestrictions::new(DIRECTORY_COMMANDS . $sub_directory, $writable)
-        )->setAutoMount(false)
-         ->ensure();
+        )->setAutoMount(false);
     }
 
 
@@ -192,8 +191,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_WEB . $sub_directory,
             PhoRestrictions::new(DIRECTORY_WEB . $sub_directory, $writable)
-        )->setAutoMount(false)
-         ->ensure();
+        )->setAutoMount(false);
     }
 
 
@@ -212,7 +210,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 
@@ -231,7 +229,26 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . PROJECT . '/' . $sub_directory,
             PhoRestrictions::newDataProjectObject($writable)
-        )->ensure();
+        );
+    }
+
+
+    /**
+     * Returns a new PhoDirectory object for the path DIRECTORY_DATA / PROJECT
+     *
+     * @param bool        $writable
+     * @param string|null $sub_directory
+     *
+     * @return static
+     */
+    public static function newPluginsObject(bool $writable = false, ?string $sub_directory = null): static
+    {
+        $sub_directory = Strings::ensureBeginsNotWith($sub_directory, '/');
+
+        return static::new(
+            DIRECTORY_ROOT . 'Plugins/' . $sub_directory,
+            PhoRestrictions::newPluginsObject($writable)
+        );
     }
 
 
@@ -250,7 +267,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_directory,
             PhoRestrictions::newDataSourcesProjectObject($writable)
-        )->ensure();
+        );
     }
 
 
@@ -269,7 +286,7 @@ class PhoDirectory extends PhoDirectoryCore
         return static::new(
             DIRECTORY_DATA . 'sources/' . $sub_directory,
             PhoRestrictions::new(DIRECTORY_DATA . 'sources/' . $sub_directory, $writable)
-        )->ensure();
+        );
     }
 
 

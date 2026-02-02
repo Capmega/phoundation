@@ -18,6 +18,7 @@ namespace Phoundation\Data\Traits;
 
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 
 
 trait TraitDataEntryRestrictions
@@ -76,7 +77,7 @@ trait TraitDataEntryRestrictions
      *
      * @param string|null $restrictions
      *
-     * @return $this
+     * @return static
      */
     public function setRestrictions(string|null $restrictions = null): static
     {

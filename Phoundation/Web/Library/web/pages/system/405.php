@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Response;
 $e = Core::readRegister('e');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHttpCode(405);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('405 - Method not allowed');

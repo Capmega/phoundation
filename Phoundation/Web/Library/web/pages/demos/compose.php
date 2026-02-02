@@ -27,7 +27,7 @@ use Phoundation\Web\Requests\Response;
 GetValidator::new()->validate();
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Compose mail'));
 Response::setHeaderSubTitle(tr('Demo'));
 Response::setBreadcrumbs([

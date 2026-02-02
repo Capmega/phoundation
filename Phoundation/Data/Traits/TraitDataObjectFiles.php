@@ -43,13 +43,13 @@ trait TraitDataObjectFiles
     /**
      * Sets the path
      *
-     * @param PhoFilesInterface|null $o_path
+     * @param PhoFilesInterface|null $o_files
      *
      * @return static
      */
-    public function setFilesObject(?PhoFilesInterface $o_path): static
+    public function setFilesObject(?PhoFilesInterface $o_files): static
     {
-        $this->o_files = $o_path;
+        $this->o_files = $o_files;
         return $this;
     }
 }

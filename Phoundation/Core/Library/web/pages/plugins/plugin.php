@@ -8,7 +8,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Core
  */
 
 
@@ -62,7 +62,7 @@ $o_documentation_card = Card::new()
                                         <p>Et molestias aut vitae et autem distinctio. Molestiae quod ullam a. Fugiat veniam dignissimos rem repudiandae consequuntur voluptatem. Enim dolores sunt unde sit dicta animi quod. Nesciunt nisi non ea sequi aut. Suscipit aperiam amet fugit facere dolorem qui deserunt.</p>');
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Plugin'));
 Response::setHeaderSubTitle($plugin->getDisplayName());
 Response::setBreadcrumbs([

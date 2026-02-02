@@ -273,7 +273,7 @@ class Connector extends DataEntry implements ConnectorInterface
             return parent::loadIdentifier($action);
         }
 
-        // We don't have a database connected, so don't even try to use the normal database load!
+        // We do not have a database connected, so do not even try to use the normal database load!
         return $this->tryLoadFromConfiguration();
     }
 
@@ -960,7 +960,7 @@ class Connector extends DataEntry implements ConnectorInterface
      * @param bool  $directly
      * @param bool  $force
      *
-     * @return $this
+     * @return static
      */
     public function copyValuesToSource(array $source, bool $modify, bool $directly = false, bool $force = false): static
     {

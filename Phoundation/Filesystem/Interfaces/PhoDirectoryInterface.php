@@ -90,8 +90,9 @@ interface PhoDirectoryInterface extends PhoPathInterface
      */
     public function checkWritable(?string $type = null, ?Throwable $previous_e = null): static;
 
+
     /**
-     * Ensures existence of the specified directory
+     * Ensures the existence of the specified directory
      *
      * @param string|int|null $mode octal $mode If the specified $this->directory does not exist,
      *                                                     it will be created with this directory mode. Defaults to
@@ -105,7 +106,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink
      * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-         * @package   file
+     * @package   file
      * @version   2.4.16: Added documentation
      */
     public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false, bool $exception = true): static;
@@ -350,15 +351,17 @@ interface PhoDirectoryInterface extends PhoPathInterface
      */
     public function unbind(): static;
 
+
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string $target
-     * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable|null $callback
-     * @param mixed|null $context
-     * @param bool $recursive
-     * @param bool $ignore_fails
+     * @param PhoPathInterface|string       $target
+     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
+     * @param bool                          $recursive
+     * @param bool                          $exception
+     *
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, function ($notification_code, $severity, $message, $message_code,
@@ -367,7 +370,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static;
 
     /**
      * Returns a new FindInterface object
@@ -379,11 +382,11 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Returns the specified directory added to this directory
      *
-     * @param PhoPathInterface|string|int $directory
+     * @param PhoDirectoryInterface|string|int $directory
      *
      * @return PhoDirectoryInterface
      */
-    public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface;
+    public function addDirectory(PhoDirectoryInterface|string|int $directory): PhoDirectoryInterface;
 
     /**
      * Returns true if this path contains any files

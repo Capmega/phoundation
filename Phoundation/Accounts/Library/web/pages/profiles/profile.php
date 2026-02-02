@@ -41,7 +41,7 @@ $get = GetValidator::new()
 $user = User::new()->load($get['id']);
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Profile'));
 Response::setHeaderSubTitle($user->getDisplayName());
 Response::setBreadcrumbs([

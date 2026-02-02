@@ -124,7 +124,7 @@ class Rights extends DataIterator implements RightsInterface
      *
      * @param array|string $rights
      *
-     * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which don't
+     * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which do not
      * @return bool
      */
     public function ensureRightsExist(array|string $rights): bool
@@ -138,7 +138,7 @@ class Rights extends DataIterator implements RightsInterface
         // Save each right in this list if it doesn't exist
         foreach ($rights as $right) {
             if (is_numeric($right)) {
-                // This is an ID, not a name. Right names can't be numeric
+                // This is an ID, not a name. Right names cannot be numeric
                 throw new OutOfBoundsException(tr('Cannot add right ":right", it is numeric. Right names must not be numeric', [
                     ':right' => $right,
                 ]));
@@ -630,11 +630,13 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Returns true if the user has SOME of the specified rights
      *
-     * @param array|string $rights
+     * @param array|string $rights             The required rights
+     * @param string|null  $always_match [god] If specified, if the user has this right, this method will always return true, even if the user does not have the
+     *                                         required rights
      *
      * @return bool
      */
-    public function hasSome(array|string $rights): bool
+    public function hasSome(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (!$rights) {
             return true;
@@ -644,7 +646,7 @@ class Rights extends DataIterator implements RightsInterface
             return false;
         }
 
-        $contains = $this->containsKeys($rights, false, 'god');
+        $contains = $this->containsKeys($rights, false, $always_match);
 
         if (!$contains) {
             if ($this->getCount()) {
@@ -663,8 +665,9 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Returns true if the user has ALL the specified rights
      *
-     * @param array|string $rights
-     * @param string|null  $always_match
+     * @param array|string $rights             The required rights
+     * @param string|null  $always_match [god] If specified, if the user has this right, this method will always return true, even if the user does not have the
+     *                                         required rights
      *
      * @return bool
      */

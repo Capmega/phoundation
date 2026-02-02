@@ -814,7 +814,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             ]));
         }
 
-        // We've rendered an empty row, return nothing
+        // We have rendered an empty row, return nothing
         Log::warning(ts('Row data ":data" rendered an empty table row', [
             ':data' => $row_values,
         ]));

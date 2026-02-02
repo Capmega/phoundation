@@ -87,7 +87,7 @@ class ProfileImage extends ImageMenu
             Session::getUserObject()
                    ->isGuest()
         ) {
-            // Don't show menu
+            // Do not show menu
             $menu = null;
         } else {
             // Default image menu

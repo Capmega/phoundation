@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Filesystem;
 
-use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFilesInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -27,15 +26,15 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
     /**
      * PhoFiles class constructor
      *
-     * @param PhoDirectoryInterface|null                 $o_parent_directory
+     * @param PhoPathInterface|null                      $o_parent_path
      * @param mixed                                      $source
      * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      */
-    public function __construct(?PhoDirectoryInterface $o_parent_directory = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null)
+    public function __construct(?PhoPathInterface $o_parent_path = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null)
     {
-        $this->o_parent_directory  = $o_parent_directory;
+        $this->o_parent_directory  = $o_parent_path;
         $this->accepted_data_types = [PhoPathInterface::class];
-        $this->o_restrictions      = $o_parent_directory?->getRestrictionsObject()->addRestrictions($o_restrictions) ?? PhoRestrictions::newFilesystemRootObject();
+        $this->o_restrictions      = $o_parent_path?->getRestrictionsObject()->addRestrictions($o_restrictions) ?? PhoRestrictions::newFilesystemRootObject();
 
         if ($source) {
             $this->setSource($source);
@@ -46,15 +45,15 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
     /**
      * Returns a new PhoFiles object
      *
-     * @param PhoDirectoryInterface|null                 $parent_directory
+     * @param PhoPathInterface|null                      $o_parent_path
      * @param mixed|null                                 $source
      * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      *
      * @return static
      */
-    public static function new(?PhoDirectoryInterface $parent_directory = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null): static
+    public static function new(?PhoPathInterface $o_parent_path = null, mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null): static
     {
-        return new static($parent_directory, $source, $o_restrictions);
+        return new static($o_parent_path, $source, $o_restrictions);
     }
 
 
@@ -62,17 +61,17 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
      * Returns a new PhoFiles object from the given source, or NULL
      *
      * @param mixed|null                                 $source
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      *
      * @return PhoFiles|null
      */
-    public static function newFromSourceOrNull(mixed $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null): ?static
+    public static function newFromSourceOrNull(mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null): ?static
     {
         if ($source === null) {
             return null;
         }
 
-        return static::newFromSource($source, $restrictions);
+        return static::newFromSource($source, $o_restrictions);
     }
 
 
@@ -80,12 +79,12 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
      * Returns a new PhoFiles object from the given source
      *
      * @param mixed|null                                 $source
-     * @param PhoRestrictionsInterface|array|string|null $restrictions
+     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
      *
      * @return static
      */
-    public static function newFromSource(mixed $source = null, PhoRestrictionsInterface|array|string|null $restrictions = null): static
+    public static function newFromSource(mixed $source = null, PhoRestrictionsInterface|array|string|null $o_restrictions = null): static
     {
-        return new static(null, $source, $restrictions);
+        return new static(null, $source, $o_restrictions);
     }
 }

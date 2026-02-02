@@ -29,14 +29,14 @@ trait TraitDataObjectDirectory
     /**
      * Sets the directory
      *
-     * @param PhoDirectoryInterface|null $o_o_directory
+     * @param PhoDirectoryInterface|null $o_directory
      * @param string|null                $prefix
      * @param bool                       $must_exist
      *
      * @return static
      */
-    public function setDirectoryObject(?PhoDirectoryInterface $o_o_directory, ?string $prefix = null, bool $must_exist = true): static
+    public function setDirectoryObject(?PhoDirectoryInterface $o_directory, ?string $prefix = null, bool $must_exist = true): static
     {
-        return $this->__TraitsetDirectoryObject($o_o_directory, $prefix, $must_exist);
+        return $this->__TraitsetDirectoryObject($o_directory, $prefix, $must_exist);
     }
 }

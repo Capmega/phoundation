@@ -253,6 +253,17 @@ class SqlDataEntry implements SqlDataEntryInterface
 
 
     /**
+     * Returns a random id in between the dataentry lower and upper limits, or NULL if random ID's are disabled for the data entry
+     *
+     * @return int|null
+     */
+    protected function generateRandomId(): ?int
+    {
+        return $this->random_id ? Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit()) : null;
+    }
+
+
+    /**
      * Writes the DataEntry data to the database
      *
      * @param string|null $comments
@@ -273,18 +284,14 @@ class SqlDataEntry implements SqlDataEntryInterface
             $insert = $this->o_data_entry->getSourceForDatabase(true);
 
             // With these queries always do add the id column
-            $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $random_id);
+            $insert[$this->o_data_entry->getIdColumn()] = ($update[$this->o_data_entry->getIdColumn()] ?? $this->generateRandomId());
             return $this->insertUpdate($insert, $update, $comments, $this->o_data_entry->getDiff());
         }
 
         if ($this->o_data_entry->isNew()) {
             // NEW ENTRY, INSERT. Init the random table ID
-            if ($this->random_id) {
-                $random_id = Numbers::getRandomInt($this->o_data_entry->getIdLowerLimit(), $this->o_data_entry->getIdUpperLimit());
-            }
-
             $insert = $this->o_data_entry->getSourceForDatabase(true);
-            $insert = Arrays::prepend($insert, $this->id_column, $random_id);
+            $insert = Arrays::prepend($insert, $this->id_column, $this->generateRandomId());
 
             return $this->insert($insert, $comments, $this->o_data_entry->getDiff());
         }

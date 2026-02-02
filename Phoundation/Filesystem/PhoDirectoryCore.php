@@ -22,7 +22,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
 use Phoundation\Exception\PhpException;
@@ -330,7 +330,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         while ($this->source) {
             // Restrict location access
             if ($this->o_restrictions->isRestricted($this->source, true)) {
-                // We're out of our territory, stop scanning!
+                // We are out of our territory, stop scanning!
                 break;
             }
 
@@ -348,7 +348,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             }
 
             if ($until_directory and ($this->source === $until_directory)) {
-                // We've cleaned until the requested directory, so we're good!
+                // We have cleaned until the requested directory, so we are good!
                 break;
             }
 
@@ -362,7 +362,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 $this->delete(false, $sudo, use_run_file: $use_run_file);
             } catch (PhoException $e) {
                 // The directory WAS empty, but cannot be removed
-                // In all probability, a parallel process added a new content in this directory, so it's no longer empty.
+                // In all probability, a parallel process added a new content in this directory, so it is no longer empty.
                 // Just register the event and leave it be.
                 Log::warning(ts('Failed to remove empty pattern ":pattern" with exception ":e"', [
                     ':pattern' => $this->source,
@@ -371,7 +371,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 break;
             }
 
-            // Go one entry up, check if we're still within restrictions, and continue deleting
+            // Go one entry up, check if we are still within restrictions, and continue deleting
             $this->source = dirname($this->source) . '/';
         }
     }
@@ -514,7 +514,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
         if ($remove_terminating_slash) {
             if ($path === '/') {
-                // Root path is just what it is, it is a slash, don't remove it!
+                // Root path is just what it is, it is a slash, do not remove it!
                 return '/';
             }
 
@@ -528,16 +528,25 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Ensures the existence of the specified directory
      *
-     * @param string|int|null $mode  octal $mode If the specified $this->directory does not exist, it will be created
-     *                               with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
-     * @param boolean         $clear If set to true, and the specified directory already exists, it will be deleted and
-     *                               then re-created
-     * @param bool            $sudo
-     *
+     * @param string|int|null             $mode            octal $mode If the specified $this->directory does not exist,
+     *                                                     it will be created with this directory mode. Defaults to
+     *                                                     configuration path filesystem.directories.mode
+     * @param Stringable|string|bool|null $absolute_prefix
+     * @param boolean                     $clear           If set to true, and the specified directory already exists,
+     *                                                     it will be deleted and then re-created
+     * @param bool $sudo
+     * @param bool $exception
      * @return static
+     * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright © 2022 Sven Olaf Oostenbrink
+     * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @package   file
+     * @version   2.4.16: Added documentation
      */
     public function ensure(string|int|null $mode = null, Stringable|string|bool|null $absolute_prefix = null, ?bool $clear = false, bool $sudo = false, bool $exception = false): static
     {
+        $this->checkRestrictions(true, absolute_prefix: $absolute_prefix);
+
         if ($clear) {
             // Delete the currently existing directory, so we can  be sure we have a clean directory to work with
             PhoFile::new($this->source, $this->o_restrictions)->delete(false, $sudo);
@@ -546,38 +555,38 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         if (!file_exists(Strings::unslash($this->source))) {
             // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
-            $dirs         = explode('/', Strings::ensureBeginsNotWith($this->source, '/'));
-            $count        = count($dirs);
-            $this->source = '';
+            $dirs   = explode('/', Strings::ensureBeginsNotWith(static::realPath($this->source, $absolute_prefix), '/'));
+            $count  = count($dirs);
+            $source = '';
 
             foreach ($dirs as $id => $dir) {
-                $this->source .= '/' . $dir;
+                $source .= '/' . $dir;
 
-                if (file_exists($this->source)) {
-                    if (!is_dir($this->source)) {
+                if (file_exists($source)) {
+                    if (!is_dir($source)) {
                         // Some normal file is in the way. Move the file out of the way, and retry
-                        PhoFile::new($this->source, $this->o_restrictions)->backup(move: true);
-
+                        PhoFile::new($source, $this->o_restrictions)->backup(move: true);
                         return $this->ensure(config()->get('filesystem.mode.directories', $mode ?? 0750), $clear, $sudo);
                     }
 
                     continue;
 
-                } elseif (is_link($this->source)) {
+                } elseif (is_link($source)) {
                     // This is a dead symlink, delete it
-                    PhoFile::new($this->source, $this->o_restrictions)->delete(false, $sudo);
+                    PhoFile::new($source, $this->o_restrictions)->delete(false, $sudo);
                 }
 
                 try {
                     // Make sure that the parent directory is writable when creating the directory
-                    // Since we're modifying the item $id of $count, be sure to get matching restrictions
+                    // Since we are modifying the item $id of $count, be sure to get matching restrictions
                     $mode = config()->get('filesystem.mode.directories', $mode ?? 0750);
-                    PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent($count - $id)->makeWritable())
+
+                    PhoDirectory::new(dirname($source), $this->o_restrictions->getParent($count - $id)->makeWritable())
                                 ->execute()
-                                    ->setMode(0770)
-                                    ->onDirectoryOnly(function () use ($mode) {
-                                        mkdir($this->source, $mode);
-                                    });
+                                    ->setRequiredMode(0770)
+                                    ->onDirectoriesOnly(function () use ($mode, $source) {
+                                        mkdir($source, $mode);
+                                    }, $exception);
 
                 } catch (RestrictionsException $e) {
                     throw $e;
@@ -585,15 +594,15 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 } catch (Throwable $e) {
                     // It sometimes happens that the specified directory was created just in between the file_exists and
                     // mkdir
-                    if (!file_exists($this->source)) {
+                    if (!file_exists($source)) {
                         throw DirectoryException::new(tr('Failed to create directory ":directory"', [
-                            ':directory' => $this->source,
-                        ]), $e)->addData(
-                            ['directory' => $this->source]
-                        );
+                            ':directory' => $source,
+                        ]), $e)->addData([
+                            'directory' => $source
+                        ]);
                     }
 
-                    // We're okay, the directory already exists
+                    // We are okay, the directory already exists
                 }
             }
 
@@ -618,7 +627,6 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     public function execute(): PhoExecuteInterface
     {
         $this->source = Strings::slash($this->source);
-
         return new PhoExecute($this->source, $this->o_restrictions);
     }
 
@@ -1055,14 +1063,14 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 if (is_dir($this->source . $file)) {
                     // This is a directory
                     if (!$directory) {
-                        // But we're looking for non directories
+                        // But we are looking for non directories
                         unset($files[$id]);
                         continue;
                     }
                 } else {
                     // This is a non directory file
                     if ($directory) {
-                        // But we're looking for directories
+                        // But we are looking for directories
                         unset($files[$id]);
                         continue;
                     }
@@ -1314,7 +1322,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             ]));
         }
 
-        // We're mounted and from the right source, yay!
+        // We are mounted and from the right source, yay!
         return $this;
     }
 
@@ -1465,12 +1473,13 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Copy this directory with progress notification
      *
-     * @param Stringable|string $target
-     * @param PhoRestrictionsInterface|null $restrictions
-     * @param callable|null $callback
-     * @param mixed|null $context
-     * @param bool $recursive
-     * @param bool $ignore_fails
+     * @param PhoPathInterface|string       $target
+     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param callable|null                 $callback
+     * @param mixed|null                    $context
+     * @param bool                          $recursive
+     * @param bool                          $exception
+     *
      * @return static
      * @example:
      * PhoFile::new($source)->copy($target, $restrictions, function ($notification_code, $severity, $message,
@@ -1479,15 +1488,19 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *      }
      *  });
      */
-    public function copy(Stringable|string $target, ?PhoRestrictionsInterface $restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $ignore_fails = false): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static
     {
-        $context      = $context ?? stream_context_create();
-        $restrictions = $this->ensureRestrictions($restrictions);
-        $target       = PhoDirectory::new($target, $restrictions)->ensure();
+        $context        = $context ?? stream_context_create();
+        $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
 
+        // Check restrictions and ensure that the target parent directory exists
         $this->checkRestrictions(false);
-        $target->checkRestrictions(true);
+        $o_target = PhoDirectory::new($target, $o_restrictions)
+                                ->checkRestrictions(true)
+                                ->getParentDirectoryObject()
+                                ->ensure();
 
+        // Setup stream parameters for the callback function
         stream_context_set_params($context, [
             'notification' => $callback,
         ]);
@@ -1500,42 +1513,43 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
                 // Copy a directory. Recursively?
                 if ($recursive) {
                     // Copy recursively
-                    $o_path->copy($target->addPath($basename), $target->getRestrictionsObject(), $callback, $context, $recursive);
+                    $o_path->copy($o_target->addPath($basename), $o_target->getRestrictionsObject(), $callback, $context, $recursive);
                     continue;
                 }
 
                 // Copy only the empty directory
-                $target->addPath($basename)->ensure();
+                $o_target->addPath($basename)->ensure();
                 continue;
             }
 
             if ($o_path->isLink()) {
-                // Copy symlink
+                // Copy a symlink
                 symlink($o_path->getLinkTarget()->getSource(),
-                    $target->addPath($basename)->getSource());
+                        $o_target->addPath($basename)->getSource());
                 continue;
             }
 
-            // Copy normal file
+            // Copy a normal file
             copy($o_path->getSource(),
-                $target->addPath($basename)->getSource(), $context);
+                 $o_target->addPath($basename)->getSource(), $context);
         }
 
-
-        return new static($target, $this->o_restrictions);
+        return new static($o_target, $this->o_restrictions);
     }
 
 
     /**
      * Returns the specified directory added to this directory
      *
-     * @param PhoPathInterface|string|int $directory
+     * @param PhoDirectoryInterface|string|int $directory
      *
      * @return PhoDirectoryInterface
      */
-    public function addDirectory(PhoPathInterface|string|int $directory): PhoDirectoryInterface
+    public function addDirectory(PhoDirectoryInterface|string|int $directory): PhoDirectoryInterface
     {
-        $directory = $this->getSource() . Strings::ensureBeginsNotWith((string) $directory, '/');
+        if ($directory) {
+            $directory = $this->getSource() . Strings::ensureBeginsNotWith((string) $directory, '/');
+        }
 
         return PhoDirectory::new($directory, $this->o_restrictions)
                            ->setAutoMount($this->auto_mount);
@@ -1766,7 +1780,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
      *
      * @return int
      */
-    public function getSize(bool $recursive = true): int
+    public function getSize(bool $recursive = true, bool $pass_symlinks = false): int
     {
         // Return the number of all files in this directory
         $files = scandir($this->source);
@@ -1780,6 +1794,13 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
             // Filename must have the complete absolute path
             $file = $this->source . $file;
+
+            if (is_link($file)) {
+                if (!$pass_symlinks) {
+                    // Do not continue, this is a symlink, do not count the size
+                    continue;
+                }
+            }
 
             if (is_dir($file)) {
                 if ($recursive) {

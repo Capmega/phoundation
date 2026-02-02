@@ -31,12 +31,12 @@ class Seo
      * exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still
      * found, this number will be incremented each loop, until the string is no longer found
      *
-     * @param array|string   $source
-     * @param string         $table
-     * @param array|int|null $ownid
-     * @param string         $column
-     * @param string         $replace
-     * @param null           $first_suffix
+     * @param array|string   $source                  ...
+     * @param string         $table                   ...
+     * @param array|int|null $ownid        [null]     ...
+     * @param string         $column       [seo_name] The column to search in
+     * @param string         $replace      [-]        ...
+     * @param null           $first_suffix [null]     ...
      *
      * @return string|null                  The specified $source string seo optimized, which does not yet exist in the
      *                                      specified $table
@@ -55,7 +55,7 @@ class Seo
      */
     // :TODO: Update to use bound variable queries
     // :TODO: Add WAY more comments in code, I can barely figure out whats going on there
-    public static function unique(array|string $source, string $table, array|int|null $ownid = null, string $column = 'seoname', string $replace = '-', $first_suffix = null): string|null
+    public static function unique(array|string $source, string $table, array|int|null $ownid = null, string $column = 'seo_name', string $replace = '-', $first_suffix = null): string|null
     {
         // Prepare string
         $id = 0;

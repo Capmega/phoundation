@@ -194,7 +194,7 @@ class SqlQueries
                 }
 
                 if ($skip and in_array($key, $skip)) {
-                    // Don't make a bound variable for this one
+                    // Do not make a bound variable for this one
                     continue;
                 }
 
@@ -406,7 +406,7 @@ class SqlQueries
             $query = Strings::replaceDouble($query, ' ', '\s');
         }
 
-        // Debug::enabled() already logs the query, don't log it again
+        // Debug::enabled() already logs the query, do not log it again
         if (!Debug::isEnabled()) {
             Log::debug(static::getLogPrefix() . Strings::ensureEndsWith($query, ';'));
         }
@@ -552,7 +552,7 @@ class SqlQueries
         $query = strtolower($query);
 
         if (str_starts_with($query, 'insert') or str_starts_with($query, 'update')) {
-            // This is a write query, check if we're not in readonly mode
+            // This is a write query, check if we are not in readonly mode
             Core::checkReadonly('write query');
         }
     }

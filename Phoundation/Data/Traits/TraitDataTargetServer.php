@@ -45,7 +45,7 @@ trait TraitDataTargetServer
      *
      * @return static
      */
-    public function setTargetServer(?ServerInterface $target_server): static
+    public function setTargetServerObject(?ServerInterface $target_server): static
     {
         $this->target_server = $target_server;
         return $this;

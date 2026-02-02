@@ -24,7 +24,7 @@ use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Response;
 
 
-// Set page meta data
+// Set page meta-data
 Response::setHeaderTitle(tr('Employees'));
 Response::setBreadcrumbs([
    Breadcrumb::new('/'             , tr('Home')),

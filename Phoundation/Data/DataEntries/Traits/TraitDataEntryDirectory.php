@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-use Phoundation\Data\Traits\TraitDataRestrictions;
+use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
@@ -41,19 +41,19 @@ trait TraitDataEntryDirectory
     /**
      * Sets the directory for this object
      *
-     * @param string|null $directory
+     * @param string|null $o_directory
      *
      * @return static
      */
-    public function setDirectory(string|null $directory): static
+    public function setDirectory(string|null $o_directory): static
     {
-        if ($directory and (strlen($directory) > 2048)) {
+        if ($o_directory and (strlen($o_directory) > 2048)) {
             throw new OutOfBoundsException(tr('Specified directory ":directory" is invalid, the string should be no longer than 2048 characters', [
-                ':directory' => $directory,
+                ':directory' => $o_directory,
             ]));
         }
 
-        return $this->set(get_null($directory), 'directory');
+        return $this->set(get_null($o_directory), 'directory');
     }
 
 
@@ -64,25 +64,25 @@ trait TraitDataEntryDirectory
      */
     public function getDirectoryObject(): ?PhoDirectoryInterface
     {
-        $directory = $this->getDirectory();
+        $o_directory = $this->getDirectory();
 
-        if ($directory) {
-            $directory = new PhoDirectory($directory, $this->o_restrictions);
+        if ($o_directory) {
+            $o_directory = new PhoDirectory($o_directory, $this->o_restrictions);
         }
 
-        return $directory;
+        return $o_directory;
     }
 
 
     /**
      * Sets the directory for this object
      *
-     * @param PhoDirectoryInterface|null $directory
+     * @param PhoDirectoryInterface|null $o_directory
      *
      * @return static
      */
-    public function setDirectoryObject(PhoDirectoryInterface|null $directory): static
+    public function setDirectoryObject(PhoDirectoryInterface|null $o_directory): static
     {
-        return $this->setDirectory($directory?->getSource());
+        return $this->setDirectory($o_directory?->getSource());
     }
 }

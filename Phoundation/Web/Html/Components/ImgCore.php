@@ -210,7 +210,7 @@ class ImgCore extends SpanCore implements ImgInterface
      */
     public function setSrc(Stringable|string|null $src): static
     {
-//        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it's an
+//        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it is an
 //        $domain         = Url::getDomain($src);
 //        $built_src      = Url::getCdn($src);
 //        $this->external = $built_src->isExternal($src);
