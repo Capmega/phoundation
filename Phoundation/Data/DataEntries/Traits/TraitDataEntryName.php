@@ -126,8 +126,8 @@ trait TraitDataEntryName
     /**
      * Returns true if this object has the specified name
      *
-     * @param string|null $name
-     * @param bool        $strict
+     * @param string|null $name                The name for this repository
+     * @param bool        $set_seo_name [true] If true, will also set the seo_name property
      *
      * @return bool
      */
