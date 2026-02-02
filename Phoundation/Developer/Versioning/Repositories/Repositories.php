@@ -380,7 +380,6 @@ throw new UnderConstructionException();
     {
         $_status_files = StatusFiles::new();
 
-showdie($this->get('phoundation')->getStatusObject()->scanChanges()->getSourceKeys());
         foreach ($this as $o_repository) {
             $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
             $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
