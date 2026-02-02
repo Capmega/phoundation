@@ -125,17 +125,6 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Returns the table name used by this object
-     *
-     * @return string|null
-     */
-    public static function getTable(): ?string
-    {
-        return 'developer_repositories';
-    }
-
-
-    /**
      * Returns the data types that are allowed and accepted for this data iterator
      *
      * @return string|null
