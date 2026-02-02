@@ -156,9 +156,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * @param Stringable|string|float|int $key
      * @param mixed|null                  $default
      * @param bool|null                   $exception
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): RepositoryInterface
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?RepositoryInterface
     {
         return parent::get($key, $default, $exception);
     }
@@ -167,9 +167,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Returns a random Repository object
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function getRandom(): RepositoryInterface
+    #[ReturnTypeWillChange] public function getRandom(): ?RepositoryInterface
     {
         return parent::getRandom();
     }
@@ -180,9 +180,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      *
      * @note overrides the IteratorCore::current() method which returns mixed
      *
-     * @return RepositoryInterface
+     * @return RepositoryInterface|null
      */
-    #[ReturnTypeWillChange] public function current(): RepositoryInterface
+    #[ReturnTypeWillChange] public function current(): ?RepositoryInterface
     {
         if (empty($this->source)) {
             // This method is called when somebody tries a foreach() on this object, but there are no repositories
