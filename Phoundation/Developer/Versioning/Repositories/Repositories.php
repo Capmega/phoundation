@@ -22,7 +22,6 @@ use Phoundation\Data\DataEntries\DataIteratorCore;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
-use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
@@ -96,7 +95,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $this->construct($o_parent_path);
 
         $this->setKeysAreUniqueColumn(true)
-             ->setInjectSourceDirectly(false);
+             ->setInjectSourceDirectly(false)
+             ->setExceptionOnGet(true);
 
         $this->query = 'SELECT `developer_repositories`.* FROM `developer_repositories` WHERE `status` IS NULL';
     }
@@ -110,6 +110,17 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public static function getUniqueColumn(): ?string
     {
         return 'name';
+    }
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string|null
+     */
+    public static function getTable(): ?string
+    {
+        return 'developer_repositories';
     }
 
 
@@ -442,9 +453,16 @@ throw new UnderConstructionException();
             }
 
         } catch (NotExistsException) {
-            throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on project repositories, could not find the project main repository', [
+            if (sql()->getColumn('SELECT COUNT(`id`) `count` FROM `' . static::getTable() . '` WHERE `status` IS NULL')) {
+                throw RepositorySynchronizationException::new(ts('Cannot perform action ":action" on project repositories, could not find the project main repository', [
+                    ':action' => $action
+                ]))->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
+            }
+
+            // There are no repositories!
+            throw NoRepositoriesAvailableException::new(ts('Cannot perform action ":action" on project repositories, there are no repositories available', [
                 ':action' => $action
-            ]))->addHint(ts('Maybe you need to run "./pho developer repositories scan" first?'));
+            ]))->addHint(ts('First run "./pho developer repositories scan" to load up repositories to work with'));
         }
 
         return $this;
