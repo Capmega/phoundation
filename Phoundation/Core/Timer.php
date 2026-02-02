@@ -21,6 +21,7 @@ namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\TimerException;
 use Phoundation\Core\Interfaces\TimerInterface;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 
 
@@ -71,6 +72,7 @@ class Timer implements TimerInterface
     protected function __construct(string $label = '', bool $start = true)
     {
         $this->label = get_null($label) ?? '-';
+
         if ($start) {
             $this->start();
         }
@@ -85,6 +87,7 @@ class Timer implements TimerInterface
     public function start(): static
     {
         static::checkTimer('start', true, 'start timer');
+
         $this->start = microtime(true);
         $this->last  = $this->start;
 
@@ -111,7 +114,8 @@ class Timer implements TimerInterface
                     ':status' => $status,
                 ]))
             };
-            throw new TimerException(tr('Cannot :message for timer ":label", it has :status', [
+
+            throw new TimerException(tr('Cannot ":message" for timer ":label", it has ":status"', [
                 ':status'  => $status,
                 ':message' => $message,
                 ':label'   => $this->label,
@@ -175,7 +179,7 @@ class Timer implements TimerInterface
     public function getPassed(): float
     {
         static::checkTimer('start', false, 'get passed time');
-        static::checkTimer('stop', true, 'get passed time');
+        static::checkTimer('stop' , true, 'get passed time');
 
         return microtime(true) - $this->start;
     }
@@ -189,7 +193,7 @@ class Timer implements TimerInterface
     public function getTotal(): float
     {
         static::checkTimer('start', false, 'get total time');
-        static::checkTimer('stop', false, 'get total time');
+        static::checkTimer('stop' , false, 'get total time');
 
         return $this->stop - $this->start;
     }
@@ -203,7 +207,7 @@ class Timer implements TimerInterface
     public function getLaps(): array
     {
         static::checkTimer('start', false, 'get laps');
-        static::checkTimer('stop', false, 'get laps');
+        static::checkTimer('stop' , false, 'get laps');
 
         return $this->laps;
     }
@@ -229,6 +233,7 @@ class Timer implements TimerInterface
     {
         static::checkTimer('start', false, 'lap timer');
         static::checkTimer('stop', true, 'lap timer');
+
         $time         = microtime(true);
         $this->laps[] = $time - $this->last;
         $this->last   = $time;
@@ -250,13 +255,31 @@ class Timer implements TimerInterface
             // Timer was already stopped, ignore, this was just stopped "to be sure", usually by Core::exit()
             return $this;
         }
+
         static::checkTimer('start', false, 'stop timer');
         static::checkTimer('stop', true, 'stop timer');
+
         // Get the passed time for this lap and calculate the passed time
         $this->stop   = microtime(true);
         $this->laps[] = $this->stop - $this->last;
         $this->last   = $this->stop;
 
         return $this;
+    }
+
+
+    /**
+     * Returns a human-readable time difference
+     *
+     * @param string      $precision  [auto] The precision to use. Must be one of "auto", "second", "seconds", "minute", "minutes", "hour" , "hours", "day" ,
+     *                                       "days", "week" , "weeks", "month" , "months", "year"  , "years"
+     * @param int         $decimals   [2]    The amount of decimals to include in the milli / micro seconds portion
+     * @param string|null $zero_label [null] The label to use for time sections that are zero. Use NULL (default) to hide these
+     *
+     * @return string|null
+     */
+    public function getDifference(string $precision = 'auto', int $decimals = 5, ?string $zero_label = null): ?string
+    {
+        return PhoTime::difference($this->start, $this->stop, $precision, $decimals, $zero_label);
     }
 }

@@ -971,16 +971,16 @@ throw new ObsoleteException();
      *
      * This method reads in $size entries at the time, erases them, and continues onto the next until all are erased
      *
-     * @param int $size
+     * @param int $chunk_size
      *
      * @return void
      */
-    public static function truncate(int $size = 10): void
+    public static function eraseAll(int $chunk_size = 10): void
     {
         Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
 
         do {
-            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $size);
+            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $chunk_size);
             $iterator->erase();
             Log::dot(1);
 
@@ -997,6 +997,18 @@ throw new ObsoleteException();
                 ]))
                 ->setNotifyRoles('developer')
                 ->save();
+    }
+
+
+    /**
+     * Truncates the table controlled by this DataIterator
+     *
+     * @return void
+     */
+    public static function truncate(): void
+    {
+        Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
+        sql()->query('TRUNCATE `' . static::getTable() . '`');
     }
 
 

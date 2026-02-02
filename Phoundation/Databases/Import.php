@@ -27,6 +27,7 @@ use Phoundation\Data\Traits\TraitDataTimeout;
 use Phoundation\Data\Traits\TraitDataUserPassword;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Enums\EnumSqlVendor;
+use Phoundation\Date\PhoTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
@@ -171,17 +172,22 @@ class Import
                 Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
                     ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->o_file->getSize()),
                     ':file'     => $this->o_file->getRootname(),
-                    ':database' => $this->getConnectorObject()->getDatabase(),
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
 
                 sql()->disableRestrictFkOnNonStandardKeys();
 
-                MySql::new()
-                     ->setTimeout($this->timeout)
-                     ->setConnectorObject($this->getConnectorObject())
-                     ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
-                     ->create($this->database ?? $this->getConnectorObject()->getDatabase())
-                     ->import($this->o_file);
+                $_timer = MySql::new()
+                               ->setTimeout($this->timeout)
+                               ->setConnectorObject($this->getConnectorObject())
+                               ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
+                               ->create($this->database ?? $this->getConnectorObject()->getDatabase())
+                               ->import($this->o_file);
+
+                Log::success(ts('Finished importing database ":database" in ":time"', [
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
+                    ':time'     => $_timer->getDifference(),
+                ]), 10);
 
                 // Re-enable strict FK key checks on MySQL
                 sql()->enableRestrictFkOnNonStandardKeys(function () {
@@ -192,7 +198,7 @@ class Import
 
                 Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
                     ':file'     => $this->o_file,
-                    ':database' => $this->database,
+                    ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
                 break;
 

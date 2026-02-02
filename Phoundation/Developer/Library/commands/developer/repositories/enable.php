@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer repositories branches
+ * Command developer repositories enable
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will switch the branch for the specified repository
+ * This command will enable the specified repository so that it will no longer be used
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,46 +18,36 @@ declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Versioning\Repositories\Repositories;
 use Phoundation\Developer\Versioning\Repositories\Repository;
-
+use Phoundation\Filesystem\PhoDirectory;
 
 // Start documentation
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => function ($word) {
-            return Repositories::new()->load()->keepMatchingAutocompleteValues($word, 'name');
-        },
+            return PhoDirectory::newFilesystemRootObject()->scan()->keepMatchingAutocompleteValues($word);
+        }
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branches list REPOSITORY_NAME');
+CliDocumentation::setUsage('./pho development repositories enable PATH');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will list all known phoundation repositories 
+This command will enable the specified repository so that it will no longer be used 
 
 
 ARGUMENTS
 
 
-REPOSITORY_NAME                         The repository for which to display the available branches
-
-
-OPTIONAL ARGUMENTS
-
-
-[-A, --all]                             If specified, will display all branches'));
+PATH                                    The unique path of the repository that should be enabled'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('repository')->isCode()
+                     ->select('path')->isPath()
                      ->validate();
 
 
-// Switch the branch!
-Repository::new($argv['repository'])->getBranchObject()->displayCliTable([
-    'branch' => ts('Branch'),
-]);
-
+// Disable the repository, it will no longer be used
+Repository::new(['path'=> $argv['path']])->enable();

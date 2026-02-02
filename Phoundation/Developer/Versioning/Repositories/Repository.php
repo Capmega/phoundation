@@ -134,7 +134,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'name';
+        return 'path';
     }
 
 
@@ -269,6 +269,28 @@ class Repository extends DataEntry implements RepositoryInterface
 
         $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
         return $this;
+    }
+
+
+    /**
+     * Marks this repository as disabled so that it will no longer be used for any action
+     *
+     * @return static
+     */
+    public function disable(): static
+    {
+        return $this->setStatus('disabled');
+    }
+
+
+    /**
+     * Marks this repository as enabled so that it can be used again for any action
+     *
+     * @return static
+     */
+    public function enable(): static
+    {
+        return $this->setStatus(null);
     }
 
 
@@ -1276,16 +1298,16 @@ showdie($this->getCurrentVersion());
 
                       ->add(DefinitionFactory::newName()
                                              ->setSize(4)
-                                             ->setHelpText(tr('The name for this repository'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isUnique();
-                                             }))
+                                             ->setHelpText(tr('The name for this repository')))
 
                       ->add(DefinitionFactory::newSeoName())
 
                       ->add(DefinitionFactory::newPath()
                                              ->setSize(4)
-                                             ->setHelpText(tr('The path where this repository is located')))
+                                             ->setHelpText(tr('The path where this repository is located'))
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                 $o_validator->isUnique();
+                                             }))
 
                       ->add(DefinitionFactory::newUrl())
 
