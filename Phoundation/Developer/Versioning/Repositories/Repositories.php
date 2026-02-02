@@ -92,13 +92,12 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function __construct(?PhoPathInterface $o_parent_path = null)
     {
         parent::__construct();
+
         $this->construct($o_parent_path);
 
         $this->setKeysAreUniqueColumn(true)
              ->setInjectSourceDirectly(false)
              ->setExceptionOnGet(true);
-
-        $this->query = 'SELECT `developer_repositories`.* FROM `developer_repositories` WHERE `status` IS NULL';
     }
 
 

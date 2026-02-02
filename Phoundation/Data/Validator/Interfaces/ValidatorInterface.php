@@ -1496,4 +1496,26 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function requiresColumnsEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static;
+
+    /**
+     * This method will validate that the specified key is NOT set
+     *
+     * @param int|string $field
+     *
+     * @return static
+     */
+    public function requiresNotField(int|string $field): static;
+
+    /**
+     * Validates the datatype for the selected field
+     *
+     * This method ensures that the specified array key is a valid database id (integer, 1 and above)
+     *
+     * @param string|null $failure_message [null] If specified, will use this string as a validation error message instead of the default text
+     * @param string|null $column          [null] The column in which this value should exist
+     * @param string|null $table           [null] The table in which this value should exist
+     *
+     * @return static
+     */
+    public function existsInDatabase(?string $failure_message = null, ?string $column = null, ?string $table = null): static;
 }

@@ -230,7 +230,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setSource([
                                                  ])
                                                  ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                     $o_validator->columnExists(tr('The specified timezone does not exist'), table: 'geo_timezones');
+                                                     $o_validator->existsInDatabase(tr('The specified timezone does not exist'), table: 'geo_timezones');
                                                  }))
 
                                  ->add(Definition::new('auto_signout')
