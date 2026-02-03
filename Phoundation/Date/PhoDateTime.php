@@ -17,23 +17,20 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateInterval;
-use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use JetBrains\PhpStorm\ExpectedValues;
-use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
-use Phoundation\Date\Exception\DateException;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -645,7 +642,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getFirstPeriodStart(DateTimeZone|string|null $timezone = null): static
+    public function getFirstPeriodBegin(DateTimeZone|string|null $timezone = null): static
     {
         return $this->getFirstDayOfMonth($timezone);
     }
@@ -658,7 +655,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getLastPeriodStart(DateTimeZone|string|null $timezone = null): static
+    public function getLastPeriodBegin(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
             $this->format('Y-m-16'),
@@ -751,7 +748,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getPreviousPeriodStart(): static
+    public function getPreviousPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -773,7 +770,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getNextPeriodStart(): static
+    public function getNextPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -795,7 +792,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getCurrentPeriodStart(): static
+    public function getCurrentPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -815,7 +812,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getCurrentPeriodStop(): static
+    public function getCurrentPeriodEnd(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -835,7 +832,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getMonthStart(): static
+    public function getMonthBegin(): static
     {
         return PhoDateTime::new($this->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
@@ -846,7 +843,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getMonthStop(): static
+    public function getMonthEnd(): static
     {
         return PhoDateTime::new($this->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
@@ -857,7 +854,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getDayStart(): static
+    public function getDayBegin(): static
     {
         return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
@@ -868,7 +865,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function getDayStop(): static
+    public function getDayEnd(): static
     {
         return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
@@ -879,7 +876,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isPeriodStart(): bool
+    public function isPeriodBegin(): bool
     {
         return in_array($this->format('d'), ['1', '16'], true);
     }
@@ -890,7 +887,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isPeriodStop(): bool
+    public function isPeriodEnd(): bool
     {
         return in_array($this->format('d'), [ $this->format('t'), '15'], true);
     }
@@ -911,7 +908,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return int
      */
-    public static function getWeekStart(): int
+    public static function getWeekBegin(): int
     {
         $return = config()->getPositiveInteger('locale.dates.weeks.start', 1, true);
 
@@ -948,9 +945,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return int
      */
-    public static function getWeekStop(): int
+    public static function getWeekEnd(): int
     {
-        return 7 - PhoDateTime::getWeekStart();
+        return 7 - PhoDateTime::getWeekBegin();
     }
 
 
@@ -964,9 +961,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStartDayName(): string
+    public static function getWeekBeginDayName(): string
     {
-        return match(PhoDateTime::getWeekStart()) {
+        return match(PhoDateTime::getWeekBegin()) {
             1 => 'sunday',
             2 => 'monday'
         };
@@ -983,9 +980,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStartDayCode(): string
+    public static function getWeekBeginDayCode(): string
     {
-        return match(PhoDateTime::getWeekStart()) {
+        return match(PhoDateTime::getWeekBegin()) {
             1 => 'sun',
             2 => 'mon'
         };
@@ -1002,9 +999,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStopDayName(): string
+    public static function getWeekEndDayName(): string
     {
-        return match(PhoDateTime::getWeekStop()) {
+        return match(PhoDateTime::getWeekEnd()) {
             6 => 'saturday',
             7 => 'sunday'
         };
@@ -1021,9 +1018,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStopDayCode(): string
+    public static function getWeekEndDayCode(): string
     {
-        return match(PhoDateTime::getWeekStop()) {
+        return match(PhoDateTime::getWeekEnd()) {
             1 => 'sun',
             2 => 'mon'
         };
@@ -1037,11 +1034,11 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public static function getPhpWeekCode(): string
     {
-        return match (PhoDateTime::getWeekStart()) {
+        return match (PhoDateTime::getWeekBegin()) {
             1 => 'w', // Sunday
             2 => 'N', // Monday (ISO-8601)
             default => throw new OutOfBoundsException(ts('Cannot return week code for week start ":start", only 1 & 2 are supported', [
-                ':start' => PhoDateTime::getWeekStart(),
+                ':start' => PhoDateTime::getWeekBegin(),
             ]))
         };
     }
@@ -1063,7 +1060,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isMonthStart(): bool
+    public function isMonthBegin(): bool
     {
         return $this->getDay() === 1;
     }
@@ -1074,18 +1071,98 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isMonthStop(): bool
+    public function isMonthEnd(): bool
     {
         return $this->getDay() === $this->getDaysInMonth();
     }
 
 
     /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [1, 4, 7, 10]
+     *
+     * @return array
+     */
+    public static function getQuarterBeginMonths(): array
+    {
+        return [1, 4, 7, 10];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [3, 6, 9, 12]
+     *
+     * @return array
+     */
+    public static function getQuarterEndMonths(): array
+    {
+        return [3, 6, 9, 12];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [1, 7]
+     *
+     * @return array
+     */
+    public static function getSemesterBeginMonths(): array
+    {
+        return [1, 7];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [6, 12]
+     *
+     * @return array
+     */
+    public static function getSemesterEndMonths(): array
+    {
+        return [6, 12];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [1]
+     *
+     * @return array
+     */
+    public static function getYearBeginMonths(): array
+    {
+        return [1];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [12]
+     *
+     * @return array
+     */
+    public static function getYearEndMonths(): array
+    {
+        return [12];
+    }
+
+
+    /**
      * Returns true if this date is the first day of a quarter (3 months)
+     *
+     * Valid month-day combinations are 01-01, 04-01, 07-01, 10-01
      *
      * @return bool
      */
-    public function isQuarterStart(): bool
+    public function isQuarterBegin(): bool
     {
         $date = $this->format('m-d');
 
@@ -1099,9 +1176,11 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
     /**
      * Returns true if this date is the last day of a quarter (3 months)
      *
+     * Valid month-day combinations are 03-31, 06-30, 09-30, 12-31
+     *
      * @return bool
      */
-    public function isQuarterStop(): bool
+    public function isQuarterEnd(): bool
     {
         $date = $this->format('m-d');
 
@@ -1113,11 +1192,265 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 
 
     /**
+     * Updated this date to be the previous beginning of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getQuarterBeginMonths(), $this->getMonth());
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getQuarterBeginMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getQuarterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getQuarterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous beginning of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getSemesterBeginMonths(), $this->getMonth());
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getSemesterBeginMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getSemesterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getSemesterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous beginning of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getYearBeginMonths(), $this->getMonth(), true) ?? 1;
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getYearBeginMonths(), $this->getMonth(), true) ?? 1;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getYearEndMonths(), $this->getMonth(), true) ?? 12;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getYearEndMonths(), $this->getMonth(), true) ?? 12;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
      * Returns true if this date is the first day of a semester (6 months)
+     *
+     * Valid month-day combinations are 01-01, 07-01
      *
      * @return bool
      */
-    public function isSemesterStart(): bool
+    public function isSemesterBegin(): bool
     {
         $date = $this->format('m-d');
 
@@ -1128,9 +1461,11 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
     /**
      * Returns true if this date is the last day of a semester (6 months)
      *
+     * Valid month-day combinations are 01-01, 07-01
+     *
      * @return bool
      */
-    public function isSemesterStop(): bool
+    public function isSemesterEnd(): bool
     {
         $date = $this->format('m-d');
 
@@ -1143,7 +1478,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isYearStart(): bool
+    public function isYearBegin(): bool
     {
         return $this->format('m-d') === '01-01';
     }
@@ -1154,7 +1489,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isYearStop(): bool
+    public function isYearEnd(): bool
     {
         return $this->format('m-d') === '12-31';
     }
@@ -1167,7 +1502,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isWeekStart(): bool
+    public function isWeekBegin(): bool
     {
         return match($this->getPhpWeekCode()) {
             'w' => $this->format($this->getPhpWeekCode()) === '0',
@@ -1183,12 +1518,23 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isWeekStop(): bool
+    public function isWeekEnd(): bool
     {
         return match($this->getPhpWeekCode()) {
             'w' => $this->format($this->getPhpWeekCode()) === '6',
             'N' => $this->format($this->getPhpWeekCode()) === '7',
         };
+    }
+
+
+    /**
+     * Returns true if this date is on a weekend (Saturday or Sunday)
+     *
+     * @return bool
+     */
+    public function isInWeekend(): bool
+    {
+        return in_array(strtolower($this->format('D')), ['sun', 'sat'], true);
     }
 
 
@@ -1327,7 +1673,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @return static
      */
-    public function makeDayStart(): static
+    public function makeDayBegin(): static
     {
         $date = $this->format('Y m d');
         $date = explode(' ', $date);

@@ -17,6 +17,7 @@ use Phoundation\Date\PhoDateInterval;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 
 interface PhoDateTimeInterface
 {
@@ -252,7 +253,7 @@ interface PhoDateTimeInterface
      *
      * @return static
      */
-    public function getFirstPeriodStart(DateTimeZone|string|null $timezone = null): static;
+    public function getFirstPeriodBegin(DateTimeZone|string|null $timezone = null): static;
 
     /**
      * Returns a new DateTime object for
@@ -261,7 +262,7 @@ interface PhoDateTimeInterface
      *
      * @return static
      */
-    public function getLastPeriodStart(DateTimeZone|string|null $timezone = null): static;
+    public function getLastPeriodBegin(DateTimeZone|string|null $timezone = null): static;
 
     /**
      * Adds a number of days, months, years, hours, minutes and seconds to a DateTime object
@@ -306,63 +307,63 @@ interface PhoDateTimeInterface
      *
      * @return static
      */
-    public function getPreviousPeriodStart(): static;
+    public function getPreviousPeriodBegin(): static;
 
     /**
      * Returns a new DateTime object for the first day of the next monthly period
      *
      * @return static
      */
-    public function getNextPeriodStart(): static;
+    public function getNextPeriodBegin(): static;
 
     /**
      * Returns a new DateTime object for the first day of the current monthly period
      *
      * @return static
      */
-    public function getCurrentPeriodStart(): static;
+    public function getCurrentPeriodBegin(): static;
 
     /**
      * Returns the stop date for the period in which this date is
      *
      * @return static
      */
-    public function getCurrentPeriodStop(): static;
+    public function getCurrentPeriodEnd(): static;
 
     /**
      * Returns a new DateTime object for the first day of the current month
      *
      * @return static
      */
-    public function getMonthStart(): static;
+    public function getMonthBegin(): static;
 
     /**
      * Returns the stop date for the month in which this date is
      *
      * @return static
      */
-    public function getMonthStop(): static;
+    public function getMonthEnd(): static;
 
     /**
      * Returns a new DateTime object for the first day of the current month
      *
      * @return static
      */
-    public function getDayStart(): static;
+    public function getDayBegin(): static;
 
     /**
      * Returns the stop date for the month in which this date is
      *
      * @return static
      */
-    public function getDayStop(): static;
+    public function getDayEnd(): static;
 
     /**
      * Returns true if this date is the first day of a period (the 1st or 16th of a month)
      *
      * @return bool
      */
-    public function isPeriodStart(): bool;
+    public function isPeriodBegin(): bool;
 
     /**
      * Returns true if the current date is today
@@ -414,7 +415,7 @@ interface PhoDateTimeInterface
      *
      * @return static
      */
-    public function makeDayStart(): static;
+    public function makeDayBegin(): static;
 
     /**
      * Makes this date at the end of the day
@@ -723,7 +724,7 @@ interface PhoDateTimeInterface
      *
      * @return int
      */
-    public static function getWeekStart(): int;
+    public static function getWeekBegin(): int;
 
     /**
      * Returns the PHP date character to use
@@ -737,21 +738,21 @@ interface PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isWeekStart(): bool;
+    public function isWeekBegin(): bool;
 
     /**
      * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
      *
      * @return bool
      */
-    public function isWeekStop(): bool;
+    public function isWeekEnd(): bool;
 
     /**
      * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
      *
      * @return bool
      */
-    public function isPeriodStop(): bool;
+    public function isPeriodEnd(): bool;
 
     /**
      * Returns the name of the day when the week starts
@@ -763,7 +764,7 @@ interface PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStartDayName(): string;
+    public static function getWeekBeginDayName(): string;
 
     /**
      * Returns the 3 character code of the day when the week starts
@@ -775,7 +776,7 @@ interface PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStartDayCode(): string;
+    public static function getWeekBeginDayCode(): string;
 
     /**
      * Returns the name of the day when the week stops
@@ -787,7 +788,7 @@ interface PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStopDayName(): string;
+    public static function getWeekEndDayName(): string;
 
     /**
      * Returns the 3 character code of the day when the week stops
@@ -799,7 +800,7 @@ interface PhoDateTimeInterface
      *
      * @return string
      */
-    public static function getWeekStopDayCode(): string;
+    public static function getWeekEndDayCode(): string;
 
     /**
      * Returns the (user) configured day number where a week should stop
@@ -816,7 +817,7 @@ interface PhoDateTimeInterface
      *
      * @return int
      */
-    public static function getWeekStop(): int;
+    public static function getWeekEnd(): int;
 
     /**
      * Returns the number of days in the month for the current date
@@ -830,54 +831,223 @@ interface PhoDateTimeInterface
      *
      * @return bool
      */
-    public function isMonthStart(): bool;
+    public function isMonthBegin(): bool;
 
     /**
      * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
      *
      * @return bool
      */
-    public function isMonthStop(): bool;
+    public function isMonthEnd(): bool;
 
     /**
      * Returns true if this date is the first day of a quarter (3 months)
      *
      * @return bool
      */
-    public function isQuarterStart(): bool;
+    public function isQuarterBegin(): bool;
 
     /**
      * Returns true if this date is the last day of a quarter (3 months)
      *
      * @return bool
      */
-    public function isQuarterStop(): bool;
+    public function isQuarterEnd(): bool;
 
     /**
      * Returns true if this date is the first day of a semester (6 months)
      *
      * @return bool
      */
-    public function isSemesterStart(): bool;
+    public function isSemesterBegin(): bool;
 
     /**
      * Returns true if this date is the last day of a semester (6 months)
      *
      * @return bool
      */
-    public function isSemesterStop(): bool;
+    public function isSemesterEnd(): bool;
 
     /**
      * Returns true if this date is the first day of a year
      *
      * @return bool
      */
-    public function isYearStart(): bool;
+    public function isYearBegin(): bool;
 
     /**
      * Returns true if this date is the last day of a year
      *
      * @return bool
      */
-    public function isYearStop(): bool;
+    public function isYearEnd(): bool;
+
+    /**
+     * Returns true if this date is on a weekend (Saturday or Sunday)
+     *
+     * @return bool
+     */
+    public function isInWeekend(): bool;
+
+    /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [1, 4, 7, 10]
+     *
+     * @return array
+     */
+    public static function getQuarterBeginMonths(): array;
+
+    /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [3, 6, 9, 12]
+     *
+     * @return array
+     */
+    public static function getQuarterEndMonths(): array;
+
+    /**
+     * Updated this date to be the previous beginning of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterBegin(): static;
+
+    /**
+     * Updated this date to be the next beginning of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterBegin(): static;
+
+    /**
+     * Updated this date to be the previous end of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterEnd(): static;
+
+    /**
+     * Updated this date to be the next end of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterEnd(): static;
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [1, 7]
+     *
+     * @return array
+     */
+    public static function getSemesterBeginMonths(): array;
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [6, 12]
+     *
+     * @return array
+     */
+    public static function getSemesterEndMonths(): array;
+
+    /**
+     * Updated this date to be the previous beginning of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterBegin(): static;
+
+    /**
+     * Updated this date to be the next beginning of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterBegin(): static;
+
+    /**
+     * Updated this date to be the previous end of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterEnd(): static;
+
+    /**
+     * Updated this date to be the next end of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterEnd(): static;
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [1]
+     *
+     * @return array
+     */
+    public static function getYearBeginMonths(): array;
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [12]
+     *
+     * @return array
+     */
+    public static function getYearEndMonths(): array;
+
+    /**
+     * Updated this date to be the previous beginning of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearBegin(): static;
+
+    /**
+     * Updated this date to be the next beginning of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearBegin(): static;
+
+    /**
+     * Updated this date to be the previous end of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearEnd(): static;
+
+    /**
+     * Updated this date to be the next end of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearEnd(): static;
 }
