@@ -2112,22 +2112,29 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
                 break;
 
             case 12:
-                $return = substr($source, 0, 4) . $date_separator .
-                          substr($source, 4, 2) . $date_separator .
-                          substr($source, 6, 2) . $date_separator .
-                          substr($source, 8, 2) . $time_separator .
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator
                           . '00';
                 break;
 
             case 14:
-                $return = substr($source, 0, 4) . $date_separator .
-                          substr($source, 4, 2) . $date_separator .
-                          substr($source, 6, 2) . $date_separator .
-                          substr($source, 8, 2) . $time_separator .
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator .
                           substr($source, 12, 2);
 
+            default:
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
+                          substr($source, 10, 2) . $time_separator .
+                          substr($source, 12, 2) . '.' . substr($source, 14); // milli / micro seconds
         }
 
         return $return;
