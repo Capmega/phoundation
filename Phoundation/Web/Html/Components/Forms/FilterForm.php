@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
+use Endroid\QrCode\Exception\ValidationException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
@@ -103,6 +104,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @var bool $require_clean_source
      */
     protected bool $require_clean_source = false;
+
+    /**
+     * Tracks whether the source data has been validated or not
+     *
+     * @var bool $is_validated
+     */
+    protected bool $is_validated = false;
 
 
     /**
@@ -201,9 +209,194 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
                                                           ->setSource($this->states));
+    }
 
-        // Auto apply
-        $this->applyValidator(self::class);
+
+    /**
+     * Throws a ValidationException if the data has already been validated
+     *
+     * @param string $action
+     *
+     * @return $this
+     * @throws ValidationException
+     */
+    protected function checkNotValidated(string $action): static
+    {
+        if ($this->isValidated()) {
+            throw new ValidationException(ts('Cannot execute action ":action" on FilterForm object ":class", the source data has already been validated', [
+                ':action' => $action,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws a ValidationException if the data has not yet been validated
+     *
+     * @param string $action
+     *
+     * @return $this
+     * @throws ValidationException
+     */
+    protected function checkValidated(string $action): static
+    {
+        if ($this->isValidated()) {
+            return $this;
+        }
+
+        throw new ValidationException(ts('Cannot execute action ":action" on FilterForm object ":class", the source data has not yet been validated', [
+            ':action' => $action,
+            ':class' => get_class($this),
+        ]));
+    }
+
+
+    /**
+     * Sets all render definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setRenderDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setRenderDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            $_definitions->get($key)->setRender($value);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all disabled definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setDisabledDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setDisabledDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setDisplay($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set disabled definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all display definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setDisplayDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setDisplayDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setDisplay($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set display definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all readonly definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setReadonlyDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setReadonlyDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setReadonly($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set readonly definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all size definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setSizeDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setSizeDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_numeric_integer($value) and ($value >= 1) and ($value <= 12)) {
+                $_definitions->get($key)->setSize($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set size definition ":value" for ":class" class column ":column", the value must be an integer value between 1 and 12', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
     }
 
 
@@ -211,15 +404,18 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * Renders and returns HTML string content for this object
      *
      * @return string|null
+     * @throws ValidationException
      */
     public function render(): ?string
     {
+        // Auto apply validation before rendering
+        $this->checkValidated('FilterForm::render()')->validate();
+
         // Make sure this is a submittable form with GET method
         if ($this->use_form) {
             $this->useForm(true)
-                 ->getForm()
-                    ->setRequestMethod($this->request_method)
-                    ->setAction(Url::newCurrent());
+                 ->getForm()->setRequestMethod($this->request_method)
+                            ->setAction(Url::newCurrent());
         }
 
         return parent::render();
@@ -304,6 +500,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, mixed $default = null, bool $exception = false): mixed
     {
         return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     * Returns if the source data is validated or not
+     *
+     * @return bool
+     */
+    public function isValidated(): bool
+    {
+        return $this->is_validated;
     }
 
 
@@ -614,31 +821,29 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Apply the filters from the Validator
+     * Validates the source data of this filter form
      *
-     * @param string $class
-     * @param bool   $require_clean_source
+     * @param bool $require_clean_source [null]  If true, will require that the source contains no values beyond the ones defined for this FilterForm object
+     * @param bool $force                [false] If true, will always validate, even if the data has already been validated
      *
-     * @return static
+     * @return $this
      */
-    protected function applyValidator(string $class, ?bool $require_clean_source = null): static
+    public function validate(?bool $require_clean_source = null, bool $force = false): static
     {
-        // Local objects for faster lookups
-        $o_definitions        = $this->o_definitions;
-        $require_clean_source = $require_clean_source ?? $this->require_clean_source;
-
-        // Auto apply
-        if ($class === static::class) {
-            $o_validator = $this->selectValidator()->setDefinitionsObject($o_definitions);
+        if (!$this->isValidated() or $force) {
+            // Local objects for faster lookups
+            $o_definitions        = $this->o_definitions;
+            $require_clean_source = $require_clean_source ?? $this->require_clean_source;
+            $o_validator          = $this->selectValidator()->setDefinitionsObject($o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
             foreach ($o_definitions as $column => $o_definition) {
 //if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
 
-                if ($o_definition->getDefault()) {
-                    $o_validator->set($o_definition->getDefault(), $column);
-                }
+//                if ($o_definition->getDefault()) {
+//                    $o_validator->set($o_definition->getDefault(), $column);
+//                }
             }
 
             // Validate buttons too
@@ -661,6 +866,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             $this->o_applied_filters = new Iterator($o_definitions->getKeyIndices());
         }
 
+        $this->is_validated = true;
         return $this;
     }
 

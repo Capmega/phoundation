@@ -121,4 +121,49 @@ interface FilterFormInterface extends DataEntryFormInterface
      * @return string|null
      */
     public function getStopDate(): ?string;
+
+    /**
+     * Sets all render definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return $this
+     */
+    public function setRenderDefinitions(array $definitions): static;
+
+    /**
+     * Sets all size definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return $this
+     */
+    public function setSizeDefinitions(array $definitions): static;
+
+    /**
+     * Sets all disabled definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return $this
+     */
+    public function setDisabledDefinitions(array $definitions): static;
+
+    /**
+     * Sets all display definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return $this
+     */
+    public function setDisplayDefinitions(array $definitions): static;
+
+    /**
+     * Sets all readonly definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return $this
+     */
+    public function setReadonlyDefinitions(array $definitions): static;
 }

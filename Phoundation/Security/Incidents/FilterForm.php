@@ -50,9 +50,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                   ->setName($field_name)
                                                   ->setSelected(isset_get($this->source[$key], 'medium'));
                              }));
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 
 

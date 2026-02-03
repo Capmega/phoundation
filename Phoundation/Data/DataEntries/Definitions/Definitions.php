@@ -71,7 +71,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public static function getDefaultContentDataType(): ?string
     {
-        return DefinitionInterface::class;
+        return Definition::class;
     }
 
 
@@ -297,9 +297,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     /**
      * Returns the current Definition object
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function current(): DefinitionInterface
+    public function current(): ?DefinitionInterface
     {
         return current($this->source);
     }
@@ -312,9 +312,9 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      * @param Stringable|string|float|int $target
      * @param bool                        $exception
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): DefinitionInterface
+    public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): ?DefinitionInterface
     {
         // Rename Definition in Iterator and Definition object itself
         return parent::renameKey($key, $target, $exception)
@@ -334,6 +334,17 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?DefinitionInterface
     {
         return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     * Returns a random entry
+     *
+     * @return DefinitionInterface|null
+     */
+    #[ReturnTypeWillChange] public function getRandom(): ?DefinitionInterface
+    {
+        return parent::getRandom();
     }
 
 

@@ -59,8 +59,5 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 
                                         ->add($connector->getDefinitionsObject()
                                                         ->get('type'));
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 }

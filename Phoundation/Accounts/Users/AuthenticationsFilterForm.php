@@ -43,9 +43,6 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
                                             ->setElement(EnumElement::select)
                                             ->setKey(true, 'auto_submit')
                                             ->setSource(Authentication::getFilterActions()));
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 
 

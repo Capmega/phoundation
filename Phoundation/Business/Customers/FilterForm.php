@@ -18,14 +18,4 @@ namespace Phoundation\Business\Customers;
 
 class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 {
-    /**
-     * FilterForm class constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        // Auto apply
-        $this->applyValidator(self::class);
-    }
 }

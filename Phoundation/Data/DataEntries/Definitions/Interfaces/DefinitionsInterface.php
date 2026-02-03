@@ -54,10 +54,9 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Returns the current Definition object
      *
-     * @return DefinitionInterface
+     * @return DefinitionInterface|null
      */
-    public function current(): DefinitionInterface;
-
+    public function current(): ?DefinitionInterface;
 
     /**
      * Returns only the specified key from the source of this DataEntry
@@ -69,9 +68,14 @@ interface DefinitionsInterface extends IteratorInterface
      * @param mixed                       $default
      * @param bool|null                   $exception
      *
-     * @return mixed
+     * @return DefinitionInterface|null
      */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed;
+    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): ?DefinitionInterface;
+
+    /**
+     *
+     */
+    #[ReturnTypeWillChange] public function getRandom(): ?DefinitionInterface;
 
     /**
      * Returns the first Definition entry
@@ -252,4 +256,15 @@ interface DefinitionsInterface extends IteratorInterface
      * @return static
      */
     public function setDefinitionDisabled(Stringable|string|float|int $key, bool $disabled, bool $exception = true): static;
+
+    /**
+     * Returns the specified column
+     *
+     * @param Stringable|string|float|int $key
+     * @param Stringable|string|float|int $target
+     * @param bool                        $exception
+     *
+     * @return DefinitionInterface|null
+     */
+    public function renameKey(Stringable|string|float|int $key, Stringable|string|float|int $target, bool $exception = true): ?DefinitionInterface;
 }

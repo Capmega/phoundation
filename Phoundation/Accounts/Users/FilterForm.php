@@ -86,9 +86,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         $this->o_definitions->get('date_range')->setRender(false);
         $this->o_definitions->get('users_id')->setRender(false);
         $this->o_definitions->get('status')->setSize(4);
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 
 
