@@ -6,6 +6,7 @@ use DateInterval;
 use DateMalformedStringException;
 use DateTimeInterface;
 use DateTimeZone;
+use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
@@ -13,7 +14,9 @@ use Phoundation\Date\Enums\EnumDateTimeWidth;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\PhoDate;
 use Phoundation\Date\PhoDateInterval;
+use Phoundation\Date\PhoDateTime;
 use Phoundation\Date\PhoDateTimeZone;
+use Phoundation\Exception\OutOfBoundsException;
 
 interface PhoDateTimeInterface
 {
@@ -283,19 +286,6 @@ interface PhoDateTimeInterface
      * @return static
      */
     public function sub(DateInterval $interval, bool $return_new = true): static;
-
-    /**
-     * Alter the timestamp of a DateTime object by incrementing or decrementing in a format accepted by strtotime().
-     *
-     * @link https://secure.php.net/manual/en/datetime.modify.php
-     *
-     * @param string $modifier
-     * @param bool $return_new
-     *
-     * @return static
-     * @throws DateMalformedStringException
-     */
-    public function modify($modifier, bool $return_new = true): static;
 
     /**
      * Returns the difference between two DateTime objects
@@ -717,4 +707,177 @@ interface PhoDateTimeInterface
      * @return string
      */
     public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $reverse = false, bool $microseconds = false): string;
+
+    /**
+     * Returns the day number where a week should start
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday
+     * 3 => Tuesday
+     * 4 => Wednesday
+     * 5 => Thursday
+     * 6 => Friday
+     * 7 => Saturday
+     *
+     * @return int
+     */
+    public static function getWeekStart(): int;
+
+    /**
+     * Returns the PHP date character to use
+     *
+     * @return string
+     */
+    public static function getPhpWeekCode(): string;
+
+    /**
+     * Returns true if this date is the first day of a period (the 1st or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isWeekStart(): bool;
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isWeekStop(): bool;
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodStop(): bool;
+
+    /**
+     * Returns the name of the day when the week starts
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekStartDayName(): string;
+
+    /**
+     * Returns the 3 character code of the day when the week starts
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekStartDayCode(): string;
+
+    /**
+     * Returns the name of the day when the week stops
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekStopDayName(): string;
+
+    /**
+     * Returns the 3 character code of the day when the week stops
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekStopDayCode(): string;
+
+    /**
+     * Returns the (user) configured day number where a week should stop
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday
+     * 3 => Tuesday
+     * 4 => Wednesday
+     * 5 => Thursday
+     * 6 => Friday
+     * 7 => Saturday
+     *
+     * @return int
+     */
+    public static function getWeekStop(): int;
+
+    /**
+     * Returns the number of days in the month for the current date
+     *
+     * @return int
+     */
+     #[ExpectedValues(values: [28, 29, 30, 31,])]  public function getDaysInMonth(): int;
+
+    /**
+     * Returns true if this date is the first day of a month
+     *
+     * @return bool
+     */
+    public function isMonthStart(): bool;
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isMonthStop(): bool;
+
+    /**
+     * Returns true if this date is the first day of a quarter (3 months)
+     *
+     * @return bool
+     */
+    public function isQuarterStart(): bool;
+
+    /**
+     * Returns true if this date is the last day of a quarter (3 months)
+     *
+     * @return bool
+     */
+    public function isQuarterStop(): bool;
+
+    /**
+     * Returns true if this date is the first day of a semester (6 months)
+     *
+     * @return bool
+     */
+    public function isSemesterStart(): bool;
+
+    /**
+     * Returns true if this date is the last day of a semester (6 months)
+     *
+     * @return bool
+     */
+    public function isSemesterStop(): bool;
+
+    /**
+     * Returns true if this date is the first day of a year
+     *
+     * @return bool
+     */
+    public function isYearStart(): bool;
+
+    /**
+     * Returns true if this date is the last day of a year
+     *
+     * @return bool
+     */
+    public function isYearStop(): bool;
 }

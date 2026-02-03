@@ -21,6 +21,7 @@ use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
+use JetBrains\PhpStorm\ExpectedValues;
 use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
@@ -709,28 +710,6 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 
 
     /**
-     * Alter the timestamp of a DateTime object by incrementing or decrementing in a format accepted by strtotime().
-     *
-     * @link https://secure.php.net/manual/en/datetime.modify.php
-     *
-     * @param string $modifier
-     * @param bool   $return_new
-     *
-     * @return static
-     * @throws DateMalformedStringException
-     */
-    public function modify(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $modifier, bool $return_new = true): static
-    {
-        if ($return_new) {
-            $return = clone $this;
-            return $return->modify($modifier, false);
-        }
-
-        return static::new(parent::modify($modifier));
-    }
-
-
-    /**
      * Returns the difference between two DateTime objects
      *
      * @link https://secure.php.net/manual/en/datetime.diff.php
@@ -902,7 +881,314 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function isPeriodStart(): bool
     {
-        return in_array($this->format('d'), ['1', '16']);
+        return in_array($this->format('d'), ['1', '16'], true);
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodStop(): bool
+    {
+        return in_array($this->format('d'), [ $this->format('t'), '15'], true);
+    }
+
+
+    /**
+     * Returns the (user) configured day number where a week should start
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday
+     * 3 => Tuesday   (not supported)
+     * 4 => Wednesday (not supported)
+     * 5 => Thursday  (not supported)
+     * 6 => Friday    (not supported)
+     * 7 => Saturday  (not supported)
+     *
+     * @return int
+     */
+    public static function getWeekStart(): int
+    {
+        $return = config()->getPositiveInteger('locale.dates.weeks.start', 1, true);
+
+        if ($return > 7) {
+            throw new OutOfBoundsException(ts('Invalid start of week day ":day" configured in path ":path", must be a number between 1 and 2', [
+                ':day'  => $return,
+                ':path' => 'locale.dates.weeks.start',
+            ]));
+        }
+
+        if ($return > 2) {
+            throw new OutOfBoundsException(ts('Unsupported start of week day ":day" configured in path ":path", must be a number between 1 and 2', [
+                ':day'  => $return,
+                ':path' => 'locale.dates.weeks.start',
+            ]));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the (user) configured day number where a week should stop
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday    (not supported)
+     * 3 => Tuesday   (not supported)
+     * 4 => Wednesday (not supported)
+     * 5 => Thursday  (not supported)
+     * 6 => Friday    (not supported)
+     * 7 => Saturday
+     *
+     * @return int
+     */
+    public static function getWeekStop(): int
+    {
+        return 7 - PhoDateTime::getWeekStart();
+    }
+
+
+    /**
+     * Returns the name of the day when the week starts
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekStartDayName(): string
+    {
+        return match(PhoDateTime::getWeekStart()) {
+            1 => 'sunday',
+            2 => 'monday'
+        };
+    }
+
+
+    /**
+     * Returns the 3 character code of the day when the week starts
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekStartDayCode(): string
+    {
+        return match(PhoDateTime::getWeekStart()) {
+            1 => 'sun',
+            2 => 'mon'
+        };
+    }
+
+
+    /**
+     * Returns the name of the day when the week stops
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekStopDayName(): string
+    {
+        return match(PhoDateTime::getWeekStop()) {
+            6 => 'saturday',
+            7 => 'sunday'
+        };
+    }
+
+
+    /**
+     * Returns the 3 character code of the day when the week stops
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekStopDayCode(): string
+    {
+        return match(PhoDateTime::getWeekStop()) {
+            1 => 'sun',
+            2 => 'mon'
+        };
+    }
+
+
+    /**
+     * Returns the PHP date character to use
+     *
+     * @return string
+     */
+    public static function getPhpWeekCode(): string
+    {
+        return match (PhoDateTime::getWeekStart()) {
+            1 => 'w', // Sunday
+            2 => 'N', // Monday (ISO-8601)
+            default => throw new OutOfBoundsException(ts('Cannot return week code for week start ":start", only 1 & 2 are supported', [
+                ':start' => PhoDateTime::getWeekStart(),
+            ]))
+        };
+    }
+
+
+    /**
+     * Returns the number of days in the month for the current date
+     *
+     * @return int
+     */
+     #[ExpectedValues(values: [28, 29, 30, 31,])]  public function getDaysInMonth(): int
+    {
+        return (int) $this->format('t');
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a month
+     *
+     * @return bool
+     */
+    public function isMonthStart(): bool
+    {
+        return $this->getDay() === 1;
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isMonthStop(): bool
+    {
+        return $this->getDay() === $this->getDaysInMonth();
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a quarter (3 months)
+     *
+     * @return bool
+     */
+    public function isQuarterStart(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '01-01') or
+               ($date === '04-01') or
+               ($date === '07-01') or
+               ($date === '10-01');
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a quarter (3 months)
+     *
+     * @return bool
+     */
+    public function isQuarterStop(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '03-31') or
+               ($date === '06-30') or
+               ($date === '09-30') or
+               ($date === '12-31');
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a semester (6 months)
+     *
+     * @return bool
+     */
+    public function isSemesterStart(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '01-01') or ($date === '07-01');
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a semester (6 months)
+     *
+     * @return bool
+     */
+    public function isSemesterStop(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '06-30') or ($date === '12-31');
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a year
+     *
+     * @return bool
+     */
+    public function isYearStart(): bool
+    {
+        return $this->format('m-d') === '01-01';
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a year
+     *
+     * @return bool
+     */
+    public function isYearStop(): bool
+    {
+        return $this->format('m-d') === '12-31';
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a week
+     *
+     * This depends on what start of week the system and user have configured
+     *
+     * @return bool
+     */
+    public function isWeekStart(): bool
+    {
+        return match($this->getPhpWeekCode()) {
+            'w' => $this->format($this->getPhpWeekCode()) === '0',
+            'N' => $this->format($this->getPhpWeekCode()) === '1',
+        };
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * This depends on what start of week the system and user have configured
+     *
+     * @return bool
+     */
+    public function isWeekStop(): bool
+    {
+        return match($this->getPhpWeekCode()) {
+            'w' => $this->format($this->getPhpWeekCode()) === '6',
+            'N' => $this->format($this->getPhpWeekCode()) === '7',
+        };
     }
 
 
