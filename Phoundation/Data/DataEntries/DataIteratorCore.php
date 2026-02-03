@@ -354,14 +354,10 @@ throw new ObsoleteException();
         if (empty($this->o_query_builder)) {
             $this->o_query_builder = QueryBuilder::new($this)
                                                  ->setDebug($this->debug)
+                                                 ->setFrom(static::getTable())
                                                  ->setMetaEnabled($this->getMetaEnabled())
                                                  ->setConnectorObject($this->getConnectorObject())
-                                                 ->setFrom($this->getTable())
                                                  ->setSelect($this->getSqlSelectColumns());
-
-            if ($this->status_filter !== false) {
-                $this->o_query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
-            }
         }
 
         return $this;
@@ -412,19 +408,8 @@ throw new ObsoleteException();
     protected function selectQuery(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
         // Use the query builder or hard-coded query
-        if (isset($this->o_query_builder)) {
-            // Add query builder filters from filter_form if attached, or identifiers first if specified
-            if (empty($identifiers)) {
-                $this->filter_form?->applyFiltersToQueryBuilder($this->o_query_builder);
-
-            } else {
-                $this->getQueryBuilderObject()->setIdentifiers($identifiers, $like);
-            }
-
-            $this->query   = $this->o_query_builder->getQuery();
-            $this->execute = $this->o_query_builder->getExecute();
-
-        } elseif (empty($this->query) or $identifiers) {
+        if (empty($this->query) or $identifiers) {
+            // TODO This section is obsolete and should no longer be used whenever possible
             if (static::getTable()) {
                 // Define default identifiers
                 if ($identifiers === null) {
@@ -448,7 +433,20 @@ throw new ObsoleteException();
                                 ' . $joins . '
                                 WHERE  ' . $parent_filter .  $where . $group . $order;
             }
+
+            return $this;
         }
+
+        // Add query builder filters from filter_form if attached, or identifiers first if specified
+        if ($this->filter_form) {
+            $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
+
+        } else {
+            $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ), $like);
+        }
+
+        $this->query   = $this->o_query_builder->getQuery();
+        $this->execute = $this->o_query_builder->getExecute();
 
         return $this;
     }
@@ -1437,10 +1435,11 @@ throw new ObsoleteException();
      */
     public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        $this->setIsLoading(true)
-             ->selectQuery($identifiers, $like);
+        $this->setIsLoading(true);
 
-        cache('dataentries')->getOrGenerate($this->getCacheKey(), function ()  use ($identifiers) {
+        cache('dataentries')->getOrGenerate($this->getCacheKey(), function ()  use ($identifiers, $like) {
+            $this->selectQuery($identifiers, $like);
+
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());

@@ -21,6 +21,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\PhoDirectory;
 
+
 // Start documentation
 CliDocumentation::setAutoComplete([
     'positions' => [
@@ -40,14 +41,16 @@ This command will disable the specified repository so that it will no longer be 
 ARGUMENTS
 
 
-PATH                                    The unique path of the repository that should be disabled'));
+NAME [... NAME, NAME]                   The unique name or names of the repositories that should be disabled'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isPath()
+                     ->selectAll('name')->sanitizeForceArray()->forEachField()->isCode()->existsInDatabase(table: 'developer_repositories')
                      ->validate();
 
 
 // Disable the repository, it will no longer be used
-Repository::new(['path'=> $argv['path']])->disable();
+foreach ($argv['name'] as $name) {
+    Repository::new(['name'=> $name])->disable();
+}

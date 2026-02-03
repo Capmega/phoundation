@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataConnector;
 use Phoundation\Data\Traits\TraitDataFilterForm;
 use Phoundation\Data\Traits\TraitDataMetaEnabled;
@@ -63,11 +64,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      *
      * @return static
      */
-    public function setIdentifiers(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
+    public function setIdentifiers(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false, bool $negative = false): static
     {
         $this->clearWhere();
-
-        $equal = ($like ? 'LIKE ' : '= ');
 
         if ($identifiers) {
             foreach ($identifiers as $key => $value) {
@@ -83,12 +82,32 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $key    = Strings::ensureEndsWith($key, '`');
                 $column = SqlQueries::makeColumn($key);
 
+                $where = SqlQueries::is($column, $value);
+showdie($where);
                 $this->addWhere('' . $key . ' ' . $equal . ':' . $column)
                      ->addExecute($value, $column);
             }
         }
 
         return $this;
+    }
+
+
+    protected function getEqual(mixed $value, bool $like, bool $negative): string
+    {
+        if (is_array($value) or ($value instanceof IteratorInterface)) {
+            if ($negative) {
+                return $like ? 'NOT IN ';
+            }
+
+            return $like ? 'NOT LIKE ' : '!= ';
+        }
+
+        if ($negative) {
+            return $like ? 'LIKE ' : '= ';
+        }
+
+        return  $like ? 'NOT LIKE ' : '!= ';
     }
 
 

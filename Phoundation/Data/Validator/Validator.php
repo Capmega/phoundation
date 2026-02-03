@@ -2512,26 +2512,35 @@ throw new ObsoleteException();
      *
      * This method ensures that the specified array key is a valid database id (integer, 1 and above)
      *
-     * @param string|null $failure_message
-     * @param string      $column
-     * @param string|null $table
+     * @param string|null $failure_message [null] If specified, will use this string as a validation error message instead of the default text
+     * @param string|null $column          [null] The column in which this value should exist
+     * @param string|null $table           [null] The table in which this value should exist
      *
      * @return static
      */
-    public function columnExists(?string $failure_message = null, string $column = 'id', ?string $table = null): static
+    public function existsInDatabase(?string $failure_message = null, ?string $column = null, ?string $table = null): static
     {
+        if (empty($this->content_test_count)) {
+            throw new ValidatorException(ts('Cannot validate if value exists in table ":table" column ":column", the value has not yet had its contents checked', [
+                ':table'  => $table,
+                ':column' => $column,
+            ]));
+        }
+
         $this->test_count++;
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($table, $column, $failure_message) {
-            $this->isScalar();
+            // The value must at least have 1 character to work with!
+            $this->isScalar()->hasMinCharacters(1, false);
 
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
-            $table = $table ?? $this->table;
+            $table  = $table  ?? $this->table;
+            $column = $column ?? $this->selected_field;
 
             if (empty($table)) {
                 throw new ValidatorException(tr('Cannot validate if database id exists, no table configured for this validator, and no table specified'));
@@ -2542,7 +2551,7 @@ throw new ObsoleteException();
             ]);
 
             if (!$exists) {
-                $this->addSoftFailure($failure_message ?? tr('must exist'));
+                $this->addSoftFailure($failure_message ?? tr('does not exist in the database'));
             }
         });
     }
@@ -2663,7 +2672,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            if (strlen($value) < $characters) {
+            if (strlen((string) $value) < $characters) {
                 $this->addSoftFailure(tr('must have ":count" characters or more', [':count' => $characters]));
             }
         });
@@ -2705,7 +2714,7 @@ throw new ObsoleteException();
                 ]));
             }
 
-            if (strlen($value) > $max_characters) {
+            if (strlen((string) $value) > $max_characters) {
                 $this->addSoftFailure(tr('must have ":count" characters or less', [':count' => $max_characters]));
             }
         });
