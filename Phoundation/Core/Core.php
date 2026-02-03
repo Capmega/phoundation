@@ -3132,6 +3132,9 @@ class Core implements CoreInterface
             throw $e;
 
         } catch (ValidationFailedException $e) {
+            Response::setHttpCode(400);
+            http_response_code(400);
+
             Log::warning($e->getMessage(), 10);
 
             if ($e->hasData()) {
