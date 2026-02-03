@@ -117,7 +117,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function rename(string $table_name): void
     {
-        sql()->query('RENAME TABLE `' . $this->name . '` TO `' . $table_name . '`');
+        sql()->query("RENAME TABLE `" . $this->name . "` TO `" . $table_name . "`");
     }
 
 
@@ -129,7 +129,7 @@ class Table extends SchemaAbstract implements TableInterface
     public function exists(): bool
     {
         // If this query returns nothing, the table does not exist. If it returns anything, it does exist.
-        return (bool) sql()->getRow('SHOW TABLES LIKE :name', [':name' => $this->name]);
+        return (bool) sql()->getRow("SHOW TABLES LIKE :name", [":name" => $this->name]);
     }
 
 
@@ -141,12 +141,12 @@ class Table extends SchemaAbstract implements TableInterface
     public function drop(): static
     {
         Log::warning(ts('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
-            ':table'    => $this->name,
-            ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase(),
+            ":table"    => $this->name,
+            ":instance" => $this->sql->getConnector(),
+            ":database" => $this->sql->getDatabase(),
         ]), 3);
 
-        sql()->query('DROP TABLES IF EXISTS `' . $this->name . '`');
+        sql()->query("DROP TABLES IF EXISTS `" . $this->name . "`");
 
         return $this;
     }
@@ -159,8 +159,8 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function truncate(): void
     {
-        Log::warning(ts('Truncating table :table', [':table' => $this->name]));
-        sql()->query('TRUNCATE `' . $this->name . '`');
+        Log::warning(ts("Truncating table :table", [":table" => $this->name]));
+        sql()->query("TRUNCATE `" . $this->name . "`");
     }
 
 
@@ -171,7 +171,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getCount(): int
     {
-        return sql()->getInteger('SELECT COUNT(*) as `count` FROM `' . $this->name . '`');
+        return sql()->getInteger("SELECT COUNT(*) as `count` FROM `" . $this->name . "`");
     }
 
 
@@ -215,10 +215,10 @@ class Table extends SchemaAbstract implements TableInterface
 
         if (empty($this->columns)) {
             $columns = [];
-            $results = sql()->listKeyValues('DESCRIBE `' . $this->name . '`');
+            $results = sql()->listKeyValues("DESCRIBE `" . $this->name . "`");
 
             foreach ($results as $result) {
-                $columns[$result['field']] = Arrays::lowercaseKeys($result);
+                $columns[$result["field"]] = Arrays::lowercaseKeys($result);
             }
 
             $this->columns = $columns;
@@ -243,6 +243,34 @@ class Table extends SchemaAbstract implements TableInterface
 
 
     /**
+     * Returns a list of table columns that have foreign keys pointed at the specified column
+     *
+     * @param string $column The column of this table to which the foreign keys have to point
+     *
+     * @return IteratorInterface
+     */
+    public function getForeignKeysToColumn(string $column): IteratorInterface
+    {
+        return sql()->listDataIterator('SELECT   CONCAT(`kcu`.`TABLE_SCHEMA`, " / ", `kcu`.`TABLE_NAME`, " / ", `kcu`.`COLUMN_NAME`) AS `identifier`,                                                                                                              
+                                                 `kcu`.`TABLE_SCHEMA`                                                                AS `source_database`,     
+                                                 `kcu`.`TABLE_NAME`                                                                  AS `source_table`,     
+                                                 `kcu`.`COLUMN_NAME`                                                                 AS `source_column`,     
+                                                 `kcu`.`CONSTRAINT_NAME`                                                             AS `foreign_key_name`,     
+                                                 `kcu`.`REFERENCED_TABLE_NAME`                                                       AS `target_table`,     
+                                                 `kcu`.`REFERENCED_COLUMN_NAME`                                                      AS `target_column` 
+                                        FROM     `information_schema`.`KEY_COLUMN_USAGE`                                             AS `kcu` 
+                                        WHERE    `kcu`.`REFERENCED_TABLE_SCHEMA` = :schema 
+                                        AND      `kcu`.`REFERENCED_TABLE_NAME`   = :table     
+                                        AND      `kcu`.`REFERENCED_COLUMN_NAME`  = :column 
+                                        ORDER BY `kcu`.`TABLE_NAME`, `kcu`.`COLUMN_NAME`', [
+            ':schema' => $this->sql->getCurrentDatabase(),
+            ':table'  => $this->name,
+            ':column' => $column,
+        ]);
+    }
+
+
+    /**
      * Returns the table foreign_keys
      *
      * @param bool $cache
@@ -256,30 +284,30 @@ class Table extends SchemaAbstract implements TableInterface
         }
 
         if (empty($this->foreign_keys)) {
-            $results = sql()->listKeyValues('SHOW CREATE TABLE `' . $this->name . '`');
-            $results = $results[$this->name]['create table'];
+            $results = sql()->listKeyValues("SHOW CREATE TABLE `" . $this->name . "`");
+            $results = $results[$this->name]["create table"];
 
             // Parse all foreign keys from the resulting query
             do {
-                $foreign_key = Strings::from($results, 'CONSTRAINT ');
-                $foreign_key = Strings::until($foreign_key, ',');
-                $foreign_key = Strings::until($foreign_key, ') ENGINE');
+                $foreign_key = Strings::from($results, "CONSTRAINT ");
+                $foreign_key = Strings::until($foreign_key, ",");
+                $foreign_key = Strings::until($foreign_key, ") ENGINE");
 
                 if (!$foreign_key) {
                     break;
                 }
 
-                preg_match_all('/`?([a-z_]+)`?\s+FOREIGN\s+KEY\s+\(`?([a-z_]+)`?\)\s+REFERENCES\s+`?([a-z_]+)`?\s+\(`?([a-z_]+)`?\)/i', $foreign_key, $matches);
+                preg_match_all("/`?([a-z_]+)`?\s+FOREIGN\s+KEY\s+\(`?([a-z_]+)`?\)\s+REFERENCES\s+`?([a-z_]+)`?\s+\(`?([a-z_]+)`?\)/i", $foreign_key, $matches);
 
                 $this->foreign_keys[$matches[1][0]] = [
-                    'key'              => $matches[1][0],
-                    'column'           => $matches[2][0],
-                    'reference_table'  => $matches[3][0],
-                    'reference_column' => $matches[4][0]
+                    "key"              => $matches[1][0],
+                    "column"           => $matches[2][0],
+                    "reference_table"  => $matches[3][0],
+                    "reference_column" => $matches[4][0]
                 ];
 
-                $results = Strings::from($results, 'CONSTRAINT ');
-                $results = Strings::from($results, ',', needle_required: true);
+                $results = Strings::from($results, "CONSTRAINT ");
+                $results = Strings::from($results, ",", needle_required: true);
             } while (true);
         }
 
@@ -316,14 +344,14 @@ class Table extends SchemaAbstract implements TableInterface
 
         if (empty($this->indices)) {
             $indices = [];
-            $results = sql()->listKeyValues('SHOW CREATE TABLE  `' . $this->name . '`');
+            $results = sql()->listKeyValues("SHOW CREATE TABLE  `" . $this->name . "`");
             $results = array_pop($results);
             $results = array_pop($results);
             $results = explode(PHP_EOL, $results);
 
             foreach ($results as $result) {
-                if (preg_match_all('/(?:KEY|UNIQUE) `(.+?)` \((.+?)\)/i', $result, $matches)) {
-                    $indices[$matches[1][0]] = str_replace('`', '', $matches[2][0]);
+                if (preg_match_all("/(?:KEY|UNIQUE) `(.+?)` \((.+?)\)/i", $result, $matches)) {
+                    $indices[$matches[1][0]] = str_replace("`", "", $matches[2][0]);
                 }
             }
 

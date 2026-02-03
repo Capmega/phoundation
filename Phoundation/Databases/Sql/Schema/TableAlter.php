@@ -46,7 +46,6 @@ class TableAlter extends SchemaAbstract
         ]);
 
         $this->name = $name;
-
         return $this;
     }
 

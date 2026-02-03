@@ -112,15 +112,4 @@ interface PhoDateTimeInterface extends \DateTimeInterface
      * @return static
      */
     public function getPreviousDay(DateTimeZone|string|null $timezone = null): static;
-
-    /**
-     * Returns a string representation of how long ago the specified date was, from now or from the specified date
-     *
-     * @param PhoDate|PhoDateTimeInterface|string|int|null $date
-     * @param bool                                         $reverse
-     * @param bool                                         $microseconds
-     *
-     * @return string
-     */
-    public function getAge(PhoDate|PhoDateTimeInterface|string|int|null $date = null, bool $reverse = false, bool $microseconds = false): string;
 }

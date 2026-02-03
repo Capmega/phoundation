@@ -90,7 +90,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Execute the import for the specified driver
+// Execute the import for the specified connector
 Log::information(ts('Executing database import'), 10);
 
 try {
@@ -105,6 +105,8 @@ try {
 } catch (FileNotExistException $e) {
     throw $e->makeWarning();
 }
+
+Log::success(ts('Not executing database init due to "--no-init" argument but this may leave the database in an incompatible state!'), 10);
 
 
 // Execute init?

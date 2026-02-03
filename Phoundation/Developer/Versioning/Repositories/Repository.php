@@ -32,6 +32,7 @@ use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Branches\Branches;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Git;
@@ -54,6 +55,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Enums\EnumVersionSections;
+use Phoundation\Utils\Strings;
 
 class Repository extends DataEntry implements RepositoryInterface
 {
@@ -271,6 +273,28 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Marks this repository as disabled so that it will no longer be used for any action
+     *
+     * @return static
+     */
+    public function disable(): static
+    {
+        return $this->setStatus('disabled');
+    }
+
+
+    /**
+     * Marks this repository as enabled so that it can be used again for any action
+     *
+     * @return static
+     */
+    public function enable(): static
+    {
+        return $this->setStatus(null);
+    }
+
+
+    /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
      * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
@@ -310,7 +334,7 @@ class Repository extends DataEntry implements RepositoryInterface
         Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
-            ':branch'     => $branch,
+            ':branch'     => $branch ?? ($this->getSelectedBranch() . ' (' . ts('current') . ')'),
             ':remote'     => $remote,
         ]));
 
@@ -460,7 +484,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return BranchesInterface
      */
-    public function getBranchesObject(): BranchesInterface
+    public function getBranchObject(): BranchesInterface
     {
         return Branches::new($this);
     }
@@ -490,7 +514,7 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the current git branch for this repository
      *
-     * @param bool $return_if_detached If true, will return the selected branch, even if it is not a branch
+     * @param bool $return_if_detached [false] If true, will return the selected branch, even if it is not a branch
      *
      * @return string|null
      */
@@ -1015,6 +1039,100 @@ showdie();
 
 
     /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnVersionBranch(): bool
+    {
+        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: true);
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch that has a suffix
+     *
+     * @return bool
+     */
+    public function isOnVersionSuffixBranch(): bool
+    {
+        return Strings::isVersion(Strings::until($this->getBranch(), '-')) and Strings::from($this->getBranch(), '-');
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkIsOnVersionBranch(): static
+    {
+        if (!$this->isOnVersionBranch()) {
+            throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on a version branch', [
+                ':repository' => $this->getName(),
+                ':branch'     => $this->getBranch(),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return bool
+     */
+    public function isOnCorrectVersionBranch(): bool
+    {
+        return $this->isOnVersionBranch() and $this->hasBranchSelected(Project::getVersion());
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @return static
+     * @throws RepositoriesException
+     */
+    public function checkIsOnCorrectVersionBranch(): static
+    {
+        if (!$this->isOnVersionBranch()) {
+            throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on the (required) correct version branch ":version"', [
+                ':repository' => $this->getName(),
+                ':branch'     => $this->getBranch(),
+                ':version'    => Project::getVersion(),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns the suffix for this repository version branch, if any. Will return NULL if on a suffix less branch
+     *
+     * If the current branch is not a version branch, a RepositoriesException will be thrown
+     *
+     * @param bool $require_correct_version
+     * @return string|null
+     * @throws RepositoriesException
+     */
+    public function getSuffix(bool $require_correct_version = false): ?string
+    {
+        if ($require_correct_version) {
+            $this->checkIsOnCorrectVersionBranch();
+
+        } else {
+            $this->checkIsOnVersionBranch();
+        }
+
+        return get_null(Strings::from($this->getBranch(), '-', needle_required: true));
+    }
+
+
+    /**
      * Returns the platform for this repository
      *
      * @return EnumPhoundationClass
@@ -1155,16 +1273,16 @@ showdie();
 
                       ->add(DefinitionFactory::newName()
                                              ->setSize(4)
-                                             ->setHelpText(tr('The name for this repository'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isUnique();
-                                             }))
+                                             ->setHelpText(tr('The name for this repository')))
 
                       ->add(DefinitionFactory::newSeoName())
 
                       ->add(DefinitionFactory::newPath()
                                              ->setSize(4)
-                                             ->setHelpText(tr('The path where this repository is located')))
+                                             ->setHelpText(tr('The path where this repository is located'))
+                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                                 $o_validator->isUnique();
+                                             }))
 
                       ->add(DefinitionFactory::newUrl())
 

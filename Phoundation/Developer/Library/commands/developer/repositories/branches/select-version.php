@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Command developer repositories branches select
+ * Command developer repositories branches select-version
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
@@ -10,7 +10,7 @@
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @package   Phoundation\Development
+ * @package   Phoundation\Developer
  */
 
 
@@ -20,7 +20,6 @@ use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
-use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
@@ -30,7 +29,7 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branches select
+CliDocumentation::setUsage('./pho development repositories branches select-version
 ./pho development rp br sl');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
@@ -56,13 +55,14 @@ OPTIONAL ARGUMENTS
 
 [-c, --no-create]                       If the resolved auto branch does not exist, do not automatically create it
 
-[-R, --results]                         If specified will display the resulting branches'));
+[-r, --results]                         If specified will display the resulting branches'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->select('-c,--no-create')->isOptional()->isBoolean()
+                     ->select('-r,--results')->isOptional()->isBoolean()
                      ->validate();
 
 
@@ -77,7 +77,7 @@ $o_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
 
 
 // Display results?
-if (RESULTS) {
+if ($argv['results']) {
     // List available repositories
     Repositories::new()->load()->displayCliTable([
         'name'     => ts('Repository name'),

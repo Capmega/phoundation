@@ -27,7 +27,6 @@ use Phoundation\Developer\Traits\TraitStaticMethodNewWithEnumVersionFileType;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\VersionCore;
-use Phoundation\Web\Html\Components\P;
 
 
 class VersionFile extends VersionCore implements VersionFileInterface
@@ -120,12 +119,13 @@ class VersionFile extends VersionCore implements VersionFileInterface
      * Sets the source for this Version object
      *
      * @param string|int|null $source The source for this Version object
+     * @param bool            $short_version
      *
      * @return static
      */
-    public function setSource(string|int|null $source): static
+    public function setSource(string|int|null $source, bool $short_version = false): static
     {
-        parent::setSource($source);
+        parent::setSource($source, $short_version);
         return $this->autoSave();
     }
 }

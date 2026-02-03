@@ -72,4 +72,28 @@ interface VersionInterface
      * @return static
      */
     public function decreaseRevision(int $by_value = 1): static;
+
+
+    /**
+     * Returns true if the specified version is higher than the current version
+     *
+     * @param VersionInterface|string $version               The version to compare to
+     * @param bool                    $or_equal_to   [false] If true, will return true when the specified version is equal to this version
+     * @param bool                    $short_version [false] If true will work with short versions (8.4) instead of long versions (8.4.3)
+     *
+     * @return bool
+     */
+    public function isHigherThan(VersionInterface|string $version, bool $or_equal_to = false, bool $short_version = false): bool;
+
+
+    /**
+     * Returns true if the specified version is lower than the current version
+     *
+     * @param VersionInterface|string $version               The version to compare to
+     * @param bool                    $or_equal_to   [false] If true, will return true when the specified version is equal to this version
+     * @param bool                    $short_version [false] If true will work with short versions (8.4) instead of long versions (8.4.3)
+     *
+     * @return bool
+     */
+    public function isLowerThan(VersionInterface|string $version, bool $or_equal_to = false, bool $short_version = false): bool;
 }

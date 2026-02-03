@@ -61,6 +61,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Requests\Request;
+use Plugins\Medinet\Programs\Interfaces\ProgramsInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -171,8 +172,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         parent::__construct($source);
 
         // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
-
         $this->is_loaded = (bool) $source;
         $this->use_cache = Cache::getEnabled();
     }
@@ -647,7 +646,7 @@ throw new ObsoleteException();
             return $this->ensureObject($key);
         }
 
-        if ($exception) {
+        if ($exception ?? $this->exception_on_get) {
             throw new NotExistsException(tr('Key ":key" does not exist in this ":class" DataIterator', [
                 ':key'   => $key,
                 ':class' => static::class,
@@ -992,16 +991,16 @@ throw new ObsoleteException();
      *
      * This method reads in $size entries at the time, erases them, and continues onto the next until all are erased
      *
-     * @param int $size
+     * @param int $chunk_size
      *
      * @return void
      */
-    public static function truncate(int $size = 10): void
+    public static function eraseAll(int $chunk_size = 10): void
     {
         Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
 
         do {
-            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $size);
+            $iterator = static::new()->setQuery('SELECT * FROM `' . static::getTable() . '` LIMIT ' . $chunk_size);
             $iterator->erase();
             Log::dot(1);
 
@@ -1018,6 +1017,18 @@ throw new ObsoleteException();
                 ]))
                 ->setNotifyRoles('developer')
                 ->save();
+    }
+
+
+    /**
+     * Truncates the table controlled by this DataIterator
+     *
+     * @return void
+     */
+    public static function truncate(): void
+    {
+        Log::action(tr('Truncating table ":table"', [':table' => static::getTable()]), echo_newline: false);
+        sql()->query('TRUNCATE `' . static::getTable() . '`');
     }
 
 
@@ -1268,9 +1279,9 @@ throw new ObsoleteException();
     protected function loadObject(IdentifierInterface|array|string|int|null $identifier): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
-                                           ->setDebug($this->debug)
+                                           ->setDebug($this->getDebug())
                                            ->setMetaEnabled($this->getMetaEnabled())
-                                           ->setRestrictionsObject($this->o_restrictions)
+                                           ->setRestrictionsObject($this->getRestrictionsObject())
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
     }
