@@ -346,12 +346,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Sets the date range mounting id
      *
-     * @param string|null $id
+     * @param string|null $selector
+     *
      * @return static
      */
-    public function setDateRangeSelector(?string $id): static
+    public function setDateRangeSelector(?string $selector): static
     {
-        $this->date_range_selector = $id;
+        $this->date_range_selector = $selector;
         return $this;
     }
 
@@ -620,6 +621,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @param bool   $require_clean_source
      *
      * @return static
+     * @todo Check if the $class variable still really is necessary now that the applied values are tracked
      */
     protected function applyValidator(string $class, ?bool $require_clean_source = null): static
     {
@@ -636,9 +638,10 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 //if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
 
-                if ($o_definition->getDefault()) {
-                    $o_validator->set($o_definition->getDefault(), $column);
-                }
+// TODO The following code will ALWAYS overwrite valid values with the default value, if it exists. That makes little sense. Should this code be here at all? The validator should take care of that anyways...
+//                if ($o_definition->getDefault()) {
+//                    $o_validator->set($o_definition->getDefault(), $column);
+//                }
             }
 
             // Validate buttons too

@@ -1368,10 +1368,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $return = '<thead><tr>';
         $first  = true;
 
-        foreach ($this->headers as $column => $header) {
+        foreach ($this->columns as $column) {
             if (!$this->renderColumn($column)) {
                 continue;
             }
+
+            $header = $this->headers->get($column);
 
             if ($first) {
                 $first = false;
@@ -1419,11 +1421,12 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
 
         $this->executeRowCallbacks($this->footers, EnumTableRowType::footer, $params);
 
-        foreach ($this->footers as $column => $footer) {
+        foreach ($this->columns as $column) {
             if (!$this->renderColumn($column)) {
                 continue;
             }
 
+            $footer = array_get_safe($this->footers, $column);
 
             if ($first) {
                 $first = false;

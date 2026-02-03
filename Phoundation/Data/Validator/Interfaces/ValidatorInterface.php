@@ -1496,4 +1496,13 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function requiresColumnsEmpty(IteratorInterface|array|string $keys, bool $also_if_selected_is_default = false): static;
+
+    /**
+     * Copies the value of the currently selected key to the specified key
+     *
+     * @param string|float|int $to_key
+     *
+     * @return static
+     */
+    public function copyToKey(string|float|int $to_key): static;
 }

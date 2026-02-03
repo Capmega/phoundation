@@ -1838,8 +1838,6 @@ class Response implements ResponseInterface
 
         // Validate status code
         // TODO implement
-
-
         static::$http_code = $code;
     }
 

@@ -435,4 +435,18 @@ interface DataIteratorInterface extends IteratorInterface
      * @return static
      */
     public function setKeysAreUniqueColumn(bool $keys_are_unique_column): static;
+
+    /**
+     * Returns what SQL columns will be used in loading data
+     *
+     * @return string|null
+     */
+    public function getSqlSelectColumns(): ?string;
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string|null
+     */
+    public static function getTable(): ?string;
 }

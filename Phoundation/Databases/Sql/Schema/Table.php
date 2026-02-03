@@ -196,7 +196,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function columnExists(string $column, bool $cache = false): bool
     {
-        return $this->getColumns($cache)->keyExists(Strings::cut($column, "`", "`", needles_required: false));
+        return $this->getColumns($cache)->keyExists(Strings::cut($column, '`', '`', needles_required: false));
     }
 
 
@@ -238,7 +238,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function foreignKeyExists(string $key, bool $cache = false): bool
     {
-        return $this->getForeignKeys($cache)->keyExists(Strings::cut($key, "`", "`", needles_required: false));
+        return $this->getForeignKeys($cache)->keyExists(Strings::cut($key, '`', '`', needles_required: false));
     }
 
 
@@ -325,7 +325,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function indexExists(string $key, bool $cache = false): bool
     {
-        return $this->getIndices($cache)->keyExists(Strings::cut($key, "`", "`", needles_required: false));
+        return $this->getIndices($cache)->keyExists(Strings::cut($key, '`', '`', needles_required: false));
     }
 
 

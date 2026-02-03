@@ -61,6 +61,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Requests\Request;
+use Plugins\Medinet\Programs\Interfaces\ProgramsInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -171,8 +172,6 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
         parent::__construct($source);
 
         // If this data iterator had a source specified, consider it loaded
-        $this->setAcceptedDataTypes(static::getDefaultContentDataType(), false);
-
         $this->is_loaded = (bool) $source;
         $this->use_cache = Cache::getEnabled();
     }
@@ -357,7 +356,8 @@ throw new ObsoleteException();
                                                  ->setDebug($this->debug)
                                                  ->setMetaEnabled($this->getMetaEnabled())
                                                  ->setConnectorObject($this->getConnectorObject())
-                                                 ->setSelects($this->getSqlSelectColumns());
+                                                 ->setFrom($this->getTable())
+                                                 ->setSelect($this->getSqlSelectColumns());
 
             if ($this->status_filter !== false) {
                 $this->o_query_builder->addWhere(SqlQueries::is('`' . static::getTable() . '`.`status`', $this->status_filter, ':status'));
@@ -556,10 +556,17 @@ throw new ObsoleteException();
     /**
      * Returns what SQL columns will be used in loading data
      *
-     * @return string
+     * @return string|null
      */
-    public function getSqlSelectColumns(): string
+    public function getSqlSelectColumns(): ?string
     {
+        $table = static::getTable();
+
+        if (empty($table)) {
+            // If this DataIterator has no table specified, we cannot return select columns
+            return null;
+        }
+
         if ($this->columns) {
             $return = [];
 
@@ -571,8 +578,9 @@ throw new ObsoleteException();
             return implode(', ', $return);
         }
 
+
         // Load all columns
-        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes(static::getTable()) . '.* ';
+        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes($table) . '.* ';
     }
 
 
@@ -1259,9 +1267,9 @@ throw new ObsoleteException();
     protected function loadObject(IdentifierInterface|array|string|int|null $identifier): DataEntryInterface
     {
         return $this->getAcceptedDataType()::new()
-                                           ->setDebug($this->debug)
+                                           ->setDebug($this->getDebug())
                                            ->setMetaEnabled($this->getMetaEnabled())
-                                           ->setRestrictionsObject($this->o_restrictions)
+                                           ->setRestrictionsObject($this->getRestrictionsObject())
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
     }
@@ -1731,7 +1739,7 @@ throw new ObsoleteException();
     {
         // Tell the QueryBuilder object to only use the specified columns
         parent::setColumns($columns);
-        $this->getQueryBuilderObject()->setSelects($this->getSqlSelectColumns());
+        $this->getQueryBuilderObject()->setSelect($this->getSqlSelectColumns());
 
         return $this;
     }

@@ -2000,7 +2000,7 @@ function show_system(mixed $source = null, bool $die = true, bool $sort = true):
 /**
  * Returns true if the specified function was called in the current backtrace
  *
- * @param string $function
+ * @param string $function The function name to test
  *
  * @return bool
  */
@@ -2039,20 +2039,21 @@ function function_was_called(string $function): bool
 /**
  * Returns true if the specified value is in between the specified range
  *
- * @param float|int $value
- * @param float|int $begin
- * @param float|int $end
- * @param bool      $allow_same
+ * @param float|int $source            The source value to test
+ * @param float|int $begin             The lowest value of the range within the test value should fall
+ * @param float|int $end               The highest value of the range within the test value should fall
+ * @param bool      $allow_same [true] If true, will return true if the value is equal to $begin or $end. If false, the value must be higher than $begin and
+ *                                     lower than $end.
  *
  * @return bool
  */
-function in_range(float|int $value, float|int $begin, float|int $end, bool $allow_same = true): bool
+function in_range(float|int $source, float|int $begin, float|int $end, bool $allow_same = true): bool
 {
     if ($allow_same) {
-        return ($value >= $begin) and ($value <= $end);
+        return ($source >= $begin) and ($source <= $end);
     }
 
-    return ($value > $begin) and ($value < $end);
+    return ($source > $begin) and ($source < $end);
 }
 
 
@@ -2091,9 +2092,9 @@ function render(RenderInterface|callable|string|float|int|null $content): ?strin
 
 
 /**
- * Retuns the datatype of the value or, if the value is an object, the class of the specified object
+ * Returns the datatype of the value or, if the value is an object, the class of the specified object
  *
- * @param mixed $value
+ * @param mixed $value The value for which the datatype (or class name in case of an object) will be returned
  *
  * @return string
  */
@@ -2165,40 +2166,53 @@ function no_strpos(string $source, string $char, int $offset = 0): int|false
 /**
  * Returns the first value from the specified array
  *
- * @param array $source
+ * @param array $source           The source array to return the first value from
+ * @param bool  $exception [true] If true, and the source array is empty, will throw an OutOfBoundsException. If false, will return NULL
+ *
  * @return mixed
+ * @throws OutOfBoundsException
  */
-function array_value_first(array $source): mixed
+function array_value_first(array $source, bool $exception = true): mixed
 {
     if ($source) {
         return $source[array_key_first($source)];
     }
 
-    throw new OutOfBoundsException(tr('Cannot get first value of source array, the array is empty'));
+    if ($exception) {
+        throw new OutOfBoundsException(tr('Cannot get first value of source array, the array is empty'));
+    }
+
+    return null;
 }
 
 
 /**
  * Returns the last value from the specified array
  *
- * @param array $source
+ * @param array $source           The source array to return the last value from
+ * @param bool  $exception [true] If true, and the source array is empty, will throw an OutOfBoundsException. If false, will return NULL
+ *
  * @return mixed
  */
-function array_value_last(array $source): mixed
+function array_value_last(array $source, bool $exception = true): mixed
 {
     if ($source) {
         return $source[array_key_last($source)];
     }
 
-    throw new OutOfBoundsException(tr('Cannot get last value of source array, the array is empty'));
+    if ($exception) {
+        throw new OutOfBoundsException(tr('Cannot get last value of source array, the array is empty'));
+    }
+
+    return null;
 }
 
 
 /**
  * Returns an integer or float number from whatever was specified
  *
- * @param mixed $source
- * @param bool  $allow_null
+ * @param mixed $source            The source value from which to return a numeric value
+ * @param bool  $allow_null [true] If true, and the source is NULL, will return NULL. If false, and the source is NULL, will return 0
  *
  * @return float|int|null
  */
@@ -2260,8 +2274,9 @@ function get_numeric(mixed $source, bool $allow_null = true): float|int|null
 /**
  * Strips the extension from the given file name
  *
- * @param string|null $filename
- * @param bool        $all_extensions
+ * @param string|null $filename               The filename from which to return the extension
+ * @param bool        $all_extensions [false] If true, and the filename contains multiple extensions (filename.tar.gz, for example), will return all extensions (tar.gz)
+ *                                            If false, will return only the last extension (gz)
  *
  * @return string|null
  */

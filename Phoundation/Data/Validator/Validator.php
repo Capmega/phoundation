@@ -1,9 +1,23 @@
 <?php
 
 /**
- * Validator class
+ * Class Validator
  *
- * This class validates data from untrusted arrays
+ * This class validates data from untrusted sources
+ *
+ * This class is an abstract class and cannot be instantiated directly. Instead, use one of  ArrayValidator, ArgvValidator, GetValidator, PostValidator, or
+ * FileValidator classes instead.
+ *
+ * The ArrayValidator class accepts a source array with untrusted / dirty data when instantiating the class. The ArgvValidator, GetValidator, and PostValidator
+ * classes always automatically have the source data supplied from $argv, $_GET, and $_POST respectively.
+ *
+ * Then, keys can be selected using Validator::select() and a wide variety of validation methods can be applied to each key value. Once every key in the array
+ * has been validated, the Validator::validate() method can be called. This will either return an array with the selected keys, all with validated values that
+ * are safe for use, or throw a ValidationFailedException. This exception will contain information in the data section on what field(s) failed and why.
+ *
+ * Data validation for each value is typically executed in the order: exists (optionally default), datatype, size, content.
+ *
+ * ... (TODO: Write more)
  *
  * @see       https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/
  * @see       https://nulldog.com/utf-8-encoding-in-php-a-complete-guide
@@ -57,7 +71,6 @@ use Phoundation\Date\Exception\UnsupportedDateFormatException;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\ObsoleteException;
 use Phoundation\Exception\OutOfBoundsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
@@ -441,7 +454,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->source[$from_key] = null;
         }
 
-        if (array_key_exists($to_key, $this->source)) {
+        if (array_get_safe($this->source, $to_key)) {
             // Target already exists, should we overwrite?
             if (!$overwrite) {
                 // Do not overwrite, do not change anything
@@ -2693,11 +2706,6 @@ throw new ObsoleteException();
             }
 
             if (strlen($value) > $max_characters) {
-show($this->selected_field);
-show($max_characters);
-show($value);
-showbacktrace();
-die();
                 $this->addSoftFailure(tr('must have ":count" characters or less', [':count' => $max_characters]));
             }
         });

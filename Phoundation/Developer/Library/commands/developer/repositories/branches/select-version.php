@@ -55,13 +55,14 @@ OPTIONAL ARGUMENTS
 
 [-c, --no-create]                       If the resolved auto branch does not exist, do not automatically create it
 
-[-R, --results]                         If specified will display the resulting branches'));
+[-r, --results]                         If specified will display the resulting branches'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
                      ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->select('-c,--no-create')->isOptional()->isBoolean()
+                     ->select('-r,--results')->isOptional()->isBoolean()
                      ->validate();
 
 
@@ -76,7 +77,7 @@ $o_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
 
 
 // Display results?
-if (RESULTS) {
+if ($argv['results']) {
     // List available repositories
     Repositories::new()->load()->displayCliTable([
         'name'     => ts('Repository name'),

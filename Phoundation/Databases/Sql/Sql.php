@@ -1741,12 +1741,12 @@ class Sql implements SqlInterface
                 }
 
             } catch (Throwable $e) {
-                throw OutOfBoundsException::new(tr('Specified column ":column" does not exist in result row', [
+                throw OutOfBoundsException::new(tr('Specified ID column ":column" does not exist in result row', [
                     ':column' => $id_column,
                 ]), $e)->addData([
                     'column' => $id_column,
                     'row'    => $row,
-                ]);
+                ])->addHint(tr('Please ensure that the specified $id_column exists in the query result columns'));
             }
 
             $return[$key] = $row;
@@ -1789,7 +1789,7 @@ class Sql implements SqlInterface
                 ]), $e)->addData([
                     'column' => $id_column,
                     'row'    => $row,
-                ]);
+                ])->addHint(tr('Please ensure that the specified $id_column exists in the query result columns'));
             }
 
             $return[$key] = $row;

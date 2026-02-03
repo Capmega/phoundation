@@ -594,14 +594,15 @@ class Git extends Versioning implements GitInterface
                 ':repository' => $this->o_directory
             ]));
         }
+
         $return = $this->o_process->clearArguments()
                                   ->addArgument('tag')
                                   ->addArguments(['-a', $tag])
                                   ->addArguments($message ? ['-m', $message] : null)
                                   ->addArguments($this->selectSigned($signed) ? ['-s'] : null)
                                   ->executeReturnArray();
-        Log::notice($return, 1, false);
 
+        Log::notice($return, 1, false);
         return $this;
     }
 
@@ -621,12 +622,13 @@ class Git extends Versioning implements GitInterface
                 ':repository' => $this->o_directory
             ]));
         }
+
         $return = $this->o_process->clearArguments()
                                   ->addArgument('tag')
                                   ->addArguments($tag)
                                   ->executeReturnArray();
-        Log::notice($return, 1, false);
 
+        Log::notice($return, 1, false);
         return $this;
     }
 
@@ -640,14 +642,13 @@ class Git extends Versioning implements GitInterface
      */
     public function stash(PhoPathInterface|array|string|null $o_paths = null): static
     {
-        $output = $this->o_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('--')
-            ->addArguments($o_paths)
-            ->executeReturnArray();
-        Log::notice($output, 4, false);
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('stash')
+                                  ->addArgument('--')
+                                  ->addArguments($o_paths)
+                                  ->executeReturnArray();
 
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -659,13 +660,12 @@ class Git extends Versioning implements GitInterface
      */
     public function stashPop(): static
     {
-        $output = $this->o_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('pop')
-            ->executeReturnArray();
-        Log::notice($output, 4, false);
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('stash')
+                                  ->addArgument('pop')
+                                  ->executeReturnArray();
 
+        Log::notice($output, 4, false);
         return $this;
     }
 
@@ -677,11 +677,10 @@ class Git extends Versioning implements GitInterface
      */
     public function stashShow(): array
     {
-        return $this->o_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('show')
-            ->executeReturnArray();
+        return $this->o_process->clearArguments()
+                               ->addArgument('stash')
+                               ->addArgument('show')
+                               ->executeReturnArray();
     }
 
 
@@ -693,11 +692,11 @@ class Git extends Versioning implements GitInterface
     public function getStashList(): array
     {
         $return  = [];
-        $results = $this->o_process
-            ->clearArguments()
-            ->addArgument('stash')
-            ->addArgument('list')
-            ->executeReturnArray();
+        $results = $this->o_process->clearArguments()
+                                   ->addArgument('stash')
+                                   ->addArgument('list')
+                                   ->executeReturnArray();
+
         foreach ($results as $result) {
             preg_match_all('/stash@\{(\d+)}:\s(.+)/', $result, $matches);
             $return[$matches[0][0]] = $matches[2][0];
@@ -720,8 +719,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('checkout')
                                   ->addArguments($branches_or_directories)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -736,8 +735,8 @@ class Git extends Versioning implements GitInterface
         $return = $this->o_process->clearArguments()
                                   ->addArgument('remote')
                                   ->executeReturnArray();
-        Log::notice($return, 1, false);
 
+        Log::notice($return, 1, false);
         return Arrays::valueToKeys($return);
     }
 
@@ -784,6 +783,7 @@ class Git extends Versioning implements GitInterface
         if ($this->remoteExists($remote)) {
             return $this;
         }
+
         throw new GitException(ts('The specified remote ":remote" does not exist for the GIT repository ":repository"', [
             ':remote'     => $remote,
             ':repository' => $this->o_directory
@@ -808,8 +808,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument($directories ? '-d' : null)
                                   ->addArguments($branches_or_directories)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -829,8 +829,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument($revision)
                                   ->addArgument($files)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -851,8 +851,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('add')
                                   ->addArgument($files)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -871,8 +871,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('mv')
                                   ->addArguments([$source, $target])
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -907,8 +907,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument($message)
                                   ->addArgument($this->selectSigned($signed) ? '-s' : null)
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -924,8 +924,8 @@ class Git extends Versioning implements GitInterface
                                   ->addArgument('reset')
                                   ->addArgument('HEAD^')
                                   ->executeReturnArray();
-        Log::notice($output, 1, false);
 
+        Log::notice($output, 1, false);
         return $this;
     }
 
@@ -953,8 +953,7 @@ class Git extends Versioning implements GitInterface
      */
     public function getStatusFilesObject(?PhoPathInterface $path = null): StatusFilesInterface
     {
-        return StatusFiles::new($path ?? $this->o_directory)
-                          ->scanChanges();
+        return StatusFiles::new($path ?? $this->o_directory)->scanChanges();
     }
 
 
@@ -972,12 +971,13 @@ class Git extends Versioning implements GitInterface
     public function saveDiff(array|string $files, bool $cached = false): ?PhoFileInterface
     {
         $diff = $this->getDiff($files, $cached);
+
         if ($diff) {
             return PhoFile::newTemporaryObject(false, sha1(Strings::force($files, '-')) . '.patch', false)
                           ->putContents($diff . PHP_EOL);
         }
-        Log::warning(ts('Files ":files" have no diff', [':files' => $files]));
 
+        Log::warning(ts('Files ":files" have no diff', [':files' => $files]));
         return null;
     }
 
@@ -1033,6 +1033,7 @@ class Git extends Versioning implements GitInterface
     {
         if (!$patch_file) {
             Log::warning(ts('Ignoring empty patch filename'));
+
         } else {
             $output = $this->o_process->clearArguments()
                                       ->addArgument('apply')
@@ -1042,6 +1043,7 @@ class Git extends Versioning implements GitInterface
                                       ->addArgument('--whitespace=nowarn')
                                       ->addArgument($patch_file->getSource())
                                       ->executeReturnArray();
+
             Log::notice($output, 1, false);
         }
 
@@ -1107,7 +1109,6 @@ class Git extends Versioning implements GitInterface
 
                     // The branch causing the issue is NOT the branch we are interested in, we should be able to safely ignore this exception
                     Log::notice($e->getDataKey('output'), 1, false);
-
                     return $this;
                 }
             }
