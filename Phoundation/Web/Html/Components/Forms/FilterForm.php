@@ -35,7 +35,7 @@ use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTimeFormats;
 use Phoundation\Date\PhoDateTime;
@@ -687,7 +687,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                 // Is the status filter not set to "All"?
                 if ($this->getStatus() !== 'all') {
                     $o_builder->addWhere(
-                        SqlQueries::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
+                        QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
                     );
                 }
             }

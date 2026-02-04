@@ -270,10 +270,12 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
         if ($o_parent instanceof DataEntryInterface) {
+            // Pass readonly flags. If the parent is readonly, then so is this list
             if ($this->getReadonly() !== $o_parent->getReadonly()) {
                 $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
             }
 
+            // Pass disabled flags. If the parent is disabled, then so is this list
             if ($this->getDisabled() !== $o_parent->getDisabled()) {
                 $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
             }

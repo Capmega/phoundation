@@ -6,7 +6,6 @@
 //
 //use Phoundation\Databases\Sql\Exception\SqlException;
 //use Phoundation\Databases\Sql\Sql;
-//use Phoundation\Databases\Sql\SqlQueries;
 //use Phoundation\Utils\Arrays;
 //use Phoundation\Utils\Strings;
 //
@@ -262,7 +261,7 @@
 //        }
 //
 //        if (is_array($values)) {
-//            $values = SqlQueries::in($values);
+//            $values = QueryBuilder::in($values);
 //
 //            foreach ($values as $key => $value) {
 //                if (($value === null) or ($value === 'null') or ($value === 'NULL')) {
@@ -272,7 +271,7 @@
 //                }
 //            }
 //
-//            return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . SqlQueries::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
+//            return ' WHERE (' . ($table ? '`' . $table . '`.' : '') . '`' . $column . '` ' . $not . ' IN (' . QueryBuilder::inColumns($values) . ')' . $extra . ') ' . $extra . ' ';
 //        }
 //
 //        throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [':values' => $values]));
@@ -303,7 +302,7 @@
 //            $values = array(Strings::startsWith($column, ':') => $values);
 //
 //        } elseif (is_array($values)) {
-//            $values = SqlQueries::in($values, ':value', true, true);
+//            $values = QueryBuilder::in($values, ':value', true, true);
 //
 //        } else {
 //            throw new SqlException(tr('Specified values ":values" is neither NULL nor scalar nor an array', [
@@ -526,8 +525,8 @@
 //
 //                    // The $value may be specified as an empty array, which then will be ignored
 //                    if ($value) {
-//                        $value = SqlQueries::in($value);
-//                        $filter = ' ' . $column . ' ' . $not_string . 'IN (' . SqlQueries::inColumns($value) . ') ';
+//                        $value = QueryBuilder::in($value);
+//                        $filter = ' ' . $column . ' ' . $not_string . 'IN (' . QueryBuilder::inColumns($value) . ') ';
 //                        $execute = array_merge($execute, $value);
 //                    }
 //

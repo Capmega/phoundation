@@ -16,9 +16,8 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Os\Tasks\Task;
 use Phoundation\Security\Incidents\FilterForm;
 use Phoundation\Security\Incidents\Incidents;
@@ -51,7 +50,7 @@ $o_incidents->getQueryBuilderObject()->addSelect('`security_incidents`.`id`')
                                      ->addSelect('`security_incidents`.`title`')
                                      ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`')
                                      ->addJoin('JOIN `accounts_users` ON `accounts_users`.`id` = `security_incidents`.`created_by`')
-                                     ->addWhere(SqlQueries::is('`security_incidents`.`status`', null, ':status'));
+                                     ->addWhere(QueryBuilder::is('`security_incidents`.`status`', null, ':status'));
 $o_incidents->load();
 
 

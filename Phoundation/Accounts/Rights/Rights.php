@@ -32,7 +32,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataAutoCreate;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Security\Incidents\EnumSeverity;
 use Phoundation\Security\Incidents\Incident;
@@ -105,7 +105,7 @@ class Rights extends DataIterator implements RightsInterface
     public static function getNotExist(array|string $rights): array
     {
         $rights = Arrays::force($rights);
-        $values = SqlQueries::in($rights);
+        $values = QueryBuilder::in($rights);
         $rights = array_flip($rights);
         $exist  = sql()->query('SELECT `seo_name`
                                 FROM   `accounts_rights`
@@ -537,11 +537,13 @@ class Rights extends DataIterator implements RightsInterface
             // Load only rights for specified parent
             if ($this->o_parent instanceof UserInterface) {
                 $this->o_query_builder->addJoin('JOIN  `accounts_users_rights` 
-                                               ON    `accounts_users_rights`.`users_id`  = :users_id
-                                                 AND `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`', [
+                                                 ON    `accounts_users_rights`.`users_id`  = :users_id
+                                                 AND   `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`', [
                     ':users_id' => $this->o_parent->getId(),
                 ]);
+
                 // Load the rights so that we can add "everybody" after it
+show($this->o_query_builder->getQuery());
                 parent::load();
 
                 // Added the "everybody" right
@@ -594,7 +596,7 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
     {
-        // TODO This is a mess, redo parent management
+        // TODO This is a mess, redo parent management. Use the same allowed datatypes method as used for Iterator values!
         if (!$o_parent instanceof UserInterface) {
             if (!$o_parent instanceof RoleInterface) {
                 if (!$o_parent instanceof RenderInterface) {

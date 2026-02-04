@@ -182,11 +182,11 @@ class Notifications extends DataIterator implements NotificationsInterface
 //        foreach ($filters as $key => $value){
 //            switch ($key) {
 //                case 'status':
-//                    $builder->addWhere('`status`' . SqlQueries::is($value, ':status'), [':status' => $value]);
+//                    $builder->addWhere('`status`' . QueryBuilder::is($value, ':status'), [':status' => $value]);
 //                    break;
 //
 //                case 'users_id':
-//                    $builder->addWhere('`users_id`' . SqlQueries::is($value, ':users_id'), [':users_id' => $value]);
+//                    $builder->addWhere('`users_id`' . QueryBuilder::is($value, ':users_id'), [':users_id' => $value]);
 //                    break;
 //            }
 //        }

@@ -60,6 +60,7 @@ use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlQueryInterface;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
 use Phoundation\Databases\Sql\Schema\Schema;
 use Phoundation\Date\PhoTime;
@@ -260,7 +261,7 @@ class Sql implements SqlInterface
             case 0:
                 // No results. This is probably okay, but do check if the query was a select or show query, just to
                 // be sure
-                SqlQueries::checkShowSelect($query, $execute);
+                QueryBuilder::checkShowSelect($query, $execute);
                 return null;
 
             case 1:
@@ -279,11 +280,11 @@ class Sql implements SqlInterface
 
             default:
                 // Multiple results, this is always bad for a function that should only return one result!
-                SqlQueries::checkShowSelect($query, $execute);
+                QueryBuilder::checkShowSelect($query, $execute);
 
                 throw SqlMultipleResultsException::new(tr('Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', [
                     ':count' => $result->rowCount(),
-                    ':query' => SqlQueries::renderQueryString($result->queryString, $execute),
+                    ':query' => QueryBuilder::renderQueryString($result->queryString, $execute),
                 ]))->setData([
                     'connector' => $this->connector,
                 ]);
@@ -400,7 +401,7 @@ class Sql implements SqlInterface
                 $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query->queryString);
 
                 // Are we going to write?
-                SqlQueries::checkWriteAllowed($query->queryString);
+                QueryBuilder::checkWriteAllowed($query->queryString);
                 $query->execute($execute);
 
             } else {
@@ -418,7 +419,7 @@ class Sql implements SqlInterface
                 $timer = Timers::new('sql', static::getConnectorLogPrefix() . $query);
 
                 // Are we going to write?
-                SqlQueries::checkWriteAllowed($query);
+                QueryBuilder::checkWriteAllowed($query);
 
                 if (empty($execute)) {
                     // Execute plain SQL query string. Only return ASSOC data.
@@ -444,7 +445,7 @@ class Sql implements SqlInterface
                 // Get current function / file@line. If the current function is actually an included file, then assume this is the
                 // actual script that was executed by route()
                 Debug::addStatistic()
-                     ->setQuery(SqlQueries::show($query, $execute, true))
+                     ->setQuery(QueryBuilder::show($query, $execute, true))
                      ->setTime($timer->getTotal());
             }
 
@@ -628,7 +629,7 @@ class Sql implements SqlInterface
 //                    case 1052:
 //                        // Integrity constraint violation
 //                        throw new SqlException(tr('Query ":query" contains an abiguous column', [
-//                            ':query' => SqlQueries::buildQueryString($query, $execute, true)
+//                            ':query' => QueryBuilder::buildQueryString($query, $execute, true)
 //                        ]), $e);
 //
 //                    case 1054:
@@ -639,7 +640,7 @@ class Sql implements SqlInterface
 //
 //                        // Column not found
 //                        throw SqlException::new(tr('Query ":query" refers to non existing column ":column"', [
-//                            ':query'  => SqlQueries::buildQueryString($query, $execute, true),
+//                            ':query'  => QueryBuilder::buildQueryString($query, $execute, true),
 //                            ':column' => $column
 //                        ]), $e)->addData([':column' => $column]);
 //
@@ -647,19 +648,19 @@ class Sql implements SqlInterface
 //                        // Syntax error or access violation
 //                        if (str_contains(strtoupper($query), 'DELIMITER')) {
 //                            throw new SqlException(tr('Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', [
-//                                ':query' => SqlQueries::buildQueryString($query, $execute, true)
+//                                ':query' => QueryBuilder::buildQueryString($query, $execute, true)
 //                            ]), $e);
 //                        }
 //
 //                        throw SqlException::new(tr('Query ":query" has a syntax error: ":error"', [
-//                            ':query' => SqlQueries::buildQueryString($query, $execute),
+//                            ':query' => QueryBuilder::buildQueryString($query, $execute),
 //                            ':error' => Strings::from($error[2], 'syntax; ')
 //                        ], false), $e)->addData(['query' => $query, 'execute' => $execute]);
 //
 //                    case 1072:
 //                        // Adding index error, index probably does not exist
 //                        throw new SqlException(tr('Query ":query" failed with error 1072 with the message ":message"', [
-//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
+//                            ':query'   => QueryBuilder::buildQueryString($query, $execute, true),
 //                            ':message' => isset_get($error[2])
 //                        ]), $e);
 //
@@ -681,19 +682,19 @@ class Sql implements SqlInterface
 //
 //                        }catch (Exception $e) {
 //                            throw new SqlException(tr('Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', [
-//                                ':query' => SqlQueries::buildQueryString($query, $execute, true)
+//                                ':query' => QueryBuilder::buildQueryString($query, $execute, true)
 //                            ]), $e);
 //                        }
 //
 //                        throw new SqlException(tr('Query ":query" failed with error 1005 with the message "Foreign key error on :message"', [
-//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
+//                            ':query'   => QueryBuilder::buildQueryString($query, $execute, true),
 //                            ':message' => $fk
 //                        ]), $e);
 //
 //                    case 1146:
 //                        // Base table or view not found
 //                        throw new SqlException(tr('Query ":query" refers to a base table or view that does not exist: :message', [
-//                            ':query'   => SqlQueries::buildQueryString($query, $execute, true),
+//                            ':query'   => QueryBuilder::buildQueryString($query, $execute, true),
 //                            ':message' => $e->getMessage()
 //                        ]), $e);
 //                }
@@ -708,7 +709,7 @@ class Sql implements SqlInterface
 //                SQL STATE ERROR : "' . $error[0] . '"
 //                DRIVER ERROR    : "' . $error[1] . '"
 //                ERROR MESSAGE   : "' . $error[2] . '"
-//                query           : "' . Strings::Log(SqlQueries::buildQueryString($query, $execute, true)) . '"
+//                query           : "' . Strings::Log(QueryBuilder::buildQueryString($query, $execute, true)) . '"
 //                date            : "' . date('Y-m-d H:i:s'))
 //            ->setDetails([
 //                '$argv'     => $argv,
@@ -722,7 +723,7 @@ class Sql implements SqlInterface
 //            ->send();
 //
 //        throw SqlException::new(static::getLogPrefix() . tr('Query ":query" failed with ":messages"', [
-//            ':query'    => SqlQueries::buildQueryString($query, $execute),
+//            ':query'    => QueryBuilder::buildQueryString($query, $execute),
 //            ':messages' => $e->getMessage(),
 //        ]), $e)->setCode(isset_get($error[1]));
     }
@@ -1394,15 +1395,15 @@ class Sql implements SqlInterface
     {
         Core::checkReadonly('sql insert');
 
-        $columns       = SqlQueries::getPrefixedColumns($data);
-        $values        = SqlQueries::getBoundValues($data);
-        $update_values = SqlQueries::getBoundValues($update, 'update_');
+        $columns       = QueryBuilder::getPrefixedColumns($data);
+        $values        = QueryBuilder::getBoundValues($data);
+        $update_values = QueryBuilder::getBoundValues($update, 'update_');
 
         if ($update) {
             // Build bound variables for the query
             $values = array_merge($values, $update_values);
-            $keys   = SqlQueries::getBoundKeys($data);
-            $update = SqlQueries::getUpdateKeyValues($update, 'update_');
+            $keys   = QueryBuilder::getBoundKeys($data);
+            $update = QueryBuilder::getUpdateKeyValues($update, 'update_');
 
             $this->query('INSERT INTO            `' . $table . '` (' . $columns . ') 
                           VALUES                                  (' . $keys . ') 
@@ -1410,7 +1411,7 @@ class Sql implements SqlInterface
 
         } else {
             // Build bound variables for the query
-            $keys = SqlQueries::getBoundKeys($data);
+            $keys = QueryBuilder::getBoundKeys($data);
             $this->query('INSERT INTO `' . $table . '` (' . $columns . ') VALUES (' . $keys . ')', $values);
         }
 
@@ -1455,9 +1456,9 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql update');
 
         // Build bound variables for the query
-        $values    = SqlQueries::getBoundValues(array_merge($set, Arrays::force($where)));
-        $update    = SqlQueries::getUpdateKeyValues($set);
-        $where     = SqlQueries::whereColumns($where);
+        $values    = QueryBuilder::getBoundValues(array_merge($set, Arrays::force($where)));
+        $update    = QueryBuilder::getUpdateKeyValues($set);
+        $where     = QueryBuilder::whereColumns($where);
         $statement = $this->query('UPDATE `' . $table . '`
                                          SET     ' . $update . $where, $values);
 
@@ -1528,8 +1529,8 @@ class Sql implements SqlInterface
         Core::checkReadonly('sql erase');
 
         // Build bound variables for the query
-        $variables = SqlQueries::getBoundValues($where);
-        $update    = SqlQueries::filterColumns($where, ' ' . $separator . ' ');
+        $variables = QueryBuilder::getBoundValues($where);
+        $update    = QueryBuilder::filterColumns($where, ' ' . $separator . ' ');
 
         $this->query('DELETE FROM `' . $table . '`
                       WHERE        ' . $update, $variables);

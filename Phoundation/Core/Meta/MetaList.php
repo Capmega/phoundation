@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Meta;
 
 use Phoundation\Core\Log\Log;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
@@ -58,7 +58,7 @@ class MetaList
     public function getHtmlDataTableObject(array|string|null $columns = null): HtmlDataTableInterface
     {
         // Create and return the table
-        $in     = SqlQueries::in($this->meta_list);
+        $in     = QueryBuilder::in($this->meta_list);
         $source = sql()->list('SELECT    `meta_history`.`id`,
                                          `meta_history`.`created_by`,
                                          DATE_FORMAT(`meta_history`.`created_on`, "%Y-%m-%d %h:%m:%s") AS `date_time`,

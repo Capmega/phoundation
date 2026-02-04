@@ -327,13 +327,13 @@ class SqlDataEntry implements SqlDataEntryInterface
         $insert_row = static::initializeInsertRow($insert_row, $comments, $diff, array_get_safe($update_row, 'meta_state'));
 
         // Build variables for the insert part of the query
-        $insert_columns = SqlQueries::getPrefixedColumns($insert_row, $this->o_data_entry->getPrefix());
-        $insert_values  = SqlQueries::getBoundValues($insert_row, $this->o_data_entry->getPrefix(), true);
-        $keys           = SqlQueries::getBoundKeys($insert_row);
+        $insert_columns = QueryBuilder::getPrefixedColumns($insert_row, $this->o_data_entry->getPrefix());
+        $insert_values  = QueryBuilder::getBoundValues($insert_row, $this->o_data_entry->getPrefix(), true);
+        $keys           = QueryBuilder::getBoundKeys($insert_row);
 
         // Build variables for the update part of the query
-        $updates       = SqlQueries::getUpdateKeyValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), $this->id_column);
-        $update_values = SqlQueries::getBoundValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), false, [$this->id_column]);
+        $updates       = QueryBuilder::getUpdateKeyValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), $this->id_column);
+        $update_values = QueryBuilder::getBoundValues($update_row, 'update_' . $this->o_data_entry->getPrefix(), false, [$this->id_column]);
         $execute       = array_merge($insert_values, $update_values);
 
         $this->sql->setDebug($this->debug)
@@ -461,9 +461,9 @@ class SqlDataEntry implements SqlDataEntryInterface
         $row = static::initializeInsertRow($row, $comments, $diff);
 
         // Build bound variables for the query
-        $columns = SqlQueries::getPrefixedColumns($row);
-        $values  = SqlQueries::getBoundValues($row, $this->o_data_entry->getPrefix(), true);
-        $keys    = SqlQueries::getBoundKeys($row, $this->o_data_entry->getPrefix());
+        $columns = QueryBuilder::getPrefixedColumns($row);
+        $values  = QueryBuilder::getBoundValues($row, $this->o_data_entry->getPrefix(), true);
+        $keys    = QueryBuilder::getBoundKeys($row, $this->o_data_entry->getPrefix());
 
         $this->sql->setDebug($this->debug)
                   ->query('INSERT INTO `' . $this->table . '` (' . $columns . ')
@@ -502,8 +502,8 @@ class SqlDataEntry implements SqlDataEntryInterface
         $row = static::initializeUpdateRow($row, $comments, $diff, $meta_action);
 
         // Build bound variables for the query
-        $update = SqlQueries::getUpdateKeyValues($row, id_column: $this->id_column);
-        $values = SqlQueries::getBoundValues($row);
+        $update = QueryBuilder::getUpdateKeyValues($row, id_column: $this->id_column);
+        $values = QueryBuilder::getBoundValues($row);
 
         $this->sql->setDebug($this->debug)
                   ->query('UPDATE `' . $this->table . '`

@@ -45,7 +45,6 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\ObsoleteException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -61,7 +60,6 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Enums\EnumTableIdColumn;
 use Phoundation\Web\Requests\Request;
-use Plugins\Medinet\Programs\Interfaces\ProgramsInterface;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -419,13 +417,15 @@ throw new ObsoleteException();
                 // Create a query with optional filtering for parents_id
                 if ($this->o_parent) {
                     $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->o_parent::getTable(), '_') . '_id` = :parents_id AND ';
-                    $this->execute['parents_id'] = $this->o_parent->getId();
+                    $this->execute[':parents_id'] = $this->o_parent->getId();
 
                 } else {
                     $parent_filter = null;
                 }
 
+show($this->execute);
                 $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
+show($this->execute);
 
                 // Set default query
                 $this->query = 'SELECT  ' . $this->getSqlSelectColumns() . '
@@ -442,7 +442,7 @@ throw new ObsoleteException();
             $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
 
         } else {
-            $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ), $like);
+            $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ['status' => 'NULL']), $like);
         }
 
         $this->query   = $this->o_query_builder->getQuery();
@@ -570,7 +570,7 @@ throw new ObsoleteException();
 
             // Add SQL SELECT for each specified column
             foreach ($this->columns as $column) {
-                $return[] = SqlQueries::ensureQuotes(static::getTable()) . '.' . SqlQueries::ensureQuotes($column);
+                $return[] = QueryBuilder::ensureQuotes(static::getTable()) . '.' . QueryBuilder::ensureQuotes($column);
             }
 
             return implode(', ', $return);
@@ -578,7 +578,7 @@ throw new ObsoleteException();
 
 
         // Load all columns
-        return SqlQueries::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . SqlQueries::ensureQuotes($table) . '.* ';
+        return QueryBuilder::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . QueryBuilder::ensureQuotes($table) . '.* ';
     }
 
 
@@ -826,7 +826,7 @@ throw new ObsoleteException();
                         $key = '`' . static::getTable() . '`.' . Strings::ensureSurroundedWith($key, '`');
                     }
 
-                    $where[] = SqlQueries::is($key, $value, 'value', $execute);
+                    $where[] = QueryBuilder::is($key, $value, 'value', $execute);
                 }
 
                 $query .= ' WHERE ' . implode(' AND ', $where);
@@ -1028,7 +1028,7 @@ throw new ObsoleteException();
     public function listIds(array $identifiers): array
     {
         if ($identifiers) {
-            $in = SqlQueries::in($identifiers);
+            $in = QueryBuilder::in($identifiers);
 
             return sql($this->getConnectorObject())->setDebug($this->debug)
                                                    ->list('SELECT `id`
@@ -1230,7 +1230,7 @@ throw new ObsoleteException();
 
         } else {
             $execute = [':status' => $status];
-            $results = sql()->listKeyValues('SELECT `id` FROM `' . static::getTable() . '` WHERE' . SqlQueries::is('status', $status, 'status', $execute), $execute);
+            $results = sql()->listKeyValues('SELECT `id` FROM `' . static::getTable() . '` WHERE' . QueryBuilder::is('status', $status, 'status', $execute), $execute);
         }
 
         if ($results) {

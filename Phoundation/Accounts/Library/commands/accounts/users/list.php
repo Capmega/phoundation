@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 
 
 CliDocumentation::setUsage('./pho accounts users list [OPTIONS]
@@ -61,26 +61,26 @@ $query = $user->getQueryBuilderObject()
               ->addOrderBy('`accounts_users`.`email`');
 
 if ($argv['roles']) {
-    $roles = SqlQueries::in($argv['roles']);
+    $roles = QueryBuilder::in($argv['roles']);
     $query
         ->addJoin('JOIN `accounts_users_roles` ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
         ->addJoin('JOIN `accounts_roles` ON `accounts_roles`.`name` IN (' . implode(', ', array_keys($roles)) . ') AND `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`', $roles);
 }
 
 if ($argv['rights']) {
-    $rights = SqlQueries::in($argv['rights']);
+    $rights = QueryBuilder::in($argv['rights']);
     $query
         ->addJoin('JOIN `accounts_users_rights` ON `accounts_users_rights`.`users_id` = `accounts_users`.`id`')
         ->addJoin('JOIN `accounts_rights` ON `accounts_rights`.`name` IN (' . implode(', ', array_keys($rights)) . ') AND `accounts_rights`.`id` = `accounts_users_rights`.`rights_id`', $rights);
 }
 
 if ($argv['domains']) {
-    $domains = SqlQueries::in($argv['domains']);
+    $domains = QueryBuilder::in($argv['domains']);
     $query->addWhere('`accounts_users`.`domain` (' . implode(', ', array_keys($domains)) . ')', $domains);
 }
 
 if ($argv['status']) {
-    $query->addWhere('`accounts_users`.`status` ' . SqlQueries::is($argv['status'], 'status'));
+    $query->addWhere('`accounts_users`.`status` ' . QueryBuilder::is($argv['status'], 'status'));
 } else {
     $query->addWhere('`accounts_users`.`status` IS NULL');
 }

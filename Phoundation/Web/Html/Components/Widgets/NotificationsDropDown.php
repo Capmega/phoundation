@@ -18,7 +18,7 @@ namespace Phoundation\Web\Html\Components\Widgets;
 
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\Traits\TraitDataStatusFilter;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Notifications\Interfaces\NotificationsInterface;
 use Phoundation\Notifications\Notifications;
 use Phoundation\Web\Html\Components\ElementsBlock;
@@ -162,7 +162,7 @@ class NotificationsDropDown extends ElementsBlock
 
             if ($this->status_filter) {
                 $this->notifications->getQueryBuilderObject()
-                                    ->addWhere('`users_id` = :users_id AND ' . SqlQueries::is('`status`', $this->status_filter, 'status'), [
+                                    ->addWhere('`users_id` = :users_id AND ' . QueryBuilder::is('`status`', $this->status_filter, 'status'), [
                                         ':users_id' => Session::getUserObject()
                                                               ->getId(),
                                         ':status'   => $this->status_filter,

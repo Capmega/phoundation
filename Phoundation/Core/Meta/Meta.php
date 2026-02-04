@@ -31,7 +31,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Validator\Validate;
 use Phoundation\Databases\Sql\Exception\SqlException;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -305,8 +305,8 @@ class Meta implements MetaInterface
     {
         // Erase the specified meta-entries, the history will cascade
         if ($ids) {
-            $ids = SqlQueries::in(Arrays::force($ids));
-            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . SqlQueries::inColumns($ids) . ')', $ids);
+            $ids = QueryBuilder::in(Arrays::force($ids));
+            sql()->query('DELETE FROM `meta` WHERE `id` IN (' . QueryBuilder::inColumns($ids) . ')', $ids);
         }
     }
 

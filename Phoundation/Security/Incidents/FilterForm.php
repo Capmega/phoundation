@@ -19,7 +19,7 @@ namespace Phoundation\Security\Incidents;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Os\Tasks\Task;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -67,8 +67,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         if ($this->o_applied_filters->keyExists('severity') and $this->o_definitions->isRendered('severity', false)) {
             if ($this->getSeverities()) {
-                $values = SqlQueries::in($this->getSeverities());
-                $o_builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+                $values = QueryBuilder::in($this->getSeverities());
+                $o_builder->addWhere('`security_incidents`.`severity` IN (' . QueryBuilder::inColumns($values) . ')', $values);
             }
         }
 

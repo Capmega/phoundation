@@ -102,7 +102,6 @@ use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Databases\Sql\SqlDataEntry;
-use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
@@ -2464,12 +2463,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 if ($this->columns) {
                     // Add SQL SELECT for each specified column
                     foreach ($this->columns as $column) {
-                        $o_query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . SqlQueries::ensureQuotes($column));
+                        $o_query->addSelect(QueryBuilder::ensureQuotes(static::getTable()) . QueryBuilder::ensureQuotes($column));
                     }
 
                 } else {
                     // Load all columns
-                    $o_query->addSelect(SqlQueries::ensureQuotes(static::getTable()) . '.*');
+                    $o_query->addSelect(QueryBuilder::ensureQuotes(static::getTable()) . '.*');
                 }
             }
 

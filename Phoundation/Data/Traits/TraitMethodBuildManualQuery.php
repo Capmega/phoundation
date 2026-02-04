@@ -41,7 +41,7 @@ trait TraitMethodBuildManualQuery
     {
         // Build the query parts
         $where   = [];
-        $execute = [];
+        $execute = $execute ?? [];
         $joins   = [];
         $order   = [];
         $group   = [];

@@ -17,7 +17,7 @@ declare(strict_types=1);
 use Phoundation\Accounts\Rights\Rights;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 
 
 CliDocumentation::setUsage('./pho accounts rights list [OPTIONS]
@@ -45,13 +45,13 @@ $rights  = Rights::new();
 $builder = $rights->getQueryBuilderObject();
 
 if ($argv['roles']) {
-    $roles = SqlQueries::in($argv['roles']);
+    $roles = QueryBuilder::in($argv['roles']);
     $builder->addJoin('JOIN `accounts_roles_rights` ON `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`')
             ->addJoin('JOIN `accounts_roles` ON `accounts_roles`.`name` IN (' . implode(', ', array_keys($roles)) . ') AND `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id`', $roles);
 }
 
 if ($argv['status']) {
-    $builder->addWhere('`accounts_rights`.`status` ' . SqlQueries::is($argv['status'], 'status'));
+    $builder->addWhere('`accounts_rights`.`status` ' . QueryBuilder::is($argv['status'], 'status'));
 
 } else {
     $builder->addWhere('`accounts_rights`.`status` IS NULL');

@@ -31,7 +31,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
-use Phoundation\Databases\Sql\SqlQueries;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
@@ -596,11 +596,11 @@ class Users extends DataIterator implements UsersInterface
 
             } elseif ($identifiers) {
                 $identifiers   = Arrays::force($identifiers);
-                $this->execute = SqlQueries::in($identifiers, ':identifiers', true);
+                $this->execute = QueryBuilder::in($identifiers, ':identifiers', true);
 
                 $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*
                                 FROM   `accounts_users`
-                                WHERE  `accounts_users`.`id` IN (' . SqlQueries::inColumns($this->execute) . ')';
+                                WHERE  `accounts_users`.`id` IN (' . QueryBuilder::inColumns($this->execute) . ')';
 
             } else {
                 $this->query = 'SELECT `accounts_users`.`email` AS `key`, `accounts_users`.*

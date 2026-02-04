@@ -16,18 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Tasks;
 
-use Phoundation\Data\Categories\Categories;
-use Phoundation\Data\Categories\Category;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
-use Phoundation\Databases\Sql\SqlQueries;
-use Phoundation\Os\Tasks\Task;
-use Phoundation\Security\Incidents\Severities;
-use Phoundation\Web\Html\Components\Forms\Form;
-use Phoundation\Web\Html\Components\Input\Buttons\Button;
-use Phoundation\Web\Html\Components\Span;
-use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
 
@@ -73,8 +64,8 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         if ($this->o_applied_filters->keyExists('category') and $this->o_definitions->isRendered('category', false)) {
 //            if ($this->getCategoriesId()) {
-//                $values = SqlQueries::in($this->getCategoriesId());
-//                $o_builder->addWhere('`security_incidents`.`severity` IN (' . SqlQueries::inColumns($values) . ')', $values);
+//                $values = QueryBuilder::in($this->getCategoriesId());
+//                $o_builder->addWhere('`security_incidents`.`severity` IN (' . QueryBuilder::inColumns($values) . ')', $values);
 //            }
         }
 

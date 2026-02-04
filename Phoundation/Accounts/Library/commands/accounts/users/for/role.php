@@ -17,7 +17,6 @@ declare(strict_types=1);
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
-use Phoundation\Databases\Sql\SqlQueries;
 use Phoundation\Web\Json\Users;
 
 
@@ -56,7 +55,7 @@ $users = Users::new()->setQueryBuilderObject(QueryBuilder::new()
 
 // Apply status filter
 if ($argv['delete']) {
-    Users::new()->getQueryBuilderObject()->addWhere('`accounts_users`.`status` ' . SqlQueries::is('deleted', 'status'));
+    Users::new()->getQueryBuilderObject()->addWhere('`accounts_users`.`status` ' . QueryBuilder::is('deleted', 'status'));
 }
 
 
