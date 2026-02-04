@@ -423,9 +423,7 @@ throw new ObsoleteException();
                     $parent_filter = null;
                 }
 
-show($this->execute);
                 $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
-show($this->execute);
 
                 // Set default query
                 $this->query = 'SELECT  ' . $this->getSqlSelectColumns() . '
