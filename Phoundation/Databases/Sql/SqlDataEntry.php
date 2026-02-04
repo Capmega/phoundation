@@ -35,6 +35,7 @@ use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Interfaces\SqlDataEntryInterface;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
