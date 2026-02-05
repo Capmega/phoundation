@@ -3386,7 +3386,8 @@ class Core implements CoreInterface
                     ->setException($e)
                     ->send();
 
-        showdie($e);
+        // We should never get here, but here we are
+        exit(1);
     }
 
 
