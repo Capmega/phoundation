@@ -589,7 +589,7 @@ throw new ObsoleteException();
 
 
         // Load all columns
-        return QueryBuilder::ensureQuotes(static::getTableIdColumn()) . ' AS `unique_identifier`, ' . QueryBuilder::ensureQuotes($table) . '.* ';
+        return QueryBuilder::ensureQuotes(static::getTableIdColumn()) . ', ' . QueryBuilder::ensureQuotes($table) . '.* ';
     }
 
 
