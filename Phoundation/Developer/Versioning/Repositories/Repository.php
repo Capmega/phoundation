@@ -32,6 +32,7 @@ use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
+use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Developer\Versioning\Git\Branches\Branches;
 use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
@@ -51,6 +52,7 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChan
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionTagNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Filesystem\Exception\DirectoryNotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -86,8 +88,15 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $this->setPermittedColumns(['branch', 'class'])
              ->addEventHandler('loaded', function () {
+                 try {
+                     $this->setBranch($this->getSelectedBranch(true));
+
+                 } catch (NotARepositoryException | DirectoryNotExistsException) {
+                     // Whoops, this repository is no longer valid! Continue, but do not read the branch
+                 }
+
                  $this->setClass($this->detectClass()->value)
-                      ->setBranch($this->getSelectedBranch(true));
+                      ->is_modified = false;
              });
 
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);

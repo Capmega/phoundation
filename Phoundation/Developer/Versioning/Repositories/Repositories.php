@@ -42,7 +42,6 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionB
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Exception\NotExistsException;
-use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
@@ -327,13 +326,17 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * Scans for repositories on the current machine and registers them in the database
      *
-     * @param PhoPathInterface $path
-     * @param bool             $delete_gone
+     * @param PhoPathInterface $path                        The path from which the scan will start
+     * @param bool             $disable_backup_paths [true] If true, will automatically disable repositories when any
+     *                                                      directory (including the basename) in their path is a backup
+     *                                                      directory (i.e. a directory name that ends with a ~)
+     * @param bool             $delete_gone          [true] Will delete repositories from the database if they were not
+     *                                                      found during this scan
      *
      * @return static
      * @todo Implement $delete_gone support
      */
-    public function scan(PhoPathInterface $path, bool $delete_gone = true): static
+    public function scan(PhoPathInterface $path, bool $disable_backup_paths = true, bool $delete_gone = true): static
     {
         $this->load();
 
@@ -347,14 +350,26 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                             ->setType('d')
                             ->setName('.git');
 
-        $found = $this->o_find->executeReturnArray();
+        $found        = $this->o_find->executeReturnArray();
+        $repositories = [];
 
         foreach ($found as $repository_path) {
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
             if (Repository::isPhoundation($o_repository_path)) {
-                if (!Repository::exists(['path' => $o_repository_path->getSource()])) {
-                    Repository::newFromPathObject($o_repository_path)->save();
+                if (Repository::exists(['path' => $o_repository_path->getSource()])) {
+                    $_repository = Repository::new(['path' => $o_repository_path->getSource()]);
+
+                    $repositories[$_repository->getName()] = $_repository->getName();
+                    $this->new[]                           = $_repository->getName();
+
+                } else {
+                    $_repository = Repository::newFromPathObject($o_repository_path)->save();
+                    $repositories[$_repository->getName()] = $_repository->getName();
+
+                    if ($o_repository_path->containsBackupDirectory()) {
+                        $_repository->disable();
+                    }
                 }
             }
         }
@@ -362,8 +377,15 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         // Remove repositories that were not found from the list?
         if ($delete_gone) {
-// TODO Implement auto delete gone repositories
-throw new UnderConstructionException();
+            $db_repositories = sql()->listKeyValue('SELECT `name` 
+                                                    FROM   `developer_repositories` 
+                                                    WHERE  `status` IS NULL OR `status` != "deleted"');
+
+            $this->deleted = array_diff_key($db_repositories, $repositories);
+
+            foreach ($this->deleted as $repository) {
+                Repository::new($repository)->delete();
+            }
         }
 
         return $this;

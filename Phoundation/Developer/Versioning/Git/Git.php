@@ -22,6 +22,7 @@ namespace Phoundation\Developer\Versioning\Git;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchIsBehindRemoteBranchException;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
@@ -33,6 +34,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Versioning;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Exception\DirectoryNotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -103,15 +105,63 @@ class Git extends Versioning implements GitInterface
      * @param PhoDirectoryInterface $o_directory
      *
      * @return static
+     * @throws DirectoryNotExistsException
+     * @throws NotARepositoryException
      */
     public function setDirectoryObject(PhoDirectoryInterface $o_directory): static
     {
         $this->o_directory = $o_directory->makeAbsolute()->checkReadable();
         $this->o_process   = Process::new('git')
                                     ->setExecutionDirectory($this->o_directory)
-                                    ->setTimeout(300);
+                                    ->setTimeout(300)
+                                    ->setProcessFailedHandler(function ($e) {
+                                        if (!$this->isRepository()) {
+                                            if (!$this->o_directory->exists()) {
+                                                throw DirectoryNotExistsException::new(ts('The path ":path" is not a git repository', [
+                                                    ':path' => $this->o_directory->getSource()
+                                                ]), $e)->addData([
+                                                    'path' => $this->o_directory
+                                                ]);
+                                            }
+
+                                            throw NotARepositoryException::new(ts('The path ":path" is not a git repository', [
+                                                ':path' => $this->o_directory->getSource()
+                                            ]), $e)->addData([
+                                                'path' => $this->o_directory
+                                            ]);
+                                        }
+                                    });
 
         return $this;
+    }
+
+
+    /**
+     * Returns true if the path for this Git object is an actual GIT repository
+     *
+     * @return bool
+     */
+    public function isRepository(): bool
+    {
+        return $this->o_directory->addDirectory('.git')->exists();
+    }
+
+
+    /**
+     * Throws a NotARepositoryException exception if the current directory for this GIT object is not a git repository
+     *
+     * @return static
+     * @throws NotARepositoryException
+     */
+    public function checkIsRepository(): static
+    {
+        if ($this->isRepository()) {
+            return $this;
+        }
+
+        throw new NotARepositoryException(ts('The path ":path" is not a git repository', [
+            'path' => $this->o_directory->getSource()
+        ]));
     }
 
 

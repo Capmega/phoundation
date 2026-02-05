@@ -59,12 +59,17 @@ interface RepositoriesInterface extends DataIteratorInterface
     /**
      * Scans for repositories on the current machine and registers them in the database
      *
-     * @param PhoPathInterface $path
-     * @param bool             $delete_gone
+     * @param PhoPathInterface $path                        The path from which the scan will start
+     * @param bool             $disable_backup_paths [true] If true, will automatically disable repositories when any
+     *                                                      directory (including the basename) in their path is a backup
+     *                                                      directory (i.e. a directory name that ends with a ~)
+     * @param bool             $delete_gone          [true] Will delete repositories from the database if they were not
+     *                                                      found during this scan
      *
      * @return static
+     * @todo Implement $delete_gone support
      */
-    public function scan(PhoPathInterface $path, bool $delete_gone = true): static;
+    public function scan(PhoPathInterface $path, bool $disable_backup_paths = true, bool $delete_gone = true): static;
 
     /**
      * Returns true when any of the available repositories has changes
