@@ -5393,9 +5393,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_loading             = false;
         $this->is_saved               = false;
 
-        $this->setIsLoaded($is_loaded);
-
-        return $this;
+        return $this->setIsLoaded($is_loaded);
     }
 
 
