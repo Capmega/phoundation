@@ -352,8 +352,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         $found        = $this->o_find->executeReturnArray();
         $repositories = [];
+        $backup_paths = [];
 
         foreach ($found as $repository_path) {
+            Log::notice(ts('Found possible repository path ":repository"', [
+                ':repository"' => $repository_path,
+            ]));
+
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
             if (Repository::isPhoundation($o_repository_path)) {
@@ -364,13 +369,37 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                     $this->new[]                           = $_repository->getName();
 
                 } else {
-                    $_repository = Repository::newFromPathObject($o_repository_path)->save();
-                    $repositories[$_repository->getName()] = $_repository->getName();
-
                     if ($o_repository_path->containsBackupDirectory()) {
-                        $_repository->disable();
+                        Log::action(ts('Adding new repository with path ":repository"', [
+                            ':repository"' => $o_repository_path,
+                        ]));
+
+                        // The path for this repository appears to be a backup path. Add those at the end
+                        $backup_paths[] = $o_repository_path;
+
+                    } else {
+                        Log::action(ts('Adding new repository with path ":repository"', [
+                            ':repository"' => $o_repository_path,
+                        ]));
+
+                        $_repository = Repository::newFromPathObject($o_repository_path)->save();
+                        $repositories[$_repository->getName()] = $_repository->getName();
                     }
                 }
+            }
+        }
+
+        // Now process repository paths that have backup paths
+        foreach ($backup_paths as $_repository) {
+            Log::action(ts('Adding new (probably backup) repository with path ":repository"', [
+                ':repository"' => $_repository->getDirectoryObject(),
+            ]));
+
+            $_repository = Repository::newFromPathObject($o_repository_path)->save();
+            $repositories[$_repository->getName()] = $_repository->getName();
+
+            if ($disable_backup_paths) {
+                $_repository->disable();
             }
         }
 

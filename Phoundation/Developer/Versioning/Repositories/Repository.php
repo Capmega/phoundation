@@ -60,6 +60,7 @@ use Phoundation\Utils\Enums\EnumVersionSections;
 use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 
+
 class Repository extends DataEntry implements RepositoryInterface
 {
     use TraitDataObjectGit;
@@ -111,6 +112,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function newFromPathObject(PhoPathInterface $o_path): static
     {
+show($o_path->getBasename());
         return Repository::new()
                          ->setName($o_path->getBasename())
                          ->setPathObject($o_path);
@@ -294,14 +296,9 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function setName(?string $name, bool $set_seo_name = true): static
     {
-        // Name might not be be unique, use Seo::unique() to enforce uniqueness
-        $name = get_null(trim((string) $name));
-
-        if ($name) {
-            $name = Seo::unique($name, Repository::getTable(), $this->getId(false));
-        }
-
-        return $this->__setName($name);
+        // Name might not be be unique, use DataEntry::ensureUnique() to enforce uniqueness
+show($this->ensureUnique($name, 'name'));
+        return $this->__setName($this->ensureUnique($name, 'name'));
     }
 
 
