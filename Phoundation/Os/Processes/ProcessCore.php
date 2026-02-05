@@ -546,7 +546,7 @@ abstract class ProcessCore implements ProcessInterface
             };
 
             // The command finished with an error
-            throw ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
+            $e = ProcessFailedException::new(tr('The command ":command" failed with exit code ":code"', [
                 ':command' => $this->command,
                 ':code'    => $exit_code,
             ]))->setCode($exit_code)
@@ -569,7 +569,14 @@ abstract class ProcessCore implements ProcessInterface
                    'execution_stop_time'  => $this->getExecutionStopTime(),
                    'execution_start_time' => $this->getExecutionStartTime(),
                    'execution_method'     => $this->getExecutionMethod()?->name,
-               ]);
+            ]);
+
+            if (!$this->process_failed_handler) {
+                throw $e;
+            }
+
+            // Execute the process failed handler
+            ($this->process_failed_handler)($e);
         }
 
         // All okay, yay!

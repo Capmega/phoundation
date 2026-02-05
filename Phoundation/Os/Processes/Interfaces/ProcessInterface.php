@@ -168,5 +168,41 @@ interface ProcessInterface extends ProcessVariablesInterface
      *       like "true", or "which", etc?
      */
     public function hasSudoAvailable(bool $exception = false): bool;
+
+    /**
+     * Returns the exception handler for when processes in this object fail, if one exists for this object
+     *
+     * Normally, when a process fails, a ProcessFailedException will be thrown. If this handler is set up, the exception
+     * will be generated but instead of throwing it, the exception will be passed to this handler, which then has the
+     * responsibility of throwing the exception
+     *
+     * @return callable|null
+     */
+    public function getProcessFailedHandler(): ?callable;
+
+    /**
+     * Set an exception handler for when processes in this object fail
+     *
+     * Normally, when a process fails, a ProcessFailedException will be thrown. If this handler is set up, the exception
+     * will be generated but instead of throwing it, the exception will be passed to this handler, which then has the
+     * responsibility of throwing the exception.
+     *
+     * An example of exception handling would be:
+     *
+     * $_process = Process::new()->setProcessFailedHandler(function (Throwable $e) {
+     *     if ($e->dataContains('test')) {
+     *         // This exception may be ignored, just return
+     *         return;
+     *     }
+     *
+     *     throw $e;
+     * });
+     *
+     * @param callable|null $handler The handler callback function that will be executed when a process fails. Please
+     *                               note that this handler will then have the responsibility of throwing (or not) the
+     *                               exception
+     * @return $this
+     */
+    public function setProcessFailedHandler(?callable $handler): static;
 }
 
