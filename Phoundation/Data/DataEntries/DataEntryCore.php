@@ -4465,7 +4465,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // When deleting an entry, the unique column goes to NULL.
                 // Since the unique column likely is required for saving validation, set is_validated to true
                 $this->unique_value = $this->getUniqueColumnValue();
-                $this->set(null, static::getUniqueColumn())
+                $this->set('[' . Strings::getRandom() . ']' . static::getUniqueColumnValue(), static::getUniqueColumn())
                      ->is_validated = true;
             }
 
