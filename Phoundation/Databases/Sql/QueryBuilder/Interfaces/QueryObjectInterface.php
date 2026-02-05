@@ -245,11 +245,11 @@ interface QueryObjectInterface
     /**
      * Sets bound execution variables
      *
-     * @param array $executes
+     * @param array $bound_variables
      *
      * @return static
      */
-    public function setExecutes(array $executes): static;
+    public function setBoundVariables(array $bound_variables): static;
 
     /**
      * Returns the WHERE parts of the query
@@ -309,4 +309,11 @@ interface QueryObjectInterface
      * @return array
      */
     public function getPredefines(): array;
+
+    /**
+     * Returns the bound query variables
+     *
+     * @return array
+     */
+    public function getBoundVariables(): array;
 }

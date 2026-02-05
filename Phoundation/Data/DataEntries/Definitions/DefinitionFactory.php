@@ -1917,7 +1917,7 @@ class DefinitionFactory
                                 ->setTooltip(tr('This column contains the user who created this object. Other users may have made further edits to this object, that information may be found in the object\'s meta data'))
                                 ->setInputType(EnumInputType::dbid)
                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                    $o_validator->existsInDatabase(tr('must be an existing user'), table: 'accounts_users');
+                                    $o_validator->existsInDatabase(tr('must be an existing user'), column: 'id', table: 'accounts_users');
                                 })
                                 ->setOutput(function (DefinitionInterface $o_definition, string $key, string $column_name, array $source) {
                                     if ($o_definition->getDataEntryObject()->isNew()) {

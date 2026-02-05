@@ -64,10 +64,11 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
 
 
     /**
-     * Renders and returns a " WHERE ... " query part for the query builder
+     * Renders the WHERE filter part for the QueryBuilder for the specified DataEntry identifiers
      *
-     * @param IdentifierInterface|array|string|int|null $identifiers
-     * @param bool                                      $like
+     * @param IdentifierInterface|array|string|int|null $identifiers         The identifiers to filter on
+     * @param bool                                      $like        [false] If true, will make a LIKE comparison
+     * @param bool                                      $negative    [false] If true, will make a negative comparison
      *
      * @return static
      */
@@ -87,18 +88,12 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $key    = str_replace('``.``', '`.`', $key);
                 $key    = Strings::ensureBeginsWith($key, '`');
                 $key    = Strings::ensureEndsWith($key, '`');
-show($key);
-show($value);
-                $where  = QueryBuilder::buildComparison($key, $value, $execute, $like, $negative);
-show($where);
+                $where  = QueryBuilder::buildComparison($key, $value, $this->bound_variables, $like, $negative);
 
-                $this->addWhere($where)
-                     ->addExecuteArray($execute);
+                $this->addWhere($where);
             }
         }
-show($this->getQuery());
-show($execute);
-showdie($execute);
+
         return $this;
     }
 
@@ -106,15 +101,22 @@ showdie($execute);
     /**
      * Builds a comparison section for the specified column / value
      *
-     * @param string                                             $column           The column to build the query part for
-     * @param IteratorInterface|array|string|float|int|bool|null $value            The value to build the query part with
-     * @param array|null                                         $execute          The execution variables. Passed by reference as it will modify the array
-     * @param bool                                               $like     [false] If true, will use LIKE to compare, instead of =
-     * @param bool                                               $negative [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
+     * @param string                                             $column                  The column to build the query
+     *                                                                                    part for
+     * @param IteratorInterface|array|string|float|int|bool|null $value                   The value to build the query
+     *                                                                                    part with
+     * @param array|null                                         $bound_variables         The execution variables.
+     *                                                                                    Passed by reference as it will
+     *                                                                                    modify the array
+     * @param bool                                               $like            [false] If true, will use LIKE to
+     *                                                                                    compare, instead of =
+     * @param bool                                               $negative        [false] If true, will build a negative
+     *                                                                                    comparison (NOT IN, !=, NOT
+     *                                                                                    LIKE)
      *
      * @return string
      */
-    protected static function buildComparison(string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false): string
+    protected static function buildComparison(string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false): string
     {
         if (is_array($value) or ($value instanceof IteratorInterface)) {
             // Build a comparison for a list of values
@@ -123,8 +125,8 @@ showdie($execute);
 
             if (!$like) {
                 // Add the new values to the specified $execute array
-                $in      = QueryBuilder::in($value, ':' . $label);
-                $execute = array_merge($execute ?? [], $in);
+                $in              = QueryBuilder::in($value, ':' . $label);
+                $bound_variables = array_merge($bound_variables ?? [], $in);
 
                 // Add the query section
                 return $column . ' ' . ($negative ? 'NOT IN ' : 'IN ') . '(' . implode(',', array_keys($in)) . ')';
@@ -135,13 +137,13 @@ showdie($execute);
             $count  = 0;
 
             foreach ($value as $sub_value) {
-                $return[] = QueryBuilder::buildComparison($column . $count++, $sub_value, $execute, true, $negative);
+                $return[] = QueryBuilder::buildComparison($column . $count++, $sub_value, $bound_variables, true, $negative);
             }
 
             return implode(' OR ', $return);
         }
 
-        return QueryBuilder::buildComparisonForScalar($column, $value, $execute, $like, $negative);
+        return QueryBuilder::buildComparisonForScalar($column, $value, $bound_variables, $like, $negative);
     }
 
 
@@ -230,7 +232,7 @@ showdie($execute);
      */
     public function getExecute(): ?array
     {
-        return $this->executes;
+        return $this->bound_variables;
     }
 
 
@@ -241,7 +243,7 @@ showdie($execute);
      */
     public function &getExecuteByReference(): ?array
     {
-        return $this->executes;
+        return $this->bound_variables;
     }
 
 
@@ -260,7 +262,7 @@ showdie($execute);
 
         $this->query = $this->getQuery($debug);
 
-        return sql($this->o_connector)->query($this->query, $this->executes);
+        return sql($this->o_connector)->query($this->query, $this->bound_variables);
     }
 
 
@@ -333,7 +335,7 @@ showdie($execute);
             return null;
         }
 
-        return sha1(sql()->parseQuery($this->query, $this->executes));
+        return sha1(sql()->parseQuery($this->query, $this->bound_variables));
     }
 
 
@@ -346,7 +348,7 @@ showdie($execute);
      */
     public function get(bool $debug = false): ?array
     {
-        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->executes, $this->getMetaEnabled());
+        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->bound_variables, $this->getMetaEnabled());
     }
 
 
@@ -360,7 +362,7 @@ showdie($execute);
      */
     public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
     {
-        return sql($this->o_connector)->getColumn($this->getQuery($debug), $this->executes, $column);
+        return sql($this->o_connector)->getColumn($this->getQuery($debug), $this->bound_variables, $column);
     }
 
 
@@ -373,7 +375,7 @@ showdie($execute);
      */
     public function list(bool $debug = false): array
     {
-        return sql($this->o_connector)->list($this->getQuery($debug), $this->executes);
+        return sql($this->o_connector)->list($this->getQuery($debug), $this->bound_variables);
     }
 
 
@@ -388,7 +390,7 @@ showdie($execute);
      */
     public function listArray(bool $debug = false): array
     {
-        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->executes);
+        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->bound_variables);
     }
 
 
@@ -403,7 +405,7 @@ showdie($execute);
      */
     public function listScalar(bool $debug = false): array
     {
-        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->executes);
+        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->bound_variables);
     }
 
 
@@ -416,7 +418,7 @@ showdie($execute);
      */
     public function listKeyValue(bool $debug = false): array
     {
-        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->executes);
+        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->bound_variables);
     }
 
 
@@ -432,7 +434,7 @@ showdie($execute);
      */
     public function listKeyValues(bool $debug = false, ?string $column = null): array
     {
-        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->executes, $column);
+        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->bound_variables, $column);
     }
 
 

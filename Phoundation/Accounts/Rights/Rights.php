@@ -111,7 +111,7 @@ class Rights extends DataIterator implements RightsInterface
                                 FROM   `accounts_rights`
                                 WHERE  `seo_name` IN (' . implode(', ', array_keys($values)) . ')', $values);
 
-        while ($right = $exist->fetchColumn(0)) {
+        while ($right = $exist->fetchColumn()) {
             unset($rights[$right]);
         }
 
@@ -543,13 +543,7 @@ class Rights extends DataIterator implements RightsInterface
                 ]);
 
                 // Load the rights so that we can add "everybody" after it
-show($this->query);
-show($this->o_query_builder->getQuery());
-try {
                 parent::load();
-} catch (Throwable $e) {
-    show($e);
-}
 
                 // Added the "everybody" right
                 if ($this->source) {

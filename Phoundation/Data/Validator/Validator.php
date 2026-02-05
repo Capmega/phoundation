@@ -2546,7 +2546,7 @@ throw new ObsoleteException();
                 throw new ValidatorException(tr('Cannot validate if database id exists, no table configured for this validator, and no table specified'));
             }
 
-            $exists = sql()->getColumn('SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [
+            $exists = sql()->getColumn(' SELECT `' . $column . '` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column, [
                 ':' . $column => $value,
             ]);
 

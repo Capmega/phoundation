@@ -117,9 +117,9 @@ class QueryObject implements QueryObjectInterface
     /**
      * The build variables
      *
-     * @var array|null $executes
+     * @var array|null $bound_variables
      */
-    protected ?array $executes = null;
+    protected ?array $bound_variables = null;
 
 
     /**
@@ -171,7 +171,7 @@ class QueryObject implements QueryObjectInterface
         $this->wheres     = [];
         $this->joins      = [];
         $this->group_bys  = [];
-        $this->executes   = [];
+        $this->bound_variables   = [];
         $this->predefines = [];
         $this->order_bys  = [];
         $this->delete     = false;
@@ -194,7 +194,7 @@ class QueryObject implements QueryObjectInterface
         $this->wheres     = array_merge($this->wheres     ?? [], array_get_safe($source, 'wheres'    , []));
         $this->joins      = array_merge($this->joins      ?? [], array_get_safe($source, 'joins'     , []));
         $this->group_bys  = array_merge($this->group_bys  ?? [], array_get_safe($source, 'group_bys' , []));
-        $this->executes   = array_merge($this->executes   ?? [], array_get_safe($source, 'executes'  , []));
+        $this->bound_variables   = array_merge($this->bound_variables   ?? [], array_get_safe($source, 'executes'  , []));
         $this->updates    = array_merge($this->updates    ?? [], array_get_safe($source, 'updates'   , []));
         $this->predefines = array_merge($this->predefines ?? [], array_get_safe($source, 'predefines', []));
         $this->order_bys  = array_merge($this->order_bys  ?? [], array_get_safe($source, 'order_bys' , []));
@@ -217,7 +217,7 @@ class QueryObject implements QueryObjectInterface
         $this->wheres     = array_get_safe($source, 'wheres');
         $this->joins      = array_get_safe($source, 'joins');
         $this->group_bys  = array_get_safe($source, 'group_bys');
-        $this->executes   = array_get_safe($source, 'executes');
+        $this->bound_variables   = array_get_safe($source, 'executes');
         $this->delete     = array_get_safe($source, 'delete');
         $this->updates    = array_get_safe($source, 'updates');
         $this->predefines = array_get_safe($source, 'predefines');
@@ -242,7 +242,7 @@ class QueryObject implements QueryObjectInterface
             'wheres'     => $this->wheres,
             'joins'      => $this->joins,
             'group_bys'  => $this->group_bys,
-            'executes'   => $this->executes,
+            'executes'   => $this->bound_variables,
             'delete'     => $this->delete,
             'updates'    => $this->updates,
             'predefines' => $this->predefines,
@@ -326,15 +326,26 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
-     * Sets bound execution variables
+     * Returns the bound query variables
      *
-     * @param array $executes
+     * @return array
+     */
+    public function getBoundVariables(): array
+    {
+        return $this->bound_variables;
+    }
+
+
+    /**
+     * Sets the bound query variables
+     *
+     * @param array $bound_variables
      *
      * @return static
      */
-    public function setExecutes(array $executes): static
+    public function setBoundVariables(array $bound_variables): static
     {
-        $this->executes = $executes;
+        $this->bound_variables = $bound_variables;
 
         return $this;
     }
@@ -350,11 +361,11 @@ class QueryObject implements QueryObjectInterface
      */
     public function addExecute(string|float|int|null $value, string $column): static
     {
-        if (!$this->executes) {
-            $this->executes = [];
+        if (!$this->bound_variables) {
+            $this->bound_variables = [];
         }
 
-        $this->executes[Strings::ensureBeginsWith($column, ':')] = $value;
+        $this->bound_variables[Strings::ensureBeginsWith($column, ':')] = $value;
 
         return $this;
     }
@@ -685,7 +696,7 @@ class QueryObject implements QueryObjectInterface
                 return $this->compareQuery($column, (string) $value);
 
             case 'string':
-                $this->executes[Strings::ensureBeginsWith($column, ':')] = $value;
+                $this->bound_variables[Strings::ensureBeginsWith($column, ':')] = $value;
                 return ' = :' . $column . ' ';
 
             case 'array':
@@ -703,7 +714,7 @@ class QueryObject implements QueryObjectInterface
                 $columns = [];
 
                 foreach ($value as $scalar) {
-                    $this->executes[$column . $count++] = $scalar;
+                    $this->bound_variables[$column . $count++] = $scalar;
                     $columns[]                         = $column . ($count++);
                 }
 
