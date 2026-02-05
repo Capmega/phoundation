@@ -85,6 +85,7 @@ use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
+use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
@@ -112,6 +113,7 @@ use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
+use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Traits\TraitEventHandler;
 use Phoundation\Utils\Utils;
@@ -5494,5 +5496,77 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function getOriginalUniqueColumnValue(): mixed
     {
         return $this->unique_value ?? $this->getUniqueColumnValue();
+    }
+
+
+    /**
+     * Returns a value that ensures the value is unique for the column
+     *
+     * @param mixed       $source
+     * @param string      $column
+     * @param string|null $suffix_start
+     *
+     * @return string|null
+     */
+    protected function ensureUnique(mixed $source, string $column, ?string $suffix_start = '-'): ?string
+    {
+        $source    = get_null(trim((string) $source));
+        $suffix    = 0;
+        $tries     = 5;
+        $return    = null;
+        $own_query = null;
+
+        if ($this->getId(false)) {
+            $own_query  = 'AND `id` != ' . $this->getId(false);
+        }
+
+        if (empty($source)) {
+            return null;
+        }
+
+        while ($tries-- > 0) {
+            $return = $source;
+
+            if ($suffix) {
+                // Only add the ID when the source value already exists
+                $return .= $suffix_start . $suffix;
+            }
+show($return);
+            try {
+                $exists = sql()->getRow(' SELECT `' . $column . '` 
+                                         FROM   `' . static::getTable() . '` 
+                                         WHERE  `' . $column . '` = :value ' . $own_query . ';', [':value' => $return]);
+
+            } catch (SqlUnknownDatabaseException $e) {
+                // In case database does not exist during the init phase, we can assume this value is okay
+                if (!Core::inInitState()) {
+                    throw $e;
+                }
+
+                $exists = false;
+            }
+
+            if (!$exists) {
+                break;
+            }
+
+            $suffix++;
+        }
+
+        if ($tries <= 0) {
+            throw DataEntryException::new(ts('Failed to ensure unique value for class ":class" table ":table" column ":column" value ":value"', [
+                ':class'  => static::class,
+                ':table'  => static::getTable(),
+                ':column' => $column,
+                ':value'  => $source,
+            ]))->addData([
+                ':class'  => static::class,
+                ':table'  => static::getTable(),
+                ':column' => $column,
+                ':value'  => $source,
+            ]);
+        }
+
+        return $return;
     }
 }
