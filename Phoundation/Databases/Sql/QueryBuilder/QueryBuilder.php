@@ -101,18 +101,12 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * Builds a comparison section for the specified column / value
      *
-     * @param string                                             $column                  The column to build the query
-     *                                                                                    part for
-     * @param IteratorInterface|array|string|float|int|bool|null $value                   The value to build the query
-     *                                                                                    part with
-     * @param array|null                                         $bound_variables         The execution variables.
-     *                                                                                    Passed by reference as it will
-     *                                                                                    modify the array
-     * @param bool                                               $like            [false] If true, will use LIKE to
-     *                                                                                    compare, instead of =
-     * @param bool                                               $negative        [false] If true, will build a negative
-     *                                                                                    comparison (NOT IN, !=, NOT
-     *                                                                                    LIKE)
+     * @param string                                             $column                  The column to build the query part for
+     * @param IteratorInterface|array|string|float|int|bool|null $value                   The value to build the query part with
+     * @param array|null                                         $bound_variables         The execution variables. Passed by reference as it will modify the
+     *                                                                                    array
+     * @param bool                                               $like            [false] If true, will use LIKE to compare, instead of =
+     * @param bool                                               $negative        [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      *
      * @return string
      */
