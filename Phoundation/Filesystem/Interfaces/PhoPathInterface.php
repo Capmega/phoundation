@@ -1463,4 +1463,15 @@ interface PhoPathInterface extends Stringable
      * @return static
      */
     public function setContents(string $data, int $flags = 0, $context = null): static;
+
+    /**
+     * Returns true if the path of this file contains a backup indicator
+     *
+     * A backup file or directory is a file or directory ending in ~
+     *
+     * @param bool $basename If true, will not only test the path directories, but the file basename as well
+     *
+     * @return bool
+     */
+    public function containsBackupDirectory(bool $basename = true): bool;
 }

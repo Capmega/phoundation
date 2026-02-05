@@ -5122,4 +5122,61 @@ throw new UnderConstructionException();
             'specified' => $o_path,
         ]);
     }
+
+
+    /**
+     * Returns true if the path of this file contains a backup indicator
+     *
+     * A backup file or directory is a file or directory ending in ~
+     *
+     * @param bool $basename If true, will not only test the path directories, but the file basename as well
+     *
+     * @return bool
+     */
+    public function containsBackupDirectory(bool $basename = true): bool
+    {
+        $directories = $this->getParentDirectoryObject()->getSource();
+        $directories = explode('/', $directories);
+
+        foreach ($directories as $directory) {
+            if ($this->isBackupFile($directory)) {
+                return true;
+            }
+        }
+
+        if ($basename) {
+            return $this->isBackupFile($this->getBasename());
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if the specified file basename is a backup file
+     *
+     * Files are recognized as a backup file:
+     *
+     * filename~
+     * filename~260101
+     * filename~20260101
+     * filename~2026-01-01
+     *
+     * @param string $basename
+     * @return bool
+     */
+    protected function isBackupFile(string $basename): bool
+    {
+        // The filename must be at least 2 characters long to be able to be considered a backup file
+        if (strlen($basename) <= 1) {
+            return false;
+        }
+
+        if (str_ends_with($basename, '~')) {
+            // Anything ending with ~ is always a backup
+            return true;
+        }
+
+        return (bool) preg_match('/~((\d{6,8})|(\d{2,4}-\d{2,4}-\d{2,4}))?$/', $basename);
+    }
 }
