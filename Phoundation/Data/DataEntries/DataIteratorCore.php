@@ -25,6 +25,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Meta;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryReadonlyException;
+use Phoundation\Data\DataEntries\Exception\DataIteratorException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -398,6 +399,8 @@ throw new ObsoleteException();
     /**
      * Selects if we use the default query or a query from the QueryBuilder
      *
+     * Note: The auto query building part of this method is deprecated and should not be used
+     *
      * @param IdentifierInterface|array|string|int|null $identifiers
      * @param bool                                      $like
      *
@@ -405,48 +408,58 @@ throw new ObsoleteException();
      */
     protected function selectQuery(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        // Use the query builder or hard-coded query
-        if (empty($this->query) or $identifiers) {
-            // TODO This section is obsolete and should no longer be used whenever possible
-            if (static::getTable()) {
-                // Define default identifiers
-                if ($identifiers === null) {
-                    $identifiers = ['status' => null];
-                }
+        if ($this->query) {
+            // Use the hard-coded query
+            return $this;
+        }
 
-                // Create a query with optional filtering for parents_id
-                if ($this->o_parent) {
-                    $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->o_parent::getTable(), '_') . '_id` = :parents_id AND ';
-                    $this->execute[':parents_id'] = $this->o_parent->getId();
+        if (isset($this->o_query_builder)) {
+            // Use the query builder
+            if ($this->filter_form) {
+                // Add query builder filters from filter_form
+                $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
 
-                } else {
-                    $parent_filter = null;
-                }
-
-                $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
-
-                // Set default query
-                $this->query = 'SELECT  ' . $this->getSqlSelectColumns() . '
-                                FROM   `' . static::getTable() . '`
-                                ' . $joins . '
-                                WHERE  ' . $parent_filter .  $where . $group . $order;
+            } else {
+                // Use identifiers first if specified
+                $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ['status' => 'NULL']), $like);
             }
+
+            $this->query   = $this->o_query_builder->getQuery();
+            $this->execute = $this->o_query_builder->getExecute();
 
             return $this;
         }
 
-        // Add query builder filters from filter_form if attached, or identifiers first if specified
-        if ($this->filter_form) {
-            $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
+        if (static::getTable()) {
+            // Try to build the query automatically
+            // TODO DEPRECATED
 
-        } else {
-            $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ['status' => 'NULL']), $like);
+            // Define default identifiers
+            if ($identifiers === null) {
+                $identifiers = ['status' => null];
+            }
+
+            // Create a query with optional filtering for parents_id
+            if ($this->o_parent) {
+                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->o_parent::getTable(), '_') . '_id` = :parents_id AND ';
+                $this->execute[':parents_id'] = $this->o_parent->getId();
+
+            } else {
+                $parent_filter = null;
+            }
+
+            $this->buildManualQuery($identifiers, $where, $joins, $group, $order, $this->execute);
+
+            // Set default query
+            $this->query = 'SELECT  ' . $this->getSqlSelectColumns() . '
+                            FROM   `' . static::getTable() . '`
+                            ' . $joins . '
+                            WHERE  ' . $parent_filter .  $where . $group . $order;
+
+            return $this;
         }
 
-        $this->query   = $this->o_query_builder->getQuery();
-        $this->execute = $this->o_query_builder->getExecute();
-
-        return $this;
+        throw new DataIteratorException(ts('Failed to select query'));
     }
 
 
@@ -1436,8 +1449,9 @@ throw new ObsoleteException();
         $this->setIsLoading(true);
 
         cache('dataentries')->getOrGenerate($this->getCacheKey(), function ()  use ($identifiers, $like) {
+show($this->query);
             $this->selectQuery($identifiers, $like);
-
+show($this->query);
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
                                                                 ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());

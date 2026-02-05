@@ -125,23 +125,23 @@ class QueryObject implements QueryObjectInterface
     /**
      * If specified, the query builder will attempt to update the internal loading query for this object
      *
-     * @var DataEntryInterface|DataIteratorInterface|null $parent
+     * @var DataEntryInterface|DataIteratorInterface|null $_parent
      */
-    protected DataEntryInterface|DataIteratorInterface|null $parent;
+    protected DataEntryInterface|DataIteratorInterface|null $_parent;
 
 
     /**
      * QueryObject class constructor
      *
-     * @param DataEntryInterface|DataIteratorInterface|null $parent
+     * @param DataEntryInterface|DataIteratorInterface|null $_parent
      */
-    public function __construct(DataEntryInterface|DataIteratorInterface|null $parent = null)
+    public function __construct(DataEntryInterface|DataIteratorInterface|null $_parent = null)
     {
-        $this->parent = $parent;
+        $this->_parent = $_parent;
 
-        if ($this->parent) {
+        if ($this->_parent) {
             // The first from will be the table from the parent class
-            $this->setFrom($parent->getTable());
+            $this->setFrom($_parent->getTable());
         }
     }
 
@@ -149,13 +149,13 @@ class QueryObject implements QueryObjectInterface
     /**
      * QueryObject class constructor
      *
-     * @param DataEntryInterface|DataIteratorInterface|null $parent
+     * @param DataEntryInterface|DataIteratorInterface|null $_parent
      *
      * @return static
      */
-    public static function new(DataEntryInterface|DataIteratorInterface|null $parent = null): static
+    public static function new(DataEntryInterface|DataIteratorInterface|null $_parent = null): static
     {
-        return new static($parent);
+        return new static($_parent);
     }
 
 

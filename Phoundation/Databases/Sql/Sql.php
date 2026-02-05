@@ -43,6 +43,7 @@ use Phoundation\Databases\Enums\EnumSqlVendor;
 use Phoundation\Databases\Exception\DatabaseTestException;
 use Phoundation\Databases\Sql\Exception\SqlAccessDeniedException;
 use Phoundation\Databases\Sql\Exception\SqlAmbiguousColumnException;
+use Phoundation\Databases\Sql\Exception\SqlBoundVariablesException;
 use Phoundation\Databases\Sql\Exception\SqlColumnCannotBeNullException;
 use Phoundation\Databases\Sql\Exception\SqlColumnDoesNotExistsException;
 use Phoundation\Databases\Sql\Exception\SqlConnectException;
@@ -512,6 +513,7 @@ class Sql implements SqlInterface
     {
         $query   = $e->getQuery();
         $execute = $e->getExecute();
+
         // Check the execution array for issues
         if ($query) {
             if ($execute) {
@@ -530,37 +532,40 @@ class Sql implements SqlInterface
                 $query = $query->queryString;
             }
         }
-//            throw new SqlException(tr('(:uniqueid-:database) Sql query ":query" failed with ":e"', [
+
+        //            throw new SqlException(tr('(:uniqueid-:database) Sql query ":query" failed with ":e"', [
 //                ':uniqueid' => $this->uniqueid,
 //                ':database' => static::getDatabase(),
 //                ':query'    => $query,
 //                ':e'        => $e->getMessage()
 //            ]), $e);
+
         // Check SQL state
         switch ($e->getSqlState()) {
             case 'denied':
                 // no break
-            case 'invalidforce':
-                // Some database operation has failed
-                foreach ($e->getMessages() as $message) {
-                    Log::error(static::getConnectorLogPrefix() . $message);
-                }
-                exit(1);
+
             case '42S02':
                 preg_match_all('/^Base table or view not found: 1146 Table \'(.+?)\' doesn\'t exist$/', $e->getMessage(), $matches);
+
                 throw SqlTableDoesNotExistException::new(Strings::from($e->getMessage(), '1146'), $e)
                                                    ->addData(['table' => isset_get($matches[1][0])]);
+
             case '3D000':
                 throw SqlNoDatabaseSelectedException::new(Strings::from($e->getMessage(), '1146'), $e);
+
             case 'HY093':
                 // Invalid parameter number: number of bound variables does not match number of tokens
                 // Get tokens from query
 // TODO Check here what tokens do not match to make debugging easier
                 preg_match_all('/:\w+/imus', $query, $matches);
-                throw $e->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_keys($execute)), [
-                    'add'    => 'variables missing in query',
-                    'delete' => 'variables missing in execute',
+
+                throw SqlBoundVariablesException::new(ts('Invalid parameter number: number of bound variables does not match number of tokens'), $e)
+                                                ->addData(Arrays::renameKeys(Arrays::valueDiff($matches[0], array_keys($execute)), [
+                                                    'add'    => 'variables missing in query',
+                                                    'delete' => 'variables missing in execute',
                 ]));
+
             case 23000:
                 switch ($e->getSqlSecondaryState()) {
                     case 1048:
@@ -568,21 +573,26 @@ class Sql implements SqlInterface
                                                             ->addData([
                                                                 'column' => Strings::cut($e->getMessage(), '1048 Column \'', '\''),
                                                             ]);
+
                     case 1052:
                         $message = Strings::from($e->getMessage(), '1052');
                         $message = trim($message);
                         $column  = Strings::cut($message, "'", "'");
+
                         throw SqlAmbiguousColumnException::new($message, $e)
                                                          ->addData(['column' => $column]);
+
                     case 1062:
                         $value  = Strings::cut($e->getMessage(), 'Duplicate entry \'', "'");
                         $column = Strings::cut($e->getMessage(), 'for key \'', "'");
                         $column = Strings::from($column, '.');
+
                         throw SqlContstraintDuplicateEntryException::new($e)
                                                                    ->addData([
                                                                        'column' => $column,
                                                                        'value'  => $value
                                                                    ]);
+
                     case 1451:
                         throw new SqlIntegrityConstraintViolationException($e->getMessage(), $e);
                 }
@@ -596,25 +606,28 @@ class Sql implements SqlInterface
                         throw SqlColumnDoesNotExistsException::new(static::getConnectorLogPrefix() . tr('Key column ":column" does not exist in table', [
                                 ':column' => $column
                             ]), $e)
-                                                             ->addData([
-                                                                 'column'   => $column,
-                                                                 'database' => $this->configuration['database']
-                                                             ]);
+                            ->addData([
+                                'column'   => $column,
+                                'database' => $this->configuration['database']
+                            ]);
+
                     case 1049:
                         throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database"', [
                                 ':database' => $this->configuration['database']
                             ]), $e)
-                                                         ->addData([
-                                                             'database' => $this->configuration['database']
-                                                         ]);
+                            ->addData([
+                                'database' => $this->configuration['database']
+                            ]);
                 }
+
                 throw SqlException::new(static::getConnectorLogPrefix() . tr('Unknown error in query ":query" with connector ":connector"', [
                         ':query'     => $query,
                         ':connector' => $this->connector,
                     ]), $e)
-                                  ->addData([
-                                      'query' => isset_get($matches[1][0])
-                                  ]);
+                    ->addData([
+                        'query' => isset_get($matches[1][0])
+                    ]);
+
             default:
                 throw $e->setCode($e->getSqlState());
         }

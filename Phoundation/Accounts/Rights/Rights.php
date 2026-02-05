@@ -43,7 +43,7 @@ use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
-
+use Throwable;
 
 class Rights extends DataIterator implements RightsInterface
 {
@@ -543,8 +543,13 @@ class Rights extends DataIterator implements RightsInterface
                 ]);
 
                 // Load the rights so that we can add "everybody" after it
+show($this->query);
 show($this->o_query_builder->getQuery());
+try {
                 parent::load();
+} catch (Throwable $e) {
+    show($e);
+}
 
                 // Added the "everybody" right
                 if ($this->source) {

@@ -87,16 +87,18 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $key    = str_replace('``.``', '`.`', $key);
                 $key    = Strings::ensureBeginsWith($key, '`');
                 $key    = Strings::ensureEndsWith($key, '`');
-                $column = QueryBuilder::getLabel($key);
-                $where  = QueryBuilder::buildComparison($column, $value, $execute, $like, $negative);
+show($key);
+show($value);
+                $where  = QueryBuilder::buildComparison($key, $value, $execute, $like, $negative);
 show($where);
-showdie($execute);
 
-                $this->addWhere()
-                     ->addExecute($value, $column);
+                $this->addWhere($where)
+                     ->addExecuteArray($execute);
             }
         }
-
+show($this->getQuery());
+show($execute);
+showdie($execute);
         return $this;
     }
 
@@ -106,20 +108,25 @@ showdie($execute);
      *
      * @param string                                             $column           The column to build the query part for
      * @param IteratorInterface|array|string|float|int|bool|null $value            The value to build the query part with
-     * @param array                                              $execute          The execution variables. Passed by reference as it will modify the array
+     * @param array|null                                         $execute          The execution variables. Passed by reference as it will modify the array
      * @param bool                                               $like     [false] If true, will use LIKE to compare, instead of =
      * @param bool                                               $negative [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      *
      * @return string
      */
-    protected static function buildComparison(string $column, IteratorInterface|array|string|float|int|bool|null $value, array &$execute, bool $like = false, bool $negative = false): string
+    protected static function buildComparison(string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false): string
     {
         if (is_array($value) or ($value instanceof IteratorInterface)) {
             // Build a comparison for a list of values
+            $label = QueryBuilder::getLabel($column);
             $value = Arrays::force($value);
-            $in    = QueryBuilder::in($value, ':' . $column);
 
             if (!$like) {
+                // Add the new values to the specified $execute array
+                $in      = QueryBuilder::in($value, ':' . $label);
+                $execute = array_merge($execute ?? [], $in);
+
+                // Add the query section
                 return $column . ' ' . ($negative ? 'NOT IN ' : 'IN ') . '(' . implode(',', array_keys($in)) . ')';
             }
 
@@ -134,7 +141,7 @@ showdie($execute);
             return implode(' OR ', $return);
         }
 
-        return QueryBuilder::buildComparisonForScalar($column, $value, $execute, $negative, $like);
+        return QueryBuilder::buildComparisonForScalar($column, $value, $execute, $like, $negative);
     }
 
 
@@ -143,14 +150,15 @@ showdie($execute);
      *
      * @param string                     $column           The column to build the query part for
      * @param string|float|int|bool|null $value            The value to build the query part with
-     * @param array                      $execute          The query execution variables. Passed by reference as it will modify the array
+     * @param array|null                 $execute          The query execution variables. Passed by reference as it will modify the array
      * @param bool                       $like     [false] If true, will use LIKE to compare, instead of =
      * @param bool                       $negative [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      *
      * @return string
      */
-    protected static function buildComparisonForScalar(string $column, string|float|int|bool|null $value, array &$execute, bool $like = false, bool $negative = false): string
+    protected static function buildComparisonForScalar(string $column, string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false): string
     {
+        // TODO This can cause SEVERE issues with values that start with a ! by themselves....
         if (str_starts_with((string) $value, '!')) {
             $negative = true;
             $value    = substr($value, 1);
@@ -164,7 +172,7 @@ showdie($execute);
             return  $column . ' IS NULL';
         }
 
-        $label           = ':' . $column;
+        $label           = ':' . QueryBuilder::getLabel($column);
         $execute[$label] = $value;
 
         if ($like) {
@@ -453,15 +461,15 @@ showdie($execute);
      */
     public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        if (empty($this->parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot load parent data from query, no parent has been specified'));
         }
 
-        if ($this->parent instanceof DataEntryInterface) {
-            $this->parent->load($identifier, $on_null_identifier, $on_not_exists);
+        if ($this->_parent instanceof DataEntryInterface) {
+            $this->_parent->load($identifier, $on_null_identifier, $on_not_exists);
 
         } else {
-            $this->parent->load($identifier);
+            $this->_parent->load($identifier);
         }
 
         return $this;
@@ -937,10 +945,10 @@ showdie($execute);
 
         // Debug::enabled() already logs the query, do not log it again
         if (!Debug::isEnabled()) {
-            Log::debug(static::getLogPrefix() . Strings::ensureEndsWith($query, ';'));
+            Log::debug(Strings::ensureEndsWith($query, ';'));
         }
 
-        return Debug::show(Strings::ensureEndsWith($query, ';'), 6);
+        return Debug::show(Strings::ensureEndsWith($query, ';'), trace_offset: 6);
     }
 
 

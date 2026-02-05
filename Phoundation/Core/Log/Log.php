@@ -930,21 +930,7 @@ class Log implements LogInterface
             // Build message prefix
             // TODO Check max process id in /proc/sys/kernel/pid_max and use that as max length instead of static 7
             if (is_bool($echo_prefix)) {
-                switch (Log::getPrecision()) {
-                    case 'none':
-                        // Build the log message with the default prefix
-                        $prefix = ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
-                        break;
-
-                    default:
-                        // Build the log message with the default prefix
-                        $prefix = PhoDateTime::new(null, 'server')->format('Y-m-d H:i:s.' . Log::getPrecision()) . ' ' .
-                                  ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
-                                  Strings::size(getmypid(), 7, ' ', true) . ' ' .
-                                  Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' ');
-                }
+                $prefix = Log::getPrefix($threshold);
 
             } else {
                 $prefix = $echo_prefix;
@@ -961,6 +947,32 @@ class Log implements LogInterface
         } catch (Throwable $e) {
             return Log::writeExceptionHandler($e, $messages, $threshold);
         }
+    }
+
+
+    /**
+     * Returns a prefix for a log line
+     *
+     * @param int         $threshold The threshold used to log this line (The number is added into the log prefix line)
+     * @param string|null $precision The log time stamp precision. One of "u" (microseconds), v (milliseconds), or "none" (just seconds)
+     *
+     * @return string
+     */
+    public static function getPrefix(int $threshold, ?string $precision = null): string
+    {
+        $precision = $precision ?? Log::getPrecision();
+
+        return match ($precision) {
+            'none'  => ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                       Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                       Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' '),
+
+            default => PhoDateTime::new(null, 'server')
+                                  ->format('Y-m-d H:i:s.' . $precision) . ' ' .
+                       ($threshold === 10 ? 10 : ' ' . $threshold) . ' ' .
+                       Strings::size(getmypid(), 7, ' ', true) . ' ' .
+                       Core::getGlobalId() . ' ' . (PLATFORM_CLI ? 'C' : 'W') . ' ' . Core::getLocalId() . (Core::isStateShutdown() ? '#' : ' '),
+        };
     }
 
 
