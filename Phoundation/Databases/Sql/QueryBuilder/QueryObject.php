@@ -166,15 +166,15 @@ class QueryObject implements QueryObjectInterface
      */
     public function reset(): static
     {
-        $this->select     = [];
-        $this->froms      = [];
-        $this->wheres     = [];
-        $this->joins      = [];
-        $this->group_bys  = [];
+        $this->select            = [];
+        $this->froms             = [];
+        $this->wheres            = [];
+        $this->joins             = [];
+        $this->group_bys         = [];
         $this->bound_variables   = [];
-        $this->predefines = [];
-        $this->order_bys  = [];
-        $this->delete     = false;
+        $this->predefines        = [];
+        $this->order_bys         = [];
+        $this->delete            = false;
 
         return $this;
     }
@@ -189,15 +189,15 @@ class QueryObject implements QueryObjectInterface
      */
     public function addSource(array $source): static
     {
-        $this->select     = array_merge($this->select     ?? [], array_get_safe($source, 'selects'   , []));
-        $this->froms      = array_merge($this->froms      ?? [], array_get_safe($source, 'froms'     , []));
-        $this->wheres     = array_merge($this->wheres     ?? [], array_get_safe($source, 'wheres'    , []));
-        $this->joins      = array_merge($this->joins      ?? [], array_get_safe($source, 'joins'     , []));
-        $this->group_bys  = array_merge($this->group_bys  ?? [], array_get_safe($source, 'group_bys' , []));
-        $this->bound_variables   = array_merge($this->bound_variables   ?? [], array_get_safe($source, 'executes'  , []));
-        $this->updates    = array_merge($this->updates    ?? [], array_get_safe($source, 'updates'   , []));
-        $this->predefines = array_merge($this->predefines ?? [], array_get_safe($source, 'predefines', []));
-        $this->order_bys  = array_merge($this->order_bys  ?? [], array_get_safe($source, 'order_bys' , []));
+        $this->select          = array_merge($this->select          ?? [], array_get_safe($source, 'selects'   , []));
+        $this->froms           = array_merge($this->froms           ?? [], array_get_safe($source, 'froms'     , []));
+        $this->wheres          = array_merge($this->wheres          ?? [], array_get_safe($source, 'wheres'    , []));
+        $this->joins           = array_merge($this->joins           ?? [], array_get_safe($source, 'joins'     , []));
+        $this->group_bys       = array_merge($this->group_bys       ?? [], array_get_safe($source, 'group_bys' , []));
+        $this->bound_variables = array_merge($this->bound_variables ?? [], array_get_safe($source, 'executes'  , []));
+        $this->updates         = array_merge($this->updates         ?? [], array_get_safe($source, 'updates'   , []));
+        $this->predefines      = array_merge($this->predefines      ?? [], array_get_safe($source, 'predefines', []));
+        $this->order_bys       = array_merge($this->order_bys       ?? [], array_get_safe($source, 'order_bys' , []));
 
         return $this;
     }
@@ -212,16 +212,16 @@ class QueryObject implements QueryObjectInterface
      */
     public function setSource(array $source): static
     {
-        $this->select     = array_get_safe($source, 'selects');
-        $this->froms      = array_get_safe($source, 'froms');
-        $this->wheres     = array_get_safe($source, 'wheres');
-        $this->joins      = array_get_safe($source, 'joins');
-        $this->group_bys  = array_get_safe($source, 'group_bys');
-        $this->bound_variables   = array_get_safe($source, 'executes');
-        $this->delete     = array_get_safe($source, 'delete');
-        $this->updates    = array_get_safe($source, 'updates');
-        $this->predefines = array_get_safe($source, 'predefines');
-        $this->order_bys  = array_get_safe($source, 'order_bys');
+        $this->select          = array_get_safe($source, 'selects');
+        $this->froms           = array_get_safe($source, 'froms');
+        $this->wheres          = array_get_safe($source, 'wheres');
+        $this->joins           = array_get_safe($source, 'joins');
+        $this->group_bys       = array_get_safe($source, 'group_bys');
+        $this->bound_variables = array_get_safe($source, 'executes');
+        $this->delete          = array_get_safe($source, 'delete');
+        $this->updates         = array_get_safe($source, 'updates');
+        $this->predefines      = array_get_safe($source, 'predefines');
+        $this->order_bys       = array_get_safe($source, 'order_bys');
 
         return $this;
     }
