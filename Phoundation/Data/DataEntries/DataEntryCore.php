@@ -4500,19 +4500,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 $this->checkReadonly('set-status "' . $status . '"')
+                     ->set($status, 'status')
                      ->saveToLocalCache($this->getCacheKey())
-                     ->saveToGlobalCache($this->getCacheKey())
-                     ->source['status'] = $status;
+                     ->saveToGlobalCache($this->getCacheKey());
 
                 $this->changes[] = 'status';
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
-                    $this->updateMetaState();
-
-                    SqlDataEntry::new(sql($this->o_connector), $this)
-                                ->setDebug($this->debug)
-                                ->setStatus($status, $comments);
+                    $this->save();
                 }
             }
         }
