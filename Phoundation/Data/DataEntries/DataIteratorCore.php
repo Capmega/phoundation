@@ -443,13 +443,15 @@ throw new ObsoleteException();
                 $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
 
             } else {
-                // Use identifiers first if specified
-                $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ['status' => 'NULL']), $like);
+                // Is any QueryBuilder filtering setup? If not, set default filters
+                if (!$this->getQueryBuilderObject()->hasWheres()) {
+                    // Use identifiers first if specified
+                    $this->getQueryBuilderObject()->setIdentifiers($identifiers ?? (ALL ? null : ['status' => 'NULL']), $like);
+                }
             }
 
             $this->query   = $this->o_query_builder->getQuery();
             $this->execute = $this->o_query_builder->getExecute();
-
             return $this;
         }
 
@@ -1478,7 +1480,8 @@ throw new ObsoleteException();
 
             if (empty($this->source)) {
                 $this->source = sql($this->getConnectorObject())->setDebug($this->debug)
-                                                                ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn() : $this->getIdColumn());
+                                                                ->listKeyValues($this->query, $this->execute, $this->keys_are_unique_column ? $this->getUniqueColumn()
+                                                                                                                                            : $this->getIdColumn());
 
                 if (static::getConfigurationPath()) {
                     $this->source = array_merge($this->source, $this->loadFromConfiguration());
