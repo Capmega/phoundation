@@ -1371,9 +1371,9 @@ class Response implements ResponseInterface
     /**
      * Returns the browser page title
      *
-     * @return string
+     * @return string|null
      */
-    public static function getPageTitle(): string
+    public static function getPageTitle(): ?string
     {
         return static::$page_title;
     }
