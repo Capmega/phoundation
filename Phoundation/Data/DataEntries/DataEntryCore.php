@@ -5527,9 +5527,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // Only add the ID when the source value already exists
                 $return .= $suffix_start . $suffix;
             }
-show($return);
+
             try {
-                $exists = sql()->getRow(' SELECT `' . $column . '` 
+                $exists = sql()->getRow('SELECT `' . $column . '` 
                                          FROM   `' . static::getTable() . '` 
                                          WHERE  `' . $column . '` = :value ' . $own_query . ';', [':value' => $return]);
 

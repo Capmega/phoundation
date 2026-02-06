@@ -297,7 +297,6 @@ show($o_path->getBasename());
     public function setName(?string $name, bool $set_seo_name = true): static
     {
         // Name might not be be unique, use DataEntry::ensureUnique() to enforce uniqueness
-show($this->ensureUnique($name, 'name'));
         return $this->__setName($this->ensureUnique($name, 'name'));
     }
 
