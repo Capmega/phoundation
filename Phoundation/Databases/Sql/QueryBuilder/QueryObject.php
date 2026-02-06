@@ -298,11 +298,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addFrom(?string $from, ?array $execute = null): static
     {
+        $from = trim((string) $from, " \n\r\t\v\0,");
+
         if ($from) {
-            $this->froms[] = trim($from, " \n\r\t\v\0,");
+            $this->froms[] = $from;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -416,11 +419,14 @@ class QueryObject implements QueryObjectInterface
             throw new OutOfBoundsException(tr('UPDATE part of query has already been added, cannot add SELECT', []));
         }
 
+        $select = trim((string) $select, " \n\r\t\v\0,");
+
         if ($select) {
-            $this->select[] = trim($select, " \n\r\t\v\0,");
+            $this->select[] = $select;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -464,11 +470,14 @@ class QueryObject implements QueryObjectInterface
             throw new OutOfBoundsException(tr('DELETE part of query has already been added, cannot add UPDATE', []));
         }
 
+        $update = trim((string) $update, " \n\r\t\v\0,");
+
         if ($update) {
-            $this->updates[] = trim($update, " \n\r\t\v\0,");
+            $this->updates[] = $update;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -482,11 +491,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addJoin(?string $join, ?array $execute = null): static
     {
+        $join = trim((string) $join, " \n\r\t\v\0,");
+
         if ($join) {
-            $this->joins[] = trim($join, " \n\r\t\v\0,");
+            $this->joins[] = $join;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -538,11 +550,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addWhere(?string $where, ?array $execute = null): static
     {
+        $where = trim((string) $where, " \n\r\t\v\0,");
+
         if ($where) {
-            $this->wheres[] = trim($where, " \n\r\t\v\0,");
+            $this->wheres[] = $where;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -579,11 +594,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addGroupBy(?string $group_by, ?array $execute = null): static
     {
+        $group_by = trim((string) $group_by, " \n\r\t\v\0,");
+
         if ($group_by) {
-            $this->group_bys[] = trim($group_by, " \n\r\t\v\0,");
+            $this->group_bys[] = $group_by;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -608,11 +626,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addHaving(?string $having, ?array $execute = null): static
     {
+        $having = trim((string) $having, " \n\r\t\v\0,");
+
         if ($having) {
-            $this->havings[] = trim($having, " \n\r\t\v\0,");
+            $this->havings[] = $having;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
@@ -653,11 +674,14 @@ class QueryObject implements QueryObjectInterface
      */
     public function addOrderBy(?string $order_by, ?array $execute = null): static
     {
+        $order_by = trim((string) $order_by, " \n\r\t\v\0,");
+
         if ($order_by) {
-            $this->order_bys[] = trim($order_by, " \n\r\t\v\0,");
+            $this->order_bys[] = $order_by;
+            return $this->addExecuteArray($execute);
         }
 
-        return $this->addExecuteArray($execute);
+        return $this;
     }
 
 
