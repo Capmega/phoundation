@@ -31,8 +31,5 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         parent::__construct();
 
         $this->o_definitions->get('users_id')->setLabel('From user');
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 }

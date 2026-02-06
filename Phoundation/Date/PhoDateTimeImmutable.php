@@ -166,7 +166,7 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
      *
      * @return static
      */
-    public function getDayStart(): static
+    public function getDayBegin(): static
     {
         return PhoDateTimeImmutable::new($this->format('Y-m-d 00:00:00'), $this->getTimezone());
     }
@@ -177,7 +177,7 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
      *
      * @return static
      */
-    public function getDayStop(): static
+    public function getDayEnd(): static
     {
         return PhoDateTimeImmutable::new($this->format('Y-m-d 23:59:59.999999'), $this->getTimezone());
     }

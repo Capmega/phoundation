@@ -48,7 +48,7 @@ trait TraitDataFilterForm
      */
     public function setFilterFormObject(?FilterFormInterface $filter_form): static
     {
-        $this->filter_form = get_null($filter_form);
+        $this->filter_form = get_null($filter_form)?->validate();
         return $this;
     }
 }

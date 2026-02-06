@@ -4741,5 +4741,51 @@ class Arrays extends Utils
 
         return Arrays::checkMatch($needles, $flags, $return);
     }
+
+
+    /**
+     * Returns the source value that is the closest to- and smaller than the test value
+     *
+     * @param IteratorInterface|array|null $source         The source array to test against, must contain only integer or float values
+     * @param float|int                    $value          The test value that will be tested against the source array
+     * @param bool                         $equal  [false] If true, will also allow the value to be equal
+     *
+     * @return float|int|null
+     */
+    public static function closestSmaller(IteratorInterface|array|null $source, float|int $value, bool $equal = false): float|int|null
+    {
+        $smaller = array_filter($source, function($source_value) use ($value, $equal) {
+            return $equal ? ($source_value <= $value) : ($source_value < $value);
+        });
+
+        if (empty($smaller)) {
+            return null;
+        }
+
+        return max($smaller);
+    }
+
+
+    /**
+     * Returns the source value that is the closest to- and larger than the test value
+     *
+     * @param IteratorInterface|array|null $source         The source array to test against, must contain only integer or float values
+     * @param float|int                    $value          The test value that will be tested against the source array
+     * @param bool                         $equal  [false] If true, will also allow the value to be equal
+     *
+     * @return float|int|null
+     */
+    public static function closestLarger(IteratorInterface|array|null $source, float|int $value, bool $equal = false): float|int|null
+    {
+        $larger = array_filter($source, function($source_value) use ($value, $equal) {
+            return $equal ? ($source_value <= $value) : ($source_value < $value);
+        });
+
+        if (empty($larger)) {
+            return null;
+        }
+
+        return min($larger);
+    }
 }
 

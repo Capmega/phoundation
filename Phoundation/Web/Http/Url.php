@@ -41,6 +41,7 @@ use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Anchor;
 use Phoundation\Web\Html\Components\Interfaces\AnchorInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Enums\EnumAnchorTarget;
 use Phoundation\Web\Http\Exception\UrlConfiguredUrlNotFoundException;
 use Phoundation\Web\Http\Exception\UrlException;
@@ -1614,6 +1615,17 @@ class Url implements UrlInterface
     public function addThisPageQueries(): static
     {
         return $this->addQueries(explode('&', array_get_safe($_SERVER, 'QUERY_STRING')));
+    }
+
+
+    /**
+     * Adds the queries from the current page to this URL object
+     *
+     * @return static
+     */
+    public function addCurrentQueries(): static
+    {
+        return $this->addQueries(Url::newCurrent()->getQueries());
     }
 
 

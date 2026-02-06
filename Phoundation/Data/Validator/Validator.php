@@ -3053,19 +3053,18 @@ throw new ObsoleteException();
     /**
      * This will set the specified column to have the value from the given callback
      *
-     * @param string   $column
-     * @param callable $callback
-     * @param bool     $ignore_case
-     * @param bool     $fail_on_null = true
+     * @param string   $column              The column to be updated
+     * @param callable $callback            The callback that will generate the value for the column
+     * @param bool     $fail_on_null [true] If true, the validation will fail if the callback returns NULL
      *
      * @return static
      */
-    public function setColumnFromCallback(string $column, callable $callback, bool $ignore_case = false, bool $fail_on_null = true): static
+    public function setColumnFromCallback(string $column, callable $callback, bool $fail_on_null = true): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($column, $callback, $ignore_case, $fail_on_null) {
+        return $this->validateValues(function (&$value) use ($column, $callback, $fail_on_null) {
             // This value must be scalar, and not too long. What is too long? Longer than the longest allowed item
             $this->isScalar();
 

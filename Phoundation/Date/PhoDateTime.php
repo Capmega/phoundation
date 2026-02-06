@@ -17,22 +17,20 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use DateInterval;
-use DateMalformedStringException;
 use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
-use JetBrains\PhpStorm\Internal\LanguageLevelTypeAware;
+use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Core\Core;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
-use Phoundation\Date\Exception\DateException;
 use Phoundation\Date\Exception\DateIntervalException;
 use Phoundation\Date\Exception\DateTimeException;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use Stringable;
@@ -40,7 +38,7 @@ use Throwable;
 use ValueError;
 
 
-class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTimeInterface
+class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 {
     /**
      * Returns a new DateTime object
@@ -644,7 +642,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getFirstPeriodStart(DateTimeZone|string|null $timezone = null): static
+    public function getFirstPeriodBegin(DateTimeZone|string|null $timezone = null): static
     {
         return $this->getFirstDayOfMonth($timezone);
     }
@@ -657,7 +655,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getLastPeriodStart(DateTimeZone|string|null $timezone = null): static
+    public function getLastPeriodBegin(DateTimeZone|string|null $timezone = null): static
     {
         return new static(
             $this->format('Y-m-16'),
@@ -709,28 +707,6 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Alter the timestamp of a DateTime object by incrementing or decrementing in a format accepted by strtotime().
-     *
-     * @link https://secure.php.net/manual/en/datetime.modify.php
-     *
-     * @param string $modifier
-     * @param bool   $return_new
-     *
-     * @return static
-     * @throws DateMalformedStringException
-     */
-    public function modify(#[LanguageLevelTypeAware(['8.0' => 'string'], default: '')] $modifier, bool $return_new = true): static
-    {
-        if ($return_new) {
-            $return = clone $this;
-            return $return->modify($modifier, false);
-        }
-
-        return static::new(parent::modify($modifier));
-    }
-
-
-    /**
      * Returns the difference between two DateTime objects
      *
      * @link https://secure.php.net/manual/en/datetime.diff.php
@@ -772,7 +748,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getPreviousPeriodStart(): static
+    public function getPreviousPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -794,7 +770,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getNextPeriodStart(): static
+    public function getNextPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -816,7 +792,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getCurrentPeriodStart(): static
+    public function getCurrentPeriodBegin(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -836,7 +812,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getCurrentPeriodStop(): static
+    public function getCurrentPeriodEnd(): static
     {
         $datetime = static::new($this);
         $date_day = $datetime->format('d');
@@ -856,7 +832,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getMonthStart(): static
+    public function getMonthBegin(): static
     {
         return PhoDateTime::new($this->format('Y-m-1>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
@@ -867,7 +843,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getMonthStop(): static
+    public function getMonthEnd(): static
     {
         return PhoDateTime::new($this->format('Y-m-t>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
@@ -878,7 +854,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getDayStart(): static
+    public function getDayBegin(): static
     {
         return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<00:00:00'), $this->getTimezone());
     }
@@ -889,7 +865,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function getDayStop(): static
+    public function getDayEnd(): static
     {
         return PhoDateTime::new($this->format('Y-m-d>>DATETIMESEPARATOR<<23:59:59.999999'), $this->getTimezone());
     }
@@ -900,9 +876,665 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return bool
      */
-    public function isPeriodStart(): bool
+    public function isPeriodBegin(): bool
     {
-        return in_array($this->format('d'), ['1', '16']);
+        return in_array($this->format('d'), ['1', '16'], true);
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isPeriodEnd(): bool
+    {
+        return in_array($this->format('d'), [ $this->format('t'), '15'], true);
+    }
+
+
+    /**
+     * Returns the (user) configured day number where a week should start
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday
+     * 3 => Tuesday   (not supported)
+     * 4 => Wednesday (not supported)
+     * 5 => Thursday  (not supported)
+     * 6 => Friday    (not supported)
+     * 7 => Saturday  (not supported)
+     *
+     * @return int
+     */
+    public static function getWeekBegin(): int
+    {
+        $return = config()->getPositiveInteger('locale.dates.weeks.start', 1, true);
+
+        if ($return > 7) {
+            throw new OutOfBoundsException(ts('Invalid start of week day ":day" configured in path ":path", must be a number between 1 and 2', [
+                ':day'  => $return,
+                ':path' => 'locale.dates.weeks.start',
+            ]));
+        }
+
+        if ($return > 2) {
+            throw new OutOfBoundsException(ts('Unsupported start of week day ":day" configured in path ":path", must be a number between 1 and 2', [
+                ':day'  => $return,
+                ':path' => 'locale.dates.weeks.start',
+            ]));
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns the (user) configured day number where a week should stop
+     *
+     * Return value table:
+     *
+     * 1 => Sunday
+     * 2 => Monday    (not supported)
+     * 3 => Tuesday   (not supported)
+     * 4 => Wednesday (not supported)
+     * 5 => Thursday  (not supported)
+     * 6 => Friday    (not supported)
+     * 7 => Saturday
+     *
+     * @return int
+     */
+    public static function getWeekEnd(): int
+    {
+        return 7 - PhoDateTime::getWeekBegin();
+    }
+
+
+    /**
+     * Returns the name of the day when the week starts
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekBeginDayName(): string
+    {
+        return match(PhoDateTime::getWeekBegin()) {
+            1 => 'sunday',
+            2 => 'monday'
+        };
+    }
+
+
+    /**
+     * Returns the 3 character code of the day when the week starts
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekBeginDayCode(): string
+    {
+        return match(PhoDateTime::getWeekBegin()) {
+            1 => 'sun',
+            2 => 'mon'
+        };
+    }
+
+
+    /**
+     * Returns the name of the day when the week stops
+     *
+     * Return values:
+     *
+     * sunday
+     * monday
+     *
+     * @return string
+     */
+    public static function getWeekEndDayName(): string
+    {
+        return match(PhoDateTime::getWeekEnd()) {
+            6 => 'saturday',
+            7 => 'sunday'
+        };
+    }
+
+
+    /**
+     * Returns the 3 character code of the day when the week stops
+     *
+     * Return values:
+     *
+     * sun
+     * mon
+     *
+     * @return string
+     */
+    public static function getWeekEndDayCode(): string
+    {
+        return match(PhoDateTime::getWeekEnd()) {
+            1 => 'sun',
+            2 => 'mon'
+        };
+    }
+
+
+    /**
+     * Returns the PHP date character to use
+     *
+     * @return string
+     */
+    public static function getPhpWeekCode(): string
+    {
+        return match (PhoDateTime::getWeekBegin()) {
+            1 => 'w', // Sunday
+            2 => 'N', // Monday (ISO-8601)
+            default => throw new OutOfBoundsException(ts('Cannot return week code for week start ":start", only 1 & 2 are supported', [
+                ':start' => PhoDateTime::getWeekBegin(),
+            ]))
+        };
+    }
+
+
+    /**
+     * Returns the number of days in the month for the current date
+     *
+     * @return int
+     */
+     #[ExpectedValues(values: [28, 29, 30, 31,])]  public function getDaysInMonth(): int
+    {
+        return (int) $this->format('t');
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a month
+     *
+     * @return bool
+     */
+    public function isMonthBegin(): bool
+    {
+        return $this->getDay() === 1;
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * @return bool
+     */
+    public function isMonthEnd(): bool
+    {
+        return $this->getDay() === $this->getDaysInMonth();
+    }
+
+
+    /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [1, 4, 7, 10]
+     *
+     * @return array
+     */
+    public static function getQuarterBeginMonths(): array
+    {
+        return [1, 4, 7, 10];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a quarter can begin
+     *
+     * Returns [3, 6, 9, 12]
+     *
+     * @return array
+     */
+    public static function getQuarterEndMonths(): array
+    {
+        return [3, 6, 9, 12];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [1, 7]
+     *
+     * @return array
+     */
+    public static function getSemesterBeginMonths(): array
+    {
+        return [1, 7];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a semester can begin
+     *
+     * Returns [6, 12]
+     *
+     * @return array
+     */
+    public static function getSemesterEndMonths(): array
+    {
+        return [6, 12];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [1]
+     *
+     * @return array
+     */
+    public static function getYearBeginMonths(): array
+    {
+        return [1];
+    }
+
+
+    /**
+     * Returns an array containing all months on which a year can begin
+     *
+     * Returns [12]
+     *
+     * @return array
+     */
+    public static function getYearEndMonths(): array
+    {
+        return [12];
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a quarter (3 months)
+     *
+     * Valid month-day combinations are 01-01, 04-01, 07-01, 10-01
+     *
+     * @return bool
+     */
+    public function isQuarterBegin(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '01-01') or
+               ($date === '04-01') or
+               ($date === '07-01') or
+               ($date === '10-01');
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a quarter (3 months)
+     *
+     * Valid month-day combinations are 03-31, 06-30, 09-30, 12-31
+     *
+     * @return bool
+     */
+    public function isQuarterEnd(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '03-31') or
+               ($date === '06-30') or
+               ($date === '09-30') or
+               ($date === '12-31');
+    }
+
+
+    /**
+     * Updated this date to be the previous beginning of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getQuarterBeginMonths(), $this->getMonth());
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getQuarterBeginMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a quarter
+     *
+     * If the previous quarter is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousQuarterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getQuarterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a quarter
+     *
+     * If the next quarter is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextQuarterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getQuarterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous beginning of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getSemesterBeginMonths(), $this->getMonth());
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getSemesterBeginMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a semester
+     *
+     * If the previous semester is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousSemesterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getSemesterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a semester
+     *
+     * If the next semester is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextSemesterEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getSemesterEndMonths(), $this->getMonth());
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous beginning of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getYearBeginMonths(), $this->getMonth(), true) ?? 1;
+        $year     = ($previous > $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next beginning of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearBegin(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getYearBeginMonths(), $this->getMonth(), true) ?? 1;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay(1);
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the previous end of a year
+     *
+     * If the previous year is in the previous year, the year will automatically be decreased by 1 as well
+     *
+     * @return static
+     */
+    public function makePreviousYearEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestSmaller(PhoDateTime::getYearEndMonths(), $this->getMonth(), true) ?? 12;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Updated this date to be the next end of a year
+     *
+     * If the next year is in the next year, the year will automatically be incremented by 1 as well
+     *
+     * @return static
+     */
+    public function makeNextYearEnd(): static
+    {
+        $current  = $this->getMonth();
+        $previous = Arrays::closestLarger(PhoDateTime::getYearEndMonths(), $this->getMonth(), true) ?? 12;
+        $year     = ($previous < $current ? ($this->getYear() - 1) : $this->getYear());
+
+        $this->setYear($year)
+             ->setMonth($previous)
+             ->setDay($this->getDaysInMonth());
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a semester (6 months)
+     *
+     * Valid month-day combinations are 01-01, 07-01
+     *
+     * @return bool
+     */
+    public function isSemesterBegin(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '01-01') or ($date === '07-01');
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a semester (6 months)
+     *
+     * Valid month-day combinations are 01-01, 07-01
+     *
+     * @return bool
+     */
+    public function isSemesterEnd(): bool
+    {
+        $date = $this->format('m-d');
+
+        return ($date === '06-30') or ($date === '12-31');
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a year
+     *
+     * @return bool
+     */
+    public function isYearBegin(): bool
+    {
+        return $this->format('m-d') === '01-01';
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a year
+     *
+     * @return bool
+     */
+    public function isYearEnd(): bool
+    {
+        return $this->format('m-d') === '12-31';
+    }
+
+
+    /**
+     * Returns true if this date is the first day of a week
+     *
+     * This depends on what start of week the system and user have configured
+     *
+     * @return bool
+     */
+    public function isWeekBegin(): bool
+    {
+        return match($this->getPhpWeekCode()) {
+            'w' => $this->format($this->getPhpWeekCode()) === '0',
+            'N' => $this->format($this->getPhpWeekCode()) === '1',
+        };
+    }
+
+
+    /**
+     * Returns true if this date is the last day of a period (the 15yh or 16th of a month)
+     *
+     * This depends on what start of week the system and user have configured
+     *
+     * @return bool
+     */
+    public function isWeekEnd(): bool
+    {
+        return match($this->getPhpWeekCode()) {
+            'w' => $this->format($this->getPhpWeekCode()) === '6',
+            'N' => $this->format($this->getPhpWeekCode()) === '7',
+        };
+    }
+
+
+    /**
+     * Returns true if this date is on a weekend (Saturday or Sunday)
+     *
+     * @return bool
+     */
+    public function isInWeekend(): bool
+    {
+        return in_array(strtolower($this->format('D')), ['sun', 'sat'], true);
     }
 
 
@@ -1041,7 +1673,7 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
      *
      * @return static
      */
-    public function makeDayStart(): static
+    public function makeDayBegin(): static
     {
         $date = $this->format('Y m d');
         $date = explode(' ', $date);
@@ -1088,9 +1720,9 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current year
+     * Returns the current year of this datetime
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1101,9 +1733,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current month of the year
+     * Returns a new DateTime object with this date, but with the specified year
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $year The year to use for the new date
+     *
+     * @return static
+     */
+    public function setYear(int $year): static
+    {
+        return $this->setDate($year, $this->getMonth(), $this->getDay());
+    }
+
+
+    /**
+     * Returns the current month of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1114,9 +1759,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current week of the year
+     * Returns a new DateTime object with this date, but with the specified month
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $month The month to use for the new date
+     *
+     * @return static
+     */
+    public function setMonth(int $month): static
+    {
+        return $this->setDate($this->getYear(), $month, $this->getDay());
+    }
+
+
+    /**
+     * Returns the current week of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1127,9 +1785,9 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current day of the month
+     * Returns the current day of this datetime
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1140,11 +1798,24 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current hour of the day
+     * Returns a new DateTime object with this date, but with the specified day
+     *
+     * @param int $day The day to use for the new date
+     *
+     * @return static
+     */
+    public function setDay(int $day): static
+    {
+        return $this->setDate($this->getYear(), $this->getMonth(), $day);
+    }
+
+
+    /**
+     * Returns the current hour of this datetime
      *
      * @note will return the hour in 24 hours format
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1155,9 +1826,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current minute of the hour
+     * Returns a new DateTime object with this date, but with the specified hour
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $hour The hour to use for the new date
+     *
+     * @return static
+     */
+    public function setHour(int $hour): static
+    {
+        return $this->setTime($hour, $this->getMinute(), $this->getSecond(), $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current minute of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1168,9 +1852,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current second of the minute
+     * Returns a new DateTime object with this date, but with the specified minute
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $minute The minute to use for the new date
+     *
+     * @return static
+     */
+    public function setMinute(int $minute): static
+    {
+        return $this->setTime($this->getHour(), $minute, $this->getSecond(), $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current second of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1181,9 +1878,22 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current millisecond of the second
+     * Returns a new DateTime object with this date, but with the specified second
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $second The second to use for the new date
+     *
+     * @return static
+     */
+    public function setSecond(int $second): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $second, $this->getMicroSecond());
+    }
+
+
+    /**
+     * Returns the current millisecond of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
@@ -1194,15 +1904,187 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
 
 
     /**
-     * Returns the current microsecond of the second
+     * Returns a new DateTime object with this date, but with the specified millisecond
      *
-     * @param DateTimeZone|string|null $timezone
+     * @param int $millisecond The millisecond to use for the new date
+     *
+     * @return static
+     */
+    public function SetMillisecond(int $millisecond): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $this->getSecond(), $millisecond);
+    }
+
+
+    /**
+     * Returns the current microsecond of this datetime
+     *
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
      *
      * @return int
      */
     public function getMicroSecond(DateTimeZone|string|null $timezone = null): int
     {
         return (int) PhoDateTime::new($this, $timezone)->format('u');
+    }
+
+
+    /**
+     * Returns a new DateTime object with this date, but with the specified microsecond
+     *
+     * @param int $microsecond The microsecond to use for the new date
+     *
+     * @return static
+     */
+    public function SetMicrosecond(int $microsecond): static
+    {
+        return $this->setTime($this->getHour(), $this->getMinute(), $this->getSecond(), $microsecond);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified years
+     *
+     * @param array|string|int         $values          One or more of the years(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasYear(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getYear($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified months
+     *
+     * @param array|string|int         $values          One or more of the months(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMonth(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMonth($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified weeks
+     *
+     * @param array|string|int         $values          One or more of the weeks(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasWeek(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getWeek($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified days
+     *
+     * @param array|string|int         $values          One or more of the day(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasDay(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getDay($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified hour
+     *
+     * @param array|string|int         $values          One or more of the hour(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasHour(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getHour($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified minutes
+     *
+     * @param array|string|int         $values          One or more of the minutes(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMinute(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMinute($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified seconds
+     *
+     * @param array|string|int         $values          One or more of the second(s) that this date object must have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasSecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getSecond($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified milliseconds
+     *
+     * @param array|string|int         $values          One or more of the millisecond(s) that this date object must
+     *                                                  have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMillisecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMillisecond($timezone), $values, $strict);
+    }
+
+
+    /**
+     * Returns true if the current date has one or more of the specified microseconds
+     *
+     * @param array|string|int         $values          One or more of the microsecond(s) that this date object must
+     *                                                  have
+     * @param bool                     $strict   [true] If true will execute strict datatype comparison. If false, will
+     *                                                  compare loosely
+     * @param DateTimeZone|string|null $timezone [null] If specified, will first convert to the specified timezone
+     *
+     * @return bool
+     */
+    public function hasMicroSecond(array|string|int $values, bool $strict = true, DateTimeZone|string|null $timezone = null): bool
+    {
+        return in_array($this->getMicroSecond($timezone), $values, $strict);
     }
 
 
@@ -1230,22 +2112,29 @@ class PhoDateTime extends DateTime implements Stringable, Interfaces\PhoDateTime
                 break;
 
             case 12:
-                $return = substr($source, 0, 4) . $date_separator .
-                          substr($source, 4, 2) . $date_separator .
-                          substr($source, 6, 2) . $date_separator .
-                          substr($source, 8, 2) . $time_separator .
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator
                           . '00';
                 break;
 
             case 14:
-                $return = substr($source, 0, 4) . $date_separator .
-                          substr($source, 4, 2) . $date_separator .
-                          substr($source, 6, 2) . $date_separator .
-                          substr($source, 8, 2) . $time_separator .
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
                           substr($source, 10, 2) . $time_separator .
                           substr($source, 12, 2);
 
+            default:
+                $return = substr($source, 0 , 4) . $date_separator .
+                          substr($source, 4 , 2) . $date_separator .
+                          substr($source, 6 , 2) . $date_time_separator .
+                          substr($source, 8 , 2) . $time_separator .
+                          substr($source, 10, 2) . $time_separator .
+                          substr($source, 12, 2) . '.' . substr($source, 14); // milli / micro seconds
         }
 
         return $return;

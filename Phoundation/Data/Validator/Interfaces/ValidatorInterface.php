@@ -1527,4 +1527,15 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function existsInDatabase(?string $failure_message = null, ?string $column = null, ?string $table = null): static;
+
+    /**
+     * This will set the specified column to have the value from the given callback
+     *
+     * @param string   $column               The column to be updated
+     * @param callable $callback             The callback that will generate the value for the column
+     * @param bool     $fail_on_null [true]
+     *
+     * @return static
+     */
+    public function setColumnFromCallback(string $column, callable $callback, bool $fail_on_null = true): static;
 }

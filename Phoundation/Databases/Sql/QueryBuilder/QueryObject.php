@@ -299,7 +299,7 @@ class QueryObject implements QueryObjectInterface
     public function addFrom(?string $from, ?array $execute = null): static
     {
         if ($from) {
-            $this->froms[] = $from;
+            $this->froms[] = trim($from, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -417,7 +417,7 @@ class QueryObject implements QueryObjectInterface
         }
 
         if ($select) {
-            $this->select[] = $select;
+            $this->select[] = trim($select, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -465,7 +465,7 @@ class QueryObject implements QueryObjectInterface
         }
 
         if ($update) {
-            $this->updates[] = $update;
+            $this->updates[] = trim($update, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -483,7 +483,7 @@ class QueryObject implements QueryObjectInterface
     public function addJoin(?string $join, ?array $execute = null): static
     {
         if ($join) {
-            $this->joins[] = $join;
+            $this->joins[] = trim($join, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -539,7 +539,7 @@ class QueryObject implements QueryObjectInterface
     public function addWhere(?string $where, ?array $execute = null): static
     {
         if ($where) {
-            $this->wheres[] = $where;
+            $this->wheres[] = trim($where, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -580,7 +580,7 @@ class QueryObject implements QueryObjectInterface
     public function addGroupBy(?string $group_by, ?array $execute = null): static
     {
         if ($group_by) {
-            $this->group_bys[] = $group_by;
+            $this->group_bys[] = trim($group_by, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -609,7 +609,7 @@ class QueryObject implements QueryObjectInterface
     public function addHaving(?string $having, ?array $execute = null): static
     {
         if ($having) {
-            $this->havings[] = $having;
+            $this->havings[] = trim($having, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -654,7 +654,7 @@ class QueryObject implements QueryObjectInterface
     public function addOrderBy(?string $order_by, ?array $execute = null): static
     {
         if ($order_by) {
-            $this->order_bys[] = $order_by;
+            $this->order_bys[] = trim($order_by, " \n\r\t\v\0,");
         }
 
         return $this->addExecuteArray($execute);
@@ -744,6 +744,8 @@ class QueryObject implements QueryObjectInterface
                 return $this;
 
             case 'integer':
+                // no break
+
             case 'string':
                 return $this->addWhere($column . ' = :value' . $this->in_count, ['value'. $this->in_count => $value]);
 
@@ -786,7 +788,6 @@ class QueryObject implements QueryObjectInterface
     public function addPredefine(string $name, callable $callback): static
     {
         $this->predefines[$name] = $callback;
-
         return $this;
     }
 }

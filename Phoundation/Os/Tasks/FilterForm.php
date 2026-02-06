@@ -47,9 +47,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 //
                                                          return null;
                                                      }));
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 
 

@@ -57,9 +57,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                    ->setRows(10));
 
         $this->o_definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
-
-        // Auto apply
-        $this->applyValidator(self::class);
     }
 
 

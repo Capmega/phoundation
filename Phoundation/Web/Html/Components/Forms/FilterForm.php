@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Forms;
 
+use Endroid\QrCode\Exception\ValidationException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
@@ -44,10 +45,12 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\InputDateRange;
+use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Response;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -103,6 +106,20 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * @var bool $require_clean_source
      */
     protected bool $require_clean_source = false;
+
+    /**
+     * Tracks whether the source data has been validated or not
+     *
+     * @var bool $is_validated
+     */
+    protected bool $is_validated = false;
+
+    /**
+     * Tracks if data_view value "Percentages" should be available
+     *
+     * @var bool $data_view_percentage
+     */
+    protected bool $data_view_percentage = true;
 
 
     /**
@@ -200,10 +217,709 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
-                                                          ->setSource($this->states));
+                                                          ->setSource($this->states))
 
-        // Auto apply
-        $this->applyValidator(self::class);
+                                          ->add(Definition::new('data_view')
+                                                         ->setLabel(tr('Data view'))
+                                                         ->setSize(3)
+                                                         ->setOptional(true, 'minutes')
+                                                         ->setRender(false)
+                                                         ->setInputType(EnumInputType::text)
+                                                         ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                             if ($this->data_view_percentage) {
+                                                                 $source = [
+                                                                     'minutes' => tr('Minutes'),
+                                                                     'human'   => tr('Human readable'),
+                                                                     'percent' => tr('Percentages'),
+                                                                 ];
+
+                                                             } else {
+                                                                 $source = [
+                                                                     'minutes' => tr('Minutes'),
+                                                                     'human'   => tr('Human readable'),
+                                                                 ];
+                                                             }
+
+                                                             return InputSelect::new()
+                                                                               ->setSource($source)
+                                                                               ->setName($field_name)
+                                                                               ->setSelected($this->source[$key])
+                                                                               ->setAutoSubmit(true);
+                                                         }))
+
+                                         ->add(Definition::new('grouping')
+                                                         ->setLabel(tr('Grouping'))
+                                                         ->setSize(3)
+                                                         ->setOptional(true, 'days')
+                                                         ->setRender(false)
+                                                         ->setInputType(EnumInputType::text)
+                                                         ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                             return InputSelect::new()
+                                                                               ->setSource([
+                                                                                   'none'      => tr('None'),
+                                                                                   'days'      => tr('Days'),
+                                                                                   'weeks'     => tr('Weeks'),
+                                                                                   'periods'   => tr('Payment periods'),
+                                                                                   'months'    => tr('Months'),
+                                                                                   'quarters'  => tr('Quarters'),
+                                                                                   'semesters' => tr('Semesters'),
+                                                                                   'years'     => tr('Years'),
+                                                                               ])
+                                                                               ->setName($field_name)
+                                                                               ->setSelected($this->source[$key])
+                                                                               ->setAutoSubmit(true);
+                                                             }));
+   }
+
+
+    /**
+     * Throws a ValidationException if the data has already been validated
+     *
+     * @param string $action
+     *
+     * @return $this
+     * @throws ValidationException
+     */
+    protected function checkNotValidated(string $action): static
+    {
+        if ($this->isValidated()) {
+            throw new ValidationException(ts('Cannot execute action ":action" on FilterForm object ":class", the source data has already been validated', [
+                ':action' => $action,
+                ':class' => get_class($this),
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws a ValidationException if the data has not yet been validated
+     *
+     * @param string $action
+     *
+     * @return $this
+     * @throws ValidationException
+     */
+    protected function checkValidated(string $action): static
+    {
+        if ($this->isValidated()) {
+            return $this;
+        }
+
+        throw new ValidationException(ts('Cannot execute action ":action" on FilterForm object ":class", the source data has not yet been validated', [
+            ':action' => $action,
+            ':class' => get_class($this),
+        ]));
+    }
+
+
+    /**
+     * Returns if data_view value "Percentages" should be available
+     *
+     * @return bool
+     */
+    public function getDataViewPercentage(): bool
+    {
+        return $this->data_view_percentage;
+    }
+
+
+    /**
+     * Sets if data_view value "Percentages" should be available
+     *
+     * @param bool $view If true, will display the "Percentages" option in the data_view selector
+     *
+     * @return \Plugins\Medinet\Timesheets\FilterForm
+     */
+    public function setDataViewPercentage(bool $view): static
+    {
+        $this->data_view_percentage = $view;
+        return $this;
+    }
+
+
+    /**
+     * Returns the value for the data view
+     *
+     * @return string|null
+     */
+    public function getDataView(): ?string
+    {
+        return $this->get('data_view');
+    }
+
+
+    /**
+     * Returns the value for the grouping
+     *
+     * @return string|null
+     */
+    public function getGrouping(): ?string
+    {
+        return $this->get('grouping');
+    }
+
+
+    /**
+     * Sets all render definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setRenderDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setRenderDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            $_definitions->get($key)->setRender($value);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all disabled definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setDisabledDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setDisabledDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setDisplay($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set disabled definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all display definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setDisplayDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setDisplayDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setDisplay($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set display definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all readonly definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setReadonlyDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setReadonlyDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_bool($value)) {
+                $_definitions->get($key)->setReadonly($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set readonly definition ":value" for ":class" class column ":column", the value must be an boolean', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets all size definitions in one go
+     *
+     * @param array $definitions
+     *
+     * @return static
+     * @throws ValidationException | OutOfBoundsException
+     */
+    public function setSizeDefinitions(array $definitions): static
+    {
+        $this->checkNotValidated('FilterForm::setSizeDefinitions()');
+
+        $_definitions = $this->getDefinitionsObject();
+
+        foreach ($definitions as $key => $value) {
+            if (is_numeric_integer($value) and ($value >= 1) and ($value <= 12)) {
+                $_definitions->get($key)->setSize($value);
+                continue;
+            }
+
+            throw OutOfBoundsException::new(ts('Cannot set size definition ":value" for ":class" class column ":column", the value must be an integer value between 1 and 12', [
+                ':value'  => $value,
+                ':class'  => static::class,
+                ':column' => $key,
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on correct dates for the currently selected period
+     *
+     * This method ensures that the current start-date is always on the right start (first day of the period) and stop date (last day of the period) for the
+     * selected period. When, for example, the selected period is weeks, the start day should always be a sunday, and the stop day should always be a saturday.
+     * When the selected period is a payment period, the date range should always start on the 1st or the 16th, and end on the 15th, or the 28th, 29th, 30th, or
+     * 31st, depending on the month. A year period would require to start on January the 1st of the year and end on December 31st.
+     *
+     * When $single_period is true, it will also ensure that start and stop dates are such, that the selection covers exactly a single period.
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    public function ensureGroupedPeriodDateRange(bool $single_period = true): static
+    {
+        $this->checkValidated('FilterForm::ensureGroupedPeriodDateRange()');
+
+        switch ($this->getGrouping()) {
+            case 'none':
+                // no break
+
+            case 'days':
+                // These groupings do not require special dates
+                break;
+
+            case 'weeks':
+                return $this->ensureWeeksDateRange($single_period);
+
+            case 'periods':
+                return $this->ensurePaymentPeriodsDateRange($single_period);
+
+            case 'months':
+                return $this->ensureMonthsDateRange($single_period);
+
+            case 'quarters':
+                return $this->ensureQuartersDateRange($single_period);
+
+            case 'semesters':
+                return $this->ensureSemestersDateRange($single_period);
+
+            case 'years':
+                return $this->ensureYearsDateRange($single_period);
+
+            default:
+                throw new OutOfBoundsException(ts('Unknown grouping ":grouping" specified', [
+                    'grouping' => $this->getGrouping(),
+                ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on period days
+     *
+     * This method ensures that the current start-date is always on the 1st or 16th and the stop-date is always on the 15th, or whatever the last day of the
+     * month is.
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensureYearsDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-W') === $this->getStopDateObject()->format('y-W'))) {
+                // The start date must be on one of 01-01, 07-01
+                if ($this->getStartDateObject()->isYearBegin()) {
+                    // The stop date must be on one of 06-30, 12-31
+                    if ($this->getStopDateObject()->isYearEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a week date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust start date, expand it to the current (if current is period start day) or previous period start day
+        if (!$this->getStartDateObject()->isYearBegin()) {
+            $this->getStartDateObject()->makePreviousYearBegin();
+        }
+
+        // Adjust stop date, expand it to the current (if current is period stop day) or next period stop day
+        if (!$this->getStopDateObject()->isYearEnd()) {
+            $this->getStopDateObject()->makeNextYearEnd();
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on period days
+     *
+     * This method ensures that the current start-date is always on the 1st or 16th and the stop-date is always on the 15th, or whatever the last day of the
+     * month is.
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensureSemestersDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-W') === $this->getStopDateObject()->format('y-W'))) {
+                // The start date must be on one of 01-01, 07-01
+                if ($this->getStartDateObject()->isSemesterBegin()) {
+                    // The stop date must be on one of 06-30, 12-31
+                    if ($this->getStopDateObject()->isSemesterEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a week date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust start date, expand it to the current (if current is period start day) or previous period start day
+        if (!$this->getStartDateObject()->isSemesterBegin()) {
+            $this->getStartDateObject()->makePreviousSemesterBegin();
+        }
+
+        // Adjust stop date, expand it to the current (if current is period stop day) or next period stop day
+        if (!$this->getStopDateObject()->isSemesterEnd()) {
+            $this->getStopDateObject()->makeNextSemesterEnd();
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on quarter begin / end days
+     *
+     * This method ensures that the current start-date is always on one of 01-01, 04-01, 07-01, 10-01, and the end-date is always on one of 01-01, 04-01, 07-01,
+     * 10-01
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensureQuartersDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-W') === $this->getStopDateObject()->format('y-W'))) {
+                // The start date must be on one of 01-01, 04-01, 07-01, 10-01
+                if ($this->getStartDateObject()->isQuarterBegin()) {
+                    // The stop date must be on one of 01-01, 04-01, 07-01, 10-01
+                    if ($this->getStopDateObject()->isQuarterEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a week date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust start date, expand it to the current (if current is period start day) or previous period start day
+        if (!$this->getStartDateObject()->isMonthBegin()) {
+            $this->getStartDateObject()->makePreviousQuarterBegin();
+        }
+
+        // Adjust stop date, expand it to the current (if current is period stop day) or next period stop day
+        if (!$this->getStopDateObject()->isMonthEnd()) {
+            $this->getStopDateObject()->makeNextQuarterEnd();
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on period days
+     *
+     * This method ensures that the current start-date is always on the 1st or 16th and the stop-date is always on the 15th, or whatever the last day of the
+     * month is.
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensureMonthsDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-W') === $this->getStopDateObject()->format('y-W'))) {
+                // The start date must be the first day of the month
+                if ($this->getStartDateObject()->isMonthBegin()) {
+                    // The stop date must be either the 28th, 29th, 30th, 31st, depending on the month
+                    if ($this->getStopDateObject()->isMonthEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a week date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust start date, expand it to the current (if current is period start day) or previous period start day
+        if (!$this->getStartDateObject()->isMonthBegin()) {
+            $this->getStartDateObject()->setDay(1);
+        }
+
+        // Adjust stop date, expand it to the current (if current is period stop day) or next period stop day
+        if (!$this->getStopDateObject()->isMonthEnd()) {
+            $this->getStopDateObject()->setDay($this->getStopDateObject()->getDaysInMonth());
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on week-begin and end days
+     *
+     * This method ensures that the current start-date is always on the (system or user) configured start of the week, while the stop date is on the (system or
+     * user) configured end of the week
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensureWeeksDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-W') === $this->getStopDateObject()->format('y-W'))) {
+                // The start date must be either Sunday or Monday, depending on system / user configuration
+                if ($this->getStartDateObject()->isWeekBegin()) {
+                    // The stop date must be either Saturday or Sunday, depending on system / user configuration
+                    if ($this->getStopDateObject()->isWeekEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a week date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust start date, expand it to the current (if current is period start day) or previous period start day
+        if (!$this->getStartDateObject()->isWeekBegin()) {
+            $this->getStartDateObject()->modify('last ' . $this->getStartDateObject()->getWeekBeginDayName());
+        }
+
+        // Adjust stop date, expand it to the current (if current is period stop day) or next period stop day
+        if (!$this->getStopDateObject()->isWeekEnd()) {
+            $this->getStopDateObject()->modify('next ' . $this->getStopDateObject()->getWeekEndDayName());
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
+    }
+
+
+    /**
+     * Ensures that the start and stop dates are both on period days
+     *
+     * This method ensures that the current start-date is always on the 1st or 16th and the stop-date is always on the 15th, or whatever the last day of the
+     * month is.
+     *
+     * When $single_period is true, it will also ensure that only a single period is selected
+     *
+     * This method will cause a redirect to the same page with a date range correctly on a period
+     *
+     * @param bool $single_period [true] If true, only allows a single period. If false, can span multiple periods over multiple months
+     *
+     * @return static
+     */
+    protected function ensurePaymentPeriodsDateRange(bool $single_period = true): static
+    {
+        // The stop date that we will use in case we have to redirect
+        $_stop = null;
+
+        // Stop must be after start
+        if ($this->getStopDateObject() > $this->getStartDateObject()) {
+            // Either we have a multi period or start/stop month and year must match
+            if (!$single_period or ($this->getStartDateObject()->format('y-m') === $this->getStopDateObject()->format('y-m'))) {
+                // Start date must be either the 1st or 16th
+                if ($this->getStartDateObject()->isPeriodBegin()) {
+                    // Stop date must be either the 15th, 28th, 29th, 30th, 31st, depending on the month
+                    if ($this->getStopDateObject()->isPeriodEnd()) {
+                        return $this;
+                    }
+                }
+
+            } else {
+                // We have multiple months, redirect end month to start month
+                $_stop = $this->getStartDateObject();
+            }
+        }
+
+        // Nope, we are not on a period date range. Redirect to fix.
+        $_stop = $_stop ?? $this->getStopDateObject();
+
+        // Adjust the start date, expand it to the current (if current is period start day) or previous period start day
+        if ($this->getStartDateObject()->getDay() > 16) {
+            $this->getStartDateObject()->setDay(16);
+
+        } else {
+            $this->getStartDateObject()->setDay(1);
+        }
+
+        // Adjust the stop date, expand it to the current (if current is period stop day) or next period stop day
+        if ($_stop->getDay() > 16) {
+            $_stop->setDay($_stop->getLastDayOfMonth()->getDay());
+
+        } else {
+            $_stop->setDay(15);
+        }
+
+        // Redirect
+        Response::redirect(Url::newCurrent()
+                              ->removeQueryKeys('date')
+                              ->addQueries('date_range=' . $this->getStartDateObject()->format('Y/m/d')
+                                           . ' - '
+                                           . $_stop->format('Y/m/d')), 301);
     }
 
 
@@ -211,15 +927,18 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      * Renders and returns HTML string content for this object
      *
      * @return string|null
+     * @throws ValidationException
      */
     public function render(): ?string
     {
+        // Auto apply validation before rendering
+        $this->checkValidated('FilterForm::render()')->validate();
+
         // Make sure this is a submittable form with GET method
         if ($this->use_form) {
             $this->useForm(true)
-                 ->getForm()
-                    ->setRequestMethod($this->request_method)
-                    ->setAction(Url::newCurrent());
+                 ->getForm()->setRequestMethod($this->request_method)
+                            ->setAction(Url::newCurrent());
         }
 
         return parent::render();
@@ -304,6 +1023,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     #[ReturnTypeWillChange] public function getForce(Stringable|string|float|int $key, mixed $default = null, bool $exception = false): mixed
     {
         return parent::get($key, $default, $exception);
+    }
+
+
+    /**
+     * Returns if the source data is validated or not
+     *
+     * @return bool
+     */
+    public function isValidated(): bool
+    {
+        return $this->is_validated;
     }
 
 
@@ -615,23 +1345,21 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
-     * Apply the filters from the Validator
+     * Validates the source data of this filter form
      *
-     * @param string $class
-     * @param bool   $require_clean_source
+     * @param bool $require_clean_source [null]  If true, will require that the source contains no values beyond the ones defined for this FilterForm object
+     * @param bool $force                [false] If true, will always validate, even if the data has already been validated
      *
      * @return static
      * @todo Check if the $class variable still really is necessary now that the applied values are tracked
      */
-    protected function applyValidator(string $class, ?bool $require_clean_source = null): static
+    public function validate(?bool $require_clean_source = null, bool $force = false): static
     {
-        // Local objects for faster lookups
-        $o_definitions        = $this->o_definitions;
-        $require_clean_source = $require_clean_source ?? $this->require_clean_source;
-
-        // Auto apply
-        if ($class === static::class) {
-            $o_validator = $this->selectValidator()->setDefinitionsObject($o_definitions);
+        if (!$this->isValidated() or $force) {
+            // Local objects for faster lookups
+            $o_definitions        = $this->o_definitions;
+            $require_clean_source = $require_clean_source ?? $this->require_clean_source;
+            $o_validator          = $this->selectValidator()->setDefinitionsObject($o_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
             foreach ($o_definitions as $column => $o_definition) {
@@ -664,6 +1392,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             $this->o_applied_filters = new Iterator($o_definitions->getKeyIndices());
         }
 
+        $this->is_validated = true;
         return $this;
     }
 
