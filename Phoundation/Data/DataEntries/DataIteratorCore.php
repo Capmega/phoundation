@@ -68,7 +68,9 @@ use Stringable;
 class DataIteratorCore extends IteratorCore implements DataIteratorInterface, IdentifierInterface
 {
     use TraitDataConnector;
-    use TraitDataDebug;
+    use TraitDataDebug {
+        setDebug as protected __setDebug;
+    }
     use TraitDataStatusFilter;
     use TraitDataMetaEnabled;
     use TraitMethodBuildManualQuery;
@@ -288,7 +290,6 @@ throw new ObsoleteException();
     public function getQuery(): ?string
     {
         $this->selectQuery();
-
         return $this->query;
     }
 
@@ -326,6 +327,28 @@ throw new ObsoleteException();
 
 //Log::printr($hash);
         return $hash;
+    }
+
+
+    /**
+     * Sets the debug value
+     *
+     * @param bool $debug             If true, will enable debug mode for this object alone
+     * @param bool $pass_along [true] If true, will pass the new debug value along to the sub objects like the QueryBuilder
+     *
+     * @return static
+     */
+
+    public function setDebug(bool $debug, bool $pass_along = true): static
+    {
+        if ($pass_along) {
+            if (isset($this->o_query_builder)) {
+                // Pass debug mode change along
+                $this->o_query_builder->setDebug(true, false);
+            }
+        }
+
+        return $this->__setDebug($debug);
     }
 
 
@@ -725,6 +748,7 @@ throw new ObsoleteException();
         // Create and return the table
         return HtmlTable::new($this)
                         ->setId(static::getTable())
+                        ->setDebug($this->getDebug())
                         ->setConnectorObject($this->getConnectorObject())
                         ->setHeaders($this->prepareHeaders($columns))
                         ->setSourceQuery($this->query, $this->execute)
@@ -756,6 +780,7 @@ throw new ObsoleteException();
         // Create and return the table
         return HtmlDataTable::new($this)
                             ->setId(static::getTable())
+                            ->setDebug($this->getDebug())
                             ->setConnectorObject($this->getConnectorObject())
                             ->setHeaders($this->prepareHeaders($columns))
                             ->setSourceQuery($this->query, $this->execute)

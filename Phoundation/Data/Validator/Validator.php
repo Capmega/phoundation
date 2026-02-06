@@ -443,9 +443,9 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         if (!array_key_exists($from_key, $this->source)) {
             if ($exception) {
                 throw new OutOfBoundsException(tr('Cannot rename ":class" key from ":from" to ":to", the ":original" key does not exist', [
-                    ':class' => static::class,
-                    ':from' => $from_key,
-                    ':to' => $to_key,
+                    ':class'    => static::class,
+                    ':from'     => $from_key,
+                    ':to'       => $to_key,
                     ':original' => $from_key,
                 ]));
             }
@@ -454,7 +454,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             $this->source[$from_key] = null;
         }
 
-        if (array_get_safe($this->source, $to_key)) {
+        if (array_key_exists($to_key, $this->source)) {
             // Target already exists, should we overwrite?
             if (!$overwrite) {
                 // Do not overwrite, do not change anything

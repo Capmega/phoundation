@@ -283,11 +283,13 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the debug value
      *
-     * @param bool $debug
+     * @param bool $debug             If true, will enable debug mode for this object alone
+     * @param bool $pass_along [true] If true, will pass the new debug value along to the sub objects like the QueryBuilder
      *
      * @return static
      */
-    public function setDebug(bool $debug): static;
+
+    public function setDebug(bool $debug, bool $pass_along = true): static;
 
     /**
      * Returns the name of the database connector where this DataEntry is stored
