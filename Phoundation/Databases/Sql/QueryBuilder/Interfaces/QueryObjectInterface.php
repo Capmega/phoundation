@@ -316,4 +316,11 @@ interface QueryObjectInterface
      * @return array
      */
     public function getBoundVariables(): array;
+
+    /**
+     * Returns true if this QueryObject has where sections specified
+     *
+     * @return bool
+     */
+    public function hasWheres(): bool;
 }

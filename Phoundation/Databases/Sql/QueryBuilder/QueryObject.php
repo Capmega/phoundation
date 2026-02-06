@@ -525,6 +525,17 @@ class QueryObject implements QueryObjectInterface
 
 
     /**
+     * Returns true if this QueryObject has where sections specified
+     *
+     * @return bool
+     */
+    public function hasWheres(): bool
+    {
+        return (bool) count($this->wheres);
+    }
+
+
+    /**
      * Sets the WHERE part of the query
      *
      * @param string|null $where
