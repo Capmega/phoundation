@@ -351,6 +351,52 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
+     * Returns true if the current data_view value is the same as the specified data_view value
+     *
+     * @param string|null $view
+     *
+     * @return bool
+     */
+    public function hasDataView(?string $view): bool
+    {
+        return $this->getDataView() === $view;
+    }
+
+
+    /**
+     * Returns true if the current data_view value is "minute"
+     *
+     * @return bool
+     */
+    public function hasDataViewMinute(): bool
+    {
+        return $this->hasDataView('minute');
+    }
+
+
+    /**
+     * Returns true if the current data_view value is "human"
+     *
+     * @return bool
+     */
+    public function hasDataViewHumanReadable(): bool
+    {
+        return $this->hasDataView('human');
+    }
+
+
+    /**
+     * Returns true if the current data_view value is "percent"
+     *
+     * @return bool
+     */
+    public function hasDataViewPercent(): bool
+    {
+        return $this->hasDataView('percent');
+    }
+
+
+    /**
      * Returns the value for the grouping
      *
      * @return string|null

@@ -166,4 +166,34 @@ interface FilterFormInterface extends DataEntryFormInterface
      * @return $this
      */
     public function setReadonlyDefinitions(array $definitions): static;
+
+    /**
+     * Returns true if the current data_view value is the same as the specified data_view value
+     *
+     * @param string|null $view
+     *
+     * @return bool
+     */
+    public function hasDataView(?string $view): bool;
+
+    /**
+     * Returns true if the current data_view value is "minute"
+     *
+     * @return bool
+     */
+    public function hasDataViewMinute(): bool;
+
+    /**
+     * Returns true if the current data_view value is "human"
+     *
+     * @return bool
+     */
+    public function hasDataViewHumanReadable(): bool;
+
+    /**
+     * Returns true if the current data_view value is "percent"
+     *
+     * @return bool
+     */
+    public function hasDataViewPercent(): bool;
 }
