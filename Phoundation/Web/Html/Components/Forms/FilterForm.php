@@ -121,6 +121,13 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     protected bool $data_view_percentage = true;
 
+    /**
+     * Tracks the column to group on
+     *
+     * @var ?string $grouping_column
+     */
+    protected ?string $grouping_column = null;
+
 
     /**
      * FilterForm class constructor
@@ -397,6 +404,19 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
+     * Returns true if the grouping filter has the specified value
+     *
+     * @param string $grouping
+     *
+     * @return bool
+     */
+    public function hasGrouping(string $grouping): bool
+    {
+        return $this->getGrouping() === $grouping;
+    }
+
+
+    /**
      * Returns the value for the grouping
      *
      * @return string|null
@@ -404,6 +424,43 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     public function getGrouping(): ?string
     {
         return $this->get('grouping');
+    }
+
+
+    /**
+     * Sets the value for the grouping
+     *
+     * @param string|null $grouping
+     *
+     * @return FilterForm
+     */
+    public function setGrouping(?string $grouping): static
+    {
+        return $this->get($grouping, 'grouping');
+    }
+
+
+    /**
+     * Returns the value for the grouping_column
+     *
+     * @return string|null
+     */
+    public function getGroupingColumn(): ?string
+    {
+        return $this->get('grouping_column');
+    }
+
+
+    /**
+     * Sets the value for the grouping_column
+     *
+     * @param string|null $column
+     *
+     * @return FilterForm
+     */
+    public function setGroupingColumn(?string $column): static
+    {
+        return $this->set($column, 'grouping_column');
     }
 
 

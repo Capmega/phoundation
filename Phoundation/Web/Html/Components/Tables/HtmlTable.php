@@ -560,6 +560,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     public function addRowUrl(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static
     {
+        if ($o_url) {
         $this->getRowUrls();
 
         $this->row_urls[] = [
@@ -567,6 +568,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             'restrictions' => $restrictions,
             'priority'     => $priority
         ];
+        }
 
         return $this;
     }

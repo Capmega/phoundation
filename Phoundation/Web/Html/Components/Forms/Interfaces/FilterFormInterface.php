@@ -4,6 +4,7 @@ namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
+use Phoundation\Web\Html\Components\Forms\FilterForm;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -196,4 +197,38 @@ interface FilterFormInterface extends DataEntryFormInterface
      * @return bool
      */
     public function hasDataViewPercent(): bool;
+
+    /**
+     * Sets the value for the grouping
+     *
+     * @param string|null $grouping
+     *
+     * @return FilterForm
+     */
+    public function setGrouping(?string $grouping): static;
+
+    /**
+     * Returns the value for the grouping_column
+     *
+     * @return string|null
+     */
+    public function getGroupingColumn(): ?string;
+
+    /**
+     * Sets the value for the grouping_column
+     *
+     * @param string|null $column
+     *
+     * @return FilterForm
+     */
+    public function setGroupingColumn(?string $column): static;
+
+    /**
+     * Returns true if the grouping filter has the specified value
+     *
+     * @param string $grouping
+     *
+     * @return bool
+     */
+    public function hasGrouping(string $grouping): bool;
 }
