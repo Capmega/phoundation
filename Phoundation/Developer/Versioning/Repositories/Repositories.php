@@ -356,7 +356,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         foreach ($found as $repository_path) {
             Log::notice(ts('Found possible repository path ":repository"', [
-                ':repository"' => $repository_path,
+                ':repository' => $repository_path,
             ]));
 
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
@@ -371,7 +371,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                 } else {
                     if ($o_repository_path->containsBackupDirectory()) {
                         Log::action(ts('Adding new repository with path ":repository"', [
-                            ':repository"' => $o_repository_path,
+                            ':repository' => $o_repository_path,
                         ]));
 
                         // The path for this repository appears to be a backup path. Add those at the end
@@ -379,7 +379,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
                     } else {
                         Log::action(ts('Adding new repository with path ":repository"', [
-                            ':repository"' => $o_repository_path,
+                            ':repository' => $o_repository_path,
                         ]));
 
                         $_repository = Repository::newFromPathObject($o_repository_path)->save();
@@ -392,7 +392,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         // Now process repository paths that have backup paths
         foreach ($backup_paths as $_repository) {
             Log::action(ts('Adding new (probably backup) repository with path ":repository"', [
-                ':repository"' => $_repository->getDirectoryObject(),
+                ':repository' => $_repository->getDirectoryObject(),
             ]));
 
             $_repository = Repository::newFromPathObject($o_repository_path)->save();
