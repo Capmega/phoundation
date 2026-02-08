@@ -90,7 +90,7 @@ class Repository extends DataEntry implements RepositoryInterface
         $this->setPermittedColumns(['branch', 'class'])
              ->addEventHandler('loaded', function () {
                  try {
-                     $this->setBranch($this->getSelectedBranch(true));
+                     $this->setBranch($this->getCurrentBranch(true));
 
                  } catch (NotARepositoryException | DirectoryNotExistsException) {
                      // Whoops, this repository is no longer valid! Continue, but do not read the branch
@@ -363,7 +363,7 @@ show($o_path->getBasename());
         Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
-            ':branch'     => $branch ?? ($this->getSelectedBranch() . ' (' . ts('current') . ')'),
+            ':branch'     => $branch ?? ($this->getCurrentBranch() . ' (' . ts('current') . ')'),
             ':remote'     => $remote,
         ]));
 
@@ -547,7 +547,7 @@ show($o_path->getBasename());
      *
      * @return string|null
      */
-    public function getSelectedBranch(bool $return_if_detached = false): ?string
+    public function getCurrentBranch(bool $return_if_detached = false): ?string
     {
         return $this->o_git->getSelectedBranch($return_if_detached);
     }
@@ -1276,15 +1276,16 @@ showdie();
      *
      * @return static
      */
-    public function updateSelectedSuffixedVersionBranch(): static
+    public function updateVersionBranch(): static
     {
-showdie($this->getCurrentVersion());
         Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
             ':repository' => $this->getName(),
-            ':branch'     => $this->getSelectedBranch(),
+            ':branch'     => $this->getCurrentBranch(),
             ':version'    => $this->getCurrentVersion(),
         ]));
-
+show($this->getCurrentBranch());
+show($this->getCurrentVersion());
+showdie();
         $this->o_git->merge($this->getCurrentVersion());
         return $this;
     }

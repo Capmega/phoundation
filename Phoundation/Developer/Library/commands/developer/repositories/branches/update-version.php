@@ -51,4 +51,4 @@ $argv = ArgvValidator::new()->validate();
 
 
 // Update the branches on all repositories
-Repositories::new()->load()->updateSuffixedVersionBranches(ALL);
+Repositories::new()->load()->updateVersionBranches(ALL);

@@ -440,6 +440,24 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
+     * Returns an array containing the status for all repositories
+     *
+     * @return StatusFilesInterface
+     */
+    public function getDiffObject(): StatusFilesInterface
+    {
+        $_status_files = StatusFiles::new();
+
+        foreach ($this as $o_repository) {
+            $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
+            $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+        }
+
+        return $_status_files;
+    }
+
+
+    /**
      * Checks that the project repository has the correct version (with or without suffix) specified
      *
      * @param string $action
@@ -453,7 +471,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         // The repository version MUST match the configured version
         try {
             $o_repository = $this->get(Project::getDirectoryName());
-            $branch       = $o_repository->getSelectedBranch(true);
+            $branch       = $o_repository->getCurrentBranch(true);
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
@@ -495,7 +513,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                 }
 
                 Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the current project version ":version", selecting correct branch to be able to continue', [
-                    ':branch'  => $o_repository->getSelectedBranch(),
+                    ':branch'  => $o_repository->getCurrentBranch(),
                     ':version' => $version
                 ]));
 
@@ -1586,14 +1604,14 @@ showdie('YAY!');
      *                                           update all branches for the same version
      * @return static
      */
-    public function updateSuffixedVersionBranches(bool $all_version_branches = false): static
+    public function updateVersionBranches(bool $all_version_branches = false): static
     {
         $this->checkNoneHaveChanges(ts('select auto-branch'))
              ->checkHasProjectSuffix(ts('update suffix branches'))
              ->checkAllHaveSuffixOrVersionBranch($this->detectProjectSuffix());
 
         foreach ($this as $o_repository) {
-            $o_repository->updateSelectedSuffixedVersionBranch();
+            $o_repository->updateVersionBranch();
         }
 
         return $this;

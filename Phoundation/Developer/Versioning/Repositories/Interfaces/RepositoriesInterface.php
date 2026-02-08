@@ -442,7 +442,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      *                                           update all branches for the same version
      * @return static
      */
-    public function updateSuffixedVersionBranches(bool $all_version_branches = false): static;
+    public function updateVersionBranches(bool $all_version_branches = false): static;
 
     /**
      * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories

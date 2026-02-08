@@ -131,7 +131,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getSelectedBranch(bool $return_if_detached = false): ?string;
+    public function getCurrentBranch(bool $return_if_detached = false): ?string;
 
     /**
      * Returns true if the requested branch exists for this repository
@@ -390,7 +390,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return static
      */
-    public function updateSelectedSuffixedVersionBranch(): static;
+    public function updateVersionBranch(): static;
 
     /**
      * Returns true if the DataEntry object has the specified type
