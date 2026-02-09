@@ -6,6 +6,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
@@ -132,7 +133,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getCurrentBranch(bool $return_if_detached = false): ?string;
+    public function getSelectedBranch(bool $return_if_detached = false): ?string;
 
     /**
      * Returns true if the requested branch exists for this repository
@@ -457,7 +458,7 @@ interface RepositoryInterface extends DataEntryInterface
      * @param bool $require_correct_version
      * @return string|null
      */
-    public function getCurrentSuffix(bool $require_correct_version = false): ?string;
+    public function getSelectedVersionSuffix(bool $require_correct_version = false): ?string;
 
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
@@ -475,7 +476,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getCurrentVersion(): ?string;
+    public function getSelectedVersion(): ?string;
 
     /**
      * Marks this repository as disabled so that it will no longer be used for any action
@@ -506,4 +507,14 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isOnVersionOnlyBranch(bool $short_version = true): bool;
+
+    /**
+     * Returns the Branches object for this Repository
+     *
+     * @param bool $only_version
+     * @param bool $only_suffix
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface;
 }

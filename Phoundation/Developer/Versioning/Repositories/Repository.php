@@ -29,7 +29,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
@@ -52,6 +51,7 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChan
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionTagNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\DirectoryNotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -89,7 +89,7 @@ class Repository extends DataEntry implements RepositoryInterface
         $this->setPermittedColumns(['branch', 'class'])
              ->addEventHandler('loaded', function () {
                  try {
-                     $this->setBranch($this->getCurrentBranch(true));
+                     $this->setBranch($this->getSelectedBranch(true));
 
                  } catch (NotARepositoryException | DirectoryNotExistsException) {
                      // Whoops, this repository is no longer valid! Continue, but do not read the branch
@@ -358,10 +358,10 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Will pull the changes for the current branch from the specified, or default remote repository
+     * Will pull the changes for the selected branch from the specified, or default remote repository
      *
      * @param string|bool|null $remote [null] The remote to pull from, null will pull from the default repository
-     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
+     * @param string|null      $branch [null] The specific branch to pull, null will pull the selected branch
      *
      * @return static
      */
@@ -372,7 +372,7 @@ class Repository extends DataEntry implements RepositoryInterface
         Log::action(ts('Pulling branch ":branch" on ":type" type repository ":repository" from remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
-            ':branch'     => $branch ?? ($this->getCurrentBranch() . ' (' . ts('current') . ')'),
+            ':branch'     => $branch ?? ($this->getSelectedBranch() . ' (' . ts('current') . ')'),
             ':remote'     => $remote,
         ]));
 
@@ -382,7 +382,7 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Will fetch the changes for the current branch from the specified, or default remote repository
+     * Will fetch the changes for the selected branch from the specified, or default remote repository
      *
      * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
      * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
@@ -520,16 +520,21 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns the Branches object for this Repository
      *
+     * @param bool $only_version
+     * @param bool $only_suffix
+     *
      * @return BranchesInterface
      */
-    public function getBranchObject(): BranchesInterface
+    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface
     {
-        return Branches::new($this);
+        return Branches::new($this)->setFilterVersions($only_version)
+                                   ->setFilterSuffixes($only_suffix)
+                                   ->load();
     }
 
 
     /**
-     * Sets the current git branch for this repository
+     * Sets the selected branch for this repository
      *
      * @param string $branch
      * @param bool $auto_create
@@ -550,20 +555,20 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns the current git branch for this repository
+     * Returns the selected branch for this repository
      *
      * @param bool $return_if_detached [false] If true, will return the selected branch, even if it is not a branch
      *
      * @return string|null
      */
-    public function getCurrentBranch(bool $return_if_detached = false): ?string
+    public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
         return $this->o_git->getSelectedBranch($return_if_detached);
     }
 
 
     /**
-     * Returns the current git branch for this repository
+     * Returns the selected branch for this repository
      *
      * @return string|null
      */
@@ -574,7 +579,7 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns true if the current git branch for this repository is equal to the specified branch
+     * Returns true if the selected branch for this repository is equal to the specified branch
      *
      * @param string $branch
      *
@@ -658,7 +663,7 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Creates the specified new branch in this repository
      *
-     * @param string           $branch               The branch to create from the currently selected branch
+     * @param string           $branch               The branch to create from the selected branch
      * @param bool             $reset        [false] If true, will first reset the repository before creating the new branch
      * @param string|true|null $remote       [null]  If true or string value, will push the new branch to the default (for true) or specified remote
      * @param bool             $set_upstream [false] If true, will set the remote as the default upstream repository
@@ -930,7 +935,7 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns true if the current git tag for this repository is equal to the specified tag
+     * Returns true if the selected tag for this repository is equal to the specified tag
      *
      * @param string $tag
      *
@@ -1153,26 +1158,26 @@ showdie();
      */
     public function checkIsOnCorrectVersionBranch(): static
     {
-        if (!$this->isOnVersionBranch()) {
-            throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on the (required) correct version branch ":version"', [
-                ':repository' => $this->getName(),
-                ':branch'     => $this->getBranch(),
-                ':version'    => Project::getVersion(),
-            ]));
+        if ($this->isOnCorrectVersionBranch()) {
+            return $this;
         }
 
-        return $this;
+        throw new RepositoriesException(ts('Cannot get suffix for repository ":repository" branch ":branch", the branch is not on the (required) correct version branch ":version"', [
+            ':repository' => $this->getName(),
+            ':branch'     => $this->getBranch(),
+            ':version'    => Project::getVersion(),
+        ]));
     }
 
 
     /**
      * Returns the version (without the suffix) for this repository version branch, if any.
      *
-     * If the current branch is not a version branch, NULL will be returned
+     * If the selected branch is not a version branch, NULL will be returned
      *
      * @return string|null
      */
-    public function getCurrentVersion(): ?string
+    public function getSelectedVersion(): ?string
     {
         if ($this->isOnVersionBranch()) {
             return Strings::until($this->getBranch(), '-');
@@ -1185,13 +1190,13 @@ showdie();
     /**
      * Returns the suffix for this repository version branch, if any. Will return NULL if on a suffix less branch
      *
-     * If the current branch is not a version branch, a RepositoriesException will be thrown
+     * If the selected branch is not a version branch, a RepositoriesException will be thrown
      *
      * @param bool $require_correct_version
      * @return string|null
      * @throws RepositoriesException
      */
-    public function getCurrentSuffix(bool $require_correct_version = false): ?string
+    public function getSelectedVersionSuffix(bool $require_correct_version = false): ?string
     {
         if ($require_correct_version) {
             $this->checkIsOnCorrectVersionBranch();
@@ -1300,17 +1305,25 @@ showdie();
     /**
      * Update the version suffix branch from its version base branch
      *
+     * @param bool $all_version_branches [false] If true, will not only update the current suffix branch, but will update all branches for the same version
+     *
      * @return static
      */
-    public function updateVersionBranch(): static
+    public function updateVersionBranch(bool $all_version_branches = false): static
     {
+        if ($all_version_branches) {
+            // Scan for all version branches with suffixes
+            return $this;
+        }
+
+        // Merge only the version branch for the current selected branch
         Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
             ':repository' => $this->getName(),
-            ':branch'     => $this->getCurrentBranch(),
-            ':version'    => $this->getCurrentVersion(),
+            ':branch'     => $this->getSelectedBranch(),
+            ':version'    => $this->getSelectedVersion(),
         ]));
 
-        $this->o_git->merge($this->getCurrentVersion());
+        $this->o_git->merge($this->getSelectedVersion());
         return $this;
     }
 

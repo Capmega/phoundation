@@ -579,11 +579,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     protected function checkProjectRepositoryVersion(string $action, bool $no_suffix = false): static
     {
-        // Check the current main project repository first
+        // Check the selected main project repository first
         // The repository version MUST match the configured version
         try {
             $o_repository = $this->get(Project::getDirectoryName());
-            $branch       = $o_repository->getCurrentBranch(true);
+            $branch       = $o_repository->getSelectedBranch(true);
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
@@ -592,7 +592,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                     $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
                         ':version' => $branch,
                         ':action'  => $action
-                    ]))->addHint(ts('In order to perform action ":action" on repositories, the current project branch MUST be either MAJOR.MINOR', [
+                    ]))->addHint(ts('In order to perform action ":action" on repositories, the selected project branch MUST be either MAJOR.MINOR', [
                         ':action'  => $action
                     ]))->makeWarning();
 
@@ -600,7 +600,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                     $e = RepositorySynchronizationException::new(ts('Cannot perform action ":action" on repositories, the currently selected project branch ":version" is not valid', [
                         ':version' => $branch,
                         ':action'  => $action
-                    ]))->addHint(ts('In order to perform action ":action" on repositories, the current project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX', [
+                    ]))->addHint(ts('In order to perform action ":action" on repositories, the selected project branch MUST be either MAJOR.MINOR or MAJOR.MINOR-SUFFIX', [
                         ':action'  => $action
                     ]))->makeWarning();
                 }
@@ -624,8 +624,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                     throw $e;
                 }
 
-                Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the current project version ":version", selecting correct branch to be able to continue', [
-                    ':branch'  => $o_repository->getCurrentBranch(),
+                Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the selected project version ":version", selecting correct branch to be able to continue', [
+                    ':branch'  => $o_repository->getSelectedBranch(),
                     ':version' => $version
                 ]));
 
@@ -736,7 +736,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Returns true if the current git branch for this repository is equal to the specified branch
+     * Returns true if the selected branch for this repository is equal to the specified branch
      *
      * @param string $branch
      *
@@ -951,22 +951,16 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      * Checks if all repositories have the requested suffix or version branch available, and if not, throws a RepositoriesVersionBranchNotExistsException
      *
      * @param string|null $suffix                     The optional suffix to use
-     * @param string|null $phoundation_version        The version that should exist if this repository is a Phoundation
-     *                                                repository
-     * @param string|null $project_version            The version that should exist if this repository is a project
-     *                                                repository
-     * @param string|null $phoundation_branch         The branch that should exist if this repository is a Phoundation
-     *                                                repository
-     * @param string|null $project_branch             The branch that should exist if this repository is a project
-     *                                                repository
-     * @param bool        $check_versions      [true] If true will check version and branch. If false, will only check
-     *                                                branch
+     * @param string|null $phoundation_version        The version that should exist if this repository is a Phoundation repository
+     * @param string|null $project_version            The version that should exist if this repository is a project repository
+     * @param string|null $phoundation_branch         The branch that should exist if this repository is a Phoundation repository
+     * @param string|null $project_branch             The branch that should exist if this repository is a project repository
+     * @param bool        $check_versions      [true] If true will check version and branch. If false, will only check branch
      * @return static
      */
     public function checkAllHaveSuffixOrVersionBranch(?string $suffix, ?string &$phoundation_version = null, ?string &$project_version = null, ?string &$phoundation_branch = null, ?string &$project_branch = null, bool $check_versions = true): static
     {
-        $project_version = Project::getVersion();
-        $project_version = Strings::untilReverse($project_version, '.');
+        $project_version = Strings::untilReverse(Project::getVersion(), '.');
         $project_branch  = $project_version . ($suffix ? '-' . $suffix : null);
 
         $phoundation_version = Project::getPhoundationRequiredVersion();
@@ -1068,7 +1062,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
 
     /**
-     * Sets the current git branch for this repository
+     * Sets the selected branch for this repository
      *
      * @param string $branch
      * @param bool $auto_create
@@ -1362,7 +1356,7 @@ showdie();
 
 
     /**
-     * Sets the current git branch for this repository
+     * Sets the selected branch for this repository
      *
      * @param string $branch
      * @param bool $auto_create
@@ -1650,11 +1644,11 @@ showdie('YAY!');
      *
      * @return string|null
      */
-    public function detectProjectSuffix(): ?string
+    public function getProjectSelectedVersionSuffix(): ?string
     {
         foreach ($this as $o_repository) {
             if ($o_repository->hasType('project')) {
-                return $o_repository->getCurrentSuffix();
+                return $o_repository->getSelectedVersionSuffix();
             }
         }
 
@@ -1686,22 +1680,22 @@ showdie('YAY!');
      *
      * @return bool
      */
-    public function hasProjectSuffix(): bool
+    public function hasProjectVersionSuffix(): bool
     {
-        return (bool) $this->detectProjectSuffix();
+        return (bool) $this->getProjectSelectedVersionSuffix();
     }
 
 
     /**
-     * Throws a RepositoriesException if the curren
+     * Throws a RepositoriesException if the selected project version has no suffix
      *
      * @param string $action the action that is to be taken if this test passes
      * @return static
      * @throws RepositoriesException
      */
-    public function checkHasProjectSuffix(string $action): static
+    public function checkHasProjectVersionSuffix(string $action): static
     {
-        if ($this->hasProjectSuffix()) {
+        if ($this->hasProjectVersionSuffix()) {
             return $this;
         }
 
@@ -1713,20 +1707,19 @@ showdie('YAY!');
 
 
     /**
-     * Updates the current suffixed version branches, and updates it from the base version in all repositories
+     * Updates the selected suffixed version branches, and updates it from the base version in all repositories
      *
-     * @param bool $all_version_branches [false] If true, will not only update the current suffix branch, but will
-     *                                           update all branches for the same version
+     * @param bool $all_version_branches [false] If true, will not only update the current suffix branch, but will update all branches for the same version
      * @return static
      */
     public function updateVersionBranches(bool $all_version_branches = false): static
     {
         $this->checkNoneHaveChanges(ts('select auto-branch'))
-             ->checkHasProjectSuffix(ts('update suffix branches'))
-             ->checkAllHaveSuffixOrVersionBranch($this->detectProjectSuffix());
+             ->checkHasProjectVersionSuffix(ts('update suffix branches'))
+             ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedVersionSuffix());
 
         foreach ($this as $o_repository) {
-            $o_repository->updateVersionBranch();
+            $o_repository->updateVersionBranch($all_version_branches);
         }
 
         return $this;
