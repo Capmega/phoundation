@@ -3362,7 +3362,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // Go over each column and let the column definition do the validation since it knows the specs
         foreach ($this->o_definitions as $column => $o_definition) {
             if ($o_definition->isMeta()) {
-                // This column is metadata and shouldn't be validated. Only apply static values
+                // This column is metadata and should not be validated. Only apply static values
                 if ($o_definition->getValue()) {
                     $this->source[$column] = $o_definition->getValue();
                 }
@@ -3414,13 +3414,29 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
         } catch (ValidationFailedException $e) {
-            if ($this->debug) {
-                Log::dump('FAILED VALIDATION OF "' . static::class . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
-                Log::printr($e->getData(), echo_header: false);
+            // Validation failed, but was it because of extra columns only?
+            $fail = false;
+
+            foreach ($e->getFailures() as $column => $failure) {
+                if (!$this->columnIsPermitted($column)) {
+                    $fail = true;
+                    break;
+                }
             }
 
-            // Add the DataEntry object type to the exception message
-            throw $e->setMessage('(' . static::class . ') ' . $e->getMessage());
+            if ($fail) {
+                if ($this->debug) {
+                    Log::dump('FAILED VALIDATION OF "' . static::class . '" DATA ENTRY DATA, SEE FOLLOWING LOG ENTRIES', 10, echo_header: false);
+                    Log::printr($e->getData(), echo_header: false);
+                }
+
+                // Add the DataEntry object type to the exception message
+                throw $e->setMessage('(' . static::class . ') ' . $e->getMessage());
+            }
+
+            // The failed columns were permitted columns that do not require checking as they will not be used. We can continue here!
+            Log::warning(ts(''), 2);
+            $source = $o_validator->getSource();
         }
 
         // Fix column names if prefix was specified
@@ -5491,6 +5507,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $tries     = 5;
         $return    = null;
         $own_query = null;
+
+        // If the current source already has a suffix, use that one
+        if (preg_match('/' . Strings::escapeForRegex($suffix_start) . '(\d+)$/', $source)) {
+            $suffix = Strings::fromReverse($source, $suffix_start);
+            $source = Strings::untilReverse($source, $suffix_start);
+        }
 
         if ($this->getId(false)) {
             $own_query  = 'AND `id` != ' . $this->getId(false);
