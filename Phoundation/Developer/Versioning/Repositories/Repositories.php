@@ -361,7 +361,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
             $o_repository_path = PhoDirectory::new($repository_path, $path->getRestrictionsObject())->getParentDirectoryObject();
 
-            if (Repository::isPhoundation($o_repository_path)) {
+            if (Repository::repositoryIsPhoundation($o_repository_path)) {
                 if (Repository::exists(['path' => $o_repository_path->getSource()])) {
                     $_repository = Repository::new(['path' => $o_repository_path->getSource()]);
 
@@ -751,7 +751,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function allHaveBranchSelected(string $phoundation_branch, string $project_branch): bool
     {
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
 
             if (!$o_repository->hasBranchSelected($branch)) {
                 return false;
@@ -775,7 +775,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $return = [];
 
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
 
             if (!$o_repository->hasBranchSelected($branch)) {
                 $return[$o_repository->getName()] = $o_repository->getName();
@@ -823,8 +823,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool
     {
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             if (!$o_repository->hasBranchOrVersionBranch($version, $branch)) {
                 return false;
@@ -862,14 +862,17 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = null;
+            // Only work on Phoundation type repositories
+            if ($o_repository->isPhoundation()) {
+                $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+                $version = null;
 
-            if ($check_versions) {
-                $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+                if ($check_versions) {
+                    $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+                }
+
+                $o_repository->checkHasBranchOrVersionBranch($version, $branch);
             }
-
-            $o_repository->checkHasBranchOrVersionBranch($version, $branch);
         }
 
         return $this;
@@ -992,8 +995,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
             if ($o_repository->branchExists($branch)) {
@@ -1072,7 +1075,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $o_repository->deleteBranch($branch, $remote);
         }
 
@@ -1198,8 +1201,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function checkAllHaveSuffixOrVersionTag(string $phoundation_version, string $project_version, string $phoundation_tag, string $project_tag): static
     {
         foreach ($this as $o_repository) {
-            $tag     = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
-            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            $tag     = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             $o_repository->checkHasSuffixOrVersionTag($version, $tag);
         }
@@ -1314,8 +1317,8 @@ showdie();
 
         // Go over each repository, switch each to the correct tag
         foreach ($this as $o_repository) {
-            $tag  = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
-            $version = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+            $tag  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the tag, or do we have to create and push it first?
             if ($o_repository->tagExists($tag)) {
@@ -1391,7 +1394,7 @@ showdie();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $o_repository) {
-            $branch = $this->getValueForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
             $o_repository->deleteTag($branch, $remote);
         }
 
@@ -1447,7 +1450,7 @@ showdie();
      *
      * @return string
      */
-    protected function getValueForType(string $type, string $name, string $phoundation, string $project): string
+    protected function getPhoundationOrProjectForType(string $type, string $name, string $phoundation, string $project): string
     {
         switch ($type) {
             case 'project':

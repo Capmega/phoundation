@@ -57,7 +57,6 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Enums\EnumVersionSections;
-use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 
 
@@ -112,7 +111,6 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public static function newFromPathObject(PhoPathInterface $o_path): static
     {
-show($o_path->getBasename());
         return Repository::new()
                          ->setName($o_path->getBasename())
                          ->setPathObject($o_path);
@@ -159,9 +157,20 @@ show($o_path->getBasename());
      *
      * @return bool
      */
-    public static function isPhoundation(PhoDirectoryInterface $o_directory): bool
+    public static function repositoryIsPhoundation(PhoDirectoryInterface $o_directory): bool
     {
         return (bool) Repository::detectPhoundationType($o_directory);
+    }
+
+
+    /**
+     * Returns true if this repository is a Phoundation compatible git repository
+     *
+     * @return bool
+     */
+    public function isPhoundation(): bool
+    {
+        return (bool) Repository::detectPhoundationType($this->o_git->getDirectoryObject());
     }
 
 

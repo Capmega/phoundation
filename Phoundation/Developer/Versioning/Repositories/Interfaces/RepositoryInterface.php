@@ -11,6 +11,7 @@ use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
 use Phoundation\Developer\Versioning\Repositories\Repository;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Utils\Strings;
@@ -484,4 +485,11 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function enable(): static;
+
+    /**
+     * Returns true if this repository is a Phoundation compatible git repository
+     *
+     * @return bool
+     */
+    public function isPhoundation(): bool;
 }
