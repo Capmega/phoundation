@@ -73,15 +73,13 @@ Log::cli(ts('Scanning ":path" for repositories, this might take a few seconds...
     ':path' => $argv['path']
 ]), 'action');
 
-$o_repositories     = Repositories::new();
-$permissions_denied = $o_repositories->scan($argv['path'], !$argv['no_auto_disable'], !$argv['no_delete_gone'])
-                                     ->getNumberOfResultsWithPermissionDenied();
+$o_repositories = Repositories::new()->scan($argv['path'], !$argv['no_auto_disable'], !$argv['no_delete_gone']);
 
 
 // Process permission denied errors
-if ($permissions_denied) {
+if ($o_repositories->getNumberOfResultsWithPermissionDenied()) {
     Log::cli(ts('Encountered "permission denied" on  following ":count" paths', [
-        ':count' => $permissions_denied
+        ':count' => $o_repositories->getNumberOfResultsWithPermissionDenied()
     ]), 'warning');
 
     if (Debug::isEnabled()) {

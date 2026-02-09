@@ -42,6 +42,7 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionB
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
@@ -373,8 +374,6 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function scan(PhoPathInterface $_path, bool $disable_backup_paths = true, bool $delete_gone = true): static
     {
-        $this->load();
-
         Log::action(ts('Scanning path ":path" for repositories, this may take a little while...', [
             ':path' => $_path,
         ]));
@@ -386,65 +385,104 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                             ->setName('.git');
 
         $found         = $this->o_find->executeReturnArray();
-        $repositories  = [];
         $this->backups = [];
 
         foreach ($found as $repository_path) {
-            Log::notice(ts('Found possible repository ":repository"', [
-                ':repository' => $repository_path,
-            ]));
-
-            $this->addRepository($_path, $repository_path);
+            // We found the .git directory, the actual repository path will be the parent directory of that
+            $this->tryAddRepository(PhoDirectory::new($repository_path, $_path->getRestrictionsObject())->getParentDirectoryObject());
         }
 
         return $this->processScannedBackupPaths($disable_backup_paths)
-                    ->deleteScannedGonePaths($repositories, $delete_gone);
+                    ->deleteScannedGonePaths($delete_gone);
     }
 
 
     /**
-     * Will try to add the specified repository path to the developer_repositories table
+     * Will try to add the specified repository path to the developer_repositories table, or the backups list if it is a backup repository
      *
      * @note Will only add Phoundation repositories
      * @note Currently only supports GIT repositories
      * @note Any repository with a backup path will be stored in the $this->deleted array instead
      *
-     * @param PhoPathInterface $_scanned_path   The root path from where the repositories scan was started
-     * @param string           $repository_path The path containing the repository to (maybe) append to the developer_repositories table
+     * @param PhoDirectoryInterface $_repository_path The path containing the repository to (maybe) append to the developer_repositories table
      *
      * @return static
      */
-    protected function addRepository(PhoPathInterface $_scanned_path, string $repository_path): static
+    protected function tryAddRepository(PhoDirectoryInterface $_repository_path): static
     {
-        // We found the .git directory, the actual repository path will be the parent directory of that
-        $_repository_path = PhoDirectory::new($repository_path, $_scanned_path->getRestrictionsObject())->getParentDirectoryObject();
+        Log::notice(ts('Found possible repository ":repository"', [
+            ':repository' => $_repository_path,
+        ]));
+
+        $_repository_path->makeReal();
 
         // Only process Phoundation repositories
         if (Repository::repositoryIsPhoundation($_repository_path)) {
-            if (Repository::exists(['path' => $_repository_path->makeReal()->getSource()])) {
-                $_repository = Repository::new(['path' => $_repository_path->makeReal()->getSource()]);
+            if (!$this->addBackupRepository($_repository_path)) {
+                $this->addRepository($_repository_path);
+            }
+        }
 
-                $this->add($_repository, $_repository->getName());
-                $this->new[] = $_repository->getName();
+        return $this;
+    }
 
-                // This repository does not yet exist. Create it unless the path contains a backup directory, then we add a (possibly) disabled repository
-                $this->addBackupRepository($_repository_path);
 
-            } else {
-                // This repository does not yet exist. Create it unless the path contains a backup directory, then we add a (possibly) disabled repository
-                if (!$this->addBackupRepository($_repository_path)) {
-                    // Add the repository
-                    Log::action(ts('Adding new repository ":repository"', [
-                        ':repository' => $_repository_path,
+    /**
+     * Will process backup paths by adding them at the end of the found repositories and optionally disabling them
+     *
+     * @param bool $disable_backup_paths If true, will automatically disable all the specified backup paths
+     *
+     * @return static
+     */
+    protected function processScannedBackupPaths(bool $disable_backup_paths): static
+    {
+        // Now process repository paths that have backup paths
+        foreach ($this->backups as $_repository_path) {
+            $_repository = $this->addRepository($_repository_path);
+
+            if ($_repository) {
+                if ($disable_backup_paths) {
+                    Log::action(ts('Automatically disabling repository ":repository"', [
+                        ':repository' => $_repository->getDisplayName(),
                     ]));
 
-                    $_repository = Repository::newFromPathObject($_repository_path)->save();
-                    $this->add($_repository, $_repository->getName());
+                    $_repository->disable();
                 }
             }
         }
 
         return $this;
+    }
+
+
+    /**
+     * Adds a new repository for the specified repository path
+     *
+     * @param PhoDirectoryInterface $_repository_path
+     *
+     * @return RepositoryInterface|null
+     */
+    protected function addRepository(PhoDirectoryInterface $_repository_path): RepositoryInterface|null
+    {
+        if (Repository::exists($_repository_path->getBasename())) {
+            $_repository = Repository::new($_repository_path->getBasename());
+
+            // Do not blindly add this repository to the list. Due to symlinks, we MAY encounter the same repository real path twice!
+            if ($this->keyExists($_repository->getDisplayName())) {
+                // This repository already exists in the list, return nothing, we do not want this one to be processed at all because its a duplicate
+                return null;
+            }
+
+            $this->add($_repository, $_repository->getDisplayName());
+            $this->new[] = $_repository->getDisplayName();
+
+        } else {
+            // The repository path has not yet been registered, make a new Repository object for this path
+            $_repository = Repository::newFromPathObject($_repository_path)->save();
+            $this->add($_repository, $_repository->getDisplayName());
+        }
+
+        return $_repository;
     }
 
 
@@ -474,9 +512,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      *
      * @param bool $delete_gone [true] If true, will delete all repositories that have been registered as gone
      *
-     * @return $this
+     * @return static
      */
-    protected function deleteScannedGonePaths(array $repositories, bool $delete_gone = true): static
+    protected function deleteScannedGonePaths(bool $delete_gone = true): static
     {
         // Remove repositories that were not found from the list?
         if ($delete_gone) {
@@ -484,48 +522,10 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                                                     FROM   `developer_repositories` 
                                                     WHERE  `status` IS NULL OR `status` != "deleted"');
 
-            $this->deleted = array_diff_key($db_repositories, $repositories);
+            $this->deleted = array_diff($db_repositories, $this->getSourceKeys());
 
             foreach ($this->deleted as $repository) {
                 Repository::new($repository)->delete();
-            }
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Will process backup paths by adding them at the end of the found repositories and optionally disabling them
-     *
-     * @param bool $disable_backup_paths If true, will automatically disable all the specified backup paths
-     *
-     * @return static
-     */
-    protected function processScannedBackupPaths(bool $disable_backup_paths): static
-    {
-        // Now process repository paths that have backup paths
-        foreach ($this->backups as $_repository_path) {
-            // The repository was not added above, but it may already have existed. Check again here
-            if (Repository::exists(['path' => $_repository_path->makeReal()->getSource()])) {
-                $_repository = Repository::new(['path' => $_repository_path->makeReal()->getSource()]);
-
-            } else {
-                // Does not yet exist, add now
-                Log::action(ts('Adding new (probably backup) repository ":repository"', [
-                    ':repository' => $_repository_path->getDirectoryObject(),
-                ]));
-
-                $_repository = Repository::newFromPathObject($_repository_path->makeReal())->save();
-                $repositories[$_repository->getName()] = $_repository->getName();
-            }
-
-            if ($disable_backup_paths) {
-                Log::action(ts('Automatically disabling repository ":repository"', [
-                    ':repository' => $_repository_path->getDirectoryObject(),
-                ]));
-
-                $_repository->disable();
             }
         }
 

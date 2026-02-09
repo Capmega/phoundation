@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.2';
+        return '0.9.3';
     }
 
 
@@ -132,6 +132,16 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
             $_table->alter()->addIndex('UNIQUE `name` (`name`)');
+
+        })->addUpdate('0.9.3', function () {
+            // Ensure non unique index on developer_repositories.path column, multiple same paths may exist
+            $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
+
+            if ($_table->indexExists('path')) {
+                $_table->alter()->dropIndex('path');
+            }
+
+            $_table->alter()->addIndex('KEY `path` (`path`)');
         });
     }
 }

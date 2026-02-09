@@ -1343,10 +1343,7 @@ showdie();
 
                       ->add(DefinitionFactory::newPath()
                                              ->setSize(4)
-                                             ->setHelpText(tr('The path where this repository is located'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isUnique();
-                                             }))
+                                             ->setHelpText(tr('The path where this repository is located')))
 
                       ->add(DefinitionFactory::newUrl())
 
