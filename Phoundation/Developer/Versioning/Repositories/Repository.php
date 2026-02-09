@@ -1203,7 +1203,7 @@ showdie();
     public function getSelectedVersion(): ?string
     {
         if ($this->isOnVersionBranch()) {
-            return Strings::until($this->getBranch(), '-');
+            return Strings::until($this->getSelectedBranch(), '-');
         }
 
         return null;
@@ -1348,7 +1348,8 @@ showdie();
                     ':version'    => $this->getSelectedVersion(),
                 ]));
 
-                $this->o_git->merge($this->getSelectedVersion(), '-');
+                $this->o_git->merge($this->getSelectedVersion());
+                Log::dot();
             }
 
             // Re-select the original branch
