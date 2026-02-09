@@ -1348,7 +1348,7 @@ showdie();
                     ':version'    => $this->getSelectedVersion(),
                 ]));
 
-                $this->o_git->merge($this->getSelectedVersion(), '-'));
+                $this->o_git->merge($this->getSelectedVersion(), '-');
             }
 
             // Re-select the original branch
