@@ -57,6 +57,31 @@ use Phoundation\Web\Requests\Request;
 
 
 /**
+ * Returns the number of elements specified
+ *
+ * If an array or Iterator object was specified, will return the number of elements inside
+ *
+ * If any non-list type data was specified, will return 1
+ *
+ * @param mixed $source The source data to count
+ *
+ * @return int
+ */
+function get_element_count(mixed $source): int
+{
+    if ($source instanceof IteratorInterface) {
+        return $source->getCount();
+    }
+
+    if (is_array($source)) {
+        return count($source);
+    }
+
+    return 1;
+}
+
+
+/**
  * Improved version of PHP's empty that makes slightly more sense
  *
  * @param mixed $value

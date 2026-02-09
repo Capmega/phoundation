@@ -4777,15 +4777,59 @@ class Arrays extends Utils
      */
     public static function closestLarger(IteratorInterface|array|null $source, float|int $value, bool $equal = false): float|int|null
     {
-        $larger = array_filter($source, function($source_value) use ($value, $equal) {
+        $larger = array_filter($source, function ($source_value) use ($value, $equal) {
             return $equal ? ($source_value <= $value) : ($source_value < $value);
         });
-
         if (empty($larger)) {
             return null;
         }
 
         return min($larger);
+    }
+
+
+    /**
+     * Converts all values in the specified source array from their integer ASCII values to the name it represents
+     *
+     * @param array $source          The array containing the values to convert
+     * @param bool $code      [true] The type of ASCII identifier we want returned; The character code, the name, or the informal name
+     * @param bool $exception [true] If true, will throw an OutOfBoundsException when a value is encountered that is not an integer 0-31. When false, these
+     *                               values will simply be ignored and not modified
+     *
+     * @return array
+     * @throws OutOfBoundsException
+     */
+    public static function getAsciiNames(array $source, bool $code = true, bool $exception = true): array
+    {
+        foreach ($source as $key => &$value) {
+            // Validate
+            if (!is_int($value)) {
+                if ($exception) {
+                    throw new OutOfBoundsException(tr('Cannot convert source key ":key" value ":value" to its ASCII name, the value must be an integer value between 0 and 31', [
+                        ':key'   => $key,
+                        ':value' => $value
+                    ]));
+                }
+
+                // This value is not compatible, we will ignore it
+                continue;
+            }
+
+            try {
+                $value = Strings::getAsciiNames($value, $code);
+
+            } catch (OutOfBoundsException $e) {
+                if ($exception) {
+                    throw $e;
+                }
+
+                // Value is not 0-31, but we will ignore that
+                continue;
+            }
+        }
+
+        unset($value);
+        return $source;
     }
 }
 
