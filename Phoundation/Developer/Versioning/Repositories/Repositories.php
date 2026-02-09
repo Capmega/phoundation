@@ -1737,6 +1737,7 @@ showdie('YAY!');
      */
     protected function allOnSameVersionSuffix(): bool
     {
+throw new UnderConstructionException();
         foreach ($this as $o_repository) {
 
         }
@@ -1792,14 +1793,15 @@ throw new UnderConstructionException();
      */
     protected function checkallHaveVersionSuffixBranches(array $suffixes, string $action): static
     {
+throw new UnderConstructionException();
         if ($this->allOnSameVersionSuffix()) {
             return $this;
         }
 
-        throw new RepositoriesMissingBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
-            ':action'   => $action,
-            ':branches' =>
-        ]));
+//        throw new RepositoriesMissingBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
+//            ':action'   => $action,
+//            ':branches' =>
+//        ]));
     }
 
 
