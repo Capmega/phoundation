@@ -534,11 +534,34 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns an array with only version branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionBranches(): array
+    {
+        return $this->getBranchObject(true)->getSource();
+    }
+
+
+    /**
+     * Returns an array with only version suffix branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionSuffixBranches(): array
+    {
+        return $this->getBranchObject(false, true)->getSource();
+    }
+
+
+    /**
      * Sets the selected branch for this repository
      *
-     * @param string $branch
-     * @param bool $auto_create
-     * @param bool $upstream
+     * @param string $branch              The branch name to select
+     * @param bool   $auto_create [false] If true, and the branch does not exist, will automatically create the branch
+     * @param bool   $upstream    [false] If true, and the branch was created, will automatically push the branch upstream
+     *
      * @return static
      */
     public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static
@@ -1312,8 +1335,15 @@ showdie();
     public function updateVersionBranch(bool $all_version_branches = false): static
     {
         if ($all_version_branches) {
+            $current = $this->getSelectedBranch();
+
             // Scan for all version branches with suffixes
-            return $this;
+            foreach ($this->getVersionSuffixBranches() as $branch) {
+                $this->selectBranch($branch)->o_git->merge(Strings::until($this->getBranch(), '-'));
+            }
+
+            // Re-select the original branch
+            return $this->selectBranch($current);
         }
 
         // Merge only the version branch for the current selected branch

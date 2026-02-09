@@ -517,4 +517,29 @@ interface RepositoryInterface extends DataEntryInterface
      * @return BranchesInterface
      */
     public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface;
+
+    /**
+     * Returns an array with only version branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionBranches(): array;
+
+    /**
+     * Returns an array with only version suffix branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionSuffixBranches(): array;
+
+    /**
+     * Sets the selected branch for this repository
+     *
+     * @param string $branch              The branch name to select
+     * @param bool   $auto_create [false] If true, and the branch does not exist, will automatically create the branch
+     * @param bool   $upstream    [false] If true, and the branch was created, will automatically push the branch upstream
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static;
 }
