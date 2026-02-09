@@ -6,6 +6,7 @@ use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\RemotesInterface;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
@@ -132,7 +133,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getCurrentBranch(bool $return_if_detached = false): ?string;
+    public function getSelectedBranch(bool $return_if_detached = false): ?string;
 
     /**
      * Returns true if the requested branch exists for this repository
@@ -421,9 +422,12 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if this repository is currently on a version branch
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionBranch(): bool;
+    public function isOnVersionBranch(bool $short_version = true): bool
+;
 
     /**
      * Returns true if this repository is currently on a version branch
@@ -454,14 +458,16 @@ interface RepositoryInterface extends DataEntryInterface
      * @param bool $require_correct_version
      * @return string|null
      */
-    public function getCurrentSuffix(bool $require_correct_version = false): ?string;
+    public function getSelectedVersionSuffix(bool $require_correct_version = false): ?string;
 
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(): bool;
+    public function isOnVersionSuffixBranch(bool $short_version = true): bool;
 
     /**
      * Returns the version (without the suffix) for this repository version branch, if any.
@@ -470,7 +476,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getCurrentVersion(): ?string;
+    public function getSelectedVersion(): ?string;
 
     /**
      * Marks this repository as disabled so that it will no longer be used for any action
@@ -492,4 +498,58 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isPhoundation(): bool;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
+     * @return bool
+     */
+    public function isOnVersionOnlyBranch(bool $short_version = true): bool;
+
+    /**
+     * Returns the Branches object for this Repository
+     *
+     * @param bool $only_version
+     * @param bool $only_suffix
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface;
+
+    /**
+     * Returns an array with only version branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionBranches(): array;
+
+    /**
+     * Returns an array with only version suffix branches for this repository
+     *
+     * @return array
+     */
+    public function getVersionSuffixBranches(): array;
+
+    /**
+     * Sets the selected branch for this repository
+     *
+     * @param string $branch              The branch name to select
+     * @param bool   $auto_create [false] If true, and the branch does not exist, will automatically create the branch
+     * @param bool   $upstream    [false] If true, and the branch was created, will automatically push the branch upstream
+     *
+     * @return static
+     */
+    public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static;
+
+    /**
+     * Merges the specified version suffix branches into the current version suffix branch
+     *
+     * @param array|string $suffixes a (space separated, if string) list of version suffix branches that will be merged into the current version suffix branch
+     *                               for each repository
+     *
+     * @return static
+     */
+    public function mergeVersionSuffixes(array|string $suffixes): static;
 }

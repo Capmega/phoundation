@@ -468,14 +468,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return string|null
      */
-    public function detectProjectSuffix(): ?string;
+    public function getProjectSelectedVersionSuffix(): ?string;
 
     /**
      * Returns true if the project is on a version branch with suffix
      *
      * @return bool
      */
-    public function hasProjectSuffix(): bool;
+    public function hasProjectVersionSuffix(): bool;
 
     /**
      * Throws a RepositoriesException if the curren
@@ -484,7 +484,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      * @throws RepositoriesException
      */
-    public function checkHasProjectSuffix(string $action): static;
+    public function checkHasProjectVersionSuffix(string $action): static;
 
     /**
      * Returns the currently selected for the project main repository, or NULL if no suffix has been selected
@@ -492,4 +492,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return string
      */
     public function detectProjectBranch(): string;
+
+    /**
+     * Merges the specified version suffix branches into the current version suffix branch
+     *
+     * @param array|string $suffixes a (space separated, if string) list of version suffix branches that will be merged into the current version suffix branch
+     *                               for each repository
+     *
+     * @return static
+     */
+    public function mergeVersionSuffixes(array|string $suffixes): static;
 }
