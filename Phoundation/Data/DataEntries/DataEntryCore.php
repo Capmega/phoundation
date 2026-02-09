@@ -4460,7 +4460,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
             if (static::getUniqueColumn()) {
-                // When deleting an entry, the unique column goes to NULL.
+                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
                 // Since the unique column likely is required for saving validation, set is_validated to true
                 $this->unique_value = $this->getUniqueColumnValue();
                 $this->set('[' . Strings::getRandom() . ']' . static::getUniqueColumnValue(), static::getUniqueColumn())
@@ -4523,6 +4523,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function undelete(?string $comments = null, bool $auto_save = true): static
     {
+        // This implies the current status is "deleted" IF the status is deleted, fix the unique column
+        if (static::getUniqueColumn()) {
+            if ($this->hasStatus('deleted')) {
+                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
+                // Verify this is true, and if so, put it back.
+                $value = static::getUniqueColumnValue();
+
+                if (preg_match('/^\[\w{8}]/i', $value)) {
+                    $this->unique_value = $this->getUniqueColumnValue();
+                    $this->set(substr(static::getUniqueColumnValue(), 10), static::getUniqueColumn())
+                         ->is_validated = true;
+                }
+            }
+        }
+
         return $this->setStatus(null, $comments, $auto_save);
     }
 
