@@ -1338,8 +1338,17 @@ showdie();
             $current = $this->getSelectedBranch();
 
             // Scan for all version branches with suffixes
-            foreach ($this->getVersionSuffixBranches() as $branch) {
-                $this->selectBranch($branch)->o_git->merge(Strings::until($this->getBranch(), '-'));
+            foreach ($this->getVersionSuffixBranches() as $branch => $selected) {
+                $this->selectBranch($branch);
+
+                // Merge only the version branch for the current selected branch
+                Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
+                    ':repository' => $this->getName(),
+                    ':branch'     => $this->getSelectedBranch(),
+                    ':version'    => $this->getSelectedVersion(),
+                ]));
+
+                $this->o_git->merge($this->getSelectedVersion(), '-'));
             }
 
             // Re-select the original branch
