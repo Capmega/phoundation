@@ -23,4 +23,4 @@ User-agent: Google-Site-Verification
 User-agent: *
 Disallow: /
 
-Sitemap: https://tracking.medinet.ca/sitemap.xml
+Sitemap: https://phoundation.org/sitemap.xml
