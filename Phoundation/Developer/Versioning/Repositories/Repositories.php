@@ -44,6 +44,7 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionB
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoriesInterface;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
 use Phoundation\Exception\NotExistsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
@@ -1753,14 +1754,15 @@ showdie('YAY!');
      */
     protected function checkAllOnSameVersionSuffix(string $action): static
     {
+throw new UnderConstructionException();
         if ($this->allOnSameVersionSuffix()) {
             return $this;
         }
 
-        throw new RepositoriesDifferentBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
-            ':action'   => $action,
-            ':branches' =>
-        ]));
+//        throw RepositoriesDifferentBranchesException::new(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
+//            ':action'   => $action,
+//            ':branches' =>
+//        ]));
     }
 
 
@@ -1771,6 +1773,7 @@ showdie('YAY!');
      */
     protected function allHaveVersionSuffixBranches(array $suffixes): bool
     {
+throw new UnderConstructionException();
         foreach ($this as $o_repository) {
 
         }
