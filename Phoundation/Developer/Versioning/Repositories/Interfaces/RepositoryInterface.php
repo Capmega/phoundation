@@ -421,9 +421,12 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if this repository is currently on a version branch
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionBranch(): bool;
+    public function isOnVersionBranch(bool $short_version = true): bool
+;
 
     /**
      * Returns true if this repository is currently on a version branch
@@ -459,9 +462,11 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(): bool;
+    public function isOnVersionSuffixBranch(bool $short_version = true): bool;
 
     /**
      * Returns the version (without the suffix) for this repository version branch, if any.
@@ -492,4 +497,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isPhoundation(): bool;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
+     * @return bool
+     */
+    public function isOnVersionOnlyBranch(bool $short_version = true): bool;
 }

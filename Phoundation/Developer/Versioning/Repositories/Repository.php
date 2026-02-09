@@ -1079,22 +1079,39 @@ showdie();
     /**
      * Returns true if this repository is currently on a version branch
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionBranch(): bool
+    public function isOnVersionBranch(bool $short_version = true): bool
     {
-        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: true);
+        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: $short_version);
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
+     * @return bool
+     */
+    public function isOnVersionOnlyBranch(bool $short_version = true): bool
+    {
+        return Strings::isVersion($this->getBranch(), short_version: $short_version);
     }
 
 
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
      *
+     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
+     *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(): bool
+    public function isOnVersionSuffixBranch(bool $short_version = true): bool
     {
-        return Strings::isVersion(Strings::until($this->getBranch(), '-')) and Strings::from($this->getBranch(), '-');
+        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: $short_version) and Strings::from($this->getBranch(), '-');
     }
 
 
@@ -1158,7 +1175,7 @@ showdie();
     public function getCurrentVersion(): ?string
     {
         if ($this->isOnVersionBranch()) {
-            return $this->getBranch();
+            return Strings::until($this->getBranch(), '-');
         }
 
         return null;
@@ -1292,9 +1309,7 @@ showdie();
             ':branch'     => $this->getCurrentBranch(),
             ':version'    => $this->getCurrentVersion(),
         ]));
-show($this->getCurrentBranch());
-show($this->getCurrentVersion());
-showdie();
+
         $this->o_git->merge($this->getCurrentVersion());
         return $this;
     }
