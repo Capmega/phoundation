@@ -260,8 +260,7 @@ class Sql implements SqlInterface
 
         switch ($result->rowCount()) {
             case 0:
-                // No results. This is probably okay, but do check if the query was a select or show query, just to
-                // be sure
+                // No results. This is probably okay, but do check if the query was a select or show query, just to be sure
                 QueryBuilder::checkShowSelect($query, $execute);
                 return null;
 
