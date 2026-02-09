@@ -1305,12 +1305,12 @@ class Git extends Versioning implements GitInterface
     {
         $this->verifyBranch($branch);
 
-//        $output = $this->o_process->clearArguments()
-//                                  ->addArgument('merge')
-//                                  ->addArgument($branch)
-//                                  ->executeReturnArray();
-//
-//        Log::notice($output, 1, false);
+        $output = $this->o_process->clearArguments()
+                                  ->addArgument('merge')
+                                  ->addArgument($branch)
+                                  ->executeReturnArray();
+
+        Log::notice($output, 1, false);
         return $this;
     }
 

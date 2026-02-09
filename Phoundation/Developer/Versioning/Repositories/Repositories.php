@@ -29,8 +29,10 @@ use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesBranchExistsException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesDifferentBranchesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChangesException;
+use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesMissingBranchesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
@@ -47,6 +49,7 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
@@ -1720,6 +1723,101 @@ showdie('YAY!');
 
         foreach ($this as $o_repository) {
             $o_repository->updateVersionBranch($all_version_branches);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if all repositories have the same branch version / suffix selected
+     *
+     * @return bool
+     */
+    protected function allOnSameVersionSuffix(): bool
+    {
+        foreach ($this as $o_repository) {
+
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesDifferentBranchesException if not all repositories have the same version / suffix branch selected
+     *
+     * @param string $action The action that would be executed if all repositories are on the same version / suffix
+     *
+     * @return static
+     */
+    protected function checkAllOnSameVersionSuffix(string $action): static
+    {
+        if ($this->allOnSameVersionSuffix()) {
+            return $this;
+        }
+
+        throw new RepositoriesDifferentBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
+            ':action'   => $action,
+            ':branches' =>
+        ]));
+    }
+
+
+    /**
+     * Returns true if all repositories have the same branch version / suffix selected
+     *
+     * @return bool
+     */
+    protected function allHaveVersionSuffixBranches(array $suffixes): bool
+    {
+        foreach ($this as $o_repository) {
+
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Throws a RepositoriesDifferentBranchesException if not all repositories have the same version / suffix branch selected
+     *
+     * @param array  $suffixes
+     * @param string $action The action that would be executed if all repositories are on the same version / suffix
+     *
+     * @return static
+     */
+    protected function checkallHaveVersionSuffixBranches(array $suffixes, string $action): static
+    {
+        if ($this->allOnSameVersionSuffix()) {
+            return $this;
+        }
+
+        throw new RepositoriesMissingBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
+            ':action'   => $action,
+            ':branches' =>
+        ]));
+    }
+
+
+    /**
+     * Merges the specified version suffix branches into the current version suffix branch
+     *
+     * @param array|string $suffixes a (space separated, if string) list of version suffix branches that will be merged into the current version suffix branch
+     *                               for each repository
+     *
+     * @return static
+     */
+    public function mergeVersionSuffixes(array|string $suffixes): static
+    {
+        $this->checkNoneHaveChanges(ts('select auto-branch'))
+             ->checkHasProjectVersionSuffix(ts('update suffix branches'))
+             ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedVersionSuffix())
+             ->checkAllOnSameVersionSuffix()
+             ->checkAllHaveSuffixes($suffixes);
+
+        foreach ($this as $o_repository) {
+            $o_repository->mergeVersionSuffixes($suffixes);
         }
 
         return $this;

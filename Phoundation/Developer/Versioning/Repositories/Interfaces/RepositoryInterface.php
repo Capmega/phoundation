@@ -542,4 +542,14 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function selectBranch(string $branch, bool $auto_create = false, bool $upstream = false): static;
+
+    /**
+     * Merges the specified version suffix branches into the current version suffix branch
+     *
+     * @param array|string $suffixes a (space separated, if string) list of version suffix branches that will be merged into the current version suffix branch
+     *                               for each repository
+     *
+     * @return static
+     */
+    public function mergeVersionSuffixes(array|string $suffixes): static;
 }

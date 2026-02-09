@@ -56,6 +56,7 @@ use Phoundation\Filesystem\Exception\DirectoryNotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Enums\EnumVersionSections;
 use Phoundation\Utils\Strings;
 
@@ -1364,6 +1365,24 @@ showdie();
         ]));
 
         $this->o_git->merge($this->getSelectedVersion());
+        return $this;
+    }
+
+
+    /**
+     * Merges the specified version suffix branches into the current version suffix branch
+     *
+     * @param array|string $suffixes a (space separated, if string) list of version suffix branches that will be merged into the current version suffix branch
+     *                               for each repository
+     *
+     * @return static
+     */
+    public function mergeVersionSuffixes(array|string $suffixes): static
+    {
+        foreach (Arrays::force($suffixes) as $suffix) {
+            $this->o_git->merge($this->getSelectedVersion() . '-' . $suffix);
+        }
+
         return $this;
     }
 
