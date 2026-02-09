@@ -61,9 +61,9 @@ if (Request::isPostRequestMethod()) {
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton('Submit')
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/providers.html'), true)
-                  ->addButton(tr('Audit'), EnumDisplayMode::information, '/audit/meta+' . $provider->getMetaId() . '.html', false, true);
+                  ->addSaveButton()
+                  ->addBackButton(Url::newPrevious('/accounts/providers.html'), true)
+                  ->addAuditButton(Url::new('/audit/meta+' . $provider->getMetaId() . '.html'), true);
 
 // Build the provider form
 $provider_card = Card::new()

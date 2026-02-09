@@ -43,12 +43,12 @@ trait TraitDataTitle
     /**
      * Sets the title
      *
-     * @param string|false|null $title
-     * @param bool              $make_safe
+     * @param string|false|null $title            The title for this object
+     * @param bool              $make_safe [true] If true, will make the title safe for use with HTML
      *
      * @return static
      */
-    public function setTitle(string|false|null $title, bool $make_safe = false): static
+    public function setTitle(string|false|null $title, bool $make_safe = true): static
     {
         if ($title !== false) {
             if ($make_safe) {

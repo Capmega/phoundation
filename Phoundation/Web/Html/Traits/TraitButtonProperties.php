@@ -203,25 +203,85 @@ trait TraitButtonProperties
 
 
     /**
+     * Returns the identifier string containing the modifier keys to enable the button if any have been specified, or NULL
+     *
+     * This method will make sure that the modifier keys are in the correct order, as required by the jquery-phoundation library
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableString(): ?string
+    {
+        $return = [];
+
+        if (empty($this->require_keys_to_enable)) {
+            return null;
+        }
+
+        $keys = array_flip(Arrays::ensureScalar($this->require_keys_to_enable));
+
+        foreach (['ctrl', 'alt', 'shift'] as $key) {
+            if (array_key_exists($key, $keys)) {
+                $return[] = $key;
+            }
+        }
+
+        return implode(',', $return);
+    }
+
+
+    /**
      * Sets if the button is disabled and requires one or more keys down to enable
      *
-     * @param EnumModifierKeys|array|null  $keys         The buttons that need to be pressed down to enable the button
-     * @param string|null                  $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
-     *                                                   JavaScript will apply to the unique button ID
+     * @param EnumModifierKeys|array|true|null $keys  [true] The buttons that need to be pressed down to enable the button
+     * @param string|null                      $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
+     *                                                       JavaScript will apply to the unique button ID
      *
-     * @return Button
+     * @return static
      */
-    public function setRequireKeysToEnable(EnumModifierKeys|array|null $keys, ?string $class = null): static
+    public function setRequireKeysToEnable(EnumModifierKeys|array|true|null $keys = true, ?string $class = null): static
     {
-        if (str_contains($class, ' ')) {
+        if (Arrays::containsNeedles($class, ' ')) {
             throw OutOfBoundsException::new(ts('The specified class ":class" contains spaces, which is not allowed', [
                 'class' => $class
             ]));
         }
 
+        if ($keys === true) {
+            // Use the system-wide default modifier keys
+            $keys  = $this->getDefaultRequireKeysToEnable();
+            $class = $class ?? $this->getDefaultRequireKeysToEnableClass();
+        }
+
         $this->require_keys_to_enable_class = $class;
         $this->require_keys_to_enable       = get_null(Arrays::force($keys, null));
-        return $this;
+
+        if ($this->require_keys_to_enable) {
+            return $this->addClass('button-require-modifiers');
+        }
+
+        return $this->removeClass('button-require-modifiers');
+    }
+
+
+    /**
+     * Returns the default keys to enable a button
+     *
+     * @return array
+     */
+    public function getDefaultRequireKeysToEnable(): array
+    {
+        return config()->getArray('web.html.components.buttons.default.modifier-keys', ['ctrl', 'alt']);
+    }
+
+
+    /**
+     * Returns the default keys to enable a button class
+     *
+     * @return string
+     */
+    public function getDefaultRequireKeysToEnableClass(): string
+    {
+        return config()->getString('web.html.components.buttons.default.class', 'button-lock');
     }
 
 

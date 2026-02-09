@@ -19,31 +19,40 @@ namespace Phoundation\Web\Html\Enums;
 enum EnumInputType: string
 {
     // HTML input types
-    case button         = 'button';
-    case checkbox       = 'checkbox';
-    case color          = 'color';
-    case date           = 'date';
-    case datetime_local = 'datetime-local';
-    case email          = 'email';
-    case file           = 'file';
-    case hidden         = 'hidden';
-    case image          = 'image';
-    case month          = 'month';
-    case number         = 'number';
-    case password       = 'password';
-    case radio          = 'radio';
-    case range          = 'range';
-    case reset          = 'reset';
-    case search         = 'search';
-    case select         = 'select';
-    case submit         = 'submit';
-    case tel            = 'tel';
-    case text           = 'text';
-    case time           = 'time';
-    case url            = 'url';
-    case week           = 'week';
+    case button           = 'button';
+    case checkbox         = 'checkbox';
+    case color            = 'color';
+    case date             = 'date';
+    case datetime_local   = 'datetime-local';
+    case email            = 'email';
+    case file             = 'file';
+    case hidden           = 'hidden';
+    case image            = 'image';
+    case month            = 'month';
+    case number           = 'number';
+    case password         = 'password';
+    case radio            = 'radio';
+    case range            = 'range';
+    case reset            = 'reset';
+    case search           = 'search';
+    case select           = 'select';
+    case submit           = 'submit';
+    case tel              = 'tel';
+    case text             = 'text';
+    case time             = 'time';
+    case url              = 'url';
+    case week             = 'week';
+
 
     // Extended options
+    case back_button      = 'back_button';
+    case save_button      = 'save_button';
+    case create_button    = 'create_button';
+    case audit_button     = 'audit_button';
+    case delete_button    = 'delete_button';
+    case undelete_button  = 'undelete_button';
+    case lock_button      = 'lock_button';
+    case unlock_button    = 'unlock_button';
     case array_json       = 'array_json';
     case array_serialized = 'array_serialized';
     case auto_suggest     = 'auto-suggest';

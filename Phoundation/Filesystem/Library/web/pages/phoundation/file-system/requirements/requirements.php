@@ -33,11 +33,11 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build the "filters" card
-$filters      = FilterForm::new();
+$o_filters      = FilterForm::new();
 $o_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('Filters')
-                    ->setContent($filters);
+                    ->setContent($o_filters);
 
 
 // Button clicked?
@@ -47,7 +47,7 @@ if (Request::isPostRequestMethod()) {
                          ->select('filesystem_requirements_length')->isOptional()->isNumeric()    // This is paging length, ignore
                          ->select('submit-button')->isOptional()->isVariable()
                          ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
-        ->validate();
+                         ->validate();
 
     try {
         // Process buttons
@@ -79,17 +79,17 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the requirements list and apply filters
-$requirements = Requirements::new();
-$builder      = $requirements->getQueryBuilderObject()
-    ->addSelect('`filesystem_requirements`.`id`, 
-                 `filesystem_requirements`.`name`, 
-                 `filesystem_requirements`.`path`, 
-                 `filesystem_requirements`.`filesystem`, 
-                 `filesystem_requirements`.`file_type`, 
-                 `filesystem_requirements`.`status`, 
-                 `filesystem_requirements`.`created_on`');
+$o_requirements = Requirements::new();
+$builder        = $o_requirements->getQueryBuilderObject()
+                                 ->addSelect('`filesystem_requirements`.`id`, 
+                                              `filesystem_requirements`.`name`, 
+                                              `filesystem_requirements`.`path`, 
+                                              `filesystem_requirements`.`filesystem`, 
+                                              `filesystem_requirements`.`file_type`, 
+                                              `filesystem_requirements`.`status`, 
+                                              `filesystem_requirements`.`created_on`');
 
-switch ($filters->get('status')) {
+switch ($o_filters->get('status')) {
     case '__all':
         break;
 
@@ -98,31 +98,26 @@ switch ($filters->get('status')) {
         break;
 
     default:
-        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $filters->get('status')]);
+        $builder->addWhere('`filesystem_requirements`.`status` = :status', [':status' => $o_filters->get('status')]);
 }
 
-// Build SQL requirements table
-$buttons = Buttons::new()
-                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/file-system/requirements/requirement.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 
-$requirements_card = Card::new()
-    ->setTitle('Available requirements')
-    ->setSwitches('reload')
-    ->setContent($requirements
-        ->load()
-        ->getHtmlDataTableObject()
-            ->setRowUrls('/phoundation/file-system/requirements/requirement+:ROW.html')
-            ->setOrder([1 => 'asc']))
-    ->useForm(true)
-    ->setButtonsObject($buttons);
+$o_requirements_card = Card::new()
+                           ->setTitle('Available requirements')
+                           ->setSwitches('reload')
+                           ->setContent($o_requirements->load()
+                                                     ->getHtmlDataTableObject()->setRowUrls('/phoundation/file-system/requirements/requirement+:ROW.html')
+                                                                               ->setOrder([1 => 'asc']))
+                           ->useForm(true)
+                           ->setButtonsObject(Buttons::new()
+                                                     ->addCreateButton(Url::new('/phoundation/file-system/requirements/requirement.html'))
+                                                     ->addDeleteButton(true));
 
-$requirements_card->getForm()
-    ->setAction(Url::newCurrent())
-    ->setRequestMethod(EnumHttpRequestMethod::post);
+$o_requirements_card->getFormObject()->setAction(Url::newCurrent())
+                                     ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
@@ -151,5 +146,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-    ->addGridColumn($o_filters_card   . $requirements_card   , EnumDisplaySize::nine)
-    ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card  . $o_requirements_card , EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

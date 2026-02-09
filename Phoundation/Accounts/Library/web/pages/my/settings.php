@@ -34,14 +34,14 @@ GetValidator::new()->validate();
 
 
 // Get the user
-$user = Session::getUserObject();
+$o_user = Session::getUserObject();
 
 
 // Apply and save the changes
 if (Request::isPostRequestMethod()) {
     switch (Request::getSubmitButton()) {
         case tr('Save'):
-            $user->getConfigurationsObject()->apply()->save();
+            $o_user->getConfigurationsObject()->apply()->save();
             Response::getFlashMessagesObject()->addSuccess(tr('Your settings have been saved'));
             Response::redirect();
 
@@ -54,13 +54,13 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the "settings" card
-$settings_card = Card::new()
-                     ->setTitle(tr('Edit your account settings'))
-                     ->setContent($user->getConfigurationsObject()->getHtmlDataEntryFormObject())
-                     ->setButtonsObject(Buttons::new()
-                                               ->addButton(tr('Save'), right: true)
-                                               ->addButton(isset_get($delete))
-                                               ->addButton(isset_get($audit)));
+$o_settings_card = Card::new()
+                       ->setTitle(tr('Edit your account settings'))
+                       ->setContent($o_user->getConfigurationsObject()->getHtmlDataEntryFormObject())
+                       ->setButtonsObject(Buttons::new()
+                                               ->addSaveButton(true)
+                                               ->addButton(isset_get($o_delete))
+                                               ->addButton(isset_get($o_audit)));
 
 
 // Build relevant links
@@ -83,7 +83,7 @@ $o_documentation_card = Card::new()
 
 // Set page meta-data
 Response::setHeaderTitle(tr('My settings'));
-Response::setHeaderSubTitle($user->getDisplayName());
+Response::setHeaderSubTitle($o_user->getDisplayName());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'               , tr('Home')),
     Breadcrumb::new('/my/profile.html', tr('My profile')),
@@ -93,5 +93,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($settings_card                          , EnumDisplaySize::nine, true)
+            ->addGridColumn($o_settings_card                          , EnumDisplaySize::nine, true)
             ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

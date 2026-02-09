@@ -86,8 +86,8 @@ if (Request::isPostRequestMethod()) {
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton(tr('Save'))
-                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true);
+                  ->addSaveButton()
+                  ->addBackButton(Url::newPrevious('/accounts/users.html'), true);
 
 
 // Build the user form

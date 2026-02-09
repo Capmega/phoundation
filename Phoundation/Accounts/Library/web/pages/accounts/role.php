@@ -23,6 +23,7 @@ use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -101,11 +102,7 @@ if ($o_role->isNotNew()) {
                           ->setContent(tr('Undelete'));
 
     } else {
-        $o_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Delete'));
+        $o_delete = DeleteButton::new()->setFloatRight(true);
     }
 
     $o_users = $o_role->getUsersObject();
@@ -136,8 +133,8 @@ $o_role_card = Card::new()
                    ->setMaximizeSwitch(true)
                    ->setContent($o_role->getHtmlDataEntryFormObject())
                    ->setButtonsObject(Buttons::new()
-                                             ->addButton(tr('Save'))
-                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/roles.html'), true)
+                                             ->addSaveButton()
+                                             ->addBackButton(Url::newPrevious('/accounts/roles.html'), true)
                                              ->addButton(isset_get($o_delete))
                                              ->addButton(isset_get($o_audit)));
 

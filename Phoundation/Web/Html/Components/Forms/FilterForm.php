@@ -1040,8 +1040,8 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         // Make sure this is a submittable form with GET method
         if ($this->use_form) {
             $this->useForm(true)
-                 ->getForm()->setRequestMethod($this->request_method)
-                            ->setAction(Url::newCurrent());
+                 ->getFormObject()->setRequestMethod($this->request_method)
+                                  ->setAction(Url::newCurrent());
         }
 
         return parent::render();

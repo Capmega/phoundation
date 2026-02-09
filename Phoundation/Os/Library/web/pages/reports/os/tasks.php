@@ -57,6 +57,7 @@ $o_tasks->load();
 // Validate POST and submit
 if (Request::isPostRequestMethod()) {
     $submit_button = PostValidator::new()->getSubmitButton(prefix: true);
+
     if ($submit_button) {
         $message = 'test';
         Response::getFlashMessagesObject()

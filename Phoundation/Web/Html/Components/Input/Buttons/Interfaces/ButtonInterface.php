@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
+use Phoundation\Utils\Enums\EnumModifierKeys;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Stringable;
@@ -85,13 +86,13 @@ interface ButtonInterface
     /**
      * Sets if the button is disabled and requires one or more keys down to enable
      *
-     * @param array|null  $keys         The buttons that need to be pressed down to enable the button
-     * @param string|null $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the JavaScript will apply to
-     *                                  the unique button ID
+     * @param EnumModifierKeys|array|true|null $keys  [true] The buttons that need to be pressed down to enable the button
+     * @param string|null                      $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
+     *                                                       JavaScript will apply to the unique button ID
      *
-     * @return Button
+     * @return static
      */
-    public function setRequireKeysToEnable(?array $keys, ?string $class = null): static;
+    public function setRequireKeysToEnable(EnumModifierKeys|array|true|null $keys = true, ?string $class = null): static;
 
     /**
      * Returns if the button is disabled and requires one or more keys down to enable
@@ -99,4 +100,20 @@ interface ButtonInterface
      * @return string|null
      */
     public function getRequireKeysToEnableClass(): ?string;
+
+    /**
+     * Returns the identifier string containing the modifier keys to enable the button if any have been specified, or NULL
+     *
+     * This method will make sure that the modifier keys are in the correct order, as required by the jquery-phoundation library
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableString(): ?string;
+
+    /**
+     * Returns the default keys to enable a button
+     *
+     * @return array
+     */
+    public function getDefaultRequireKeysToEnable(): array;
 }

@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumButtonType;
+use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Html\Traits\TraitUrlRightsRendering;
 use Stringable;
@@ -150,39 +151,61 @@ class Button extends Input implements ButtonInterface
     {
         $script = null;
 
-        if ($this->getDisableAfterClick()) {
-            // This button will disable itself after having been clicked
-            $this->addClass('button-disable-click');
-            $script .= Script::new('$(".button-disable-click").on("click", function (e) {
-                // Disable this button and submit
-                $(e.target).closest("form").submit()
-                           .prop("disabled", true);
-            })');
-        }
-
-        if ($this->getRequireKeysToEnable()) {
-            // Disable this button by default, only enable it with a special key combination.
-            // This button will then also need a tooltip indicating that it is "disabled" until you press those keys.
-            $title = tr('To enable this button, please press down the :keys :label', [
-                ':keys'  => Strings::force($this->getRequireKeysToEnable(), ' and '),
-                ':label' => Strings::plural(get_element_count($this->getRequireKeysToEnable()), tr('key'), tr('keys'))
-            ]);
-
-            $this->setDisabled(true)
-                 ->addData($this->getTitle(), 'tooltip')
-                 ->addData($title           , 'require-keys-tooltip')
-                 ->setTitle($title);
-
-            if ($this->getRequireKeysToEnableClass()) {
-                $this->addClass($this->getRequireKeysToEnableClass());
-                $script .= Script::new('$(".button-enable-keys").on("click", function (e) {
-                    var keys = "' . Json::encode($this->getRequireKeysToEnable()) . '";
+        if ($this->isEnabled()) {
+            if ($this->getDisableAfterClick()) {
+                // This button will disable itself after having been clicked
+                $this->addClass('button-disable-click');
+                $script .= Script::new('$(".button-disable-click").on("click", function (e) {
+                    // Disable this button and submit
+                    $(e.target).closest("form").submit()
+                               .addClass("disabled").prop("readonly", true);
                 })');
+            }
 
-            } else {
-                $script .= Script::new('$(".button-enable-keys").on("click", function (e) {
+            if ($this->getRequireKeysToEnable()) {
+                // Disable this button by default, only enable it with a special key combination.
+                // This button will then also need a tooltip indicating that it is "disabled" until you press those keys.
+                $title = tr('To enable this button, please press down the :keys :label', [
+                    ':keys'  => Strings::force($this->getRequireKeysToEnable(), ' and '),
+                    ':label' => Strings::plural(get_element_count($this->getRequireKeysToEnable()), tr('key'), tr('keys'))
+                ]);
+
+                $this->setDisabled(true)
+                     ->addData($this->getTitle(), 'title')
+                     ->addData($title           , 'require-keys-title')
+                     ->setTitle($title);
+
+                if ($this->getRequireKeysToEnableClass()) {
+                    // We will apply this to a class of buttons
+                    $selector = '.' . $this->getRequireKeysToEnableClass();
+                    $this->addClass($this->getRequireKeysToEnableClass());
+
+                } else {
+                    // We will apply this to this single button
+                    $selector = '#' . $this->getId();
+                }
+
+                $script .= Script::new('
+                    window.phoundation.addModifierkeyDownCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                        $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                            $button = $(button);
+    
+                            $(button).prop("title", $button.data("title") || "")
+                                     .prop("disabled", false)
+                                     .removeClass("disabled");
+                        });
+                    });
                     
-                })');
+                    window.phoundation.addModifierkeyUpCallback("' . $this->getRequireKeysToEnableString() . '", function () {
+                        $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                            $button = $(button);
+    
+                            $(button).prop("title", $button.data("require-keys-title") || "")
+                                     .prop("disabled", true)
+                                     .addClass("disabled");
+                        });
+                    });            
+                ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
         }
 
@@ -194,8 +217,10 @@ class Button extends Input implements ButtonInterface
             ]));
 
         } else {
-            // By default, use the content as value
-            $this->setValue(strip_tags($this->getContent()));
+            if (!$this->getValue()) {
+                // By default, use the content as value
+                $this->setValue(strip_tags($this->getContent()));
+            }
         }
 
         if (empty($this->getName()) and !$this->getReadonly() and !$this->getDisabled()) {

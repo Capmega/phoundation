@@ -1859,7 +1859,7 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for buttons
+     * Returns a Definition object for a button
      *
      * @param string|null $column
      *
@@ -1881,13 +1881,177 @@ class DefinitionFactory
 
 
     /**
-     * Returns a Definition object for buttons
+     * Returns a Definition object for an audit button
      *
      * @param string|null $column
      *
      * @return DefinitionInterface
      */
-    public static function newSubmit(?string $column): DefinitionInterface
+    public static function newAuditButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->addClasses('btn-primary')
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::audit_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a save button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newSaveButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->addClasses('btn-primary')
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::save_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a back button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newBackButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->addClasses('btn-secondary')
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::back_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a create button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newCreateButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->addClasses('btn-primary')
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::create_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a delete-button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newDeleteButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::delete_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for an undelete-button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newUndeleteButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::undelete_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a lock-button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newLockButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::lock_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for an unlock-button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newUnlockButton(?string $column): DefinitionInterface
+    {
+        return Definition::new($column)
+                         ->setOptional(true)
+                         ->setRender(true)
+                         ->setVirtual(true)
+                         ->setContainsData(false)
+                         ->setElement(EnumElement::input)
+                         ->setInputType(EnumInputType::unlock_button)
+                         ->setSize(1);
+    }
+
+
+    /**
+     * Returns a Definition object for a submit button
+     *
+     * @param string|null $column
+     *
+     * @return DefinitionInterface
+     */
+    public static function newSubmitButton(?string $column): DefinitionInterface
     {
         return Definition::new($column)
                          ->setOptional(true)
@@ -1896,7 +2060,7 @@ class DefinitionFactory
                          ->setVirtual(true)
                          ->setElement(EnumElement::input)
                          ->setInputType(EnumInputType::submit)
-                         ->setLabel(' ')
+                         ->setLabel('submit')
                          ->setSize(1);
     }
 
