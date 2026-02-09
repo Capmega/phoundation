@@ -1070,11 +1070,24 @@ showdie();
     /**
      * Returns true if this repository is currently on a version branch
      *
+     * @param bool $short_version [true] If true, requires the version to be a short version (MAJOR.MINOR only)
      * @return bool
      */
-    public function isOnVersionBranch(): bool
+    public function isOnVersionBranch(bool $short_version = true): bool
     {
-        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: true);
+        return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: $short_version);
+    }
+
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @param bool $short_version [true] If true, requires the version to be a short version (MAJOR.MINOR only)
+     * @return bool
+     */
+    public function isOnVersionBranchWithoutSuffix(bool $short_version = true): bool
+    {
+        return Strings::isVersion($this->getBranch(), short_version: $short_version);
     }
 
 
@@ -1083,7 +1096,7 @@ showdie();
      *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(): bool
+    public function isOnVersionBranchWithSuffix(): bool
     {
         return Strings::isVersion(Strings::until($this->getBranch(), '-')) and Strings::from($this->getBranch(), '-');
     }
@@ -1149,9 +1162,11 @@ showdie();
     public function getCurrentVersion(): ?string
     {
         if ($this->isOnVersionBranch()) {
-            return $this->getBranch();
+show('phoundation thinks this is a version branch');
+            return Strings::until($this->getBranch(), '-');
         }
 
+show('phoundation thinks this is not a version branch');
         return null;
     }
 
