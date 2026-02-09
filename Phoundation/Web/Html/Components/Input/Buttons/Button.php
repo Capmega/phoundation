@@ -155,9 +155,9 @@ class Button extends Input implements ButtonInterface
             $this->addClass('button-disable-click');
             $script .= Script::new('$(".button-disable-click").on("click", function (e) {
                 // Disable this button and submit
-                $(e.target).prop("disabled", true);
-                $(e.target).closest("form").submit();
-            })')->render();
+                $(e.target).closest("form").submit()
+                           .prop("disabled", true);
+            })');
         }
 
         if ($this->getRequireKeysToEnable()) {
