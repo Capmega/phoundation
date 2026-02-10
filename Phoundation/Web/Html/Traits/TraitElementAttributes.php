@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Data\Traits\TraitDataBoolRenderToNull;
 use Phoundation\Data\Traits\TraitDataContent;
 use Phoundation\Data\Traits\TraitDataDefinition;
 use Phoundation\Data\Traits\TraitDataDisabled;
@@ -61,6 +62,7 @@ trait TraitElementAttributes
     use TraitDataReadonly;
     use TraitDataDisabled;
     use TraitDataScripts;
+    use TraitDataBoolRenderToNull;
 
 
     /**

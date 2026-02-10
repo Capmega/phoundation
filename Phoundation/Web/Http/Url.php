@@ -25,6 +25,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataBoolRenderToNull;
 use Phoundation\Data\Traits\TraitDataObjectRights;
 use Phoundation\Data\Validator\ArrayValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -56,6 +57,7 @@ class Url implements UrlInterface
     use TraitDataObjectRights {
         getRightsObject as protected __getRightsObject;
     }
+    use TraitDataBoolRenderToNull;
 
 
     /**
@@ -811,6 +813,11 @@ class Url implements UrlInterface
      */
     public function getSource(bool $strip_queries = false): string|int|null
     {
+        if ($this->render_to_null) {
+            // This component renders to NULL
+            return null;
+        }
+
         // Auto cloak URL's?
         try {
             if ($this->source) {

@@ -99,6 +99,11 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      */
     public function render(): ?string
     {
+        if ($this->render_to_null) {
+            // This component renders to NULL
+            return null;
+        }
+
         if (empty($this->content)) {
             if (!$this->render_on_empty_content) {
                 // Do not render components that have no content
