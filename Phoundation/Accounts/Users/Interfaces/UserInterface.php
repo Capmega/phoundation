@@ -17,6 +17,7 @@ use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 interface UserInterface extends DataEntryInterface
@@ -476,11 +477,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param Stringable|string|null $redirect
+     * @param UrlInterface|string|null $redirect
      *
      * @return static
      */
-    public function setRedirect(Stringable|string|null $redirect = null): static;
+    public function setRedirect(UrlInterface|string|null $redirect ): static;
 
 
     /**
@@ -882,4 +883,20 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function sendWelcomeEmail(): static;
+
+    /**
+     * Returns true if this user has any redirect URL other than NULL
+     *
+     * @return bool
+     */
+    public function hasRedirect(): bool;
+
+    /**
+     * Returns true if this user has the specified redirect URL
+     *
+     * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
+     *
+     * @return bool
+     */
+    public function hasSpecifiedRedirect(?UrlInterface $_redirect): bool;
 }
