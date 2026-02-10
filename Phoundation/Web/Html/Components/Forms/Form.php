@@ -26,6 +26,7 @@ use Phoundation\Web\Html\Components\Element;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Csrf;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
@@ -327,11 +328,11 @@ class Form extends Element implements FormInterface
     /**
      * Sets the form action
      *
-     * @param Stringable|string|null $action
+     * @param UrlInterface|string|null $action
      *
      * @return static
      */
-    public function setAction(Stringable|string|null $action): static
+    public function setAction(UrlInterface|string|null $action): static
     {
         if ($action) {
             $this->action = (string) Url::new($action)->makeWww();

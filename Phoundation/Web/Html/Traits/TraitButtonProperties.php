@@ -18,6 +18,9 @@ namespace Phoundation\Web\Html\Traits;
 
 use Phoundation\Data\Traits\TraitDataTarget;
 use Phoundation\Data\Traits\TraitDataUrlObject;
+use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Enums\EnumModifierKeys;
 use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Enums\EnumButtonType;
@@ -85,6 +88,27 @@ trait TraitButtonProperties
      */
     protected bool $floating = false;
 
+    /**
+     * Auto disabling buttons
+     *
+     * @var bool $disable_after_click
+     */
+    protected bool $disable_after_click = false;
+
+    /**
+     * Tracks if the button is disabled and requires one or more keys down to enable
+     *
+     * @var array|null $require_keys_to_enable
+     */
+    protected ?array $require_keys_to_enable = null;
+
+    /**
+     * Tracks if the "keys to enable button" code is for the specified HTML class, or for this button uniquely
+     *
+     * @var string|null $require_keys_to_enable_class
+     */
+    protected ?string $require_keys_to_enable_class = null;
+
 
     /**
      * Set the button type
@@ -97,6 +121,11 @@ trait TraitButtonProperties
     {
         $this->setElement('button');
         $this->button_type = $type;
+
+        if ($type === EnumButtonType::submit) {
+            // By default, all submit buttons will disable themselves automatically after submission
+            $this->setDisableAfterClick(true);
+        }
 
         return $this;
     }
@@ -123,6 +152,136 @@ trait TraitButtonProperties
     public function getButtonType(): ?EnumButtonType
     {
         return $this->button_type;
+    }
+
+
+    /**
+     * Returns if the button is disabled after a mouse click, or not
+     *
+     * @return bool
+     */
+    public function getDisableAfterClick(): bool
+    {
+        return $this->disable_after_click;
+    }
+
+
+    /**
+     * Set if the button is disabled after a mouse click, or not
+     *
+     * @param bool $disable_after_click
+     *
+     * @return Button
+     */
+    public function setDisableAfterClick(bool $disable_after_click): static
+    {
+        $this->disable_after_click = $disable_after_click;
+        return $this;
+    }
+
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return array|null
+     */
+    public function getRequireKeysToEnable(): ?array
+    {
+        return $this->require_keys_to_enable;
+    }
+
+
+    /**
+     * Returns if the button is disabled and requires one or more keys down to enable
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableClass(): ?string
+    {
+        return $this->require_keys_to_enable_class;
+    }
+
+
+    /**
+     * Returns the identifier string containing the modifier keys to enable the button if any have been specified, or NULL
+     *
+     * This method will make sure that the modifier keys are in the correct order, as required by the jquery-phoundation library
+     *
+     * @return string|null
+     */
+    public function getRequireKeysToEnableString(): ?string
+    {
+        $return = [];
+
+        if (empty($this->require_keys_to_enable)) {
+            return null;
+        }
+
+        $keys = array_flip(Arrays::ensureScalar($this->require_keys_to_enable));
+
+        foreach (['ctrl', 'alt', 'shift'] as $key) {
+            if (array_key_exists($key, $keys)) {
+                $return[] = $key;
+            }
+        }
+
+        return implode(',', $return);
+    }
+
+
+    /**
+     * Sets if the button is disabled and requires one or more keys down to enable
+     *
+     * @param EnumModifierKeys|array|true|null $keys  [true] The buttons that need to be pressed down to enable the button
+     * @param string|null                      $class [null] If specified, the JavaScript code will apply this for all elements with that class. If not, the
+     *                                                       JavaScript will apply to the unique button ID
+     *
+     * @return static
+     */
+    public function setRequireKeysToEnable(EnumModifierKeys|array|true|null $keys = true, ?string $class = null): static
+    {
+        if (Arrays::containsNeedles($class, ' ')) {
+            throw OutOfBoundsException::new(ts('The specified class ":class" contains spaces, which is not allowed', [
+                'class' => $class
+            ]));
+        }
+
+        if ($keys === true) {
+            // Use the system-wide default modifier keys
+            $keys  = $this->getDefaultRequireKeysToEnable();
+            $class = $class ?? $this->getDefaultRequireKeysToEnableClass();
+        }
+
+        $this->require_keys_to_enable_class = $class;
+        $this->require_keys_to_enable       = get_null(Arrays::force($keys, null));
+
+        if ($this->require_keys_to_enable) {
+            return $this->addClass('button-require-modifiers');
+        }
+
+        return $this->removeClass('button-require-modifiers');
+    }
+
+
+    /**
+     * Returns the default keys to enable a button
+     *
+     * @return array
+     */
+    public function getDefaultRequireKeysToEnable(): array
+    {
+        return config()->getArray('web.html.components.buttons.default.modifier-keys', ['ctrl', 'alt']);
+    }
+
+
+    /**
+     * Returns the default keys to enable a button class
+     *
+     * @return string
+     */
+    public function getDefaultRequireKeysToEnableClass(): string
+    {
+        return config()->getString('web.html.components.buttons.default.class', 'button-lock');
     }
 
 

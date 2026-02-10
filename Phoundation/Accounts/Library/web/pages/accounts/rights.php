@@ -77,6 +77,23 @@ if (Request::isPostRequestMethod()) {
 
                 Response::getFlashMessagesObject()->addWarning(tr('No rights selected to be deleted'));
                 Response::redirect();
+
+            case tr('Undelete'):
+                if ($post['id']) {
+                    foreach ($post['id'] as $id) {
+                        $right = Right::new($id)->undelete();
+
+                        Response::getFlashMessagesObject()
+                                ->addSuccess(tr('The right ":right" has been deleted', [
+                                    ':right' => $right->getName()
+                                ]));
+                    }
+
+                    Response::redirect();
+                }
+
+                Response::getFlashMessagesObject()->addWarning(tr('No rights selected to be deleted'));
+                Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
@@ -103,15 +120,15 @@ $o_rights_card = Card::new()
                                            ])
                                            ->setRowUrls('/accounts/right+:ROW.html')
                                            ->setTopButtons(Buttons::new()
-                                                                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')))
+                                                                  ->addCreateButton(Url::new('/accounts/right.html')))
                      ->useForm(true)
                      ->setButtonsObject(Buttons::new()
-                                               ->addButton(tr('Create'), EnumDisplayMode::primary, '/accounts/right.html')
-                                               ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
+                                               ->addCreateButton(Url::new('/accounts/right.html'))
+                                               ->addDeleteButton(float_right: true));
 
 
 // Add form for the "rights" card
-$o_rights_card->getForm()
+$o_rights_card->getFormObject()
               ->setAction(Url::newCurrent())
               ->setRequestMethod(EnumHttpRequestMethod::post);
 
@@ -143,5 +160,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_rights_card       , EnumDisplaySize::nine)
+           ->addGridColumn($o_filters_card  . $o_rights_card       , EnumDisplaySize::nine)
            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);

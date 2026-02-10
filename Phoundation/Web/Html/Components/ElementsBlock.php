@@ -33,7 +33,7 @@ use Phoundation\Web\Requests\Request;
 use Stringable;
 
 
-abstract class ElementsBlock extends ElementsBlockCore implements ElementsBlockInterface
+abstract class ElementsBlock extends ElementsBlockCore
 {
     /**
      * ElementsBlock class constructor

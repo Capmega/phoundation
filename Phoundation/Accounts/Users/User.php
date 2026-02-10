@@ -3315,7 +3315,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setSize(4)
                                            ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
                                            ->setInputType(EnumInputType::auto_suggest)
-                                           ->setInitialDefault($this->getRemoteId() ? null : Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww())
+                                           ->setInitialDefault(Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww()->setRenderToNull((bool) $this->getRemoteId()))
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))

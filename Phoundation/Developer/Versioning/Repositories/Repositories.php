@@ -54,7 +54,6 @@ use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
 use Phoundation\Os\Processes\Commands\Interfaces\FindInterface;
-use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
@@ -332,12 +331,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function push(string|bool|null $remote = null, ?string $branch = null, bool $set_upstream = false): static
     {
-        $o_changes = $this->getRepositoriesWithChanges();
-
-        if ($o_changes->getCount()) {
-            throw RepositoriesChangesException::new(ts('Cannot push repositories, there are still repositories with changes'))
-                                              ->setData(['repositories' => $o_changes->getSourceKeys()]);
-        }
+        $this->checkNoneHaveChanges('push');
 
         foreach ($this as $o_repository) {
             $o_repository->push($remote, $branch, $set_upstream);
@@ -357,6 +351,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function pull(string|bool|null $remote = null, ?string $branch = null): static
     {
+        $this->checkNoneHaveChanges('pull');
+
         foreach ($this as $o_repository) {
             $o_repository->pull($remote, $branch);
         }
@@ -852,7 +848,12 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             if (!FORCE) {
                 throw RepositoriesChangesException::new(ts('Cannot perform action ":action", one or more repositories have changes', [
                     ':action' => $action,
-                ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'));
+                ]))->addHint(ts('To fix this issue, please first check what repositories have changes, commit them, and try again'))
+                   ->setData([
+                   'repositories' => $this->getRepositoriesWithChanges()->getSourceKeys(),
+                   'files'        => $this->getChangedFiles(),
+               ]);
+;
             }
         }
 
@@ -1647,21 +1648,61 @@ showdie('YAY!');
 
 
     /**
-     * Returns the version suffix from the currently selected branch for the project main repository, or NULL if the
-     * project branch is not on a version with suffix
+     * Returns the master project repository, or NULL if it does not exist
      *
-     * @return string|null
+     * @note If the project repository does not exist, and $exception is true, a RepositoryNotExistException will be thrown
+     *
+     * @param bool $exception [true] If true, will throw a RepositoryNotExistException when the project repository does not exist, else will return NULL instead
+     *
+     * @return RepositoryInterface|null
+     * @throws RepositoryNotExistException
      */
-    public function getProjectSelectedVersionSuffix(): ?string
+    public function getProjectRepositoryObject(bool $exception = true): ?RepositoryInterface
     {
         foreach ($this as $o_repository) {
             if ($o_repository->hasType('project')) {
-                return $o_repository->getSelectedVersionSuffix();
+                return $o_repository;
             }
         }
 
-        throw RepositoryNotExistException::new(ts('Could not detect project branch version suffix, could not find the project repository'))
-                                         ->addHint(ts('Try running "./pho developer repositories scan" to find the missing repository'));
+        if ($exception) {
+            throw RepositoryNotExistException::new(ts('The project repository does not exist'))
+                                             ->addHint(ts('Try running "./pho developer repositories scan" to find the missing repository'));
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns the version from the currently selected branch for the project main repository, or NULL if the project branch is not on a version branch
+     *
+     * @return string|null
+     */
+    public function getProjectSelectedBranchVersion(): ?string
+    {
+        try {
+            return $this->getProjectRepositoryObject()->getSelectedBranchVersion();
+
+        } catch (RepositoryNotExistException $e) {
+            throw RepositoryNotExistException::new(ts('Could not detect project selected branch version, the project repository does not exist'), $e);
+        }
+    }
+
+
+    /**
+     * Returns the version from the currently selected branch for the project main repository, or NULL if the project branch is not on a version-suffix branch
+     *
+     * @return string|null
+     */
+    public function getProjectSelectedBranchSuffix(): ?string
+    {
+        try {
+            return $this->getProjectRepositoryObject()->getSelectedBranchSuffix();
+
+        } catch (RepositoryNotExistException $e) {
+            throw RepositoryNotExistException::new(ts('Could not detect project selected branch suffix, the project repository does not exist'), $e);
+        }
     }
 
 
@@ -1688,9 +1729,9 @@ showdie('YAY!');
      *
      * @return bool
      */
-    public function hasProjectVersionSuffix(): bool
+    public function hasProjectVersionSuffixSelected(): bool
     {
-        return (bool) $this->getProjectSelectedVersionSuffix();
+        return (bool) $this->getProjectSelectedBranchSuffix();
     }
 
 
@@ -1701,9 +1742,9 @@ showdie('YAY!');
      * @return static
      * @throws RepositoriesException
      */
-    public function checkHasProjectVersionSuffix(string $action): static
+    public function checkHasProjectVersionSuffixSelected(string $action): static
     {
-        if ($this->hasProjectVersionSuffix()) {
+        if ($this->hasProjectVersionSuffixSelected()) {
             return $this;
         }
 
@@ -1711,6 +1752,69 @@ showdie('YAY!');
             ':action' => $action,
             ':branch' => $this->detectProjectBranch()
         ]))->makeWarning();
+    }
+
+
+    /**
+     * Returns a full branch name for the specified suffix
+     *
+     * @param string $version
+     * @param string|null $suffix
+     *
+     * @return string
+     */
+    protected function getBranchForVersionAndSuffix(string $version, ?string $suffix): string
+    {
+        return $version . ($suffix ? '-' . $suffix : null);
+    }
+
+
+    /**
+     * Returns true if all repositories have the same branch version / suffix selected
+     *
+     * @param string|null $suffix      [null]  The suffix to use. If not specified, will default to the currently selected project repository suffix
+     * @param bool        $auto_create [false] If true, will automatically generate the branches when missing
+     *
+     * @return bool
+     */
+    protected function allOnSameVersionSuffix(?string $suffix = null, bool $auto_create = false): bool
+    {
+        $suffix = $suffix ?? $this->getProjectRepositoryObject()->getSelectedBranchSuffix();
+
+        $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create);
+
+        foreach ($this as $o_repository) {
+            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch, $project_branch);
+
+            if ($o_repository->hasBranchSelected($branch)) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Throws a RepositoriesDifferentBranchesException if not all repositories have the same version / suffix branch selected
+     *
+     * @param string      $action              The action that would be executed if all repositories are on the same version / suffix
+     * @param string|null $suffix      [null]  The suffix to use. If not specified, will default to the currently selected project repository suffix
+     * @param bool        $auto_create [false] If true, will automatically generate the branches when missing
+     *
+     * @return static
+     */
+    protected function checkAllOnSameVersionSuffix(string $action, ?string $suffix = null, bool $auto_create = false): static
+    {
+        if ($this->allOnSameVersionSuffix($suffix, $auto_create)) {
+            return $this;
+        }
+
+        throw RepositoriesDifferentBranchesException::new(ts('Cannot execute action ":action", not all repositories are on the same suffix version branch', [
+            ':action' => $action,
+        ]))->addHint(ts('Check the selected branch for all registered repositories with "./pho developer repositories branch" or "./pho dv rp br"'));
     }
 
 
@@ -1723,89 +1827,14 @@ showdie('YAY!');
     public function updateVersionBranches(bool $all_version_branches = false): static
     {
         $this->checkNoneHaveChanges(ts('select auto-branch'))
-             ->checkHasProjectVersionSuffix(ts('update suffix branches'))
-             ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedVersionSuffix());
+             ->checkHasProjectVersionSuffixSelected(ts('update suffix branches'))
+             ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedBranchSuffix());
 
         foreach ($this as $o_repository) {
             $o_repository->updateVersionBranch($all_version_branches);
         }
 
         return $this;
-    }
-
-
-    /**
-     * Returns true if all repositories have the same branch version / suffix selected
-     *
-     * @return bool
-     */
-    protected function allOnSameVersionSuffix(): bool
-    {
-throw new UnderConstructionException();
-        foreach ($this as $o_repository) {
-
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Throws a RepositoriesDifferentBranchesException if not all repositories have the same version / suffix branch selected
-     *
-     * @param string $action The action that would be executed if all repositories are on the same version / suffix
-     *
-     * @return static
-     */
-    protected function checkAllOnSameVersionSuffix(string $action): static
-    {
-throw new UnderConstructionException();
-        if ($this->allOnSameVersionSuffix()) {
-            return $this;
-        }
-
-//        throw RepositoriesDifferentBranchesException::new(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
-//            ':action'   => $action,
-//            ':branches' =>
-//        ]));
-    }
-
-
-    /**
-     * Returns true if all repositories have the same branch version / suffix selected
-     *
-     * @return bool
-     */
-    protected function allHaveVersionSuffixBranches(array $suffixes): bool
-    {
-throw new UnderConstructionException();
-        foreach ($this as $o_repository) {
-
-        }
-
-        return false;
-    }
-
-
-    /**
-     * Throws a RepositoriesDifferentBranchesException if not all repositories have the same version / suffix branch selected
-     *
-     * @param array  $suffixes
-     * @param string $action The action that would be executed if all repositories are on the same version / suffix
-     *
-     * @return static
-     */
-    protected function checkallHaveVersionSuffixBranches(array $suffixes, string $action): static
-    {
-throw new UnderConstructionException();
-        if ($this->allOnSameVersionSuffix()) {
-            return $this;
-        }
-
-//        throw new RepositoriesMissingBranchesException(ts('Cannot perform action ":action", not all repositories are on the same version / suffix branch ":branches"', [
-//            ':action'   => $action,
-//            ':branches' =>
-//        ]));
     }
 
 
@@ -1819,11 +1848,9 @@ throw new UnderConstructionException();
      */
     public function mergeVersionSuffixes(array|string $suffixes): static
     {
-        $this->checkNoneHaveChanges(ts('select auto-branch'))
-             ->checkHasProjectVersionSuffix(ts('update suffix branches'))
-             ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedVersionSuffix())
-             ->checkAllOnSameVersionSuffix()
-             ->checkAllHaveSuffixes($suffixes);
+        $this->checkNoneHaveChanges(ts(ts('select auto-branch')))
+             ->checkAllOnSameVersionSuffix(ts('select auto-branch'))
+             ->checkAllHaveVersionSuffixBranches(ts('select auto-branch'), $suffixes);
 
         foreach ($this as $o_repository) {
             $o_repository->mergeVersionSuffixes($suffixes);
@@ -1886,5 +1913,22 @@ throw new UnderConstructionException();
     public function updateAllSuffixedVersionBranches(string $version): static
     {
         return $this;
+    }
+
+
+    /**
+     * Returns an array containing all files that have changes in all repositories
+     *
+     * @return array
+     */
+    public function getChangedFiles(): array
+    {
+        $return = [];
+
+        foreach ($this as $_repository) {
+            $return = array_merge($return, $_repository->getChangedFiles());
+        }
+
+        return $return;
     }
 }

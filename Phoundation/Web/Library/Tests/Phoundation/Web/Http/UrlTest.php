@@ -30,7 +30,7 @@ class UrlTest extends TestCase
     public function testGetWww()
     {
         $url = Url::newCurrent();
-        $this->assertEquals('http://tracking.medinet.ca.local/en/', $url->getSource(), 'The result array should equal the sample array');
+        $this->assertEquals('http://phoundation.org/en/', $url->getSource(), 'The result array should equal the sample array');
     }
 
     /**
@@ -46,7 +46,7 @@ class UrlTest extends TestCase
         $url_2 = Url::new('test');
         $this->assertEquals('test', $url_2->getSource());
 
-        $domain = 'http://tracking.medinet.ca.local';
+        $domain = 'http://phoundation.org';
         $url_3 = Url::new($domain);
         $this->assertEquals($domain, $url_3->getSource());
 

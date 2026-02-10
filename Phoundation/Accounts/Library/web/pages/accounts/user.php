@@ -22,8 +22,12 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\LockButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UnlockButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -213,26 +217,13 @@ if ($o_user->canBeStatusChanged()) {
                                  ->setFloatRight(true);
 
     } else {
-        $o_button_delete = Button::new()
-                                 ->setFloatRight(true)
-                                 ->setMode(EnumDisplayMode::warning)
-                                 ->setOutlined(true)
-                                 ->setContent(tr('Delete'))
-                                 ->setFloatRight(true);
+        $o_button_delete = DeleteButton::new()->setFloatRight(true);
 
         if ($o_user->isLocked()) {
-            $o_button_lock = Button::new()
-                                   ->setFloatRight(true)
-                                   ->setMode(EnumDisplayMode::warning)
-                                   ->setContent(tr('Unlock'))
-                                   ->setFloatRight(true);
+            $o_button_lock = UnlockButton::new()->setFloatRight(true);
 
         } else {
-            $o_button_lock = Button::new()
-                                   ->setFloatRight(true)
-                                   ->setMode(EnumDisplayMode::warning)
-                                   ->setContent(tr('Lock'))
-                                   ->setFloatRight(true);
+            $o_button_lock = LockButton::new()->setFloatRight(true);
         }
     }
 }
@@ -240,11 +231,9 @@ if ($o_user->canBeStatusChanged()) {
 
 // Audit button.
 if (!$o_user->isNew()) {
-    $o_button_audit = Button::new()
-                            ->setFloatRight(true)
-                            ->setMode(EnumDisplayMode::information)
-                            ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html')
-                            ->setContent(tr('Audit'));
+    $o_button_audit = AuditButton::new()
+                                 ->setFloatRight(true)
+                                 ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html');
 }
 
 
@@ -266,7 +255,7 @@ $o_user_card = Card::new()
                    ->setContent($o_user->getHtmlDataEntryFormObject())
                    ->setButtonsObject(Buttons::new()
                                              ->addButton(isset_get($o_button_save))
-                                             ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true)
+                                             ->addBackButton(Url::newPrevious('/accounts/users.html'), true)
                                              ->addButton(isset_get($o_button_audit))
                                              ->addButton(isset_get($o_button_welcome))
                                              ->addButton(isset_get($o_button_delete))
@@ -283,7 +272,7 @@ if (!$o_user->isNew()) {
                         ->setContent($o_user->getRolesHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
                                                   ->addButton(isset_get($o_button_save))
-                                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                                                  ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
 
     $o_rights_card = Card::new()
                          ->setCollapseSwitch(true)
@@ -313,7 +302,7 @@ if (!$o_user->isNew()) {
                          ->setContent($o_user->getEmailsObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($o_button_save))
-                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                                                   ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
 
     $o_phones_card = Card::new()
                          ->setCollapseSwitch(true)
@@ -322,7 +311,7 @@ if (!$o_user->isNew()) {
                          ->setContent($o_user->getPhonesObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($o_button_save))
-                                                   ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/users.html'), true));
+                                                   ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
 }
 
 

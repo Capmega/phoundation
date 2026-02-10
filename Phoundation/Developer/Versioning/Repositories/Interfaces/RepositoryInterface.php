@@ -82,12 +82,12 @@ interface RepositoryInterface extends DataEntryInterface
      * Sets the server and filesystem restrictions for this object
      *
      * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
-     * @param bool                                       $write          If $restrictions is not specified as a
+     * @param bool $write If $restrictions is not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
      *                                                                   convert that into a FsRestrictions object and
      *                                                                   this is the $write modifier for that object
-     * @param string|null                                $label          If $restrictions is not specified as a
+     * @param string|null $label If $restrictions is not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
      *                                                                   convert that into a FsRestrictions object and
@@ -139,9 +139,9 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch                 The branch to search for
-     * @param bool   $check_tags_too         If true will search for the branch name in the tags list as well
-     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it
+     * @param string $branch The branch to search for
+     * @param bool $check_tags_too If true will search for the branch name in the tags list as well
+     * @param bool $auto_create [false] If true, will automatically create the branch on each repository where it
      *                                       does not yet exist
      *
      * @return bool
@@ -151,7 +151,7 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
      *
-     * @param string       $branch
+     * @param string $branch
      * @param string|false $remote
      *
      * @return static
@@ -191,9 +191,9 @@ interface RepositoryInterface extends DataEntryInterface
      * RepositoriesHaveChangesException
      *
      * @param string|null $version
-     * @param string      $branch
-     * @param bool        $check_tags_too [false]
-     * @param bool        $check_all      [false] If true will also check remote repositories
+     * @param string $branch
+     * @param bool $check_tags_too [false]
+     * @param bool $check_all [false] If true will also check remote repositories
      * @return static
      * @throws RepositoriesHaveChangesException
      */
@@ -202,11 +202,11 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if this repository has the requested suffix or version branch available
      *
-     * @param string|null $version                The version branch that will be checked if it exists. If NULL, will
+     * @param string|null $version The version branch that will be checked if it exists. If NULL, will
      *                                            not check for this version
-     * @param string      $branch                 The branch that will be checked if it exists.
-     * @param bool        $check_tags_too [false] If true will also check in the tags list
-     * @param bool        $check_all      [false] If true will also check remote repositories
+     * @param string $branch The branch that will be checked if it exists.
+     * @param bool $check_tags_too [false] If true will also check in the tags list
+     * @param bool $check_all [false] If true will also check remote repositories
      *
      * @return bool
      */
@@ -215,9 +215,9 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Will push the changes on the specified branch (or all if none specified) to the specified, or default remote repository
      *
-     * @param string|bool|null $remote       [null]  The remote to push to, null will push to the default repository
-     * @param string|null      $branch       [null]  The specific branch to push to, null will push all branches
-     * @param bool             $set_upstream [false]
+     * @param string|bool|null $remote [null]  The remote to push to, null will push to the default repository
+     * @param string|null $branch [null]  The specific branch to push to, null will push all branches
+     * @param bool $set_upstream [false]
      *
      * @return static
      */
@@ -227,7 +227,7 @@ interface RepositoryInterface extends DataEntryInterface
      * Will pull the changes for the current branch from the specified, or default remote repository
      *
      * @param string|bool|null $remote [null]  The remote to pull from, null will pull from the default repository
-     * @param string|null      $branch [null] The specific branch to pull, null will pull the current branch
+     * @param string|null $branch [null] The specific branch to pull, null will pull the current branch
      *
      * @return static
      */
@@ -237,7 +237,7 @@ interface RepositoryInterface extends DataEntryInterface
      * Will fetch the changes for the current branch from the specified, or default remote repository
      *
      * @param string|bool|null $remote [null] The remote to fetch from, null will fetch from the default repository
-     * @param bool             $all    [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
+     * @param bool $all [true] Will execute git fetch --all, fetch all remotes, except for the ones that has the remote.
      *
      * @return static
      */
@@ -246,8 +246,8 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if the specified tag exists in this repository
      *
-     * @param string $tag                        The tag to test for existence
-     * @param bool   $check_branches_too [false] If true will check if the tag exists as a branch name as well
+     * @param string $tag The tag to test for existence
+     * @param bool $check_branches_too [false] If true will check if the tag exists as a branch name as well
      *
      * @return bool
      */
@@ -256,10 +256,10 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Creates the specified new branch in this repository
      *
-     * @param string      $branch
-     * @param bool        $reset
+     * @param string $branch
+     * @param bool $reset
      * @param string|null $remote
-     * @param bool        $set_upstream
+     * @param bool $set_upstream
      *
      * @return static
      */
@@ -283,10 +283,10 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Creates the specified tag for this repository
      *
-     * @param string      $tag             The name for the tag
+     * @param string $tag The name for the tag
      * @param string|null $message [NULL]  The optional message for the tag. If specified, will create an annotated tag
      *                                     automatically
-     * @param bool|null   $signed  [FALSE] If true
+     * @param bool|null $signed [FALSE] If true
      * @return static
      */
     public function createTag(string $tag, ?string $message = null, ?bool $signed = false): static;
@@ -296,7 +296,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @param string $version
      * @param string $tag
-     * @param bool   $check_tags_too [false] If true will also check in the tags list
+     * @param bool $check_tags_too [false] If true will also check in the tags list
      * @return static
      */
     public function checkHasSuffixOrVersionTag(string $version, string $tag, bool $check_tags_too = true): static;
@@ -398,8 +398,8 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if the DataEntry object has the specified type
      *
-     * @param string $type          The type to compare against
-     * @param bool   $strict [true] If true, will do a strict comparison (===), weak comparison (==) if false
+     * @param string $type The type to compare against
+     * @param bool $strict [true] If true, will do a strict comparison (===), weak comparison (==) if false
      * @return bool
      */
     public function hasType(string $type, bool $strict = true): bool;
@@ -427,8 +427,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function isOnVersionBranch(bool $short_version = true): bool
-;
+    public function isOnVersionBranch(bool $short_version = true): bool;
 
     /**
      * Returns true if this repository is currently on a version branch
@@ -459,7 +458,7 @@ interface RepositoryInterface extends DataEntryInterface
      * @param bool $require_correct_version
      * @return string|null
      */
-    public function getSelectedVersionSuffix(bool $require_correct_version = false): ?string;
+    public function getSelectedBranchSuffix(bool $require_correct_version = false): ?string;
 
     /**
      * Returns true if this repository is currently on a version branch that has a suffix
@@ -468,7 +467,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(bool $short_version = true): bool;
+    public function isOnVersionBranchWithSuffix(bool $short_version = true): bool;
 
     /**
      * Returns the version (without the suffix) for this repository version branch, if any.
@@ -477,7 +476,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getSelectedVersion(): ?string;
+    public function getSelectedBranchVersion(): ?string;
 
     /**
      * Marks this repository as disabled so that it will no longer be used for any action
@@ -499,15 +498,6 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isPhoundation(): bool;
-
-    /**
-     * Returns true if this repository is currently on a version branch
-     *
-     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
-     *
-     * @return bool
-     */
-    public function isOnVersionOnlyBranch(bool $short_version = true): bool;
 
     /**
      * Returns the Branches object for this Repository
@@ -572,4 +562,21 @@ interface RepositoryInterface extends DataEntryInterface
      * @return BranchesInterface
      */
     public function getBranchesContainingRevision(string $revision): BranchesInterface;
+
+    /**
+     * Returns true if this repository is currently on a version branch
+     *
+     * @param bool $short_version [true] If true, requires the version to be a short version (MAJOR.MINOR only)
+     * @return bool
+     */
+    public function isOnVersionBranchWithoutSuffix(bool $short_version = true): bool;
+
+    /**
+     * Returns true if this repository has the specified branch available
+     *
+     * @param string $branch The branch that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasBranchAvailable(string $branch): bool;
 }

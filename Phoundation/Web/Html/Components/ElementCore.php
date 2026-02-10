@@ -81,6 +81,11 @@ abstract class ElementCore implements ElementInterface
      */
     public function render(): ?string
     {
+        if ($this->render_to_null) {
+            // This component renders to NULL
+            return null;
+        }
+
         if ($this->render) {
             // Return cached render information
             return $this->render;

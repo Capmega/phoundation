@@ -28,7 +28,7 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
      *
      * @return FormInterface|null
      */
-    public function getForm(): ?FormInterface;
+    public function getFormObject(): ?FormInterface;
 
 
     /**
@@ -38,7 +38,7 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
      *
      * @return static
      */
-    public function setForm(?FormInterface $form): static;
+    public function setFormObject(?FormInterface $form): static;
 
 
     /**
@@ -153,4 +153,63 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
      * @return static
      */
     public function setSelectable(bool $selectable): static;
+
+    /**
+     * Returns true when this object is neither readonly nor disabled
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool;
+
+    /**
+     * Returns the HTML disabled element attribute
+     *
+     * @return bool
+     */
+    public function getDisabled(): bool;
+
+    /**
+     * Set the HTML disabled element attribute
+     *
+     * @param bool              $disabled
+     * @param bool|null         $set_readonly
+     * @param string|false|null $title
+     *
+     * @return static
+     */
+    public function setDisabled(bool $disabled, ?bool $set_readonly = null, string|false|null $title = false): static;
+
+    /**
+     * Returns the HTML readonly element attribute
+     *
+     * @return bool
+     */
+    public function getReadonly(): bool;
+
+    /**
+     * Set the HTML readonly element attribute
+     *
+     * @param bool              $readonly
+     * @param bool|null         $set_disabled
+     * @param string|false|null $title
+     *
+     * @return static
+     */
+    public function setReadonly(bool $readonly, ?bool $set_disabled = null, string|false|null $title = false): static;
+
+    /**
+     * Returns if this control renders any output or not
+     *
+     * @return bool
+     */
+    public function getRenderToNull(): bool;
+
+    /**
+     * Set if this control renders any output or not
+     *
+     * @param bool $render If true, will render the component. If false, the component will render with NULL output
+     *
+     * @return static
+     */
+    public function setRenderToNull(bool $render): static;
 }

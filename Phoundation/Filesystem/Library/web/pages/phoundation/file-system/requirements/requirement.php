@@ -22,8 +22,14 @@ use Phoundation\Filesystem\Requirements\Requirement;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Img;
+use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\LockButton;
+use Phoundation\Web\Html\Components\Input\Buttons\SaveButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UnlockButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -90,53 +96,29 @@ if (Request::isPostRequestMethod()) {
 
 // Save button
 if (!$o_requirement->getReadonly()) {
-    $o_save = Button::new()
-                    ->setContent(tr('Save'))
-                    ->setContent(tr('Save'));
+    $o_save = SaveButton::new();
 }
 
 
 // Delete button.
 if (!$o_requirement->isNew()) {
     if ($o_requirement->isDeleted()) {
-        $o_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Undelete'))
-                          ->setContent(tr('Undelete'));
+        $o_delete = UndeleteButton::new()->setFloatRight(true);
 
     } else {
-        $o_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Delete'))
-                          ->setContent(tr('Delete'));
+        $o_delete = DeleteButton::new()->setFloatRight(true);
 
         if ($o_requirement->isLocked()) {
-            $o_lock = Button::new()
-                            ->setFloatRight(true)
-                            ->setMode(EnumDisplayMode::warning)
-                            ->setContent(tr('Unlock'))
-                            ->setContent(tr('Unlock'));
+            $o_lock = UnlockButton::new()->setFloatRight(true);
 
         } else {
-            $o_lock = Button::new()
-                            ->setFloatRight(true)
-                            ->setMode(EnumDisplayMode::warning)
-                            ->setContent(tr('Lock'))
-                            ->setContent(tr('Lock'));
+            $o_lock = LockButton::new()->setFloatRight(true);
         }
 
         // Audit button.
-        $o_audit = Button::new()
-                         ->setFloatRight(true)
-                         ->setMode(EnumDisplayMode::information)
-                         ->setUrlObject('/audit/meta+' . $o_requirement->getMetaId() . '.html')
-                         ->setFloatRight(true)
-                         ->setContent(tr('Audit'))
-                         ->setContent(tr('Audit'));
+        $o_audit = AuditButton::new()
+                              ->setFloatRight(true)
+                              ->setUrlObject('/audit/meta+' . $o_requirement->getMetaId() . '.html');
     }
 }
 
@@ -149,7 +131,7 @@ $o_requirement_card = Card::new()
                         ->setContent($o_requirement->getHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
                                                   ->addButton(isset_get($o_save))
-                                                  ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
+                                                  ->addBackButton(Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
                                                   ->addButton(isset_get($o_audit))
                                                   ->addButton(isset_get($o_delete))
                                                   ->addButton(isset_get($o_lock))

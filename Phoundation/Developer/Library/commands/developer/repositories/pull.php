@@ -28,10 +28,10 @@ CliDocumentation::setAutoComplete([
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories pull
-./pho dv rp pl
-./pho development rp pl -A
-./pho development rp pull -A --remote origin');
+CliDocumentation::setUsage('./pho development repositories branch pull
+./pho dv rp br pl
+./pho development rp branch pl -A
+./pho development rp br pull -A --remote origin');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 

@@ -628,7 +628,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @return array
      */
-    public function getChanges(): array;
+    public function getChangedColumns(): array;
 
     /**
      * Returns the value of the unique column

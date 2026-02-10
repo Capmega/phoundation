@@ -33,11 +33,11 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build the "filters" card
-$filters      = FilterForm::new();
+$o_filters      = FilterForm::new();
 $o_filters_card = Card::new()
-                    ->setCollapseSwitch(true)
-                    ->setTitle('Filters')
-                    ->setContent($filters);
+                      ->setCollapseSwitch(true)
+                      ->setTitle('Filters')
+                      ->setContent($o_filters);
 
 
 // Button clicked?
@@ -47,7 +47,7 @@ if (Request::isPostRequestMethod()) {
                          ->select('filesystem_mounts_length')->isOptional()->isNumeric()    // This is paging length, ignore
                          ->select('submit-button')->isOptional()->isVariable()
                          ->select('id')->isOptional()->isArray()->forEachField()->isDbId()
-        ->validate();
+                         ->validate();
 
     try {
         // Process buttons
@@ -75,50 +75,48 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the mounts list and apply filters
-$mounts   = PhoMounts::new();
-$builder = $mounts->getQueryBuilderObject()
-    ->addSelect('`filesystem_mounts`.`id`, 
-                 `filesystem_mounts`.`name`, 
-                 `filesystem_mounts`.`filesystem`, 
-                 `filesystem_mounts`.`source_path`, 
-                 `filesystem_mounts`.`target_path`, 
-                 `filesystem_mounts`.`status`, 
-                 `filesystem_mounts`.`created_on`');
+$o_mounts  = PhoMounts::new();
+$o_builder = $o_mounts->getQueryBuilderObject()
+                      ->addSelect('`filesystem_mounts`.`id`, 
+                                   `filesystem_mounts`.`name`, 
+                                   `filesystem_mounts`.`filesystem`, 
+                                   `filesystem_mounts`.`source_path`, 
+                                   `filesystem_mounts`.`target_path`, 
+                                   `filesystem_mounts`.`status`, 
+                                   `filesystem_mounts`.`created_on`');
 
-switch ($filters->get('status')) {
+switch ($o_filters->get('status')) {
     case '__all':
         break;
 
     case null:
-        $builder->addWhere('`filesystem_mounts`.`status` IS NULL');
+        $o_builder->addWhere('`filesystem_mounts`.`status` IS NULL');
         break;
 
     default:
-        $builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $filters->get('status')]);
+        $o_builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $o_filters->get('status')]);
 }
 
+
 // Build SQL mounts table
-$buttons = Buttons::new()
-                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/file-system/mount.html')
-                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true);
+$o_buttons = Buttons::new()
+                    ->addCreateButton(Url::new('/phoundation/file-system/mount.html'))
+                    ->addDeleteButton(true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 
-$mounts_card = Card::new()
-    ->setTitle('Available mounts')
-    ->setSwitches('reload')
-    ->setContent($mounts
-        ->load()
-        ->getHtmlDataTableObject()
-            ->setRowUrls('/phoundation/file-system/mount+:ROW.html')
-            ->setOrder([1 => 'asc']))
-    ->useForm(true)
-    ->setButtonsObject($buttons);
+$o_mounts_card = Card::new()
+                     ->setTitle('Available mounts')
+                     ->setSwitches('reload')
+                     ->useForm(true)
+                     ->setButtonsObject($o_buttons)
+                     ->setContent($o_mounts->load()
+                                           ->getHtmlDataTableObject()->setRowUrls('/phoundation/file-system/mount+:ROW.html')
+                                           ->setOrder([1 => 'asc']));
 
-$mounts_card->getForm()
-            ->setAction(Url::newCurrent())
-            ->setRequestMethod(EnumHttpRequestMethod::post);
+$o_mounts_card->getFormObject()
+              ->setAction(Url::newCurrent());
 
 
 // Build relevant links
@@ -147,5 +145,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $mounts_card, EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card             , EnumDisplaySize::three);
+           ->addGridColumn($o_filters_card . $o_mounts_card, EnumDisplaySize::nine)
+           ->addGridColumn($o_relevant_card                , EnumDisplaySize::three);

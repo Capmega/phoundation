@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer repositories list
+ * Command developer repositories branches
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will list all known phoundation repositories
+ * This command will list all known phoundation repositories and their currently selected branch
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,21 +17,18 @@
 declare(strict_types=1);
 
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Versioning\Repositories\Repositories;
-use Phoundation\Filesystem\PhoDirectory;
 
 
 // Start documentation
 CliDocumentation::setAutoComplete();
 
-CliDocumentation::setUsage('./pho development repositories list');
+CliDocumentation::setUsage('./pho development repositories branches');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will list all known phoundation repositories 
+This command will list all known phoundation repositories and at what branch they are 
 
 
 ARGUMENTS
@@ -51,10 +48,9 @@ $argv = ArgvValidator::new()->validate();
 
 
 // List available repositories
-Repositories::new()->load()->ksort()->displayCliTable([
+Repositories::new()->load()->displayCliTable([
     'name'     => ts('Repository name'),
     'platform' => ts('Platform'),
     'type'     => ts('Type'),
-    'required' => ts('Required'),
-    'path'     => ts('Path'),
+    'branch'   => ts('Branch (or tag)'),
 ]);

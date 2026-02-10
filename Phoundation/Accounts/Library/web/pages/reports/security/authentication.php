@@ -21,8 +21,10 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Security\Incidents\Exception\IncidentsException;
 use Phoundation\Web\Html\Components\AnchorBlock;
+use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -75,19 +77,11 @@ if (Request::isPostRequestMethod()) {
 
 // Audit button.
 if (!$authentication->isNew()) {
-    $audit = Button::new()
-                   ->setFloatRight(true)
-                   ->setMode(EnumDisplayMode::information)
-                   ->setUrlObject('/audit/meta+' . $authentication->getMetaId() . '.html')
-                   ->setContent(tr('Audit'))
-                   ->setContent(tr('Audit'));
+    $audit = AuditButton::new()
+                        ->setFloatRight(true)
+                        ->setUrlObject('/audit/meta+' . $authentication->getMetaId() . '.html');
 
-    $delete = Button::new()
-                    ->setFloatRight(true)
-                    ->setMode(EnumDisplayMode::warning)
-                    ->setOutlined(true)
-                    ->setContent(tr('Delete'))
-                    ->setContent(tr('Delete'));
+    $delete = DeleteButton::new()->setFloatRight(true);
 }
 
 
@@ -97,7 +91,7 @@ $o_card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
             ->setButtonsObject(Buttons::new()
-                                      ->addButton(tr('Back'), EnumDisplayMode::secondary, Url::newPrevious('/accounts/authentications.html'), true)
+                                      ->addBackButton(Url::newPrevious('/accounts/authentications.html'), true)
                                       ->addButton(isset_get($delete))
                                       ->addButton(isset_get($audit)));
 

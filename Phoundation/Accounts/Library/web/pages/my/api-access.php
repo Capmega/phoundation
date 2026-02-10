@@ -44,7 +44,7 @@ if (Request::isPostRequestMethod()) {
 
 // Build the buttons
 $buttons = Buttons::new()
-                  ->addButton('Submit');
+                  ->addSaveButton();
 
 
 // Alter the default user form
