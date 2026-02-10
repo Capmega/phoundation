@@ -54,7 +54,7 @@ $plugins_card = Card::new()
                ->useForm(true)
                ->setButtonsObject($buttons);
 
-$plugins_card->getForm()
+$plugins_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 

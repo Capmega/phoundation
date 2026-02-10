@@ -152,7 +152,7 @@ $o_users_card = Card::new()
                                             ->addButton(tr('Lock')  , EnumDisplayMode::warning, EnumButtonType::submit, true));
 
 
-$o_users_card->getForm()
+$o_users_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 

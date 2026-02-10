@@ -111,7 +111,7 @@ $o_rights_card = Card::new()
 
 
 // Add form for the "rights" card
-$o_rights_card->getForm()
+$o_rights_card->getFormObject()
               ->setAction(Url::newCurrent())
               ->setRequestMethod(EnumHttpRequestMethod::post);
 

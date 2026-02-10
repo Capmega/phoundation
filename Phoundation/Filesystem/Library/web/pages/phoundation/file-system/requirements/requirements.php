@@ -120,7 +120,7 @@ $requirements_card = Card::new()
     ->useForm(true)
     ->setButtonsObject($buttons);
 
-$requirements_card->getForm()
+$requirements_card->getFormObject()
     ->setAction(Url::newCurrent())
     ->setRequestMethod(EnumHttpRequestMethod::post);
 

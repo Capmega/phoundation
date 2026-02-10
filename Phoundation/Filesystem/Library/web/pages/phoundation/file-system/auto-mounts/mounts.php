@@ -116,7 +116,7 @@ $mounts_card = Card::new()
     ->useForm(true)
     ->setButtonsObject($buttons);
 
-$mounts_card->getForm()
+$mounts_card->getFormObject()
             ->setAction(Url::newCurrent())
             ->setRequestMethod(EnumHttpRequestMethod::post);
 

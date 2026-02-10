@@ -117,7 +117,7 @@ $connectors_card = Card::new()
                                                  ->addButton(tr('Create'), EnumDisplayMode::primary, '/phoundation/databases/connectors/connector.html')
                                                  ->addButton(tr('Delete'), EnumDisplayMode::warning, EnumButtonType::submit, true, true));
 
-$connectors_card->getForm()
+$connectors_card->getFormObject()
                 ->setAction(Url::newCurrent())
                 ->setRequestMethod(EnumHttpRequestMethod::post);
 
