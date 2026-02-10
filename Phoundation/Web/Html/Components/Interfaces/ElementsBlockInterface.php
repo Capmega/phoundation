@@ -38,7 +38,7 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
      *
      * @return static
      */
-    public function setForm(?FormInterface $form): static;
+    public function setFormObject(?FormInterface $form): static;
 
 
     /**

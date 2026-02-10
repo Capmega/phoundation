@@ -109,15 +109,14 @@ $o_buttons = Buttons::new()
 $o_mounts_card = Card::new()
                      ->setTitle('Available mounts')
                      ->setSwitches('reload')
+                     ->useForm(true)
+                     ->setButtonsObject($o_buttons)
                      ->setContent($o_mounts->load()
                                            ->getHtmlDataTableObject()->setRowUrls('/phoundation/file-system/mount+:ROW.html')
-                                           ->setOrder([1 => 'asc']))
-                     ->useForm(true)
-                     ->setButtonsObject($o_buttons);
+                                           ->setOrder([1 => 'asc']));
 
 $o_mounts_card->getFormObject()
-              ->setAction(Url::newCurrent())
-              ->setRequestMethod(EnumHttpRequestMethod::post);
+              ->setAction(Url::newCurrent());
 
 
 // Build relevant links

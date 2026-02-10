@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Forms\Interfaces;
 
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 interface FormInterface
@@ -22,11 +23,11 @@ interface FormInterface
     /**
      * Sets the form action
      *
-     * @param Stringable|string|null $action
+     * @param UrlInterface|string|null $action
      *
      * @return static
      */
-    public function setAction(Stringable|string|null $action): static;
+    public function setAction(UrlInterface|string|null $action): static;
 
 
     /**

@@ -22,6 +22,7 @@ use Phoundation\Data\Enums\EnumPoadTypes;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorCore;
 use Phoundation\Data\Poad\Poad;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\Forms\Form;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
@@ -29,6 +30,7 @@ use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Html\Traits\TraitElementAttributes;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
@@ -183,22 +185,32 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
     /**
      * Sets if this element block should render an HTML form around itself, or not
      *
-     * @param bool        $use_form
-     * @param bool        $post
-     * @param string|null $id
+     * @param bool              $use_form        If true, will use a form around this ElementsBlock object
+     * @param bool              $post     [true] If true, will use POST request forms instead of GET request form
+     * @param UrlInterface|null $_url     [null] If specified, will be the form target
+     * @param string|null       $id       [null] The form id attribute
      *
      * @return static
      */
-    public function useForm(bool $use_form, bool $post = true, ?string $id = null): static
+    public function useForm(bool $use_form, bool $post = true, ?UrlInterface $_url = null, ?string $id = null): static
     {
         if ($use_form) {
             if (empty($this->form)) {
                 $this->form = Form::new()
                                   ->setRequestMethod($post ? EnumHttpRequestMethod::post : EnumHttpRequestMethod::get)
+                                  ->setAction($_url)
                                   ->setId($id);
             }
 
         } else {
+            if ($_url or $id) {
+                throw OutOfBoundsException::new(ts('The method was called to disable the form, yet either a URL or a form id was specified'))
+                                          ->addData([
+                                              'id'  => $id,
+                                              'url' => $_url,
+                                          ]);
+            }
+
             $this->form = null;
         }
 
@@ -238,10 +250,9 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      *
      * @return static
      */
-    public function setForm(?FormInterface $form): static
+    public function setFormObject(?FormInterface $form): static
     {
         $this->form = $form;
-
         return $this;
     }
 
@@ -267,7 +278,6 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
     public function setRenderContentsOnly(bool $enable): static
     {
         $this->render_contents_only = $enable;
-
         return $this;
     }
 

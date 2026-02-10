@@ -106,12 +106,12 @@ switch ($o_filters->get('status')) {
 $o_connectors_card = Card::new()
                          ->setTitle('Available connectors')
                          ->setSwitches('reload')
+                         ->useForm(true)
                          ->setContent($o_connectors->load()
                                                    ->getHtmlDataTableObject()
                                                    ->setRowUrls('/phoundation/databases/connectors/connector+:ROW.html')
                                                    ->setColumns('id,name,hostname,username,database,status,created_on')
                                                    ->setOrder([1 => 'asc']))
-                         ->useForm(true)
                          ->setButtonsObject(Buttons::new()
                                                    ->addCreateButton(Url::new('/phoundation/databases/connectors/connector.html'))
                                                    ->addDeleteButton(true));
