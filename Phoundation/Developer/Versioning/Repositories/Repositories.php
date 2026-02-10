@@ -1652,7 +1652,7 @@ showdie('YAY!');
     {
         foreach ($this as $o_repository) {
             if ($o_repository->hasType('project')) {
-                return $o_repository->getSelectedVersionSuffix();
+                return $o_repository->getSelectedBranchSuffix();
             }
         }
 

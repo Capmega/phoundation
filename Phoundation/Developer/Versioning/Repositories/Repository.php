@@ -1118,13 +1118,12 @@ showdie();
 
 
     /**
-     * Returns true if this repository is currently on a version branch
+     * Returns true if this repository is on a version branch that does not contain a suffix
      *
-     * @param bool $short_version [true] If true, will require a short version (MAJOR.MINOR) instead of a full version (MAJOR.MINOR.REVISION)
-     *
+     * @param bool $short_version [true] If true, requires the version to be a short version (MAJOR.MINOR only)
      * @return bool
      */
-    public function isOnVersionOnlyBranch(bool $short_version = true): bool
+    public function isOnVersionBranchWithoutSuffix(bool $short_version = true): bool
     {
         return Strings::isVersion($this->getBranch(), short_version: $short_version);
     }
@@ -1137,7 +1136,7 @@ showdie();
      *
      * @return bool
      */
-    public function isOnVersionSuffixBranch(bool $short_version = true): bool
+    public function isOnVersionBranchWithSuffix(bool $short_version = true): bool
     {
         return Strings::isVersion(Strings::until($this->getBranch(), '-'), short_version: $short_version) and Strings::from($this->getBranch(), '-');
     }
@@ -1198,10 +1197,17 @@ showdie();
      *
      * If the selected branch is not a version branch, NULL will be returned
      *
+     * @param bool $require_correct_version [false] If true, requires that the selected branch is a version branch with the correct version for the project
+     *
      * @return string|null
+     * @throws RepositoriesException
      */
-    public function getSelectedVersion(): ?string
+    public function getSelectedBranchVersion(bool $require_correct_version = false): ?string
     {
+        if ($require_correct_version) {
+            $this->checkIsOnCorrectVersionBranch();
+        }
+
         if ($this->isOnVersionBranch()) {
             return Strings::until($this->getSelectedBranch(), '-');
         }
@@ -1215,11 +1221,12 @@ showdie();
      *
      * If the selected branch is not a version branch, a RepositoriesException will be thrown
      *
-     * @param bool $require_correct_version
+     * @param bool $require_correct_version [false] If true, requires that the selected branch is a version branch with the correct version for the project
+     *
      * @return string|null
      * @throws RepositoriesException
      */
-    public function getSelectedVersionSuffix(bool $require_correct_version = false): ?string
+    public function getSelectedBranchSuffix(bool $require_correct_version = false): ?string
     {
         if ($require_correct_version) {
             $this->checkIsOnCorrectVersionBranch();
@@ -1228,7 +1235,7 @@ showdie();
             $this->checkIsOnVersionBranch();
         }
 
-        return get_null(Strings::from($this->getBranch(), '-', needle_required: true));
+        return get_null(Strings::from($this->getSelectedBranch(), '-', needle_required: true));
     }
 
 
@@ -1345,10 +1352,10 @@ showdie();
                 Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
                     ':repository' => $this->getName(),
                     ':branch'     => $this->getSelectedBranch(),
-                    ':version'    => $this->getSelectedVersion(),
+                    ':version'    => $this->getSelectedBranchVersion(),
                 ]));
 
-                $this->o_git->merge($this->getSelectedVersion());
+                $this->o_git->merge($this->getSelectedBranchVersion());
                 Log::dot();
             }
 
@@ -1360,10 +1367,10 @@ showdie();
         Log::action(ts('Updating repository ":repository" branch ":branch" from version ":version"', [
             ':repository' => $this->getName(),
             ':branch'     => $this->getSelectedBranch(),
-            ':version'    => $this->getSelectedVersion(),
+            ':version'    => $this->getSelectedBranchVersion(),
         ]));
 
-        $this->o_git->merge($this->getSelectedVersion());
+        $this->o_git->merge($this->getSelectedBranchVersion());
         return $this;
     }
 
@@ -1379,7 +1386,7 @@ showdie();
     public function mergeVersionSuffixes(array|string $suffixes): static
     {
         foreach (Arrays::force($suffixes) as $suffix) {
-            $this->o_git->merge($this->getSelectedVersion() . '-' . $suffix);
+            $this->o_git->merge($this->getSelectedBranchVersion() . '-' . $suffix);
         }
 
         return $this;
