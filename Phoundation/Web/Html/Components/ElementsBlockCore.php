@@ -31,6 +31,7 @@ use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
 use Phoundation\Web\Html\Template\TemplateRenderer;
 use Phoundation\Web\Html\Traits\TraitElementAttributes;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
 use Stringable;
 
@@ -198,7 +199,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             if (empty($this->form)) {
                 $this->form = Form::new()
                                   ->setRequestMethod($post ? EnumHttpRequestMethod::post : EnumHttpRequestMethod::get)
-                                  ->setAction($_url)
+                                  ->setAction($_url ?? Url::newCurrent())
                                   ->setId($id);
             }
 
