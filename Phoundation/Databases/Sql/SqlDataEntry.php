@@ -366,7 +366,7 @@ class SqlDataEntry implements SqlDataEntryInterface
     {
         // Filter out non modified rows
         if ($this->force) {
-            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChangedColumns(), $this->o_data_entry->getMetaColumns()));
         }
 
         // Set meta fields
@@ -404,7 +404,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         // Filter out non modified rows
         if (!$this->force) {
             // Only update changed entries
-            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChanges(), $this->o_data_entry->getMetaColumns()));
+            $row = Arrays::keepKeys($row, array_merge($this->o_data_entry->getChangedColumns(), $this->o_data_entry->getMetaColumns()));
         }
 
         // Log meta_id action

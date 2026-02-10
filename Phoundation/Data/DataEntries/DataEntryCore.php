@@ -4925,7 +4925,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return array
      */
-    public function getChanges(): array
+    public function getChangedColumns(): array
     {
         return $this->changes;
     }
