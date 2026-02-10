@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Command developer repositories push
+ * Command developer repositories merge
  *
  * THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
  *
- * This command will push all known phoundation repositories
+ * This command will merge the specified branches into the current branch of all known phoundation repositories
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -25,48 +25,49 @@ use Phoundation\Developer\Versioning\Repositories\Repositories;
 
 // Start documentation
 CliDocumentation::setAutoComplete([
-    'arguments' => [
-        '-a' => false
+    'position' => [
+        -1 => function ($word) {
+
+        },
+        0 => function ($word) {
+
+        }
     ]
 ]);
 
-CliDocumentation::setUsage('./pho development repositories branch push
-./pho dv rp br ps
-./pho development rp br ps -A
-./pho development rp branch push -A --remote origin');
+CliDocumentation::setUsage('./pho development repositories branch merge BRANCH [BRANCH, BRANCH, ...]
+./pho dv rp br mg BRANCH 
+./pho development rp branch mg [BRANCH, BRANCH, ...]');
 
 CliDocumentation::setHelp(ts('THIS COMMAND IS ONLY FOR PHOUNDATION DEVELOPERS
 
-This command will execute a push on all known phoundation repositories 
+This command will merge the specified branches into the current branch of all known phoundation repositories 
 
 
 ARGUMENTS
 
 
-- 
+BRANCH                                  The branch that will be merged into the currently selected branch 
 
 
 OPTIONAL ARGUMENTS
 
 
-[-b, --branch BRANCH_NAME]                     If specified, will push from the specified remote branch (must exist)
-
-[-r, --remote REMOTE_REPOSITORY]               If specified, will push from the specified remote repository (must exist)'));
+[BRANCH, BRANCH, ...]                   Optionally, specify more branches to merge into the currently selected branch'));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('-b,--branch')->isOptional()->isCode()
-                     ->select('-r,--remote')->isOptional()->isCode()
+                     ->select('branches')->isOptional()->sanitizeForceArray()->forEachField()->isCode()
                      ->validate();
 
 
 try {
-// Execute git push on all known repositories
-    Repositories::new()->load()->push($argv['remote'], $argv['branch']);
+// Execute git merge on all known repositories
+    Repositories::new()->load()->merge($argv['branches']);
 
 } catch (RepositoriesChangesException $e) {
-    // Could not push, some repositories have changes. List the affected repositories here
+    // Could not merge, some repositories have changes. List the affected repositories here
     Log::cli($e->getMessage(), 'warning');
 
     foreach ($e->getDataKey('repositories') as $repository) {

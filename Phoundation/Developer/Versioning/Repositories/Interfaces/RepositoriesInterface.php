@@ -4,6 +4,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
+use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
@@ -468,14 +469,14 @@ interface RepositoriesInterface extends DataIteratorInterface
      *
      * @return string|null
      */
-    public function getProjectSelectedVersionSuffix(): ?string;
+    public function getProjectSelectedBranchSuffix(): ?string;
 
     /**
      * Returns true if the project is on a version branch with suffix
      *
      * @return bool
      */
-    public function hasProjectVersionSuffix(): bool;
+    public function hasProjectVersionSuffixSelected(): bool;
 
     /**
      * Throws a RepositoriesException if the curren
@@ -484,7 +485,7 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      * @throws RepositoriesException
      */
-    public function checkHasProjectVersionSuffix(string $action): static;
+    public function checkHasProjectVersionSuffixSelected(string $action): static;
 
     /**
      * Returns the currently selected for the project main repository, or NULL if no suffix has been selected
@@ -502,4 +503,23 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return static
      */
     public function mergeVersionSuffixes(array|string $suffixes): static;
+
+    /**
+     * Returns the version from the currently selected branch for the project main repository, or NULL if the project branch is not on a version branch
+     *
+     * @return string|null
+     */
+    public function getProjectSelectedBranchVersion(): ?string;
+
+    /**
+     * Returns the master project repository, or NULL if it does not exist
+     *
+     * @note If the project repository does not exist, and $exception is true, a RepositoryNotExistException will be thrown
+     *
+     * @param bool $exception [true] If true, will throw a RepositoryNotExistException when the project repository does not exist, else will return NULL instead
+     *
+     * @return RepositoryInterface|null
+     * @throws RepositoryNotExistException
+     */
+    public function getProjectRepositoryObject(bool $exception = true): ?RepositoryInterface;
 }
