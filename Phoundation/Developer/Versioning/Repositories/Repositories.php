@@ -1857,18 +1857,6 @@ throw new UnderConstructionException();
 
 
     /**
-     * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
-     *
-     * @param string $version
-     * @return static
-     */
-    public function updateAllSuffixedVersionBranches(string $version): static
-    {
-        return $this;
-    }
-
-
-    /**
      * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
      *
      * @param string $keyword        The keyword to search for
@@ -1886,5 +1874,17 @@ throw new UnderConstructionException();
         }
 
         return $return;
+    }
+
+
+    /**
+     * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
+     *
+     * @param string $version
+     * @return static
+     */
+    public function updateAllSuffixedVersionBranches(string $version): static
+    {
+        return $this;
     }
 }
