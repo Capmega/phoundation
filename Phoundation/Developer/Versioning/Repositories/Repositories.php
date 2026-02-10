@@ -1834,6 +1834,29 @@ throw new UnderConstructionException();
 
 
     /**
+     * Returns all branches in all repositories where the specified revision exists
+     *
+     * @param string $revision The revision to filter on
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): IteratorInterface
+    {
+        $return = [];
+
+        foreach ($this as $_repository) {
+            $results = $_repository->getBranchesContainingRevision($revision);
+
+            if ($results) {
+                $return[$_repository->getDisplayName()] = $results;
+            }
+        }
+
+        return Iterator::new($return);
+    }
+
+
+    /**
      * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
      *
      * @param string $version
@@ -1863,28 +1886,5 @@ throw new UnderConstructionException();
         }
 
         return $return;
-    }
-
-
-    /**
-     * Returns all branches in all repositories where the specified revision exists
-     *
-     * @param string $revision The revision to filter on
-     *
-     * @return BranchesInterface
-     */
-    public function getBranchesContainingRevision(string $revision): IteratorInterface
-    {
-        $return = [];
-
-        foreach ($this as $_repository) {
-            $results = $_repository->getBranchesContainingRevision($revision);
-
-            if ($results) {
-                $return[$_repository->getDisplayName()] = $results;
-            }
-        }
-
-        return Iterator::new($return);
     }
 }
