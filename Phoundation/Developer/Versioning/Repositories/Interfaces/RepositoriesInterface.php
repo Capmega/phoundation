@@ -522,4 +522,11 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @throws RepositoryNotExistException
      */
     public function getProjectRepositoryObject(bool $exception = true): ?RepositoryInterface;
+
+    /**
+     * Returns an array containing all files that have changes in all repositories
+     *
+     * @return array
+     */
+    public function getChangedFiles(): array;
 }

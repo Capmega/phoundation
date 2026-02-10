@@ -550,4 +550,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return bool
      */
     public function isOnVersionBranchWithoutSuffix(bool $short_version = true): bool;
+
+    /**
+     * Returns true if this repository has the specified branch available
+     *
+     * @param string $branch The branch that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasBranchAvailable(string $branch): bool;
 }

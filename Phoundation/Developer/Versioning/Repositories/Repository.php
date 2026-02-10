@@ -450,7 +450,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getStatusObject(): StatusFilesInterface
     {
-        return StatusFiles::new($this);
+        return StatusFiles::new($this)->scanChanges();
     }
 
 
@@ -914,6 +914,19 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
+     * Returns true if this repository has the specified branch available
+     *
+     * @param string $branch The branch that should be selected for this repository
+     *
+     * @return bool
+     */
+    public function hasBranchAvailable(string $branch): bool
+    {
+        return $this->o_git->branchExists($branch);
+    }
+
+
+    /**
      * Returns true if this repository has the specified tag selected
      *
      * @param string $tag The tag that should be selected for this repository
@@ -933,7 +946,18 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasChanges(): bool
     {
-        return (bool) $this->getStatusObject()->scanChanges()->getCount();
+        return (bool) $this->getStatusObject()->getCount();
+    }
+
+
+    /**
+     * Returns a list of all changes in this repository
+     *
+     * @return array
+     */
+    public function getChangedFiles(): array
+    {
+        return $this->getStatusObject()->getSource();
     }
 
 
@@ -950,7 +974,11 @@ class Repository extends DataEntry implements RepositoryInterface
             throw RepositoriesChangesException::new(ts('Cannot perform action ":action" on repository ":repository", the repository has changes', [
                 ':action'     => $action,
                 ':repository' => $this->getName(),
-            ]))->addHint(ts('To fix this issue, please first commit the changes, and try again'));
+            ]))->addHint(ts('To fix this issue, please first commit the changes, and try again'))
+               ->setData([
+                   'repositories' => $this->getName(),
+                   'files'        => $this->getChangedFiles(),
+               ]);
         }
 
         return $this;
