@@ -34,17 +34,13 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
-// This page does not accept GET parameters
-GetValidator::new()->validate();
-
-
 // Build the "filters" card
 $o_filters      = FilterForm::new();
 $o_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Filters')
                       ->setContent($o_filters)
-                      ->setButtonsObject(Buttons::new()->->addCreateButton(Url::new('/accounts/user.html'), true));
+                      ->setButtonsObject(Buttons::new()->addCreateButton(Url::new('/accounts/user.html'), true));
 
 
 // Button clicked?
@@ -122,8 +118,8 @@ $o_users->getQueryBuilderObject()->addSelect('
                                  ->addJoin('LEFT JOIN `accounts_roles`
                                             ON        `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
                                  ->addWhere('`accounts_users`.`email` != "guest"')
-                                 ->addGroupBy('`accounts_users`.`id`');
-$o_users->load();
+                                 ->addGroupBy('`accounts_users`.`id`')
+                                 ->load();
 
 
 // Build "users" table
