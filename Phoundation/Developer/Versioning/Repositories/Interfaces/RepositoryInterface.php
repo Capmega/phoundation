@@ -3,6 +3,7 @@
 namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Project\Project;
@@ -552,4 +553,14 @@ interface RepositoryInterface extends DataEntryInterface
      * @return static
      */
     public function mergeVersionSuffixes(array|string $suffixes): static;
+
+    /**
+     * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface;
 }

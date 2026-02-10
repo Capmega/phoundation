@@ -19,6 +19,8 @@ namespace Phoundation\Developer\Versioning\Repositories;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
@@ -1838,5 +1840,25 @@ throw new UnderConstructionException();
     public function updateAllSuffixedVersionBranches(string $version): static
     {
         return $this;
+    }
+
+
+    /**
+     * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface
+    {
+        $return = new Iterator();
+
+        foreach ($this as $_repository) {
+            $return->addSource($_repository->grep($keyword, $grouped));
+        }
+
+        return $return;
     }
 }

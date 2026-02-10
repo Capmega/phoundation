@@ -410,5 +410,5 @@ interface GitInterface
      *
      * @return IteratorInterface
      */
-    public function searchHistory(string $keyword, bool $grouped = true): IteratorInterface;
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface;
 }

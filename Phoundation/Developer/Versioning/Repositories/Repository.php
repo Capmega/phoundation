@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
@@ -51,7 +52,6 @@ use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesHaveChan
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionBranchNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesVersionTagNotExistsException;
 use Phoundation\Developer\Versioning\Repositories\Interfaces\RepositoryInterface;
-use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Exception\DirectoryNotExistsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -1384,6 +1384,20 @@ showdie();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface
+    {
+        return $this->o_git->grep($keyword, $grouped);
     }
 
 
