@@ -152,12 +152,13 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
      * Creates and returns a CLI table for the data in this list
      *
      * @param array|string|null $columns
-     * @param array             $filters
-     * @param string|null       $id_column
+     * @param array             $filters        [[]]
+     * @param string|null       $id_column      'file'
+     * @param bool              $human_readable [false] If true, will return the status in human readable words instead of the two letter code
      *
      * @return static
      */
-    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'file'): static
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'file', bool $human_readable = false): static
     {
         $list = [];
 
@@ -172,56 +173,35 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
             $entry = [];
 
             foreach ($columns as $column => $label) {
-                switch ($column) {
-// TODO Implement these options
-//                    case 'repository':
-//                        $entry[$column] = $o_status->getRepositoryObject()?->getDisplayName();
-//                        break;
-//
-//                    case 'library':
-//                        $entry[$column] = $o_status->getLibraryObject()->getDisplayName();
-//                        break;
 
-                    case 'branch':
-                        $entry[$column] = $o_status->getRepositoryObject()?->getCurrentBranch();
-                        break;
 
-                    case 'file':
-                        $entry[$column] = $file;
-                        break;
-
-                    case 'status':
-                        if (trim(substr($o_status->getStatus(), 0, 1))) {
-                            $entry[$column] = CliColor::apply($o_status->getStatus(), 'green');
-
-                        } else {
-                            $entry[$column] = CliColor::apply($o_status->getStatus(), 'red');
-                        }
-
-                        break;
-
-                    case 'readable_status':
-                        if (trim(substr($o_status->getStatus(), 0, 1))) {
-                            $entry[$column] = CliColor::apply($o_status->getReadableStatus(), 'green');
-
-                        } else {
-                            $entry[$column] = CliColor::apply($o_status->getReadableStatus(), 'red');
-                        }
-
-                        break;
-
-                    default:
-                        throw new OutOfBoundsException(ts('Unknown column ":column" specified', [
-                            ':column' => $column,
-                        ]));
-                }
+                $entry[$column] = match ($column) {
+                    'branch'          => $o_status->getRepositoryObject()?->getCurrentBranch(),
+                    'file'            => $file,
+                    'status'          => match ($o_status->getStatus()) {
+                                             'AD', 'DU', 'UD', 'D ', ' D', 'UU', 'RD', 'both modified' => CliColor::apply($o_status->getStatus(), 'red'),
+                                             'AM', 'A ', 'MM', 'M ', 'RM', 'T '                        => CliColor::apply($o_status->getStatus(), 'blue'),
+                                             ' M', 'R '                                                => CliColor::apply($o_status->getStatus(), 'green'),
+                                             '??', '  '                                                => CliColor::apply($o_status->getStatus(), 'white'),
+                                             default                                                   => CliColor::apply($o_status->getStatus(), 'light_gray'),
+                                         },
+                    'readable_status' => match ($o_status->getStatus()) {
+                                             'AD', 'DU', 'UD', 'D ', ' D', 'UU', 'RD', 'both modified' => CliColor::apply($o_status->getReadableStatus(), 'red'),
+                                             'AM', 'A ', 'MM', 'M ', 'RM', 'T '                        => CliColor::apply($o_status->getReadableStatus(), 'blue'),
+                                             ' M', 'R '                                                => CliColor::apply($o_status->getReadableStatus(), 'green'),
+                                             '??', '  '                                                => CliColor::apply($o_status->getReadableStatus(), 'white'),
+                                             default                                                   => CliColor::apply($o_status->getReadableStatus(), 'light_gray'),
+                                         },
+                    default           => throw new OutOfBoundsException(ts('Unknown column ":column" specified', [
+                        ':column' => $column,
+                    ])),
+                };
             }
 
             $list[$file] = $entry;
         }
 
         Cli::displayTable($list, $columns, $id_column);
-
         return $this;
     }
 

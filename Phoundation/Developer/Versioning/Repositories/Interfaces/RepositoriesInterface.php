@@ -5,6 +5,7 @@ namespace Phoundation\Developer\Versioning\Repositories\Interfaces;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
+use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveBranchSelectedException;
 use Phoundation\Developer\Versioning\Repositories\Exception\RepositoriesNotAllHaveTagException;
@@ -529,4 +530,11 @@ interface RepositoriesInterface extends DataIteratorInterface
      * @return array
      */
     public function getChangedFiles(): array;
+
+    /**
+     * Returns an array containing the status for all repositories
+     *
+     * @return StatusFilesInterface
+     */
+    public function getStatusObject(): StatusFilesInterface;
 }

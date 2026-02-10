@@ -50,5 +50,18 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
+if ($argv['human_readable']) {
+    $columns = [
+        'file'            => tr('File'),
+        'readable_status' => tr('Status'),
+    ];
+
+} else {
+    $columns = [
+        'file'   => tr('File'),
+        'status' => tr('Status'),
+    ];
+}
+
 // List status for all available repositories
-Repositories::new()->load()->getStatusObject($argv['human_readable'])->displayCliTable();
+Repositories::new()->load()->getStatusObject()->displayCliTable($columns);

@@ -186,6 +186,9 @@ class Status implements StatusInterface
                 $this->readable = tr('No changes');
                 break;
 
+            case 'UU':
+                // no break
+
             case 'both modified':
                 $this->readable      = tr('Both modified');
                 $this->is_conflict   = true;
