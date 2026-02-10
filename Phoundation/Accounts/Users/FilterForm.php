@@ -45,12 +45,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
      */
     public function __construct()
     {
-        $this->states = [
-            'all'     => tr('All'),
-            null      => tr('Active'),
-            'deleted' => tr('Deleted'),
-        ];
-
         parent::__construct();
 
         $this->o_definitions->add(Definition::new('roles_id')
@@ -68,20 +62,20 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                           ->setSelected(isset_get($this->source[$key]));
                                           }))
 
-                          ->add(Definition::new('rights_id')
-                                          ->setLabel(tr('Right'))
-                                          ->setSize(4)
-                                          ->setOptional(true)
-                                          ->setElement(EnumElement::select)
-                                          ->setInputType(EnumInputType::dbid)
-                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
-                                              return Rights::new()
-                                                           ->getHtmlSelectOld()
-                                                           ->setAutoSubmit(true)
-                                                           ->setName($field_name)
-                                                           ->setNotSelectedLabel(tr('All'))
-                                                           ->setSelected(isset_get($this->source[$key]));
-                                          }));
+                            ->add(Definition::new('rights_id')
+                                            ->setLabel(tr('Right'))
+                                            ->setSize(4)
+                                            ->setOptional(true)
+                                            ->setElement(EnumElement::select)
+                                            ->setInputType(EnumInputType::dbid)
+                                            ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                return Rights::new()
+                                                             ->getHtmlSelectOld()
+                                                             ->setAutoSubmit(true)
+                                                             ->setName($field_name)
+                                                             ->setNotSelectedLabel(tr('All'))
+                                                             ->setSelected(isset_get($this->source[$key]));
+                                            }));
 
         $this->o_definitions->get('date_range')->setRender(false);
         $this->o_definitions->get('users_id')->setRender(false);
