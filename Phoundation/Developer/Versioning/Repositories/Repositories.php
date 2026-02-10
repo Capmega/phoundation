@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
+use Phoundation\Business\Companies\Branches\Interfaces\BranchInterface;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
@@ -27,6 +28,7 @@ use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
@@ -1856,9 +1858,33 @@ throw new UnderConstructionException();
         $return = new Iterator();
 
         foreach ($this as $_repository) {
-            $return->addSource($_repository->grep($keyword, $grouped));
+            // When adding the Repository sources to the Repositories source, be sure to clear the keys as all keys will start with 0
+            $return->addSource($_repository->grep($keyword, $grouped), true);
         }
 
         return $return;
+    }
+
+
+    /**
+     * Returns all branches in all repositories where the specified revision exists
+     *
+     * @param string $revision The revision to filter on
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): IteratorInterface
+    {
+        $return = [];
+
+        foreach ($this as $_repository) {
+            $results = $_repository->getBranchesContainingRevision($revision);
+
+            if ($results) {
+                $return[$_repository->getDisplayName()] = $results;
+            }
+        }
+
+        return Iterator::new($return);
     }
 }

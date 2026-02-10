@@ -517,7 +517,7 @@ interface RepositoryInterface extends DataEntryInterface
      *
      * @return BranchesInterface
      */
-    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface;
+    public function getBranchesObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface;
 
     /**
      * Returns an array with only version branches for this repository
@@ -563,4 +563,13 @@ interface RepositoryInterface extends DataEntryInterface
      * @return IteratorInterface
      */
     public function grep(string $keyword, bool $grouped = true): IteratorInterface;
+
+    /**
+     * Returns all branches where the specified revision exists
+     *
+     * @param string $revision
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): BranchesInterface;
 }

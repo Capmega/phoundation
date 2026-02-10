@@ -526,7 +526,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return BranchesInterface
      */
-    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface
+    public function getBranchesObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface
     {
         return Branches::new($this)->setFilterVersions($only_version)
                                    ->setFilterSuffixes($only_suffix)
@@ -541,7 +541,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getVersionBranches(): array
     {
-        return $this->getBranchObject(true)->getSource();
+        return $this->getBranchesObject(true)->getSource();
     }
 
 
@@ -552,7 +552,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getVersionSuffixBranches(): array
     {
-        return $this->getBranchObject(false, true)->getSource();
+        return $this->getBranchesObject(false, true)->getSource();
     }
 
 
@@ -1397,7 +1397,28 @@ showdie();
      */
     public function grep(string $keyword, bool $grouped = true): IteratorInterface
     {
+        Log::action(ts('Executing grep in repository ":repository"', [
+            ':repository' => $this->getName(),
+        ]));
+
         return $this->o_git->grep($keyword, $grouped);
+    }
+
+
+    /**
+     * Returns all branches where the specified revision exists
+     *
+     * @param string $revision The revision to filter on
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): BranchesInterface
+    {
+        Log::action(ts('Executing grep in repository ":repository"', [
+            ':repository' => $this->getName(),
+        ]));
+
+        return Branches::new($this)->setFilterRevision($revision)->load();
     }
 
 

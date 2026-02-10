@@ -44,6 +44,13 @@ class Branches extends IteratorCore implements BranchesInterface
      */
     public bool $filter_suffixes = false;
 
+    /**
+     * Tracks if branch loading should filter on branches that contain the specified revision
+     *
+     * @var string|null $filter_revisions
+     */
+    public ?string $filter_revisions = null;
+
 
     /**
      * Branches class constructor
@@ -52,7 +59,6 @@ class Branches extends IteratorCore implements BranchesInterface
      */
     public function __construct(RepositoryInterface $o_repository) {
         parent::__construct();
-
         $this->o_repository = $o_repository;
     }
 
@@ -64,17 +70,17 @@ class Branches extends IteratorCore implements BranchesInterface
      */
     public function load(): static
     {
-        $this->source = $this->o_repository->getGitObject()->getBranches();
+        $this->source = $this->o_repository->getGitObject()->getBranches(contains: $this->filter_revisions);
 
         // Branch names must match versions only
         foreach ($this->source as $branch => $selected) {
             // Filter version with suffix?
-            if (Branches::isVersionOnly($branch) and $this->filter_versions) {
+            if ($this->filter_versions and Branches::isVersionOnly($branch)) {
                 continue;
             }
 
             // Filter version only?
-            if (Branches::isVersionWithSuffix($branch) and $this->filter_suffixes) {
+            if ($this->filter_suffixes and Branches::isVersionWithSuffix($branch)) {
                 continue;
             }
 
@@ -87,6 +93,31 @@ class Branches extends IteratorCore implements BranchesInterface
             unset($this->source[$branch]);
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Returns whether only branches should be loaded that contain the specified revision, or part of it
+     *
+     * @return string|null
+     */
+    public function getFilterRevision(): ?string
+    {
+        return $this->filter_revisions;
+    }
+
+
+    /**
+     * Sets whether only branches should be loaded that contain the specified revision, or part of it
+     *
+     * @param string|null $filter If specified, branches will be filtered on having the4 specified revision
+     *
+     * @return static
+     */
+    public function setFilterRevision(?string $filter): static
+    {
+        $this->filter_revisions = $filter;
         return $this;
     }
 

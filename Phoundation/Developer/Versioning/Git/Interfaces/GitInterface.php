@@ -70,11 +70,12 @@ interface GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @param bool $all
+     * @param bool        $all      [false] If true, will return all branches, including the ones that have not been checked out locally
+     * @param string|null $contains [null]  If specified, will filter branches that contain the specified revision id
      *
      * @return array
      */
-    public function getBranches(bool $all = false): array;
+    public function getBranches(bool $all = false, ?string $contains = null): array;
 
     /**
      * Stashes the git changes
@@ -411,4 +412,13 @@ interface GitInterface
      * @return IteratorInterface
      */
     public function grep(string $keyword, bool $grouped = true): IteratorInterface;
+
+    /**
+     * Returns the repositories where the specified revision is a member of
+     *
+     * @param string $revision
+     *
+     * @return array
+     */
+    public function getBranchesContainingRevision(string $revision): array;
 }

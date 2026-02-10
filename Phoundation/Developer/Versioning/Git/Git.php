@@ -23,6 +23,7 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchIsBehindRemoteBranchException;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
@@ -514,18 +515,23 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns a list of available git branches
      *
-     * @param bool $all         [false] If true, will return all branches, including the ones that have not been checked out
-     *                          locally
+     * @param bool        $all      [false] If true, will return all branches, including the ones that have not been checked out locally
+     * @param string|null $contains [null]  If specified, will filter branches that contain the specified revision id
      *
      * @return array
      */
-    public function getBranches(bool $all = false): array
+    public function getBranches(bool $all = false, ?string $contains = null): array
     {
+        if ($all and $contains) {
+            throw new OutOfBoundsException(ts('Cannot use both filters $all and $contains at the same time'));
+        }
+
         $source  = [];
         $results = $this->o_process->clearArguments()
                                    ->addArgument('branch')
                                    ->addArgument('--quiet')
                                    ->addArgument((ALL or $all) ? '-a' : null)
+                                   ->addArguments(($contains)   ? ['--contains', $contains] : null)
                                    ->addArgument('--no-color')
                                    ->executeReturnArray();
 
@@ -1429,5 +1435,33 @@ class Git extends Versioning implements GitInterface
         }
 
         return new Iterator($return);
+    }
+
+
+    /**
+     * Returns the repositories where the specified revision is a member of
+     *
+     * @param string $revision
+     *
+     * @return array
+     */
+    public function getBranchesContainingRevision(string $revision): array
+    {
+        $source  = [];
+        $results = $this->o_process->clearArguments()
+                                   ->addArguments(['branch', '--quiet', '--no-color'])
+                                   ->addArguments(['--contains', $revision])
+                                   ->executeReturnArray();
+
+        foreach ($results as $line) {
+            if (str_starts_with($line, '*')) {
+                $source[substr($line, 2)] = true;
+
+            } else {
+                $source[substr($line, 2)] = false;
+            }
+        }
+
+        return $source;
     }
 }
