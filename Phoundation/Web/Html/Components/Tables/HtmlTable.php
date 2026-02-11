@@ -1218,7 +1218,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     {
         $o_url = $this->getCellUrl($row_values, $params);
 
-        if (empty($o_url)) {
+        if (empty($o_url) or (array_get_safe($params, 'no_render_url'))) {
             return $value;
         }
 

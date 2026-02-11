@@ -1153,7 +1153,7 @@ class Route
 
         // Check if this route regex matches
         if (!static::match()) {
-            // The route regex did not match, match cancelled this try
+            // The route regex did not match, match canceled this try
             static::$rule_count++;
             return false;
         }
@@ -1165,12 +1165,12 @@ class Route
 
         // Apply flags
         if (!static::applyFlags()) {
-            // Flags cancelled this try
+            // Flags canceled this try
             return false;
         }
 
         if (!static::processGetQueries()) {
-            // Query processing cancelled this try
+            // Query processing canceled this try
             return false;
         }
 
@@ -1327,7 +1327,7 @@ class Route
         if (!static::$pass_get_variables) {
             if (GetValidator::new()->isNotEmpty()) {
                 // Client specified variables on a URL that does not allow queries, cancel the match
-                Log::warning(ts('Matched route ":route" does not allow query variables while client specified them, cancelling match', [
+                Log::warning(ts('Matched route ":route" does not allow query variables while client specified them, canceling match', [
                     ':route' => static::$route,
                 ]));
 
@@ -1355,7 +1355,7 @@ class Route
             foreach (GetValidator::new() as $key => $action) {
                 // This key must be allowed, or we're done
                 if (empty(static::$pass_get_variables[$key])) {
-                    Log::warning(ts('Matched route ":route" contains GET key ":key" which is not specifically allowed by the pass_get_variables list, cancelling match', [
+                    Log::warning(ts('Matched route ":route" contains GET key ":key" which is not specifically allowed by the pass_get_variables list, canceling match', [
                         ':route' => static::$route,
                         ':key'   => $key,
                     ]));
@@ -1863,7 +1863,7 @@ class Route
     {
         // MUST be a GET request, NO POST data allowed!
         if (!empty($_POST)) {
-            Log::notice(ts('Matched route ":route" allows only GET requests, cancelling match', [
+            Log::notice(ts('Matched route ":route" allows only GET requests, canceling match', [
                 ':route' => static::$route
             ]));
 
@@ -1884,7 +1884,7 @@ class Route
     {
         // MUST be a POST request, NO EMPTY POST data allowed!
         if (empty($_POST)) {
-            Log::notice(ts('Matched route ":route" allows only POST requests, cancelling match', [
+            Log::notice(ts('Matched route ":route" allows only POST requests, canceling match', [
                 ':route' => static::$route
             ]));
 
@@ -1933,7 +1933,7 @@ class Route
         $url = Url::new(static::$route)->makeWww()->decloak();
 
         if (!$url) {
-            Log::warning(ts('Specified cloaked URL ":cloak" does not exist, cancelling match', [
+            Log::warning(ts('Specified cloaked URL ":cloak" does not exist, canceling match', [
                 ':cloak' => static::$route
             ]));
 

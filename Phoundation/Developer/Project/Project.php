@@ -217,12 +217,12 @@ class Project implements ProjectInterface
             Log::success(ts('Finished project setup'));
 
         } catch (Throwable $e) {
-            Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
+            Log::warning('Setup failed with the following exception. Canceling setup process and removing files.');
             Log::warning($e);
 
             // Remove the project and continue throwing the exception
             Project::remove();
-            Log::warning(ts('Setup process was cancelled'));
+            Log::warning(ts('Setup process was canceled'));
             throw $e;
         }
     }
