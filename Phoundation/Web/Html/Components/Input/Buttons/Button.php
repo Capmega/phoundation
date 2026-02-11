@@ -219,7 +219,7 @@ class Button extends Input implements ButtonInterface
         } else {
             if (!$this->getValue()) {
                 // By default, use the content as value
-                $this->setValue(strip_tags($this->getContent()));
+                $this->setValue(strip_tags((string) $this->getContent()));
             }
         }
 

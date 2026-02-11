@@ -79,11 +79,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Save" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addSaveButton(bool $float_right = false): static
+    public function addSaveButton(?bool $float_right = null): static
     {
         return $this->addButton(SaveButton::new()->setFloatRight($float_right));
     }
@@ -92,12 +93,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Back" button to the button list
      *
-     * @param UrlInterface $_url                The URL where the audit button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addBackButton(UrlInterface $_url, bool $float_right = false): static
+    public function addBackButton(UrlInterface $_url, ?bool $float_right = null): static
     {
         return $this->addButton(BackButton::new()
                                            ->setUrlObject($_url)
@@ -108,12 +110,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Create" button to the button list
      *
-     * @param UrlInterface $_url                The URL where this button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addCreateButton(UrlInterface $_url, bool $float_right = false): static
+    public function addCreateButton(UrlInterface $_url, ?bool $float_right = false): static
     {
         return $this->addButton(CreateButton::new()
                                             ->setUrlObject($_url)
@@ -124,12 +127,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Audit" button to the button list
      *
-     * @param UrlInterface $_url                The URL where the audit button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addAuditButton(UrlInterface $_url, bool $float_right = false): static
+    public function addAuditButton(UrlInterface $_url, ?bool $float_right = null): static
     {
         return $this->addButton(AuditButton::new()
                                            ->setUrlObject($_url)
@@ -140,11 +144,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Delete" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addDeleteButton(bool $float_right = false): static
+    public function addDeleteButton(?bool $float_right = null): static
     {
         return $this->addButton(DeleteButton::new()->setFloatRight($float_right));
     }
@@ -153,11 +158,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Undelete" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addUndeleteButton(bool $float_right = false): static
+    public function addUndeleteButton(?bool $float_right = null): static
     {
         return $this->addButton(UndeleteButton::new()->setFloatRight($float_right));
     }
@@ -166,11 +172,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Lock" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addLockButton(bool $float_right = false): static
+    public function addLockButton(?bool $float_right = null): static
     {
         return $this->addButton(LockButton::new()->setFloatRight($float_right));
     }
@@ -179,11 +186,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Unlock" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addUnlockButton(bool $float_right = false): static
+    public function addUnlockButton(?bool $float_right = null): static
     {
         return $this->addButton(UnlockButton::new()->setFloatRight($float_right));
     }

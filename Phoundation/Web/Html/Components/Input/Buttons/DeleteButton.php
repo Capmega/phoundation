@@ -37,7 +37,8 @@ class DeleteButton extends Button
              ->setButtonType(EnumButtonType::submit)
              ->setContent($content ?? tr('Delete'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
-             ->setMode($this->getConfiguredMode());
+             ->setMode($this->getConfiguredMode())
+             ->setFloatRight(true);
     }
 
 

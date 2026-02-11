@@ -984,16 +984,16 @@ trait TraitElementAttributes
     /**
      * Set if the button is right aligned or not
      *
-     * @param bool $right
+     * @param bool|null $right If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default alignment
      *
      * @return static
      */
-    public function setFloatRight(bool $right): static
+    public function setFloatRight(?bool $right): static
     {
         if ($right) {
             $this->addClass('float-right');
 
-        } else {
+        } elseif ($right !== null) {
             $this->removeClass('float-right');
         }
 

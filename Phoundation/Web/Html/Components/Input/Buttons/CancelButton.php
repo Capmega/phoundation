@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Class LockButton
+ * Class CancelButton
  *
- * This class is an extension of the Button class, and is used specifically to pre-configure lock buttons to ensure that all lock buttons look and
- * behave exactly the same
+ * This class is an extension of the Button class, and is used specifically to pre-configure cancel buttons to ensure that all cancel buttons look and behave
+ * exactly the same
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,10 +22,10 @@ use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 
 
-class LockButton extends Button
+class CancelButton extends Button
 {
     /**
-     * LockButton class constructor
+     * CancelButton class constructor
      *
      * @param callable|float|RenderInterface|int|string|null $content
      * @param bool                                           $make_safe
@@ -33,9 +33,9 @@ class LockButton extends Button
     public function __construct(callable|float|RenderInterface|int|string|null $content = null, bool $make_safe = false) {
         parent::__construct($content, $make_safe);
 
-        $this->setRequireKeysToEnable($this->getConfiguredModifierKeysToEnableLockButton(), 'button-lock')
+        $this->setRequireKeysToEnable($this->getConfiguredModifierKeysToEnableCancelButton(), 'button-lock')
              ->setButtonType(EnumButtonType::submit)
-             ->setContent($content ?? tr('Lock'), $make_safe)
+             ->setContent($content ?? tr('Cancel'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
              ->setMode($this->getConfiguredMode())
              ->setFloatRight(true);
@@ -43,13 +43,13 @@ class LockButton extends Button
 
 
     /**
-     * Returns the configured modifier keys to enable this lock button
+     * Returns the configured modifier keys to enable this cancel button
      *
      * @return array
      */
-    public function getConfiguredModifierKeysToEnableLockButton(): array
+    public function getConfiguredModifierKeysToEnableCancelButton(): array
     {
-        return config()->getArray('web.html.components.buttons.lock.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('web.html.components.buttons.cancel.modifier-keys', ['ctrl', 'alt']);
     }
 
 
@@ -60,7 +60,7 @@ class LockButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.lock.outlined', false);
+        return config()->getBoolean('web.html.components.buttons.cancel.outlined', true);
     }
 
 
@@ -71,6 +71,6 @@ class LockButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.lock.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.cancel.mode', 'warning'));
     }
 }
