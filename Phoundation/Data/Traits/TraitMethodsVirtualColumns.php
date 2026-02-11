@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntries\Exception\DataEntryColumnsNotDefinedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryInvalidVirtualConfigurationException;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
@@ -157,7 +158,6 @@ trait TraitMethodsVirtualColumns {
         if (empty($o_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
-
                 if (empty($identifier)) {
                     // There is no identifier for this object, meaning that all related columns are empty, so the requested object column will be empty also.
                     return $this;
@@ -238,20 +238,19 @@ trait TraitMethodsVirtualColumns {
             $return[$column] = $value;
         }
 
-        if ($return) {
-            if ($additional_filters) {
-                // Additional identifier filters were specified, add those too
-                $return = array_merge($additional_filters, $return);
-            }
-
-        } else {
+        if (empty($return)) {
             // There are no identifiers for this virtual column
             return null;
         }
 
-        // If we have the unique table id then return only that.
+        if ($additional_filters) {
+            // Additional identifier filters were specified, add those too
+            $return = array_merge($additional_filters, $return);
+        }
+
+        // If we have the unique table id then return only that and status.
         if (array_key_exists('id', $return)) {
-            return ['id' => $return['id']];
+            return Arrays::keepKeys($return, ['id', 'status']);
         }
 
         return $return;

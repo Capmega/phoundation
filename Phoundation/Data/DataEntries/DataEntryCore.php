@@ -637,39 +637,35 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->loadFromDatabase();
 
         if ($this->isNew()) {
-            // Source is still empty, so nothing was loaded from database (or, SQL table doesn't exist, also possible!)
+            // The source is still empty, so nothing was loaded from the database (or, the SQL table does not yet exist, also possible!)
             // Try to load it from configuration if this DataEntry supports that
-            $this->tryLoadFromConfiguration();
+            $this->tryLoadFromConfiguration(false);
+
+            if ($this->isNew()) {
+                // The source is still empty! Is the item perhaps available but flagged deleted? Try loading without status?
+                if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access-deleted')) {
+                    if (array_key_exists('status', $this->identifier)) {
+                        $identifier = $this->identifier;
+                        $identifier['status'] = 'deleted';
+                        $this->loadFromDatabase($identifier);
+
+                        if (!$this->isNew()) {
+                             // Found a deleted entry!
+                            Log::warning(ts('Loaded deleted dataEntry object ":class" with identifier ":identifier" and log id ":log_id"', [
+                                ':class'      => static::class,
+                                ':identifier' => $this->identifier,
+                                ':log_id'     => $this->getLogId()
+                            ]), 3);
+                            return $this;
+                        }
+                    }
+                }
+
+                $this->throwNotExistsException();
+            }
         }
 
         return $this;
-    }
-
-
-    /**
-     * Processes what to do if the found DataEntry is deleted
-     *
-     * @return void
-     */
-    protected function processDeleted(): void
-    {
-        // This entry has been deleted and can only be viewed by user with the "access_deleted" right
-        if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access-deleted')) {
-            Log::warning(ts('Continuing load of dataEntry object ":class" with identifier ":identifier" and log id ":log_id" with status "deleted"', [
-                ':class'      => static::class,
-                ':identifier' => $this->identifier,
-                ':log_id'     => $this->getLogId()
-            ]), 3);
-            return;
-        }
-
-        throw DataEntryDeletedException::new(tr('Cannot load ":class" class object with identifier ":identifier", it has status "deleted"', [
-            ':class'      => static::getClassName(),
-            ':identifier' => $this->identifier,
-        ]))->addData([
-            'class'      => static::getClassName(),
-            'identifier' => $this->identifier,
-        ]);
     }
 
 
@@ -721,6 +717,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return string|null
+     * @todo This method is an ugly hack at best, come up with a better solution
      */
     protected static function determineColumn(IdentifierInterface|array|string|int|false|null $identifier): ?string
     {
@@ -752,11 +749,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         if (is_array($identifier)) {
             // The specified identifier is an array. If it has a single key, we can determine the column
-            return match (count($identifier)) {
-                1       => key($identifier),
-                default => throw new OutOfBoundsException(tr('Cannot determine column from identifier ":identifier", it contains multiple columns', [
-                    ':identifier' => $identifier
-                ])),
+            switch (count($identifier)) {
+                case 1:
+                    return key($identifier);
+
+                case 2:
+                    if (array_key_exists('status', $identifier)) {
+                        // Status key is typically added automatically, ignore it
+                        unset($identifier['status']);
+                    }
+
+                    return key($identifier);
+
+                default:
+                    throw new OutOfBoundsException(tr('Cannot determine column from identifier ":identifier", it contains multiple columns', [
+                        ':identifier' => $identifier
+                    ]));
             };
         }
 
@@ -1291,14 +1299,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $this->is_initializing_source = true;
 
         // Load data from identifier
-        $this->loadIdentifier('reload');
-
-        // This entry exists in the database, yay! Is it not deleted, though?
-        if ($this->isDeleted()) {
-            $this->processDeleted();
-        }
-
-        return $this->ready(true);
+        return $this->loadIdentifier('reload')
+                    ->ready(true);
     }
 
 
@@ -1448,26 +1450,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 if ($this->debug) {
-                    Log::dump('CACHE MISS FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($identifier ?? $this->identifier, force_single_line: true) . '"', 10, echo_header: false);
+                    Log::dump('CACHE MISS FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($this->identifier, force_single_line: true) . '"', 10, echo_header: false);
                 }
             }
 
         } elseif ($this->debug) {
-            Log::dump('SKIPPED CACHE FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($identifier ?? $this->identifier, force_single_line: true) . '"', 10, echo_header: false);
+            Log::dump('SKIPPED CACHE FOR CLASS "' . static::class . '" WITH IDENTIFIER "' . Json::encode($this->identifier, force_single_line: true) . '"', 10, echo_header: false);
         }
 
         try {
             // Load data from identifier
             $this->loadIdentifier('load');
-
-            // This entry exists in the database, yay! Is it not deleted, though?
-            if ($this->isDeleted()) {
-                if ($this->debug) {
-                    Log::dump('CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IS DELETED', 10, echo_header: false);
-                }
-
-                $this->processDeleted();
-            }
 
             return $this->saveToLocalCache($this->getCacheKey())
                         ->saveToGlobalCache($this->getCacheKey())
@@ -1480,7 +1473,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     return null;
 
                 case EnumLoadParameters::this:
-                    return $this->initializeSource($identifier)->ready(true);
+                    return $this->initializeSource($this->identifier)->ready(true);
 
                 case EnumLoadParameters::exception:
                     throw $e;
@@ -2278,9 +2271,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Try to load this DataEntry from configuration instead of database
      *
+     * @param bool $exception [true] If true, and the entry was not found in the configuration either, a DataEntryNotExistsException will be thrown
+     *
      * @return static
+     * @throws DataEntryNotExistsException
      */
-    protected function tryLoadFromConfiguration(): static
+    protected function tryLoadFromConfiguration(bool $exception = true): static
     {
         $path = $this->getConfigurationPath();
 
@@ -2322,6 +2318,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
+        if ($exception) {
+            $this->throwNotExistsException();
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Throws the DataEntryNotExistsException exception
+     *
+     * @return static
+     * @throws DataEntryNotExistsException
+     */
+    protected function throwNotExistsException(): static
+    {
         throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object because the specified identifier ":identifier" does not exist', [
             ':class'      => static::getClassName(),
             ':identifier' => Json::encode($this->identifier),
@@ -2387,18 +2399,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Load all object data from the database table row
      *
+     * @param array|null $identifier If specified, this method will use this identifier instead of the object property one
+     *
      * @return static
      */
-    protected function loadFromDatabase(): static
+    protected function loadFromDatabase(?array $identifier = null): static
     {
         if ($this->debug) {
             Log::dump('TRY LOADING CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" FROM DATABASE', 10, echo_header: false);
         }
 
+        $identifier = $identifier ?? $this->identifier;
+
         $this->is_loading = true;
         $this->cache_key  = null;
 
-        if ((!empty($this->columns)) and (count($this->identifier) > 1)) {
+        if ((!empty($this->columns)) and (count($identifier) > 1)) {
             throw UnderConstructionException::new(tr('Sorry, DataEntry->loadColumns() does not yet support array identifiers'));
         }
 
@@ -2406,7 +2422,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         static::buildManualQuery($this->identifier, $where, $joins, $group, $order, $execute);
 
         try {
-            $this->executeQueryAndLoadData($where, $execute);
+            $this->executeQueryAndLoadData($identifier, $where, $execute);
 
         } catch (SqlUnknownDatabaseException $e) {
             // During project init we can ignore "database not found" exceptions so that config load may still happen
@@ -2425,23 +2441,25 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Executes the query and loads the data into the DataEntry
      *
+     * @param array|null  $identifier
      * @param string|null $where
      * @param array|null  $execute
      *
      * @return void
      */
-    protected function executeQueryAndLoadData(?string $where, ?array $execute): void
+    protected function executeQueryAndLoadData(?array $identifier, ?string $where, ?array $execute): void
     {
         try {
             // Get the data using the query builder
-            $o_query = $this->getQueryBuilderObject()
-                            ->setDebug($this->debug)
-                            ->setMetaEnabled($this->getMetaEnabled())
-                            ->setConnectorObject($this->getConnectorObject())
-                            ->addWhere($where, $execute);
+            $identifier = $identifier ?? $this->identifier;
+            $o_query    = $this->getQueryBuilderObject(true)
+                               ->setDebug($this->debug)
+                               ->setMetaEnabled($this->getMetaEnabled())
+                               ->setConnectorObject($this->getConnectorObject())
+                               ->addWhere($where, $execute);
 
             // Generate columns that will be selected
-            if ($this->identifier) {
+            if ($identifier) {
                 if ($this->columns) {
                     // Add SQL SELECT for each specified column
                     foreach ($this->columns as $column) {
@@ -2458,7 +2476,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if ($source) {
                 if ($this->debug) {
-                    Log::dump('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($this->identifier) . '" IN DATABASE', 10, echo_header: false);
+                    Log::dump('FOUND CLASS "' . Strings::fromReverse(static::class, '\\') . '" WITH IDENTIFIER "' . Strings::log($identifier) . '" IN DATABASE', 10, echo_header: false);
                 }
 
                 // If data was found, store all data in the object
@@ -2494,13 +2512,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns the query builder for this data entry
      *
-     * @param bool $auto_initialize
+     * @param bool $reset [false] If true, will reset the QueryBuilder before returning it
      *
      * @return QueryBuilderInterface|null
      */
-    public function getQueryBuilderObject(bool $auto_initialize = true): ?QueryBuilderInterface
+    public function getQueryBuilderObject(bool $reset = false): ?QueryBuilderInterface
     {
-        if (!$this->query_builder and $auto_initialize) {
+        if (!$this->query_builder or $reset) {
             $this->query_builder = QueryBuilder::new($this)->setDebug($this->debug);
         }
 
@@ -3209,7 +3227,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($this->isNew()) {
             if (!$this->allow_create) {
                 // auto create is not allowed, sorry!
-                throw new ValidationFailedException(tr('Now allowed to create new :entry', [
+                throw new ValidationFailedException(tr('Not allowed to create new :entry', [
                     ':entry' => strtolower(static::getEntryName()),
                 ]));
             }
@@ -3217,7 +3235,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         } else {
             if (!$this->allow_modify) {
                 // auto modify is not allowed, sorry!
-                throw new ValidationFailedException(tr('Now allowed to modify :entry', [
+                throw new ValidationFailedException(tr('Not allowed to modify :entry', [
                     ':entry' => strtolower(static::getEntryName()),
                 ]));
             }
@@ -3247,11 +3265,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         if ($this->debug) {
-            Log::dump(($force ? 'FORCE ' : null) . 'APPLY ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
-            Log::dump('CURRENT DATA'                                                                             , 10, echo_header: false);
-            Log::vardump($this->source                                                                               , echo_header: false);
-            Log::dump('UNVALIDATED NEW DATA'                                                                         , echo_header: false);
-            Log::vardump($force ? $data_source->getBackup() : $data_source->getSource()                              , echo_header: false);
+            Log::dump(($force ? 'FORCE ' : null) . 'APPLY DATA TO OBJECT ' . static::getEntryName() . ' (' . static::class . ')', 10, echo_header: false);
+            Log::dump('CURRENT DATA'                                                                                            , 10, echo_header: false);
+            Log::vardump($this->source                                                                                              , echo_header: false);
+            Log::dump('UNVALIDATED NEW DATA'                                                                                        , echo_header: false);
+            Log::vardump($force ? $data_source->getBackup() : $data_source->getSource()                                             , echo_header: false);
         }
 
         // Get the source array from the validator into the DataEntry object
@@ -4459,13 +4477,14 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ]));
             }
 
-            if (static::getUniqueColumn()) {
-                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
-                // Since the unique column likely is required for saving validation, set is_validated to true
-                $this->unique_value = $this->getUniqueColumnValue();
-                $this->set('[' . Strings::getRandom() . ']' . static::getUniqueColumnValue(), static::getUniqueColumn())
-                     ->is_validated = true;
-            }
+// TODO DELETE THIS CODE, from now on, unique indices MUST include status, so deleting should no longer cause issues
+//            if (static::getUniqueColumn()) {
+//                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
+//                // Since the unique column likely is required for saving validation, set is_validated to true
+//                $this->unique_value = $this->getUniqueColumnValue();
+//                $this->set('[' . Strings::getRandom() . ']' . static::getUniqueColumnValue(), static::getUniqueColumn())
+//                     ->is_validated = true;
+//            }
 
             return $this->setStatus('deleted', $comments, $auto_save);
         }
@@ -4523,20 +4542,21 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function undelete(?string $comments = null, bool $auto_save = true): static
     {
-        // This implies the current status is "deleted" IF the status is deleted, fix the unique column
-        if (static::getUniqueColumn()) {
-            if ($this->hasStatus('deleted')) {
-                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
-                // Verify this is true, and if so, put it back.
-                $value = static::getUniqueColumnValue();
-
-                if (preg_match('/^\[\w{8}]/i', $value)) {
-                    $this->unique_value = $this->getUniqueColumnValue();
-                    $this->set(substr(static::getUniqueColumnValue(), 10), static::getUniqueColumn())
-                         ->is_validated = true;
-                }
-            }
-        }
+// TODO DELETE THIS CODE, from now on, unique indices MUST include status, so deleting should no longer cause issues
+//        // This implies the current status is "deleted" IF the status is deleted, fix the unique column
+//        if (static::getUniqueColumn()) {
+//            if ($this->hasStatus('deleted')) {
+//                // When deleting an entry, the unique column goes FROM VALUE to [RANDOM]VALUE.
+//                // Verify this is true, and if so, put it back.
+//                $value = static::getUniqueColumnValue();
+//
+//                if (preg_match('/^\[\w{8}]/i', $value)) {
+//                    $this->unique_value = $this->getUniqueColumnValue();
+//                    $this->set(substr(static::getUniqueColumnValue(), 10), static::getUniqueColumn())
+//                         ->is_validated = true;
+//                }
+//            }
+//        }
 
         return $this->setStatus(null, $comments, $auto_save);
     }

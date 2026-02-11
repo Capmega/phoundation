@@ -129,11 +129,11 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Returns the query builder for this data entry
      *
-     * @param bool $auto_initialize
+     * @param bool $reset [false] If true, will reset the QueryBuilder before returning it
      *
      * @return QueryBuilderInterface|null
      */
-    public function getQueryBuilderObject(bool $auto_initialize = true): ?QueryBuilderInterface;
+    public function getQueryBuilderObject(bool $reset = false): ?QueryBuilderInterface;
 
     /**
      * Returns true if the internal data structures have been modified

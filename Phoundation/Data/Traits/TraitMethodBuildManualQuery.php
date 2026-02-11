@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\Traits;
 
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 
@@ -35,7 +37,7 @@ trait TraitMethodBuildManualQuery
      * @param string                                    $separator
      *
      * @return void
-     * @deprecated This method shouldn't be relied upon anymore as the QueryBuilder class will take over this job.
+     * @deprecated This method should not be relied upon anymore as the QueryBuilder class will take over this job.
      */
     protected static function buildManualQuery(IdentifierInterface|array|string|int|null $identifiers, ?string &$where, ?string &$joins, ?string &$group, ?string &$order, ?array &$execute, string $separator = ' AND '): void
     {
@@ -78,14 +80,25 @@ trait TraitMethodBuildManualQuery
             $not = '';
 
             if (!is_data_scalar($value, true)) {
-                throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
-                    ':column' => $column,
-                    ':value'  => $value,
-                    ':type'   =>  get_class_or_datatype($value),
-                ]));
-            }
+                if (!is_array($value)) {
+                    if ($value === false) {
+                        // FALSE indicates the column should not be filtered on, so ignore this column altogether
+                        continue;
+                    }
 
-            if (is_string($value) and $value) {
+                    throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
+                        ':column' => $column,
+                        ':value'  => $value,
+                        ':type'   =>  get_class_or_datatype($value),
+                    ]));
+                }
+
+                $in      = QueryBuilder::in($value, 'status');
+                $execute = array_merge($execute, $in);
+                $where[] = '`' . static::getTable() . '`.`' . $column . '` IN (' . implode(', ', array_keys($in)) . ')';
+                continue;
+
+            } elseif (is_string($value)) {
                 switch ($value[0]) {
                     case '!':
                         // NOT this column
