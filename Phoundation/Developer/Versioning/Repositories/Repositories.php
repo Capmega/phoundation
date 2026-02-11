@@ -16,15 +16,19 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Repositories;
 
+use Phoundation\Business\Companies\Branches\Interfaces\BranchInterface;
 use Phoundation\Cli\Cli;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIteratorCore;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataResultsWithPermissionDenied;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Exception\NoRepositoriesAvailableException;
 use Phoundation\Developer\Phoundation\Exception\RepositoryNotExistException;
 use Phoundation\Developer\Phoundation\Exception\RepositorySynchronizationException;
 use Phoundation\Developer\Project\Project;
+use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Interfaces\StatusFilesInterface;
 use Phoundation\Developer\Versioning\Git\StatusFiles;
 use Phoundation\Developer\Versioning\Git\Traits\TraitGitProcess;
@@ -1853,6 +1857,50 @@ showdie('YAY!');
         }
 
         return $this;
+    }
+
+
+    /**
+     * Returns all branches in all repositories where the specified revision exists
+     *
+     * @param string $revision The revision to filter on
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): IteratorInterface
+    {
+        $return = [];
+
+        foreach ($this as $_repository) {
+            $results = $_repository->getBranchesContainingRevision($revision);
+
+            if ($results) {
+                $return[$_repository->getDisplayName()] = $results;
+            }
+        }
+
+        return Iterator::new($return);
+    }
+
+
+    /**
+     * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface
+    {
+        $return = new Iterator();
+
+        foreach ($this as $_repository) {
+            // When adding the Repository sources to the Repositories source, be sure to clear the keys as all keys will start with 0
+            $return->addSource($_repository->grep($keyword, $grouped), true);
+        }
+
+        return $return;
     }
 
 

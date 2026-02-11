@@ -29,6 +29,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryType;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationClass;
 use Phoundation\Developer\Phoundation\Enums\EnumPhoundationType;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
@@ -525,7 +526,7 @@ class Repository extends DataEntry implements RepositoryInterface
      *
      * @return BranchesInterface
      */
-    public function getBranchObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface
+    public function getBranchesObject(bool $only_version = false, bool $only_suffix = false): BranchesInterface
     {
         return Branches::new($this)->setFilterVersions($only_version)
                                    ->setFilterSuffixes($only_suffix)
@@ -540,7 +541,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getVersionBranches(): array
     {
-        return $this->getBranchObject(true)->getSource();
+        return $this->getBranchesObject(true)->getSource();
     }
 
 
@@ -551,7 +552,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getVersionSuffixBranches(): array
     {
-        return $this->getBranchObject(false, true)->getSource();
+        return $this->getBranchesObject(false, true)->getSource();
     }
 
 
@@ -1418,6 +1419,41 @@ showdie();
         }
 
         return $this;
+    }
+
+
+    /**
+     * Executes a grep on all revisions of this repository for the specified word, and returns all revisions where that word was found
+     *
+     * @param string $keyword        The keyword to search for
+     * @param bool   $grouped [true] If true, will return the results grouped by revision and file. If false, will return the results directly from GIT
+     *
+     * @return IteratorInterface
+     */
+    public function grep(string $keyword, bool $grouped = true): IteratorInterface
+    {
+        Log::action(ts('Executing grep in repository ":repository"', [
+            ':repository' => $this->getName(),
+        ]));
+
+        return $this->o_git->grep($keyword, $grouped);
+    }
+
+
+    /**
+     * Returns all branches where the specified revision exists
+     *
+     * @param string $revision The revision to filter on
+     *
+     * @return BranchesInterface
+     */
+    public function getBranchesContainingRevision(string $revision): BranchesInterface
+    {
+        Log::action(ts('Executing grep in repository ":repository"', [
+            ':repository' => $this->getName(),
+        ]));
+
+        return Branches::new($this)->setFilterRevision($revision)->load();
     }
 
 
