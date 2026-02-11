@@ -1647,7 +1647,7 @@ class Log implements LogInterface
      */
     public static function cli(mixed $messages = null, ?string $class = 'cli', int $threshold = 10, bool $clean = false, bool $echo_newline = true, bool $echo_prefix = false, bool $echo_screen = true): bool
     {
-        if (empty($messages)) {
+        if (is_empty($messages) and !is_numeric($messages)) {
             $messages = ' ';
         }
 
