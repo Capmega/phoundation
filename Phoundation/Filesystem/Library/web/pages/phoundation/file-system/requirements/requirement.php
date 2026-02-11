@@ -103,16 +103,16 @@ if (!$o_requirement->getReadonly()) {
 // Delete button.
 if (!$o_requirement->isNew()) {
     if ($o_requirement->isDeleted()) {
-        $o_delete = UndeleteButton::new()->setFloatRight(true);
+        $o_delete = UndeleteButton::new();
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $o_delete = DeleteButton::new();
 
         if ($o_requirement->isLocked()) {
-            $o_lock = UnlockButton::new()->setFloatRight(true);
+            $o_lock = UnlockButton::new();
 
         } else {
-            $o_lock = LockButton::new()->setFloatRight(true);
+            $o_lock = LockButton::new();
         }
 
         // Audit button.

@@ -101,10 +101,10 @@ if (!$o_mount->getReadonly()) {
 // Delete button.
 if (!$o_mount->isNew()) {
     if ($o_mount->isDeleted()) {
-        $o_delete = UndeleteButton::new()->setFloatRight(true);
+        $o_delete = UndeleteButton::new();
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $o_delete = DeleteButton::new();
 
         // Audit button.
         $o_audit = AuditButton::new()
