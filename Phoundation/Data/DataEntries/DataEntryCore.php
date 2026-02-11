@@ -2340,10 +2340,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function throwNotExistsException(): static
     {
         throw DataEntryNotExistsException::new(tr('Cannot load ":class" class object because the specified identifier ":identifier" does not exist', [
-            ':class'      => static::getClassName(),
+            ':class'      => static::class,
             ':identifier' => Json::encode($this->identifier),
         ]))->addData([
-            'class'       => static::getClassName(),
+            'class'       => static::class,
             ':identifier' => Json::encode($this->identifier),
         ]);
     }

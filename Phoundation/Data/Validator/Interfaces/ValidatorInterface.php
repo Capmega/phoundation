@@ -1538,4 +1538,40 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return static
      */
     public function setColumnFromCallback(string $column, callable $callback, bool $fail_on_null = true): static;
+
+    /**
+     * Called at the end of defining all validation rules.
+     *
+     * @param bool $require_clean_source [true] If true, requires that this validation will select and validate ALL values in the validator source. If any
+     *                                          variables are left when Validator::validate() is called, a ValidationFailedException will be thrown
+     * @param bool $exception            [true] If true, and validation failed, will throw a ValidationFailedException. If false, will log the failure, and
+     *                                          return the data as if validation was successful. THIS IS ONLY ALLOWED ON DEBUG PLATFORMS! This variable will
+     *                                          cause a ValidatorException if this variable is false on production platforms
+     *
+     * @return array
+     */
+    public function validate(bool $require_clean_source = true, bool $exception = true): array;
+
+    /**
+     * Returns if validation has been disabled
+     *
+     * @return bool
+     */
+    public function getValidationEnabled(): bool;
+
+    /**
+     * Sets if validation has been disabled
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setValidationEnabled(bool $value): static;
+
+    /**
+     * Returns the value for config path "security.validation.enabled"
+     *
+     * @return bool
+     */
+    public function getConfigValidationEnabled(): bool;
 }

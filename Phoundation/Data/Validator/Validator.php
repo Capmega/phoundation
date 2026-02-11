@@ -298,14 +298,21 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Tracks if datatypes should be validated
      *
-     * @var bool
+     * @var bool $validation_enabled
+     */
+    protected bool $validation_enabled = true;
+
+    /**
+     * Tracks if datatypes should be validated
+     *
+     * @var bool $datatype_validation_enabled
      */
     protected bool $datatype_validation_enabled = true;
 
     /**
      * Tracks if content should be validated
      *
-     * @var bool
+     * @var bool $content_validation_enabled
      */
     protected bool $content_validation_enabled = true;
 
@@ -331,7 +338,8 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         // Initialize validation configuration
         if (Core::getReady()) {
             $this->setDatatypeValidationEnabled(!config()->getBoolean('security.validation.disabled', false))
-                 ->setContentValidationEnabled(!config()->getBoolean('security.validation.content.disabled', false));
+                 ->setContentValidationEnabled(!config()->getBoolean('security.validation.content.disabled', false))
+                 ->setValidationEnabled($this->getConfigValidationEnabled());
         }
     }
 
@@ -1503,42 +1511,62 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * This method will check the "failures" array and if any failures were registered, it will throw an exception
      *
-     * @param bool $require_clean_source
+     * @param bool $require_clean_source [true] If true, requires that this validation will select and validate ALL values in the validator source. If any
+     *                                          variables are left when Validator::validate() is called, a ValidationFailedException will be thrown
+     * @param bool $exception            [true] If true, and validation failed, will throw a ValidationFailedException. If false, will log the failure, and
+     *                                          return the data as if validation was successful. THIS IS ONLY ALLOWED ON DEBUG PLATFORMS! This variable will
+     *                                          cause a ValidatorException if this variable is false on production platforms
      *
      * @return array
      */
-    public function validate(bool $require_clean_source = true): array
+    public function validate(bool $require_clean_source = true, bool $exception = true): array
     {
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
-        if (!$this->process_value_failed and !$this->selected_is_default) {
-            if ($this->selected_field and empty($this->test_count)) {
-                if ($this->getDatatypeValidationEnabled()) {
-                    throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
-                        ':field' => $this->selected_field,
-                    ]));
+        try {
+            if (!$this->process_value_failed and !$this->selected_is_default) {
+                if ($this->selected_field and empty($this->test_count)) {
+                    if ($this->getDatatypeValidationEnabled()) {
+                        throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
+                            ':field' => $this->selected_field,
+                        ]));
+                    }
+
+                    Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
                 }
 
-                Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO security.validation.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
-            }
+                if ($this->selected_field and empty($this->content_test_count)) {
+                    if ($this->getContentValidationEnabled()) {
+                        throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
+                            ':field' => $this->selected_field,
+                        ]));
+                    }
 
-            if ($this->selected_field and empty($this->content_test_count)) {
-                if ($this->getContentValidationEnabled()) {
-                    throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no content validations performed yet', [
-                        ':field' => $this->selected_field,
-                    ]));
+                    Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
                 }
-
-                Log::error(ts('WARNING: SKIPPED CONTENT VALIDATION DUE TO security.validation.content.disabled = false CONFIGURATION! SYSTEM MAY BE IN UNKNOWN STATE!'));
             }
-        }
 
-        $unclean = $this->getExtraFields($require_clean_source);
+            $unclean = $this->getExtraFields($require_clean_source);
 
-        $this->processFailures();
+            $this->processFailures();
 
-        if (isset($unclean)) {
-            $this->processUnclean($unclean);
+            if (isset($unclean)) {
+                $this->processUnclean($unclean);
+            }
+
+        } catch (ValidationFailedException $e) {
+            if ($this->getValidationEnabled() and $exception) {
+                throw $e;
+            }
+
+            if (Core::isProductionEnvironment()) {
+                throw new ValidatorException(tr('Validation failed but throwing ValidationFailedException has been disabled either by configuration path ":path" or by the $exception variable passed to this ":method" method while on a production platform, which is prohibited', [
+                    ':path'   => 'security.validation.enabled',
+                    ':method' => static::class . '::validate()'
+                ]));
+            }
+
+            Log::error(ts('WARNING: SKIPPED VALIDATION DUE TO CONFIGURATION PATH "security.validation.disabled" BEING false! SYSTEM MAY BE IN UNKNOWN STATE!'));
         }
 
         static::$has_been_validated = true;
@@ -1602,7 +1630,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      */
     protected function processUnclean(array $unclean): void
     {
-        if (config()->getBoolean('security.validation.enabled', true)) {
+        if ($this->getValidationEnabled()) {
             throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
                                            ->addData(['failures' => $unclean])
                                            ->makeWarning();
@@ -1622,7 +1650,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         if ($this->failures) {
             $values = Arrays::keepKeys($this->source, array_keys($this->failures));
 
-            if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
+            if (Core::inBootState() or $this->getValidationEnabled()) {
                 $permit          = $this->getPermitValidationFailures();
                 $this->exception = ValidationFailedException::new(tr('Data validation failed with the following issues:'))
                                                             ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
@@ -6566,6 +6594,42 @@ throw new ObsoleteException();
     {
         $this->field_prefix = $field_prefix;
 
+        return $this;
+    }
+
+
+    /**
+     * Returns the value for config path "security.validation.enabled"
+     *
+     * @return bool
+     */
+    public function getConfigValidationEnabled(): bool
+    {
+        return config()->getBoolean('security.validation.enabled', true);
+    }
+
+
+    /**
+     * Returns if validation has been disabled
+     *
+     * @return bool
+     */
+    public function getValidationEnabled(): bool
+    {
+        return $this->validation_enabled;
+    }
+
+
+    /**
+     * Sets if validation has been disabled
+     *
+     * @param bool $value
+     *
+     * @return static
+     */
+    public function setValidationEnabled(bool $value): static
+    {
+        $this->validation_enabled = $value;
         return $this;
     }
 

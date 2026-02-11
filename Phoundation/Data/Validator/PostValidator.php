@@ -22,7 +22,9 @@ use Phoundation\Data\Traits\TraitDataStaticArrayBackup;
 use Phoundation\Data\Traits\TraitDataStaticArrayUnclean;
 use Phoundation\Data\Traits\TraitStaticMethodNew;
 use Phoundation\Data\Validator\Exception\CsrfValidationFailedException;
+use Phoundation\Data\Validator\Exception\GetValidationFailedException;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\Exception\ValidatorException;
 use Phoundation\Utils\Exception\JsonException;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -496,23 +498,31 @@ class PostValidator extends Validator
      *
      * Will throw a PostValidationFailedException if validation fails
      *
-     * @param bool $require_clean_source
+     * @param bool $require_clean_source [true] If true, requires that this validation will select and validate ALL values in the validator source. If any
+     *                                          variables are left when Validator::validate() is called, a ValidationFailedException will be thrown
+     * @param bool $exception            [true] If true, and validation failed, will throw a ValidationFailedException. If false, will log the failure, and
+     *                                          return the data as if validation was successful. THIS IS ONLY ALLOWED ON DEBUG PLATFORMS! This variable will
+     *                                          cause a ValidatorException if this variable is false on production platforms
      *
      * @return array
+     *
+     * @throws GetValidationFailedException
+     * @throws CsrfValidationFailedException
+     * @throws ValidatorException
      */
-    public function validate(bool $require_clean_source = true): array
+    public function validate(bool $require_clean_source = true, bool $exception = true): array
     {
         try {
             $this->checkCsrf();
 
-            return parent::validate($require_clean_source);
+            return parent::validate($require_clean_source, $exception);
 
         } catch (ValidationFailedException $e) {
             if ($e instanceof CsrfValidationFailedException) {
                 throw new CsrfValidationFailedException(tr('Post validation failed due to CSRF exception'), $e);
             }
 
-            throw $e;
+            throw new GetValidationFailedException($e);
         }
     }
 

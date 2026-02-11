@@ -231,15 +231,22 @@ class GetValidator extends Validator
      *
      * Will throw a GetValidationFailedException if validation fails
      *
-     * @param bool $require_clean_source
+     * @param bool $require_clean_source [true] If true, requires that this validation will select and validate ALL values in the validator source. If any
+     *                                          variables are left when Validator::validate() is called, a ValidationFailedException will be thrown
+     * @param bool $exception            [true] If true, and validation failed, will throw a ValidationFailedException. If false, will log the failure, and
+     *                                          return the data as if validation was successful. THIS IS ONLY ALLOWED ON DEBUG PLATFORMS! This variable will
+     *                                          cause a ValidatorException if this variable is false on production platforms
+     *
      *
      * @return array
+     *
      * @throws GetValidationFailedException
+     * @throws ValidatorException
      */
-    public function validate(bool $require_clean_source = true): array
+    public function validate(bool $require_clean_source = true, bool $exception = true): array
     {
         try {
-            return parent::validate($require_clean_source);
+            return parent::validate($require_clean_source, $exception);
 
         } catch (ValidationFailedException $e) {
             throw new GetValidationFailedException($e);
