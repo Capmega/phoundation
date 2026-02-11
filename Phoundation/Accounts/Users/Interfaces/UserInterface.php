@@ -882,4 +882,24 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function sendWelcomeEmail(): static;
+
+    /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool;
+
+    /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool;
 }

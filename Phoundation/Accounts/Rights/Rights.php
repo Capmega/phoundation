@@ -678,7 +678,7 @@ class Rights extends DataIterator implements RightsInterface
             return true;
         }
 
-        if (empty($this->rights) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
+        if (empty($this->source) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
             return false;
         }
 

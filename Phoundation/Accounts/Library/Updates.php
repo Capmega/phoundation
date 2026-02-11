@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.10.0';
+        return '0.10.3';
     }
 
 
@@ -1342,6 +1342,50 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'accounts_users_rights',
                 'accounts_users_roles',
             ]);
+
+        })->addUpdate('0.10.1', function () {
+            // Fix indices to include `status`
+            $_table  = sql()->getSchemaObject()->getTableObject('accounts_users');
+            $indices = [
+                'email',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('email_status', true);
+
+            $_table->alter()->addIndex('UNIQUE KEY `email_status` (`email`, `status`)');
+
+        })->addUpdate('0.10.2', function () {
+            // Fix indices to include `status`
+            $_table  = sql()->getSchemaObject()->getTableObject('accounts_roles');
+            $indices = [
+                'name',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('name_status', true);
+
+            $_table->alter()->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+
+        })->addUpdate('0.10.3', function () {
+            // Fix indices to include `status`
+            $_table  = sql()->getSchemaObject()->getTableObject('accounts_rights');
+            $indices = [
+                'name',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('name_status', true)
+                            ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
         });
     }
 }

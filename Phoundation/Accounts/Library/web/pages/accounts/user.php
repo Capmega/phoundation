@@ -27,6 +27,7 @@ use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
 use Phoundation\Web\Html\Components\Input\Buttons\LockButton;
+use Phoundation\Web\Html\Components\Input\Buttons\UndeleteButton;
 use Phoundation\Web\Html\Components\Input\Buttons\UnlockButton;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
@@ -209,21 +210,16 @@ if ($o_user->canBeImpersonated()) {
 // Delete button. We cannot delete god users
 if ($o_user->canBeStatusChanged()) {
     if ($o_user->isDeleted()) {
-        $o_button_delete = Button::new()
-                                 ->setFloatRight(true)
-                                 ->setMode(EnumDisplayMode::warning)
-                                 ->setOutlined(true)
-                                 ->setContent(tr('Undelete'))
-                                 ->setFloatRight(true);
+        $o_button_delete = UndeleteButton::new();
 
     } else {
-        $o_button_delete = DeleteButton::new()->setFloatRight(true);
+        $o_button_delete = DeleteButton::new();
 
         if ($o_user->isLocked()) {
-            $o_button_lock = UnlockButton::new()->setFloatRight(true);
+            $o_button_lock = UnlockButton::new();
 
         } else {
-            $o_button_lock = LockButton::new()->setFloatRight(true);
+            $o_button_lock = LockButton::new();
         }
     }
 }
@@ -231,19 +227,15 @@ if ($o_user->canBeStatusChanged()) {
 
 // Audit button.
 if (!$o_user->isNew()) {
-    $o_button_audit = AuditButton::new()
-                                 ->setFloatRight(true)
-                                 ->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html');
+    $o_button_audit = AuditButton::new()->setUrlObject('/audit/meta+' . $o_user->getMetaId() . '.html');
 }
 
 
 // Re-send welcome email button.
 if (!$o_user->hasSignedIn()) {
-    $o_button_welcome = Button::new()
-                              ->setFloatRight(true)
-                              ->setMode(EnumDisplayMode::primary)
-                              ->setOutlined(true)
-                              ->setContent(tr('Re-send welcome email'));
+    $o_button_welcome = Button::new()->setMode(EnumDisplayMode::primary)
+                                     ->setOutlined(true)
+                                     ->setContent(tr('Re-send welcome email'));
 }
 
 
@@ -255,7 +247,7 @@ $o_user_card = Card::new()
                    ->setContent($o_user->getHtmlDataEntryFormObject())
                    ->setButtonsObject(Buttons::new()
                                              ->addButton(isset_get($o_button_save))
-                                             ->addBackButton(Url::newPrevious('/accounts/users.html'), true)
+                                             ->addBackButton(Url::newPrevious('/accounts/users.html'))
                                              ->addButton(isset_get($o_button_audit))
                                              ->addButton(isset_get($o_button_welcome))
                                              ->addButton(isset_get($o_button_delete))
@@ -272,7 +264,7 @@ if (!$o_user->isNew()) {
                         ->setContent($o_user->getRolesHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
                                                   ->addButton(isset_get($o_button_save))
-                                                  ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
+                                                  ->addBackButton(Url::newPrevious('/accounts/users.html')));
 
     $o_rights_card = Card::new()
                          ->setCollapseSwitch(true)
@@ -302,7 +294,7 @@ if (!$o_user->isNew()) {
                          ->setContent($o_user->getEmailsObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($o_button_save))
-                                                   ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
+                                                   ->addBackButton(Url::newPrevious('/accounts/users.html')));
 
     $o_phones_card = Card::new()
                          ->setCollapseSwitch(true)
@@ -311,7 +303,7 @@ if (!$o_user->isNew()) {
                          ->setContent($o_user->getPhonesObject()->getHtmlDataEntryFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($o_button_save))
-                                                   ->addBackButton(Url::newPrevious('/accounts/users.html'), true));
+                                                   ->addBackButton(Url::newPrevious('/accounts/users.html')));
 }
 
 

@@ -98,7 +98,7 @@ if (!$o_right->isNew()) {
                           ->setContent(tr('Undelete'));
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $o_delete = DeleteButton::new();
     }
 
     $o_users = $o_right->getUsersObject();

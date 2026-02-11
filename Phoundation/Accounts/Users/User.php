@@ -2722,7 +2722,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $o_user = $this->loadOrThis(['email' => 'guest']);
+        $o_user = $this->loadOrThis([
+            'status' => 'system',
+            'email'  => 'guest'
+        ]);
 
         if ($o_user !== $this) {
             $this->setSource($o_user->getSourceUnprocessed())
@@ -2735,7 +2738,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user doesn't yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
             // we will NOT save the created_by column (making created_by the system user)
             $this->setMetaColumns([
                 'id',

@@ -102,7 +102,7 @@ if ($o_role->isNotNew()) {
                           ->setContent(tr('Undelete'));
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $o_delete = DeleteButton::new();
     }
 
     $o_users = $o_role->getUsersObject();

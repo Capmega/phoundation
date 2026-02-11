@@ -81,7 +81,7 @@ if (!$authentication->isNew()) {
                         ->setFloatRight(true)
                         ->setUrlObject('/audit/meta+' . $authentication->getMetaId() . '.html');
 
-    $delete = DeleteButton::new()->setFloatRight(true);
+    $delete = DeleteButton::new();
 }
 
 
