@@ -631,6 +631,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return static
      * @throws DataEntryNoIdentifierSpecifiedException
+     * @todo The DataEntry::delete(), as currently is, can still cause issues with duplicated records when somebody deletes and entry with unique_column "A",
+     * @todo then creates another one with "A" and deletes that too, leaving 2 entries with unique_column "A" and status "deleted". A possible final solution to
+     * @todo this is having delete status be incremental, so status "delete", "delete1", "delete2", "delete3", etc. See the handling of deleted entries here
+     * @todo below in this method!
      */
     protected function loadIdentifier(string $action): static
     {
@@ -645,6 +649,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // The source is still empty! Is the item perhaps available but flagged deleted? Try loading without status?
                 if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access-deleted')) {
                     if (array_key_exists('status', $this->identifier)) {
+                        // TODO See the @todo comments. This function needs to look for LIKE "deleted%" instead, and must be able to handle multiple results!
                         $identifier = $this->identifier;
                         $identifier['status'] = 'deleted';
                         $this->loadFromDatabase($identifier);
@@ -4462,6 +4467,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @param bool        $auto_save
      *
      * @return static
+     * @todo The DataEntry::delete(), as currently is, can still cause issues with duplicated records when somebody deletes and entry with unique_column "A",
+     * @todo then creates another one with "A" and deletes that too, leaving 2 entries with unique_column "A" and status "deleted". A possible final solution to
+     * @todo this is having delete status be incremental, so status "delete", "delete1", "delete2", "delete3", etc.
      */
     public function delete(?string $comments = null, bool $auto_save = true): static
     {
