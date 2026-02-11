@@ -60,9 +60,9 @@ OPTIONAL ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->select('-c,--no-create')->isOptional()->isBoolean()
                      ->select('-r,--results')->isOptional()->isBoolean()
+                     ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->validate();
 
 
