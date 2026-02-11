@@ -165,7 +165,7 @@ class Button extends Input implements ButtonInterface
             if ($this->getRequireKeysToEnable()) {
                 // Disable this button by default, only enable it with a special key combination.
                 // This button will then also need a tooltip indicating that it is "disabled" until you press those keys.
-                $title = tr('To enable this button, please press down the :keys :label', [
+                $title = tr('This button is locked for safety. To use it, please press down the :keys :label', [
                     ':keys'  => Strings::force($this->getRequireKeysToEnable(), ' and '),
                     ':label' => Strings::plural(get_element_count($this->getRequireKeysToEnable()), tr('key'), tr('keys'))
                 ]);
