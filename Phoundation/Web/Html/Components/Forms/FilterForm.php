@@ -146,7 +146,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         if (empty($this->states)) {
             $this->states = [
                 'all'     => tr('All'),
-                null      => tr('Active'),
+                'active'  => tr('Active'),
                 'locked'  => tr('Locked'),
                 'deleted' => tr('Deleted'),
             ];
@@ -221,7 +221,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                           ->add(Definition::new('status')
                                                           ->setLabel(tr('Status'))
                                                           ->setSize(4)
-                                                          ->setOptional(true)
+                                                          ->setOptional(true, 'active')
                                                           ->setElement(EnumElement::select)
                                                           ->setKey(true, 'auto_submit')
                                                           ->setSource($this->states))
@@ -1517,10 +1517,23 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
-                if ($this->getStatus() !== 'all') {
-                    $o_builder->addWhere(
-                        QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
-                    );
+                switch ($this->getStatus()) {
+                    case 'all':
+                        // Filter nothing
+                        break;
+
+                    case 'active':
+                        // Filter for status NULL
+                        $o_builder->addWhere(
+                            QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', null, ':from_status', $o_builder->getExecuteByReference())
+                        );
+                        break;
+
+                    default:
+                        // Filter for the specified status
+                        $o_builder->addWhere(
+                            QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
+                        );
                 }
             }
         }
