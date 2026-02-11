@@ -254,7 +254,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             throw new QueryBuilderException(tr('Cannot build query, no "FROM" tables specified'));
         }
 
-        $this->query = $this->getQuery($debug);
+        $this->query = $this->getQuery($debug ?? $this->debug);
 
         return sql($this->o_connector)->query($this->query, $this->bound_variables);
     }
@@ -342,7 +342,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function get(bool $debug = false): ?array
     {
-        return sql($this->o_connector)->getRow($this->getQuery($debug), $this->bound_variables, $this->getMetaEnabled());
+        return sql($this->o_connector)->getRow($this->getQuery($debug ?? $this->debug), $this->bound_variables, $this->getMetaEnabled());
     }
 
 
@@ -356,7 +356,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
     {
-        return sql($this->o_connector)->getColumn($this->getQuery($debug), $this->bound_variables, $column);
+        return sql($this->o_connector)->getColumn($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
     }
 
 
@@ -369,7 +369,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function list(bool $debug = false): array
     {
-        return sql($this->o_connector)->list($this->getQuery($debug), $this->bound_variables);
+        return sql($this->o_connector)->list($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -384,7 +384,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listArray(bool $debug = false): array
     {
-        return sql($this->o_connector)->listArray($this->getQuery($debug), $this->bound_variables);
+        return sql($this->o_connector)->listArray($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -399,7 +399,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listScalar(bool $debug = false): array
     {
-        return sql($this->o_connector)->listScalar($this->getQuery($debug), $this->bound_variables);
+        return sql($this->o_connector)->listScalar($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -412,7 +412,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValue(bool $debug = false): array
     {
-        return sql($this->o_connector)->listKeyValue($this->getQuery($debug), $this->bound_variables);
+        return sql($this->o_connector)->listKeyValue($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -428,7 +428,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValues(bool $debug = false, ?string $column = null): array
     {
-        return sql($this->o_connector)->listKeyValues($this->getQuery($debug), $this->bound_variables, $column);
+        return sql($this->o_connector)->listKeyValues($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
     }
 
 

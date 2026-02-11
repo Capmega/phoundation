@@ -89,7 +89,7 @@ class Schema implements SchemaInterface
         }
 
         return $this->getDatabaseObject($database_name)
-                    ->table($name);
+                    ->getTableObject($name);
     }
 
 

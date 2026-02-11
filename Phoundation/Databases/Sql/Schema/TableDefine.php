@@ -28,9 +28,9 @@ class TableDefine extends SchemaAbstract
     /**
      * The SQL interface
      *
-     * @var Sql $sql
+     * @var Sql $_sql
      */
-    protected Sql $sql;
+    protected Sql $_sql;
 
     /**
      * The columns for this table
@@ -265,11 +265,11 @@ class TableDefine extends SchemaAbstract
      */
     public function create(): void
     {
-        $connector = $this->sql->getConnector();
+        $connector = $this->_sql->getConnector();
 
-        if ($this->parent->exists()) {
+        if ($this->_parent->exists()) {
             throw new SqlException(tr('Cannot create table ":name" in database ":database", it already exists', [
-                ':database' => $this->parent->getName(),
+                ':database' => $this->_parent->getName(),
                 ':name'     => $this->name
             ]));
         }
@@ -294,11 +294,11 @@ class TableDefine extends SchemaAbstract
 
         Log::warning(ts('Creating table ":table" in database ":database" for SQL instance ":instance"', [
             ':table'    => $this->name,
-            ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase(),
+            ':instance' => $this->_sql->getConnector(),
+            ':database' => $this->_sql->getDatabase(),
         ]), 3);
 
-        $this->sql->query($query);
-        $this->parent->reload();
+        $this->_sql->query($query);
+        $this->_parent->reload();
     }
 }

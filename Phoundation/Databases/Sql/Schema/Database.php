@@ -22,6 +22,7 @@ use Phoundation\Databases\Export;
 use Phoundation\Databases\Import;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
@@ -58,7 +59,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     public function getName(): ?string
     {
-        return $this->sql->getDatabase();
+        return $this->_sql->getDatabase();
     }
 
 
@@ -90,23 +91,23 @@ class Database extends SchemaAbstract implements DatabaseInterface
     {
         if ($this->exists()) {
             throw new SqlException(tr('Cannot create database ":name", it already exists', [
-                ':name' => $this->sql->getDatabase(),
+                ':name' => $this->_sql->getDatabase(),
             ]));
         }
 
         Log::action(ts('Creating database ":database" on SQL instance ":instance"', [
-            ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase()
+            ':instance' => $this->_sql->getConnector(),
+            ':database' => $this->_sql->getDatabase()
         ]));
 
         // This query can only partially use bound variables!
-        $this->sql->query('CREATE DATABASE `' . $this->sql->getDatabase() . '` DEFAULT CHARSET=:character_set COLLATE=:collate', [
+        $this->_sql->query('CREATE DATABASE `' . $this->_sql->getDatabase() . '` DEFAULT CHARSET=:character_set COLLATE=:collate', [
             ':character_set' => $this->configuration['character_set'],
             ':collate'       => $this->configuration['collate'],
         ]);
 
         if ($use) {
-            $this->sql->use($this->sql->getDatabase());
+            $this->_sql->use($this->_sql->getDatabase());
         }
 
         return $this;
@@ -121,7 +122,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function exists(): bool
     {
         // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool) $this->sql->getRow('SHOW DATABASES LIKE :name', [':name' => $this->sql->getDatabase()]);
+        return (bool) $this->_sql->getRow('SHOW DATABASES LIKE :name', [':name' => $this->_sql->getDatabase()]);
     }
 
 
@@ -134,7 +135,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     protected function use(string $name): static
     {
-        $this->sql->use($name);
+        $this->_sql->use($name);
 
         return $this;
     }
@@ -149,10 +150,10 @@ class Database extends SchemaAbstract implements DatabaseInterface
     {
         // This query cannot use bound variables!
         Log::warning(ts('Dropping database ":database" on SQL instance ":instance"', [
-            ':instance' => $this->sql->getConnector(),
-            ':database' => $this->sql->getDatabase(),
+            ':instance' => $this->_sql->getConnector(),
+            ':database' => $this->_sql->getDatabase(),
         ]), 5);
-        $this->sql->query('DROP DATABASE IF EXISTS `' . $this->sql->getDatabase() . '`');
+        $this->_sql->query('DROP DATABASE IF EXISTS `' . $this->_sql->getDatabase() . '`');
 
         return $this;
     }
@@ -163,13 +164,13 @@ class Database extends SchemaAbstract implements DatabaseInterface
      *
      * @param string $name
      *
-     * @return Table
+     * @return TableInterface
      */
-    public function table(string $name): Table
+    public function getTableObject(string $name): TableInterface
     {
         // If we do not have this table yet, create it now
         if (!array_key_exists($name, $this->tables)) {
-            $this->tables[$name] = new Table($name, $this->sql, $this);
+            $this->tables[$name] = new Table($name, $this->_sql, $this);
         }
 
         return $this->tables[$name];
@@ -203,7 +204,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function rename(string $database_name): static
     {
         $tables = $this->tables();
-        $target = Database::new($database_name, $this->sql, $this->parent);
+        $target = Database::new($database_name, $this->_sql, $this->_parent);
 
         if ($target->exists()) {
             // Target already exists
@@ -248,7 +249,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     {
         // Export current database
         $file   = PhoFile::newTemporaryObject();
-        $target = Database::new($database_name, $this->sql, $this->parent);
+        $target = Database::new($database_name, $this->_sql, $this->_parent);
 
         if ($target->exists()) {
             // Target already exists
@@ -267,14 +268,14 @@ class Database extends SchemaAbstract implements DatabaseInterface
 
         // Export the current database
         Export::new()
-              ->setConnectorObject($this->sql->getConnectorObject())
+              ->setConnectorObject($this->_sql->getConnectorObject())
               ->setDatabase($this->getName())
               ->setTimeout($timeout)
               ->dump($file);
 
         // Import dump into new database
         Import::new()
-              ->setConnectorObject($this->sql->getConnectorObject())
+              ->setConnectorObject($this->_sql->getConnectorObject())
               ->setDatabase($database_name)
               ->setFileObject($file)
               ->setTimeout($timeout)
