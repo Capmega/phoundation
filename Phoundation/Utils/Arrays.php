@@ -4693,6 +4693,39 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if the specified source contains any value that is NULL
+     *
+     * @param array      $source                   The source array that will be tested
+     * @param array|null $consider_null_too [null] If specified, must contain a list of values that will be considered NULL too for this function
+     *
+     * @return bool
+     */
+    public static function containsNullValue(array $source, ?array $consider_null_too = null): bool
+    {
+        $return = in_array(null, $source, true);
+
+        if ($return) {
+            return true;
+        }
+
+        if ($consider_null_too) {
+            // Check other values that we might consider being NULL
+            foreach ($consider_null_too as $null) {
+                $null = strtoupper($null);
+
+                foreach ($source as $value) {
+                    if (strtoupper($value) === $null) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Process the given array with the specified needles for full matching and return the requested result
      *
      * @param int         $action
@@ -4776,6 +4809,171 @@ class Arrays extends Utils
         }
 
         return Arrays::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Returns true if all the values of the source array start with one or more of the specified characters
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $or_none    [false] If true, will return true if none of the values started with the specified characters
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function allValuesStartWith(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    {
+        $found_character = null;
+        $characters      = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    $found_character = $character;
+                    goto ok;
+                }
+            }
+
+            // Character was not found!
+            if ($or_none) {
+                if (empty($found_character)) {
+                    // We have not found a character yet, and no value matching is fine as well
+                    continue;
+                }
+            }
+
+            return false;
+            ok:
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Returns true if any the values of the source array start with one or more of the specified characters
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function anyValuesStartWith(array $source, array|string $characters, bool $exception = true): bool
+    {
+        $characters = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if all the values of the source array start with one or more of the specified characters, and if all values start with the same character
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $or_none    [false] If true, will return true if none of the values started with the specified characters
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function allValuesStartWithSame(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    {
+        $found_character = null;
+        $characters      = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    if ($found_character) {
+                        if ($character === $found_character) {
+                            // This value started with the same character
+                            goto ok;
+                        }
+
+                        return false;
+                    }
+
+                    if ($found_character === false) {
+                        // We found a character for this value, but a previous value had no character found!
+                        return false;
+                    }
+
+                    $found_character = $character;
+                    goto ok;
+                }
+            }
+
+            if ($or_none) {
+                if (empty($found_character)) {
+                    // We have not found a character yet, and no value matching is fine as well
+                    $found_character = false;
+                    continue;
+                }
+            }
+
+            return false;
+            ok:
+        }
+
+        return true;
     }
 
 

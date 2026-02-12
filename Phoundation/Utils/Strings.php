@@ -566,7 +566,7 @@ class Strings extends Utils
             $quote = "'";
         }
 
-        if (is_string($source) or ($source instanceof Stringable) or $force) {
+        if (((is_string($source) or ($source instanceof Stringable)) and $source) or $force) {
             return $quote . $source . $quote;
         }
 
