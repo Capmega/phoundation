@@ -1648,8 +1648,12 @@ class Request implements RequestInterface
             switch (Request::getRequestType()) {
                 case EnumRequestTypes::html:
                     if (!Request::getSystem()) {
-                        // Check if the user has access to the requested page, then check if the user should be force redirected
-                        Request::hasRightsOrRedirect(Request::getUrlObject()->getRights());
+                        // Users always have access to /my/ URL's
+                        if (!Request::getConfigAllowMyPages() or !Request::isMyPage()) {
+                            // Check if the user has access to the requested page, then check if the user should be force redirected
+                            Request::hasRightsOrRedirect(Request::getUrlObject()->getRights());
+                        }
+
                         Response::checkForceRedirect();
                     }
 
@@ -1683,6 +1687,36 @@ class Request implements RequestInterface
 
         // Return the output to the page that executed this page
         return $return;
+    }
+
+
+    /**
+     * Returns the boolean value for the configuration path "security.web.pages.my.allow"
+     *
+     * @return bool
+     */
+    public static function getConfigAllowMyPages(): bool
+    {
+        return config()->getBoolean('security.web.pages.my.allow', true);
+    }
+
+
+    /**
+     * Returns true if the current request is for a "my" page, a page starting with /my/
+     *
+     * @return bool
+     */
+    public static function isMyPage(): bool
+    {
+        if (Session::getUserObject()->isGuest()) {
+            // Guest users do not have access to /my/ pages
+            return false;
+        }
+
+        $path = Request::getUrlObject()->getPath();
+        $path = Strings::from($path, '/', instance: 2);
+
+        return str_starts_with($path, 'my/');
     }
 
 

@@ -1306,7 +1306,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $return = parent::get('date_range_split', false);
+            $return = parent::get('date_range_split', exception: false);
             $return = ($return ? $return[0] : null);
         }
 
@@ -1326,7 +1326,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $return = parent::get('date_range_split', false);
+            $return = parent::get('date_range_split', exception: false);
             $return = ($return ? PhoDateTime::new($return[0], $timezone)->getBeginningOfDay() : null);
         }
 
@@ -1344,7 +1344,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $return = parent::get('date_range_split', false);
+            $return = parent::get('date_range_split', exception: false);
             $return = ($return ? $return[1] : null);
         }
 
@@ -1364,7 +1364,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         static $return;
 
         if (!isset($return)) {
-            $return = parent::get('date_range_split', false);
+            $return = parent::get('date_range_split', exception: false);
             $return = ($return ? PhoDateTime::new($return[1], $timezone)->getEndOfDay() : null);
         }
 
