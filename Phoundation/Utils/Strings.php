@@ -554,13 +554,14 @@ class Strings extends Utils
     /**
      * Return the specified string quoted if not numeric, boolean,
      *
-     * @param mixed       $source
-     * @param string|null $quote
-     * @param bool        $force
+     * @param Stringable|string|float|int|null $source         The source string
+     * @param string|null                      $quote  [']     The type of quote to use
+     * @param bool                             $force  [false] If true will always quote the source string, even if it is empty, or (for example) an integer
+     *                                                         that does not require quotes
      *
      * @return string
      */
-    public static function quote(Stringable|string|float|int|bool|null $source, ?string $quote = "'", bool $force = false): string
+    public static function quote(Stringable|string|float|int|null $source, ?string $quote = "'", bool $force = false): string
     {
         if (!$quote) {
             $quote = "'";
@@ -571,6 +572,28 @@ class Strings extends Utils
         }
 
         return (string) $source;
+    }
+
+
+    /**
+     * Returns the specified string encapsulated in the specified $before and $after values if it contains content
+     *
+     * @note This method will return all empty values as NULL
+     *
+     * @param mixed       $source         The source string
+     * @param string|null $before [null]  The string to place before the source string
+     * @param string|null $after  [null]  The string to place after the source string
+     * @param bool        $force  [false] If true will always quote the source string, even if it is empty
+     *
+     * @return string|null
+     */
+    public static function encapsulate(Stringable|string|float|int|bool|null $source, ?string $before = null, ?string $after = null, bool $force = false): ?string
+    {
+        if ($source or $force) {
+            return $before . $source . $after;
+        }
+
+        return get_null((string) $source);
     }
 
 

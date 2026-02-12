@@ -4466,6 +4466,33 @@ class Arrays extends Utils
 
 
     /**
+     * Adds the specified value to the specified source if the value is not NULL
+     *
+     * @param array                            $source        The source array to which the key must be added
+     * @param mixed                            $value         The value that will be tested and added
+     * @param Stringable|string|float|int|null $key    [null] Optionally, the key with which to add the value to the array. If not specified, the value will
+     *                                                        simply be appended at the end of the array
+     *
+     * @return array
+     */
+    public static function appendNotNull(array $source, mixed $value, Stringable|string|float|int|null $key = null): array
+    {
+        if ($value === null) {
+            return $source;
+        }
+
+        if ($key) {
+            $source[$key] = $value;
+
+        } else {
+            $source[] = $value;
+        }
+
+        return $source;
+    }
+
+
+    /**
      * Checks if there is a required match and throws an exception if not
      *
      * @param array $needles
