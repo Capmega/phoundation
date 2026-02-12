@@ -103,6 +103,24 @@ function is_empty(mixed $value): bool
 
 
 /**
+ * Returns $source concatenated with $value if $source is not empty
+ *
+ * @param string|null $source
+ * @param mixed       $value
+ *
+ * @return string|null
+ */
+function concat_if_not_empty(?string $source, ?string $value): ?string
+{
+    if ($source) {
+        return $source . $value;
+    }
+
+    return $source;
+}
+
+
+/**
  * Returns the given value to the specified new value unless the new value is boolean FALSE
  *
  * @param mixed $original
