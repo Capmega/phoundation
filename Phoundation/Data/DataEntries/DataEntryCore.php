@@ -85,7 +85,6 @@ use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
-use Phoundation\Developer\Versioning\Repositories\Repository;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
@@ -113,7 +112,6 @@ use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
-use Phoundation\Utils\Seo;
 use Phoundation\Utils\Strings;
 use Phoundation\Utils\Traits\TraitEventHandler;
 use Phoundation\Utils\Utils;
@@ -354,17 +352,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * DataEntry class constructor
      *
-     * @param IdentifierInterface|array|string|int|false|null $identifier The unique identifier for the data for this
-     *                                                                    DataEntry object. When specified, the
-     *                                                                    constructor will automatically load this data
-     *                                                                    using DataEntry::load(). If specified, the
-     *                                                                    identifier MUST exist either in database or
-     *                                                                    configuration. If the specified identifier is
-     *                                                                    FALSE, the object will NOT initialize, and the
-     *                                                                    DataEntry::initialize() method must be called
-     *                                                                    separately.
-     * @param EnumLoadParameters|null                         $on_null_identifier
-     * @param EnumLoadParameters|null                         $on_not_exists
+     * @param IdentifierInterface|array|string|int|false|null $identifier         [false] The unique identifier for the data for this DataEntry object. When
+     *                                                                                    specified, the constructor will automatically load this data using
+     *                                                                                    DataEntry::load(). If specified, the identifier MUST exist either in
+     *                                                                                    database or configuration. If the specified identifier is FALSE, the
+     *                                                                                    object will NOT initialize, and the DataEntry::initialize() method
+     *                                                                                    must be called separately.
+     * @param EnumLoadParameters|null                         $on_null_identifier [null]  Load parameters that influence the behavior of this method when the
+     *                                                                                    specified identifier is NULL. Options are EnumLoadParameters::null
+     *                                                                                    (Will return NULL), EnumLoadParameters::this (Will return this empty
+     *                                                                                    object) and , EnumLoadParameters::exception (Will return this empty
+     * @param EnumLoadParameters|null                         $on_not_exists      [null]
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null)
     {
@@ -4531,7 +4529,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
-                    $this->save();
+                    sql()->setStatus($this->getId(false), $status, static::getTable());
                 }
             }
         }

@@ -1708,8 +1708,8 @@ throw new ObsoleteException();
         }
 
         // Place source in a validator
-        $o_validator = Validator::pick($source);
-        $source    = Arrays::groupByPrefix($o_validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
+        $_validator = Validator::pick($source);
+        $source     = Arrays::groupByPrefix($_validator->getSource(), flags: Arrays::GROUP_BY_DROP | Arrays::GROUP_BY_NUMERIC);
 
         // First, ensure we have all the entries specified by the source
         if ($require_clean_source) {
@@ -1732,7 +1732,7 @@ throw new ObsoleteException();
 
         // Require clean source
         if ($require_clean_source) {
-            $o_validator->validate($require_clean_source);
+            $_validator->validate($require_clean_source);
         }
 
         return $this;
