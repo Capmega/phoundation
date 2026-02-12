@@ -1432,20 +1432,24 @@ class Sql implements SqlInterface
 
 
     /**
-     * Update the status for the specified data row in the specified table
+     * Updates the status column in the specified table
      *
-     * @note This method assumes that the specifies rows are correct to the specified table. If columns not pertaining
-     *       to this table are in the $row value, the query will automatically fail with an exception!
+     * @param int         $id     The identifier to update
+     * @param string|null $status The status to update the entry with
+     * @param string      $table  The table in which to execute the update
      *
-     * @param string      $table
-     * @param string|null $status
-     * @param array|null  $where
-     *
-     * @return Sql The number of rows that were updated
+     * @return Sql
      */
-    public function setStatus(string $table, ?string $status, array|null $where = null): static
+    public function setStatus(int $id, ?string $status, string $table): static
     {
-        return $this->update($table, ['status' => $status], $where);
+        Core::checkReadonly('set status');
+
+        $this->query('UPDATE `' . $table . '` SET `status` = :status WHERE `id` = :id', [
+            ':id'     => $id,
+            ':status' => $status,
+        ]);
+
+        return $this;
     }
 
 
