@@ -29,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.1';
+        return '0.8.2';
     }
 
 
@@ -219,6 +219,47 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     'secondary_part' => 'x-nfo',
                     'priority'       => 1,
                 ]);
+            }
+
+        })->addUpdate('0.8.2', function () {
+            // Fix indices to include `status` for filesystem_requirements, filesystem_mimetypes, filesystem_mounts
+            $tables = [
+                'filesystem_requirements',
+                'filesystem_mounts',
+                'filesystem_mimetypes'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
+
+            // Fix indices to include `status` for filesystem_user_files
+            $tables = [
+                'filesystem_user_files'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'file',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('file_status', true)
+                                ->addIndex('UNIQUE KEY `file_status` (`file` (128), `status`)');
             }
         });
     }

@@ -32,7 +32,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.0';
+        return '0.9.1';
     }
 
 
@@ -506,6 +506,30 @@ class Updates extends Libraries\Updates
 
             if (!$o_table->indexExists('project_version')) {
                 $o_table->alter()->addIndex('KEY `project_version` (`project_version`)');
+            }
+
+        })->addUpdate('0.9.1', function () {
+            // Fix indices to include `status` for business_companies and business_branches
+            $tables = [
+                'core_plugins',
+                'core_templates'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                    'class',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->dropIndex('class_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)')
+                                ->addIndex('UNIQUE KEY `class_status` (`class`, `status`)');
             }
         });
     }

@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.3';
+        return '0.9.4';
     }
 
 
@@ -142,6 +142,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             }
 
             $_table->alter()->addIndex('KEY `path` (`path`)');
+
+        })->addUpdate('0.9.4', function () {
+            // Fix indices to include `status` for developer_repositories
+            $tables = [
+                'developer_repositories',
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
         });
     }
 }
