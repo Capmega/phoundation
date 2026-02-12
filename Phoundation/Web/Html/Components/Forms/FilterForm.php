@@ -159,6 +159,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         $this->o_definitions = Definitions::new()
                                           ->setReadonly($this->getReadonly())
                                           ->setDisabled($this->getDisabled())
+
                                           ->add(Definition::new('date_range')
                                                           ->setLabel(tr('Date range'))
                                                           ->setSize(4)
@@ -1466,7 +1467,6 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
             // Go over each field and let the field definition do the validation since it knows the specs
             foreach ($o_definitions as $column => $o_definition) {
-//if ($column !== 'action') continue;
                 $o_definition->validate($o_validator, null);
 
 // TODO The following code will ALWAYS overwrite valid values with the default value, if it exists. That makes little sense. Should this code be here at all? The validator should take care of that anyways...
