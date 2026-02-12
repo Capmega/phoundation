@@ -40,8 +40,9 @@ class Arrays extends Utils
      */
     const int GROUP_BY_DROP      = 1;
     const int GROUP_BY_NULL      = 2;
-    const int NO_GROUP_BY        = 3;
-    const int GROUP_BY_EXCEPTION = 4;
+    const int NO_GROUP_BY        = 4;
+    const int GROUP_BY_EXCEPTION = 8;
+    const int GROUP_BY_NUMERIC   = 16;
 
 
     /**
@@ -3801,20 +3802,39 @@ class Arrays extends Utils
     /**
      * Separates an array of keys that contain a prefix into sub-arrays where the prefix is the key
      *
-     * @param array|null  $source
-     * @param string $separator
-     * @param int $non_prefix_action        How to handle keys that do not contain the specified separator and whose
-     *                                      prefix cannot be determined. Must be one of:
-     *                                          self:GROUP_BY_DROP: Drop keys without prefix
-     *                                          self:GROUP_BY_NULL: Add keys without prefix to subarray under key "NULL"
-     *                                          self:GROUP_BY_EXCEPTION: Throw exception if a key without prefix found
+     * @param array|null $source                        The source array that will be processed
+     * @param string     $separator [_]                 The character on which the string will be broken up for grouping
+     * @param int        $flags     [self::NO_GROUP_BY] How to handle keys that do not contain the specified separator and whose prefix cannot be determined.
+     *                                                  Must be one of:
      *
+     *                                                  self:GROUP_BY_DROP      : Drop keys without prefix
+     *                                                  self:GROUP_BY_NULL      : Add keys without prefix to subarray under key "NULL"
+     *                                                  self:GROUP_BY_EXCEPTION : Throw exception if a key without prefix found
+     *                                                  self:GROUP_BY_NUMERIC   : Requires the grouping prefix to be numeric, or the value will be
+     *                                                                            considered to have no prefix
      *
      * @return array
+     *
+     * @throws OutOfBoundsException
      */
-    public static function groupByPrefix(?array $source = null, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY])] int $non_prefix_action = self::NO_GROUP_BY): array
+    public static function groupByPrefix(?array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY, self::GROUP_BY_NUMERIC])] int $flags = self::NO_GROUP_BY): array
     {
-        $return = [];
+        // Decode flags
+        $return               = [];
+        $options              = [];
+        $options['null']      = (bool)  ($flags & Arrays::GROUP_BY_NULL);
+        $options['drop']      = (bool)  ($flags & Arrays::GROUP_BY_DROP);
+        $options['exception'] = (bool)  ($flags & Arrays::GROUP_BY_EXCEPTION);
+        $options['no_group']  = (bool)  ($flags & Arrays::NO_GROUP_BY);
+        $options['numeric']   = (bool)  ($flags & Arrays::GROUP_BY_NUMERIC);
+
+        if (!($options['null'] xor $options['drop'] xor $options['exception'] xor $options['no_group'])) {
+            throw OutOfBoundsException::new(ts('The flags GROUP_BY_NULL, GROUP_BY_DROP, GROUP_BY_EXCEPTION, GROUP_BY_NUMERIC are exclusive only one of them must be specified'))
+                                      ->addData([
+                                          'flags'         => $flags,
+                                          'decoded_flags' => $options
+                                      ]);
+        }
 
         if (empty($source)) {
             return $return;
@@ -3825,27 +3845,38 @@ class Arrays extends Utils
                 $prefix = Strings::until($key, $separator);
                 $key    = Strings::from($key, $separator);
 
-                $return[$prefix][$key] = $value;
+                if (!$options['numeric'] or is_numeric($prefix)) {
+                    $return[$prefix][$key] = $value;
+                    continue;
+                }
+            }
 
-            } else {
-                switch ($non_prefix_action):
-                    case self::GROUP_BY_DROP:
-                        break;
+            // This value seems to not have a prefix
+            switch ($flags) {
+                case $options['drop']:
+                    // Drop the non-prefix item
+                    break;
 
-                    case self::GROUP_BY_NULL: $return[null][$key] = $value;
-                        break;
+                case $options['null']:
+                    // Group the non-prefix item in the NULL group
+                    $return[null][$key] = $value;
+                    break;
 
-                    case self::NO_GROUP_BY: $return[$key] = $value;
-                        break;
+                case $options['no_group']:
+                    // Do not group this item at all
+                    $return[$key] = $value;
+                    break;
 
-                    case self::GROUP_BY_EXCEPTION: throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
+                case $options['exception']:
+                    // Throw an exception because this value cannot be grouped
+                    throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
                         ':key'       => $key,
                         ':separator' => $separator,
                         ':groups'    => json::encode(array_keys($return)),
                     ]));
-                endswitch;
             }
         }
+
 
         return $return;
     }
