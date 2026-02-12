@@ -878,7 +878,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function isPeriodBegin(): bool
     {
-        return in_array($this->format('d'), ['1', '16'], true);
+        return in_array($this->format('j'), ['1', '16'], true);
     }
 
 
