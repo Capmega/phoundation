@@ -77,48 +77,50 @@ trait TraitMethodBuildManualQuery
                     continue 2;
             }
 
-            $not = '';
+            $where[] = '(' . QueryBuilder::buildComparison(static::getTable(), $column, $value, $execute) . ')';
 
-            if (!is_data_scalar($value, true)) {
-                if (!is_array($value)) {
-                    if ($value === false) {
-                        // FALSE indicates the column should not be filtered on, so ignore this column altogether
-                        continue;
-                    }
-
-                    throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
-                        ':column' => $column,
-                        ':value'  => $value,
-                        ':type'   =>  get_class_or_datatype($value),
-                    ]));
-                }
-
-                $in      = QueryBuilder::in($value, 'status');
-                $execute = array_merge($execute, $in);
-                $where[] = '`' . static::getTable() . '`.`' . $column . '` IN (' . implode(', ', array_keys($in)) . ')';
-                continue;
-
-            } elseif (is_string($value)) {
-                switch ($value[0]) {
-                    case '!':
-                        // NOT this column
-                        $not   = '!';
-                        $value = substr($value, 1);
-                        break;
-                }
-
-                if ($value === 'NULL') {
-                    $where[] = '`' . static::getTable() . '`.`' . $column . '` IS ' . ($not ? ' NOT' : '') . ' NULL';
-                    continue;
-                }
-
-            } elseif ($value === null) {
-                $where[] = '`' . static::getTable() . '`.`' . $column . '` IS NULL';
-                continue;
-            }
-
-            $where[]                = '`' . static::getTable() . '`.`' . $column . '` ' . $not . '= :' . $column;
-            $execute[':' . $column] = $value;
+//            $not = '';
+//
+//            if (!is_data_scalar($value, true)) {
+//                if (!is_array($value)) {
+//                    if ($value === false) {
+//                        // FALSE indicates the column should not be filtered on, so ignore this column altogether
+//                        continue;
+//                    }
+//
+//                    throw new OutOfBoundsException(tr('Invalid query value ":value / :type" specified for column ":column", must be a data scalar (either string, integer, float, or null)', [
+//                        ':column' => $column,
+//                        ':value'  => $value,
+//                        ':type'   =>  get_class_or_datatype($value),
+//                    ]));
+//                }
+//
+//                $in      = QueryBuilder::in($value, 'status');
+//                $execute = array_merge($execute, $in);
+//                $where[] = '`' . static::getTable() . '`.`' . $column . '` IN (' . implode(', ', array_keys($in)) . ')';
+//                continue;
+//
+//            } elseif (is_string($value)) {
+//                switch ($value[0]) {
+//                    case '!':
+//                        // NOT this column
+//                        $not   = '!';
+//                        $value = substr($value, 1);
+//                        break;
+//                }
+//
+//                if ($value === 'NULL') {
+//                    $where[] = '`' . static::getTable() . '`.`' . $column . '` IS ' . ($not ? ' NOT' : '') . ' NULL';
+//                    continue;
+//                }
+//
+//            } elseif ($value === null) {
+//                $where[] = '`' . static::getTable() . '`.`' . $column . '` IS NULL';
+//                continue;
+//            }
+//
+//            $where[]                = '`' . static::getTable() . '`.`' . $column . '` ' . $not . '= :' . $column;
+//            $execute[':' . $column] = $value;
         }
 
         $where = implode($separator, $where);

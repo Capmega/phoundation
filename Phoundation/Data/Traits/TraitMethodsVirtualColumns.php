@@ -26,6 +26,7 @@ use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 
+
 trait TraitMethodsVirtualColumns {
     use TraitMethodsGetTypesafe;
 

@@ -55,13 +55,11 @@ trait TraitDataIdentifier
      * @param IdentifierInterface|array|string|int|false|null $identifier
      *
      * @return array
-     * @todo Upgrade this to
      * @todo Upgrade this to be able to specify default status to add to the identifiers
      */
     public static function normalizeIdentifier(IdentifierInterface|array|string|int|false|null $identifier): array
     {
-//        $default_status = ['!deleted', null];
-        $default_status = null;
+        $default_status = [null, '?deleted%'];
 
         // Ensure $identifier is either NULL or a key => value array
         if ($identifier instanceof DataEntryInterface) {
