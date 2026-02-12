@@ -94,17 +94,19 @@ trait TraitMethodsVirtualColumns {
         // Reset all columns for the table except the specified one, that one will have the specified value
         foreach ($this->getVirtualColumns($table) as $virtual_column => $virtual_table_column) {
             try {
-                if ($virtual_column === $column) {
+                if ($value === null) {
+                    // Set all virtual columns to NULL
+                    $this->set(null, $virtual_table_column);
+
+                } elseif ($virtual_column === $column) {
                     $this->set($value, $virtual_table_column);
 
-                } else {
-                    if (!$this->is_initializing_source and !$this->isApplying()) {
-                        $this->set(null, $virtual_table_column);
-                    }
+                } elseif (!$this->is_initializing_source and !$this->isApplying()) {
+                    $this->set(null, $virtual_table_column);
                 }
 
             } catch (DataEntryColumnsNotDefinedException $e) {
-                // We are trying to set a column that doesn't exist in the Definitions object
+                // We are trying to set a column that does not exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Virtual columns configuration for table ":table" in class ":class" contains column ":column" but that column does not exist in the definitions for this class', [
                     ':table'  => $table,
                     ':class'  => $this::class,
