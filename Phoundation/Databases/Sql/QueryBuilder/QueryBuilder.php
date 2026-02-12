@@ -88,7 +88,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $key    = str_replace('``.``', '`.`', $key);
                 $key    = Strings::ensureBeginsWith($key, '`');
                 $key    = Strings::ensureEndsWith($key, '`');
-                $where  = QueryBuilder::buildComparison($key, $value, $this->bound_variables, $like, $negative);
+                $where  = QueryBuilder::buildComparison(null, $key, $value, $this->bound_variables, $like, $negative);
 
                 $this->addWhere($where);
             }
@@ -101,63 +101,100 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * Builds a comparison section for the specified column / value
      *
+     * @param string|null                                        $table                   The table to build the query part for
      * @param string                                             $column                  The column to build the query part for
      * @param IteratorInterface|array|string|float|int|bool|null $value                   The value to build the query part with
      * @param array|null                                         $bound_variables         The execution variables. Passed by reference as it will modify the
      *                                                                                    array
      * @param bool                                               $like            [false] If true, will use LIKE to compare, instead of =
      * @param bool                                               $negative        [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
+     * @param int|null                                           $counter         [null]  If specified, will add the counter number to the bound variable name
      *
      * @return string
      */
-    protected static function buildComparison(string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false): string
+    public static function buildComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): string
     {
         if (is_array($value) or ($value instanceof IteratorInterface)) {
             // Build a comparison for a list of values
             $label = QueryBuilder::getLabel($column);
             $value = Arrays::force($value);
+            $null  = Arrays::containsNullValue($value, ['NULL', '!NULL', '?NULL']); // No need to test ~NULL as there is no such thing as "NOT LIKE NULL"
+            $equal = Arrays::allValuesStartWithSame($value, ['!', '?', '~'], true);
+            $like  = ($like or Arrays::anyValuesStartWith($value, ['?', '~'])); // LIKE modifiers
 
-            if (!$like) {
-                // Add the new values to the specified $execute array
-                $in              = QueryBuilder::in($value, ':' . $label);
-                $bound_variables = array_merge($bound_variables ?? [], $in);
+            if ($like or $null or !$equal or (count($value) === 1)) {
+                // NULL value cannot be tested with IN
+                // LIKE queries cannot be combined with IN either, make separate OR sections instead
+                // Array values that either have values that start with differing modifiers (!?~), or some with some without modifiers cannot use IN
+                // Array values with single scalar values can just be considered a scalar value
+                $return  = [];
+                $counter = 0;
 
-                // Add the query section
-                return $column . ' ' . ($negative ? 'NOT IN ' : 'IN ') . '(' . implode(',', array_keys($in)) . ')';
+                foreach ($value as $sub_value) {
+                    $return[] = QueryBuilder::buildComparison($table, $column, $sub_value, $bound_variables, $like, $negative, $counter);
+                }
+
+                return implode(' OR ', $return);
             }
 
-            // LIKE queries cannot be combined with IN, make separate OR sections instead
-            $return = [];
-            $count  = 0;
+            // Add the new values to the specified $execute array
+            $in              = QueryBuilder::in($value, ':' . $label);
+            $bound_variables = array_merge($bound_variables ?? [], $in);
 
-            foreach ($value as $sub_value) {
-                $return[] = QueryBuilder::buildComparison($column . $count++, $sub_value, $bound_variables, true, $negative);
-            }
-
-            return implode(' OR ', $return);
+            // Add the query section
+            return $column . ' ' . ($negative ? 'NOT IN ' : 'IN ') . '(' . implode(',', array_keys($in)) . ')';
         }
 
-        return QueryBuilder::buildComparisonForScalar($column, $value, $bound_variables, $like, $negative);
+        return QueryBuilder::buildComparisonForScalar($table, $column, $value, $bound_variables, $like, $negative, $counter);
+    }
+
+
+    /**
+     * Returns `$table`.`$column` or `$column` if table is empty
+     *
+     * @param string|null $table  The name for the table
+     * @param string      $column The name for the column
+     *
+     * @return string
+     */
+    public static function getQuotedTableColumnQueryPart(?string $table, string $column): string
+    {
+        return concat_if_not_empty(Strings::quote($table, '`'), '.') . Strings::quote($column, '`');
     }
 
 
     /**
      * Builds a comparison section for the specified column / value, but value must be scalar
      *
+     * @param string                     $table            The table to build the query part for
      * @param string                     $column           The column to build the query part for
      * @param string|float|int|bool|null $value            The value to build the query part with
      * @param array|null                 $execute          The query execution variables. Passed by reference as it will modify the array
      * @param bool                       $like     [false] If true, will use LIKE to compare, instead of =
      * @param bool                       $negative [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
+     * @param int|null                   $counter  [null]  If specified, will add the counter number to the bound variable name
      *
      * @return string
      */
-    protected static function buildComparisonForScalar(string $column, string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false): string
+    protected static function buildComparisonForScalar(string $table, string $column, string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false, ?int $counter = null): string
     {
         // TODO This can cause SEVERE issues with values that start with a ! by themselves....
-        if (str_starts_with((string) $value, '!')) {
-            $negative = true;
-            $value    = substr($value, 1);
+        switch (substr((string) $value, 0, 1)) {
+            case '!':
+                $negative = true;
+                $value    = substr($value, 1);
+                break;
+
+            case '~':
+                $like  = true;
+                $value = substr($value, 1);
+                break;
+
+            case '?':
+                $like     = true;
+                $negative = true;
+                $value    = substr($value, 1);
+                break;
         }
 
         if ($value === 'NULL') {
@@ -165,24 +202,28 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
         }
 
         if ($value === null) {
-            return  $column . ' IS NULL';
+            if ($negative) {
+                return static::getQuotedTableColumnQueryPart($table, $column) . ' IS NOT NULL';
+            }
+
+            return static::getQuotedTableColumnQueryPart($table, $column) . ' IS NULL';
         }
 
-        $label           = ':' . QueryBuilder::getLabel($column);
+        $label           = ':' . QueryBuilder::getLabel($column) . $counter;
         $execute[$label] = $value;
 
         if ($like) {
             if ($negative) {
-                return  $column . ' NOT LIKE ' . $label;
+                return static::getQuotedTableColumnQueryPart($table, $column) . ' NOT LIKE ' . $label;
             }
 
-            return  $column . ' LIKE ' . $label;
+            return static::getQuotedTableColumnQueryPart($table, $column) . ' LIKE ' . $label;
 
         } elseif ($negative) {
-            return  $column . ' != ' . $label;
+            return static::getQuotedTableColumnQueryPart($table, $column) . ' != ' . $label;
         }
 
-        return  $column . ' = ' . $label;
+        return static::getQuotedTableColumnQueryPart($table, $column) . ' = ' . $label;
     }
 
 
