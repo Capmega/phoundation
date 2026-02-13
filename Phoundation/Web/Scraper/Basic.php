@@ -258,10 +258,10 @@ showdie($matches);
     public function execute(): static
     {
         Log::action(ts('Scraping URL ":url" using the HTTP GET method', [
-            ':url' => $this->o_url
+            ':url' => $this->_url
         ]));
 
-        $this->getCurlObject()->setUrlObject($this->o_url)
+        $this->getCurlObject()->setUrlObject($this->_url)
                               ->execute();
 
         return $this;

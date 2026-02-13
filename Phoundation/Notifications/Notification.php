@@ -854,19 +854,19 @@ FILES variables:
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return Notification
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newCreatedBy())
+        $_definitions->add(DefinitionFactory::newCreatedBy())
 
                       ->add(Definition::new('users_id')
                                       ->setRender(false)
                                       ->setInputType(EnumInputType::dbid)
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                          $o_validator->isDbId()
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                          $_validator->isDbId()
                                                       ->isQueryResult('SELECT `id`
                                                                        FROM   `accounts_users`
                                                                        WHERE  `id` = :id
@@ -883,8 +883,8 @@ FILES variables:
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setMaxlength(16)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isPrintable();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isPrintable();
                                     }))
 
                     ->add(Definition::new('mode')
@@ -894,8 +894,8 @@ FILES variables:
                                     ->addClasses('text-center')
                                     ->setSize(3)
                                     ->setMaxLength(16)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isDisplayMode();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isDisplayMode();
                                     }))
 
                     ->add(Definition::new('icon')
@@ -918,8 +918,8 @@ FILES variables:
                                     ->setLabel(tr('Title'))
                                     ->setMaxlength(255)
                                     ->setSize(12)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isDescription();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isDescription();
                                     }))
 
                     ->add(Definition::new('message')
@@ -928,9 +928,9 @@ FILES variables:
                                     ->setLabel(tr('Message'))
                                     ->setMaxlength(16_777_215)
                                     ->setSize(12)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
                                         // TODO ADD MORE VALIDATIONS HERE?!
-                                        $o_validator->isPrintable()->setContentTestDone();
+                                        $_validator->isPrintable()->setContentTestDone();
                                     }))
 
                     ->add(Definition::new('url')
@@ -949,8 +949,8 @@ FILES variables:
                                     ->setMaxlength(16_777_215)
                                     ->setRows(10)
                                     ->setSize(12)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isJson();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isJson();
                                     })
                                     ->setDisplayCallback(function (mixed $value, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and display it using
@@ -1007,12 +1007,12 @@ FILES variables:
                                     ->setMaxlength(65_535)
                                     ->setRows(10)
                                     ->setSize(12)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isJson();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isJson();
                                     }));
 
-        $o_definitions->get('status')->setDefault('UNREAD');
-        $o_definitions->get('created_by')->setSize(3);
+        $_definitions->get('status')->setDefault('UNREAD');
+        $_definitions->get('created_by')->setSize(3);
 
         return $this;
     }

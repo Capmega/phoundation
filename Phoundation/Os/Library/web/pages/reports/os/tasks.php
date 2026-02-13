@@ -33,15 +33,15 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters        = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Tasks filters')
                       ->setContent($filters);
 
 
 // Build the incident table
-$o_tasks = Tasks::new()->setFilterFormObject($filters);
-$o_tasks->getQueryBuilderObject()->addSelect('`os_tasks`.`id`')
+$_tasks = Tasks::new()->setFilterFormObject($filters);
+$_tasks->getQueryBuilderObject()->addSelect('`os_tasks`.`id`')
                                  ->addSelect('`os_tasks`.`name`')
                                  ->addSelect('`os_tasks`.`created_on`')
                                  ->addSelect('`os_tasks`.`start`')
@@ -51,7 +51,7 @@ $o_tasks->getQueryBuilderObject()->addSelect('`os_tasks`.`id`')
                                  ->addSelect('`os_tasks`.`command`')
                                  ->addSelect('`os_tasks`.`arguments`')
                                  ->addSelect('CONCAT(`os_tasks`.`command`, " ", LEFT(RIGHT(`os_tasks`.`arguments`, LENGTH(`os_tasks`.`arguments`) - 7), LENGTH(`os_tasks`.`arguments`) - 10)) AS `full_command`');
-$o_tasks->load();
+$_tasks->load();
 
 
 // Validate POST and submit
@@ -73,12 +73,12 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the "tasks" card
-$o_tasks_card = Card::new()
+$_tasks_card = Card::new()
                     ->setTitle(tr('Tasks (:count)', [
-                        ':count' => $o_tasks->getCount()
+                        ':count' => $_tasks->getCount()
                     ]))
                     ->setSwitches('reload')
-                    ->setContent($o_tasks->getHtmlDataTableObject([
+                    ->setContent($_tasks->getHtmlDataTableObject([
                                             'id'           => tr('Id'),
                                             'name'         => tr('Name'),
                                             'status'       => tr('Status'),
@@ -89,14 +89,14 @@ $o_tasks_card = Card::new()
                                             'full_command' => tr('Command'),
                                          ])
                                          ->setRowUrls(Url::new('reports/os/tasks+:ROW.html')->makeWww()->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''))
-                                         ->addRowCallback(function (array &$row, EnumTableRowType $type, &$params) use ($o_tasks) {
-                                             $row['date_range'] = $o_tasks->get($row['id'])->getFullCommand();
+                                         ->addRowCallback(function (array &$row, EnumTableRowType $type, &$params) use ($_tasks) {
+                                             $row['date_range'] = $_tasks->get($row['id'])->getFullCommand();
                                          }))
                     ->useForm(true);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')
@@ -109,7 +109,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('This page displays all tasks.');
@@ -126,5 +126,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_tasks_card    , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card  . $_tasks_card    , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

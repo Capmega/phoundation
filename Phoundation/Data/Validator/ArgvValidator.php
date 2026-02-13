@@ -1008,10 +1008,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             if (Core::inBootState() or $this->getValidationEnabled() and $exception) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                               ->setDataEntryObject($this->_definitions?->getDataEntryObject())
                                                ->makeWarning()
                                                ->addData([
-                                                   'class'    => get_class_or_datatype($this->o_definitions?->getDataEntryObject()),
+                                                   'class'    => get_class_or_datatype($this->_definitions?->getDataEntryObject()),
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ]);

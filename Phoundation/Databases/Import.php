@@ -74,7 +74,7 @@ class Import
      */
     public function __construct(?PhoRestrictionsInterface $restrictions = null)
     {
-        $this->o_restrictions = PhoRestrictions::getRestrictionsOrDefaultObject($restrictions, PhoRestrictions::newWritableObject('/'));
+        $this->_restrictions = PhoRestrictions::getRestrictionsOrDefaultObject($restrictions, PhoRestrictions::newWritableObject('/'));
     }
 
 
@@ -89,11 +89,11 @@ class Import
      */
     public function setDriver(?string $driver): static
     {
-        if ($this->o_connector) {
+        if ($this->_connector) {
             // Connector was specified separately, this driver must match connector driver
-            if ($driver and ($driver !== $this->o_connector->getDriver())) {
+            if ($driver and ($driver !== $this->_connector->getDriver())) {
                 throw new OutOfBoundsException(tr('Specified driver ":driver" does not match driver for already specified connector ":connector"', [
-                    ':connector' => $this->o_connector->getDriver(),
+                    ':connector' => $this->_connector->getDriver(),
                     ':driver'    => $driver,
                 ]));
             }
@@ -166,12 +166,12 @@ class Import
      */
     public function import(): static
     {
-        $this->o_file->checkExists();
+        $this->_file->checkExists();
         switch ($this->driver) {
             case 'mysql':
                 Log::information(ts('Importing ":size" MySQL dump file ":file" to database ":database", this may take a while...', [
-                    ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->o_file->getSize()),
-                    ':file'     => $this->o_file->getRootname(),
+                    ':size'     => Numbers::getHumanReadableAndPreciseBytes($this->_file->getSize()),
+                    ':file'     => $this->_file->getRootname(),
                     ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
 
@@ -182,7 +182,7 @@ class Import
                                ->setConnectorObject($this->getConnectorObject())
                                ->drop($this->drop ? ($this->database ?? ($this->getConnectorObject()->getDatabase())) : null)
                                ->create($this->database ?? $this->getConnectorObject()->getDatabase())
-                               ->import($this->o_file);
+                               ->import($this->_file);
 
                 Log::success(ts('Finished importing database ":database" in ":time"', [
                     ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
@@ -197,7 +197,7 @@ class Import
                 });
 
                 Log::success(ts('Finished importing MySQL dump file ":file" to database ":database"', [
-                    ':file'     => $this->o_file,
+                    ':file'     => $this->_file,
                     ':database' => $this->database ?? $this->getConnectorObject()->getDatabase(),
                 ]));
                 break;
@@ -247,26 +247,26 @@ class Import
     /**
      * Sets the database connector object
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static
     {
-        $this->__setConnectorObject($o_connector, $database);
+        $this->__setConnectorObject($_connector, $database);
 
         if ($this->getDriver()) {
             // Driver was specified separately, must match driver for this connector
-            if ($this->getDriver() !== $this->o_connector->getDriver()) {
+            if ($this->getDriver() !== $this->_connector->getDriver()) {
                 throw new OutOfBoundsException(tr('Specified connector is for driver ":connector", however a different driver ":driver" has already been specified separately', [
-                    ':connector' => $this->o_connector->getDriver(),
+                    ':connector' => $this->_connector->getDriver(),
                     ':driver'    => $this->getDriver(),
                 ]));
             }
 
         } else {
-            $this->driver = get_null($this->o_connector->getDriver());
+            $this->driver = get_null($this->_connector->getDriver());
         }
 
         return $this;

@@ -120,12 +120,12 @@ trait TraitDataEntryProvider
     /**
      * Returns the providers_id for this user
      *
-     * @param ProviderInterface|null $o_object
+     * @param ProviderInterface|null $_object
      *
      * @return static
      */
-    public function setProviderObject(?ProviderInterface $o_object): static
+    public function setProviderObject(?ProviderInterface $_object): static
     {
-        return $this->setVirtualObject('providers', $o_object);
+        return $this->setVirtualObject('providers', $_object);
     }
 }

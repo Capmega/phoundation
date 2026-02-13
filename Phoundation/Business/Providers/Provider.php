@@ -134,19 +134,19 @@ class Provider extends DataEntry implements ProviderInterface
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newCategoriesId())
+        $_definitions->add(DefinitionFactory::newCategoriesId())
                       ->add(DefinitionFactory::newCategory())
                       ->add(DefinitionFactory::newCompaniesId())
                       ->add(DefinitionFactory::newCompany())
                       ->add(DefinitionFactory::newName()
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isFalse(function ($value, $source) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isFalse(function ($value, $source) {
                                                    Provider::exists(['name' => $value], array_get_safe($source, 'id'));
                                                }, tr('already exists'));
                                            }))

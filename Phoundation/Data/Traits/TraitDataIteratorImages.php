@@ -27,9 +27,9 @@ trait TraitDataIteratorImages
     /**
      * Tracks the images iterator
      *
-     * @var IteratorInterface $o_images
+     * @var IteratorInterface $_images
      */
-    protected IteratorInterface $o_images;
+    protected IteratorInterface $_images;
 
 
     /**
@@ -39,24 +39,24 @@ trait TraitDataIteratorImages
      */
     public function getImagesObject(): IteratorInterface
     {
-        if (empty($this->o_images)) {
-            $this->o_images = new Iterator();
+        if (empty($this->_images)) {
+            $this->_images = new Iterator();
         }
 
-        return $this->o_images;
+        return $this->_images;
     }
 
 
     /**
      * Returns the images iterator
      *
-     * @param IteratorInterface|array $o_images
+     * @param IteratorInterface|array $_images
      *
      * @return static
      */
-    public function setImagesObject(IteratorInterface|array $o_images): static
+    public function setImagesObject(IteratorInterface|array $_images): static
     {
-        $this->o_images = new Iterator($o_images);
+        $this->_images = new Iterator($_images);
         return $this;
     }
 
@@ -64,16 +64,16 @@ trait TraitDataIteratorImages
     /**
      * Adds the specified images iterator
      *
-     * @param IteratorInterface|array $o_images
+     * @param IteratorInterface|array $_images
      *
      * @return static
      */
-    public function addImagesObject(IteratorInterface|array $o_images): static
+    public function addImagesObject(IteratorInterface|array $_images): static
     {
         $this->getImagesObject();
 
-        foreach ($o_images as $key => $value) {
-            $this->o_images->add($value, $key);
+        foreach ($_images as $key => $value) {
+            $this->_images->add($value, $key);
         };
 
         return $this;

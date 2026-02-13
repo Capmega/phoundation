@@ -1314,10 +1314,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.10.0', function () {
             // Add support for session state
-            $o_table = sql()->getSchemaObject()->getTableObject('accounts_users');
+            $_table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
-            if (!$o_table->columnExists('session_state')) {
-                $o_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
+            if (!$_table->columnExists('session_state')) {
+                $_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
             }
 
             // Add support for modified_on and modified_by

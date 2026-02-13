@@ -527,14 +527,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @param string                                  $at_key
      * @param ElementInterface|ElementsBlockInterface $value
-     * @param DefinitionInterface|array|null          $o_definition
+     * @param DefinitionInterface|array|null          $_definition
      * @param bool                                    $after
      *
      * @return static
      * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
      *       the front
      */
-    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static;
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $_definition = null, bool $after = true): static;
 
 
     /**
@@ -694,12 +694,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object
@@ -977,7 +977,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions The file restrictions to apply to this object
      * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
@@ -989,14 +989,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *                                                                   convert that into a FsRestrictions object and
      *                                                                   this is the $label modifier for that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
 }

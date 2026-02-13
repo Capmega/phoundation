@@ -51,9 +51,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * The pre-defined query sections
      *
-     * @var QueryDefinitionsInterface $o_definitions
+     * @var QueryDefinitionsInterface $_definitions
      */
-    protected QueryDefinitionsInterface $o_definitions;
+    protected QueryDefinitionsInterface $_definitions;
 
     /**
      * Caches the executed query
@@ -251,14 +251,14 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
     /**
      * Adds the specifications of the given query builder to the query builder of this DataEntry object
      *
-     * @param QueryBuilderInterface|null $o_query_builder
+     * @param QueryBuilderInterface|null $_query_builder
      *
      * @return static
      */
-    public function addQueryBuilderObject(?QueryBuilderInterface $o_query_builder): static
+    public function addQueryBuilderObject(?QueryBuilderInterface $_query_builder): static
     {
-        if ($o_query_builder) {
-            $this->addSource($o_query_builder->getSource());
+        if ($_query_builder) {
+            $this->addSource($_query_builder->getSource());
         }
 
         return $this;
@@ -302,7 +302,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
 
         $this->query = $this->getQuery($debug ?? $this->debug);
 
-        return sql($this->o_connector)->query($this->query, $this->bound_variables);
+        return sql($this->_connector)->query($this->query, $this->bound_variables);
     }
 
 
@@ -388,7 +388,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function get(bool $debug = false): ?array
     {
-        return sql($this->o_connector)->getRow($this->getQuery($debug ?? $this->debug), $this->bound_variables, $this->getMetaEnabled());
+        return sql($this->_connector)->getRow($this->getQuery($debug ?? $this->debug), $this->bound_variables, $this->getMetaEnabled());
     }
 
 
@@ -402,7 +402,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function getColumn(?string $column = null, bool $debug = false): string|float|int|bool|null
     {
-        return sql($this->o_connector)->getColumn($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
+        return sql($this->_connector)->getColumn($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
     }
 
 
@@ -415,7 +415,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function list(bool $debug = false): array
     {
-        return sql($this->o_connector)->list($this->getQuery($debug ?? $this->debug), $this->bound_variables);
+        return sql($this->_connector)->list($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -430,7 +430,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listArray(bool $debug = false): array
     {
-        return sql($this->o_connector)->listArray($this->getQuery($debug ?? $this->debug), $this->bound_variables);
+        return sql($this->_connector)->listArray($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -445,7 +445,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listScalar(bool $debug = false): array
     {
-        return sql($this->o_connector)->listScalar($this->getQuery($debug ?? $this->debug), $this->bound_variables);
+        return sql($this->_connector)->listScalar($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -458,7 +458,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValue(bool $debug = false): array
     {
-        return sql($this->o_connector)->listKeyValue($this->getQuery($debug ?? $this->debug), $this->bound_variables);
+        return sql($this->_connector)->listKeyValue($this->getQuery($debug ?? $this->debug), $this->bound_variables);
     }
 
 
@@ -474,7 +474,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      */
     public function listKeyValues(bool $debug = false, ?string $column = null): array
     {
-        return sql($this->o_connector)->listKeyValues($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
+        return sql($this->_connector)->listKeyValues($this->getQuery($debug ?? $this->debug), $this->bound_variables, $column);
     }
 
 

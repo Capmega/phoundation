@@ -36,9 +36,9 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Tracks the url for this anchor
      *
-     * @var UrlInterface|null $o_url
+     * @var UrlInterface|null $_url
      */
-    protected ?UrlInterface $o_url = null;
+    protected ?UrlInterface $_url = null;
 
 
     /**
@@ -46,16 +46,16 @@ class Anchor extends SpanCore implements AnchorInterface
      *
      * @param RenderInterface|callable|string|float|int|null $content
      * @param RenderInterface|array|callable|string|null     $before_content
-     * @param UrlInterface|string|null                       $o_href
+     * @param UrlInterface|string|null                       $_href
      */
-    public function __construct(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null)
+    public function __construct(UrlInterface|string|null $_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null)
     {
         // Execute the ElementCore TraitElementAttributes constructor
         parent::___construct();
 
         // Setup basic parameters for this object
         $this->setElement('a')
-             ->setUrlObject($o_href)
+             ->setUrlObject($_href)
              ->setContent($content)
              ->setBeforeContent($before_content);
     }
@@ -64,35 +64,35 @@ class Anchor extends SpanCore implements AnchorInterface
     /**
      * Returns a new static class
      *
-     * @param UrlInterface|string|null                       $o_href
+     * @param UrlInterface|string|null                       $_href
      * @param RenderInterface|callable|string|float|int|null $content
      * @param RenderInterface|array|callable|string|null     $before_content
      *
      * @return static
      */
-    public static function new(UrlInterface|string|null $o_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
+    public static function new(UrlInterface|string|null $_href = null, RenderInterface|callable|string|float|int|null $content = null, RenderInterface|array|callable|string|null $before_content = null): static
     {
-        return new static($o_href, $content, $before_content);
+        return new static($_href, $content, $before_content);
     }
 
 
     /**
      * Sets the href for this anchor
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      * @param bool                     $reset_rights_cache
      *
      * @return static
      */
-    public function setUrlObject(UrlInterface|string|null $o_url, bool $reset_rights_cache = true): static
+    public function setUrlObject(UrlInterface|string|null $_url, bool $reset_rights_cache = true): static
     {
-        $o_url = Url::new($o_url)->makeWww();
+        $_url = Url::new($_url)->makeWww();
 
         // Run the href through Url to ensure that preconfigured URL's like "sign-out" are converted to full URLs
-        $this->o_attributes->set($o_url->getSource(), 'href');
+        $this->_attributes->set($_url->getSource(), 'href');
 
         // Also set the href object itself, and mark that we have to re-update the rights
-        $this->o_url = $o_url;
+        $this->_url = $_url;
 
         if ($reset_rights_cache) {
             $this->has_required_rights = false;
@@ -109,20 +109,20 @@ class Anchor extends SpanCore implements AnchorInterface
      */
     public function getTargetObject(): ?EnumAnchorTarget
     {
-        return $this->o_attributes->get('target', exception: false);
+        return $this->_attributes->get('target', exception: false);
     }
 
 
     /**
      * Sets the target for this anchor
      *
-     * @param EnumAnchorTarget|null $o_target
+     * @param EnumAnchorTarget|null $_target
      *
      * @return static
      */
-    public function setTargetObject(?EnumAnchorTarget $o_target): static
+    public function setTargetObject(?EnumAnchorTarget $_target): static
     {
-        $this->o_attributes->set($o_target, 'target');
+        $this->_attributes->set($_target, 'target');
         return $this;
     }
 
@@ -152,7 +152,7 @@ class Anchor extends SpanCore implements AnchorInterface
 
                     case EnumAnchorRenderEmpty::url:
                         // This Anchor contains a URL but no text content to display. Use the URL as content instead
-                        $this->setContent($this->o_url->getSource());
+                        $this->setContent($this->_url->getSource());
                         break;
 
                     case EnumAnchorRenderEmpty::empty:

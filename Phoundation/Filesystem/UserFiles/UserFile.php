@@ -65,24 +65,24 @@ class UserFile extends DataEntry
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
+        $_definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
                                              ->setOptional(false)
                                              ->setSize(12)
                                              ->setHelpText(tr('Filename'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                            $o_validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                            $_validator->isUnique();
                         }))
 
                       ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)
-                        ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                            $o_validator->isUnique();
+                        ->addValidationFunction(function (ValidatorInterface $_validator) {
+                            $_validator->isUnique();
                         }))
 
                     ->add(DefinitionFactory::newUsersId()
@@ -131,8 +131,8 @@ class UserFile extends DataEntry
                         ->setMaxLength(128)
                         ->setLabel('Mimetype')
                         ->setHelpText(tr('The mimetype for this file'))
-                        ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                            $o_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
+                        ->addValidationFunction(function (ValidatorInterface $_validator) {
+                            $_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                         }))
 
                     ->add(DefinitionFactory::newHash())

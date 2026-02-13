@@ -3155,7 +3155,7 @@ class Core implements CoreInterface
             } else {
                 Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
                     ':new'    => $new_target,
-                    ':target' => Request::$o_target->getRootname(),
+                    ':target' => Request::$_target->getRootname(),
                     ':user'   => Session::getUserObject()->getDisplayId(),
                 ]));
 

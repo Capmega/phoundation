@@ -89,9 +89,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Returns the filters that (still) have to be applied
      *
-     * @var IteratorInterface $o_applied_filters
+     * @var IteratorInterface $_applied_filters
      */
-    protected IteratorInterface $o_applied_filters;
+    protected IteratorInterface $_applied_filters;
 
     /**
      * Tracks if special users should be filtered out
@@ -156,7 +156,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
         $this->setId('filters');
 
         // Set basic definitions
-        $this->o_definitions = Definitions::new()
+        $this->_definitions = Definitions::new()
                                           ->setReadonly($this->getReadonly())
                                           ->setDisabled($this->getDisabled())
 
@@ -166,7 +166,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setOptional(true)
                                                           ->setAutoSubmit(true)
                                                           ->setElement(EnumElement::select)
-                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                               if (empty($this->source[$key])) {
                                                                   if (empty($this->source['date_range'])) {
                                                                       $source = $this->getDateRangeDefault();
@@ -183,20 +183,20 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                                                    ->setParentSelector($this->date_range_selector)
                                                                                    ->setValue($this->source[$key]);
                                                           })
-                                                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                              if (empty($o_validator->getSelectedValue())) {
+                                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                              if (empty($_validator->getSelectedValue())) {
                                                                   $source = $this->getDateRangeDefault();
-                                                                  $o_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date));
+                                                                  $_validator->setSelectedValue(PhoDateTime::new($source[0])->format(EnumDateFormat::user_date) . ' - ' . PhoDateTime::new($source[1])->format(EnumDateFormat::user_date));
                                                               }
 
-                                                              $o_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
+                                                              $_validator->isOptional()->isDateRange()->copyToKey('date_range_split');
                                                           }))
 
                                           ->add(Definition::new('date_range_split')
                                                           ->setRender(false)
                                                           ->setForceValidations(true)
-                                                          ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                              $o_validator->isOptional()->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
+                                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                              $_validator->isOptional()->sanitizeForceArray('-')->forEachField()->sanitizeTrim()->isDate();
                                                           }))
 
                                           ->add(Definition::new('users_id')
@@ -204,7 +204,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                           ->setSize(4)
                                                           ->setOptional(true)
                                                           ->setInputType(EnumInputType::dbid)
-                                                          ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                          ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                               return Users::new()->getHtmlSelectOld()
                                                                                  ->setSourceQuery('SELECT    `accounts_users`.`id`, COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `accounts_users`.`first_names`, `accounts_users`.`last_names`)), ""), `accounts_users`.`nickname`, `accounts_users`.`username`, `accounts_users`.`email`, "' . tr('System') . '") AS `name` 
                                                                                                    FROM      `accounts_users`
@@ -233,7 +233,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                          ->setOptional(true, 'minutes')
                                                          ->setRender(false)
                                                          ->setInputType(EnumInputType::text)
-                                                         ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                         ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                              if ($this->data_view_percentage) {
                                                                  $source = [
                                                                      'minutes' => tr('Minutes'),
@@ -261,7 +261,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
                                                          ->setOptional(true, 'days')
                                                          ->setRender(false)
                                                          ->setInputType(EnumInputType::text)
-                                                         ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                                         ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                              return InputSelect::new()
                                                                                ->setSource([
                                                                                    'none'      => tr('None'),
@@ -1104,9 +1104,9 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
     {
-        $o_definition = $this->o_definitions->get($key, exception: $exception ?? $this->exception_on_get);
+        $_definition = $this->_definitions->get($key, exception: $exception ?? $this->exception_on_get);
 
-        if (!$o_definition?->getRender()) {
+        if (!$_definition?->getRender()) {
             // NOTE: Non-rendered elements will always return null
             return null;
         }
@@ -1440,11 +1440,11 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
      */
     public function getAppliedFiltersObject(): ?IteratorInterface
     {
-        if (empty($this->o_applied_filters)) {
+        if (empty($this->_applied_filters)) {
             return null;
         }
 
-        return $this->o_applied_filters;
+        return $this->_applied_filters;
     }
 
 
@@ -1461,30 +1461,30 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     {
         if (!$this->isValidated() or $force) {
             // Local objects for faster lookups
-            $o_definitions        = $this->o_definitions;
+            $_definitions        = $this->_definitions;
             $require_clean_source = $require_clean_source ?? $this->require_clean_source;
-            $o_validator          = $this->selectValidator()->setDefinitionsObject($o_definitions);
+            $_validator          = $this->selectValidator()->setDefinitionsObject($_definitions);
 
             // Go over each field and let the field definition do the validation since it knows the specs
-            foreach ($o_definitions as $column => $o_definition) {
-                $o_definition->validate($o_validator, null);
+            foreach ($_definitions as $column => $_definition) {
+                $_definition->validate($_validator, null);
 
 // TODO The following code will ALWAYS overwrite valid values with the default value, if it exists. That makes little sense. Should this code be here at all? The validator should take care of that anyways...
-//                if ($o_definition->getDefault()) {
-//                    $o_validator->set($o_definition->getDefault(), $column);
+//                if ($_definition->getDefault()) {
+//                    $_validator->set($_definition->getDefault(), $column);
 //                }
             }
 
             // Validate buttons too
-            if ($o_definitions->hasButtons()) {
-                foreach ($o_definitions->getButtonsObject() as $button) {
-                    $o_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
+            if ($_definitions->hasButtons()) {
+                foreach ($_definitions->getButtonsObject() as $button) {
+                    $_validator->select($button->getName())->isOptional()->hasValue($button->getValue());
                 }
             }
 
             try {
                 // Execute the validate method to get the results of the validation
-                $this->source = $o_validator->validate($require_clean_source);
+                $this->source = $_validator->validate($require_clean_source);
 
             } catch (ValidationFailedException $e) {
                 // Add the DataEntry object type to the exception message
@@ -1492,7 +1492,7 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
             }
 
             // Generate a list of all available filters so that we can tick them off one by one when we apply them later
-            $this->o_applied_filters = new Iterator($o_definitions->getKeyIndices());
+            $this->_applied_filters = new Iterator($_definitions->getKeyIndices());
         }
 
         $this->is_validated = true;
@@ -1503,17 +1503,17 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $o_builder
+     * @param QueryBuilderInterface $_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $_builder): static
     {
         // Local objects for faster lookups
-        $o_definitions     = $this->o_definitions;
-        $o_applied_filters = $this->o_applied_filters;
+        $_definitions     = $this->_definitions;
+        $_applied_filters = $this->_applied_filters;
 
-        if ($o_applied_filters->keyExists('status') and $o_definitions->isRendered('status', false)) {
+        if ($_applied_filters->keyExists('status') and $_definitions->isRendered('status', false)) {
             // Is the status filter rendered and available?
             if ($this->getStatus() !== false) {
                 // Is the status filter not set to "All"?
@@ -1524,43 +1524,43 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
                     case 'active':
                         // Filter for status NULL
-                        $o_builder->addWhere(
-                            QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', null, ':from_status', $o_builder->getExecuteByReference())
+                        $_builder->addWhere(
+                            QueryBuilder::is('`' . $_builder->getFrom() . '`.`status`', null, ':from_status', $_builder->getExecuteByReference())
                         );
                         break;
 
                     default:
                         // Filter for the specified status
-                        $o_builder->addWhere(
-                            QueryBuilder::is('`' . $o_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $o_builder->getExecuteByReference())
+                        $_builder->addWhere(
+                            QueryBuilder::is('`' . $_builder->getFrom() . '`.`status`', $this->getStatus(), ':from_status', $_builder->getExecuteByReference())
                         );
                 }
             }
         }
 
-        if ($o_applied_filters->keyExists('date_range') and $o_definitions->isRendered('date_range', false)) {
+        if ($_applied_filters->keyExists('date_range') and $_definitions->isRendered('date_range', false)) {
             if ($this->getStartDateObject()) {
-                $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDateObject()->format(EnumDateFormat::mysql_datetime)]
+                $_builder->addWhere(
+                    '`' . $_builder->getFrom() . '`.`created_on` >= :start', [':start' => $this->getStartDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
 
             if ($this->getStopDateObject()) {
-                $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDateObject()->format(EnumDateFormat::mysql_datetime)]
+                $_builder->addWhere(
+                    '`' . $_builder->getFrom() . '`.`created_on` <= :stop', [':stop' => $this->getStopDateObject()->format(EnumDateFormat::mysql_datetime)]
                 );
             }
         }
 
-        if ($o_applied_filters->keyExists('users_id') and $o_definitions->isRendered('users_id', false)) {
+        if ($_applied_filters->keyExists('users_id') and $_definitions->isRendered('users_id', false)) {
             if ($this->getUsersId()) {
-                $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
+                $_builder->addWhere(
+                    '`' . $_builder->getFrom() . '`.`created_by` = :created_by', [':created_by' => $this->getUsersId()]
                 );
             }
         }
 
-        $o_applied_filters->removeKeys([
+        $_applied_filters->removeKeys([
             'status',
             'date_range',
             'users_id',

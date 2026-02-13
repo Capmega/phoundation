@@ -21,11 +21,11 @@ interface HtmlDataTableInterface extends HtmlTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param ButtonsInterface|array|string|null $o_buttons
+     * @param ButtonsInterface|array|string|null $_buttons
      *
      * @return static
      */
-    public function setButtonsObject(ButtonsInterface|array|string|null $o_buttons): static;
+    public function setButtonsObject(ButtonsInterface|array|string|null $_buttons): static;
 
 
     /**

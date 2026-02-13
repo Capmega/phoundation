@@ -98,21 +98,21 @@ class Phones extends DataIterator implements PhonesInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|UrlInterface|RenderInterface|null $o_parent
+     * @param DataEntryInterface|UrlInterface|RenderInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $_parent): static
     {
-        if ($o_parent instanceof UserInterface) {
+        if ($_parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
             $this->source = [];
 
-            return $this->__setParent($o_parent);
+            return $this->__setParent($_parent);
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
-            ':parent' => $o_parent,
+            ':parent' => $_parent,
         ]));
     }
 
@@ -127,8 +127,8 @@ class Phones extends DataIterator implements PhonesInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        $this->o_parent  = User::new()->load($this->o_parent);
-        $this->execute = [':users_id' => $this->o_parent->getId()];
+        $this->_parent  = User::new()->load($this->_parent);
+        $this->execute = [':users_id' => $this->_parent->getId()];
 
         return parent::load($identifiers, $like);
     }
@@ -150,11 +150,11 @@ class Phones extends DataIterator implements PhonesInterface
                             ->getHtmlDataEntryFormObject()
                             ->setRenderMeta($meta_visible);
 
-        $o_definitions = $phone->getDefinitionsObject();
-        $o_definitions->get('phone')->setSize(6);
-        $o_definitions->get('account_type')->setSize(6);
-        $o_definitions->get('verified_on')->setRender(false);
-        $o_definitions->get('delete')->setRender(false);
+        $_definitions = $phone->getDefinitionsObject();
+        $_definitions->get('phone')->setSize(6);
+        $_definitions->get('account_type')->setSize(6);
+        $_definitions->get('verified_on')->setRender(false);
+        $_definitions->get('delete')->setRender(false);
 
         $content[] = $phone->render();
 
@@ -166,7 +166,7 @@ class Phones extends DataIterator implements PhonesInterface
         }
 
         return DataEntryForm::new()
-                            ->setDataEntryObject($this->o_parent)
+                            ->setDataEntryObject($this->_parent)
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }
@@ -183,7 +183,7 @@ class Phones extends DataIterator implements PhonesInterface
     {
         $this->checkReadonly('apply');
 
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
 
@@ -248,7 +248,7 @@ class Phones extends DataIterator implements PhonesInterface
                 if ($phone) {
                     $this->add(Phone::new(null)
                                     ->apply(false, $phones[$phone])
-                                    ->setUsersId($this->o_parent->getId())
+                                    ->setUsersId($this->_parent->getId())
                                     ->save());
                 }
             }
@@ -257,7 +257,7 @@ class Phones extends DataIterator implements PhonesInterface
             foreach ($diff['keep'] as $id => $phone) {
                 $this->get($id)
                      ->apply(false, $phones[$phone])
-                     ->setUsersId($this->o_parent->getId())
+                     ->setUsersId($this->_parent->getId())
                      ->save();
             }
         }
@@ -279,7 +279,7 @@ class Phones extends DataIterator implements PhonesInterface
     {
         $this->checkReadonly('save');
 
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot apply phones, no parent user specified'));
         }
 
@@ -316,7 +316,7 @@ class Phones extends DataIterator implements PhonesInterface
         }
 
         // Ensure that the phone list has a parent
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot add phone ":phone" to this phones list, the list has no parent specified', [
                 ':phone' => $value->getLogId(),
             ]));
@@ -324,15 +324,15 @@ class Phones extends DataIterator implements PhonesInterface
 
         // Ensure that the phone has a users id and that the users id matches the id of the users parent
         if ($value->getUsersId()) {
-            if ($value->getUsersId() !== $this->o_parent->getId()) {
+            if ($value->getUsersId() !== $this->_parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified phone ":phone" has a different users id than the users id ":parent" for the phones in this list', [
                     ':phone'  => $value->getPhone(),
-                    ':parent' => $this->o_parent->getId(),
+                    ':parent' => $this->_parent->getId(),
                 ]));
             }
 
         } else {
-            $value->setUsersId($this->o_parent->getId())
+            $value->setUsersId($this->_parent->getId())
                   ->save();
         }
 

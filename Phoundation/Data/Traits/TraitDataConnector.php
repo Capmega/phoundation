@@ -28,9 +28,9 @@ trait TraitDataConnector
      * Tracks the database connector containing the connection information about the database where this DataEntry
      * object is stored
      *
-     * @var ConnectorInterface|null $o_connector
+     * @var ConnectorInterface|null $_connector
      */
-    protected ?ConnectorInterface $o_connector = null;
+    protected ?ConnectorInterface $_connector = null;
 
     /**
      * Tracks the database connector name
@@ -98,36 +98,36 @@ trait TraitDataConnector
      */
     public function getConnectorObject(): ConnectorInterface
     {
-        if (empty($this->o_connector)) {
+        if (empty($this->_connector)) {
             $this->setConnector($this->connector);
         }
 
-        return $this->o_connector;
+        return $this->_connector;
     }
 
 
     /**
      * Sets the database connector
      *
-     * @note  If the specified $o_connector is NULL, it will be ignored
-     * @param ConnectorInterface|null $o_connector
+     * @note  If the specified $_connector is NULL, it will be ignored
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static
     {
-        if ($o_connector) {
-            $this->o_connector = $o_connector;
-            $this->connector   = $o_connector->getName();
+        if ($_connector) {
+            $this->_connector = $_connector;
+            $this->connector   = $_connector->getName();
 
             if ($database) {
-                $this->o_connector->setDatabase($database);
+                $this->_connector->setDatabase($database);
             }
 
         } else {
             $this->connector   = null;
-            $this->o_connector = null;
+            $this->_connector = null;
 
             if ($database) {
                 throw new OutOfBoundsException(tr('Cannot specify a database name without a connector'));

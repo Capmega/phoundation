@@ -130,7 +130,7 @@ $buttons = Buttons::new()->addSaveButton(true);
 
 
 // Build the "user" form
-$o_card = Card::new()
+$_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('My profile information'))
             ->setContent($user->getHtmlDataEntryFormObject())
@@ -139,7 +139,7 @@ $o_card = Card::new()
 
 // Build the grid column with a form containing the user and roles cards
 $column = GridColumn::new()
-                    ->addContent($o_card->render())
+                    ->addContent($_card->render())
                     ->setSize(9)
                     ->useForm(true);
 

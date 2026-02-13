@@ -49,22 +49,22 @@ class Scripts extends Iterator implements ScriptsInterface
      */
     public function current(): mixed
     {
-        $o_script = parent::current();
+        $_script = parent::current();
 
-        if (is_callable($o_script)) {
-            $o_script = $o_script();
+        if (is_callable($_script)) {
+            $_script = $_script();
         }
 
-        if ($o_script instanceof ScriptInterface) {
-            return $o_script;
+        if ($_script instanceof ScriptInterface) {
+            return $_script;
         }
 
-        if (!$o_script) {
+        if (!$_script) {
             return null;
         }
 
         throw new OutOfBoundsException(tr('Script is neither callable or ScriptInterface but ":class"', [
-            ':class' => get_class_or_datatype($o_script)
+            ':class' => get_class_or_datatype($_script)
         ]));
     }
 
@@ -82,8 +82,8 @@ class Scripts extends Iterator implements ScriptsInterface
         $return = null;
 
         if ($this->count()) {
-            foreach ($this as $o_script) {
-                $return .= $o_script?->render();
+            foreach ($this as $_script) {
+                $return .= $_script?->render();
             }
 
             return $return;

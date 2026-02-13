@@ -284,7 +284,7 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Add sudo
-        if (!$this->o_server and $this->sudo) {
+        if (!$this->_server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
@@ -304,14 +304,14 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Execute on a server?
-        if (!empty($this->o_server)) {
+        if (!empty($this->_server)) {
             // Execute on a server!
             if ($this->sudo) {
                 // Add sudo
                 $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
             }
 
-            $this->cached_command_line = $this->o_server->getSshCommandLine($this->cached_command_line);
+            $this->cached_command_line = $this->_server->getSshCommandLine($this->cached_command_line);
         }
 
         // Execute the command in the specified terminal
@@ -437,7 +437,7 @@ abstract class ProcessCore implements ProcessInterface
         }
 
         // Add sudo
-        if (!$this->o_server and $this->sudo) {
+        if (!$this->_server and $this->sudo) {
             $this->cached_command_line = $this->sudo . ' ' . $this->cached_command_line;
         }
 
@@ -763,7 +763,7 @@ abstract class ProcessCore implements ProcessInterface
     public function kill(int $signal = 15): void
     {
         if ($this->pid) {
-            Kill::new($this->o_restrictions)
+            Kill::new($this->_restrictions)
                 ->pid($signal, $this->pid);
         }
     }

@@ -41,15 +41,15 @@ GetValidator::new()->validate();
 
 
 // Build filter card
-$o_filters = FilterForm::new();
-$o_filters->getDefinitionsObject()->setDefinitionRender('rights_id', false)
+$_filters = FilterForm::new();
+$_filters->getDefinitionsObject()->setDefinitionRender('rights_id', false)
                                   ->setDefinitionRender('roles_id' , false)
                                   ->setDefinitionSize('status'     , 6);
 
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Filters')
-                      ->setContent($o_filters);
+                      ->setContent($_filters);
 
 
 // Validate POST and submit
@@ -104,14 +104,14 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get rights object
-$o_rights = Rights::new()->load();
+$_rights = Rights::new()->load();
 
 
 // Build rights card
-$o_rights_card = Card::new()
-                     ->setTitle(tr('Active rights (:count)', [':count' => $o_rights->getCount()]))
+$_rights_card = Card::new()
+                     ->setTitle(tr('Active rights (:count)', [':count' => $_rights->getCount()]))
                      ->setSwitches('reload')
-                     ->setContent($o_rights->setFilterFormObject($o_filters)
+                     ->setContent($_rights->setFilterFormObject($_filters)
                                            ->getHtmlDataTableObject([
                                                'id'          => tr('Id'),
                                                'right'       => tr('Right'),
@@ -128,13 +128,13 @@ $o_rights_card = Card::new()
 
 
 // Add form for the "rights" card
-$o_rights_card->getFormObject()
+$_rights_card->getFormObject()
               ->setAction(Url::newCurrent())
               ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
@@ -143,7 +143,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -160,5 +160,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_rights_card       , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card  . $_rights_card       , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

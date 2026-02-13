@@ -35,15 +35,15 @@ use Phoundation\Web\Requests\Response;
 
 // Build users filter card
 $filters        = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Incidents filters')
                       ->setContent($filters);
 
 
 // Build the incident table
-$o_incidents = Incidents::new()->setFilterFormObject($filters);
-$o_incidents->getQueryBuilderObject()->addSelect('`security_incidents`.`id`')
+$_incidents = Incidents::new()->setFilterFormObject($filters);
+$_incidents->getQueryBuilderObject()->addSelect('`security_incidents`.`id`')
                                      ->addSelect('`security_incidents`.`type`')
                                      ->addSelect('`security_incidents`.`created_on`')
                                      ->addSelect('`security_incidents`.`severity`')
@@ -51,7 +51,7 @@ $o_incidents->getQueryBuilderObject()->addSelect('`security_incidents`.`id`')
                                      ->addSelect('COALESCE(NULLIF(TRIM(CONCAT_WS(" ", `first_names`, `last_names`)), ""), `nickname`, `username`, `email`, "' . tr('System') . '") AS `user`')
                                      ->addJoin('JOIN `accounts_users` ON `accounts_users`.`id` = `security_incidents`.`created_by`')
                                      ->addWhere(QueryBuilder::is('`security_incidents`.`status`', null, ':status'));
-$o_incidents->load();
+$_incidents->load();
 
 
 // Validate POST and submit
@@ -72,7 +72,7 @@ if (Request::isPostRequestMethod()) {
                 ->save();
 
             $success = (tr(':count incidents are being cleared', [
-                ':count' => $o_incidents->getCount()
+                ':count' => $_incidents->getCount()
             ]));
 
             if ($filters->getDateRange()) {
@@ -105,10 +105,10 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the "incidents" card
-$o_incidents_card = Card::new()
-                        ->setTitle(tr('Security incidents (:count)', [':count' => $o_incidents->getCount()]))
+$_incidents_card = Card::new()
+                        ->setTitle(tr('Security incidents (:count)', [':count' => $_incidents->getCount()]))
                         ->setSwitches('reload')
-                        ->setContent($o_incidents->getHtmlDataTableObject([
+                        ->setContent($_incidents->getHtmlDataTableObject([
                             'id'         => tr('Id'),
                             'user'       => tr('User'),
                             'type'       => tr('Type'),
@@ -123,7 +123,7 @@ $o_incidents_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()  : '')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Authentications management')) .
@@ -133,7 +133,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('This page displays all registered security incidents. All incidents, small or big (For example: user typed wrong password), are registered as security incidents, and are visible in this page.');
@@ -150,5 +150,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_incidents_card    , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card  . $_incidents_card    , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

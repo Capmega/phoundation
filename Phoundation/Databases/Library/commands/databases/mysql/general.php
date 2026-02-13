@@ -544,7 +544,7 @@ switch (cli_method()) {
  */
 function s_get_tables($tables, $databases)
 {
-    global $all, $all_tables, $o_connector;
+    global $all, $all_tables, $_connector;
 
     try {
         if ($all) {
@@ -556,13 +556,13 @@ function s_get_tables($tables, $databases)
                  * Show specified tables from all databases
                  */
                 $tables = sql_in($tables);
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ') GROUP BY `TABLE_NAME`', $tables, null, $o_connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ') GROUP BY `TABLE_NAME`', $tables, null, $_connector);
 
             } else {
                 /*
                  * Show all tables from all databases
                  */
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` GROUP BY `TABLE_NAME`', null, null, $o_connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` GROUP BY `TABLE_NAME`', null, null, $_connector);
             }
 
         } else {
@@ -570,7 +570,7 @@ function s_get_tables($tables, $databases)
              * Show all tables from specified databases
              */
             $databases = sql_in($databases);
-            $databases = sql_list('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA` ORDER BY `TABLE_SCHEMA` ASC', $databases, null, $o_connector);
+            $databases = sql_list('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA` ORDER BY `TABLE_SCHEMA` ASC', $databases, null, $_connector);
             $databases = sql_in($databases);
 
             if ($tables) {
@@ -579,13 +579,13 @@ function s_get_tables($tables, $databases)
                  */
                 $tables = sql_in($tables, ':table');
                 $in     = array_merge($databases, $tables);
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') AND `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $o_connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') AND `TABLE_NAME` IN (' . implode(',', array_keys($tables)) . ')  GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $in, null, $_connector);
 
             } else {
                 /*
                  * Show specified tables from specified databases
                  */
-                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $databases, null, $o_connector);
+                $tables = sql_query('SELECT CONCAT(`TABLE_SCHEMA`, `TABLE_NAME`) AS `id`, `TABLE_SCHEMA`, `TABLE_NAME` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN (' . implode(',', array_keys($databases)) . ') GROUP BY `TABLE_SCHEMA`, `TABLE_NAME` ORDER BY `TABLE_SCHEMA` ASC, `TABLE_NAME` ASC', $databases, null, $_connector);
             }
         }
 

@@ -29,9 +29,9 @@ trait TraitDataObjectRights
     /**
      * The rights for this user
      *
-     * @var RightsInterface|null $o_rights
+     * @var RightsInterface|null $_rights
      */
-    protected ?RightsInterface $o_rights = null;
+    protected ?RightsInterface $_rights = null;
 
 
     /**
@@ -52,26 +52,26 @@ trait TraitDataObjectRights
             }
         }
 
-        if (empty($this->o_rights) or $reload) {
-            $this->o_rights = Rights::new()
+        if (empty($this->_rights) or $reload) {
+            $this->_rights = Rights::new()
                                     ->setParentObject($this)
                                     ->load($order ? ['$order' => ['right' => 'asc']] : null);
         }
 
-        return $this->o_rights;
+        return $this->_rights;
     }
 
 
     /**
      * Sets the rights object
      *
-     * @param RightsInterface|null $o_rights
+     * @param RightsInterface|null $_rights
      *
      * @return static
      */
-    protected function setRightsObject(RightsInterface|null $o_rights): static
+    protected function setRightsObject(RightsInterface|null $_rights): static
     {
-        $this->o_rights = $o_rights;
+        $this->_rights = $_rights;
         return $this;
     }
 
@@ -107,13 +107,13 @@ trait TraitDataObjectRights
     /**
      * Adds the specified right to the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function addRight(RightInterface|string|null $o_right): static
+    public function addRight(RightInterface|string|null $_right): static
     {
-        $this->getRightsObject()->add(Right::new()->loadNull($o_right));
+        $this->getRightsObject()->add(Right::new()->loadNull($_right));
         return $this;
     }
 
@@ -121,17 +121,17 @@ trait TraitDataObjectRights
     /**
      * Removes the specified right from the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function removeRight(RightInterface|string|null $o_right): static
+    public function removeRight(RightInterface|string|null $_right): static
     {
-        if ($o_right instanceof RightInterface) {
-            $o_right = $o_right->getName();
+        if ($_right instanceof RightInterface) {
+            $_right = $_right->getName();
         }
 
-        $this->getRightsObject()->removeKeys($o_right);
+        $this->getRightsObject()->removeKeys($_right);
 
         return $this;
     }

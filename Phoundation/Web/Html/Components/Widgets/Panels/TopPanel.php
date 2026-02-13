@@ -43,7 +43,7 @@ class TopPanel extends Panel
 
         parent::__construct($source);
 
-        $this->o_elements = Iterator::new([
+        $this->_elements = Iterator::new([
             'search',
             'notifications',
             'languages',
@@ -58,7 +58,7 @@ class TopPanel extends Panel
      */
     public function render(): ?string
     {
-        if ($this->o_elements->valueExists('notifications')) {
+        if ($this->_elements->valueExists('notifications')) {
             $this->getNotificationsDropDownObject()
                  ->setStatusFilter('UNREAD')
                  ->setNotifications(null)
@@ -66,13 +66,13 @@ class TopPanel extends Panel
                  ->setAllNotificationsUrl('/notifications/unread.html');
         }
 
-        if ($this->o_elements->valueExists('messages')) {
+        if ($this->_elements->valueExists('messages')) {
             $this->getMessagesDropDownObject()
                  ->setMessages(null)
                  ->setMessagesUrl('/messages/unread.html');
         }
 
-        if ($this->o_elements->valueExists('languages')) {
+        if ($this->_elements->valueExists('languages')) {
             $this->getLanguagesDropDownObject()
                  ->setLanguages(null)
                  ->setSettingsUrl('/settings.html');

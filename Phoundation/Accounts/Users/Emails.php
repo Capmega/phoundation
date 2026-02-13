@@ -93,21 +93,21 @@ class Emails extends DataIterator implements EmailsInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static
     {
-        if ($o_parent instanceof UserInterface) {
+        if ($_parent instanceof UserInterface) {
             // Clear the source to avoid having a parent with the wrong children
             $this->source = [];
 
-            return $this->__setParent($o_parent);
+            return $this->__setParent($_parent);
         }
 
         throw new OutOfBoundsException(tr('Specified parent ":parent" is invalid, it must have a UserInterface interface', [
-            ':parent' => $o_parent,
+            ':parent' => $_parent,
         ]));
     }
 
@@ -122,8 +122,8 @@ class Emails extends DataIterator implements EmailsInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        $this->o_parent = User::new()->load($this->o_parent);
-        $this->execute  = [':users_id' => $this->o_parent->getId()];
+        $this->_parent = User::new()->load($this->_parent);
+        $this->execute  = [':users_id' => $this->_parent->getId()];
 
         return parent::load($identifiers, $like);
     }
@@ -145,11 +145,11 @@ class Emails extends DataIterator implements EmailsInterface
                             ->getHtmlDataEntryFormObject()
                                 ->setRenderMeta($meta_visible);
 
-        $o_definitions = $email->getDefinitionsObject();
-        $o_definitions->get('email')->setSize(6);
-        $o_definitions->get('account_type')->setSize(6);
-        $o_definitions->get('verified_on')->setRender(false);
-        $o_definitions->get('delete')->setRender(false);
+        $_definitions = $email->getDefinitionsObject();
+        $_definitions->get('email')->setSize(6);
+        $_definitions->get('account_type')->setSize(6);
+        $_definitions->get('verified_on')->setRender(false);
+        $_definitions->get('delete')->setRender(false);
 
         $content[] = $email->render();
 
@@ -161,7 +161,7 @@ class Emails extends DataIterator implements EmailsInterface
         }
 
         return DataEntryForm::new()
-                            ->setDataEntryObject($this->o_parent)
+                            ->setDataEntryObject($this->_parent)
                             ->appendContent(implode('<hr>', $content))
                             ->setRenderContentsOnly(true);
     }
@@ -178,7 +178,7 @@ class Emails extends DataIterator implements EmailsInterface
     {
         $this->checkReadonly('apply');
 
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot apply emails, no parent user specified'));
         }
 
@@ -227,7 +227,7 @@ class Emails extends DataIterator implements EmailsInterface
                 if ($email) {
                     $this->add(Email::new(null)
                                     ->apply(false, $emails[$email])
-                                    ->setUsersId($this->o_parent->getId())
+                                    ->setUsersId($this->_parent->getId())
                                     ->save());
                 }
             }
@@ -236,7 +236,7 @@ class Emails extends DataIterator implements EmailsInterface
             foreach ($diff['keep'] as $id => $email) {
                 Email::new()->load($id)
                      ->apply(false, $emails[$email])
-                     ->setUsersId($this->o_parent->getId())
+                     ->setUsersId($this->_parent->getId())
                      ->save();
             }
         }
@@ -258,7 +258,7 @@ class Emails extends DataIterator implements EmailsInterface
     {
         $this->checkReadonly('save');
 
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot apply emails, no parent user specified'));
         }
 
@@ -294,7 +294,7 @@ class Emails extends DataIterator implements EmailsInterface
         }
 
         // Ensure that the email list has a parent
-        if (empty($this->o_parent)) {
+        if (empty($this->_parent)) {
             throw new OutOfBoundsException(tr('Cannot add email ":email" to this emails list, the list has no parent specified', [
                 ':email' => $value->getLogId(),
             ]));
@@ -302,15 +302,15 @@ class Emails extends DataIterator implements EmailsInterface
 
         // Ensure that the email has a users id and that the users id matches the id of the users parent
         if ($value->getUsersId()) {
-            if ($value->getUsersId() !== $this->o_parent->getId()) {
+            if ($value->getUsersId() !== $this->_parent->getId()) {
                 throw new OutOfBoundsException(tr('Specified email ":email" has a different users id than the users id ":parent" for the emails in this list', [
                     ':email'  => $value->getEmail(),
-                    ':parent' => $this->o_parent->getId(),
+                    ':parent' => $this->_parent->getId(),
                 ]));
             }
 
         } else {
-            $value->setUsersId($this->o_parent->getId())
+            $value->setUsersId($this->_parent->getId())
                   ->save();
         }
 

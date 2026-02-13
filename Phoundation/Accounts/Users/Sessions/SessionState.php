@@ -33,10 +33,10 @@ class SessionState implements SessionStateInterface
     /**
      * SessionState class constructor
      */
-    public function __construct(UserInterface $o_user)
+    public function __construct(UserInterface $_user)
     {
         if (!array_key_exists('state', $_SESSION)) {
-            $_SESSION['state'] = Json::decode($o_user->getSessionState());
+            $_SESSION['state'] = Json::decode($_user->getSessionState());
         }
     }
 

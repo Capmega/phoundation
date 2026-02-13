@@ -48,9 +48,9 @@ class Activity implements ActivityInterface, RenderInterface
     /**
      * Caches the user that created this activity
      *
-     * @var UserInterface $o_user
+     * @var UserInterface $_user
      */
-    protected UserInterface $o_user;
+    protected UserInterface $_user;
 
     /**
      * Caches the DateTime object for when this activity was created
@@ -115,11 +115,11 @@ class Activity implements ActivityInterface, RenderInterface
     public function getUserObject(): ?UserInterface
     {
         if (array_key_exists('created_by', $this->source)) {
-            if (empty($this->o_user)) {
-                $this->o_user = new User($this->source['created_by']);
+            if (empty($this->_user)) {
+                $this->_user = new User($this->source['created_by']);
             }
 
-            return $this->o_user;
+            return $this->_user;
         }
 
         return null;

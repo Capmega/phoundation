@@ -120,12 +120,12 @@ trait TraitDataEntryCounty
     /**
      * Returns the counties_id for this user
      *
-     * @param CountyInterface|null $o_object
+     * @param CountyInterface|null $_object
      *
      * @return static
      */
-    public function setCountyObject(?CountyInterface $o_object): static
+    public function setCountyObject(?CountyInterface $_object): static
     {
-        return $this->setVirtualObject('counties', $o_object);
+        return $this->setVirtualObject('counties', $_object);
     }
 }

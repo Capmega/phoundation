@@ -27,9 +27,9 @@ trait TraitDataIteratorUrls
     /**
      * Tracks the urls iterator
      *
-     * @var IteratorInterface $o_urls
+     * @var IteratorInterface $_urls
      */
-    protected IteratorInterface $o_urls;
+    protected IteratorInterface $_urls;
 
 
     /**
@@ -39,24 +39,24 @@ trait TraitDataIteratorUrls
      */
     public function getUrlsObject(): IteratorInterface
     {
-        if (empty($this->o_urls)) {
-            $this->o_urls = new Iterator();
+        if (empty($this->_urls)) {
+            $this->_urls = new Iterator();
         }
 
-        return $this->o_urls;
+        return $this->_urls;
     }
 
 
     /**
      * Returns the urls iterator
      *
-     * @param IteratorInterface|array $o_urls
+     * @param IteratorInterface|array $_urls
      *
      * @return static
      */
-    public function setUrlsObject(IteratorInterface|array $o_urls): static
+    public function setUrlsObject(IteratorInterface|array $_urls): static
     {
-        $this->o_urls = new Iterator($o_urls);
+        $this->_urls = new Iterator($_urls);
         return $this;
     }
 
@@ -64,16 +64,16 @@ trait TraitDataIteratorUrls
     /**
      * Adds the specified urls iterator
      *
-     * @param IteratorInterface|array $o_urls
+     * @param IteratorInterface|array $_urls
      *
      * @return static
      */
-    public function addUrlsObject(IteratorInterface|array $o_urls): static
+    public function addUrlsObject(IteratorInterface|array $_urls): static
     {
         $this->getUrlsObject();
 
-        foreach ($o_urls as $key => $value) {
-            $this->o_urls->add($value, $key);
+        foreach ($_urls as $key => $value) {
+            $this->_urls->add($value, $key);
         };
 
         return $this;

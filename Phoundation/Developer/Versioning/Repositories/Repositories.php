@@ -74,7 +74,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      *
      * @var FindInterface
      */
-    protected FindInterface $o_find;
+    protected FindInterface $_find;
 
     /**
      * Tracks the number of new repositories found
@@ -101,13 +101,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     /**
      * RemoteRepositories class constructor
      *
-     * @param PhoPathInterface|null $o_parent_path
+     * @param PhoPathInterface|null $_parent_path
      */
-    public function __construct(?PhoPathInterface $o_parent_path = null)
+    public function __construct(?PhoPathInterface $_parent_path = null)
     {
         parent::__construct();
 
-        $this->construct($o_parent_path);
+        $this->construct($_parent_path);
 
         $this->setKeysAreUniqueColumn(true)
              ->setInjectSourceDirectly(false)
@@ -155,7 +155,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function getResultsWithPermissionDenied(): array
     {
-        return $this->o_find?->getResultsWithPermissionDenied();
+        return $this->_find?->getResultsWithPermissionDenied();
     }
 
 
@@ -293,8 +293,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $source = [];
 
-        foreach ($this as $o_repository) {
-            $source[] = $o_repository->getSource();
+        foreach ($this as $_repository) {
+            $source[] = $_repository->getSource();
         }
 
         Cli::displayTable($source, $columns, $id_column);
@@ -312,8 +312,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function fetch(string|bool|null $remote = null, bool $all = true): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->fetch($remote, $all);
+        foreach ($this as $_repository) {
+            $_repository->fetch($remote, $all);
         }
 
         return $this;
@@ -333,8 +333,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $this->checkNoneHaveChanges('push');
 
-        foreach ($this as $o_repository) {
-            $o_repository->push($remote, $branch, $set_upstream);
+        foreach ($this as $_repository) {
+            $_repository->push($remote, $branch, $set_upstream);
         }
 
         return $this;
@@ -353,8 +353,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $this->checkNoneHaveChanges('pull');
 
-        foreach ($this as $o_repository) {
-            $o_repository->pull($remote, $branch);
+        foreach ($this as $_repository) {
+            $_repository->pull($remote, $branch);
         }
 
         return $this;
@@ -382,13 +382,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             ':path' => $_path,
         ]));
 
-        $this->o_find = Find::new()
+        $this->_find = Find::new()
                             ->setIgnorePermissionDeniedInResults(true)
                             ->setPathObject($_path)
                             ->setType('d')
                             ->setName('.git');
 
-        $found         = $this->o_find->executeReturnArray();
+        $found         = $this->_find->executeReturnArray();
         $this->backups = [];
 
         foreach ($found as $repository_path) {
@@ -546,9 +546,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $_status_files = StatusFiles::new();
 
-        foreach ($this as $o_repository) {
-            $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
-            $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+        foreach ($this as $_repository) {
+            $_status_files->getRestrictionsObject()->addRestrictions($_repository->getRestrictionsObject());
+            $_status_files->addSource($_repository->getStatusObject()->scanChanges()->getSource());
         }
 
         return $_status_files;
@@ -564,9 +564,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $_status_files = StatusFiles::new();
 
-        foreach ($this as $o_repository) {
-            $_status_files->getRestrictionsObject()->addRestrictions($o_repository->getRestrictionsObject());
-            $_status_files->addSource($o_repository->getStatusObject()->scanChanges()->getSource());
+        foreach ($this as $_repository) {
+            $_status_files->getRestrictionsObject()->addRestrictions($_repository->getRestrictionsObject());
+            $_status_files->addSource($_repository->getStatusObject()->scanChanges()->getSource());
         }
 
         return $_status_files;
@@ -586,8 +586,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         // Check the selected main project repository first
         // The repository version MUST match the configured version
         try {
-            $o_repository = $this->get(Project::getDirectoryName());
-            $branch       = $o_repository->getSelectedBranch(true);
+            $_repository = $this->get(Project::getDirectoryName());
+            $branch       = $_repository->getSelectedBranch(true);
             $version      = Project::getVersion();
             $version      = Strings::untilReverse($version, '.');
 
@@ -624,16 +624,16 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             }
 
             if (isset($e)) {
-                if (!$o_repository->branchExists($version)) {
+                if (!$_repository->branchExists($version)) {
                     throw $e;
                 }
 
                 Log::warning(ts('Project branch ":branch" either has an invalid value or does not match the selected project version ":version", selecting correct branch to be able to continue', [
-                    ':branch'  => $o_repository->getSelectedBranch(),
+                    ':branch'  => $_repository->getSelectedBranch(),
                     ':version' => $version
                 ]));
 
-                $o_repository->selectBranch($version);
+                $_repository->selectBranch($version);
             }
 
         } catch (NotExistsException) {
@@ -663,8 +663,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function anyHaveBranch(string $branch, bool $auto_create = false): bool
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->branchExists($branch, auto_create: $auto_create)) {
+        foreach ($this as $_repository) {
+            if ($_repository->branchExists($branch, auto_create: $auto_create)) {
                 return true;
             }
         }
@@ -706,8 +706,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allHaveBranch(string $branch, bool $auto_create = false): bool
     {
-        foreach ($this as $o_repository) {
-            if (!$o_repository->branchExists($branch, auto_create: $auto_create)) {
+        foreach ($this as $_repository) {
+            if (!$_repository->branchExists($branch, auto_create: $auto_create)) {
                 return false;
             }
         }
@@ -748,8 +748,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function anyIsOnBranch(string $branch): bool
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->isOnBranch($branch)) {
+        foreach ($this as $_repository) {
+            if ($_repository->isOnBranch($branch)) {
                 return true;
             }
         }
@@ -767,8 +767,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allAreOnBranch(string $branch): bool
     {
-        foreach ($this as $o_repository) {
-            if (!$o_repository->isOnBranch($branch)) {
+        foreach ($this as $_repository) {
+            if (!$_repository->isOnBranch($branch)) {
                 return false;
             }
         }
@@ -790,8 +790,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function checkNoneAreOnBranch(string $branch, string $action): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->checkIsNotOnBranch($branch, $action);
+        foreach ($this as $_repository) {
+            $_repository->checkIsNotOnBranch($branch, $action);
         }
 
         return $this;
@@ -807,9 +807,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $return = [];
 
-        foreach ($this as $o_repository) {
-            if ($o_repository->hasChanges()) {
-                $return[$o_repository->getName()] = $o_repository;
+        foreach ($this as $_repository) {
+            if ($_repository->hasChanges()) {
+                $return[$_repository->getName()] = $_repository;
             }
         }
 
@@ -824,8 +824,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function anyHaveChanges(): bool
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->hasChanges()) {
+        foreach ($this as $_repository) {
+            if ($_repository->hasChanges()) {
                 return true;
             }
         }
@@ -871,10 +871,10 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allHaveBranchSelected(string $phoundation_branch, string $project_branch): bool
     {
-        foreach ($this as $o_repository) {
-            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+        foreach ($this as $_repository) {
+            $branch = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
 
-            if (!$o_repository->hasBranchSelected($branch)) {
+            if (!$_repository->hasBranchSelected($branch)) {
                 return false;
             }
         }
@@ -895,11 +895,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $return = [];
 
-        foreach ($this as $o_repository) {
-            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+        foreach ($this as $_repository) {
+            $branch = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
 
-            if (!$o_repository->hasBranchSelected($branch)) {
-                $return[$o_repository->getName()] = $o_repository->getName();
+            if (!$_repository->hasBranchSelected($branch)) {
+                $return[$_repository->getName()] = $_repository->getName();
             }
         }
 
@@ -943,11 +943,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allHaveSuffixOrVersionBranch(string $phoundation_version, string $project_version, string $phoundation_branch, string $project_branch): bool
     {
-        foreach ($this as $o_repository) {
-            $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+        foreach ($this as $_repository) {
+            $branch  = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
-            if (!$o_repository->hasBranchOrVersionBranch($version, $branch)) {
+            if (!$_repository->hasBranchOrVersionBranch($version, $branch)) {
                 return false;
             }
         }
@@ -976,17 +976,17 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $phoundation_version = Strings::untilReverse($phoundation_version, '.');
         $phoundation_branch  = $phoundation_version . ($suffix ? '-' . $suffix : null);
 
-        foreach ($this as $o_repository) {
+        foreach ($this as $_repository) {
             // Only work on Phoundation type repositories
-            if ($o_repository->isPhoundation()) {
-                $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
+            if ($_repository->isPhoundation()) {
+                $branch  = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
                 $version = null;
 
                 if ($check_versions) {
-                    $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+                    $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
                 }
 
-                $o_repository->checkHasBranchOrVersionBranch($version, $branch);
+                $_repository->checkHasBranchOrVersionBranch($version, $branch);
             }
         }
 
@@ -1001,8 +1001,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allHaveTypeBranchSelected(): bool
     {
-        foreach ($this as $o_repository) {
-            if (!$o_repository->hasTypeBranchSelected()) {
+        foreach ($this as $_repository) {
+            if (!$_repository->hasTypeBranchSelected()) {
                 return false;
             }
         }
@@ -1044,8 +1044,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $this->checkNoneHaveBranch($branch, ts('create branch'));
 
-        foreach ($this as $o_repository) {
-            $o_repository->createBranch($branch, $reset, $remote, $set_upstream);
+        foreach ($this as $_repository) {
+            $_repository->createBranch($branch, $reset, $remote, $set_upstream);
         }
 
         return $this;
@@ -1062,8 +1062,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function deleteBranch(string $branch, string|bool $remote = true): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->deleteBranch($branch, $remote);
+        foreach ($this as $_repository) {
+            $_repository->deleteBranch($branch, $remote);
         }
 
         return $this;
@@ -1082,8 +1082,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     {
         $this->checkAllHaveBranch($branch, ts('select branch'), $auto_create);
 
-        foreach ($this as $o_repository) {
-            $o_repository->selectBranch($branch, $auto_create, $upstream);
+        foreach ($this as $_repository) {
+            $_repository->selectBranch($branch, $auto_create, $upstream);
         }
 
         return $this;
@@ -1109,27 +1109,27 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
              ->checkProjectRepositoryVersion(ts('select version branch'), true);
 
         // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $branch  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+        foreach ($this as $_repository) {
+            $branch  = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
+            $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
-            if ($o_repository->branchExists($branch)) {
+            if ($_repository->branchExists($branch)) {
                 Log::action(ts('Selecting version branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
-                    ':type'       => $o_repository->getType(),
-                    ':repository' => $o_repository->getName(),
+                    ':type'       => $_repository->getType(),
+                    ':repository' => $_repository->getName(),
                 ]));
 
-                $o_repository->selectBranch($branch)
+                $_repository->selectBranch($branch)
                              ->pull();
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX branch, IF we have VERSION branch available
-                if (!$o_repository->branchExists($version)) {
+                if (!$_repository->branchExists($version)) {
                     throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
                         ':branch'     => $branch,
-                        ':repository' => $o_repository->getName(),
+                        ':repository' => $_repository->getName(),
                         ':version'    => $version,
                     ]));
                 }
@@ -1137,13 +1137,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                 Log::action(ts('Creating and pushing required branch ":branch" from version branch ":version" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':version'    => $version,
-                    ':type'       => $o_repository->getType(),
-                    ':repository' => $o_repository->getName(),
+                    ':type'       => $_repository->getType(),
+                    ':repository' => $_repository->getName(),
                 ]));
 
-                $o_repository->selectBranch($version)
+                $_repository->selectBranch($version)
                              ->createBranch($branch)
-                             ->push($o_repository->selectRemoteRepository(), $branch)
+                             ->push($_repository->selectRemoteRepository(), $branch)
                              ->selectBranch($branch);
 
             } else {
@@ -1151,7 +1151,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
                 // We cannot create the branch automatically, because from where?!
                 throw new RepositoriesVersionBranchNotExistsException(ts('Cannot select branch ":branch" for repository ":repository" because the repository does not have the required version branch ":version" available', [
                     ':branch'     => $branch,
-                    ':repository' => $o_repository->getName(),
+                    ':repository' => $_repository->getName(),
                     ':version'    => $version,
                 ]));
             }
@@ -1189,9 +1189,9 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         }
 
         // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $o_repository->deleteBranch($branch, $remote);
+        foreach ($this as $_repository) {
+            $branch = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
+            $_repository->deleteBranch($branch, $remote);
         }
 
         return $this;
@@ -1211,8 +1211,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function checkNoneIsOnTag(string $tag, string $action): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->checkIsOnTag($tag, $action);
+        foreach ($this as $_repository) {
+            $_repository->checkIsOnTag($tag, $action);
         }
 
         return $this;
@@ -1228,8 +1228,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function anyHaveTag(string $tag): bool
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->tagExists($tag)) {
+        foreach ($this as $_repository) {
+            if ($_repository->tagExists($tag)) {
                 return true;
             }
         }
@@ -1270,8 +1270,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function allHaveTag(string $tag, bool $auto_create = false): bool
     {
-        foreach ($this as $o_repository) {
-            if (!$o_repository->tagExists($tag)) {
+        foreach ($this as $_repository) {
+            if (!$_repository->tagExists($tag)) {
                 return false;
             }
         }
@@ -1315,11 +1315,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function checkAllHaveSuffixOrVersionTag(string $phoundation_version, string $project_version, string $phoundation_tag, string $project_tag): static
     {
-        foreach ($this as $o_repository) {
-            $tag     = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
-            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+        foreach ($this as $_repository) {
+            $tag     = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
-            $o_repository->checkHasSuffixOrVersionTag($version, $tag);
+            $_repository->checkHasSuffixOrVersionTag($version, $tag);
         }
 
         return $this;
@@ -1340,8 +1340,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         $this->checkNoneHaveTag($tag, ts('create tag'));
 showdie();
 
-        foreach ($this as $o_repository) {
-            $o_repository->createTag($tag, $message, $signed);
+        foreach ($this as $_repository) {
+            $_repository->createTag($tag, $message, $signed);
         }
 
         return $this;
@@ -1356,8 +1356,8 @@ showdie();
      */
     public function createLightweightTag(string $name): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->createLightweightTag($name);
+        foreach ($this as $_repository) {
+            $_repository->createLightweightTag($name);
         }
 
         return $this;
@@ -1374,8 +1374,8 @@ showdie();
      */
     public function selectTag(string $branch, bool $auto_create = false, bool $upstream = false): static
     {
-        foreach ($this as $o_repository) {
-            $o_repository->selectTag($branch);
+        foreach ($this as $_repository) {
+            $_repository->selectTag($branch);
         }
 
         return $this;
@@ -1394,8 +1394,8 @@ showdie();
     {
         $this->checkNoneIsOnTag($tag, ts('delete tag'));
 
-        foreach ($this as $o_repository) {
-            $o_repository->deleteTag($tag, $remote);
+        foreach ($this as $_repository) {
+            $_repository->deleteTag($tag, $remote);
         }
 
         return $this;
@@ -1431,26 +1431,26 @@ showdie();
         $this->checkProjectRepositoryVersion(ts('select tag'), true);
 
         // Go over each repository, switch each to the correct tag
-        foreach ($this as $o_repository) {
-            $tag  = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_tag , $project_tag);
-            $version = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_version, $project_version);
+        foreach ($this as $_repository) {
+            $tag  = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_tag , $project_tag);
+            $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the tag, or do we have to create and push it first?
-            if ($o_repository->tagExists($tag)) {
+            if ($_repository->tagExists($tag)) {
                 Log::action(ts('Selecting auto-tag ":tag" for ":type" repository ":repository"', [
                     ':tag'     => $tag,
-                    ':type'       => $o_repository->getType(),
-                    ':repository' => $o_repository->getName(),
+                    ':type'       => $_repository->getType(),
+                    ':repository' => $_repository->getName(),
                 ]));
 
-                $o_repository->selectTag($tag);
+                $_repository->selectTag($tag);
 
             } elseif ($suffix) {
                 // Great, we have a suffix, so we COULD switch to the VERSION-SUFFIX tag, IF we have VERSION tag available
-                if (!$o_repository->tagExists($version)) {
+                if (!$_repository->tagExists($version)) {
                     throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
                         ':tag'     => $tag,
-                        ':repository' => $o_repository->getName(),
+                        ':repository' => $_repository->getName(),
                         ':version'    => $version,
                     ]));
                 }
@@ -1458,20 +1458,20 @@ showdie();
                 Log::action(ts('Creating and pushing required tag ":tag" from version tag ":version" for ":type" repository ":repository"', [
                     ':tag'     => $tag,
                     ':version'    => $version,
-                    ':type'       => $o_repository->getType(),
-                    ':repository' => $o_repository->getName(),
+                    ':type'       => $_repository->getType(),
+                    ':repository' => $_repository->getName(),
                 ]));
 
-                $o_repository->selectTag($version)
+                $_repository->selectTag($version)
                              ->createTag($tag)
-                             ->push($o_repository->selectRemoteRepository(), $tag);
+                             ->push($_repository->selectRemoteRepository(), $tag);
 
             } else {
                 // Problem! The repository does not have the requested tag which is an exact version, without a suffix.
                 // We cannot create the tag automatically, because from where?!
                 throw new RepositoriesVersionTagNotExistsException(ts('Cannot select tag ":tag" for repository ":repository" because the repository does not have the required version tag ":version" available', [
                     ':tag'     => $tag,
-                    ':repository' => $o_repository->getName(),
+                    ':repository' => $_repository->getName(),
                     ':version'    => $version,
                 ]));
             }
@@ -1508,9 +1508,9 @@ showdie();
         }
 
         // Go over each repository, switch each to the correct branch
-        foreach ($this as $o_repository) {
-            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch , $project_branch);
-            $o_repository->deleteTag($branch, $remote);
+        foreach ($this as $_repository) {
+            $branch = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch , $project_branch);
+            $_repository->deleteTag($branch, $remote);
         }
 
         return $this;
@@ -1524,8 +1524,8 @@ showdie();
      */
     public function allHaveTypeTagSelected(): bool
     {
-        foreach ($this as $o_repository) {
-            if (!$o_repository->hasTypeTagSelected()) {
+        foreach ($this as $_repository) {
+            if (!$_repository->hasTypeTagSelected()) {
                 return false;
             }
         }
@@ -1593,9 +1593,9 @@ showdie();
     {
         $this->checkAllHaveCorrectVersionSelected(ts('release ' . $class->value));
 showdie('YAY!');
-        foreach ($this as $o_repository) {
-            if ($o_repository->isClass($class)) {
-                $o_repository->upgradeRevision($increase ?? 1);
+        foreach ($this as $_repository) {
+            if ($_repository->isClass($class)) {
+                $_repository->upgradeRevision($increase ?? 1);
             }
         }
 
@@ -1659,9 +1659,9 @@ showdie('YAY!');
      */
     public function getProjectRepositoryObject(bool $exception = true): ?RepositoryInterface
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->hasType('project')) {
-                return $o_repository;
+        foreach ($this as $_repository) {
+            if ($_repository->hasType('project')) {
+                return $_repository;
             }
         }
 
@@ -1713,9 +1713,9 @@ showdie('YAY!');
      */
     public function detectProjectBranch(): string
     {
-        foreach ($this as $o_repository) {
-            if ($o_repository->hasType('project')) {
-                return $o_repository->getBranch();
+        foreach ($this as $_repository) {
+            if ($_repository->hasType('project')) {
+                return $_repository->getBranch();
             }
         }
 
@@ -1783,10 +1783,10 @@ showdie('YAY!');
 
         $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create);
 
-        foreach ($this as $o_repository) {
-            $branch = $this->getPhoundationOrProjectForType($o_repository->getType(), $o_repository->getName(), $phoundation_branch, $project_branch);
+        foreach ($this as $_repository) {
+            $branch = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_branch, $project_branch);
 
-            if ($o_repository->hasBranchSelected($branch)) {
+            if ($_repository->hasBranchSelected($branch)) {
                 continue;
             }
 
@@ -1830,8 +1830,8 @@ showdie('YAY!');
              ->checkHasProjectVersionSuffixSelected(ts('update suffix branches'))
              ->checkAllHaveSuffixOrVersionBranch($this->getProjectSelectedBranchSuffix());
 
-        foreach ($this as $o_repository) {
-            $o_repository->updateVersionBranch($all_version_branches);
+        foreach ($this as $_repository) {
+            $_repository->updateVersionBranch($all_version_branches);
         }
 
         return $this;
@@ -1852,8 +1852,8 @@ showdie('YAY!');
              ->checkAllOnSameVersionSuffix(ts('select auto-branch'))
              ->checkAllHaveVersionSuffixBranches(ts('select auto-branch'), $suffixes);
 
-        foreach ($this as $o_repository) {
-            $o_repository->mergeVersionSuffixes($suffixes);
+        foreach ($this as $_repository) {
+            $_repository->mergeVersionSuffixes($suffixes);
         }
 
         return $this;

@@ -2201,8 +2201,8 @@ class Url implements UrlInterface
      */
     public function getRightsObject(bool $use_cache = true): RightsInterface
     {
-        if (empty($this->o_rights) or !$use_cache) {
-            $this->o_rights = RightsBySeoName::new()->setParentObject($this);
+        if (empty($this->_rights) or !$use_cache) {
+            $this->_rights = RightsBySeoName::new()->setParentObject($this);
 
             if ($this->source) {
                 // Only check rights on local URL's. This means only URL's without host, or with internal / configured hosts
@@ -2214,18 +2214,18 @@ class Url implements UrlInterface
 
                     if ($parsed === null) {
                         // No rights are required at all, we can ignore minimum rights
-                        return $this->o_rights;
+                        return $this->_rights;
                     }
 
                     // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
-                    $this->o_rights->setSource(array_merge($this->getMimimumRights(),
+                    $this->_rights->setSource(array_merge($this->getMimimumRights(),
                                                            $parsed,
-                                                           $this->o_rights?->getSourceKeys() ?? []));
+                                                           $this->_rights?->getSourceKeys() ?? []));
                 }
             }
         }
 
-        return $this->o_rights;
+        return $this->_rights;
     }
 
 
@@ -2327,33 +2327,33 @@ class Url implements UrlInterface
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
+    public function userHasAccess(?UserInterface $_user = null, bool $use_cache = true): bool
     {
-        return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
+        return ($_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
     }
 
 
     /**
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return static
      */
-    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
+    public function checkUserAccess(?UserInterface $_user = null, bool $use_cache = true): static
     {
-        if ($this->userHasAccess($o_user, $use_cache)) {
+        if ($this->userHasAccess($_user, $use_cache)) {
             return $this;
         }
 
         throw AccessDeniedException::new(tr('The user ":user" does not have access to URL ":url"', [
-            ':user' => $o_user->getLogId(),
+            ':user' => $_user->getLogId(),
             ':url'  => $this->getSource(),
         ]));
     }
@@ -2363,12 +2363,12 @@ class Url implements UrlInterface
      * Returns an Anchor object with this URL
      *
      * @param string|null           $content
-     * @param EnumAnchorTarget|null $o_target
+     * @param EnumAnchorTarget|null $_target
      *
      * @return AnchorInterface
      */
-    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
+    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $_target = null): AnchorInterface
     {
-        return Anchor::new($this, $content)->setTargetObject($o_target);
+        return Anchor::new($this, $content)->setTargetObject($_target);
     }
 }

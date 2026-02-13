@@ -70,7 +70,7 @@ class Schema implements SchemaInterface
         }
 
         $this->setConnector($connector);
-        $this->sql = new Sql($this->o_connector, $use_database);
+        $this->sql = new Sql($this->_connector, $use_database);
     }
 
 

@@ -252,7 +252,7 @@ class Button extends Input implements ButtonInterface
         }
 
         // Should we render this URL at all?
-        if ($this->o_url) {
+        if ($this->_url) {
             // Should we render this URL at all?
             if (!$this->hasRenderRights()) {
                 return null;

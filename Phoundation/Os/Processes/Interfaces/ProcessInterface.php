@@ -24,11 +24,11 @@ interface ProcessInterface extends ProcessVariablesInterface
     /**
      * Sets the server on which this command should be executed
      *
-     * @param ServerInterface|string|null $o_server
+     * @param ServerInterface|string|null $_server
      *
      * @return static
      */
-    public function setServerObject(ServerInterface|string|null $o_server): static;
+    public function setServerObject(ServerInterface|string|null $_server): static;
 
 
     /**

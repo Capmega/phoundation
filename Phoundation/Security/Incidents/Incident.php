@@ -575,13 +575,13 @@ class Incident extends DataEntryCore implements IncidentInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return Incident
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->removeKeys('meta_divider')
+        $_definitions->removeKeys('meta_divider')
 
                       ->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
@@ -630,8 +630,8 @@ class Incident extends DataEntryCore implements IncidentInterface
                                     ->setSize(12)
                                     ->setRows(15)
                                     ->setMaxLength(16_777_200)
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->sanitizeEncodeJson();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->sanitizeEncodeJson();
                                     })
                                     ->setDisplayCallback(function (mixed $details, array $source) {
                                         // Since the details almost always have an array encoded in JSON, decode it and

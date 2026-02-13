@@ -87,7 +87,7 @@ if (!$authentication->isNew()) {
 
 // Build the "authentication" card
 $form = $authentication->getHtmlDataEntryFormObject();
-$o_card = Card::new()
+$_card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)
             ->setButtonsObject(Buttons::new()
@@ -97,7 +97,7 @@ $o_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
@@ -108,7 +108,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -131,5 +131,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_card                               , EnumDisplaySize::nine, true)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_card                               , EnumDisplaySize::nine, true)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

@@ -24,9 +24,9 @@ trait TraitDataDefinitions
     /**
      * The DataEntry / DataForm definitions object
      *
-     * @var DefinitionsInterface|null $o_definitions
+     * @var DefinitionsInterface|null $_definitions
      */
-    protected ?DefinitionsInterface $o_definitions = null;
+    protected ?DefinitionsInterface $_definitions = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataDefinitions
      */
     public function getDefinitionsObject(): ?DefinitionsInterface
     {
-        return $this->o_definitions;
+        return $this->_definitions;
     }
 
 
     /**
      * Sets the DataEntry / DataForm definitions object
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    public function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    public function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $this->o_definitions = $o_definitions;
+        $this->_definitions = $_definitions;
         return $this;
     }
 }

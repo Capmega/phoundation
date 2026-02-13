@@ -25,9 +25,9 @@ trait TraitDataUrlObject
     /**
      * The url for this object
      *
-     * @var UrlInterface|null $o_url
+     * @var UrlInterface|null $_url
      */
-    protected ?UrlInterface $o_url = null;
+    protected ?UrlInterface $_url = null;
 
 
     /**
@@ -37,7 +37,7 @@ trait TraitDataUrlObject
      */
     public function getUrl(): ?string
     {
-        return $this->o_url->getSource();
+        return $this->_url->getSource();
     }
 
 
@@ -50,7 +50,7 @@ trait TraitDataUrlObject
      */
     public function setUrl(?string $url): static
     {
-        $this->o_url = Url::new($url);
+        $this->_url = Url::new($url);
         return $this;
     }
 
@@ -62,24 +62,24 @@ trait TraitDataUrlObject
      */
     public function getUrlObject(): ?UrlInterface
     {
-        return $this->o_url;
+        return $this->_url;
     }
 
 
     /**
      * Sets the url
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      *
      * @return static
      */
-    public function setUrlObject(UrlInterface|string|null $o_url): static
+    public function setUrlObject(UrlInterface|string|null $_url): static
     {
-        if (is_string($o_url)) {
-            $o_url = new Url($o_url);
+        if (is_string($_url)) {
+            $_url = new Url($_url);
         }
 
-        $this->o_url = get_null($o_url);
+        $this->_url = get_null($_url);
         return $this;
     }
 }

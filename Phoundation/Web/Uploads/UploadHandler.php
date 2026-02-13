@@ -295,13 +295,13 @@ class UploadHandler implements UploadHandlerInterface
         // Ensure the file has the correct extension
         $file->ensureExtensionMatchesMimetype();
 
-//        $o_validator = FileValidator::new($file);
+//        $_validator = FileValidator::new($file);
 //
 //        foreach ($this->validations as $function) {
-//            $function($o_validator);
+//            $function($_validator);
 //        }
 //
-//        $o_validator->validate();
+//        $_validator->validate();
 
         $this->validated = true;
         return $file;

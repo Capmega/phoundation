@@ -65,11 +65,11 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param GitInterface $o_git
+     * @param GitInterface $_git
      *
      * @return static
      */
-    public function setGitObject(GitInterface $o_git): static;
+    public function setGitObject(GitInterface $_git): static;
 
     /**
      * Returns the server restrictions
@@ -81,7 +81,7 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions The file restrictions to apply to this object
      * @param bool $write If $restrictions is not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
@@ -93,16 +93,16 @@ interface RepositoryInterface extends DataEntryInterface
      *                                                                   convert that into a FsRestrictions object and
      *                                                                   this is the $label modifier for that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
 
     /**
      * Returns the path for this object
@@ -121,11 +121,11 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Sets the path for this object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static;
+    public function setPathObject(?PhoPathInterface $_path): static;
 
     /**
      * Returns the current git branch for this repository

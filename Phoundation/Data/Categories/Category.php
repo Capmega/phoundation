@@ -132,16 +132,16 @@ class Category extends DataEntry implements CategoryInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(Definition::new('parents_id')
+        $_definitions->add(Definition::new('parents_id')
                                       ->setOptional(true)
                                       ->setElement(EnumElement::select)
-                                      ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                      ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                         return Categories::new()
                                                          ->getHtmlSelectOld()
                                                          ->setName($field_name)
@@ -149,9 +149,9 @@ class Category extends DataEntry implements CategoryInterface
                                     })
                                       ->setSize(6)
                                       ->setLabel(tr('Parent category'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
                                         // Ensure parents_id exists and that its or parent
-                                        $o_validator->orColumn('parent')
+                                        $_validator->orColumn('parent')
                                                   ->isDbId()
                                                   ->isQueryResult('SELECT `id` 
                                                                    FROM   `categories` 
@@ -175,9 +175,9 @@ class Category extends DataEntry implements CategoryInterface
                                                              ->getSource();
                                         },
                                     ])
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
                                         // Ensure parent exists and that its or parents_id
-                                        $o_validator->orColumn('parents_id')
+                                        $_validator->orColumn('parents_id')
                                                   ->isName(64)
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` 
                                                                                       FROM   `categories` 
@@ -188,8 +188,8 @@ class Category extends DataEntry implements CategoryInterface
                                     }))
 
                     ->add(DefinitionFactory::newName()
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isFalse(function ($value, $source) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isFalse(function ($value, $source) {
                                                    Category::exists(['name' => $value], array_get_safe($source, 'id'));
                                                }, tr('already exists'));
                                            }))

@@ -42,15 +42,15 @@ GetValidator::new()->validate();
 
 
 // Build filter card
-$o_filters = FilterForm::new();
-$o_filters->getDefinitionsObject()->setDefinitionRender('roles_id', false)
+$_filters = FilterForm::new();
+$_filters->getDefinitionsObject()->setDefinitionRender('roles_id', false)
                                   ->setDefinitionSize('rights_id' , 6)
                                   ->setDefinitionSize('status'    , 6);
 
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                ->setCollapseSwitch(true)
                ->setTitle('Filters')
-               ->setContent($o_filters);
+               ->setContent($_filters);
 
 
 // Validate POST and submit
@@ -65,11 +65,11 @@ if (Request::isPostRequestMethod()) {
             case tr('Delete'):
                 if ($post['id']) {
                     foreach ($post['id'] as $id) {
-                        $o_role = Role::new($id)->delete();
+                        $_role = Role::new($id)->delete();
 
                         Response::getFlashMessagesObject()
                                 ->addSuccess(tr('The role ":role" has been deleted', [
-                                    ':role' => $o_role->getName()
+                                    ':role' => $_role->getName()
                                 ]));
                     }
 
@@ -88,14 +88,14 @@ if (Request::isPostRequestMethod()) {
 
 
 // Load the "roles" object
-$o_roles = Roles::new()->load();
+$_roles = Roles::new()->load();
 
 
 // Build "roles" card
-$o_roles_card = Card::new()
-                    ->setTitle(tr('Active roles (:count)', [':count' => $o_roles->getCount()]))
+$_roles_card = Card::new()
+                    ->setTitle(tr('Active roles (:count)', [':count' => $_roles->getCount()]))
                     ->setSwitches('reload')
-                    ->setContent($o_roles->setFilterFormObject($o_filters)
+                    ->setContent($_roles->setFilterFormObject($_filters)
                                          ->getHtmlDataTableObject([
                                              'id'          => tr('Id'),
                                              'role'        => tr('Role'),
@@ -112,7 +112,7 @@ $o_roles_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
@@ -121,7 +121,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -138,5 +138,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_roles_card        , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card . $_roles_card        , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

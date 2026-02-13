@@ -24,9 +24,9 @@ trait TraitDataObjectFiles
     /**
      * The path to use
      *
-     * @var PhoFilesInterface|null $o_files
+     * @var PhoFilesInterface|null $_files
      */
-    protected ?PhoFilesInterface $o_files = null;
+    protected ?PhoFilesInterface $_files = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectFiles
      */
     public function getFilesObject(): ?PhoFilesInterface
     {
-        return $this->o_files;
+        return $this->_files;
     }
 
 
     /**
      * Sets the path
      *
-     * @param PhoFilesInterface|null $o_files
+     * @param PhoFilesInterface|null $_files
      *
      * @return static
      */
-    public function setFilesObject(?PhoFilesInterface $o_files): static
+    public function setFilesObject(?PhoFilesInterface $_files): static
     {
-        $this->o_files = $o_files;
+        $this->_files = $_files;
         return $this;
     }
 }

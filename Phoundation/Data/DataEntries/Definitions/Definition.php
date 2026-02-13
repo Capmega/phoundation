@@ -256,7 +256,7 @@ class Definition implements DefinitionInterface
      */
     public function getQueryBuilderObject(): QueryBuilderInterface
     {
-        return $this->o_data_entry->getQueryBuilderObject();
+        return $this->_data_entry->getQueryBuilderObject();
     }
 
 
@@ -275,7 +275,7 @@ class Definition implements DefinitionInterface
 
         $this->query_builder_modifications[] = $callback;
 
-        if ($this->o_data_entry) {
+        if ($this->_data_entry) {
             return $this->applyQueryBuilderModifications();
         }
 
@@ -295,7 +295,7 @@ class Definition implements DefinitionInterface
     {
         if (isset($this->query_builder_modifications)) {
             foreach ($this->query_builder_modifications as $callback) {
-                $callback($this->o_data_entry->getQueryBuilderObject());
+                $callback($this->_data_entry->getQueryBuilderObject());
             }
 
             unset($this->query_builder_modifications);
@@ -310,13 +310,13 @@ class Definition implements DefinitionInterface
      *
      * @note Will immediately apply QueryBuilder modifications on the DataEntry
      *
-     * @param DataEntryInterface|null $o_data_entry
+     * @param DataEntryInterface|null $_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $_data_entry): static
     {
-        $this->__setDataEntry($o_data_entry);
+        $this->__setDataEntry($_data_entry);
         return $this->applyQueryBuilderModifications();
     }
 
@@ -536,14 +536,14 @@ class Definition implements DefinitionInterface
      * Sets if this column should have unique entries or not
      *
      * @param string|null             $failure
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      *
      * @return static
      */
-    public function setUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static
+    public function setUnique(?string $failure = null, ?ConnectorInterface $_connector = null): static
     {
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($failure, $o_connector) {
-            $o_validator->isUnique($failure, $o_connector);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($failure, $_connector) {
+            $_validator->isUnique($failure, $_connector);
         }, 'unique');
 
         return $this->setKey($failure    , 'unique');
@@ -573,8 +573,8 @@ class Definition implements DefinitionInterface
         $no_validation = (bool) $no_validation;
 
         if ($no_validation) {
-            $this->addValidationFunction(function (ValidatorInterface $o_validator) {
-                $o_validator->doNotValidate();
+            $this->addValidationFunction(function (ValidatorInterface $_validator) {
+                $_validator->doNotValidate();
             }, 'no_validation');
         }
 
@@ -1109,7 +1109,7 @@ class Definition implements DefinitionInterface
     public function setDefinitionSource(IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null): static
     {
         throw new DefinitionException(ts('Setting class ":class" Definition object source directly is not supported', [
-            ':class' => $this->o_data_entry ? get_class($this->o_data_entry) : 'N/A',
+            ':class' => $this->_data_entry ? get_class($this->_data_entry) : 'N/A',
         ]));
     }
 
@@ -1162,8 +1162,8 @@ class Definition implements DefinitionInterface
             $value = $value->getSource();
         }
 
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $strict) {
-            $o_validator->isInArray($value, $strict);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($value, $strict) {
+            $_validator->isInArray($value, $strict);
         }, 'data');
 
         return $this->setKey($value, 'data');
@@ -1223,19 +1223,19 @@ class Definition implements DefinitionInterface
     /**
      * Adds the specified script(s) to this class
      *
-     * @param ScriptInterface|ScriptsInterface|callable|null $o_scripts
+     * @param ScriptInterface|ScriptsInterface|callable|null $_scripts
      *
      * @return static
      */
-    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $o_scripts): static
+    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $_scripts): static
     {
-        if ($o_scripts instanceof ScriptsInterface) {
-            foreach ($o_scripts as $o_script) {
-                $this->addScriptObject($o_script);
+        if ($_scripts instanceof ScriptsInterface) {
+            foreach ($_scripts as $_script) {
+                $this->addScriptObject($_script);
             }
 
         } else {
-            $this->getScriptsObject(true)->add($o_scripts);
+            $this->getScriptsObject(true)->add($_scripts);
         }
 
         return $this;
@@ -1470,7 +1470,7 @@ class Definition implements DefinitionInterface
      */
     public function setValue(Stringable|callable|string|float|int|bool|null $value, bool $only_when_new = false): static
     {
-        if ($only_when_new and !$this->o_data_entry->isNew()) {
+        if ($only_when_new and !$this->_data_entry->isNew()) {
             // Do not set this value, only set it on new entries
             return $this;
         }
@@ -1531,16 +1531,16 @@ class Definition implements DefinitionInterface
         if ($add_validations) {
             switch ($value) {
                 case EnumElement::textarea:
-                    $this->addValidationFunction(function (ValidatorInterface $o_validator) {
-                        $o_validator->sanitizeTrim();
+                    $this->addValidationFunction(function (ValidatorInterface $_validator) {
+                        $_validator->sanitizeTrim();
                         // Validate textarea strings
 
                         if ($this->getMinLength()) {
-                            $o_validator->hasMinCharacters($this->getMinLength());
+                            $_validator->hasMinCharacters($this->getMinLength());
                         }
 
                         if ($this->getMaxLength()) {
-                            $o_validator->hasMaxCharacters($this->getMaxLength());
+                            $_validator->hasMaxCharacters($this->getMaxLength());
                         }
                     }, 'element');
             }
@@ -1928,52 +1928,52 @@ class Definition implements DefinitionInterface
                 // Numbers should never be longer than 24 digits
                 $this->setMaxLength(24)
                      ->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         if ($this->getMin()) {
-                            $o_validator->isMoreThan($this->getMin(), true);
+                            $_validator->isMoreThan($this->getMin(), true);
                         }
 
                         if ($this->getMax()) {
-                             $o_validator->isLessThan($this->getMax(), true);
+                             $_validator->isLessThan($this->getMax(), true);
                         }
                      }, 'number');
                 break;
 
             case EnumInputType::year:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         if ($this->getMin() ?? 0) {
-                            $o_validator->isMoreThan($this->getMin() ?? 0, true);
+                            $_validator->isMoreThan($this->getMin() ?? 0, true);
                         }
 
                         if ($this->getMax() ?? 9999) {
-                            $o_validator->isLessThan($this->getMax() ?? 9999, true);
+                            $_validator->isLessThan($this->getMax() ?? 9999, true);
                         }
                      }, 'year');
                 break;
 
             case EnumInputType::month:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         if ($this->getMin() ?? 1) {
-                            $o_validator->isMoreThan($this->getMin() ?? 1, true);
+                            $_validator->isMoreThan($this->getMin() ?? 1, true);
                         }
 
                         if ($this->getMax() ?? 12) {
-                            $o_validator->isLessThan($this->getMax() ?? 12, true);
+                            $_validator->isLessThan($this->getMax() ?? 12, true);
                         }
                      }, 'month');
                 break;
 
             case EnumInputType::week:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         if ($this->getMin() ?? 1) {
-                            $o_validator->isMoreThan($this->getMin() ?? 1, true);
+                            $_validator->isMoreThan($this->getMin() ?? 1, true);
                         }
 
                         if ($this->getMax() ?? 52) {
-                            $o_validator->isLessThan($this->getMax() ?? 52, true);
+                            $_validator->isLessThan($this->getMax() ?? 52, true);
                         }
                      }, 'week');
                 break;
@@ -1981,35 +1981,35 @@ class Definition implements DefinitionInterface
             case EnumInputType::day:
                 // Validate days
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         if ($this->getMin() ?? 1) {
-                            $o_validator->isMoreThan($this->getMin() ?? 1, true);
+                            $_validator->isMoreThan($this->getMin() ?? 1, true);
                         }
 
                         if ($this->getMax() ?? 31) {
-                            $o_validator->isLessThan($this->getMax() ?? 31, true);
+                            $_validator->isLessThan($this->getMax() ?? 31, true);
                         }
                      }, 'day');
                 break;
 
             case EnumInputType::datetime_local:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeToDateTime();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizeToDateTime();
                      }, 'datetime_local');
                 break;
 
             case EnumInputType::date:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeToDate();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizeToDate();
                      }, 'date');
                 break;
 
             case EnumInputType::color:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isColor();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isColor();
                      }, 'color');
                 break;
 
@@ -2017,8 +2017,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::number;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isDbId();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isDbId();
                      }, 'dbid');
                 break;
 
@@ -2028,8 +2028,8 @@ class Definition implements DefinitionInterface
                 $this->setElement(EnumElement::input)
                      ->setKey($value->value, 'type')
                      ->setMin(0)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isNatural();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isNatural();
                      }, 'natural');
                 break;
 
@@ -2037,8 +2037,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::number;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isInteger();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isInteger();
                      }, 'integer');
                 break;
 
@@ -2046,8 +2046,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::number;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isInteger()
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isInteger()
                                    ->isMoreThan(0, true);
                      }, 'positive_integer');
                 break;
@@ -2056,8 +2056,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::number;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isInteger()
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isInteger()
                                    ->isLessThan(0, true);
                      }, 'negative_integer');
                 break;
@@ -2066,8 +2066,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::number;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isFloat();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isFloat();
                      }, 'float');
                 break;
 
@@ -2075,8 +2075,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isName();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isName();
                      }, 'name');
                 break;
 
@@ -2087,15 +2087,15 @@ class Definition implements DefinitionInterface
             case EnumInputType::email:
                 $this->setElement(EnumElement::input)
                      ->setMaxLength(128)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isEmail();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isEmail();
                      }, 'email');
                 break;
 
             case EnumInputType::time:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isTime();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isTime();
                      }, 'time');
                 break;
 
@@ -2104,8 +2104,8 @@ class Definition implements DefinitionInterface
 
                 $this->setElement(EnumElement::input)
                      ->setMaxLength(2048)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isUrl();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isUrl();
                      }, 'url');
                 break;
 
@@ -2115,8 +2115,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::tel;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizePhoneNumber();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizePhoneNumber();
                      }, 'phone');
                 break;
 
@@ -2124,8 +2124,8 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isPhoneNumbers();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isPhoneNumbers();
                      }, 'phones');
                 break;
 
@@ -2133,15 +2133,15 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isUsername();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isUsername();
                      }, 'username');
                 break;
 
             case EnumInputType::path:
                 $value = EnumInputType::text;
 
-                if (empty($this->in_directories) and empty($this->o_restrictions)) {
+                if (empty($this->in_directories) and empty($this->_restrictions)) {
                     throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictionsObject()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
@@ -2150,8 +2150,8 @@ class Definition implements DefinitionInterface
                 }
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->setRestrictionsObject($this->o_restrictions)
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->setRestrictionsObject($this->_restrictions)
                                    ->isDirectory($this->in_directories);
                      }, 'path');
                 break;
@@ -2159,7 +2159,7 @@ class Definition implements DefinitionInterface
             case EnumInputType::file:
                 $value = EnumInputType::text;
 
-                if (empty($this->in_directories) and empty($this->o_restrictions)) {
+                if (empty($this->in_directories) and empty($this->_restrictions)) {
                     throw new DefinitionException(tr('Cannot use EnumInputType::path without having first specified either "Definition::setInDirectories()" or "Definition::setRestrictionsObject()"', [
                         ':path'             => ':path',
                         ':setInDirectories' => ':setInDirectories',
@@ -2168,8 +2168,8 @@ class Definition implements DefinitionInterface
                 }
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->setRestrictionsObject($this->o_restrictions)
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->setRestrictionsObject($this->_restrictions)
                                    ->isFile($this->in_directories);
                      }, 'file');
                 break;
@@ -2178,26 +2178,26 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::text;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isCode(null, null);
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isCode(null, null);
                      }, 'code');
                 break;
 
             case EnumInputType::description:
                 $this->setElement(EnumElement::textarea)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                        $o_validator->sanitizeTrim();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                        $_validator->sanitizeTrim();
                         // Validate textarea strings
 
                         if ($this->getMinLength()) {
-                            $o_validator->hasMinCharacters($this->getMinLength());
+                            $_validator->hasMinCharacters($this->getMinLength());
                         }
 
                         if ($this->getMaxLength()) {
-                            $o_validator->hasMaxCharacters($this->getMaxLength());
+                            $_validator->hasMaxCharacters($this->getMaxLength());
                         }
 
-                        $o_validator->isDescription();
+                        $_validator->isDescription();
                      }, 'description');
 
                 // Do not set the value
@@ -2209,23 +2209,23 @@ class Definition implements DefinitionInterface
                 $value = EnumInputType::checkbox;
 
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->isBoolean();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->isBoolean();
                      }, 'boolean');
                 break;
 
             case EnumInputType::array_json:
                 $this->setElement(EnumElement::textarea, false)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeForceArray(',')
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeJson();
                      }, 'array_json');
                 break;
 
             case EnumInputType::array_serialized:
                 $this->setElement(EnumElement::textarea)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeForceArray(',')
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizeForceArray(',')
                                    ->sanitizeEncodeSerialized();
                      }, 'array_serialized');
                 break;
@@ -2259,31 +2259,31 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::submit:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->hasMaxCharacters(255)->isVariable();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->hasMaxCharacters(255)->isVariable();
                      }, 'button');
                 break;
 
             case EnumInputType::password:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         // Validate input text strings
-                        $o_validator->sanitizeTrim();
+                        $_validator->sanitizeTrim();
 
                         if ($this->getMinLength() ?? 4) {
-                            $o_validator->hasMinCharacters($this->getMinLength() ?? 4);
+                            $_validator->hasMinCharacters($this->getMinLength() ?? 4);
                         }
 
                         if ($this->getMaxLength() ?? 8192) {
-                            $o_validator->hasMaxCharacters($this->getMaxLength() ?? 8192);
+                            $_validator->hasMaxCharacters($this->getMaxLength() ?? 8192);
                         }
                      }, 'password');
                 break;
 
             case EnumInputType::select:
                 $this->setElement(EnumElement::select)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->sanitizeTrim();
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->sanitizeTrim();
                      }, 'select');
                 break;
 
@@ -2293,27 +2293,27 @@ class Definition implements DefinitionInterface
                 // no break
             case EnumInputType::auto_suggest:
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
                         // Validate input text strings
-                        $o_validator->sanitizeTrim();
+                        $_validator->sanitizeTrim();
 
                         if ($this->getMinLength()) {
-                            $o_validator->hasMinCharacters($this->getMinLength());
+                            $_validator->hasMinCharacters($this->getMinLength());
                         }
 
                         if ($this->getMaxLength()) {
-                            $o_validator->hasMaxCharacters($this->getMaxLength());
+                            $_validator->hasMaxCharacters($this->getMaxLength());
                         }
 
-                        $o_validator->isDescription();
+                        $_validator->isDescription();
                      }, 'auto_suggest');
                 break;
 
             case EnumInputType::reset:
                 // Reset button should never arrive
                 $this->setElement(EnumElement::input)
-                     ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                         $o_validator->addSoftFailure(tr('is not supported'));
+                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                         $_validator->addSoftFailure(tr('is not supported'));
                      }, 'reset');
                 break;
 
@@ -2402,12 +2402,12 @@ class Definition implements DefinitionInterface
      */
     public function addValidationFunction(callable $function, ?string $name = null, bool $set_content_test_done = false): static
     {
-        $function = function (ValidatorInterface $o_validator) use ($function, $set_content_test_done) {
+        $function = function (ValidatorInterface $_validator) use ($function, $set_content_test_done) {
             if ($set_content_test_done) {
-                $o_validator->setContentTestDone();
+                $_validator->setContentTestDone();
             }
 
-            $function($o_validator);
+            $function($_validator);
         };
 
 
@@ -2448,8 +2448,8 @@ class Definition implements DefinitionInterface
         $this->ensureInputType(EnumInputType::number);
         $this->validateNumberTypeInput('min', $value);
 
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
-            $o_validator->isMoreThan($value, $equal);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($value, $equal) {
+            $_validator->isMoreThan($value, $equal);
         }, 'min');
 
         return $this->setKey($value, 'min');
@@ -2481,8 +2481,8 @@ class Definition implements DefinitionInterface
         $this->ensureInputType(EnumInputType::number);
         $this->validateNumberTypeInput('max', $value);
 
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
-            $o_validator->isLessThan($value, $equal);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($value, $equal) {
+            $_validator->isLessThan($value, $equal);
         }, 'max');
 
         return $this->setKey($value, 'max');
@@ -2514,8 +2514,8 @@ class Definition implements DefinitionInterface
     {
         $this->ensureInputType(EnumInputType::date);
 
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
-            $o_validator->isAfter($value, $equal);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($value, $equal) {
+            $_validator->isAfter($value, $equal);
         }, 'minimum_date');
 
         return $this->setKey($value, 'minimum_date');
@@ -2547,8 +2547,8 @@ class Definition implements DefinitionInterface
     {
         $this->ensureInputType(EnumInputType::date);
 
-        $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($value, $equal) {
-            $o_validator->isBefore($value, $equal);
+        $this->addValidationFunction(function (ValidatorInterface $_validator) use ($value, $equal) {
+            $_validator->isBefore($value, $equal);
         }, 'maximum_date');
 
         return $this->setKey($value, 'maximum_date');
@@ -2631,8 +2631,8 @@ class Definition implements DefinitionInterface
     {
         $this->ensureInputType(EnumInputType::text)
              ->validateTextTypeElement('minlength', $value)
-             ->addValidationFunction(function (ValidatorInterface $o_validator) use ($value) {
-                 $o_validator->hasMinCharacters($value);
+             ->addValidationFunction(function (ValidatorInterface $_validator) use ($value) {
+                 $_validator->hasMinCharacters($value);
              }, 'minlength');
 
         return $this->setKey($value, 'minlength');
@@ -2660,8 +2660,8 @@ class Definition implements DefinitionInterface
     public function setMaxLength(?int $value): static
     {
         $this->ensureInputType(EnumInputType::text)
-             ->addValidationFunction(function (ValidatorInterface $o_validator) use ($value) {
-                 $o_validator->hasMaxCharacters($value);
+             ->addValidationFunction(function (ValidatorInterface $_validator) use ($value) {
+                 $_validator->hasMaxCharacters($value);
              }, 'maxlength');
 
         return $this->setKey($value, 'maxlength');
@@ -2897,8 +2897,8 @@ class Definition implements DefinitionInterface
 
             if (is_array($source)) {
                 // The submitted user data value must be in the definition source
-                $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($source, $strict) {
-                    $o_validator->isInArray(array_keys($source), $strict);
+                $this->addValidationFunction(function (ValidatorInterface $_validator) use ($source, $strict) {
+                    $_validator->isInArray(array_keys($source), $strict);
                 }, 'source');
             }
         }
@@ -2945,8 +2945,8 @@ class Definition implements DefinitionInterface
 
             if (is_array($source)) {
                 // The submitted user transform value must be in the definition source
-                $this->addValidationFunction(function (ValidatorInterface $o_validator) use ($source) {
-                    $o_validator->isInArray(array_keys($source))->sanitizeSearchReplace($source);
+                $this->addValidationFunction(function (ValidatorInterface $_validator) use ($source) {
+                    $_validator->isInArray(array_keys($source))->sanitizeSearchReplace($source);
                 }, 'transform');
             }
         }
@@ -3740,11 +3740,11 @@ class Definition implements DefinitionInterface
     /**
      * Validate this column according to the column definitions
      *
-     * @param ValidatorInterface $o_validator
+     * @param ValidatorInterface $_validator
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $o_validator): bool
+    public function validate(ValidatorInterface $_validator): bool
     {
         if ($this->isMeta()) {
             // This column is metadata and shouldn't be modified or validated, plain ignore it.
@@ -3752,7 +3752,7 @@ class Definition implements DefinitionInterface
         }
 
         // Get column and ensure checkbox inputs always are boolean
-        $column = $this->validateGetColumn($o_validator);
+        $column = $this->validateGetColumn($_validator);
         $bool   = ($this->getInputType()?->value === 'checkbox');
 
         if (!$column) {
@@ -3760,40 +3760,40 @@ class Definition implements DefinitionInterface
         }
 
         // Select the column to validate
-        $o_validator->select($column, !$bool);
+        $_validator->select($column, !$bool);
 
         if (!$this->getRender()) {
             if (!$this->getForceValidations()) {
                 // This column renders so we are fine validating it
-                $o_validator->doNotValidate();
+                $_validator->doNotValidate();
                 return false;
             }
         }
 
         // Process empty values
-        $this->validateProcessEmptyValues($o_validator, $column);
+        $this->validateProcessEmptyValues($_validator, $column);
 
-        if ($this->o_data_entry?->isApplying()) {
+        if ($this->_data_entry?->isApplying()) {
             // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
-            if ($this->validateProcessAppliedReadonlyDisabled($o_validator, $column)) {
+            if ($this->validateProcessAppliedReadonlyDisabled($_validator, $column)) {
                 // Yeah, this column is readonly / disabled and shouldn't be validated (and not saved either)
                 return false;
             }
 
-            if ($this->validateProcessAppliedNotRendering($o_validator, $column)) {
+            if ($this->validateProcessAppliedNotRendering($_validator, $column)) {
                 // This column doesn't render so shouldn't be validated (and not saved either)
                 return false;
             }
 
         } else {
             // Does this column require a static value?
-            $this->validateProcessStaticValue($o_validator, $column);
+            $this->validateProcessStaticValue($_validator, $column);
         }
 
-        if ($this->validateProcessNoValidationOrDefaults($o_validator, $column)) {
+        if ($this->validateProcessNoValidationOrDefaults($_validator, $column)) {
             // Apply all validations
             foreach ($this->validations as $validation) {
-                $validation($o_validator);
+                $validation($_validator);
             }
         }
 
@@ -3807,13 +3807,13 @@ class Definition implements DefinitionInterface
      * @note This method will return NULL if the column name is empty, which means that this column should NOT be
      *       validated nor used
      *
-     * @param ValidatorInterface $o_validator The validator that will validate all values
+     * @param ValidatorInterface $_validator The validator that will validate all values
      *
      * @return string|null                  The column name that should be validated
      */
-    protected function validateGetColumn(ValidatorInterface $o_validator): ?string
+    protected function validateGetColumn(ValidatorInterface $_validator): ?string
     {
-        if ($o_validator instanceof ArgvValidatorInterface) {
+        if ($_validator instanceof ArgvValidatorInterface) {
             // These are arguments directly from the command line, we need to interpret the keys using CLI definitions
             $column =  $this->getCliColumn();
 
@@ -3824,7 +3824,7 @@ class Definition implements DefinitionInterface
             }
 
             // Column name prefix is an HTML form array prefix? Then close the array
-            if (str_ends_with((string) $o_validator->getPrefix(), '[')) {
+            if (str_ends_with((string) $_validator->getPrefix(), '[')) {
                 $column .= ']';
             }
 
@@ -3846,22 +3846,22 @@ class Definition implements DefinitionInterface
      *   If the value is NULL, and this definition has null_default set, the value will be updated to whatever
      *   null_default is
      *
-     * @param ValidatorInterface $o_validator The validator containing all validations for all columns
+     * @param ValidatorInterface $_validator The validator containing all validations for all columns
      * @param string             $column    The column being processed
      *
      * @return void
      */
-    protected function validateProcessEmptyValues(ValidatorInterface $o_validator, string $column): void
+    protected function validateProcessEmptyValues(ValidatorInterface $_validator, string $column): void
     {
-        if (!$o_validator->get($column)) {
+        if (!$_validator->get($column)) {
             // If this column is empty, should it be NULL?
             if ($this->getForceNull()) {
-                $o_validator->set(null, $column);
+                $_validator->set(null, $column);
             }
 
             // If this column is NULL, should it have a default value?
-            if ($o_validator->get($column) === null) {
-                $o_validator->set($this->getNullDefault(), $column);
+            if ($_validator->get($column) === null) {
+                $_validator->set($this->getNullDefault(), $column);
             }
         }
     }
@@ -3870,20 +3870,20 @@ class Definition implements DefinitionInterface
     /**
      * Checks if this column is readonly and/or disabled
      *
-     * @param ValidatorInterface $o_validator The validator containing all validations for all columns
+     * @param ValidatorInterface $_validator The validator containing all validations for all columns
      * @param string             $column    The column being processed
      *
      * @return bool                         True if this column is readonly or disabled and should not be validated
      */
-    protected function validateProcessAppliedReadonlyDisabled(ValidatorInterface $o_validator, string $column): bool
+    protected function validateProcessAppliedReadonlyDisabled(ValidatorInterface $_validator, string $column): bool
     {
         // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
         if ($this->getReadonly() or $this->getDisabled()) {
             // This column CAN be submitted, but will not be modified, so validation is not required
             // This behavior changes if a static value was specified, though, check that here.
             // Yeah, this is your standard "readonly / disabled" column. Do not validate it.
-            $this->validateProcessStaticValue($o_validator, $column);
-            $o_validator->doNotValidate();
+            $this->validateProcessStaticValue($_validator, $column);
+            $_validator->doNotValidate();
             return true;
         }
 
@@ -3894,12 +3894,12 @@ class Definition implements DefinitionInterface
     /**
      * Process not rendering columns
      *
-     * @param ValidatorInterface $o_validator The validator containing all validations for all columns
+     * @param ValidatorInterface $_validator The validator containing all validations for all columns
      * @param string             $column    The column being processed
      *
      * @return bool                         True if this column does NOT render, false when it renders
      */
-    protected function validateProcessAppliedNotRendering(ValidatorInterface $o_validator, string $column): bool
+    protected function validateProcessAppliedNotRendering(ValidatorInterface $_validator, string $column): bool
     {
         if ($this->getRender()) {
             // This column renders so we are fine validating it
@@ -3908,7 +3908,7 @@ class Definition implements DefinitionInterface
 
         // This column  is not rendered (so not sent to the user) which means that it CANNOT be submitted.
         // If the user submitted it, they are messing around, do not allow it!
-        if ($o_validator->get($column)) {
+        if ($_validator->get($column)) {
             // This column  is not rendered and shouldn't have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...
@@ -3920,18 +3920,18 @@ class Definition implements DefinitionInterface
                         ]))
                         ->setDetails([
                             'column' => $column,
-                            'data'   => $o_validator->getSource()
+                            'data'   => $_validator->getSource()
                         ])
                         ->setNotifyRoles('security')
                         ->save();
 
-                $o_validator->addSoftFailure(tr('The field ":field" is unknown', [':field' => $column]));
+                $_validator->addSoftFailure(tr('The field ":field" is unknown', [':field' => $column]));
             }
         }
 
         // Do not validate this column and try to apply static value
-        $this->validateProcessStaticValue($o_validator, $column);
-        $o_validator->doNotValidate();
+        $this->validateProcessStaticValue($_validator, $column);
+        $_validator->doNotValidate();
         return true;
     }
 
@@ -3939,16 +3939,16 @@ class Definition implements DefinitionInterface
     /**
      * Applies no-validation or default values
      *
-     * @param ValidatorInterface $o_validator The validator containing all validations for all columns
+     * @param ValidatorInterface $_validator The validator containing all validations for all columns
      * @param string             $column    The column being processed
      *
      * @return bool
      */
-    protected function validateProcessNoValidationOrDefaults(ValidatorInterface $o_validator, string $column): bool
+    protected function validateProcessNoValidationOrDefaults(ValidatorInterface $_validator, string $column): bool
     {
         if ($this->getNoValidation() or $this->getIgnored()) {
             // Do not perform validations, or ignore the column completely
-            $o_validator->doNotValidate();
+            $_validator->doNotValidate();
 
             Log::warning(ts('Not validating DataEntry object ":object" column ":column" because it has one of the "no_validation" or "ignored" flag set', [
                 ':column' => $column,
@@ -3961,11 +3961,11 @@ class Definition implements DefinitionInterface
 
         // Apply default validations
         if ($this->getOptional()) {
-            $o_validator->isOptional($this->getDefault());
+            $_validator->isOptional($this->getDefault());
         }
 
         if ($this->getUnique()) {
-            $o_validator->isUnique();
+            $_validator->isUnique();
         }
 
         return true;
@@ -3979,12 +3979,12 @@ class Definition implements DefinitionInterface
      * @note If the defined static value for this function is callable (in other words, a closure) it will be executed
      *       and the return value will be assigned as the value for this column
      *
-     * @param ValidatorInterface $o_validator The ValidatorInterface object that contains the values for this definition
+     * @param ValidatorInterface $_validator The ValidatorInterface object that contains the values for this definition
      * @param string             $column    The column to process
      *
      * @return bool                         True if a static value was set, false otherwise
      */
-    protected function validateProcessStaticValue(ValidatorInterface $o_validator, string $column): bool
+    protected function validateProcessStaticValue(ValidatorInterface $_validator, string $column): bool
     {
         if ($this->getValue()) {
             // For buttons, value is the button label, NOT THE DEFAULT VALUE!
@@ -4019,13 +4019,13 @@ class Definition implements DefinitionInterface
 
             // This column has a static value, force the value
             $value  = $this->getValue();
-            $prefix = $o_validator->getPrefix();
+            $prefix = $_validator->getPrefix();
 
             if (is_callable($value)) {
-                $value = $value($o_validator->getSource(), $prefix);
+                $value = $value($_validator->getSource(), $prefix);
             }
 
-            $o_validator->set($value, $prefix . $column)->doNotValidate();
+            $_validator->set($value, $prefix . $column)->doNotValidate();
             return true;
         }
 
@@ -4058,9 +4058,9 @@ class Definition implements DefinitionInterface
      */
     final public function getMetaColumns(): array
     {
-        if ($this->o_data_entry) {
+        if ($this->_data_entry) {
             // Return the meta-columns from the data entry
-            return $this->o_data_entry->getMetaColumns();
+            return $this->_data_entry->getMetaColumns();
         }
 
         // There is no data entry specified, we do not know anything about meta columns!
@@ -4181,7 +4181,7 @@ class Definition implements DefinitionInterface
      */
     public function getCliColumn(): ?string
     {
-        if (PLATFORM_WEB or !$this->o_data_entry->isApplying()) {
+        if (PLATFORM_WEB or !$this->_data_entry->isApplying()) {
             // We are either on web, or on CLI while data is not being applied but set manually. Return the HTTP column
             return $this->getColumn();
         }

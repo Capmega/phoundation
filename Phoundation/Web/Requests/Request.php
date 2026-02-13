@@ -103,9 +103,9 @@ class Request implements RequestInterface
     /**
      * The file that is currently executed for this request
      *
-     * @var PhoFileInterface $o_target
+     * @var PhoFileInterface $_target
      */
-    public static PhoFileInterface $o_target;
+    public static PhoFileInterface $_target;
 
     /**
      * The file that is currently executed for this system page request
@@ -189,16 +189,16 @@ class Request implements RequestInterface
     /**
      * The menus for this page
      *
-     * @var MenusInterface $o_menus
+     * @var MenusInterface $_menus
      */
-    protected static MenusInterface $o_menus;
+    protected static MenusInterface $_menus;
 
     /**
      * The panels for this page
      *
-     * @var PanelsInterface $o_panels
+     * @var PanelsInterface $_panels
      */
-    protected static PanelsInterface $o_panels;
+    protected static PanelsInterface $_panels;
 
     /**
      * The upload handler for this request
@@ -232,28 +232,28 @@ class Request implements RequestInterface
     /**
      * Sets the routing parameters for this request
      *
-     * @param RoutingParametersInterface $o_parameters
+     * @param RoutingParametersInterface $_parameters
      * @param bool                       $force
      *
      * @return void
      */
-    public static function setRoutingParameters(RoutingParametersInterface $o_parameters, bool $force = false): void
+    public static function setRoutingParameters(RoutingParametersInterface $_parameters, bool $force = false): void
     {
-        if (isset(static::$o_parameters)) {
+        if (isset(static::$_parameters)) {
             if (!$force) {
                 throw new OutOfBoundsException(tr('Cannot set routing parameters for this request, routing parameters have already been set'));
             }
         }
 
-        if (!$o_parameters->getTemplate()) {
+        if (!$_parameters->getTemplate()) {
             throw new OutOfBoundsException(tr('Cannot use routing parameters ":pattern", it has no template set', [
                 ':pattern' => Request::getRoutingParametersObject()
                                     ->getPattern(),
             ]));
         }
 
-        static::$o_parameters = $o_parameters;
-        Request::setTemplateObject($o_parameters->getTemplateObject());
+        static::$_parameters = $_parameters;
+        Request::setTemplateObject($_parameters->getTemplateObject());
     }
 
 
@@ -276,14 +276,14 @@ class Request implements RequestInterface
     /**
      * Sets the template to the specified template name
      *
-     * @param TemplateInterface $o_template
+     * @param TemplateInterface $_template
      *
      * @return void
      */
-    public static function setTemplateObject(TemplateInterface $o_template): void
+    public static function setTemplateObject(TemplateInterface $_template): void
     {
-        static::$template = $o_template;
-        static::$page     = $o_template->getPage();
+        static::$template = $_template;
+        static::$page     = $_template->getPage();
     }
 
 
@@ -294,11 +294,11 @@ class Request implements RequestInterface
      */
     public static function getRoutingParametersObject(): RoutingParametersInterface
     {
-        if (empty(static::$o_parameters)) {
+        if (empty(static::$_parameters)) {
             throw new OutOfBoundsException(tr('Cannot return routing parameters from this request, no routing parameters have been set'));
         }
 
-        return static::$o_parameters;
+        return static::$_parameters;
     }
 
 
@@ -309,7 +309,7 @@ class Request implements RequestInterface
      */
     public static function hasRoutingParameters(): bool
     {
-        return isset(static::$o_parameters);
+        return isset(static::$_parameters);
     }
 
 
@@ -320,25 +320,25 @@ class Request implements RequestInterface
      */
     public static function getMenusObject(): MenusInterface
     {
-        if (!isset(static::$o_menus)) {
+        if (!isset(static::$_menus)) {
             // Menus have not yet been initialized, do so now.
-            static::$o_menus = new Menus();
+            static::$_menus = new Menus();
         }
 
-        return static::$o_menus;
+        return static::$_menus;
     }
 
 
     /**
      * Sets the current tab index and automatically increments it
      *
-     * @param MenusInterface $o_menus
+     * @param MenusInterface $_menus
      *
      * @return void
      */
-    public static function setMenusObject(MenusInterface $o_menus): void
+    public static function setMenusObject(MenusInterface $_menus): void
     {
-        static::$o_menus = $o_menus;
+        static::$_menus = $_menus;
     }
 
 
@@ -349,25 +349,25 @@ class Request implements RequestInterface
      */
     public static function getPanelsObject(): PanelsInterface
     {
-        if (!isset(static::$o_panels)) {
+        if (!isset(static::$_panels)) {
             // Menus have not yet been initialized, do so now.
-            static::$o_panels = new Panels();
+            static::$_panels = new Panels();
         }
 
-        return static::$o_panels;
+        return static::$_panels;
     }
 
 
     /**
      * Sets the current panels configured for this page
      *
-     * @param PanelsInterface $o_panels
+     * @param PanelsInterface $_panels
      *
      * @return void
      */
-    public static function setPanelsObject(PanelsInterface $o_panels): void
+    public static function setPanelsObject(PanelsInterface $_panels): void
     {
-        static::$o_panels = $o_panels;
+        static::$_panels = $_panels;
     }
 
 
@@ -779,7 +779,7 @@ class Request implements RequestInterface
      */
     public static function getRootUrl(string $type = 'web'): string
     {
-        return static::$o_parameters->getRootUrl($type);
+        return static::$_parameters->getRootUrl($type);
     }
 
 
@@ -1014,7 +1014,7 @@ class Request implements RequestInterface
      */
     public static function getTargetObject(): PhoFileInterface
     {
-        return static::$o_target;
+        return static::$_target;
     }
 
 
@@ -1054,30 +1054,30 @@ class Request implements RequestInterface
     /**
      * Sets the target for this request
      *
-     * @param PhoFileInterface|string|int $o_target
+     * @param PhoFileInterface|string|int $_target
      *
      * @return void
      */
-    protected static function setTarget(PhoFileInterface|string|int $o_target): void
+    protected static function setTarget(PhoFileInterface|string|int $_target): void
     {
         // Get a target string
-        if (is_integer($o_target)) {
-            $o_target = 'system/' . $o_target . '.php';
+        if (is_integer($_target)) {
+            $_target = 'system/' . $_target . '.php';
 
-        } elseif ($o_target instanceof PhoFileInterface) {
-            $o_target = $o_target->getSource();
+        } elseif ($_target instanceof PhoFileInterface) {
+            $_target = $_target->getSource();
         }
 
         // Determine the target request type
-        Request::detectRequestType($o_target);
+        Request::detectRequestType($_target);
 
         // Determine the target file that is to be executed
-        $o_target         = Request::ensureRequestPathPrefix($o_target);
-        static::$o_target = PhoFile::new($o_target, Request::getRestrictionsObject())->makeAbsolute(DIRECTORY_WEB);
+        $_target         = Request::ensureRequestPathPrefix($_target);
+        static::$_target = PhoFile::new($_target, Request::getRestrictionsObject())->makeAbsolute(DIRECTORY_WEB);
 
-        static::$o_target->checkRestrictions(false);
-        Request::getTargets()->add(static::$o_target);
-        Request::addExecutedPath($o_target); // TODO We should get this from targets
+        static::$_target->checkRestrictions(false);
+        Request::getTargets()->add(static::$_target);
+        Request::addExecutedPath($_target); // TODO We should get this from targets
 
         // Store request hash used for caching, store real / original target
         if (empty(static::$main_target)) {
@@ -1088,7 +1088,7 @@ class Request implements RequestInterface
                 static::$hash = sha1(Strings::force($_SERVER['argv']));
             }
 
-            static::$main_target = static::$o_target;
+            static::$main_target = static::$_target;
 
             if (PLATFORM_WEB) {
                 // Start the main web target buffer
@@ -1290,7 +1290,7 @@ class Request implements RequestInterface
             }
 
             // Check sign-key restrictions and if those are okay, we are good to go
-            Request::hasSignKeyRestrictions($rights, static::$o_target->getSource());
+            Request::hasSignKeyRestrictions($rights, static::$_target->getSource());
             return $return;
         }
 
@@ -1317,16 +1317,16 @@ class Request implements RequestInterface
                     ->setSeverity(EnumSeverity::low)
                     ->setTitle(tr('Guest user has no access to target page'))
                     ->setBody(tr('Guest user has no access to target page ":target" (real target ":real_target" requires rights ":rights"). Redirecting to ":redirect"', [
-                        ':target'      => static::$o_target->getSource('web'),
-                        ':real_target' => static::$o_target->getSource('web'),
+                        ':target'      => static::$_target->getSource('web'),
+                        ':real_target' => static::$_target->getSource('web'),
                         ':redirect'    => $guest_redirect,
                         ':rights'      => Strings::force($rights, ', '),
                     ]))
                     ->setDetails([
                         'user'        => 0,
                         'uri'         => Request::getUri(),
-                        'target'      => static::$o_target->getSource('web'),
-                        'real_target' => static::$o_target->getSource('web'),
+                        'target'      => static::$_target->getSource('web'),
+                        'real_target' => static::$_target->getSource('web'),
                         'rights'      => $rights,
                     ])
                     ->save()
@@ -1349,14 +1349,14 @@ class Request implements RequestInterface
                     ]))
                     ->setBody(tr('The requested rights ":rights" for target page ":target" (real target ":real_target") do not exist on this system and was not automatically created. Redirecting to ":redirect"', [
                         ':rights'      => Strings::force(Rights::getNotExist($rights), ', '),
-                        ':target'      => static::$o_target->getSource('web'),
+                        ':target'      => static::$_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'           => Session::getUserObject()->getLogId(),
                         'uri'            => Request::getUri(),
-                        'target'         => static::$o_target->getSource('web'),
+                        'target'         => static::$_target->getSource('web'),
                         'real_target'    => static::$main_target->getSource('web'),
                         'rights'         => $rights,
                         'missing_rights' => Rights::getNotExist($rights),
@@ -1377,14 +1377,14 @@ class Request implements RequestInterface
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
                         ':user'        => Session::getUserObject()->getLogId(),
                         ':rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
-                        ':target'      => static::$o_target->getSource('web'),
+                        ':target'      => static::$_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
                         'user'        => Session::getUserObject()->getLogId(),
                         'uri'         => Request::getUri(),
-                        'target'      => static::$o_target->getSource('web'),
+                        'target'      => static::$_target->getSource('web'),
                         'real_target' => static::$main_target->getSource('web'),
                         'rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                     ])
@@ -1418,7 +1418,7 @@ class Request implements RequestInterface
                     ->setDetails([
                         'user'         => $key->getUserObject()->getLogId(),
                         'uri'          => Request::getUri(),
-                        'target'       => static::$o_target->getSource('web'),
+                        'target'       => static::$_target->getSource('web'),
                         'real_target'  => Strings::from($target, DIRECTORY_ROOT),
                         'rights'       => $rights,
                         ':sign_in_key' => $key->getUuid(),
@@ -1501,7 +1501,7 @@ class Request implements RequestInterface
 
             if ($fail) {
                 throw new RequestTypeException(tr('Cannot process target ":target" it has request type ":current" while the current request type is ":new"', [
-                    ':target'  => static::$o_target,
+                    ':target'  => static::$_target,
                     ':new'     => $request_type,
                     ':current' => static::$request_type,
                 ]));
@@ -1627,7 +1627,7 @@ class Request implements RequestInterface
 
         if (PLATFORM_CLI) {
             if (Log::getVerbose()) {
-                Log::action(ts('Executing program ":program"', [':program' => static::$o_target->getRootname()]));
+                Log::action(ts('Executing program ":program"', [':program' => static::$_target->getRootname()]));
             }
 
             if (static::$stack_level > 0) {
@@ -1878,7 +1878,7 @@ class Request implements RequestInterface
                 // static::$page should already be defined at this stage
                 if (empty(static::$page)) {
                     throw new OutOfBoundsException(tr('Cannot execute HTML page request for target ":target", no template specified', [
-                        ':target' => static::$o_target,
+                        ':target' => static::$_target,
                     ]));
                 }
 

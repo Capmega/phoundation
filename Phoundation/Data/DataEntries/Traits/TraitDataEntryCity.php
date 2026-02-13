@@ -121,12 +121,12 @@ trait TraitDataEntryCity
     /**
      * Returns the cities_id for this user
      *
-     * @param CityInterface|null $o_object
+     * @param CityInterface|null $_object
      *
      * @return static
      */
-    public function setCityObject(?CityInterface $o_object): static
+    public function setCityObject(?CityInterface $_object): static
     {
-        return $this->setVirtualObject('cities', $o_object);
+        return $this->setVirtualObject('cities', $_object);
     }
 }

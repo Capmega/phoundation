@@ -1860,11 +1860,11 @@ function execute(): ?string
  * @note This function is used to execute hooks to give them their own empty function scope
  *
  * @param string        $__file
- * @param HookInterface $o_hook
+ * @param HookInterface $_hook
  *
  * @return mixed
  */
-function execute_hook(string $__file, HookInterface $o_hook): mixed
+function execute_hook(string $__file, HookInterface $_hook): mixed
 {
     $return = include($__file);
 

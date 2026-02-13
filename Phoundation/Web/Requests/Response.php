@@ -230,9 +230,9 @@ class Response implements ResponseInterface
     /**
      * Tracks attributes for the <head> tag
      *
-     * @var Iterator $o_head_data_attributes
+     * @var Iterator $_head_data_attributes
      */
-    protected static Iterator $o_head_data_attributes;
+    protected static Iterator $_head_data_attributes;
 
     /**
      * Tracks direct output mode that will bypass everything and send program output to client directly
@@ -248,7 +248,7 @@ class Response implements ResponseInterface
     protected function __construct()
     {
         // Take file access restrictions from the Request object
-        static::$o_restrictions = Request::getRestrictionsObject();
+        static::$_restrictions = Request::getRestrictionsObject();
 
         // Add required HTTP headers
         // TODO Add support for "vary" header
@@ -578,20 +578,20 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $o_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
-                $o_url  = Url::newFromPath($o_file)->makeImg();
-                $url    = $o_url->getSource();
+                $_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
+                $_url  = Url::newFromPath($_file)->makeImg();
+                $url    = $_url->getSource();
 
                 Response::addLinkToPageHeaders([
                     'rel'  => 'icon',
                     'href' => $url,
-                    'type' => $o_file->getMimetype(),
+                    'type' => $_file->getMimetype(),
                 ], $url);
 
             } else {
-                $o_url = Url::new($url)->makeImg();
-                $o_url = $o_url->setSource(Response::versionFile($url, 'img'));
-                $url   = $o_url->getSource();
+                $_url = Url::new($url)->makeImg();
+                $_url = $_url->setSource(Response::versionFile($url, 'img'));
+                $url   = $_url->getSource();
 
                 // Unknown (likely remote?) link
                 Response::addLinkToPageHeaders([
@@ -764,10 +764,10 @@ class Response implements ResponseInterface
      */
     public static function addHttpHeaders(IteratorInterface|array|string $http_headers, ?string $key = null): void
     {
-        $o_headers = Response::getHttpHeaders();
+        $_headers = Response::getHttpHeaders();
 
         if (is_string($http_headers)) {
-            $o_headers->add(($key ? Strings::ensureEndsWith($key, ':') : null) . $http_headers);
+            $_headers->add(($key ? Strings::ensureEndsWith($key, ':') : null) . $http_headers);
 
         } else {
             foreach ($http_headers as $header => $value) {
@@ -1229,15 +1229,15 @@ class Response implements ResponseInterface
      */
     public static function getHeadDataAttributes(bool $auto_initialize = true): ?IteratorInterface
     {
-        if (empty(static::$o_head_data_attributes)) {
+        if (empty(static::$_head_data_attributes)) {
             if (!$auto_initialize) {
                 return null;
             }
 
-            static::$o_head_data_attributes = new Iterator();
+            static::$_head_data_attributes = new Iterator();
         }
 
-        return static::$o_head_data_attributes;
+        return static::$_head_data_attributes;
     }
 
 

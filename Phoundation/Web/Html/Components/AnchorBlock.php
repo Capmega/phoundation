@@ -22,8 +22,8 @@ use Phoundation\Web\Http\Interfaces\UrlInterface;
 
 class AnchorBlock extends Anchor
 {
-    public function __construct(UrlInterface|string|null $o_href = null, ?string $content = null, callable|RenderInterface|array|string|null $before_content = null) {
-        parent::__construct($o_href, $content, $before_content);
+    public function __construct(UrlInterface|string|null $_href = null, ?string $content = null, callable|RenderInterface|array|string|null $before_content = null) {
+        parent::__construct($_href, $content, $before_content);
 
         $this->addClass('element-block');
     }

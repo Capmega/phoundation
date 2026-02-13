@@ -304,13 +304,13 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @note NULL means this local server
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
 
     /**

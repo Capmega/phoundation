@@ -224,9 +224,9 @@ class FileResponse extends PhoFile
         }
 
         // Ensure the specified file is valid and readable
-        PhoFile::new($file, $this->o_restrictions)->checkReadable();
+        PhoFile::new($file, $this->_restrictions)->checkReadable();
 
-        $this->o_restrictions->check($file, false);
+        $this->_restrictions->check($file, false);
 
         $this->file     = $file;
         $this->size     = $file->getSize();
@@ -434,13 +434,13 @@ class FileResponse extends PhoFile
         file_put_contents($file, $data);
 
         if (!$callback) {
-            return PhoFile::new($file, $this->o_restrictions);
+            return PhoFile::new($file, $this->_restrictions);
         }
 
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
 
-        PhoFile::new($file, $this->o_restrictions)->delete();
+        PhoFile::new($file, $this->_restrictions)->delete();
 
         return $file;
     }

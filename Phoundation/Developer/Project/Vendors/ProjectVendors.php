@@ -67,9 +67,9 @@ class ProjectVendors extends Vendors implements ProjectVendorsInterface
      */
     protected function load(): void
     {
-        foreach ($this->getDirectory()->scan(glob_flags: GLOB_MARK | GLOB_ONLYDIR) as $directory => $o_directory) {
+        foreach ($this->getDirectory()->scan(glob_flags: GLOB_MARK | GLOB_ONLYDIR) as $directory => $_directory) {
             if (!str_ends_with($directory, 'Exception/')) {
-                $this->add(new ProjectVendor($this->project, $this->type, $o_directory), $directory);
+                $this->add(new ProjectVendor($this->project, $this->type, $_directory), $directory);
             }
         }
     }

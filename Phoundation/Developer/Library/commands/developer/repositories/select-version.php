@@ -67,13 +67,13 @@ $argv = ArgvValidator::new()
 
 
 // Synchronize all available repositories
-$o_repositories = Repositories::new()->load();
+$_repositories = Repositories::new()->load();
 
 Log::cli(ts('Automatically selecting branches for ":count" repositories, this might take a few seconds...', [
-    ':count' => $o_repositories->getCount()
+    ':count' => $_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
+$_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
 
 
 // Display results?

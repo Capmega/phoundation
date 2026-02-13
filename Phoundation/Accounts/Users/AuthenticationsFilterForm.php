@@ -32,11 +32,11 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
 
         parent::__construct($source);
 
-        $this->o_definitions->get('date_range')->setSize(3);
-        $this->o_definitions->get('users_id')->setSize(3);
-        $this->o_definitions->get('status')->setSize(3);
+        $this->_definitions->get('date_range')->setSize(3);
+        $this->_definitions->get('users_id')->setSize(3);
+        $this->_definitions->get('status')->setSize(3);
 
-        $this->o_definitions->add(Definition::new('action')
+        $this->_definitions->add(Definition::new('action')
                                             ->setLabel(tr('Action'))
                                             ->setSize(3)
                                             ->setOptional(true)
@@ -60,24 +60,24 @@ class AuthenticationsFilterForm extends \Phoundation\Web\Html\Components\Forms\F
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $o_builder
+     * @param QueryBuilderInterface $_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $_builder): static
     {
-        if ($this->o_applied_filters->keyExists('action') and $this->o_definitions->isRendered('action', false)) {
+        if ($this->_applied_filters->keyExists('action') and $this->_definitions->isRendered('action', false)) {
             if ($this->getAction()) {
-                $o_builder->addWhere(
-                    '`' . $o_builder->getFrom() . '`.`action` = :action', [':action' => $this->getAction()]
+                $_builder->addWhere(
+                    '`' . $_builder->getFrom() . '`.`action` = :action', [':action' => $this->getAction()]
                 );
             }
         }
 
-        $this->o_applied_filters->removeKeys([
+        $this->_applied_filters->removeKeys([
             'action',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($o_builder);
+        return parent::applyFiltersToQueryBuilder($_builder);
     }
 }

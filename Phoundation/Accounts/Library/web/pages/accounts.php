@@ -43,7 +43,7 @@ Response::setBreadcrumbs([
 
 
 // Build link cards
-$o_card = Card::new()
+$_card = Card::new()
             ->setTitle(tr('Accounts management'))
             ->setContent(AnchorBlock::new('/accounts/users.html'   , tr('Manage users')) .
                          AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
@@ -53,4 +53,4 @@ $o_card = Card::new()
 
 // Render and return the grid
 return Grid::new()
-           ->addGridColumn($o_card, EnumDisplaySize::twelve);
+           ->addGridColumn($_card, EnumDisplaySize::twelve);

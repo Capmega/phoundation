@@ -68,14 +68,14 @@ trait TraitInputElement
     /**
      * Returns a new input element from the specified data entry field
      *
-     * @param DefinitionInterface $o_definition
+     * @param DefinitionInterface $_definition
      *
      * @return static
      */
-    public static function newFromDataEntryDefinition(DefinitionInterface $o_definition): static
+    public static function newFromDataEntryDefinition(DefinitionInterface $_definition): static
     {
         $element    = new static();
-        $attributes = $o_definition->getDefinitionSource();
+        $attributes = $_definition->getDefinitionSource();
 
         // Set all attributes from the definition file
         foreach ($attributes as $key => $value) {
@@ -211,7 +211,7 @@ trait TraitInputElement
      */
     public function getAutoSubmit(): ScriptInterface|bool
     {
-        return $this->o_attributes->get('auto_submit', exception: false);
+        return $this->_attributes->get('auto_submit', exception: false);
     }
 
 
@@ -222,7 +222,7 @@ trait TraitInputElement
      */
     public function getOnChange(): ?string
     {
-        return $this->o_attributes->get('on_change', exception: false);
+        return $this->_attributes->get('on_change', exception: false);
     }
 
 

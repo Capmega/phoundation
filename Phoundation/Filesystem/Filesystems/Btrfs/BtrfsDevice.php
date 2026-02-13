@@ -29,28 +29,28 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
     /**
      * BtrFs class constructor
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      */
-    public function __construct(?PhoPathInterface $o_path = null)
+    public function __construct(?PhoPathInterface $_path = null)
     {
-        if (empty($o_path)) {
+        if (empty($_path)) {
             throw new FilesystemBtrfsException(tr('No directory specified for BtrfsDevice class'));
         }
 
-        parent::__construct($o_path);
+        parent::__construct($_path);
     }
 
 
     /**
      * Returns new static object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public static function new(?PhoPathInterface $o_path = null): static
+    public static function new(?PhoPathInterface $_path = null): static
     {
-        return new static ($o_path);
+        return new static ($_path);
     }
 
 
@@ -65,18 +65,18 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function scan(bool $all = false): IteratorInterface
     {
-        $o_return = $this->o_process->addArguments(['device', 'scan', $all ? 'all' : null])
+        $_return = $this->_process->addArguments(['device', 'scan', $all ? 'all' : null])
                                     ->executeReturnIterator()
                                     ->removeKeys(0);
 
-        foreach ($o_return as $key => $device) {
+        foreach ($_return as $key => $device) {
             $device = Strings::from($device, ':');
             $device = trim($device);
 
-            $o_return->set($device, $key);
+            $_return->set($device, $key);
         }
 
-        return $o_return;
+        return $_return;
     }
 
 
@@ -87,7 +87,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function isDevice(): bool
     {
-        return $this->scan()->valueExists($this->o_path);
+        return $this->scan()->valueExists($this->_path);
     }
 
 
@@ -104,7 +104,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
         }
 
         throw new FilesystemBtrfsException(tr('Specified path ":path" is not a BTRFS device.', [
-            ':path' => $this->o_path,
+            ':path' => $this->_path,
         ]));
     }
 
@@ -119,7 +119,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
         $this->checkDevice();
 
         $iterator = [];
-        $return   = $this->o_process->addArguments(['device', 'stats', $this->o_path->getSource()])
+        $return   = $this->_process->addArguments(['device', 'stats', $this->_path->getSource()])
                                     ->executeReturnIterator();
 
         foreach ($return as $stat) {
@@ -141,7 +141,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function resetStatistics(): static
     {
-        $this->o_process->addArguments(['device', 'stats', $this->o_path->getSource(), '--reset'])
+        $this->_process->addArguments(['device', 'stats', $this->_path->getSource(), '--reset'])
                         ->executeNoReturn();
 
         return $this;
@@ -157,7 +157,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function remove(): static
     {
-        $this->o_process->addArguments(['device', 'remove', $this->o_path->getSource()])
+        $this->_process->addArguments(['device', 'remove', $this->_path->getSource()])
                         ->executeNoReturn();
 
         return $this;

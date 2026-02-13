@@ -370,7 +370,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
      */
     public function onDirectoriesOnly(callable $callback, bool $exception = true): void
     {
-        $this->o_restrictions->check($this->source, true);
+        $this->_restrictions->check($this->source, true);
 
         foreach (Arrays::force($this->source, '') as $this->source) {
             // Get al files in this directory
@@ -469,7 +469,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
             $files = scandir($this->source);
 
         } catch (Exception $e) {
-            PhoDirectory::new($this->source, $this->o_restrictions)
+            PhoDirectory::new($this->source, $this->_restrictions)
                      ->checkReadable(previous_e: $e);
         }
 
@@ -508,7 +508,7 @@ class PhoExecute extends PhoDirectory implements PhoExecuteInterface
             } elseif (file_exists($this->source . $file)) {
                 // Execute the callback
                 $count++;
-                $extension = PhoPath::new($file, $this->o_restrictions)->getExtension();
+                $extension = PhoPath::new($file, $this->_restrictions)->getExtension();
 
                 if ($this->whitelist_extensions) {
                     // Extension MUST be on this list

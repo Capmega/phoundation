@@ -430,21 +430,21 @@ class Password extends DataEntry implements PasswordInterface
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(Definition::new('current')
+        $_definitions->add(Definition::new('current')
                                       ->setRender(true)
                                       ->setVirtual(true)
                                       ->setInputType(EnumInputType::password)
                                       ->setMaxLength(128)
                                       ->setLabel(tr('Current password'))
                                       ->setHelpText(tr('Your current password'))
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isStrongPassword();
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isStrongPassword();
                                     }))
 
                     ->add(DefinitionFactory::newDivider())
@@ -456,8 +456,8 @@ class Password extends DataEntry implements PasswordInterface
                                     ->setMaxLength(128)
                                     ->setLabel(tr('New password'))
                                     ->setHelpText(tr('The new password for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isStrongPassword();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isStrongPassword();
                                     }))
 
                     ->add(Definition::new('passwordv')
@@ -467,8 +467,8 @@ class Password extends DataEntry implements PasswordInterface
                                     ->setMaxLength(128)
                                     ->setLabel(tr('Validate password'))
                                     ->setHelpText(tr('Validate the new password for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isEqualTo('password');
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isEqualTo('password');
                                     }));
 
         return $this;

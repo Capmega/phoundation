@@ -57,7 +57,7 @@ class MaxMind extends GeoIp
      */
     public function __construct()
     {
-        $this->o_directory = new PhoDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', PhoRestrictions::newReadonlyObject(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
+        $this->_directory = new PhoDirectory(DIRECTORY_DATA . 'sources/geoip/maxmind/', PhoRestrictions::newReadonlyObject(DIRECTORY_DATA . 'sources/geoip/maxmind/'));
         $this->pro       = config()->getBoolean('geo.ip.maxmind.pro', false);
     }
 
@@ -92,7 +92,7 @@ class MaxMind extends GeoIp
     public function setIpAddress(?string $ip_address): static
     {
         try {
-            $cityDbReader     = new Reader($this->o_directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
+            $cityDbReader     = new Reader($this->_directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'));
             $this->ip_address = $ip_address;
             $this->record     = $cityDbReader->city($ip_address);
 
@@ -154,7 +154,7 @@ class MaxMind extends GeoIp
             if (str_contains($e->getMessage(), 'Failed to open stream: No such file or directory')) {
                 // Database file does not exist, try to download it?
                 Log::warning(ts('MaxMind database file ":file" was not found, maybe try running "./pho geo ip import" ?', [
-                    ':file' => $this->o_directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'),
+                    ':file' => $this->_directory . ($this->pro ? 'GeoIP2-City.mmdb' : 'GeoLite2-City.mmdb'),
                 ]));
 
                 throw GeoIpNoDatabaseException::new(tr('Cannot fetch MaxMind GeoIP data, no GeoIP database available'), $e)

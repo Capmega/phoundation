@@ -54,7 +54,7 @@ abstract class Input extends Element implements InputInterface, ValueInterface
      */
     protected function renderAttributesIteratorObject(): IteratorInterface
     {
-        $this->o_attributes = $this->renderInputAttributes()->appendSource($this->o_attributes);
+        $this->_attributes = $this->renderInputAttributes()->appendSource($this->_attributes);
         return parent::renderAttributesIteratorObject();
     }
 
@@ -79,16 +79,16 @@ abstract class Input extends Element implements InputInterface, ValueInterface
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)
-                     ->setRequired($o_definition->getRequired(false))
-                     ->setHidden($o_definition->getHidden())
-                     ->setAutoSubmit($o_definition->getAutoSubmit());
+        return parent::setDefinitionObject($_definition)
+                     ->setRequired($_definition->getRequired(false))
+                     ->setHidden($_definition->getHidden())
+                     ->setAutoSubmit($_definition->getAutoSubmit());
     }
 }

@@ -53,35 +53,35 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      *
      * @var IteratorInterface
      */
-    protected IteratorInterface $o_elements;
+    protected IteratorInterface $_elements;
 
     /**
      * The top notifications drop down
      *
-     * @var NotificationsDropDown $o_notifications
+     * @var NotificationsDropDown $_notifications
      */
-    protected NotificationsDropDown $o_notifications;
+    protected NotificationsDropDown $_notifications;
 
     /**
      * The top messages drop down
      *
-     * @var MessagesDropDown $o_messages
+     * @var MessagesDropDown $_messages
      */
-    protected MessagesDropDown $o_messages;
+    protected MessagesDropDown $_messages;
 
     /**
      * The top languages drop down
      *
-     * @var LanguagesDropDown $o_languages
+     * @var LanguagesDropDown $_languages
      */
-    protected LanguagesDropDown $o_languages;
+    protected LanguagesDropDown $_languages;
 
     /**
      *
      *
-     * @var IteratorInterface $o_logos
+     * @var IteratorInterface $_logos
      */
-    protected IteratorInterface $o_logos;
+    protected IteratorInterface $_logos;
 
     /**
      *
@@ -93,44 +93,44 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      *
      *
-     * @var IteratorInterface $o_buttons
+     * @var IteratorInterface $_buttons
      */
-    protected IteratorInterface $o_buttons;
+    protected IteratorInterface $_buttons;
 
     /**
      *
      *
-     * @var IteratorInterface $o_breadcrumbs
+     * @var IteratorInterface $_breadcrumbs
      */
-    protected IteratorInterface $o_breadcrumbs;
+    protected IteratorInterface $_breadcrumbs;
 
     /**
      *
      *
-     * @var IteratorInterface $o_texts
+     * @var IteratorInterface $_texts
      */
-    protected IteratorInterface $o_texts;
+    protected IteratorInterface $_texts;
 
     /**
      *
      *
-     * @var IteratorInterface $o_avatars
+     * @var IteratorInterface $_avatars
      */
-    protected IteratorInterface $o_avatars;
+    protected IteratorInterface $_avatars;
 
     /**
      *
      *
-     * @var IteratorInterface $o_icons
+     * @var IteratorInterface $_icons
      */
-    protected IteratorInterface $o_icons;
+    protected IteratorInterface $_icons;
 
     /**
      * Modals for this panel
      *
-     * @var Modals $o_modals
+     * @var Modals $_modals
      */
-    protected Modals $o_modals;
+    protected Modals $_modals;
 
 
     /**
@@ -152,11 +152,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getLogosObject(): IteratorInterface
     {
-        if (empty($this->o_logos)) {
-            $this->o_logos = Iterator::new()->setAcceptedDataTypes(Logo::class);
+        if (empty($this->_logos)) {
+            $this->_logos = Iterator::new()->setAcceptedDataTypes(Logo::class);
         }
 
-        return $this->o_logos;
+        return $this->_logos;
     }
 
 
@@ -182,11 +182,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getButtonsObject(): IteratorInterface
     {
-        if (empty($this->o_buttons)) {
-            $this->o_buttons = Iterator::new()->setAcceptedDataTypes(Button::class);
+        if (empty($this->_buttons)) {
+            $this->_buttons = Iterator::new()->setAcceptedDataTypes(Button::class);
         }
 
-        return $this->o_buttons;
+        return $this->_buttons;
     }
 
 
@@ -197,11 +197,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getBreadcrumbsObject(): BreadcrumbsInterface
     {
-        if (empty($this->o_breadcrumbs)) {
-            $this->o_breadcrumbs = Breadcrumbs::new();
+        if (empty($this->_breadcrumbs)) {
+            $this->_breadcrumbs = Breadcrumbs::new();
         }
 
-        return $this->o_breadcrumbs;
+        return $this->_breadcrumbs;
     }
 
 
@@ -212,11 +212,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getTextsObject(): IteratorInterface
     {
-        if (empty($this->o_texts)) {
-            $this->o_texts = Iterator::new()->setAcceptedDataTypes('string');
+        if (empty($this->_texts)) {
+            $this->_texts = Iterator::new()->setAcceptedDataTypes('string');
         }
 
-        return $this->o_texts;
+        return $this->_texts;
     }
 
 
@@ -227,11 +227,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getAvatarsObject(): IteratorInterface
     {
-        if (empty($this->o_avatars)) {
-            $this->o_avatars = Iterator::new()->setAcceptedDataTypes(Avatar::class);
+        if (empty($this->_avatars)) {
+            $this->_avatars = Iterator::new()->setAcceptedDataTypes(Avatar::class);
         }
 
-        return $this->o_avatars;
+        return $this->_avatars;
     }
 
 
@@ -242,24 +242,24 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getIcons(): IteratorInterface
     {
-        if (empty($this->o_icons)) {
-            $this->o_icons = Iterator::new()->setAcceptedDataTypes(Icon::class);
+        if (empty($this->_icons)) {
+            $this->_icons = Iterator::new()->setAcceptedDataTypes(Icon::class);
         }
 
-        return $this->o_icons;
+        return $this->_icons;
     }
 
 
     /**
      * Sets the panel menu
      *
-     * @param MenuInterface|null $o_menu
+     * @param MenuInterface|null $_menu
      *
      * @return static
      */
-    public function setMenu(?MenuInterface $o_menu): static
+    public function setMenu(?MenuInterface $_menu): static
     {
-        $this->source['menu'] = $o_menu;
+        $this->source['menu'] = $_menu;
         return $this;
     }
 
@@ -289,13 +289,13 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageMenu $o_profile_image
+     * @param ImageMenu $_profile_image
      *
      * @return static
      */
-    public function setProfileImage(ImageMenu $o_profile_image): static
+    public function setProfileImage(ImageMenu $_profile_image): static
     {
-        $this->source['profile_image'] = $o_profile_image;
+        $this->source['profile_image'] = $_profile_image;
         return $this;
     }
 
@@ -314,17 +314,17 @@ abstract class Panel extends ElementsBlock implements PanelInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageFileInterface|string $o_logo
+     * @param ImageFileInterface|string $_logo
      *
      * @return static
      */
-    public function setLogo(ImageFileInterface|string $o_logo): static
+    public function setLogo(ImageFileInterface|string $_logo): static
     {
-        if (is_string($o_logo)) {
-            $o_logo = ImageFile::new($o_logo);
+        if (is_string($_logo)) {
+            $_logo = ImageFile::new($_logo);
         }
 
-        $this->source['logo'] = $o_logo;
+        $this->source['logo'] = $_logo;
         return $this;
     }
 
@@ -336,11 +336,11 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getModals(): Modals
     {
-        if (!isset($this->o_modals)) {
-            $this->o_modals = new Modals();
+        if (!isset($this->_modals)) {
+            $this->_modals = new Modals();
         }
 
-        return $this->o_modals;
+        return $this->_modals;
     }
 
 
@@ -351,20 +351,20 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getElementsObject(): IteratorInterface
     {
-        return $this->o_elements;
+        return $this->_elements;
     }
 
 
     /**
      * Access to the elements object
      *
-     * @param IteratorInterface|array $o_elements
+     * @param IteratorInterface|array $_elements
      *
      * @return TopPanel
      */
-    public function setElementsObject(IteratorInterface|array $o_elements): static
+    public function setElementsObject(IteratorInterface|array $_elements): static
     {
-        $this->o_elements = new Iterator($o_elements);
+        $this->_elements = new Iterator($_elements);
         return $this;
     }
 
@@ -376,24 +376,24 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getNotificationsDropDownObject(): NotificationsDropDown
     {
-        if (!isset($this->o_notifications)) {
-            $this->o_notifications = NotificationsDropDown::new();
+        if (!isset($this->_notifications)) {
+            $this->_notifications = NotificationsDropDown::new();
         }
 
-        return $this->o_notifications;
+        return $this->_notifications;
     }
 
 
     /**
      * Sets the notifications drop-down object
      *
-     * @param NotificationsDropDown $o_notifications
+     * @param NotificationsDropDown $_notifications
      *
      * @return static
      */
-    public function setNotificationsDropDownObject(NotificationsDropDown $o_notifications): static
+    public function setNotificationsDropDownObject(NotificationsDropDown $_notifications): static
     {
-        $this->o_notifications = $o_notifications;
+        $this->_notifications = $_notifications;
         return $this;
     }
 
@@ -405,24 +405,24 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getMessagesDropDownObject(): MessagesDropDown
     {
-        if (!isset($this->o_messages)) {
-            $this->o_messages = MessagesDropDown::new();
+        if (!isset($this->_messages)) {
+            $this->_messages = MessagesDropDown::new();
         }
 
-        return $this->o_messages;
+        return $this->_messages;
     }
 
 
     /**
      * Sets the notifications drop-down object
      *
-     * @param MessagesDropDown $o_messages
+     * @param MessagesDropDown $_messages
      *
      * @return static
      */
-    public function setMessagesDropDownObject(MessagesDropDown $o_messages): static
+    public function setMessagesDropDownObject(MessagesDropDown $_messages): static
     {
-        $this->o_messages = $o_messages;
+        $this->_messages = $_messages;
         return $this;
     }
 
@@ -434,24 +434,24 @@ abstract class Panel extends ElementsBlock implements PanelInterface
      */
     public function getLanguagesDropDownObject(): LanguagesDropDown
     {
-        if (!isset($this->o_languages)) {
-            $this->o_languages = LanguagesDropDown::new();
+        if (!isset($this->_languages)) {
+            $this->_languages = LanguagesDropDown::new();
         }
 
-        return $this->o_languages;
+        return $this->_languages;
     }
 
 
     /**
      * Sets the notifications drop-down object
      *
-     * @param LanguagesDropDown $o_languages
+     * @param LanguagesDropDown $_languages
      *
      * @return static
      */
-    public function setLanguagesDropDownObject(LanguagesDropDown $o_languages): static
+    public function setLanguagesDropDownObject(LanguagesDropDown $_languages): static
     {
-        $this->o_languages = $o_languages;
+        $this->_languages = $_languages;
         return $this;
     }
 }

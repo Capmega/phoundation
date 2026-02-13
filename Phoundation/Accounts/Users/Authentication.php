@@ -456,17 +456,17 @@ class Authentication extends DataEntry implements AuthenticationInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
         // Ensure status will be limited to the defined possible states
-        $o_definitions->removeKeys('meta_divider')
+        $_definitions->removeKeys('meta_divider')
                       ->get('status')->setSource(static::getStatuses());
 
-        $o_definitions->add(DefinitionFactory::newCreatedBy()
+        $_definitions->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
                       ->add(DefinitionFactory::newDivider('meta_divider'))
@@ -477,8 +477,8 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setDisabled(true)
                                              ->setMaxLength(128)
                                              ->setSize(3)
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
                                              }))
 
                       ->add(DefinitionFactory::newNumber('ip_address_binary')

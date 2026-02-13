@@ -34,16 +34,16 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         parent::__construct($source);
 
-        $this->o_definitions->get('status')->setRender(false);
+        $this->_definitions->get('status')->setRender(false);
 
         // Set basic definitions
-        $this->o_definitions
+        $this->_definitions
              ->add(Definition::new('severity')
                              ->setLabel(tr('Severity'))
                              ->setSize(4)
                              ->setOptional(true)
                              ->setInputType(EnumInputType::text)
-                             ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                             ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                  return Severities::new()
                                                   ->getHtmlSelectOld()
                                                   ->setAutoSubmit(true)
@@ -56,24 +56,24 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $o_builder
+     * @param QueryBuilderInterface $_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $_builder): static
     {
-        if ($this->o_applied_filters->keyExists('severity') and $this->o_definitions->isRendered('severity', false)) {
+        if ($this->_applied_filters->keyExists('severity') and $this->_definitions->isRendered('severity', false)) {
             if ($this->getSeverities()) {
                 $values = QueryBuilder::in($this->getSeverities());
-                $o_builder->addWhere('`security_incidents`.`severity` IN (' . QueryBuilder::inColumns($values) . ')', $values);
+                $_builder->addWhere('`security_incidents`.`severity` IN (' . QueryBuilder::inColumns($values) . ')', $values);
             }
         }
 
-        $this->o_applied_filters->removeKeys([
+        $this->_applied_filters->removeKeys([
             'severity',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($o_builder);
+        return parent::applyFiltersToQueryBuilder($_builder);
     }
 
 

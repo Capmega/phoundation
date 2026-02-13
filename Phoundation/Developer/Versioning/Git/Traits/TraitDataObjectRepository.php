@@ -24,9 +24,9 @@ trait TraitDataObjectRepository
     /**
      * Tracks the Repository object linked to this object
      *
-     * @var RepositoryInterface|null $o_repository
+     * @var RepositoryInterface|null $_repository
      */
-    protected ?RepositoryInterface $o_repository = null;
+    protected ?RepositoryInterface $_repository = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectRepository
      */
     public function getRepositoryObject(): ?RepositoryInterface
     {
-        return $this->o_repository;
+        return $this->_repository;
     }
 
 
     /**
      * Sets the Repository object linked to this object
      *
-     * @param RepositoryInterface|null $o_repository
+     * @param RepositoryInterface|null $_repository
      *
      * @return static
      */
-    public function setRepositoryObject(?RepositoryInterface $o_repository): static
+    public function setRepositoryObject(?RepositoryInterface $_repository): static
     {
-        $this->o_repository = $o_repository;
+        $this->_repository = $_repository;
         return $this;
     }
 }

@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataObjectVersion
  *
- * This trait adds support for managing an $o_version object in your class
+ * This trait adds support for managing an $_version object in your class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,9 +24,9 @@ trait TraitDataObjectVersion
     /**
      * The path to use
      *
-     * @var VersionInterface|null $o_version
+     * @var VersionInterface|null $_version
      */
-    protected ?VersionInterface $o_version = null;
+    protected ?VersionInterface $_version = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectVersion
      */
     public function getVersionObject(): ?VersionInterface
     {
-        return $this->o_version;
+        return $this->_version;
     }
 
 
     /**
      * Sets the version object
      *
-     * @param VersionInterface|null $o_version
+     * @param VersionInterface|null $_version
      *
      * @return static
      */
-    public function setVersionObject(?VersionInterface $o_version): static
+    public function setVersionObject(?VersionInterface $_version): static
     {
-        $this->o_version = $o_version;
+        $this->_version = $_version;
         return $this;
     }
 
@@ -61,7 +61,7 @@ trait TraitDataObjectVersion
      */
     public function getVersion(): ?string
     {
-        return $this->o_version->getSource();
+        return $this->_version->getSource();
     }
 
 
@@ -74,7 +74,7 @@ trait TraitDataObjectVersion
      */
     public function setVersion(?string $version): static
     {
-        $this->o_version = new Version($version);
+        $this->_version = new Version($version);
         return $this;
     }
 }

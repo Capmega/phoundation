@@ -77,11 +77,11 @@ class Page extends DataEntry implements PageInterface
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
 //`view_rights_id` bigint DEFAULT NULL,
 //`collections_id` bigint NOT NULL,
@@ -91,17 +91,17 @@ class Page extends DataEntry implements PageInterface
 //`categories_id` bigint DEFAULT NULL,
 //`templates_id` bigint DEFAULT NULL,
 //`is_template` tinyint DEFAULT NULL,
-        $o_definitions->add(DefinitionFactory::newParentsId()
+        $_definitions->add(DefinitionFactory::newParentsId()
                                              ->setElement(EnumElement::select)
-                                             ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                             ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                return Pages::new()
                                                            ->getHtmlSelectOld()
                                                            ->setName($key)
                                                            ->setSelected(array_get_safe($source, $key));
                                            })
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                // Ensure categories id exists and that its or category
-                                               $o_validator->orColumn('parents_name')
+                                               $_validator->orColumn('parents_name')
                                                          ->isDbId()
                                                          ->isQueryResult('SELECT `id` 
                                                                           FROM   `pages` 
@@ -122,9 +122,9 @@ class Page extends DataEntry implements PageInterface
                                                                     ->getSource();
                                                },
                                            ])
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                // Ensure category exists and that it is a category id or category name
-                                               $o_validator->orColumn('parents_id')
+                                               $_validator->orColumn('parents_id')
                                                          ->isName()
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` 
                                                                                              FROM   `pages` 
@@ -142,8 +142,8 @@ class Page extends DataEntry implements PageInterface
                                            ->setDefault(tr('-')))
 
                     ->add(DefinitionFactory::newName()
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isFalse(function ($value, $source) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isFalse(function ($value, $source) {
                                                    static::exists(['name' => $value], array_get_safe($source, 'id'));
                                                }, tr('already exists'));
                                            }))

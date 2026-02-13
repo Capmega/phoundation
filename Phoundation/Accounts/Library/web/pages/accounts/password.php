@@ -46,8 +46,8 @@ $password = $user->getPasswordObject();
 
 
 // Hide the "current" field as its not required for password updates by admin
-$o_definitions = $password->getDefinitionsObject();
-$o_definitions->setDefinitionRender('current'  , false)
+$_definitions = $password->getDefinitionsObject();
+$_definitions->setDefinitionRender('current'  , false)
               ->setDefinitionRender('divider-0', false);
 
 
@@ -91,7 +91,7 @@ $buttons = Buttons::new()
 
 
 // Build the user form
-$o_card = Card::new()
+$_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change password for :name', [':name' => $user->getDisplayName()]))
             ->setContent($password->getHtmlDataEntryFormObject())
@@ -100,13 +100,13 @@ $o_card = Card::new()
 
 // Build the grid column with a form containing the password card
 $column = GridColumn::new()
-                    ->addContent($o_card->render())
+                    ->addContent($_card->render())
                     ->setSize(9)
                     ->useForm(true);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new('/accounts/user+' . $user->getId() . '.html', tr('Modify profile for this user')) .
@@ -115,7 +115,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Documentation'))
                      ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -138,4 +138,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($column)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

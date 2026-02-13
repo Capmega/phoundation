@@ -48,42 +48,42 @@ class DiffFiles extends PhoFilesCore
     /**
      * A git object specifically for this path
      *
-     * @var GitInterface $o_git
+     * @var GitInterface $_git
      */
-    protected GitInterface $o_git;
+    protected GitInterface $_git;
 
 
     /**
      * DiffFiles class constructor
      *
-     * @param RepositoryInterface|PhoPathInterface|null $o_parent
+     * @param RepositoryInterface|PhoPathInterface|null $_parent
      */
-    public function __construct(RepositoryInterface|PhoPathInterface|null $o_parent = null)
+    public function __construct(RepositoryInterface|PhoPathInterface|null $_parent = null)
     {
-        if ($o_parent instanceof RepositoryInterface) {
-            $this->o_repository = $o_parent;
-            $this->o_parent     = $o_parent->getPathObject();
+        if ($_parent instanceof RepositoryInterface) {
+            $this->_repository = $_parent;
+            $this->_parent     = $_parent->getPathObject();
 
         } else {
-            $this->o_parent = $o_parent;
+            $this->_parent = $_parent;
         }
 
-        $this->setRestrictionsObject($o_parent?->getRestrictionsObject() ?? new PhoRestrictions())
+        $this->setRestrictionsObject($_parent?->getRestrictionsObject() ?? new PhoRestrictions())
              ->setAcceptedDataTypes([PhoPathInterface::class])
-             ->___construct($this->o_parent);
+             ->___construct($this->_parent);
     }
 
 
     /**
      * Returns a new DiffFiles object
      *
-     * @param RepositoryInterface|PhoPathInterface|null $o_parent
+     * @param RepositoryInterface|PhoPathInterface|null $_parent
      *
      * @return static
      */
-    public static function new(RepositoryInterface|PhoPathInterface|null $o_parent = null): static
+    public static function new(RepositoryInterface|PhoPathInterface|null $_parent = null): static
     {
-        return new static($o_parent);
+        return new static($_parent);
     }
 
 
@@ -96,9 +96,9 @@ class DiffFiles extends PhoFilesCore
     {
         $this->source = [];
 
-        $files = $this->o_git_process->clearArguments()
+        $files = $this->_git_process->clearArguments()
                                      ->addArgument('diff')
-                                     ->addArgument($this->o_path)
+                                     ->addArgument($this->_path)
                                      ->addArgument('--porcelain')
                                      ->executeReturnArray();
 
@@ -124,11 +124,11 @@ class DiffFiles extends PhoFilesCore
                     $file   = Strings::until($file, ' -> ');
 
                     $this->source[$file] = DiffFile::new($diff, new PhoFile($file, $this->getRestrictionsObject()), new PhoFile($target, $this->getRestrictionsObject()))
-                                                     ->setRepositoryObject($this->o_repository);
+                                                     ->setRepositoryObject($this->_repository);
 
                 } else {
                     $this->source[$file] = DiffFile::new($diff, new PhoFile($file, $this->getRestrictionsObject()))
-                                                     ->setRepositoryObject($this->o_repository);
+                                                     ->setRepositoryObject($this->_repository);
                 }
 
             } catch (GitUnknownDiffException $e) {
@@ -166,22 +166,22 @@ class DiffFiles extends PhoFilesCore
             ];
         }
 
-        foreach ($this as $file => $o_diff) {
+        foreach ($this as $file => $_diff) {
             $entry = [];
 
             foreach ($columns as $column => $label) {
                 switch ($column) {
 // TODO Implement these options
 //                    case 'repository':
-//                        $entry[$column] = $o_diff->getRepositoryObject()?->getDisplayName();
+//                        $entry[$column] = $_diff->getRepositoryObject()?->getDisplayName();
 //                        break;
 //
 //                    case 'library':
-//                        $entry[$column] = $o_diff->getLibraryObject()->getDisplayName();
+//                        $entry[$column] = $_diff->getLibraryObject()->getDisplayName();
 //                        break;
 
                     case 'branch':
-                        $entry[$column] = $o_diff->getRepositoryObject()?->getCurrentBranch();
+                        $entry[$column] = $_diff->getRepositoryObject()?->getCurrentBranch();
                         break;
 
                     case 'file':
@@ -189,21 +189,21 @@ class DiffFiles extends PhoFilesCore
                         break;
 
                     case 'diff':
-                        if (trim(substr($o_diff->getDiff(), 0, 1))) {
-                            $entry[$column] = CliColor::apply($o_diff->getDiff(), 'green');
+                        if (trim(substr($_diff->getDiff(), 0, 1))) {
+                            $entry[$column] = CliColor::apply($_diff->getDiff(), 'green');
 
                         } else {
-                            $entry[$column] = CliColor::apply($o_diff->getDiff(), 'red');
+                            $entry[$column] = CliColor::apply($_diff->getDiff(), 'red');
                         }
 
                         break;
 
                     case 'readable_diff':
-                        if (trim(substr($o_diff->getDiff(), 0, 1))) {
-                            $entry[$column] = CliColor::apply($o_diff->getReadableDiff(), 'green');
+                        if (trim(substr($_diff->getDiff(), 0, 1))) {
+                            $entry[$column] = CliColor::apply($_diff->getReadableDiff(), 'green');
 
                         } else {
-                            $entry[$column] = CliColor::apply($o_diff->getReadableDiff(), 'red');
+                            $entry[$column] = CliColor::apply($_diff->getReadableDiff(), 'red');
                         }
 
                         break;
@@ -227,38 +227,38 @@ class DiffFiles extends PhoFilesCore
     /**
      * Applies the patch for this file on the specified target file
      *
-     * @param PhoDirectoryInterface $o_target_path
+     * @param PhoDirectoryInterface $_target_path
      *
      * @return static
      */
-    public function patch(PhoDirectoryInterface $o_target_path): static
+    public function patch(PhoDirectoryInterface $_target_path): static
     {
         try {
             // Add all paths to index, create the patch file, apply it, delete it, done
             $this->getGit()->add();
 
-            $o_patch_file = $this->getPatchFile(true);
+            $_patch_file = $this->getPatchFile(true);
 
             $this->getGit()->reset('HEAD');
 
-            if ($o_patch_file) {
-                Git::new($o_target_path)->apply($o_patch_file);
-                PhoFile::new($o_patch_file, PhoRestrictions::newTemporary(true, 'DiffFiles::patch()'))->delete();
+            if ($_patch_file) {
+                Git::new($_target_path)->apply($_patch_file);
+                PhoFile::new($_patch_file, PhoRestrictions::newTemporary(true, 'DiffFiles::patch()'))->delete();
             }
 
             return $this;
 
         } catch (ProcessFailedException $e) {
             Log::warning(ts('Patch failed to apply for target path ":path" with following exception', [
-                ':path' => $o_target_path,
+                ':path' => $_target_path,
             ]));
             Log::warning($e->getMessages());
             Log::warning($e->getDataKey('output'));
 
-            if (isset($o_patch_file)) {
+            if (isset($_patch_file)) {
                 // Delete the temporary patch file
-                Core::ExecuteIfNotInTestMode(function () use ($o_patch_file) {
-                    PhoFile::new($o_patch_file, PhoRestrictions::new(DIRECTORY_TMP, true))->delete();
+                Core::ExecuteIfNotInTestMode(function () use ($_patch_file) {
+                    PhoFile::new($_patch_file, PhoRestrictions::new(DIRECTORY_TMP, true))->delete();
                 }, tr('Removing git patch files'));
             }
 
@@ -275,8 +275,8 @@ class DiffFiles extends PhoFilesCore
             if (isset($files)) {
                 // Specific files failed to apply
                 throw GitPatchFailedException::new(tr('Failed to apply patch ":patch" to path ":path"', [
-                    ':patch' => isset_get($o_patch_file),
-                    ':path'  => $o_target_path,
+                    ':patch' => isset_get($_patch_file),
+                    ':path'  => $_target_path,
                 ]), $e)->addData([
                     'files' => $files,
                 ]);
@@ -295,11 +295,11 @@ class DiffFiles extends PhoFilesCore
      */
     public function getGit(): GitInterface
     {
-        if (!isset($this->o_git)) {
-            $this->o_git = Git::new($this->o_path->getDirectoryObject());
+        if (!isset($this->_git)) {
+            $this->_git = Git::new($this->_path->getDirectoryObject());
         }
 
-        return $this->o_git;
+        return $this->_git;
     }
 
 
@@ -312,6 +312,6 @@ class DiffFiles extends PhoFilesCore
      */
     public function getPatchFile(bool $cached = false): PhoFileInterface
     {
-        return Git::new($this->o_path->getParentDirectoryObject())->saveDiff($this->o_path->getBasename(), $cached);
+        return Git::new($this->_path->getParentDirectoryObject())->saveDiff($this->_path->getBasename(), $cached);
     }
 }

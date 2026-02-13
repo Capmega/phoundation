@@ -38,7 +38,7 @@ GetValidator::new()->validate();
 
 // Build incidents "filter" card
 $filters      = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Notifications filters')
                       ->setContent($filters)
@@ -90,7 +90,7 @@ $table->getAnchorDataAttributes()->add(':ROW', 'id');
 
 
 // Build "notifications" card
-$o_notifications_card = Card::new()
+$_notifications_card = Card::new()
                             ->setTitle(tr('Active notifications (:count)', [
                                 ':count' => $table->getCount()
                             ]))
@@ -99,13 +99,13 @@ $o_notifications_card = Card::new()
                             ->useForm(true)
                             ->setButtonsObject(Buttons::new()->addButton(tr('Mark all as read')));
 
-$o_notifications_card->getFormObject()
+$_notifications_card->getFormObject()
                      ->setAction(Url::newCurrent())
                      ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/notifications/unread.html')->makeWww(), tr('Unread notifications')) .
@@ -113,7 +113,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -129,5 +129,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_notifications_card, EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card . $_notifications_card, EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

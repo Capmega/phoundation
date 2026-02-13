@@ -81,12 +81,12 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
     {
         $source = [];
 
-        foreach ($this->o_definitions as $column => $o_definition) {
-            if ($o_definition->getVirtual()) {
+        foreach ($this->_definitions as $column => $_definition) {
+            if ($_definition->getVirtual()) {
                 continue;
             }
 
-            $source[$column] = $this->getConfiguredValue($o_definition);
+            $source[$column] = $this->getConfiguredValue($_definition);
         }
 
         return $this->setSource($source);
@@ -96,21 +96,21 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
     /**
      * Returns the configured value for the specified column
      *
-     * @param DefinitionInterface $o_definition
+     * @param DefinitionInterface $_definition
      * @param bool                $allow_user_configuration
      *
      * @return mixed
      */
-    protected function getConfiguredValue(DefinitionInterface $o_definition, bool $allow_user_configuration = true): mixed
+    protected function getConfiguredValue(DefinitionInterface $_definition, bool $allow_user_configuration = true): mixed
     {
-        $method = $o_definition->getProperty('configuration_method');
+        $method = $_definition->getProperty('configuration_method');
 
         if ($method) {
-            return config()->$method($o_definition->getProperty('configuration_path'), $o_definition->getDefault(), $allow_user_configuration, false);
+            return config()->$method($_definition->getProperty('configuration_path'), $_definition->getDefault(), $allow_user_configuration, false);
         }
 
         throw new OutOfBoundsException(tr('Cannot get configured value for column ":column", the column has no method property specified', [
-            ':column' => $o_definition->getColumn(),
+            ':column' => $_definition->getColumn(),
         ]));
     }
 
@@ -125,13 +125,13 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      */
     public function apply(bool $require_clean_source = true, array|ValidatorInterface|null &$source = null): static
     {
-        $o_validator = Validator::pick($source);
+        $_validator = Validator::pick($source);
 
-        foreach ($this->o_definitions as $o_definition) {
-            $o_definition->validate($o_validator);
+        foreach ($this->_definitions as $_definition) {
+            $_definition->validate($_validator);
         }
 
-        $this->source = array_merge($this->source, $o_validator->validate($require_clean_source));
+        $this->source = array_merge($this->source, $_validator->validate($require_clean_source));
         return $this;
     }
 
@@ -147,12 +147,12 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        foreach ($this->o_definitions as $column => $o_definition) {
-            if ($o_definition->getVirtual()) {
+        foreach ($this->_definitions as $column => $_definition) {
+            if ($_definition->getVirtual()) {
                 continue;
             }
 
-            $this->saveColumn(array_get_safe($this->source, $column), $column, $o_definition);
+            $this->saveColumn(array_get_safe($this->source, $column), $column, $_definition);
         }
 
         return $this;
@@ -164,11 +164,11 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      *
      * @param mixed               $value
      * @param string              $column
-     * @param DefinitionInterface $o_definition
+     * @param DefinitionInterface $_definition
      *
      * @return static
      */
-    protected function saveColumn(mixed $value, string $column, DefinitionInterface $o_definition): static
+    protected function saveColumn(mixed $value, string $column, DefinitionInterface $_definition): static
     {
         // Store display data in the SESSION object
         switch ($column) {
@@ -180,11 +180,11 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                 break;
         }
 
-        if ($value == $this->getConfiguredValue($o_definition, false)) {
-            config()->deleteUserPath($o_definition->getProperty('configuration_path'));
+        if ($value == $this->getConfiguredValue($_definition, false)) {
+            config()->deleteUserPath($_definition->getProperty('configuration_path'));
 
         } else {
-            config()->updateUserPath($value, $o_definition->getProperty('configuration_path'));
+            config()->updateUserPath($value, $_definition->getProperty('configuration_path'));
         }
 
         return $this;
@@ -229,8 +229,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setHelpText(tr('The timezone name where this user resides'))
                                                  ->setSource([
                                                  ])
-                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                     $o_validator->existsInDatabase(tr('The specified timezone does not exist'), table: 'geo_timezones');
+                                                 ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                     $_validator->existsInDatabase(tr('The specified timezone does not exist'), table: 'geo_timezones');
                                                  }))
 
                                  ->add(Definition::new('auto_signout')
@@ -271,8 +271,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                  ])
-                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                     $o_validator->isBoolean();
+                                                 ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                     $_validator->isBoolean();
                                                  }))
 
                                  ->add(Definition::new('menu_open')
@@ -287,8 +287,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                                  ])
-                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                     $o_validator->isBoolean();
+                                                 ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                     $_validator->isBoolean();
                                                  }))
 
                                  ->add(Definition::new('accordion_open')
@@ -303,8 +303,8 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                      'on'   => tr('On'),
                                                      'off'  => tr('Off'),
                                                                  ])
-                                                 ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                     $o_validator->isBoolean();
+                                                 ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                     $_validator->isBoolean();
                                                  }))
 
                                  ->add(DefinitionFactory::newDivider())

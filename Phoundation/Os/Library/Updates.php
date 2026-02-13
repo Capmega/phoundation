@@ -127,14 +127,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ]);
 
         })->addUpdate('0.8.1', function () {
-            $o_table = sql()->getSchemaObject()->getTableObject('os_tasks');
+            $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
-            if ($o_table->columnExists('parents_id')) {
-                $o_table->alter()->modifyColumn('`parents_id`', 'bigint DEFAULT NULL,');
+            if ($_table->columnExists('parents_id')) {
+                $_table->alter()->modifyColumn('`parents_id`', 'bigint DEFAULT NULL,');
             }
 
-            if ($o_table->foreignKeyExists('fk_os_tasks_parents_id')) {
-                $o_table->alter()
+            if ($_table->foreignKeyExists('fk_os_tasks_parents_id')) {
+                $_table->alter()
                         ->dropForeignKey('fk_os_tasks_parents_id')
                         ->addForeignKey('CONSTRAINT `fk_os_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `os_tasks` (`id`)');
             }

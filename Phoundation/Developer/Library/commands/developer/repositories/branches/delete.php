@@ -63,10 +63,10 @@ $argv = ArgvValidator::new()
 
 
 // Load all available repositories and delete the requested branch
-$o_repositories = Repositories::new()->load();
+$_repositories = Repositories::new()->load();
 
 Log::cli(ts('Deleting branches for ":count" repositories, this might take a few seconds...', [
-    ':count' => $o_repositories->getCount()
+    ':count' => $_repositories->getCount()
 ]), 'action');
 
-$o_repositories->deleteBranch($argv['branch'], !$argv['not_remote']);
+$_repositories->deleteBranch($argv['branch'], !$argv['not_remote']);

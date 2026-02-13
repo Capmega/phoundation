@@ -120,12 +120,12 @@ trait TraitDataEntryDepartment
     /**
      * Returns the departments_id for this user
      *
-     * @param DepartmentInterface|null $o_object
+     * @param DepartmentInterface|null $_object
      *
      * @return static
      */
-    public function setDepartmentObject(?DepartmentInterface $o_object): static
+    public function setDepartmentObject(?DepartmentInterface $_object): static
     {
-        return $this->setVirtualObject('departments', $o_object);
+        return $this->setVirtualObject('departments', $_object);
     }
 }

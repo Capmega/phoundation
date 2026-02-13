@@ -26,27 +26,27 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build the "filters" card
-$o_filters = FilterForm::new()->setFilterSpecialUsers(false);
-$o_filters->getDefinitionsObject()->setDefinitionRender('date_range', false)
+$_filters = FilterForm::new()->setFilterSpecialUsers(false);
+$_filters->getDefinitionsObject()->setDefinitionRender('date_range', false)
                                   ->setDefinitionRender('status'    , false)
                                   ->setDefinitionSize('users_id'    , 12);
 
 
 // Get the session object
-$o_user     = $o_filters->getUserObject();
-$o_sessions = $o_user?->getActiveSessions() ?? Iterator::new();
+$_user     = $_filters->getUserObject();
+$_sessions = $_user?->getActiveSessions() ?? Iterator::new();
 
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Filters')
-                      ->setContent($o_filters);
+                      ->setContent($_filters);
 
 
 // Get the "sessions" list and apply filters
-$o_sessions_card = Card::new()
-                       ->setTitle(tr('Active sessions (:count)', [':count' => $o_sessions->getCount()]))
+$_sessions_card = Card::new()
+                       ->setTitle(tr('Active sessions (:count)', [':count' => $_sessions->getCount()]))
                        ->setSwitches('reload')
-                       ->setContent($o_sessions->getHtmlDataTableObject([
+                       ->setContent($_sessions->getHtmlDataTableObject([
                                                    'id'     => tr('Identifier'),
                                                    'domain' => tr('Domain'),
                                                    'ip'     => tr('IP address'),
@@ -56,30 +56,30 @@ $o_sessions_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
-                       ->setContent(($o_user ? AnchorBlock::new('/accounts/user+' . $o_user->getId() . '.html', tr('Manage user :user', [':user' => $o_user->getDisplayName()])) : null) .
-                                               AnchorBlock::new('/accounts/users.html'                        , tr('Manage users') , $o_user ? '<hr>' : null) .
+                       ->setContent(($_user ? AnchorBlock::new('/accounts/user+' . $_user->getId() . '.html', tr('Manage user :user', [':user' => $_user->getDisplayName()])) : null) .
+                                               AnchorBlock::new('/accounts/users.html'                        , tr('Manage users') , $_user ? '<hr>' : null) .
                                                AnchorBlock::new('/accounts/roles.html'                        , tr('Manage roles')) .
                                                AnchorBlock::new('/accounts/rights.html'                       , tr('Manage rights')));
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
-if ($o_user) {
+if ($_user) {
 // Set page meta-data
     Response::setHeaderTitle(tr('Sessions for user'));
-    Response::setHeaderSubTitle($o_user->getDisplayName());
+    Response::setHeaderSubTitle($_user->getDisplayName());
     Response::setBreadcrumbs([
         Breadcrumb::new('/'                          , tr('Home')),
         Breadcrumb::new('/accounts/users.html'       , tr('Users')),
-        Breadcrumb::new('/accounts/session+:ROW.html', $o_user->getDisplayName()),
+        Breadcrumb::new('/accounts/session+:ROW.html', $_user->getDisplayName()),
         Breadcrumb::new(''                           , tr('Sessions')),
     ]);
 
@@ -97,5 +97,5 @@ if ($o_user) {
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_sessions_card     , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card . $_sessions_card     , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

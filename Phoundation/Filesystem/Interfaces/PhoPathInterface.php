@@ -338,12 +338,12 @@ interface PhoPathInterface extends Stringable
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param PhoPathInterface     $o_target
+     * @param PhoPathInterface     $_target
      * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(PhoPathInterface $o_target, ?PhoRestrictions $restrictions = null): static;
+    public function move(PhoPathInterface $_target, ?PhoRestrictions $restrictions = null): static;
 
     /**
      * Switches file mode to the new value and returns the previous value
@@ -878,11 +878,11 @@ interface PhoPathInterface extends Stringable
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $o_target
+     * @param PhoPathInterface|string $_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface;
+    public function replaceWithPath(PhoPathInterface|string $_target): PhoPathInterface;
 
     /**
      * Ensures that this path is a symlink
@@ -952,7 +952,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Sets the server and filesystem restrictions for this PhoPath object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions   The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions   The file restrictions to apply to this object
      * @param bool                                       $write            If $restrictions is not specified as a
      *                                                                     FsRestrictions class, but as a path string,
      *                                                                     or array of path strings, then this method
@@ -966,16 +966,16 @@ interface PhoPathInterface extends Stringable
      *                                                                     object and this is the $label modifier for
      *                                                                     that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
 
     /**
      * Ensures the existence of the parent directory
@@ -1306,20 +1306,20 @@ interface PhoPathInterface extends Stringable
     /**
      * Returns true if the path for this object is in the specified path
      *
-     * @param PhoPathInterface|string $o_path
+     * @param PhoPathInterface|string $_path
      *
      * @return bool
      */
-    public function isIn(PhoPathInterface|string $o_path): bool;
+    public function isIn(PhoPathInterface|string $_path): bool;
 
     /**
      * Returns true if the path for this object is in the specified path
      *
-     * @param PhoPathInterface|string $o_path
+     * @param PhoPathInterface|string $_path
      *
      * @return static
      */
-    public function checkIn(PhoPathInterface|string $o_path): static;
+    public function checkIn(PhoPathInterface|string $_path): static;
 
     /**
      * Returns permissions for the owner of this file

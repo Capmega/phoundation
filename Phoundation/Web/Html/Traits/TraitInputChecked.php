@@ -26,7 +26,7 @@ trait TraitInputChecked
      */
     public function getChecked(): bool
     {
-        return (bool) $this->o_attributes->get('checked', exception: false);
+        return (bool) $this->_attributes->get('checked', exception: false);
     }
 
 

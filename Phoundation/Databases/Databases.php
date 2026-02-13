@@ -159,12 +159,12 @@ class Databases
      */
     protected static function getDatabase(ConnectorInterface|string $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb|ElasticSearchInterface
     {
-        $o_connector    = Databases::getConnectorObject($connector);
-        $connector_name = $o_connector->getDisplayName();
+        $_connector    = Databases::getConnectorObject($connector);
+        $connector_name = $_connector->getDisplayName();
 
         if (!array_key_exists($connector_name, static::$databases)) {
             // This connector  is not registered yet, so connect and add it to the "connectors" list
-            static::$databases[$connector_name] = new $class($o_connector, $connect, $use_database);
+            static::$databases[$connector_name] = new $class($_connector, $connect, $use_database);
         }
 
         return static::$databases[$connector_name];

@@ -44,7 +44,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @var PhoDirectoryInterface|null
      */
-    protected PhoDirectoryInterface|null $o_parent_directory = null;
+    protected PhoDirectoryInterface|null $_parent_directory = null;
 
     /**
      * Tracks if this files object has empty entries added
@@ -91,7 +91,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     public function getParentDirectoryObject(): ?PhoDirectoryInterface
     {
-        return $this->o_parent_directory;
+        return $this->_parent_directory;
     }
 
 
@@ -100,14 +100,14 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      *
      * @note By default, will then load the files in that path
      *
-     * @param PhoDirectoryInterface|null $o_parent_directory
+     * @param PhoDirectoryInterface|null $_parent_directory
      * @param bool                  $load
      *
      * @return PhoFiles
      */
-    public function setParentDirectoryObject(?PhoDirectoryInterface $o_parent_directory, bool $load = true): static
+    public function setParentDirectoryObject(?PhoDirectoryInterface $_parent_directory, bool $load = true): static
     {
-        $this->o_parent_directory = $o_parent_directory;
+        $this->_parent_directory = $_parent_directory;
 
         if ($load) {
             return $this->load();
@@ -124,11 +124,11 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     protected function load(): static
     {
-        if (empty($this->o_parent_directory)) {
+        if (empty($this->_parent_directory)) {
             throw new NoPathSpecifiedException(tr('Cannot load files, no parent directory specified'));
         }
 
-        return $this->setSource($this->o_parent_directory->scan());
+        return $this->setSource($this->_parent_directory->scan());
     }
 
 
@@ -138,17 +138,17 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param PhoDirectoryInterface         $o_target
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoDirectoryInterface         $_target
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return static
      */
-    public function move(PhoDirectoryInterface $o_target, ?PhoRestrictionsInterface $o_restrictions = null): static
+    public function move(PhoDirectoryInterface $_target, ?PhoRestrictionsInterface $_restrictions = null): static
     {
-        PhoDirectory::new($o_target, $o_restrictions)->ensure();
+        PhoDirectory::new($_target, $_restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            PhoFile::new($file)->move($o_target, $o_target->getRestrictionsObject());
+            PhoFile::new($file)->move($_target, $_target->getRestrictionsObject());
         }
 
         return $this;
@@ -162,19 +162,19 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      * @note The specified target either must exist or will be created automatically
      *
      * @param PhoPathInterface|string       $target
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $_restrictions = null, ?callable $callback = null, mixed $context = null): static
     {
-        $o_restrictions = $this->ensureRestrictionsObject($o_restrictions);
-        PhoDirectory::new($target, $o_restrictions)->ensure();
+        $_restrictions = $this->ensureRestrictionsObject($_restrictions);
+        PhoDirectory::new($target, $_restrictions)->ensure();
 
         foreach ($this->source as $file) {
-            PhoFile::new($file)->copy($target, $o_restrictions, $callback, $context);
+            PhoFile::new($file)->copy($target, $_restrictions, $callback, $context);
         }
 
         return $this;
@@ -283,19 +283,19 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
                 if (!str_starts_with($file, '/')) {
                     // Prefix the file with the parent path ONLY IF it is not absolute and a parent was specified
-                    $file = $this->o_parent_directory?->getSource() . $file;
+                    $file = $this->_parent_directory?->getSource() . $file;
                 }
 
                 try {
                     if (is_dir($file)) {
-                        $file = PhoDirectory::new($file, $this->o_restrictions);
+                        $file = PhoDirectory::new($file, $this->_restrictions);
 
                     } elseif (file_exists($file)) {
-                        $file = PhoFile::new($file, $this->o_restrictions);
+                        $file = PhoFile::new($file, $this->_restrictions);
 
                     } else {
                         // Non-existing file, just return the path
-                        $file = PhoPath::new($file, $this->o_restrictions);
+                        $file = PhoPath::new($file, $this->_restrictions);
                     }
 
                 } catch (NoRestrictionsSpecifiedException $e) {
@@ -309,7 +309,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
 
             if ($file instanceof PhoPathInterface) {
                 // Ensure $file is an absolute path
-                $file->makeAbsolute($this->o_parent_directory?->getSource(), false);
+                $file->makeAbsolute($this->_parent_directory?->getSource(), false);
                 continue;
             }
 
@@ -338,7 +338,7 @@ class PhoFilesCore extends IteratorCore implements PhoFilesInterface
      */
     public function getFilesWithMimetype(string $mimetype, bool $remove = false): static
     {
-        $files  = new static($this->o_parent_directory);
+        $files  = new static($this->_parent_directory);
         $delete = [];
 
         foreach ($this as $key => $file) {

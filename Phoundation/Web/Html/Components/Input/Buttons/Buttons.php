@@ -221,7 +221,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setWrapping($this->wrapping)
                             ->setOutlined($this->outlined)
                             ->setRounded($this->rounded)
-                            ->addClasses($this->o_classes)
+                            ->addClasses($this->_classes)
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($value ?? $button)
@@ -274,14 +274,14 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      */
     public function render(): ?string
     {
-        $o_aria  = $this->getAriaObject();
-        $o_data = $this->getDataObject();
-        $o_class = $this->getClassesObject();
+        $_aria  = $this->getAriaObject();
+        $_data = $this->getDataObject();
+        $_class = $this->getClassesObject();
 
         foreach ($this as $button) {
-            $button->getAriaObject()->addSource($o_aria);
-            $button->getDataObject()->addSource($o_data);
-            $button->getClassesObject()->addSource($o_class);
+            $button->getAriaObject()->addSource($_aria);
+            $button->getDataObject()->addSource($_data);
+            $button->getClassesObject()->addSource($_class);
         }
 
         return parent::render();

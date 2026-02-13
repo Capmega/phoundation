@@ -61,19 +61,19 @@ class AutoSuggestRequest
 
         // Validate request data
         if ($term_optional) {
-            $o_validator = GetValidator::new()->select('term')->isOptional('')
+            $_validator = GetValidator::new()->select('term')->isOptional('')
                                                             ->sanitizeTrim()
                                                             ->hasMaxCharacters(255)
                                                             ->containsNoHtml()
                                                             ->matchesRegex('/[0-9a-z-,\'"() ]+/i', message: tr('is not a valid character'));
 
         } else {
-            $o_validator = GetValidator::new()->select('term')->sanitizeTrim()
+            $_validator = GetValidator::new()->select('term')->sanitizeTrim()
                                                             ->hasMaxCharacters(255)
                                                             ->matchesRegex('/[0-9a-z-,\'"() ]+/i', message: tr('is not a valid character'));
         }
 
-        static::$get = $o_validator->validate($require_clean_source);
+        static::$get = $_validator->validate($require_clean_source);
     }
 
 

@@ -216,7 +216,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getMultiple(): bool
     {
-        return (bool) $this->o_attributes->get('multiple');
+        return (bool) $this->_attributes->get('multiple');
     }
 
 
@@ -240,7 +240,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getSize(): ?int
     {
-        return get_null((int) $this->o_attributes->get('size'));
+        return get_null((int) $this->_attributes->get('size'));
     }
 
 
@@ -264,7 +264,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getSearch(): bool
     {
-        return (bool) $this->o_attributes->get('search');
+        return (bool) $this->_attributes->get('search');
     }
 
 
@@ -288,7 +288,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getClearButton(): bool
     {
-        return (bool) $this->o_attributes->get('clear_button', exception: false);
+        return (bool) $this->_attributes->get('clear_button', exception: false);
     }
 
 
@@ -312,7 +312,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getCustomContent(): ?string
     {
-        return $this->o_attributes->get('custom_content');
+        return $this->_attributes->get('custom_content');
     }
 
 
@@ -336,7 +336,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
+        return Strings::toBoolean($this->_attributes->get('autocomplete'));
     }
 
 
@@ -933,13 +933,13 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
-        return parent::setDefinitionObject($o_definition)
-                     ->setRequired($o_definition->getRequired(false));
+        return parent::setDefinitionObject($_definition)
+                     ->setRequired($_definition->getRequired(false));
     }
 }

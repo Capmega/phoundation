@@ -43,7 +43,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId(false, true)
                    ->validate();
 
-$o_connector = Connector::new()->loadThis($get['id']);
+$_connector = Connector::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -53,17 +53,17 @@ if (Request::isPostRequestMethod()) {
             case tr('Test'):
                 // Test the connector
                 try {
-                    $o_connector->test();
+                    $_connector->test();
 
                     Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been tested successfully', [
-                        ':connector' => $o_connector->getDisplayName(),
+                        ':connector' => $_connector->getDisplayName(),
                     ]));
 
                 } catch (\Phoundation\Exception\PhoException $e) {
                     Log::error($e);
 
                     Response::getFlashMessagesObject()->addWarning(tr('The connector ":connector" test failed, please check the logs', [
-                        ':connector' => $o_connector->getDisplayName(),
+                        ':connector' => $_connector->getDisplayName(),
                     ]));
                 }
 
@@ -72,27 +72,27 @@ if (Request::isPostRequestMethod()) {
 
             case tr('Save'):
                 // Update connector, roles, emails, and phones
-                $o_connector->apply(false)->save();
+                $_connector->apply(false)->save();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been saved', [
-                    ':connector' => $o_connector->getDisplayName(),
+                    ':connector' => $_connector->getDisplayName(),
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::new('/phoundation/databases/connectors/connector+' . $o_connector->getId() . '.html')->makeWww());
+                Response::redirect(Url::new('/phoundation/databases/connectors/connector+' . $_connector->getId() . '.html')->makeWww());
 
             case tr('Delete'):
-                $o_connector->delete();
+                $_connector->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been deleted', [
-                    ':connector' => $o_connector->getDisplayName(),
+                    ':connector' => $_connector->getDisplayName(),
                 ]));
 
                 Response::redirect();
 
             case tr('Undelete'):
-                $o_connector->undelete();
+                $_connector->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The connector ":connector" has been undeleted', [
-                    ':connector' => $o_connector->getDisplayName(),
+                    ':connector' => $_connector->getDisplayName(),
                 ]));
 
                 Response::redirect();
@@ -101,37 +101,37 @@ if (Request::isPostRequestMethod()) {
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessagesObject()->addMessage($e);
-        $o_connector->forceApply();
+        $_connector->forceApply();
     }
 }
 
 
 // Save button
-if (!$o_connector->getReadonly()) {
-    $o_save = SaveButton::new();
+if (!$_connector->getReadonly()) {
+    $_save = SaveButton::new();
 }
 
 
 // Buttons.
-if (!$o_connector->isNew()) {
-    if (!$o_connector->isReadonly()) {
-        if ($o_connector->isDeleted()) {
-            $o_delete = UndeleteButton::new()
+if (!$_connector->isNew()) {
+    if (!$_connector->isReadonly()) {
+        if ($_connector->isDeleted()) {
+            $_delete = UndeleteButton::new()
                                       ->setFloatRight(true);
 
         } else {
-            $o_delete = DeleteButton::new()
+            $_delete = DeleteButton::new()
                                     ->setFloatRight(true);
 
             // Audit button.
-            $o_audit = AuditButton::new()
+            $_audit = AuditButton::new()
                                   ->setFloatRight(true)
-                                  ->setUrlObject('/audit/meta+' . $o_connector->getMetaId() . '.html');
+                                  ->setUrlObject('/audit/meta+' . $_connector->getMetaId() . '.html');
         }
     }
 
     // Test button.
-    $o_test = Button::new()
+    $_test = Button::new()
                     ->setFloatRight(true)
                     ->setMode(EnumDisplayMode::information)
                     ->setContent(tr('Test'))
@@ -140,29 +140,29 @@ if (!$o_connector->isNew()) {
 
 
 // Build the "connector" form
-$o_connector_card = Card::new()
+$_connector_card = Card::new()
                         ->setCollapseSwitch(true)
                         ->setMaximizeSwitch(true)
-                        ->setTitle(tr('Edit connector :name', [':name' => $o_connector->getDisplayName()]))
-                        ->setContent($o_connector->getHtmlDataEntryFormObject())
+                        ->setTitle(tr('Edit connector :name', [':name' => $_connector->getDisplayName()]))
+                        ->setContent($_connector->getHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
-                                                  ->addButton(isset_get($o_save))
+                                                  ->addButton(isset_get($_save))
                                                   ->addBackButton(Url::newPrevious('/phoundation/databases/connectors/connectors.html'), true)
-                                                  ->addButton(isset_get($o_test))
-                                                  ->addButton(isset_get($o_audit))
-                                                  ->addButton(isset_get($o_delete))
+                                                  ->addButton(isset_get($_test))
+                                                  ->addButton(isset_get($_audit))
+                                                  ->addButton(isset_get($_delete))
                                                   ->addButton(isset_get($impersonate)));
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/phoundation/databases/databases.html')->makeWww(), tr('Manage databases')));
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -171,19 +171,19 @@ $o_documentation_card = Card::new()
 
 
 // Set page meta-data
-Response::setPageTitle(tr('Connector :connector', [':connector' => $o_connector->getDisplayName()]));
+Response::setPageTitle(tr('Connector :connector', [':connector' => $_connector->getDisplayName()]));
 Response::setHeaderTitle(tr('Connector'));
-Response::setHeaderSubTitle($o_connector->getDisplayName() . ($o_connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
+Response::setHeaderSubTitle($_connector->getDisplayName() . ($_connector->sourceLoadedFromConfiguration() ? ' [' . tr('Configured') . ']' : ''));
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                                                , tr('Home')),
     Breadcrumb::new('/system-administration.html'                      , tr('System administration')),
     Breadcrumb::new('/phoundation/databases.html'                      , tr('Databases')),
     Breadcrumb::new('/phoundation/databases/connectors/connectors.html', tr('Connectors')),
-    Breadcrumb::new(''                                                 , $o_connector->getDisplayName()),
+    Breadcrumb::new(''                                                 , $_connector->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_connector_card                       , EnumDisplaySize::nine, true)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_connector_card                       , EnumDisplaySize::nine, true)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

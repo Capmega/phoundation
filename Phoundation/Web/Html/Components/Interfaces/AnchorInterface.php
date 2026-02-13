@@ -24,12 +24,12 @@ interface AnchorInterface extends SpanInterface
     /**
      * Sets the href for this anchor
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      * @param bool                     $reset_rights_cache
      *
      * @return static
      */
-    public function setUrlObject(UrlInterface|string|null $o_url, bool $reset_rights_cache = true): static;
+    public function setUrlObject(UrlInterface|string|null $_url, bool $reset_rights_cache = true): static;
 
 
     /**
@@ -43,11 +43,11 @@ interface AnchorInterface extends SpanInterface
     /**
      * Sets the target for this anchor
      *
-     * @param EnumAnchorTarget|null $o_target
+     * @param EnumAnchorTarget|null $_target
      *
      * @return static
      */
-    public function setTargetObject(?EnumAnchorTarget $o_target): static;
+    public function setTargetObject(?EnumAnchorTarget $_target): static;
 
 
     /**
@@ -61,35 +61,35 @@ interface AnchorInterface extends SpanInterface
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool;
+    public function userHasAccess(?UserInterface $_user = null, bool $use_cache = true): bool;
 
 
     /**
      * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return static
      * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static;
+    public function checkUserAccess(?UserInterface $_user = null, bool $use_cache = true): static;
 
 
     /**
      * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $cache
      *
      * @return bool
      */
-    public function hasRequiredRights(?UserInterface $o_user = null, bool $cache = false): bool;
+    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = false): bool;
 
 
     /**
@@ -105,21 +105,21 @@ interface AnchorInterface extends SpanInterface
     /**
      * Adds the specified right to the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function addRight(RightInterface|string|null $o_right): static;
+    public function addRight(RightInterface|string|null $_right): static;
 
 
     /**
      * Removes the specified right from the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function removeRight(RightInterface|string|null $o_right): static;
+    public function removeRight(RightInterface|string|null $_right): static;
 
 
     /**

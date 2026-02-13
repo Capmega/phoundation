@@ -355,7 +355,7 @@ class PhoPathCore implements PhoPathInterface
     {
         $path = $this->getSource() . Strings::ensureBeginsNotWith((string)$path, '/');
 
-        return PhoPath::new($path, $this->o_restrictions, $absolute_prefix);
+        return PhoPath::new($path, $this->_restrictions, $absolute_prefix);
     }
 
 
@@ -426,7 +426,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getFrom(PhoPathInterface|string|null $from = null): PhoFileInterface
     {
-        return PhoFile::new($this->getSource($from), $this->o_restrictions);
+        return PhoFile::new($this->getSource($from), $this->_restrictions);
     }
 
 
@@ -563,7 +563,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getAbsolute(Stringable|string|bool|null $prefix = null, bool $must_exist = true): PhoPathInterface
     {
-        return PhoPath::new($this->getAbsolutePath($prefix, $must_exist), $this->o_restrictions);
+        return PhoPath::new($this->getAbsolutePath($prefix, $must_exist), $this->_restrictions);
     }
 
 
@@ -1272,7 +1272,7 @@ class PhoPathCore implements PhoPathInterface
             return false;
         }
 
-        if (empty($this->o_restrictions)) {
+        if (empty($this->_restrictions)) {
             Log::warning(ts('Skipping auto mount of path ":path" with class instance ":class" attempt because no filesystem restrictions were specified', [
                 ':path'  => $this->source,
                 ':class' => static::class,
@@ -1281,7 +1281,7 @@ class PhoPathCore implements PhoPathInterface
         } else {
             try {
                 // Check if this path has a mount somewhere. If so, see if it needs auto-mounting
-                $mount = PhoMount::getForPath($this->source, $this->o_restrictions->makeWritable());
+                $mount = PhoMount::getForPath($this->source, $this->_restrictions->makeWritable());
 
                 if ($mount) {
                     if ($mount->autoMount()) {
@@ -1327,7 +1327,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Delete all specified patterns
         // Execute the rm command
-        Process::new('rm', $this->o_restrictions)
+        Process::new('rm', $this->_restrictions)
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
@@ -1343,7 +1343,7 @@ class PhoPathCore implements PhoPathInterface
                 $clean_path = null;
             }
 
-            PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent())
+            PhoDirectory::new(dirname($this->source), $this->_restrictions->getParent())
                        ->clearDirectory($clean_path, $sudo, use_run_file: $use_run_file);
         }
 
@@ -1363,7 +1363,7 @@ class PhoPathCore implements PhoPathInterface
     public function hasRestrictions(bool $write, ?Throwable $e = null): bool
     {
         // Check restrictions
-        $this->o_restrictions->isRestricted(static::realPath($this->source), $write, $e);
+        $this->_restrictions->isRestricted(static::realPath($this->source), $write, $e);
 
         // Check system read / write access
         if ($write) {
@@ -1386,7 +1386,7 @@ class PhoPathCore implements PhoPathInterface
     public function checkRestrictions(bool $write, ?Throwable $e = null, Stringable|string|bool|null $absolute_prefix = null): static
     {
         // Check restrictions
-        $this->o_restrictions->check(static::realPath($this->source, $absolute_prefix), $write, $e);
+        $this->_restrictions->check(static::realPath($this->source, $absolute_prefix), $write, $e);
 
         // Check system read / write access
         if ($write) {
@@ -1801,7 +1801,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Delete all specified patterns
         // Execute the rm command
-        Process::new('find', $this->o_restrictions)
+        Process::new('find', $this->_restrictions)
                ->setSudo($sudo)
                ->setTimeout(60)
                ->addArgument($this->source)
@@ -1833,49 +1833,49 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Moves this file to the specified target, will try to ensure target directory exists
      *
-     * @param PhoPathInterface     $o_target
+     * @param PhoPathInterface     $_target
      * @param PhoRestrictions|null $restrictions
      *
      * @return static
      */
-    public function move(PhoPathInterface $o_target, ?PhoRestrictionsInterface $restrictions = null): static
+    public function move(PhoPathInterface $_target, ?PhoRestrictionsInterface $restrictions = null): static
     {
-        $o_target = new PhoPath($o_target, $restrictions);
-        $o_target->makeAbsolute(must_exist: false);
+        $_target = new PhoPath($_target, $restrictions);
+        $_target->makeAbsolute(must_exist: false);
 
         // Check the target directory exists, if so must be directory
-        if ($o_target->exists()) {
+        if ($_target->exists()) {
             // Target exists. It has to be a directory where we can move into, or fail!
-            if (!$o_target->isDirectory()) {
+            if (!$_target->isDirectory()) {
                 throw FileExistsException::new(tr('The specified target ":target" already exists', [
-                    ':target' => $o_target,
+                    ':target' => $_target,
                 ]));
             }
 
             // Target exists and is directory. Rename target to "this file in the target directory"
-            $o_target = $o_target->appendPath($this->getBasename());
+            $_target = $_target->appendPath($this->getBasename());
 
         } else {
             // Target doesn't exist
-            if ($o_target instanceof PhoDirectoryInterface) {
+            if ($_target instanceof PhoDirectoryInterface) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
-                $o_target->ensure();
+                $_target->ensure();
 
             } else {
                 // Ensure that the target parent directory exists
-                $o_target->getParentDirectoryObject()->ensure();
+                $_target->getParentDirectoryObject()->ensure();
             }
         }
 
         // Check restrictions and execute move
         $this->checkRestrictions(true);
-        $o_target->checkRestrictions(true);
+        $_target->checkRestrictions(true);
 
-        rename($this->source, $o_target->getSource());
+        rename($this->source, $_target->getSource());
 
         // Update this object path and restrictions to the target, and we are done
-        return $this->setSource($o_target->getSource())
-                    ->setRestrictionsObject($o_target->getRestrictionsObject());
+        return $this->setSource($_target->getSource())
+                    ->setRestrictionsObject($_target->getRestrictionsObject());
     }
 
 
@@ -2186,7 +2186,7 @@ class PhoPathCore implements PhoPathInterface
         if ($recursive or is_string($mode)) {
             if (is_numeric($mode)) {
                 // Use operating system chmod command as PHP chmod does not support these functions
-                Process::new('chmod', $this->o_restrictions)
+                Process::new('chmod', $this->_restrictions)
                        ->setSudo($sudo)
                        ->addArguments([
                            ($recursive ? '-R' : null),
@@ -2285,7 +2285,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         foreach ($this->source as $pattern) {
-            Process::new('chown', $this->o_restrictions)
+            Process::new('chown', $this->_restrictions)
                    ->setSudo(true)
                    ->addArgument($recursive ? '-R' : null)
                    ->addArgument($user . ':' . $group)
@@ -2338,7 +2338,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions)->ensure();
+        PhoDirectory::new(dirname($this->source), $this->_restrictions)->ensure();
 
         Log::action(ts('Creating non existing file ":file" with file mode ":mode"', [
             ':mode' => Strings::fromOctal($mode),
@@ -2493,7 +2493,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getReal(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false): PhoPathInterface
     {
-        return static::new($this->getRealPath($absolute_prefix, $must_exist), $this->o_restrictions);
+        return static::new($this->getRealPath($absolute_prefix, $must_exist), $this->_restrictions);
     }
 
 
@@ -2538,7 +2538,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent())
+        PhoDirectory::new(dirname($this->source), $this->_restrictions->getParent())
                  ->ensure();
 
         return false;
@@ -2680,7 +2680,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function symlinkTargetFromThis(PhoPathInterface $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface
     {
-        $target->getRestrictionsObject()->addRestrictions($this->o_restrictions);
+        $target->getRestrictionsObject()->addRestrictions($this->_restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $this->isAbsolute()) {
@@ -2738,7 +2738,7 @@ class PhoPathCore implements PhoPathInterface
             throw $e;
         }
 
-        return static::new($target, $this->o_restrictions);
+        return static::new($target, $this->_restrictions);
     }
 
 
@@ -2763,7 +2763,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getRelativePathTo(PhoPathInterface|string $target, PhoPathInterface|string|bool|null $absolute_prefix = null): PhoPathInterface
     {
-        $target      = static::new($target, $this->o_restrictions);
+        $target      = static::new($target, $this->_restrictions);
         $target_path = Strings::ensureEndsNotWith($target->getAbsolutePath($absolute_prefix, false), '/');
         $source_path = Strings::ensureEndsNotWith($this->getAbsolutePath($absolute_prefix  , false), '/');
         $source_path = explode('/', $source_path);
@@ -2916,14 +2916,14 @@ class PhoPathCore implements PhoPathInterface
 
         // Return (possibly) relative links
         if (is_dir($path)) {
-            return new PhoDirectory($path, $this->o_restrictions);
+            return new PhoDirectory($path, $this->_restrictions);
         }
 
         if (file_exists($path)) {
-            return new PhoFile($path, $this->o_restrictions);
+            return new PhoFile($path, $this->_restrictions);
         }
 
-        return new static($path, $this->o_restrictions);
+        return new static($path, $this->_restrictions);
     }
 
 
@@ -3003,7 +3003,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function getParentDirectoryObject(?PhoRestrictionsInterface $restrictions = null): PhoDirectoryInterface
     {
-        return PhoDirectory::new(dirname($this->source), $restrictions ?? $this->o_restrictions?->getParent());
+        return PhoDirectory::new(dirname($this->source), $restrictions ?? $this->_restrictions?->getParent());
     }
 
 
@@ -3436,7 +3436,7 @@ class PhoPathCore implements PhoPathInterface
             }
 
             // File doesn't exist, check if the parent directory is writable so that the file can be created
-            PhoDirectory::new(dirname($this->source), $this->o_restrictions)->checkWritable($type, $previous_e);
+            PhoDirectory::new(dirname($this->source), $this->_restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->source)) {
             throw new FileNotWritableException(tr('The ":type" type file ":file" cannot be written', [
@@ -3616,7 +3616,7 @@ class PhoPathCore implements PhoPathInterface
              ->checkClosed('putContents')
              ->mountIfNeeded();
 
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent()->getParent())->ensure();
+        PhoDirectory::new(dirname($this->source), $this->_restrictions->getParent()->getParent())->ensure();
 
         file_put_contents($this->source, $data, $flags, $context);
 
@@ -3721,7 +3721,7 @@ class PhoPathCore implements PhoPathInterface
              ->mountIfNeeded();
 
         // Ensure the target path exists
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions)->ensure();
+        PhoDirectory::new(dirname($this->source), $this->_restrictions)->ensure();
 
         // Open target file
         $this->open(EnumFileOpenMode::writeOnlyAppend);
@@ -3729,7 +3729,7 @@ class PhoPathCore implements PhoPathInterface
         // Open each source file
         foreach (Arrays::force($sources, null) as $source) {
             try {
-                $source = PhoFile::new($source, $this->o_restrictions)->open(EnumFileOpenMode::readOnly);
+                $source = PhoFile::new($source, $this->_restrictions)->open(EnumFileOpenMode::readOnly);
 
                 while (!$source->isEof()) {
                     $this->write($source->read(1048576));
@@ -3973,35 +3973,35 @@ class PhoPathCore implements PhoPathInterface
      * Replaces the current path by moving it out of the way and moving the target in its place, then deleting the
      * original
      *
-     * @param PhoPathInterface|string $o_target
+     * @param PhoPathInterface|string $_target
      *
      * @return PhoPathInterface
      */
-    public function replaceWithPath(PhoPathInterface|string $o_target): PhoPathInterface
+    public function replaceWithPath(PhoPathInterface|string $_target): PhoPathInterface
     {
-        if (!$o_target->exists()) {
+        if (!$_target->exists()) {
             throw new FileNotExistException(ts('Cannot replace path ":source" with target ":target", the target does not exist', [
                 ':source' => $this->source,
-                ':target' => $o_target,
+                ':target' => $_target,
             ]));
         }
 
-        $o_target = PhoPath::new($o_target);
+        $_target = PhoPath::new($_target);
 
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
             $this->rename(PhoDirectory::newTemporaryObject());
-            $o_target->rename($new);
+            $_target->rename($new);
             $this->delete(use_run_file: false);
 
         } else {
             // The source doesn't exist, so we do not have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
-            $o_target->rename($this);
+            $_target->rename($this);
         }
 
-        return $o_target;
+        return $_target;
     }
 
 
@@ -4095,7 +4095,7 @@ class PhoPathCore implements PhoPathInterface
     {
         $path = Strings::ensureEndsWith((string) $path, '/') . $this->getSource();
 
-        return PhoPath::new($path, $this->o_restrictions, $absolute_prefix);
+        return PhoPath::new($path, $this->_restrictions, $absolute_prefix);
     }
 
 
@@ -4115,7 +4115,7 @@ class PhoPathCore implements PhoPathInterface
     public function symlinkTreeToTarget(PhoPathInterface|string $target, PhoPathInterface|string|null $alternate_path = null, ?PhoRestrictionsInterface $restrictions = null, bool $rename = false): PhoPathInterface
     {
         // Ensure target is a Path object with restrictions
-        $target = PhoPath::new($target, $restrictions ?? $this->o_restrictions);
+        $target = PhoPath::new($target, $restrictions ?? $this->_restrictions);
 
         if (empty($alternate_path)) {
             // We will create the symlinks in the same directory as where we are linking from. Use "target" object
@@ -4124,7 +4124,7 @@ class PhoPathCore implements PhoPathInterface
         } else {
             // We will create the symlink in a different directory than where we are linking from. Ensure "alternate_path"
             // is a Path object
-            $alternate_path = PhoPath::new($alternate_path, $target->o_restrictions);
+            $alternate_path = PhoPath::new($alternate_path, $target->_restrictions);
         }
 
         if ($this->isDirectory()) {
@@ -4194,11 +4194,11 @@ class PhoPathCore implements PhoPathInterface
 
             if ($this->isDirectory()) {
                 // Load all files in this directory
-                $this->files = PhoFiles::new(new PhoDirectory($this), scandir($this->source), $this->o_restrictions);
+                $this->files = PhoFiles::new(new PhoDirectory($this), scandir($this->source), $this->_restrictions);
 
             } else {
                 // This is a file, so there are no files beyond THIS file.
-                $this->files = PhoFiles::new($this->getParentDirectoryObject(), [$this->source], $this->o_restrictions);
+                $this->files = PhoFiles::new($this->getParentDirectoryObject(), [$this->source], $this->_restrictions);
             }
         }
 
@@ -4218,7 +4218,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function symlinkThisToTarget(PhoPathInterface|string $target, PhoPathInterface|string|bool $make_relative = true): PhoPathInterface
     {
-        $target = new PhoPath($target, $this->o_restrictions);
+        $target = new PhoPath($target, $this->_restrictions);
 
         // Calculate absolute or relative path
         if ($make_relative and $target->isAbsolute()) {
@@ -4323,7 +4323,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Make sure the file path exists. NOTE: FsRestrictions MUST be at least 2 levels above to be able to generate the
         // PARENT directory IN the PARENT directory OF the PARENT!
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions->getParent()->getParent())->ensure();
+        PhoDirectory::new(dirname($this->source), $this->_restrictions->getParent()->getParent())->ensure();
 
         return $this->open($write_mode)
                     ->write($data)
@@ -4395,7 +4395,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        return new PhoFilesystem($filesystem['filesystem'], $this->o_restrictions);
+        return new PhoFilesystem($filesystem['filesystem'], $this->_restrictions);
     }
 
 
@@ -5087,39 +5087,39 @@ throw new UnderConstructionException();
     /**
      * Returns true if the path for this object is in the specified path
      *
-     * @param PhoPathInterface|string $o_path
+     * @param PhoPathInterface|string $_path
      *
      * @return bool
      */
-    public function isIn(PhoPathInterface|string $o_path): bool
+    public function isIn(PhoPathInterface|string $_path): bool
     {
-        if ($o_path instanceof PhoPathInterface) {
-            $o_path = $o_path->getSource();
+        if ($_path instanceof PhoPathInterface) {
+            $_path = $_path->getSource();
         }
 
-        return str_starts_with($this->source, $o_path);
+        return str_starts_with($this->source, $_path);
     }
 
 
     /**
      * Returns true if the path for this object is in the specified path
      *
-     * @param PhoPathInterface|string $o_path
+     * @param PhoPathInterface|string $_path
      *
      * @return static
      */
-    public function checkIn(PhoPathInterface|string $o_path): static
+    public function checkIn(PhoPathInterface|string $_path): static
     {
-        if ($this->isIn($o_path)) {
+        if ($this->isIn($_path)) {
             return $this;
         }
 
         throw FilesystemException::new(tr('The current path ":path" is not inside the specified path ":specified"', [
             ':path'      => $this->source,
-            ':specified' => $o_path
+            ':specified' => $_path
         ]))->setData([
             'path'      => $this->source,
-            'specified' => $o_path,
+            'specified' => $_path,
         ]);
     }
 

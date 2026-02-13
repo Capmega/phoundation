@@ -33,10 +33,10 @@ class Pdf extends PhoFile
      */
     public function split(?string $file_pattern = 'page_%05d.pdf'): static
     {
-        $o_file = $this->copy(PhoDirectory::newDataTmpObject());
+        $_file = $this->copy(PhoDirectory::newDataTmpObject());
 
         return PdfTk::new()
-                    ->setPdfFileObject($o_file)
+                    ->setPdfFileObject($_file)
                     ->burst($file_pattern);
     }
 
@@ -44,19 +44,19 @@ class Pdf extends PhoFile
     /**
      * Will merge the specified PDF files into this file
      *
-     * @param Pdf|null ...$o_pdfs
+     * @param Pdf|null ...$_pdfs
      * @return static
      */
-    public function merge(?Pdf ...$o_pdfs): static
+    public function merge(?Pdf ...$_pdfs): static
     {
-        $o_files = PhoFiles::new();
+        $_files = PhoFiles::new();
 
-        foreach ($o_pdfs as $o_pdf) {
-            $o_files->add($o_pdf);
+        foreach ($_pdfs as $_pdf) {
+            $_files->add($_pdf);
         }
 
         return PdfUnite::new()
-                       ->setSourceFilesObject($o_files)
+                       ->setSourceFilesObject($_files)
                        ->setTargetFileObject($this)
                        ->execute();
     }

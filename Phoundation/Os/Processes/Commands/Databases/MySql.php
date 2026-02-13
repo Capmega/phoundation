@@ -62,7 +62,7 @@ class MySql extends Command
         $this->checkSpecified($database, tr('drop database'));
 
         // Drop the requested database
-        sql($this->o_connector, false)
+        sql($this->_connector, false)
             ->getSchemaObject(false)
             ->getDatabaseObject($database, false)
             ->drop();
@@ -83,7 +83,7 @@ class MySql extends Command
         $this->checkSpecified($database, tr('create database'));
 
         // Drop the requested database
-        sql($this->o_connector, false)
+        sql($this->_connector, false)
             ->getSchemaObject(false)
             ->getDatabaseObject($database, false)
             ->create();
@@ -125,7 +125,7 @@ class MySql extends Command
         $threshold = Log::setThreshold(3);
 
         // If we are importing the system database, then switch to init mode!
-        if ($this->o_connector->getDatabase() === sql()->getDatabase()) {
+        if ($this->_connector->getDatabase() === sql()->getDatabase()) {
             Core::enableInitState();
         }
 
@@ -137,10 +137,10 @@ class MySql extends Command
                 $this->setCommand('mysql')
                      ->setTimeout($this->timeout)
                      ->addArguments([
-                         '-h',  $this->o_connector->getHostname(),
-                         '-u',  $this->o_connector->getUsername(),
-                         '-p' . $this->o_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
-                         '-B',  $this->o_connector->getDatabase(),
+                         '-h',  $this->_connector->getHostname(),
+                         '-u',  $this->_connector->getUsername(),
+                         '-p' . $this->_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
+                         '-B',  $this->_connector->getDatabase(),
                      ]);
 
                 Tail::new()
@@ -157,12 +157,12 @@ class MySql extends Command
                      ->setTimeout($this->timeout)
                      ->addArguments([
                          '-h',
-                         $this->o_connector->getHostname(),
+                         $this->_connector->getHostname(),
                          '-u',
-                         $this->o_connector->getUsername(),
-                         '-p' . $this->o_connector->getPassword(),
+                         $this->_connector->getUsername(),
+                         '-p' . $this->_connector->getPassword(),
                          '-B',
-                         $this->o_connector->getDatabase(),
+                         $this->_connector->getDatabase(),
                      ]);
 
                 Zcat::new()
@@ -260,7 +260,7 @@ class MySql extends Command
     protected function deletePasswordFile(): static
     {
         PhoFile::new('~/.my.cnf', '~/.my.cnf')
-            ->setServerObject($this->o_server)
+            ->setServerObject($this->_server)
             ->secureDelete();
 
         return $this;

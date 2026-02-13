@@ -29,7 +29,7 @@ trait TraitObjectButtons
      *
      * @var ButtonsInterface
      */
-    protected ButtonsInterface $o_buttons;
+    protected ButtonsInterface $_buttons;
 
 
     /**
@@ -39,11 +39,11 @@ trait TraitObjectButtons
      */
     public function hasButtons(): bool
     {
-        if (empty($this->o_buttons)) {
+        if (empty($this->_buttons)) {
             return false;
         }
 
-        return $this->o_buttons->isNotEmpty();
+        return $this->_buttons->isNotEmpty();
     }
 
 
@@ -54,28 +54,28 @@ trait TraitObjectButtons
      */
     public function getButtonsObject(): ButtonsInterface
     {
-        if (empty($this->o_buttons)) {
-            $this->o_buttons = new Buttons();
+        if (empty($this->_buttons)) {
+            $this->_buttons = new Buttons();
         }
 
-        return $this->o_buttons;
+        return $this->_buttons;
     }
 
 
     /**
      * Sets the modal buttons
      *
-     * @param ButtonsInterface|null $o_buttons
+     * @param ButtonsInterface|null $_buttons
      *
      * @return static
      */
-    public function setButtonsObject(?ButtonsInterface $o_buttons): static
+    public function setButtonsObject(?ButtonsInterface $_buttons): static
     {
-        if ($o_buttons) {
-            $this->o_buttons = $o_buttons;
+        if ($_buttons) {
+            $this->_buttons = $_buttons;
 
         } else {
-            unset($this->o_buttons);
+            unset($this->_buttons);
         }
 
         return $this;
@@ -85,13 +85,13 @@ trait TraitObjectButtons
     /**
      * Adds the specified buttons to this buttons list
      *
-     * @param ButtonsInterface|null $o_buttons
+     * @param ButtonsInterface|null $_buttons
      *
      * @return static
      */
-    public function addButtons(?ButtonsInterface $o_buttons): static
+    public function addButtons(?ButtonsInterface $_buttons): static
     {
-        $this->getButtonsObject()->addSource($o_buttons);
+        $this->getButtonsObject()->addSource($_buttons);
         return $this;
     }
 
@@ -99,14 +99,14 @@ trait TraitObjectButtons
     /**
      * Sets the modal buttons
      *
-     * @param DropdownButtonInterface|ButtonInterface|null $o_button
+     * @param DropdownButtonInterface|ButtonInterface|null $_button
      *
      * @return static
      */
-    public function addButton(DropdownButtonInterface|ButtonInterface|null $o_button): static
+    public function addButton(DropdownButtonInterface|ButtonInterface|null $_button): static
     {
-        if ($o_button) {
-            $this->getButtonsObject()->addButton($o_button);
+        if ($_button) {
+            $this->getButtonsObject()->addButton($_button);
         }
 
         return $this;

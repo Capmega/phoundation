@@ -173,10 +173,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Fix incorrect index name
-            $o_table = sql()->getSchemaObject()->getTableObject('categories');
+            $_table = sql()->getSchemaObject()->getTableObject('categories');
 
-            if ($o_table->indexExists('parent_name')) {
-                $o_table->alter()->dropIndex('parent_name')
+            if ($_table->indexExists('parent_name')) {
+                $_table->alter()->dropIndex('parent_name')
                                  ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
             }
 

@@ -97,9 +97,9 @@ interface PhoMimetypeInterface extends DataEntryInterface
     /**
      * Sets the path object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static;
+    public function setPathObject(?PhoPathInterface $_path): static;
 }

@@ -60,7 +60,7 @@ class Gzip extends Command
         } catch (ProcessFailedException $e) {
             // The gzip tar failed, most of the time either $file doesn't exist, or we do not have access
             static::handleException('gzip', $e, function () use ($file) {
-                PhoFile::new($file, $this->o_restrictions)->checkReadable();
+                PhoFile::new($file, $this->_restrictions)->checkReadable();
             });
         }
     }

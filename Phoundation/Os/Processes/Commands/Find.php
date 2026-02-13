@@ -228,20 +228,20 @@ class Find extends Command implements FindInterface
     /**
      * Sets the path in which to find
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static
+    public function setPathObject(?PhoPathInterface $_path): static
     {
-        if ($o_path) {
+        if ($_path) {
             // If no execution path or restrictions have been set yet, take the restrictions from the search path
-            if (empty($this->o_restrictions)) {
-                $this->setRestrictionsObject($o_path->getRestrictionsObject());
+            if (empty($this->_restrictions)) {
+                $this->setRestrictionsObject($_path->getRestrictionsObject());
             }
         }
 
-        return $this->__setPathObject($o_path);
+        return $this->__setPathObject($_path);
     }
 
 
@@ -856,7 +856,7 @@ class Find extends Command implements FindInterface
      */
     public function getFoundFiles(): PhoFilesInterface
     {
-        return PhoFiles::new($this->o_path, $this->output, $this->o_restrictions);
+        return PhoFiles::new($this->_path, $this->output, $this->_restrictions);
     }
 
 
@@ -868,7 +868,7 @@ class Find extends Command implements FindInterface
     public function getFiles(): PhoFilesInterface
     {
         if (empty($this->files)) {
-            $this->files = PhoFiles::new($this->o_path, $this->executeReturnArray(), $this->o_restrictions);
+            $this->files = PhoFiles::new($this->_path, $this->executeReturnArray(), $this->_restrictions);
         }
 
         return $this->files;
@@ -882,14 +882,14 @@ class Find extends Command implements FindInterface
      */
     public function executeReturnArray(): array
     {
-        if (!$this->o_path) {
+        if (!$this->_path) {
             throw new OutOfBoundsException(tr('Cannot execute find, no path has been specified'));
         }
 
         try {
             $this->setCommand('find')
                  ->setTimeout($this->timeout)
-                 ->addArgument($this->o_path->getSource())
+                 ->addArgument($this->_path->getSource())
                  ->addArguments($this->max_depth       ? ['-maxdepth', $this->max_depth]              : null)
                  ->addArguments($this->min_depth       ? ['-mindepth', $this->min_depth]              : null)
                  ->addArguments($this->mount           ? '-mount'                                     : null)
@@ -910,7 +910,7 @@ class Find extends Command implements FindInterface
                  ->addArguments($this->exec            ? ['-exec'    , $this->exec, '{}', ';']        : null);
 
         } catch (ProcessFailedException $e) {
-            PhoPath::new($this->o_path)
+            PhoPath::new($this->_path)
                    ->checkReadable('find', $e);
         }
 
@@ -961,10 +961,10 @@ class Find extends Command implements FindInterface
         if ($this->return_objects) {
             foreach ($this->output as &$value) {
                 if (is_dir($value)) {
-                    $value = PhoDirectory::new($value, $this->o_restrictions);
+                    $value = PhoDirectory::new($value, $this->_restrictions);
 
                 } else {
-                    $value = PhoFile::new($value, $this->o_restrictions);
+                    $value = PhoFile::new($value, $this->_restrictions);
                 }
             }
         }

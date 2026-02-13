@@ -46,7 +46,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$o_requirement = Requirement::new()->loadThis($get['id']);
+$_requirement = Requirement::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -60,27 +60,27 @@ if (Request::isPostRequestMethod()) {
                                      ->validate(false);
 
                 // Update requirement, roles, emails, and phones
-                $o_requirement->apply(false)->save();
+                $_requirement->apply(false)->save();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been saved', [
-                    ':requirement' => $o_requirement->getDisplayName()
+                    ':requirement' => $_requirement->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::new('/phoundation/file-system/requirements/requirement+' . $o_requirement->getId() . '.html')->makeWww());
+                Response::redirect(Url::new('/phoundation/file-system/requirements/requirement+' . $_requirement->getId() . '.html')->makeWww());
 
             case tr('Delete'):
-                $o_requirement->delete();
+                $_requirement->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been deleted', [
-                    ':requirement' => $o_requirement->getDisplayName()
+                    ':requirement' => $_requirement->getDisplayName()
                 ]));
 
                 Response::redirect();
 
             case tr('Undelete'):
-                $o_requirement->undelete();
+                $_requirement->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The requirement ":requirement" has been undeleted', [
-                    ':requirement' => $o_requirement->getDisplayName()
+                    ':requirement' => $_requirement->getDisplayName()
                 ]));
 
                 Response::redirect();
@@ -89,74 +89,74 @@ if (Request::isPostRequestMethod()) {
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
-        $o_requirement->forceApply();
+        $_requirement->forceApply();
     }
 }
 
 
 // Save button
-if (!$o_requirement->getReadonly()) {
-    $o_save = SaveButton::new();
+if (!$_requirement->getReadonly()) {
+    $_save = SaveButton::new();
 }
 
 
 // Delete button.
-if (!$o_requirement->isNew()) {
-    if ($o_requirement->isDeleted()) {
-        $o_delete = UndeleteButton::new();
+if (!$_requirement->isNew()) {
+    if ($_requirement->isDeleted()) {
+        $_delete = UndeleteButton::new();
 
     } else {
-        $o_delete = DeleteButton::new();
+        $_delete = DeleteButton::new();
 
-        if ($o_requirement->isLocked()) {
-            $o_lock = UnlockButton::new();
+        if ($_requirement->isLocked()) {
+            $_lock = UnlockButton::new();
 
         } else {
-            $o_lock = LockButton::new();
+            $_lock = LockButton::new();
         }
 
         // Audit button.
-        $o_audit = AuditButton::new()
+        $_audit = AuditButton::new()
                               ->setFloatRight(true)
-                              ->setUrlObject('/audit/meta+' . $o_requirement->getMetaId() . '.html');
+                              ->setUrlObject('/audit/meta+' . $_requirement->getMetaId() . '.html');
     }
 }
 
 
 // Build the "requirement" form
-$o_requirement_card = Card::new()
+$_requirement_card = Card::new()
                         ->setCollapseSwitch(true)
                         ->setMaximizeSwitch(true)
-                        ->setTitle(tr('Edit requirement :name', [':name' => $o_requirement->getDisplayName()]))
-                        ->setContent($o_requirement->getHtmlDataEntryFormObject())
+                        ->setTitle(tr('Edit requirement :name', [':name' => $_requirement->getDisplayName()]))
+                        ->setContent($_requirement->getHtmlDataEntryFormObject())
                         ->setButtonsObject(Buttons::new()
-                                                  ->addButton(isset_get($o_save))
+                                                  ->addButton(isset_get($_save))
                                                   ->addBackButton(Url::newPrevious('/phoundation/file-system/requirements/requirements.html'), true)
-                                                  ->addButton(isset_get($o_audit))
-                                                  ->addButton(isset_get($o_delete))
-                                                  ->addButton(isset_get($o_lock))
-                                                  ->addButton(isset_get($o_impersonate)));
+                                                  ->addButton(isset_get($_audit))
+                                                  ->addButton(isset_get($_delete))
+                                                  ->addButton(isset_get($_lock))
+                                                  ->addButton(isset_get($_impersonate)));
 
 
 // Build profile picture card
-$o_picture = Card::new()
+$_picture = Card::new()
                  ->setTitle(tr('Requirement profile picture'))
                  ->setContent(Img::new()
                                  ->addClasses('w100')
                                  ->setSrc(Url::new('img/profiles/default.png')->makeImg())
-//                               ->setSrc($o_requirement->getPicture())
-                                 ->setAlt(tr('Profile picture for :requirement', [':requirement' => $o_requirement->getDisplayName()])));
+//                               ->setSrc($_requirement->getPicture())
+                                 ->setAlt(tr('Profile picture for :requirement', [':requirement' => $_requirement->getDisplayName()])));
 
 
 // Build relevant links
-$o_relevant = Card::new()
+$_relevant = Card::new()
                   ->setMode(EnumDisplayMode::info)
                   ->setTitle(tr('Relevant links'))
                   ->setContent(AnchorBlock::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems')));
 
 
 // Build documentation
-$o_documentation = Card::new()
+$_documentation = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Documentation'))
                        ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -165,15 +165,15 @@ $o_documentation = Card::new()
 
 
 // Set page meta-data
-Response::setPageTitle(tr('Requirement :requirement', [':requirement' => $o_requirement->getDisplayName()]));
+Response::setPageTitle(tr('Requirement :requirement', [':requirement' => $_requirement->getDisplayName()]));
 Response::setHeaderTitle(tr('Requirement'));
-Response::setHeaderSubTitle($o_requirement->getDisplayName());
+Response::setHeaderSubTitle($_requirement->getDisplayName());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                                          , tr('Home')),
     Breadcrumb::new('/system-administration.html'                , tr('System administration')),
     Breadcrumb::new('/phoundation/file-systems.html'             , tr('Filesystems')),
     Breadcrumb::new('/phoundation/file-systems/requirements.html', tr('Requirements')),
-    Breadcrumb::new(''                                           , $o_requirement->getDisplayName()),
+    Breadcrumb::new(''                                           , $_requirement->getDisplayName()),
 ]);
 
 
@@ -181,7 +181,7 @@ Response::setBreadcrumbs([
 return Grid::new()
            ->addGridColumn(GridColumn::new()
                                      // The requirement card and all additional cards
-                                     ->addContent($o_requirement_card)
+                                     ->addContent($_requirement_card)
                                      ->setSize(9)
                                      ->useForm(true))
-           ->addGridColumn($o_picture . $o_relevant . $o_documentation, EnumDisplaySize::three);
+           ->addGridColumn($_picture . $_relevant . $_documentation, EnumDisplaySize::three);

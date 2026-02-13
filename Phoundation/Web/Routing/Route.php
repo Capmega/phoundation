@@ -432,9 +432,9 @@ class Route
 
         // Get routing parameters and find the correct web page file for this route
         $parameters = static::getParametersObject()->select(static::$url);
-        $o_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
+        $_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
 
-        if ($o_file->hasExtension('php')) {
+        if ($_file->hasExtension('php')) {
             // Set up the request object, send parameters, attachment configuration and if this is a system request
             Request::setRoutingParameters($parameters);
             Request::setAttachment(static::$attachment);
@@ -442,17 +442,17 @@ class Route
             Core::setScriptState();
 
             // Target may NEVER be web/index.php because that will run the router into endless loops!
-            if ($o_file->isPath('index.php')) {
+            if ($_file->isPath('index.php')) {
                 throw new RouteException(tr('Will not route to resolved file "index.php" as this would cause an endless loop'));
             }
 
             // The route is a PHP file, so execute it. The Page object will take care of everything, even if it's an
             // attachment that the client will download instead of view in the browser.
-            Request::execute($o_file);
+            Request::execute($_file);
         }
 
         // The file is NOT a PHP executable, send the resolved file contents to the client directly
-        PhoFile::new(DIRECTORY_WEB . 'static/' . $o_file->getSource(), PhoRestrictions::newWeb(false, 'static'))->upload(false);
+        PhoFile::new(DIRECTORY_WEB . 'static/' . $_file->getSource(), PhoRestrictions::newWeb(false, 'static'))->upload(false);
         exit();
     }
 

@@ -168,7 +168,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
      */
     public function renderScripts(): ?string
     {
-        return $this->o_scripts?->render();
+        return $this->_scripts?->render();
     }
 
 

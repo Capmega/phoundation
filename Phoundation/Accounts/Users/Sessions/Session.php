@@ -162,7 +162,7 @@ class Session implements SessionInterface
      *
      * @var UserSessionInterface|null
      */
-    protected static ?userSessionInterface $o_user_session = null;
+    protected static ?userSessionInterface $_user_session = null;
 
     /**
      * Tracks if the session should sign out when Session::exit() is called
@@ -1380,10 +1380,10 @@ class Session implements SessionInterface
                 }
             }
 
-            $o_user = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
+            $_user = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
                                  ->authenticateDomain(EnumAuthenticationAction::signin, $domain);
 
-            return static::signInWithUserObject($o_user);
+            return static::signInWithUserObject($_user);
 
         } catch (DataEntryNotExistsException $e) {
             if ($e->getDataKey('class')) {
@@ -1677,15 +1677,15 @@ class Session implements SessionInterface
     /**
      * Validate sign in data
      *
-     * @param ValidatorInterface|null $o_validator
+     * @param ValidatorInterface|null $_validator
      *
      * @return array
      */
-    public static function validateSignIn(?ValidatorInterface $o_validator = null): array
+    public static function validateSignIn(?ValidatorInterface $_validator = null): array
     {
-        $o_validator = $o_validator ?? PostValidator::new();
+        $_validator = $_validator ?? PostValidator::new();
 
-        return $o_validator->select('email')->isEmail()
+        return $_validator->select('email')->isEmail()
                          ->select('password')->isPassword()
                          ->validate();
     }
@@ -1694,17 +1694,17 @@ class Session implements SessionInterface
     /**
      * Validate sign up data
      *
-     * @param ValidatorInterface|null $o_validator
+     * @param ValidatorInterface|null $_validator
      *
      * @return array
      */
-    public static function validateSignUp(?ValidatorInterface $o_validator = null): array
+    public static function validateSignUp(?ValidatorInterface $_validator = null): array
     {
-        if (!$o_validator) {
-            $o_validator = PostValidator::new();
+        if (!$_validator) {
+            $_validator = PostValidator::new();
         }
 
-        return $o_validator->select('email')
+        return $_validator->select('email')
                          ->isEmail()
                          ->select('password')
                          ->isPassword()
@@ -2320,11 +2320,11 @@ class Session implements SessionInterface
      */
     public static function getUerSession(): UserSessionInterface
     {
-        if (empty(static::$o_user_session)) {
-            static::$o_user_session = new UserSession(static::getId());
+        if (empty(static::$_user_session)) {
+            static::$_user_session = new UserSession(static::getId());
         }
 
-        return static::$o_user_session;
+        return static::$_user_session;
     }
 
 

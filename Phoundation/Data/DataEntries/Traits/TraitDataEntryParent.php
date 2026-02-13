@@ -25,9 +25,9 @@ trait TraitDataEntryParent
     /**
      * Cache for the clinician data
      *
-     * @var DataEntryInterface|null $o_parent
+     * @var DataEntryInterface|null $_parent
      */
-    protected ?DataEntryInterface $o_parent = null;
+    protected ?DataEntryInterface $_parent = null;
 
 
     /**
@@ -50,7 +50,7 @@ trait TraitDataEntryParent
      */
     public function setParentsId(?int $id): static
     {
-        if ($this->o_parent?->getId() === $id) {
+        if ($this->_parent?->getId() === $id) {
             return $this;
         }
 
@@ -78,7 +78,7 @@ trait TraitDataEntryParent
      */
     public function setParentsName(?string $name): static
     {
-        if ($this->o_parent?->getName() === $name) {
+        if ($this->_parent?->getName() === $name) {
             return $this;
         }
 throw new UnderConstructionException('Add support for expected parents type and then implement setParentsData method here');
@@ -93,35 +93,35 @@ throw new UnderConstructionException('Add support for expected parents type and 
      */
     public function getParent(): ?DataEntryInterface
     {
-        return $this->o_parent;
+        return $this->_parent;
     }
 
 
     /**
      * Sets the parent DataEntry object for this object
      *
-     * @param DataEntryInterface|null $o_parent
+     * @param DataEntryInterface|null $_parent
      *
      * @return static
      */
-    public function aetParent(?DataEntryInterface $o_parent): static
+    public function aetParent(?DataEntryInterface $_parent): static
     {
-        return $this->setParentData($o_parent);
+        return $this->setParentData($_parent);
     }
 
 
     /**
      * Sets the clinician ID, Practitioner Number, and Email
      *
-     * @param DataEntryInterface|null $o_parent
+     * @param DataEntryInterface|null $_parent
      *
      * @return static
      */
-    protected function setParentData(?DataEntryInterface $o_parent): static
+    protected function setParentData(?DataEntryInterface $_parent): static
     {
-        $this->o_parent = $o_parent;
+        $this->_parent = $_parent;
 
-        return $this->set($o_parent?->getId(false), 'parents_id')
-                    ->set($o_parent?->getName()   , 'parents_name');
+        return $this->set($_parent?->getId(false), 'parents_id')
+                    ->set($_parent?->getName()   , 'parents_name');
     }
 }

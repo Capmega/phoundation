@@ -870,11 +870,11 @@ class Sync
     /**
      * Scans the remote environment
      *
-     * @param ServerInterface $o_server
+     * @param ServerInterface $_server
      *
      * @return static
      */
-    public function scan(ServerInterface $o_server): static
+    public function scan(ServerInterface $_server): static
     {
         Log::action(ts('Scanning project installation on server ":server"', [
             ':server' => $this->server->getDisplayName(),
@@ -883,14 +883,14 @@ class Sync
         $this->executeHook('pre-scan');
 
         $result = Process::new('ls')
-                         ->setServerObject($o_server)
+                         ->setServerObject($_server)
                          ->setSudo($this->configuration['sudo'])
                          ->addArgument(Strings::slash($this->configuration['path']))
                          ->executeReturnString();
 
         if ($result) {
             $result = Process::new('ls')
-                             ->setServerObject($o_server)
+                             ->setServerObject($_server)
                              ->setSudo($this->configuration['sudo'])
                              ->addArgument(Strings::slash($this->configuration['path']) . 'pho')
                              ->executeReturnString();
@@ -923,7 +923,7 @@ class Sync
             ]));
         }
 
-        return $this->initTemporaryPath($o_server)
+        return $this->initTemporaryPath($_server)
                     ->executeHook('post-scan');
     }
 

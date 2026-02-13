@@ -42,7 +42,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getMinLength(): ?int
     {
-        return $this->o_attributes->get('minlength');
+        return $this->_attributes->get('minlength');
     }
 
 
@@ -66,7 +66,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getMaxLength(): ?int
     {
-        return $this->o_attributes->get('maxlength');
+        return $this->_attributes->get('maxlength');
     }
 
 
@@ -90,7 +90,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
+        return Strings::toBoolean($this->_attributes->get('autocomplete'));
     }
 
 
@@ -114,7 +114,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getPlaceholder(): ?string
     {
-        return $this->o_attributes->get('placeholder');
+        return $this->_attributes->get('placeholder');
     }
 
 
@@ -138,7 +138,7 @@ class InputText extends Input implements InputTextInterface
      */
     public function getInputMask(): ?string
     {
-        return $this->o_attributes->get('input_mask');
+        return $this->_attributes->get('input_mask');
     }
 
 
@@ -174,15 +174,15 @@ class InputText extends Input implements InputTextInterface
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)
-                     ->setClearButton($o_definition->getClearButton())
-                     ->setInputMask($o_definition->getInputMask());
+        return parent::setDefinitionObject($_definition)
+                     ->setClearButton($_definition->getClearButton())
+                     ->setInputMask($_definition->getInputMask());
     }
 }

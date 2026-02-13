@@ -121,12 +121,12 @@ trait TraitDataEntryState
     /**
      * Returns the states_id for this user
      *
-     * @param StateInterface|null $o_object
+     * @param StateInterface|null $_object
      *
      * @return static
      */
-    public function setStateObject(?StateInterface $o_object): static
+    public function setStateObject(?StateInterface $_object): static
     {
-        return $this->setVirtualObject('states', $o_object);
+        return $this->setVirtualObject('states', $_object);
     }
 }

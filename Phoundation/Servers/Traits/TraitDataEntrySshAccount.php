@@ -96,12 +96,12 @@ trait TraitDataEntrySshAccount
     /**
      * Returns the ssh_accounts_id for this user
      *
-     * @param SshAccountInterface|null $o_object
+     * @param SshAccountInterface|null $_object
      *
      * @return static
      */
-    public function setSshAccountObject(?SshAccountInterface $o_object): static
+    public function setSshAccountObject(?SshAccountInterface $_object): static
     {
-        return $this->setVirtualObject('ssh_accounts', $o_object);
+        return $this->setVirtualObject('ssh_accounts', $_object);
     }
 }

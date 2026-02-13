@@ -313,19 +313,19 @@ trait TraitButtonProperties
     /**
      * Returns the button's anchor URL
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      *
      * @return Button
      */
-    public function setUrlObject(UrlInterface|string|null $o_url): static
+    public function setUrlObject(UrlInterface|string|null $_url): static
     {
-        if ($o_url) {
+        if ($_url) {
             $this->setElement('a');
-            $this->o_url       = Url::new($o_url);
+            $this->_url       = Url::new($_url);
             $this->button_type = null;
 
         } else {
-            $this->o_url = null;
+            $this->_url = null;
         }
 
         return $this;
@@ -465,16 +465,16 @@ trait TraitButtonProperties
     public function render(): ?string
     {
         $this->resetButtonClasses()
-             ->o_attributes->set($this->button_type?->value, 'type');
+             ->_attributes->set($this->button_type?->value, 'type');
 
-        if ($this->o_url) {
+        if ($this->_url) {
             // Use an <a> anchor button
-            $this->o_attributes->removeKeys('type');
-            $this->o_attributes->set($this->o_url, 'href');
+            $this->_attributes->removeKeys('type');
+            $this->_attributes->set($this->_url, 'href');
 
             // Adds support for target="" attribute
             if ($this->target) {
-                $this->o_attributes->set($this->target, 'target');
+                $this->_attributes->set($this->target, 'target');
             }
         }
 
@@ -490,9 +490,9 @@ trait TraitButtonProperties
     protected function resetButtonClasses(): static
     {
         // Remove the current button mode
-        foreach ($this->o_classes as $class => $value) {
+        foreach ($this->_classes as $class => $value) {
             if (str_starts_with($class, 'btn-')) {
-                $this->o_classes->removeKeys($class);
+                $this->_classes->removeKeys($class);
             }
         }
 

@@ -43,8 +43,8 @@ class RedisTest extends TestCase
             return;
         }
 
-        $o_connector = Connector::new('redis-queue');
-        $this->redis = Redis::new($o_connector)->setDatabase(0, true);
+        $_connector = Connector::new('redis-queue');
+        $this->redis = Redis::new($_connector)->setDatabase(0, true);
 
         if (!$this->redis->ping()) {
             Log::error(ts('Connection to Redis server failed'));

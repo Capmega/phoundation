@@ -69,13 +69,13 @@ class ValidationFailedException extends ValidatorException
     /**
      * Sets the source data entry object used to translate validation failed fields to human-readable labels
      *
-     * @param DataEntryInterface|null $o_data_entry
+     * @param DataEntryInterface|null $_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static
+    public function setDataEntryObject(?DataEntryInterface $_data_entry): static
     {
-        $this->__setDataEntry($o_data_entry);
+        $this->__setDataEntry($_data_entry);
         $this->applyLabels();
 
         return $this;
@@ -95,7 +95,7 @@ class ValidationFailedException extends ValidatorException
         if ($processing) {
             // We have entered an endless loop!
             Log::warning(ts('Failed to apply labels to validation exception keys, creating the source object class ":class" caused another ValidationFailedException', [
-                ':class' => $this->o_data_entry::class
+                ':class' => $this->_data_entry::class
             ]));
             return;
         }
@@ -103,13 +103,13 @@ class ValidationFailedException extends ValidatorException
         $processing = true;
 
         // Apply the data entry definition labels to the data
-        if ($this->getDataKey('failures') and $this->o_data_entry) {
+        if ($this->getDataKey('failures') and $this->_data_entry) {
             // Create a temporary data entry object to get its definitions.
-            $o_definitions = $this->o_data_entry->getDefinitionsObject();
+            $_definitions = $this->_data_entry->getDefinitionsObject();
 
             // Create a new exception data array with labels instead of keys
             foreach ($this->getDataKey('failures') as $key => $failure) {
-                $label   = $o_definitions->get($o_definitions->removeColumnPrefix($key))->getLabel() ?? $key;
+                $label   = $_definitions->get($_definitions->removeColumnPrefix($key))->getLabel() ?? $key;
                 $message = str_replace('"' . $key . '"', '"' . $label . '"', $failure['message']);
 
                 $this->data['failures'][$key]['label']   = $label;

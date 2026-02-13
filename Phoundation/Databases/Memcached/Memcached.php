@@ -69,16 +69,16 @@ class Memcached implements MemcachedInterface
      *
      * @note Instance always defaults to "system" if not specified
      *
-     * @param ConnectorInterface $o_connector
+     * @param ConnectorInterface $_connector
      */
-    public function __construct(ConnectorInterface $o_connector)
+    public function __construct(ConnectorInterface $_connector)
     {
         // Ensure PHP has memcached support and that the specified connector is a memcached connector
-        $o_connector->checkDriver('memcached');
+        $_connector->checkDriver('memcached');
 
         if (static::getEnabled()) {
             // Get instance information and connect to memcached servers
-            $this->setConnectorObject($o_connector)->connect();
+            $this->setConnectorObject($_connector)->connect();
         }
     }
 
@@ -109,14 +109,14 @@ class Memcached implements MemcachedInterface
     /**
      * Sets the database connector object
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static
     {
-        $this->__setConnectorObject($o_connector, $database)
+        $this->__setConnectorObject($_connector, $database)
              ->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
 
         return $this;

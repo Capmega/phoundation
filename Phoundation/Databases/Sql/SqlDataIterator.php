@@ -78,16 +78,16 @@ class SqlDataIterator implements SqlDataIteratorInterface
     /**
      * Sets the data list
      *
-     * @param DataIteratorInterface $o_data_iterator
+     * @param DataIteratorInterface $_data_iterator
      *
      * @return static
      */
-    public function setDataIteratorObject(DataIteratorInterface $o_data_iterator): static
+    public function setDataIteratorObject(DataIteratorInterface $_data_iterator): static
     {
-        $this->setTable($o_data_iterator->getTable())
-             ->setIdColumn($o_data_iterator->getUniqueColumn());
+        $this->setTable($_data_iterator->getTable())
+             ->setIdColumn($_data_iterator->getUniqueColumn());
 
-        return $this->__setDataIterator($o_data_iterator);
+        return $this->__setDataIterator($_data_iterator);
     }
 
 

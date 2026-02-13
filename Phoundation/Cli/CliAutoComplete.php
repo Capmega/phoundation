@@ -298,7 +298,7 @@ class CliAutoComplete
                 // This is a system modifier argument, show the system modifier arguments instead.
                 $data['commands'] = [];
 
-                foreach (static::$system_arguments as $arguments => $o_definitions) {
+                foreach (static::$system_arguments as $arguments => $_definitions) {
                     $arguments = explode(',', $arguments);
 
                     foreach ($arguments as $argument) {
@@ -593,19 +593,19 @@ class CliAutoComplete
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return void
      */
-    public static function processCommandPositions(IteratorInterface|array|null $o_definitions)
+    public static function processCommandPositions(IteratorInterface|array|null $_definitions)
     {
-        if (!$o_definitions) {
+        if (!$_definitions) {
             return;
         }
 
-        if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions instanceof IteratorInterface) {
             // From here use array
-            $o_definitions = $o_definitions->getSource();
+            $_definitions = $_definitions->getSource();
         }
 
         // Get the word where we're <TAB>bing on
@@ -613,12 +613,12 @@ class CliAutoComplete
         $word = trim((string) $word);
 
         // First check position!
-        static::processCommandPosition($o_definitions, $word, static::$position);
+        static::processCommandPosition($_definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        static::processCommandPosition($o_definitions, $word, null);
-        static::processCommandPosition($o_definitions, $word, -1);
-        static::processCommandPosition($o_definitions, $word, 'all');
+        static::processCommandPosition($_definitions, $word, null);
+        static::processCommandPosition($_definitions, $word, -1);
+        static::processCommandPosition($_definitions, $word, 'all');
     }
 
 
@@ -683,19 +683,19 @@ class CliAutoComplete
     /**
      * Process command arguments
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return never
      */
-    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $o_definitions): never
+    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $_definitions): never
     {
-        if ($o_definitions) {
-            if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions) {
+            if ($_definitions instanceof IteratorInterface) {
                 // From here use array
-                $o_definitions = $o_definitions->getSource();
+                $_definitions = $_definitions->getSource();
             }
 
-            CliAutoComplete::processArguments(array_merge($o_definitions, static::$system_arguments));
+            CliAutoComplete::processArguments(array_merge($_definitions, static::$system_arguments));
         }
 
         CliAutoComplete::processArguments(static::$system_arguments);
