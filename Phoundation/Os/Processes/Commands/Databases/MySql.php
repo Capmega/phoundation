@@ -32,6 +32,7 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Command;
+use Phoundation\Os\Processes\Commands\Grep;
 use Phoundation\Os\Processes\Commands\Tail;
 use Phoundation\Os\Processes\Commands\Zcat;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
@@ -165,15 +166,18 @@ class MySql extends Command
                          $this->_connector->getDatabase(),
                      ]);
 
-                Zcat::new()
-                    ->setTimeout($this->timeout)
-                    ->setFileObject($file)
-                    ->setPipe(Tail::new()
+                Grep::new()
+                    ->setFilterReversed(true)
+                    ->setFilterRegularExpression(true)
+                    ->setFilter("USE \`tracking\`;")
+                    ->setPipe(Zcat::new()
                                   ->setTimeout($this->timeout)
-                                  ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                                  ->setPipe($this)
-                    )
-                    ->execute();
+                                  ->setFileObject($file)
+                                  ->setPipe(Tail::new()
+                                                ->setTimeout($this->timeout)
+                                                ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
+                                                ->setPipe($this)))
+                    ->executeReturnArray();
 
                 break;
 
