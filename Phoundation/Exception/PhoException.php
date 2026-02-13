@@ -547,7 +547,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                                        ->addMessages(array_get_safe($source, 'messages'));
             }
 
-            return new $source['class']($source['message'], array_get_safe($source, 'code', 0), isset_get($previous));
+            return new $source['class']($source['message'], cast_integer_if_numeric(array_get_safe($source, 'code', 0)), isset_get($previous));
 
         } catch (Throwable $e) {
             throw PhoException::new(tr('Failed to generate exception object from import data'), $e)
