@@ -507,6 +507,35 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
 
 
 /**
+ * Casts the specified source value to integer if it is numeric
+ *
+ * @param Stringable|string|int|float|null $source            The source variable to process
+ * @param bool                             $allow_null [true] If true, and the source is NULL, will return NULL. If false, and the source is NULL, will throw an
+ *                                                            OutOfBoundsException
+ *
+ * @return int|null
+ *
+ * @throws OutOfBoundsException
+ */
+function cast_integer_if_numeric(Stringable|string|int|float|null $source, bool $allow_null = false): ?int
+{
+    if (($source === null) and $allow_null) {
+        return null;
+    }
+
+    if (is_numeric($source)) {
+        return (int) $source;
+    }
+
+    throw OutOfBoundsException::new(ts('Cannot cast the specified value ":value" to integer, the value is not numeric', [
+        ':value' => $source,
+    ]))->addData([
+        'value' => $source,
+    ]);
+}
+
+
+/**
  * Will return $return if the specified item id is in the specified source.
  *
  * @param array      $source
