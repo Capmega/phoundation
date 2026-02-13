@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 trait TraitDataObjectDirectory
 {
     use TraitDataObjectDirectoryReadonly {
-        setDirectoryObject as protected __TraitsetDirectoryObject;
+        setDirectoryObject as protected ___setDirectoryObject;
     }
 
 
@@ -37,6 +37,6 @@ trait TraitDataObjectDirectory
      */
     public function setDirectoryObject(?PhoDirectoryInterface $_directory, ?string $prefix = null, bool $must_exist = true): static
     {
-        return $this->__TraitsetDirectoryObject($_directory, $prefix, $must_exist);
+        return $this->___setDirectoryObject($_directory, $prefix, $must_exist);
     }
 }

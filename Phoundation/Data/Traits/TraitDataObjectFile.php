@@ -22,7 +22,7 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 trait TraitDataObjectFile
 {
     /**
-     * The path to use
+     * The file to use
      *
      * @var PhoFileInterface|null $_file
      */
