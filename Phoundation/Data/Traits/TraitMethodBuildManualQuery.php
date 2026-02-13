@@ -21,6 +21,7 @@ use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Databases\Sql\QueryBuilder\QueryBuilder;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Strings;
 
 
 trait TraitMethodBuildManualQuery
@@ -77,7 +78,7 @@ trait TraitMethodBuildManualQuery
                     continue 2;
             }
 
-            $where[] = '(' . QueryBuilder::buildComparison(static::getTable(), $column, $value, $execute) . ')';
+            $where = Arrays::appendNotNull($where, Strings::encapsulate(QueryBuilder::renderComparison(static::getTable(), $column, $value, $execute), '(', ')'));
 
 //            $not = '';
 //
