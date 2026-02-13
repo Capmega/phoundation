@@ -113,6 +113,8 @@ class Connector extends DataEntry implements ConnectorInterface
                 $this->setDatabase($database);
             }
         }
+
+        $this->setPermittedColumns('connections');
     }
 
 
