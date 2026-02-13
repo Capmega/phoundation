@@ -394,7 +394,7 @@ class Get extends Curl
                     return $this->execute();
 
                 case 'CURL92':
-                    // This server apparently doesn't support anything beyond HTTP1.1
+                    // This server apparently does not support anything beyond HTTP1.1
                     Log::warning(ts('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
                         ':url'             => $this->_url,
                         ':retry'           => $this->retry,

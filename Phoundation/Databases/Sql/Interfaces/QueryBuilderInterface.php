@@ -301,7 +301,7 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Returns the source of this object
      *
-     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     * @note: This object does not work with "source" data as such, so it will be constructed upon request
      *
      * @return array
      */

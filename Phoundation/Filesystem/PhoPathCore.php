@@ -711,7 +711,7 @@ class PhoPathCore implements PhoPathInterface
                 ]);
             }
 
-            // The path doesn't exist, but apparently that's okay! Continue!
+            // The path does not exist, but apparently that's okay! Continue!
         }
 
         return LocalCache::set(static::ensureDirectorySlash($return), 'path::absolutePath', $path);
@@ -1186,7 +1186,7 @@ class PhoPathCore implements PhoPathInterface
             return true;
         }
 
-        // Oh noes! This path doesn't exist!
+        // Oh noes! This path does not exist!
         // Maybe the basename of the path is a dead symlink?
         if ($check_dead_symlink) {
             if ($this->isLink()) {
@@ -1749,7 +1749,7 @@ class PhoPathCore implements PhoPathInterface
 
         if (!$this->exists()) {
             if (!file_exists(dirname($this->source))) {
-                // The file doesn't exist and neither does its parent directory
+                // The file does not exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be read because the directory ":directory" does not exist', [
                     ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
@@ -1786,7 +1786,7 @@ class PhoPathCore implements PhoPathInterface
     /**
      * Securely delete a file weather it exists or not, without error, using the "shred" command
      *
-     * Since shred doesn't have a recursive option, this function will use "find" to find all files matching the
+     * Since shred does not have a recursive option, this function will use "find" to find all files matching the
      * specified pattern, and will delete them all
      *
      * @param string|bool $clean_path
@@ -1856,7 +1856,7 @@ class PhoPathCore implements PhoPathInterface
             $_target = $_target->appendPath($this->getBasename());
 
         } else {
-            // Target doesn't exist
+            // Target does not exist
             if ($_target instanceof PhoDirectoryInterface) {
                 // If the target is indicated to be a directory (because it ends with a slash) then it should be created
                 $_target->ensure();
@@ -2337,7 +2337,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
+        // As of here we know the file does not exist. Attempt to create it. First ensure the parent directory exists.
         PhoDirectory::new(dirname($this->source), $this->_restrictions)->ensure();
 
         Log::action(ts('Creating non existing file ":file" with file mode ":mode"', [
@@ -2470,7 +2470,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     * Wrapper for realpath() that will not crash with an exception if the specified string is not a real directory
      *
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
@@ -2486,7 +2486,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     * Wrapper for realpath() that will not crash with an exception if the specified string is not a real directory
      *
      * @return PhoPathInterface The real directory extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.
@@ -2537,7 +2537,7 @@ class PhoPathCore implements PhoPathInterface
             }
         }
 
-        // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent directory exists.
+        // As of here we know the file does not exist. Attempt to create it. First ensure the parent directory exists.
         PhoDirectory::new(dirname($this->source), $this->_restrictions->getParent())
                  ->ensure();
 
@@ -2694,7 +2694,7 @@ class PhoPathCore implements PhoPathInterface
         // Check if target exists as a link
         if ($target->isLink()) {
             // The target itself exists and is a link.
-            // Whether that link target exists or not doesn't matter here, just that its target matches our target
+            // Whether that link target exists or not does not matter here, just that its target matches our target
             if (Strings::ensureEndsNotWith($target->readLink(true)->getSource(), '/') === Strings::ensureEndsNotWith($this->getSource(), '/')) {
                 // Symlink already exists and points to the same file. This is what we wanted to begin with, so all fine
                 return $target;
@@ -3171,7 +3171,7 @@ class PhoPathCore implements PhoPathInterface
      */
     protected function processReadFailure(string $type, array|string|false|null $data, bool $test_feof = true): array|string|false|null
     {
-        // FEOF errors are only checked if we didn't try to read full file contents
+        // FEOF errors are only checked if we did not try to read full file contents
         if ($test_feof and $this->isEof()) {
             return $data;
         }
@@ -3368,7 +3368,7 @@ class PhoPathCore implements PhoPathInterface
             return $this;
         }
 
-        // The file couldn't be opened. Check if the file is accessible.
+        // The file could not be opened. Check if the file is accessible.
         switch ($mode) {
             case EnumFileOpenMode::readOnly:
                 $this->checkReadable();
@@ -3427,7 +3427,7 @@ class PhoPathCore implements PhoPathInterface
 
         if (!$this->exists()) {
             if (!file_exists(dirname($this->source))) {
-                // The file doesn't exist and neither does its parent directory
+                // The file does not exist and neither does its parent directory
                 throw new FileNotExistException(tr('The ":type" type file ":file" cannot be written because it does not exist and neither does the parent directory ":directory"', [
                     ':type'      => $type ?: ts('unknown'),
                     ':file'      => $this->source,
@@ -3435,7 +3435,7 @@ class PhoPathCore implements PhoPathInterface
                 ]), $previous_e);
             }
 
-            // File doesn't exist, check if the parent directory is writable so that the file can be created
+            // File does not exist, check if the parent directory is writable so that the file can be created
             PhoDirectory::new(dirname($this->source), $this->_restrictions)->checkWritable($type, $previous_e);
 
         } elseif (!is_writable($this->source)) {
@@ -3460,7 +3460,7 @@ class PhoPathCore implements PhoPathInterface
     {
         $exists = file_exists($this->source);
         if (!$exists and $auto_mount) {
-            // Oh noes! This path doesn't exist! Maybe a path  is not mounted?
+            // Oh noes! This path does not exist! Maybe a path  is not mounted?
             $this->attemptAutoMount();
         }
 
@@ -3851,7 +3851,7 @@ class PhoPathCore implements PhoPathInterface
             $blocks[] = $rest; // One extra block containing rest 0 - block_size bytes
         }
 
-        // Open and delete, so that the inode will be gone, but the file blocks won't be released just yet
+        // Open and delete, so that the inode will be gone, but the file blocks will not be released just yet
         $this->open(EnumFileOpenMode::writeOnly);
 
         if ($delete) {
@@ -3931,7 +3931,7 @@ class PhoPathCore implements PhoPathInterface
 
 
     /**
-     * Checks if the specified file exists, throws exception if it doesn't
+     * Checks if the specified file exists, throws exception if it does not
      *
      * @param bool $force
      * @param bool $check_dead_symlink
@@ -3996,7 +3996,7 @@ class PhoPathCore implements PhoPathInterface
             $this->delete(use_run_file: false);
 
         } else {
-            // The source doesn't exist, so we do not have to move anything out of place or delete afterward
+            // The source does not exist, so we do not have to move anything out of place or delete afterward
             $this->getParentDirectoryObject()->ensure();
             $_target->rename($this);
         }
@@ -4857,7 +4857,7 @@ class PhoPathCore implements PhoPathInterface
             return true;
         }
 
-        // The exact start of domain didn't match, are all domains allowed?
+        // The exact start of domain did not match, are all domains allowed?
         $path   = Strings::from($domain, ':');
         $domain = Strings::until($domain, ':');
 

@@ -31,14 +31,14 @@ use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 trait TraitUrlRightsRendering
 {
     /**
-     * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
+     * Tracks if the anchor should render anyway even if the user does not have all the required rights
      *
      * @var EnumAnchorRenderRightsFail $render_rights_fail
      */
     protected EnumAnchorRenderRightsFail $render_rights_fail = EnumAnchorRenderRightsFail::not;
 
     /**
-     * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
+     * Tracks if the anchor should render anyway even if the user does not have all the required rights
      *
      * @var EnumAnchorRenderEmpty $render_empty
      */
@@ -74,7 +74,7 @@ trait TraitUrlRightsRendering
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
      * @param UserInterface|null $_user
      * @param bool               $use_cache
@@ -175,7 +175,7 @@ trait TraitUrlRightsRendering
 
 
     /**
-     * Sets how this anchor will render if the user doesn't have all the required rights
+     * Sets how this anchor will render if the user does not have all the required rights
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
@@ -189,7 +189,7 @@ trait TraitUrlRightsRendering
 
 
     /**
-     * Returns how this anchor will render if the user doesn't have all the required rights
+     * Returns how this anchor will render if the user does not have all the required rights
      *
      * @return EnumAnchorRenderRightsFail
      */

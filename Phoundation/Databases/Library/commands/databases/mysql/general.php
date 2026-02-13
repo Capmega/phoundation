@@ -359,7 +359,7 @@ switch (cli_method()) {
             case 'check':
                 /*
                  * The replicator checker runs over Cron each 1 minute
-                 * If its already running it won't run
+                 * If its already running it will not run
                  */
                 cli_run_once_local();
                 log_console(tr('Checking databases replication status'), 'white');

@@ -822,7 +822,7 @@ class Sql implements SqlInterface
                 return $result[$column];
             }
 
-            // Specified column doesn't exist
+            // Specified column does not exist
             throw new SqlColumnDoesNotExistsException(tr('Cannot return column ":column", it does not exist in the result set for query ":query"', [
                 ':query'  => $query,
                 ':column' => $column,
@@ -908,7 +908,7 @@ class Sql implements SqlInterface
                             ]));
 
                         case 1049:
-                            // The currently selected database doesn't exist!
+                            // The currently selected database does not exist!
                             preg_match_all('/^SQLSTATE\[HY000] \[1049] Unknown database \'(.+?)\'$/', $e->getMessage(), $matches);
 
                             throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database" while connecting with connector ":connector" with connection string ":string" and user ":user"', [
@@ -2196,7 +2196,7 @@ class Sql implements SqlInterface
 
         return EnumSqlVendor::oracle;
 
-//        // TODO Add test for postgres! Right now we're just assuming but we don't even know if Phoundation would run on a postgres DB
+//        // TODO Add test for postgres! Right now we're just assuming but we do not even know if Phoundation would run on a postgres DB
 //        return EnumSqlVendor::postgres;
     }
 

@@ -449,7 +449,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
-        // Either this DataEntry has no unique column, or the source doesn't have the specified unique column.
+        // Either this DataEntry has no unique column, or the source does not have the specified unique column.
         // Try the ID column instead
         $id_column       = static::getIdColumn();
         $id_column_value = array_get_safe($source, $id_column);
@@ -778,7 +778,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return $return;
         }
 
-        // This particular implementation of the DataEntry doesn't have a unique column specified
+        // This particular implementation of the DataEntry does not have a unique column specified
         throw new OutOfBoundsException(tr('Failed to resolve ":class" DataEntry because identifier ":identifier" is not numeric and the class has no unique column specified', [
             ':type'       => static::class,
             ':identifier' => $identifier,
@@ -822,7 +822,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *                                                   will be readonly
      *  setVisible()      boolean            true        If false, this key will render as a hidden element
      *  setVirtual()      boolean            false       If true, this key will be visible and can be modified but it
-     *                                                   won't exist in database. It instead will be used to manipulate
+     *                                                   will not exist in database. It instead will be used to manipulate
      *                                                   a different field
      *  setElement()      string|null        "input"     Type of element, input, select, or text or callable function
      *  setType()         string|null        "text"      Type of input element, if element is "input"
@@ -1161,7 +1161,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // static value.
             $_definition = $this->getDefinitionsObject()->get($key);
 
-            // If a column is ignored, we won't update anything
+            // If a column is ignored, we will not update anything
             if ($_definition->getIgnored()) {
                 Log::warning(ts('Not updating DataEntry object ":object" column ":column" because it has the "ignored" flag set', [
                     ':column' => $key,
@@ -1649,7 +1649,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                         Log::success(ts('Global cache hit for DataEntry object with key ":key"', [':key' => $cache_key]), 3);
                     }
 
-                    // We didn't have this DataEntry in local cache, so save it there for future use
+                    // We did not have this DataEntry in local cache, so save it there for future use
                     return $data_entry->saveToLocalCache($cache_key)
                                       ->setIsLoadedFromGlobalCache();
                 }
@@ -1699,7 +1699,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]), 2);
         }
 
-        // Cache the DataEntry and update table state if local cache is enabled and this DataEntry didn't come from local cache
+        // Cache the DataEntry and update table state if local cache is enabled and this DataEntry did not come from local cache
         if ($this->getUseLocalCache()) {
             LocalCache::set($this, static::class, $cache_key);
         }
@@ -1761,7 +1761,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 ':key'   => $cache_key,
             ]), 2);
         }
-        // Cache the DataEntry and update table state if global cache is enabled and this DataEntry didn't come from global cache
+        // Cache the DataEntry and update table state if global cache is enabled and this DataEntry did not come from global cache
         if ($this->getUseGlobalCache()) {
             cache('dataentries')->set($this, $cache_key);
         }
@@ -2013,7 +2013,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * value          mixed              null           The value for this entry
      * visible        boolean            true           If false, this key will not be shown on web, and be readonly
      * virtual        boolean            false          If true, this key will be visible and can be modified but it
-     *                                                  won't exist in database. It instead will be used to generate
+     *                                                  will not exist in database. It instead will be used to generate
      *                                                  a different column
      * element        string|null        "input"        Type of element, input, select, or text or callable function
      * type           string|null        "text"         Type of input element, if element is "input"
@@ -2119,7 +2119,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // Get the value from the source, ensure to apply default or initial default values
                 $value = array_get_safe($this->source, $column, $this->isNew() ? ($_definition->getInitialDefault() ?? $_definition->getDefault()) : $_definition->getDefault());
 
-                // If the value is null, apply the get method for the column IF IT EXISTS. If the get method doesn't exist,
+                // If the value is null, apply the get method for the column IF IT EXISTS. If the get method does not exist,
                 // just copy the NULL value as-is
                 if ($value === null) {
                     // Meta columns are never virtual, ignore them as accessing them might cause issues
@@ -2366,7 +2366,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $source = get_index_value($source, abs($identifier));
 
                 } catch (OutOfBoundsException) {
-                    // The specified identifier doesn't exist in the configuration
+                    // The specified identifier does not exist in the configuration
                     $source = null;
                 }
 
@@ -2375,7 +2375,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
 
         } catch (ConfigEmptyException) {
-            // The configuration key exists but is empty. Act as if it doesn't exist
+            // The configuration key exists but is empty. Act as if it does not exist
             Log::warning(ts('Ignoring empty value for configuration path ":path" while trying to load a ":class" DataEntry object', [
                 ':path'  => $path,
                 ':class' => static::class
@@ -2489,13 +2489,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } catch (SqlTableDoesNotExistException $e) {
             // The table for this object does not exist. This means that we are missing an init, perhaps, or maybe
-            // even the entire databese doesn't exist? Maybe we are in init or sync mode? Allow the system to continue
+            // even the entire databese does not exist? Maybe we are in init or sync mode? Allow the system to continue
             // to check if this entry perhaps is configured, so we can continue
             if (!Core::inInitState()) {
                 throw $e;
             }
 
-            // We are in project init state, act as if the entry simply doesn't exist
+            // We are in project init state, act as if the entry simply does not exist
         }
     }
 
@@ -2737,7 +2737,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         foreach ($this->_definitions as $key => $_definition) {
             if (!$this->mustCopyKeyToSource($_definition, $key, $force)) {
-                // This key shouldn't be copied to the object's source
+                // This key should not be copied to the object's source
                 unset($source[$key]);
                 continue;
             }
@@ -2972,7 +2972,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function handleSetColumnValueWithObjectSetterException(Throwable $e, string $method, mixed $value, string $column): never
     {
         if (($e instanceof SqlTableDoesNotExistException) or ($e instanceof SqlUnknownDatabaseException)) {
-            // These exceptions mean that the database or table accessed doesn't exist
+            // These exceptions mean that the database or table accessed does not exist
             throw $e;
         }
 
@@ -3003,7 +3003,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             ]), $e);
         }
 
-        // The set method doesn't exist and is required
+        // The set method does not exist and is required
         throw new DataEntryException(tr('Cannot set or get DataEntry class ":class" source column ":column" because the class has no linked set method ":short:::method()" defined', [
             ':short'  => Strings::fromReverse($this::class, '\\'),
             ':column' => $column,
@@ -3362,7 +3362,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     protected function validateSource(ValidatorInterface $_validator, bool $require_clean_source, bool $use_prefix): array
     {
         if (!$this->validate) {
-            // This data entry won't validate data, just continue.
+            // This data entry will not validate data, just continue.
             return $_validator->getSource();
         }
 
@@ -3395,7 +3395,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 // TODO that are required are missing) then this should be done with  a separate proprty that can be set by ONLY the
 // TODO dataentry that implements this
 //            if (!array_key_exists($column, $_validator->getSource()) and $external) {
-//                // External data does not apply defaults, if the column doesn't exist, skip it
+//                // External data does not apply defaults, if the column does not exist, skip it
 //                continue;
 //            }
 
@@ -3696,7 +3696,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
      * object, as long as it exists in the database.
      *
-     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
      * readonly mode automatically as they cannot be stored in the database.
      *
@@ -3883,7 +3883,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         if ($exists) {
             // Entry exists
             if ($exists['status'] === 'deleted') {
-                // But is deleted, so act as if it doesn't
+                // But is deleted, so act as if it does not
                 return true;
             }
 

@@ -50,7 +50,7 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-// Load account, ensure the new account name doesn't exist yet
+// Load account, ensure the new account name does not exist yet
 $account = SshAccount::new()->load($argv['identifier']);
 
 

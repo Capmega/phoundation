@@ -458,7 +458,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ]));
             }
 
-            // from_key doesn't exist, initialize the from_key as a null value
+            // from_key does not exist, initialize the from_key as a null value
             $this->source[$from_key] = null;
         }
 
@@ -1358,7 +1358,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         } else {
             // This field has not failed so far, so the OR does not have to check the rest. To do this, mark this field
-            // as having a default value, even though it (possibly) doesn't, this way any future checks will be skipped
+            // as having a default value, even though it (possibly) does not, this way any future checks will be skipped
             $this->selected_is_default = true;
         }
 
@@ -1367,7 +1367,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Will validate that the specified argument wasn't specified
+     * Will validate that the specified argument was not specified
      *
      * @param string $argument
      * @param mixed  $value                The value of said argument.
@@ -1456,7 +1456,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->ensureSelected();
 
         // Create a new Validator object from the current value. If the current value is not an array (oopsie) then just
-        // send in an empty array so that the Validation chain won't break
+        // send in an empty array so that the Validation chain will not break
         if (!is_array($this->selected_value)) {
             $array = [];
             $child = new static($array, $this);
@@ -1970,7 +1970,7 @@ throw new ObsoleteException();
                     return true;
                 }
 
-                // If the value is set or not doesn't matter, it is okay
+                // If the value is set or not does not matter, it is okay
                 $value                      = $this->selected_optional;
                 $this->selected_is_default  = true;
                 $this->process_value_failed = true;
@@ -3783,7 +3783,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3813,7 +3813,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4020,7 +4020,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($width) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
@@ -4062,7 +4062,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($before, $equal) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
@@ -4103,7 +4103,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($after, $equal) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4146,7 +4146,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
-            // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure regex will not receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4230,7 +4230,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($encoding) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->hasEncoding($encoding, true, 64);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4721,7 +4721,7 @@ throw new ObsoleteException();
                                     ->checkRestrictions(false);
 
                 // The path should be a PhoPath object with restrictions from the specified directory that is tested
-                // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
+                // Get the absolute "path", "file" does not need to exist here, that can be checked later
                 $test = $class::new($path, $exists_in_directory->getRestrictionsObject())
                               ->makeReal($exists_in_directory);
 
@@ -4732,15 +4732,15 @@ throw new ObsoleteException();
             }
 
         } else {
-            // Okay, we shouldn't check if it exists IN a directly but does it exists at all?
+            // Okay, we should not check if it exists IN a directly but does it exists at all?
             $does_exist = file_exists($path);
             $test       = $class::new($path, PhoRestrictions::new($path));
         }
 
         if (empty($does_exist)) {
-            // The file, whatever it is, doesn't exist
+            // The file, whatever it is, does not exist
             if ($require_exist) {
-                // File doesn't exist, but should exist
+                // File does not exist, but should exist
                 if ($type) {
                     $this->addSoftFailure(tr('must be an existing ":type" in paths ":paths"', [
                         ':type'  => $type,
@@ -4757,7 +4757,7 @@ throw new ObsoleteException();
         } else {
             // The file, whatever it is, does exist
             if ($require_exist === false) {
-                // The file exists, but shouldn't exist
+                // The file exists, but should not exist
                 $this->addSoftFailure(tr('must not exist'));
             }
 
@@ -4769,7 +4769,7 @@ throw new ObsoleteException();
                 }
 
             } elseif (is_bool($must_be_directory)) {
-                // The file shouldn't be a directory
+                // The file should not be a directory
                 if ($test->isDirectory()) {
                     $this->addSoftFailure(tr('cannot be a directory'));
                 }

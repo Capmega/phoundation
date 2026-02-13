@@ -750,7 +750,7 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the URL if it didn't match any of the filter URL's
+     * Returns the URL if it did not match any of the filter URL's
      *
      * @note Specified filters may be URL strings or UrlInterface objects. The filter will be converted to a URL object,
      *       so it also may be a pre-defined URL like "sign-in" or "index"
@@ -1169,7 +1169,7 @@ class Url implements UrlInterface
         ]);
 
         if ($cloak) {
-            // Found cloaking URL, update the created_on time so that it won't expire too soon
+            // Found cloaking URL, update the created_on time so that it will not expire too soon
             sql()->query('UPDATE `url_cloaks` 
                           SET    `created_on` = NOW() 
                           WHERE  `url`        = :url', [
@@ -1332,7 +1332,7 @@ class Url implements UrlInterface
             return static::newConfigured($url)->getSourceUnprocessed();
 
         } catch (UrlConfiguredUrlNotFoundException) {
-            // This wasn't a configured URL
+            // This was not a configured URL
             return $url;
         }
     }
@@ -1640,7 +1640,7 @@ class Url implements UrlInterface
      * Add the specified query / queries to the specified URL and return
      *
      * @note Do NOT add queries like key=URL (where URL is not URL encoded) in here, as URL may contain "=" and "&"
-     *       symbols which will be detected and cause exceptions as the system won't know where one query starts and the
+     *       symbols which will be detected and cause exceptions as the system will not know where one query starts and the
      *       other ends. Use Url::addUrlQuery() instead
      *
      * @note Do NOT add queries where either the key or value contains one of not URL encoded "? = + &"
@@ -2024,7 +2024,7 @@ class Url implements UrlInterface
                 ]));
         }
 
-        // Decode and encode again, this way we won't double-encode and can be sure the value is encoded
+        // Decode and encode again, this way we will not double-encode and can be sure the value is encoded
         // This might mangle the + sign, so unmangle that manually
         foreach ($parts as &$part) {
             $part = Url::ensureStringUrlEncoding($part, $allow_encoded_plus);
@@ -2339,7 +2339,7 @@ class Url implements UrlInterface
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
      * @param UserInterface|null $_user
      * @param bool               $use_cache

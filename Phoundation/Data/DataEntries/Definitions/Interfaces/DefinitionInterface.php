@@ -1619,7 +1619,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     public function setProperties(?array $properties): static;
 
     /**
-     * Returns the value for the requested event key, or NULL if it doesn't exist
+     * Returns the value for the requested event key, or NULL if it does not exist
      *
      * @param string|float|int $key
      *

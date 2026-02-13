@@ -104,7 +104,7 @@ class Response implements ResponseInterface
      *                  characters, and then execute Response::sendHeaders(), then ob_flush() and flush() and
      *                  headers_sent() will STILL be false, and REMAIN false until the buffer has reached 4096
      *                  characters OR the process ends. This variable just keeps track if Response::sendHeaders() has been
-     *                  executed (and it won't execute again), but headers might still be sent out manually. This is
+     *                  executed (and it will not execute again), but headers might still be sent out manually. This is
      *                  rather messed up, because it really shows as if information was sent, the buffers are flushed,
      *                  yet nothing is actually flushed, so the headers are also not sent. This is just messed up PHP.
      *
@@ -1605,7 +1605,7 @@ class Response implements ResponseInterface
             // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
-                // and the system couldn't know that the short code is the same as the current URL. Redirect to domain
+                // and the system could not know that the short code is the same as the current URL. Redirect to domain
                 // root instead
                 switch ($url) {
                     case 'prev':
@@ -2090,7 +2090,7 @@ class Response implements ResponseInterface
         // Create local ETAG
         static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . Core::readRegister('etag'));
 
-        // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we are doing this for a good reason...
+        // :TODO: Document why we are trimming with an empty character mask... It does not make sense but something tells me we are doing this for a good reason...
         if (trim((string) isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == static::$etag) {
             if (empty($core->register['flash'])) {
                 // The client sent an etag which is still valid, no body (or anything else) necessary

@@ -353,7 +353,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns the columns for the data in this Iterator.
      *
-     * If columns haven't been set already, it will automatically detect the columns from the first entry in the
+     * If columns have not been set already, it will automatically detect the columns from the first entry in the
      * Iterator
      *
      * @return array|null
@@ -1406,7 +1406,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         // Initialize all requested column footers
         foreach($footers as $footer => &$value) {
             if ($footer === $totals_column) {
-                // This is the column that will have the "Totals:" label, ensure it won't try to add data from columns!
+                // This is the column that will have the "Totals:" label, ensure it will not try to add data from columns!
                 $value           = $totals_label ?? tr('Totals');
                 $columns = Arrays::removeValues($columns, $totals_column);
 
@@ -1736,7 +1736,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         if ($exception ?? $this->exception_on_get) {
-            // The key doesn't exist
+            // The key does not exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
                 ':class' => static::class,
@@ -1960,7 +1960,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function renameKey(Stringable|string|int $key, Stringable|string|int $target, bool $exception = true): mixed
     {
-        // First, ensure the target doesn't exist yet!
+        // First, ensure the target does not exist yet!
         if (array_key_exists($target, $this->source)) {
             throw new IteratorException(tr('Cannot rename key ":key" to target ":target", the target key already exists', [
                 ':key'    => $key,

@@ -135,7 +135,7 @@ class Rights extends DataIterator implements RightsInterface
 
         $rights = Arrays::force($rights, null);
 
-        // Save each right in this list if it doesn't exist
+        // Save each right in this list if it does not exist
         foreach ($rights as $right) {
             if (is_numeric($right)) {
                 // This is an ID, not a name. Right names cannot be numeric
@@ -319,11 +319,11 @@ class Rights extends DataIterator implements RightsInterface
 
             } catch (DataEntryNotExistsException $e) {
                 if (!$this->ensureRightsExist($value)) {
-                    // The specified right doesn't exist
+                    // The specified right does not exist
                     throw $e;
                 }
 
-                // The specified right didn't exist, but was automatically created
+                // The specified right did not exist, but was automatically created
                 $value = Right::new()->load($value);
             }
 

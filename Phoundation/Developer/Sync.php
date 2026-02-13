@@ -914,7 +914,7 @@ class Sync
             }
 
         } else {
-            // This project doesn't exist yet
+            // This project does not exist yet
             $this->environment_state = false;
 
             Log::warning(ts('Target environment ":environment" path ":path" is not available', [

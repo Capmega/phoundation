@@ -260,7 +260,7 @@ interface UrlInterface
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
      * @param UserInterface|null $_user
      * @param bool               $use_cache

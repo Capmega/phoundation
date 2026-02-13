@@ -129,7 +129,7 @@ class Card extends Widget
     public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
         parent::__construct($source);
 
-        // By default, cards won't render if they have no content
+        // By default, cards will not render if they have no content
         $this->render_on_empty_content = false;
     }
 

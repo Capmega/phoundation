@@ -178,7 +178,7 @@ trait TraitMethodsVirtualColumns {
                                                    ->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
-                // This means that a column was specified to be checked that doesn't exist in the Definitions object
+                // This means that a column was specified to be checked that does not exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column" in class ":class", this column does not exist in the definitions object', [
                     ':class'  => $this::class,
                     ':column' => $e->getDataKey('column'),
@@ -328,7 +328,7 @@ trait TraitMethodsVirtualColumns {
             }
         }
 
-        // Configuration doesn't exist. Can we autoload it?
+        // Configuration does not exist. Can we autoload it?
         $table_name = Strings::capitalize($table);
 
         if (str_contains($table_name, '_')) {

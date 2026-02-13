@@ -1322,11 +1322,11 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
                         // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                         // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
+                        // will not be able to work our way around this.
                         throw new ProjectException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
 
-                    // The file doesn't exist, that is good. Go to setup mode
+                    // The file does not exist, that is good. Go to setup mode
                     Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
 
                     throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
@@ -1376,11 +1376,11 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     if (file_exists(DIRECTORY_ROOT . 'config/project/phoundation')) {
                         // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                         // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
+                        // will not be able to work our way around this.
                         throw new ProjectException(tr('Project version file "config/project/phoundation" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
 
-                    // The file doesn't exist, that is good. Go to setup mode
+                    // The file does not exist, that is good. Go to setup mode
                     Log::toAlternateLog('Project Phoundation version file "config/project/phoundation" does not exist, entering setup mode');
 
                     throw new ProjectException(tr('Project Phoundation version file ":path" cannot be read. Please ensure it exists', [

@@ -196,7 +196,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
              * value          mixed              null           The value for this entry
              * visible        boolean            true           If false, this key will not be shown on web, and be readonly
              * virtual        boolean            false          If true, this key will be visible and can be modified but it
-             *                                                  won't exist in database. It instead will be used to generate
+             *                                                  will not exist in database. It instead will be used to generate
              *                                                  a different column
              * element        string|null        "input"        Type of element, input, select, or text or callable function
              * type           string|null        "text"         Type of input element, if element is "input"
@@ -281,7 +281,7 @@ class DataEntryForm extends ElementsBlock implements DataEntryFormInterface
                     }
 
                     if (!$_definition->getRender()) {
-                        // This element shouldn't be shown, continue
+                        // This element should not be shown, continue
                         continue;
                     }
 

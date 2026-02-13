@@ -237,7 +237,7 @@ class UserTest extends TestCase
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasSomeRights(['everybody', 'god']));
 
-        // Test with Right that doesn't exist
+        // Test with Right that does not exist
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasSomeRights('fail'));
     }
@@ -274,7 +274,7 @@ class UserTest extends TestCase
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights(['everybody', 'god']));
 
-        // Test with Right that doesn't exist
+        // Test with Right that does not exist
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights('fail'));
     }

@@ -161,7 +161,7 @@ interface PhoPathInterface extends Stringable
     public function exists(bool $check_dead_symlink = false, bool $auto_mount = true): bool;
 
     /**
-     * Checks if the specified file exists, throws exception if it doesn't
+     * Checks if the specified file exists, throws exception if it does not
      *
      * @param bool $force
      * @param bool $check_dead_symlink
@@ -309,7 +309,7 @@ interface PhoPathInterface extends Stringable
     /**
      * Securely delete a file weather it exists or not, without error, using the "shred" command
      *
-     * Since shred doesn't have a recursive option, this function will use "find" to find all files matching the
+     * Since shred does not have a recursive option, this function will use "find" to find all files matching the
      * specified pattern, and will delete them all
      *
      * @param string|bool $clean_path
@@ -451,7 +451,7 @@ interface PhoPathInterface extends Stringable
 
 
     /**
-     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     * Wrapper for realpath() that will not crash with an exception if the specified string is not a real directory
      *
      * @param Stringable|string|bool|null $absolute_prefix
      * @param bool                        $must_exist
@@ -463,7 +463,7 @@ interface PhoPathInterface extends Stringable
     public function getRealPath(Stringable|string|bool|null $absolute_prefix = null, bool $must_exist = false, bool $resolve_basename = false): string;
 
     /**
-     * Wrapper for realpath() that won't crash with an exception if the specified string is not a real directory
+     * Wrapper for realpath() that will not crash with an exception if the specified string is not a real directory
      *
      * @return PhoPathInterface string The real path extrapolated from the specified $directory, if exists. False if
      *                         whatever was specified does not exist.

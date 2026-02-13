@@ -878,7 +878,7 @@ class Request implements RequestInterface
      *
      * @param EnumRequestTypes $type The call type you wish to compare to
      *
-     * @return bool This function will return true if $type matches core::callType, or false if it doesn't.
+     * @return bool This function will return true if $type matches core::callType, or false if it does not.
      */
     public static function isRequestType(EnumRequestTypes $type): bool
     {
@@ -1338,7 +1338,7 @@ class Request implements RequestInterface
             $rights_redirect = 403;
         }
 
-        // Do the specified rights exist at all? If they  are not defined then no wonder this user doesn't have them
+        // Do the specified rights exist at all? If they  are not defined then no wonder this user does not have them
         if (Rights::getNotExist($rights)) {
             // One or more of the rights do not exist
             Incident::new()
@@ -1366,7 +1366,7 @@ class Request implements RequestInterface
                     ->throw(AccessDeniedException::class);
 
         } else {
-            // Registered user doesn't have the required rights
+            // Registered user does not have the required rights
             Incident::new()
                     ->setType('403 - Forbidden')
                     ->setSeverity(in_array('admin', Session::getUserObject()->getRightsObject()->getMissing($rights)) ? EnumSeverity::high : EnumSeverity::medium)
@@ -1475,7 +1475,7 @@ class Request implements RequestInterface
             // generating a web page to returning an API output, for example, so check if the change is allowed
             switch ($request_type) {
                 case static::$request_type:
-                    // The new request type matches the initial request type, we can continue. The response won't be reset, so we are done here
+                    // The new request type matches the initial request type, we can continue. The response will not be reset, so we are done here
                     return;
 
                 case EnumRequestTypes::system:
@@ -2030,7 +2030,7 @@ class Request implements RequestInterface
      * Returns the value for the specified request header
      *
      * @param string $name      The header which should be returned
-     * @param bool   $exception If true will throw an exception if the header doesn't exist
+     * @param bool   $exception If true will throw an exception if the header does not exist
      *
      * @return string|null
      */

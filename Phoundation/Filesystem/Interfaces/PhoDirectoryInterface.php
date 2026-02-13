@@ -175,7 +175,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Scan the entire object directory STRING upward for the specified file.
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -187,7 +187,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename

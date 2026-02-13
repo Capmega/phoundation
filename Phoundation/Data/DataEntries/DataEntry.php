@@ -71,7 +71,7 @@
  * auto-suggest, making building scripts to handle these objects straightforward.
  *
  * The definitions also tell the DataEntry object what columns are available. Some DataEntry extending classes will have
- * special get/set handler methods, others won't. All columns are available through DataEntry::get(), or
+ * special get/set handler methods, others will not. All columns are available through DataEntry::get(), or
  * DataEntry::set(), but for example, the User object also has User::getEmail(), User::setNickname(), etc.
  *
  * DataEntry objects can automatically receive and apply GET, POST, or argv data using the GetValidator, PostValidator,

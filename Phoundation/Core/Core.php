@@ -605,11 +605,11 @@ class Core implements CoreInterface
                 if (file_exists(DIRECTORY_ROOT . 'config/project/name')) {
                     // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                     // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                    // won't be able to work our way around this.
+                    // will not be able to work our way around this.
                     throw new ProjectException(tr('Project file "config/project/name" does exist but is not readable. Please check the owner, group and mode for this file'));
                 }
 
-                // The file doesn't exist, that is good. Go to setup mode
+                // The file does not exist, that is good. Go to setup mode
                 Log::toAlternateLog('Project file "config/project/name" does not exist, entering setup mode');
 
                 Core::startPlatform();
@@ -1029,8 +1029,8 @@ class Core implements CoreInterface
         }
 
         // If we get here...
-        // The Config object has no environment and won't be able to load configuration. This means that the process is
-        // exiting during startup. As such, we won't have logging either. Do not do cleanup, do not do anything. Just exit
+        // The Config object has no environment and will not be able to load configuration. This means that the process is
+        // exiting during startup. As such, we will not have logging either. Do not do cleanup, do not do anything. Just exit
     }
 
 
@@ -1183,7 +1183,7 @@ class Core implements CoreInterface
 
 
     /**
-     * Ensures that the uncaught exception handler doesn't cause an endless loop
+     * Ensures that the uncaught exception handler does not cause an endless loop
      *
      * @param Throwable $e
      *
@@ -2187,7 +2187,7 @@ class Core implements CoreInterface
         }
 
         if ($return === null) {
-            // Specified key / subkey doesn't exist or is NULL, return default
+            // Specified key / subkey does not exist or is NULL, return default
             return $default;
         }
 
@@ -2221,7 +2221,7 @@ class Core implements CoreInterface
                 }
 
             } else {
-                // The key doesn't exist, so we do not have to worry about the sub key
+                // The key does not exist, so we do not have to worry about the sub key
                 return;
             }
 
@@ -3141,7 +3141,7 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page didn't catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
             Core::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
@@ -3189,7 +3189,7 @@ class Core implements CoreInterface
             header_remove('Expires');
             header_remove('Content-Type');
             header('Content-Type: text/html');
-            header('Content-length: 1048576'); // Required or browser won't show half the information
+            header('Content-length: 1048576'); // Required or browser will not show half the information
         }
 
         try {
@@ -3208,7 +3208,7 @@ class Core implements CoreInterface
             Log::exception($f);
         }
 
-        // Make sure the Router shutdown won't happen, so it won't send a 404
+        // Make sure the Router shutdown will not happen, so it will not send a 404
         // TODO Clean this mess up
         Core::removeShutdownCallback('route[postprocess]');
         Core::removeShutdownCallback('route_postprocess');

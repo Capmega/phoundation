@@ -236,7 +236,7 @@ abstract class ProcessCore implements ProcessInterface
             }
         }
 
-        // Either permission wasn't denied or it couldn't be fixed
+        // Either permission was not denied or it could not be fixed
         return false;
     }
 

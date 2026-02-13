@@ -462,7 +462,7 @@ class Git extends Versioning implements GitInterface
      *
      * @param string $branch         The name of the branch to delete
      * @param bool   $force          [false] If true, will force deletion, even if there is a reason to stop the deletion, like
-     *                               the branch containing changes that haven't been merged anywhere yet
+     *                               the branch containing changes that have not been merged anywhere yet
      *
      * @return static
      */

@@ -975,7 +975,7 @@ FILES variables:
                                             return $return;
 
                                         } catch (JsonException) {
-                                            // Likely this wasn't JSON encoded
+                                            // Likely this was not JSON encoded
                                             return $value;
                                         }
                                     }))

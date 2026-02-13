@@ -47,7 +47,7 @@ class Id extends Command
             $result = reset($output);
 
             if (!is_numeric($result)) {
-                // So which gave us a path that doesn't exist or that we cannot access
+                // So which gave us a path that does not exist or that we cannot access
                 throw new CommandsException(tr('Failed to get id'));
             }
 

@@ -331,7 +331,7 @@ class Session implements SessionInterface
             Response::redirect();
         }
 
-        // Check the detected domain against the configured domain. If it doesn't match then check if it is a registered
+        // Check the detected domain against the configured domain. If it does not match then check if it is a registered
         // whitelabel domain
         if (static::$domain === Request::getDomain()) {
             // This is the primary domain
@@ -463,7 +463,7 @@ class Session implements SessionInterface
             }
 
             if ($section === null) {
-                // Key doesn't exist or was null, either way, nothing to return!
+                // Key does not exist or was null, either way, nothing to return!
                 return null;
             }
 
@@ -1466,7 +1466,7 @@ class Session implements SessionInterface
             }
         }
 
-        // GET email didn't match or wasn't specified, redirect the default page for this user
+        // GET email did not match or was not specified, redirect the default page for this user
         Response::redirect(Url::new('index')->makeWww());
     }
 
@@ -1605,7 +1605,7 @@ class Session implements SessionInterface
                 Session::autoSignOut(static::$sign_out_on_exit);
             }
 
-            // If this page has flash messages that haven't yet been displayed, then store them in the session variable so that they can be displayed on the
+            // If this page has flash messages that have not yet been displayed, then store them in the session variable so that they can be displayed on the
             // next page load
             static::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
 
@@ -1629,7 +1629,7 @@ class Session implements SessionInterface
     {
         // Return the real user
         if (empty(static::$user)) {
-            // User object doesn't yet exist
+            // User object does not yet exist
             if (array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
                 static::$user = static::loadUser($_SESSION['user']['id']);
 
@@ -2055,8 +2055,8 @@ class Session implements SessionInterface
                     static::$key = SignInKey::new()->load(['uuid' => $_SESSION['sign-key']]);
 
                 } catch (DataEntryNotExistsException) {
-                    // This session key doesn't exist, WTF? If it exists in session, it should exist in the DB. Since it
-                    // doesn't exist, assume the session contains invalid data. Drop the session
+                    // This session key does not exist, WTF? If it exists in session, it should exist in the DB. Since it
+                    // does not exist, assume the session contains invalid data. Drop the session
                     Incident::new()
                             ->setType(tr('Invalid session data'))
                             ->setSeverity(EnumSeverity::medium)
@@ -2458,7 +2458,7 @@ class Session implements SessionInterface
         }
 
         if (Request::isRequestType(EnumRequestTypes::html)) {
-            // Normal page loads clear the auto sign-out code to ensure it won't be abused by other pages
+            // Normal page loads clear the auto sign-out code to ensure it will not be abused by other pages
             Session::clearAutoSignoutSubmit();
         }
     }
@@ -2504,7 +2504,7 @@ class Session implements SessionInterface
             PostValidator::new()->set(Session::get('auto_sign_out_submit_button_value'), Session::get('auto_sign_out_submit_button_name'));
         }
 
-        // Yay, we are cleared for submission! Clear the submit-and-signout codes so they won't be used again
+        // Yay, we are cleared for submission! Clear the submit-and-signout codes so they will not be used again
         Session::clearAutoSignoutSubmit();
         Session::setSignOutOnExit($auto_sign_out);
     }

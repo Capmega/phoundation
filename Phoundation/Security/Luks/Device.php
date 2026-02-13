@@ -370,7 +370,7 @@ class Device extends PhoFile
 
         } catch (ProcessFailedException $e) {
             if ($e->dataMatchesRegex('/Device .+? is not active./i')) {
-                // The device wasn't even open!
+                // The device was not even open!
                 if ($force) {
                     // That's fine, we were just making sure
                     Log::warning(ts('Will not close LUKS device ":device" that was mapped from file ":file", the device was not open', [
@@ -410,7 +410,7 @@ class Device extends PhoFile
      */
     public function luksTryPasswordSections(IteratorInterface|array $keys): IteratorInterface
     {
-        // Try opening a UUID named device to ensure we won't try opening a device name that already exists
+        // Try opening a UUID named device to ensure we will not try opening a device name that already exists
         $return       = [];
         $keys         = Arrays::force($keys);
         $keys         = Arrays::filterEmpty($keys);
@@ -438,7 +438,7 @@ class Device extends PhoFile
                 Log::success(' ' . tr('[ Ok ]'), 3, echo_prefix: false);
 
             } catch (DeviceNoKeyAvailableWithPassphraseException) {
-                // This key doesn't work, next!
+                // This key does not work, next!
                 Log::error(' ' . tr('[ Failed ]'), 3, echo_prefix: false);
             }
         }

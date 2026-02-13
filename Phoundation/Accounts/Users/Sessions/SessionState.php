@@ -80,7 +80,7 @@ class SessionState implements SessionStateInterface
     /**
      * Returns the value for the specified key within the current page or (if not exist) in the alternative pages
      *
-     * Returns NULL (or exception, if specified) if the key doesn't exist
+     * Returns NULL (or exception, if specified) if the key does not exist
      *
      * @param Stringable|string|float|int                    $key
      * @param IteratorInterface|Stringable|array|string|null $pages
@@ -114,7 +114,7 @@ class SessionState implements SessionStateInterface
     /**
      * Returns the value for the specified state key within the specified page.
      *
-     * Returns NULL (or exception, if specified) if the page or key doesn't exist
+     * Returns NULL (or exception, if specified) if the page or key does not exist
      *
      * @param Stringable|string|float|int $key
      * @param string                      $page

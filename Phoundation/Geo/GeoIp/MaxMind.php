@@ -121,7 +121,7 @@ class MaxMind extends GeoIp
                     ]));
 
                 } else {
-                    // Fine, if that doesn't work then spoof the IP address by using the IP for phoundation.org
+                    // Fine, if that does not work then spoof the IP address by using the IP for phoundation.org
                     $ip_address = gethostbyname('phoundation.org');
 
                     if ($ip_address) {

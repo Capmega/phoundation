@@ -3,7 +3,7 @@
 /**
  * Class AutoComplete
  *
- * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it has not been yet.
  *
  * The class supports autocompletion of commands, global system arguments, command arguments and command values.
  * Commands must use Documentation::setAutoComplete() for this
@@ -55,7 +55,7 @@
  * @see       https://unix.stackexchange.com/questions/148497/how-to-customize-bash-command-completion
  * @see       https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
  *
- * @todo      Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo      Fix known issues with "foo" and "foo-bar", the second item will not ever be shown
  * @todo      Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and
  *            "bar"
  * @todo      Fix known issue that when only one result is returned, it should add a space to automatically go to the
@@ -97,7 +97,7 @@ use Stringable;
 class CliAutoComplete
 {
     /**
-     * The word location for the auto complete. NULL if auto complete hasn't been enabled
+     * The word location for the auto complete. NULL if auto complete has not been enabled
      *
      * @var int|null $position
      */
@@ -267,7 +267,7 @@ class CliAutoComplete
 
             switch (count($matches)) {
                 case 0:
-                    // This shouldn't happen at all, there is a match or we wouldn't be here!
+                    // This should not happen at all, there is a match or we would not be here!
                     throw new CliAutoCompleteException(tr('Found no match while there should be a match'));
 
                 case 1:
@@ -293,7 +293,7 @@ class CliAutoComplete
         }
 
         if ($argument_command) {
-            // We have an argument command specified, likely it doesn't exist
+            // We have an argument command specified, likely it does not exist
             if (str_starts_with($argument_command, '-')) {
                 // This is a system modifier argument, show the system modifier arguments instead.
                 $data['commands'] = [];

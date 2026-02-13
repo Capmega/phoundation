@@ -184,7 +184,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
         }
 
         if (!($message instanceof FlashMessageInterface)) {
-            // The message wasn't specified as a flash message, treat it as a string and make a flash message out of it
+            // The message was not specified as a flash message, treat it as a string and make a flash message out of it
             $message = FlashMessage::new()
                                    ->setAutoClose($auto_close)
                                    ->setMessage((string) $message)
@@ -291,7 +291,7 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
     {
         $return = parent::render();
 
-        // Clear the flash messages object content so that it won't ever render again
+        // Clear the flash messages object content so that it will not ever render again
         $this->clear();
 
         return $return;

@@ -110,7 +110,7 @@ class Phoundation extends Project
                 $directory = PhoPath::absolutePath($directory);
 
             } catch (FileNotExistException) {
-                // Okay, that was easy, doesn't exist. NEXT!
+                // Okay, that was easy, does not exist. NEXT!
                 continue;
             }
 

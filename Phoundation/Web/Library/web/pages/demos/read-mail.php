@@ -229,7 +229,7 @@ Response::setBreadcrumbs([
                                 Intelligentsia. Lomo
                                 locavore salvia bespoke, twee fixie paleo cliche brunch Schlitz blog McSweeney's
                                 messenger bag swag
-                                slow-carb. Odd Future photo booth pork belly, you probably haven't heard of them
+                                slow-carb. Odd Future photo booth pork belly, you probably have not heard of them
                                 actually tofu ennui
                                 keffiyeh lo-fi Truffaut health goth. Narwhal sustainable retro disrupt.</p>
 

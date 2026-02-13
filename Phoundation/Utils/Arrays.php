@@ -1990,7 +1990,7 @@ class Arrays extends Utils
      * @param array            $source
      * @param string|float|int $value
      *
-     * @return string|int|null NULL if the specified value didn't exist, the array key if it did
+     * @return string|int|null NULL if the specified value did not exist, the array key if it did
      */
     public static function unsetValue(array &$source, string|float|int $value): string|int|null
     {
@@ -2118,7 +2118,7 @@ class Arrays extends Utils
                 $keep_list[$key] = $value;
 
             } else {
-                // Key doesn't exist in source2, add it
+                // Key does not exist in source2, add it
                 $return['delete'][$key] = $value;
             }
         }
@@ -2133,7 +2133,7 @@ class Arrays extends Utils
             }
 
             if (!in_array($value, $source1, true)) {
-                // Key doesn't exist in source1, add it and next
+                // Key does not exist in source1, add it and next
                 $return['add'][$key] = $value;
             }
         }
@@ -2360,7 +2360,7 @@ class Arrays extends Utils
                     }
 
                 } else {
-                    // Give key a character, doesn't matter which, so that we know that we've encountered a non
+                    // Give key a character, does not matter which, so that we know that we've encountered a non
                     // separator character
                     $key = 'a';
                 }
@@ -2713,7 +2713,7 @@ class Arrays extends Utils
             $key = Strings::from($key, $prefix, needle_required: true);
 
             if (!$key) {
-                // This key didn't have the specified class
+                // This key did not have the specified class
                 continue;
             }
 
@@ -4620,7 +4620,7 @@ class Arrays extends Utils
                         continue;
                     }
 
-                    // This needle didn't match
+                    // This needle did not match
 
                     if ($flags['all']) {
                         // We are in "all" mode, and a single needle failed, so do not consider any other needles.
@@ -4813,7 +4813,7 @@ class Arrays extends Utils
                         continue;
                     }
 
-                    // At this point, this needle didn't match
+                    // At this point, this needle did not match
                     if ($flags['all']) {
                         // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;

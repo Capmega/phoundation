@@ -1132,7 +1132,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Returns the CLI return values that are accepted as "success" and won't cause an exception
+     * Returns the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return array
      */
@@ -1143,7 +1143,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array|int|null $exit_codes
      *
@@ -1159,7 +1159,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array|int|null $exit_codes
      *
@@ -1178,7 +1178,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param int $exit_code
      *
@@ -1197,7 +1197,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Clears the CLI return values that are accepted as "success" and won't cause an exception
+     * Clears the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return static This process so that multiple methods can be chained
      */

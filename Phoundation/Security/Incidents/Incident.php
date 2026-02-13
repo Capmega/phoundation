@@ -662,7 +662,7 @@ class Incident extends DataEntryCore implements IncidentInterface
                                             return $return . implode(PHP_EOL, $lines);
 
                                         } catch (JsonException $e) {
-                                            // We couldn't decode it! Why? Let's move on, it is not THAT important... yet
+                                            // We could not decode it! Why? Let's move on, it is not THAT important... yet
                                             Log::warning($e);
 
                                             return isset_get($value);

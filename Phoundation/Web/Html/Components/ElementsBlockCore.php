@@ -152,7 +152,7 @@ abstract class ElementsBlockCore extends IteratorCore implements ElementsBlockIn
             return $this->defaultRender() . $scripts;
         }
 
-        // The template component doesn't exist, return the basic Phoundation version
+        // The template component does not exist, return the basic Phoundation version
         Log::warning(ts('No template render class found for block component ":component", rendering basic HTML', [
             ':component' => static::class,
         ]), 3);

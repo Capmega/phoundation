@@ -606,7 +606,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
         return $variable;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
     return $default;
 }
@@ -851,7 +851,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
         return null;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
 
     if ($default === null) {
@@ -859,7 +859,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     }
 
     // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-    // type doesn't match
+    // type does not match
     return isset_get_typed($types, $default);
 }
 
@@ -1055,7 +1055,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
     try {
         // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-        // type doesn't match
+        // type does not match
         return isset_get_typed($types, $default);
 
     } catch (DatatypeNotPermittedException $e) {
@@ -1607,7 +1607,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
  *
  * @see get_false()
  * @see get_empty()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  * @note    This function is a wrapper for get_empty($source, null);
@@ -1640,7 +1640,7 @@ function get_null(mixed $source): mixed
  * Return false if the specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @see get_null()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  */

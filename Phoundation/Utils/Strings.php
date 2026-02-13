@@ -1206,7 +1206,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1255,7 +1255,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1398,7 +1398,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1448,7 +1448,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -2137,7 +2137,7 @@ class Strings extends Utils
     /**
      * Returns a string displaying the specified octal value
      *
-     * @todo Rewrite this crap, it doesn't check anything beyond numeric?
+     * @todo Rewrite this crap, it does not check anything beyond numeric?
      *
      * @param Stringable|string|int $source
      *

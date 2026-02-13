@@ -290,7 +290,7 @@ class Connector extends DataEntry implements ConnectorInterface
         $hostname = $this->__getHostname();
 
         if ($hostname === 'localhost') {
-            // PDO has a weird quirk where it will ignore port settings when the host is localhost. 127.0.0.1 doesn't
+            // PDO has a weird quirk where it will ignore port settings when the host is localhost. 127.0.0.1 does not
             // seem to have this so force the use of that instead. This should also skip hostname lookups, as fast as
             // that would be
             $hostname = '127.0.0.1';
@@ -338,7 +338,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the unique identifier for this database entry, which will be the ID column if it doesn't have any
+     * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
      *
      * @param bool $exception
      *

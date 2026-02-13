@@ -323,7 +323,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified role.
      *
-     * @note Will throw a NotExistsException if the specified role doesn't exist
+     * @note Will throw a NotExistsException if the specified role does not exist
      *
      * @param RoleInterface|array|string|int $role
      *
@@ -381,7 +381,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = $this->loadFromAlternativeEmail();
 
             if (!$user) {
-                // The requested user identifier doesn't exist
+                // The requested user identifier does not exist
                 throw $e;
             }
         }
@@ -428,7 +428,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
         }
 
-        // Couldn't load user from alternative email address
+        // Could not load user from alternative email address
         return null;
     }
 
@@ -563,7 +563,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 ':hook' => $hook->getFile('authenticate')->getRootname(),
             ]));
 
-            // The hook file doesn't exist, try internal authentication
+            // The hook file does not exist, try internal authentication
             $user = User::doAuthenticate($hook->getArgument('identifier'), $hook->getArgument('password'), $hook->getArgument('authentication'), $hook->getArgument('domain'));
 
         } elseif (!$user instanceof UserInterface) {
@@ -2760,7 +2760,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): static
     {
-        // System user is readonly and also doesn't register meta-requests
+        // System user is readonly and also does not register meta-requests
         $this->readonly     = true;
         $this->meta_enabled = false;
 
@@ -3377,7 +3377,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setRender(false))
 
                     ->add(DefinitionFactory::newCode('notifications_hash')
-                                    // This hash is set directly so it won't really be touched by DataEntry
+                                    // This hash is set directly so it will not really be touched by DataEntry
                                     ->setOptional(true)
                                     ->setDirectUpdate(true)
                                     ->setRender(false)

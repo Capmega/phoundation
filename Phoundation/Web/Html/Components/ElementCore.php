@@ -202,7 +202,7 @@ abstract class ElementCore implements ElementInterface
                                      ->render() . $this->_scripts?->render();
 
         } else {
-            // The template component doesn't exist, return the basic Phoundation version
+            // The template component does not exist, return the basic Phoundation version
             Log::warning(ts('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => static::class,
             ]), 2);

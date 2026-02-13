@@ -69,7 +69,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
      * object, as long as it exists in the database.
      *
-     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
      * readonly mode automatically as they cannot be stored in the database.
      *

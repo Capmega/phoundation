@@ -70,7 +70,7 @@ interface AnchorInterface extends SpanInterface
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
      * @param UserInterface|null $_user
      * @param bool               $use_cache
@@ -123,7 +123,7 @@ interface AnchorInterface extends SpanInterface
 
 
     /**
-     * Sets how this anchor will render if the user doesn't have all the required rights
+     * Sets how this anchor will render if the user does not have all the required rights
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
@@ -133,7 +133,7 @@ interface AnchorInterface extends SpanInterface
 
 
     /**
-     * Returns how this anchor will render if the user doesn't have all the required rights
+     * Returns how this anchor will render if the user does not have all the required rights
      *
      * @return EnumAnchorRenderRightsFail
      */

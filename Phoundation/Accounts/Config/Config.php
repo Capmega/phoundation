@@ -33,7 +33,7 @@
  * specified, a ConfigPathDoesNotExistsException will be thrown
  *
  * To improve configuration reliability, it is very much recommended to use one of the datatype sensitive Config::get()
- * calls. These calls will throw exceptions if the value for the specified configuration path doesn't match the
+ * calls. These calls will throw exceptions if the value for the specified configuration path does not match the
  * expected datatype. Current datatype sensitive configuration get calls are:
  *
  * Config::getBoolean(string|array $path, ?bool $default = null): bool
@@ -318,9 +318,9 @@ class Config implements ConfigInterface
      *
      * @param string|array $path                     The key path to search for. This should be specified either as an
      *                                               array with key names or a "." separated string
-     * @param mixed|null   $default                  The default value to return if the configuration path doesn't
+     * @param mixed|null   $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -424,7 +424,7 @@ class Config implements ConfigInterface
             }
 
             if (!array_key_exists($part, $data)) {
-                // The requested key doesn't exist
+                // The requested key does not exist
                 if ($default === null) {
                     // We have no default configuration either
                     if (ENVIRONMENT === 'production') {
@@ -443,7 +443,7 @@ class Config implements ConfigInterface
                     ]));
                 }
 
-                // The requested key doesn't exist in configuration, return the default value instead
+                // The requested key does not exist in configuration, return the default value instead
                 return $this->cache[$path] = $default;
             }
 
@@ -461,9 +461,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-boolean value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param bool|null    $default                  The default value to return if the configuration path doesn't
+     * @param bool|null    $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -507,9 +507,9 @@ class Config implements ConfigInterface
      * @note Accepted ternary values are NULL or "auto". "auto" will be converted to NULL.
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param bool|null    $default                  The default value to return if the configuration path doesn't
+     * @param bool|null    $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -556,9 +556,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-integer value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     * @param int|null     $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -593,9 +593,9 @@ class Config implements ConfigInterface
      *
      * @param string|array                   $path                     The configuration path for which the value should be returned
      * @param IteratorInterface|array|string $in_array                 The values in which the configured value must lie
-     * @param string|float|int|null          $default                  The default value to return if the configuration path doesn't
+     * @param string|float|int|null          $default                  The default value to return if the configuration path does not
      *                                                                 exist. If not specified, or NULL, an exception will be thrown when
-     *                                                                 the path doesn't exist
+     *                                                                 the path does not exist
      * @param bool                           $allow_user_configuration If true will allow user configuration to override system
      *                                                                 configuration
      * @param bool                           $use_cache                If true will allow user configuration to be stored in and read from
@@ -633,9 +633,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     * @param int|null     $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -680,9 +680,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-negative integer value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     * @param int|null     $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -727,9 +727,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     * @param int|null     $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown
-     *                                               when the path doesn't exist
+     *                                               when the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -759,9 +759,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-positive integer value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param int|null     $default                  The default value to return if the configuration path doesn't
+     * @param int|null     $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown
-     *                                               when the path doesn't exist
+     *                                               when the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -790,9 +790,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-float value is returned
      *
      * @param string|array   $path                     The configuration path for which the value should be returned
-     * @param int|float|null $default                  The default value to return if the configuration path doesn't
+     * @param int|float|null $default                  The default value to return if the configuration path does not
      *                                                 exist. If not specified, or NULL, an exception will be thrown
-     *                                                 when the path doesn't exist
+     *                                                 when the path does not exist
      * @param bool           $allow_user_configuration If true will allow user configuration to override system
      *                                                 configuration
      * @param bool           $use_cache                If true will allow user configuration to be stored in and read
@@ -834,8 +834,8 @@ class Config implements ConfigInterface
      * @param string|array                 $path                     The configuration path for which the value should
      *                                                               be returned
      * @param IteratorInterface|array|null $default                  The default value to return if the configuration
-     *                                                               path doesn't exist. If not specified, or NULL, an
-     *                                                               exception will be thrown when the path doesn't
+     *                                                               path does not exist. If not specified, or NULL, an
+     *                                                               exception will be thrown when the path does not
      *                                                               exist
      * @param bool                         $allow_user_configuration If true will allow user configuration to override
      *                                                               system configuration
@@ -865,9 +865,9 @@ class Config implements ConfigInterface
      * @note Will throw a ConfigException if a non-array value is returned
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param array|null   $default                  The default value to return if the configuration path doesn't
+     * @param array|null   $default                  The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -906,8 +906,8 @@ class Config implements ConfigInterface
      * @param string|array           $path                     The configuration path for which the value should be
      *                                                         returned
      * @param Stringable|string|null $default                  The default value to return if the configuration path
-     *                                                         doesn't exist. If not specified, or NULL, an exception
-     *                                                         will be thrown when the path doesn't exist
+     *                                                         does not exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path does not exist
      * @param bool                   $allow_user_configuration If true will allow user configuration to override system
      *                                                         configuration
      * @param bool                   $use_cache                If true will allow user configuration to be stored in and
@@ -944,8 +944,8 @@ class Config implements ConfigInterface
      * @param string|array           $path                     The configuration path for which the value should be
      *                                                         returned
      * @param Stringable|string|null $default                  The default value to return if the configuration path
-     *                                                         doesn't exist. If not specified, or NULL, an exception
-     *                                                         will be thrown when the path doesn't exist
+     *                                                         does not exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path does not exist
      * @param bool                   $allow_user_configuration If true will allow user configuration to override system
      *                                                         configuration
      * @param bool                   $use_cache                If true will allow user configuration to be stored in and
@@ -968,8 +968,8 @@ class Config implements ConfigInterface
      * @param string|array           $path                     The configuration path for which the value should be
      *                                                         returned
      * @param Stringable|string|null $default                  The default value to return if the configuration path
-     *                                                         doesn't exist. If not specified, or NULL, an exception
-     *                                                         will be thrown when the path doesn't exist
+     *                                                         does not exist. If not specified, or NULL, an exception
+     *                                                         will be thrown when the path does not exist
      * @param bool                   $allow_user_configuration If true will allow user configuration to override system
      *                                                         configuration
      * @param bool                   $use_cache                If true will allow user configuration to be stored in and
@@ -990,9 +990,9 @@ class Config implements ConfigInterface
      * @note Will throw an exception if a non-string value is returned!
      *
      * @param string|array $path                     The configuration path for which the value should be returned
-     * @param string|int|null  $default              The default value to return if the configuration path doesn't
+     * @param string|int|null  $default              The default value to return if the configuration path does not
      *                                               exist. If not specified, or NULL, an exception will be thrown when
-     *                                               the path doesn't exist
+     *                                               the path does not exist
      * @param bool         $allow_user_configuration If true will allow user configuration to override system
      *                                               configuration
      * @param bool         $use_cache                If true will allow user configuration to be stored in and read from
@@ -1032,9 +1032,9 @@ class Config implements ConfigInterface
      * @note Will throw an exception if a non-string non-array value is returned!
      *
      * @param string|array      $path                     The configuration path for which the value should be returned
-     * @param array|string|null $default                  The default value to return if the configuration path doesn't
+     * @param array|string|null $default                  The default value to return if the configuration path does not
      *                                                    exist. If not specified, or NULL, an exception will be thrown
-     *                                                    when the path doesn't exist
+     *                                                    when the path does not exist
      * @param bool              $allow_user_configuration If true will allow user configuration to override system
      *                                                    configuration
      * @param bool              $use_cache                If true will attempt to use cached configuration paths
@@ -1074,9 +1074,9 @@ class Config implements ConfigInterface
      * @note Will throw an exception if a non-string non-array value is returned!
      *
      * @param string|array    $path                     The configuration path for which the value should be returned
-     * @param array|bool|null $default                  The default value to return if the configuration path doesn't
+     * @param array|bool|null $default                  The default value to return if the configuration path does not
      *                                                  exist. If not specified, or NULL, an exception will be thrown
-     *                                                  when the path doesn't exist
+     *                                                  when the path does not exist
      * @param bool            $allow_user_configuration If true will allow user configuration to override system
      *                                                  configuration
      * @param bool            $use_cache                If true will allow user configuration to be stored in and read
@@ -1118,9 +1118,9 @@ class Config implements ConfigInterface
      *                         TRUE : TRUE , "true" , "yes", "y", "on" , "1", 1
      *
      * @param string|array     $path                     The configuration path for which the value should be returned
-     * @param string|bool|null $default                  The default value to return if the configuration path doesn't
+     * @param string|bool|null $default                  The default value to return if the configuration path does not
      *                                                   exist. If not specified, or NULL, an exception will be thrown
-     *                                                   when the path doesn't exist
+     *                                                   when the path does not exist
      * @param bool             $allow_user_configuration If true will allow user configuration to override system
      *                                                   configuration
      * @param bool             $use_cache                If true will allow user configuration to be stored in and read
@@ -1168,9 +1168,9 @@ class Config implements ConfigInterface
      *                         TRUE : TRUE , "true" , "yes", "y", "on" , "1", 1
      *
      * @param string|array     $path                      The configuration path for which the value should be returned
-     * @param string|bool|null $default                   The default value to return if the configuration path doesn't
+     * @param string|bool|null $default                   The default value to return if the configuration path does not
      *                                                    exist. If not specified, or NULL, an exception will be thrown
-     *                                                    when the path doesn't exist
+     *                                                    when the path does not exist
      * @param bool             $allow_user_configuration  If true will allow user configuration to override system
      *                                                    configuration
      * @param bool             $use_cache                 If true will allow user configuration to be stored in and read

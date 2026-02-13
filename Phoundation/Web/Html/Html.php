@@ -796,7 +796,7 @@ class Html
             }
         }
         /*
-         * Correct the src parameter if it doesn't contain a domain yet by
+         * Correct the src parameter if it does not contain a domain yet by
          * adding the CDN domain
          *
          * Also check if the file should be automatically converted to a
@@ -919,7 +919,7 @@ class Html
                         }
 
                     } else {
-                        // Image doesn't exist.
+                        // Image does not exist.
                         log_console(tr('html_img(): Can not analyze image ":src", the local directory ":directory" does not exist', [
                             ':src'       => $params['src'],
                             ':directory' => $file_src,

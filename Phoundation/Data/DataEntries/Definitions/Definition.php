@@ -117,7 +117,7 @@ class Definition implements DefinitionInterface
      * value          mixed              null           The value for this entry
      * visible        boolean            true           If false, this key will not be shown on web, and be readonly
      * virtual        boolean            false          If true, this key will be visible and can be modified but it
-     *                                                  won't exist in database. It instead will be used to generate
+     *                                                  will not exist in database. It instead will be used to generate
      *                                                  a different column
      * element        string|null        "input"        Type of element, input, select, or text or callable function
      * type           string|null        "text"         Type of input element, if element is "input"
@@ -390,7 +390,7 @@ class Definition implements DefinitionInterface
 
 
     /**
-     * Returns the value for the requested event key, or NULL if it doesn't exist
+     * Returns the value for the requested event key, or NULL if it does not exist
      *
      * @param string|float|int $key
      *
@@ -3747,7 +3747,7 @@ class Definition implements DefinitionInterface
     public function validate(ValidatorInterface $_validator): bool
     {
         if ($this->isMeta()) {
-            // This column is metadata and shouldn't be modified or validated, plain ignore it.
+            // This column is metadata and should not be modified or validated, plain ignore it.
             return false;
         }
 
@@ -3776,12 +3776,12 @@ class Definition implements DefinitionInterface
         if ($this->_data_entry?->isApplying()) {
             // If we are applying to a DataEntry, READONLY, DISABLED, and NORENDER columns are treated differently
             if ($this->validateProcessAppliedReadonlyDisabled($_validator, $column)) {
-                // Yeah, this column is readonly / disabled and shouldn't be validated (and not saved either)
+                // Yeah, this column is readonly / disabled and should not be validated (and not saved either)
                 return false;
             }
 
             if ($this->validateProcessAppliedNotRendering($_validator, $column)) {
-                // This column doesn't render so shouldn't be validated (and not saved either)
+                // This column does not render so should not be validated (and not saved either)
                 return false;
             }
 
@@ -3909,7 +3909,7 @@ class Definition implements DefinitionInterface
         // This column  is not rendered (so not sent to the user) which means that it CANNOT be submitted.
         // If the user submitted it, they are messing around, do not allow it!
         if ($_validator->get($column)) {
-            // This column  is not rendered and shouldn't have a value whilst applying unless forced processing.
+            // This column  is not rendered and should not have a value whilst applying unless forced processing.
             if (!$this->getForceValidations()) {
                 // Frack...
                 Incident::new()

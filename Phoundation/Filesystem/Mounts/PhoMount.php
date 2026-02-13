@@ -140,7 +140,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
             return parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
-            // FsMount wasn't found in the database. Get it from configuration instead but that DOES require the name
+            // FsMount was not found in the database. Get it from configuration instead but that DOES require the name
             // column
             switch ($column) {
                 case 'name':

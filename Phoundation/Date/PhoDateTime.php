@@ -720,7 +720,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
     {
-        // DateInterval doesn't calculate milliseconds / microseconds, do that manually
+        // DateInterval does not calculate milliseconds / microseconds, do that manually
         $diff    = new PhoDateInterval(parent::diff($targetObject, $absolute), $roundup);
         $diff->u = (int) $this->format('u') - (int) $targetObject->format('u');
 

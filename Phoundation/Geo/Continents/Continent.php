@@ -97,7 +97,7 @@ class Continent extends DataEntry implements ContinentInterface
 //            ->noArgumentsLeft($no_arguments_left)
 //            ->validate();
 //
-//        // Ensure the name doesn't exist yet as it is a unique identifier
+//        // Ensure the name does not exist yet as it is a unique identifier
 //        if ($data['name']) {
 //            static::notExists(['name' => $data['name']], $this->getId(), true);
 //        }

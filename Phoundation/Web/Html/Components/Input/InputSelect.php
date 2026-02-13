@@ -573,7 +573,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
             return $this;
         }
 
-        // The selected key(s) do not (all) exist in the source. Either the source is empty or simply doesn't contain the specified key. Register an incident
+        // The selected key(s) do not (all) exist in the source. Either the source is empty or simply does not contain the specified key. Register an incident
         return $this->selectedNotInSource($throw_validation_exception, $diff);
     }
 

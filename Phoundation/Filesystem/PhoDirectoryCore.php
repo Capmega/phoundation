@@ -553,7 +553,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         }
 
         if (!file_exists(Strings::unslash($this->source))) {
-            // The complete requested directory doesn't exist. Try to create it, but directory by directory so that we can
+            // The complete requested directory does not exist. Try to create it, but directory by directory so that we can
             // correct issues as we run in to them
             $dirs   = explode('/', Strings::ensureBeginsNotWith(static::realPath($this->source, $absolute_prefix), '/'));
             $count  = count($dirs);
@@ -746,7 +746,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Scan the entire object directory STRING upward for the specified file.
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -1080,7 +1080,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
             if ($regex) {
                 // Filter on regex too
                 if (!preg_match($regex, $file)) {
-                    // This file doesn't match the regex
+                    // This file does not match the regex
                     unset($files[$id]);
                     continue;
                 }
@@ -1281,7 +1281,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
 
                 if ($file_pattern) {
                     if (!preg_match($file_pattern, $test)) {
-                        // This file doesn't match the test pattern
+                        // This file does not match the test pattern
                         continue;
                     }
                 }
@@ -1373,7 +1373,7 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename

@@ -234,7 +234,7 @@ class Log implements LogInterface
                 if ($threshold === 1) {
                     // Threshold is at lowest, this will log a LOT
                     if (Core::isState('boot')) {
-                        // Boot time logging shouldn't be too much
+                        // Boot time logging should not be too much
                         // TODO How will this be set back to 1 again? That should be commented at the very least
                         $threshold = 5;
                     }
@@ -1053,7 +1053,7 @@ class Log implements LogInterface
             }
 
         } catch (Throwable $e) {
-            // Crap, we couldn't get a Log instance
+            // Crap, we could not get a Log instance
             static::$failed = true;
         }
     }
@@ -1604,7 +1604,7 @@ class Log implements LogInterface
 
         } catch (Throwable $f) {
             // Okay WT actual F is going on here? We cannot log to our own files, we cannot log to system files. THIS
-            // we won't stand for!
+            // we will not stand for!
             throw LogException::new('Failed to write to ANY log (Failed to write to both local log files and system log files', $e)
                               ->addData(['original exception' => $e]);
         }
@@ -1722,7 +1722,7 @@ class Log implements LogInterface
                 break;
 
             default:
-                // For all other types size doesn't matter
+                // For all other types size does not matter
                 $size = '-';
         }
 
