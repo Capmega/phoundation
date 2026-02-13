@@ -88,7 +88,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $key    = str_replace('``.``', '`.`', $key);
                 $key    = Strings::ensureBeginsWith($key, '`');
                 $key    = Strings::ensureEndsWith($key, '`');
-                $where  = QueryBuilder::buildComparison(null, $key, $value, $this->bound_variables, $like, $negative);
+                $where  = QueryBuilder::renderComparison(null, $key, $value, $this->bound_variables, $like, $negative);
 
                 $this->addWhere($where);
             }
@@ -110,9 +110,9 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @param bool                                               $negative        [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      * @param int|null                                           $counter         [null]  If specified, will add the counter number to the bound variable name
      *
-     * @return string
+     * @return string|null
      */
-    public static function buildComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): string
+    public static function renderComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): ?string
     {
         if (is_array($value) or ($value instanceof IteratorInterface)) {
             // Build a comparison for a list of values
@@ -131,7 +131,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
                 $counter = 0;
 
                 foreach ($value as $sub_value) {
-                    $return[] = QueryBuilder::buildComparison($table, $column, $sub_value, $bound_variables, $like, $negative, $counter);
+                    $return[] = QueryBuilder::renderComparison($table, $column, $sub_value, $bound_variables, $like, $negative, $counter);
                 }
 
                 return implode(' OR ', $return);
@@ -145,7 +145,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             return $column . ' ' . ($negative ? 'NOT IN ' : 'IN ') . '(' . implode(',', array_keys($in)) . ')';
         }
 
-        return QueryBuilder::buildComparisonForScalar($table, $column, $value, $bound_variables, $like, $negative, $counter);
+        return QueryBuilder::renderComparisonScalar($table, $column, $value, $bound_variables, $like, $negative, $counter);
     }
 
 
@@ -174,11 +174,16 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @param bool                       $negative [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      * @param int|null                   $counter  [null]  If specified, will add the counter number to the bound variable name
      *
-     * @return string
+     * @return string|null
      */
-    protected static function buildComparisonForScalar(string $table, string $column, string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false, ?int $counter = null): string
+    protected static function renderComparisonScalar(string $table, string $column, string|float|int|bool|null $value, ?array &$execute, bool $like = false, bool $negative = false, ?int $counter = null): ?string
     {
-        // TODO This can cause SEVERE issues with values that start with a ! by themselves....
+        if ($value === false) {
+            // This column should not be processed at all
+            return null;
+        }
+
+        // TODO This can potentially cause SEVERE issues with values that start with a !, ~, or ? by themselves....?
         switch (substr((string) $value, 0, 1)) {
             case '!':
                 $negative = true;

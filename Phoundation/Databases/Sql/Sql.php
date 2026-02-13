@@ -57,6 +57,7 @@ use Phoundation\Databases\Sql\Exception\SqlMultipleResultsException;
 use Phoundation\Databases\Sql\Exception\SqlNoDatabaseSelectedException;
 use Phoundation\Databases\Sql\Exception\SqlNoTimezonesException;
 use Phoundation\Databases\Sql\Exception\SqlConnectionTimedOutException;
+use Phoundation\Databases\Sql\Exception\SqlSyntaxErrorException;
 use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Exception\SqlUnknownDatabaseException;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
@@ -599,9 +600,21 @@ class Sql implements SqlInterface
                 break;
 
             case 42000:
-                switch ($e->getDriverState()) {
+                switch ($e->getSqlSecondaryState()) {
+                    case 1064:
+                        $column = Strings::cut($e->getMessage(), "use near '", "' at line");
+
+                        throw SqlSyntaxErrorException::new(static::getConnectorLogPrefix() . tr('Key column ":column" does not exist in table', [
+                                ':column' => $column
+                            ]), $e)
+                            ->addData([
+                                'column'   => $column,
+                                'database' => $this->configuration['database']
+                            ]);
+
                     case 1072:
                         $column = Strings::cut($e->getMessage(), "'", "'");
+
                         throw SqlColumnDoesNotExistsException::new(static::getConnectorLogPrefix() . tr('Key column ":column" does not exist in table', [
                                 ':column' => $column
                             ]), $e)

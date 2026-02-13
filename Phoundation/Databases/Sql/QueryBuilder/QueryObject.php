@@ -349,7 +349,6 @@ class QueryObject implements QueryObjectInterface
     public function setBoundVariables(array $bound_variables): static
     {
         $this->bound_variables = $bound_variables;
-
         return $this;
     }
 
@@ -369,7 +368,6 @@ class QueryObject implements QueryObjectInterface
         }
 
         $this->bound_variables[Strings::ensureBeginsWith($column, ':')] = $value;
-
         return $this;
     }
 

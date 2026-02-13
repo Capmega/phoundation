@@ -319,8 +319,7 @@ interface QueryBuilderInterface extends QueryObjectInterface
      * @param bool                                               $negative        [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
      * @param int|null                                           $counter         [null]  If specified, will add the counter number to the bound variable name
      *
-     * @return string
+     * @return string|null
      */
-    public static function buildComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): string
-;
+    public static function renderComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): ?string;
 }
