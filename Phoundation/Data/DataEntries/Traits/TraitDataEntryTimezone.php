@@ -120,12 +120,12 @@ trait TraitDataEntryTimezone
     /**
      * Returns the timezones_id for this user
      *
-     * @param TimezoneInterface|null $o_object
+     * @param TimezoneInterface|null $_object
      *
      * @return static
      */
-    public function setTimezoneObject(?TimezoneInterface $o_object): static
+    public function setTimezoneObject(?TimezoneInterface $_object): static
     {
-        return $this->setVirtualObject('timezones', $o_object);
+        return $this->setVirtualObject('timezones', $_object);
     }
 }

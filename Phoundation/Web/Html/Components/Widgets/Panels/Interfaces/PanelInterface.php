@@ -33,11 +33,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the panel menu
      *
-     * @param MenuInterface|null $o_menu
+     * @param MenuInterface|null $_menu
      *
      * @return static
      */
-    public function setMenu(?MenuInterface $o_menu): static;
+    public function setMenu(?MenuInterface $_menu): static;
 
 
     /**
@@ -59,11 +59,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageMenu $o_profile_image
+     * @param ImageMenu $_profile_image
      *
      * @return static
      */
-    public function setProfileImage(ImageMenu $o_profile_image): static;
+    public function setProfileImage(ImageMenu $_profile_image): static;
 
 
     /**
@@ -77,11 +77,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the panel profile image
      *
-     * @param ImageFileInterface|string $o_logo
+     * @param ImageFileInterface|string $_logo
      *
      * @return static
      */
-    public function setLogo(ImageFileInterface|string $o_logo): static;
+    public function setLogo(ImageFileInterface|string $_logo): static;
 
 
     /**
@@ -103,11 +103,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Access to the elements object
      *
-     * @param IteratorInterface|array $o_elements
+     * @param IteratorInterface|array $_elements
      *
      * @return TopPanel
      */
-    public function setElementsObject(IteratorInterface|array $o_elements): static;
+    public function setElementsObject(IteratorInterface|array $_elements): static;
 
 
     /**
@@ -121,11 +121,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the notifications drop-down object
      *
-     * @param NotificationsDropDown $o_notifications
+     * @param NotificationsDropDown $_notifications
      *
      * @return static
      */
-    public function setNotificationsDropDownObject(NotificationsDropDown $o_notifications): static;
+    public function setNotificationsDropDownObject(NotificationsDropDown $_notifications): static;
 
 
     /**
@@ -139,11 +139,11 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the notifications drop-down object
      *
-     * @param MessagesDropDown $o_messages
+     * @param MessagesDropDown $_messages
      *
      * @return static
      */
-    public function setMessagesDropDownObject(MessagesDropDown $o_messages): static;
+    public function setMessagesDropDownObject(MessagesDropDown $_messages): static;
 
 
     /**
@@ -157,9 +157,9 @@ interface PanelInterface extends ElementsBlockInterface
     /**
      * Sets the notifications drop-down object
      *
-     * @param LanguagesDropDown $o_languages
+     * @param LanguagesDropDown $_languages
      *
      * @return static
      */
-    public function setLanguagesDropDownObject(LanguagesDropDown $o_languages): static;
+    public function setLanguagesDropDownObject(LanguagesDropDown $_languages): static;
 }

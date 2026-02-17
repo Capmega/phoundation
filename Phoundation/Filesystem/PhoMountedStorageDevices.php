@@ -32,6 +32,6 @@ class PhoMountedStorageDevices extends PhoDirectoryCore
     public function __construct(bool $writable = false)
     {
         $this->source         = '/dev/disk/by-id/';
-        $this->o_restrictions = PhoRestrictions::new($this->source, $writable, 'FsMountedStorageDevices');
+        $this->_restrictions = PhoRestrictions::new($this->source, $writable, 'FsMountedStorageDevices');
     }
 }

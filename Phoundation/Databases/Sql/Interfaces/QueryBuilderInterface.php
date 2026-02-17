@@ -284,12 +284,12 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static;
 
     /**
      * Returns a hash from the executed query
@@ -301,7 +301,7 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Returns the source of this object
      *
-     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     * @note: This object does not work with "source" data as such, so it will be constructed upon request
      *
      * @return array
      */

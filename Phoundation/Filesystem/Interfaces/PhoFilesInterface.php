@@ -22,7 +22,7 @@ interface PhoFilesInterface extends IteratorInterface
     /**
      * Sets the server and filesystem restrictions for this PhoFile object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions The file restrictions to apply to this object
      * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
@@ -34,16 +34,16 @@ interface PhoFilesInterface extends IteratorInterface
      *                                                                convert that into a FsRestrictions object and
      *                                                                this is the $label modifier for that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
 
     /**
      * Returns the parent Path (if available) that contains these files
@@ -55,11 +55,11 @@ interface PhoFilesInterface extends IteratorInterface
     /**
      * Returns the parent Path (if available) that contains these files
      *
-     * @param PhoDirectoryInterface|null $o_parent_directory
+     * @param PhoDirectoryInterface|null $_parent_directory
      *
      * @return PhoFiles
      */
-    public function setParentDirectoryObject(?PhoDirectoryInterface $o_parent_directory): static;
+    public function setParentDirectoryObject(?PhoDirectoryInterface $_parent_directory): static;
 
     /**
      * Move all files to the specified target
@@ -67,12 +67,12 @@ interface PhoFilesInterface extends IteratorInterface
      * @note The specified target MUST be a directory, as multiple files will be moved there
      * @note The specified target either must exist or will be created automatically
      *
-     * @param PhoDirectoryInterface         $o_target
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoDirectoryInterface         $_target
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return static
      */
-    public function move(PhoDirectoryInterface $o_target, ?PhoRestrictionsInterface $o_restrictions = null): static;
+    public function move(PhoDirectoryInterface $_target, ?PhoRestrictionsInterface $_restrictions = null): static;
 
 
     /**
@@ -82,13 +82,13 @@ interface PhoFilesInterface extends IteratorInterface
      * @note The specified target either must exist or will be created automatically
      *
      * @param PhoPathInterface|string       $target
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      *
      * @return static
      */
-    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $_restrictions = null, ?callable $callback = null, mixed $context = null): static;
 
     /**
      * Returns the current file

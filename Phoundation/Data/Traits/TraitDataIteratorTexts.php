@@ -26,9 +26,9 @@ trait TraitDataIteratorTexts
     /**
      * Tracks the texts iterator
      *
-     * @var IteratorInterface $o_texts
+     * @var IteratorInterface $_texts
      */
-    protected IteratorInterface $o_texts;
+    protected IteratorInterface $_texts;
 
 
     /**
@@ -38,24 +38,24 @@ trait TraitDataIteratorTexts
      */
     public function getTextsObject(): IteratorInterface
     {
-        if (empty($this->o_texts)) {
-            $this->o_texts = new Iterator();
+        if (empty($this->_texts)) {
+            $this->_texts = new Iterator();
         }
 
-        return $this->o_texts;
+        return $this->_texts;
     }
 
 
     /**
      * Sets the texts iterator
      *
-     * @param IteratorInterface|array $o_texts
+     * @param IteratorInterface|array $_texts
      *
      * @return TraitDataIteratorTexts
      */
-    public function setTextsObject(IteratorInterface|array $o_texts): static
+    public function setTextsObject(IteratorInterface|array $_texts): static
     {
-        $this->o_texts = new Iterator($o_texts);
+        $this->_texts = new Iterator($_texts);
         return $this;
     }
 
@@ -63,16 +63,16 @@ trait TraitDataIteratorTexts
     /**
      * Adds the specified texts iterator
      *
-     * @param IteratorInterface|array $o_texts
+     * @param IteratorInterface|array $_texts
      *
      * @return static
      */
-    public function addTextsObject(IteratorInterface|array $o_texts): static
+    public function addTextsObject(IteratorInterface|array $_texts): static
     {
         $this->getTextsObject();
 
-        foreach ($o_texts as $key => $value) {
-            $this->o_texts->add($value, $key);
+        foreach ($_texts as $key => $value) {
+            $this->_texts->add($value, $key);
         };
 
         return $this;

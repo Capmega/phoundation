@@ -98,7 +98,7 @@ class Sql implements SqlInterface
      *
      * @var ConnectorsInterface
      */
-    protected static ConnectorsInterface $o_connectors;
+    protected static ConnectorsInterface $_connectors;
 
     /**
      * All SQL database configuration
@@ -160,18 +160,18 @@ class Sql implements SqlInterface
     /**
      * Sql constructor
      *
-     * @param ConnectorInterface $o_connector
+     * @param ConnectorInterface $_connector
      * @param bool               $use_database
      * @param bool               $connect
      *
      * @throws Throwable
      */
-    public function __construct(ConnectorInterface $o_connector, bool $use_database = true, bool $connect = true)
+    public function __construct(ConnectorInterface $_connector, bool $use_database = true, bool $connect = true)
     {
         $this->uniqueid = Strings::getRandom();
 
         // Connector specified directly. Take configuration from connector and connect
-        $this->setConnectorObject($o_connector);
+        $this->setConnectorObject($_connector);
 
         // Some options can be configured separately as well
         $this->configuration['log']        = $this->configuration['log']        ?? config()->getBoolean('databases.sql.log'       , false);
@@ -822,7 +822,7 @@ class Sql implements SqlInterface
                 return $result[$column];
             }
 
-            // Specified column doesn't exist
+            // Specified column does not exist
             throw new SqlColumnDoesNotExistsException(tr('Cannot return column ":column", it does not exist in the result set for query ":query"', [
                 ':query'  => $query,
                 ':column' => $column,
@@ -886,7 +886,7 @@ class Sql implements SqlInterface
                     $this->pdo       = new PDO($connect_string, $this->configuration['username'], $this->configuration['password'], Arrays::force($this->configuration['attributes_translated']));
 
                     // Add this database object to the connector so that it can always be accessed through the connector
-                    $this->o_connector->setDatabaseObject($this);
+                    $this->_connector->setDatabaseObject($this);
                     break;
 
                 } catch (Throwable $e) {
@@ -908,7 +908,7 @@ class Sql implements SqlInterface
                             ]));
 
                         case 1049:
-                            // The currently selected database doesn't exist!
+                            // The currently selected database does not exist!
                             preg_match_all('/^SQLSTATE\[HY000] \[1049] Unknown database \'(.+?)\'$/', $e->getMessage(), $matches);
 
                             throw SqlUnknownDatabaseException::new(static::getConnectorLogPrefix() . tr('Unknown database ":database" while connecting with connector ":connector" with connection string ":string" and user ":user"', [
@@ -1183,11 +1183,11 @@ class Sql implements SqlInterface
      */
     public static function getConnectorsObject(): ConnectorsInterface
     {
-        if (empty(static::$o_connectors)) {
-            static::$o_connectors = Connectors::new()->load();
+        if (empty(static::$_connectors)) {
+            static::$_connectors = Connectors::new()->load();
         }
 
-        return static::$o_connectors;
+        return static::$_connectors;
     }
 
 
@@ -1271,25 +1271,25 @@ class Sql implements SqlInterface
     /**
      * Sets the database connector
      *
-     * @note  If the specified $o_connector is NULL, it will be ignored
+     * @note  If the specified $_connector is NULL, it will be ignored
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static
     {
         if ($this->isConnected()) {
             throw new ConnectorException(tr('Cannot set connector ":connector", the database object ":database" is already connected', [
-                ':connector' => $o_connector->getLogId(),
+                ':connector' => $_connector->getLogId(),
                 ':database'  => $this->getConnectorLogPrefix()
             ]));
         }
 
-        $this->configuration = $o_connector->getMysqlConfiguration();
+        $this->configuration = $_connector->getMysqlConfiguration();
 
-        return $this->__setConnectorObject($o_connector, $database);
+        return $this->__setConnectorObject($_connector, $database);
     }
 
 
@@ -2196,7 +2196,7 @@ class Sql implements SqlInterface
 
         return EnumSqlVendor::oracle;
 
-//        // TODO Add test for postgres! Right now we're just assuming but we don't even know if Phoundation would run on a postgres DB
+//        // TODO Add test for postgres! Right now we're just assuming but we do not even know if Phoundation would run on a postgres DB
 //        return EnumSqlVendor::postgres;
     }
 

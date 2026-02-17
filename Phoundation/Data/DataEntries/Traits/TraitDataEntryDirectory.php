@@ -41,19 +41,19 @@ trait TraitDataEntryDirectory
     /**
      * Sets the directory for this object
      *
-     * @param string|null $o_directory
+     * @param string|null $_directory
      *
      * @return static
      */
-    public function setDirectory(string|null $o_directory): static
+    public function setDirectory(string|null $_directory): static
     {
-        if ($o_directory and (strlen($o_directory) > 2048)) {
+        if ($_directory and (strlen($_directory) > 2048)) {
             throw new OutOfBoundsException(tr('Specified directory ":directory" is invalid, the string should be no longer than 2048 characters', [
-                ':directory' => $o_directory,
+                ':directory' => $_directory,
             ]));
         }
 
-        return $this->set(get_null($o_directory), 'directory');
+        return $this->set(get_null($_directory), 'directory');
     }
 
 
@@ -64,25 +64,25 @@ trait TraitDataEntryDirectory
      */
     public function getDirectoryObject(): ?PhoDirectoryInterface
     {
-        $o_directory = $this->getDirectory();
+        $_directory = $this->getDirectory();
 
-        if ($o_directory) {
-            $o_directory = new PhoDirectory($o_directory, $this->o_restrictions);
+        if ($_directory) {
+            $_directory = new PhoDirectory($_directory, $this->_restrictions);
         }
 
-        return $o_directory;
+        return $_directory;
     }
 
 
     /**
      * Sets the directory for this object
      *
-     * @param PhoDirectoryInterface|null $o_directory
+     * @param PhoDirectoryInterface|null $_directory
      *
      * @return static
      */
-    public function setDirectoryObject(PhoDirectoryInterface|null $o_directory): static
+    public function setDirectoryObject(PhoDirectoryInterface|null $_directory): static
     {
-        return $this->setDirectory($o_directory?->getSource());
+        return $this->setDirectory($_directory?->getSource());
     }
 }

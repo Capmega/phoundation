@@ -26,7 +26,7 @@ class Pgrep extends Command
     /**
      * Returns the process id for the specified command
      *
-     * @note Returns NULL if the process wasn't found
+     * @note Returns NULL if the process was not found
      *
      * @param string $process
      *

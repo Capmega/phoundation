@@ -589,10 +589,10 @@ class DataIteratorTest extends TestCase
 
         // Test using incorrect DataIterator class
         $test_user  = User::new()->load(['email' => 'unittest@medinet.ca']);
-        $o_accounts = Users::new()->add($test_user);
+        $_accounts = Users::new()->add($test_user);
 
         try {
-            TestDataIterator::newFromSource($o_accounts);
+            TestDataIterator::newFromSource($_accounts);
             $this->fail('Expected DataEntryBadException was not thrown');
         } catch (Throwable $e) {
             $this->assertInstanceOf(DataEntryBadException::class, $e);

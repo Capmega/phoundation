@@ -175,7 +175,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Scan the entire object directory STRING upward for the specified file.
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -187,7 +187,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
     /**
      * Returns true if the specified file exists in this directory
      *
-     * If the object file doesn't exist in the specified directory, go one dir up,
+     * If the object file does not exist in the specified directory, go one dir up,
      * all the way to root /
      *
      * @param string $filename
@@ -356,7 +356,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * Copy this directory with progress notification
      *
      * @param PhoPathInterface|string       $target
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      * @param callable|null                 $callback
      * @param mixed|null                    $context
      * @param bool                          $recursive
@@ -370,7 +370,7 @@ interface PhoDirectoryInterface extends PhoPathInterface
      *      }
      *  });
      */
-    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $o_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static;
+    public function copy(PhoPathInterface|string $target, ?PhoRestrictionsInterface $_restrictions = null, ?callable $callback = null, mixed $context = null, bool $recursive = true, bool $exception = true): static;
 
     /**
      * Returns a new FindInterface object

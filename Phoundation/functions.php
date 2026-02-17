@@ -232,6 +232,62 @@ function get_index_value(IteratorInterface|array $source, int $index, bool $exce
 
 
 /**
+ * Will store the value in the source array under the specified key and optionally subkey.
+ *
+ * The main feature of this function is that it will automatically generate the primary key as an array if it does not yet exist
+ *
+ * @param array|null                      &$source         The source array to put the specified value in
+ * @param mixed                            $value          The value that will be stored in the source array
+ * @param Stringable|string|float|int|null $key            The primary key under which to store the value
+ * @param Stringable|string|float|int|null $sub_key [null] If specified, the secondary key under which to store the value. If an empty string "" is specified,
+ *                                                         the value will be stored with $source[$key][] = $value, storing the value in a numeric sub key
+ *
+ * @return void
+ */
+function array_put(?array &$source, mixed $value, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): void
+{
+    if (!$source) {
+        $source = [];
+    }
+
+    if ($sub_key === null) {
+        $source[$key] = $value;
+
+    } else {
+        if (!array_key_exists($key, $source)) {
+            if ($key) {
+                $source[$key] = [];
+
+            } else {
+                $source[]     = [];
+            }
+
+        } elseif (!is_array($source[$key])) {
+            throw OutOfBoundsException::new(ts('Cannot put value ":value" in array with key ":key" and sub key ":sub_key", the key ":akey" already exists but is not an array', [
+                ':value'   => $value,
+                ':key'     => $key,
+                ':sub_key' => $sub_key,
+                ':akey'    => $key,
+            ]))->addData([
+                ':source'            => $source,
+                ':key'               => $key,
+                ':sub_key'           => $sub_key,
+                ':value'             => $value,
+                ':current_key_value' => $source[$key],
+            ]);
+        }
+
+        if ($sub_key === '') {
+            $source[$key][]         = $value;
+
+        } else {
+            $source[$key][$sub_key] = $value;
+        }
+    }
+}
+
+
+/**
  * Returns the array index for the specified array key
  *
  * @param IteratorInterface|array          $source
@@ -606,7 +662,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
         return $variable;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
     return $default;
 }
@@ -851,7 +907,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
         return null;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
 
     if ($default === null) {
@@ -859,7 +915,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     }
 
     // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-    // type doesn't match
+    // type does not match
     return isset_get_typed($types, $default);
 }
 
@@ -1055,7 +1111,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
     try {
         // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-        // type doesn't match
+        // type does not match
         return isset_get_typed($types, $default);
 
     } catch (DatatypeNotPermittedException $e) {
@@ -1607,7 +1663,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
  *
  * @see get_false()
  * @see get_empty()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  * @note    This function is a wrapper for get_empty($source, null);
@@ -1640,7 +1696,7 @@ function get_null(mixed $source): mixed
  * Return false if the specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @see get_null()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  */
@@ -1860,11 +1916,11 @@ function execute(): ?string
  * @note This function is used to execute hooks to give them their own empty function scope
  *
  * @param string        $__file
- * @param HookInterface $o_hook
+ * @param HookInterface $_hook
  *
  * @return mixed
  */
-function execute_hook(string $__file, HookInterface $o_hook): mixed
+function execute_hook(string $__file, HookInterface $_hook): mixed
 {
     $return = include($__file);
 

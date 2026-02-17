@@ -197,7 +197,7 @@ class Csrf
             return static::checkStatic($csrf);
 
         } catch (CsrfValidationFailedException $e) {
-            // CSRF check failed, log $_POST data for analysis, drop $_POST data to ensure it won't be used
+            // CSRF check failed, log $_POST data for analysis, drop $_POST data to ensure it will not be used
             $post = PostValidator::new();
 
             Log::warning(ts('CSRF check failed with: :e', [
@@ -266,7 +266,7 @@ class Csrf
             ]))->makeWarning();
         }
 
-        // Get the code from $_SESSION and delete it, so it won't be used twice
+        // Get the code from $_SESSION and delete it, so it will not be used twice
         $timestamp = $_SESSION['csrf'][$csrf];
         $now       = new DateTime();
 

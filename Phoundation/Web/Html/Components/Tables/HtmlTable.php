@@ -234,22 +234,22 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the DataIterator object
      *
-     * @param IteratorInterface|null $o_iterator
+     * @param IteratorInterface|null $_iterator
      *
      * @return static
      */
-    public function setDataIteratorObject(?IteratorInterface $o_iterator): static
+    public function setDataIteratorObject(?IteratorInterface $_iterator): static
     {
-        if ($o_iterator) {
+        if ($_iterator) {
             $this->setComponentEmptyLabel(tr('No :types available', [
-                ':types' => $o_iterator->getIteratorName(),
+                ':types' => $_iterator->getIteratorName(),
             ]));
 
         } else {
             $this->setComponentEmptyLabel(tr('No results available'));
         }
 
-        return parent::setIteratorObject($o_iterator);
+        return parent::setIteratorObject($_iterator);
     }
 
 
@@ -536,35 +536,35 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the URL that applies to each row
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      * @param array|null               $restrictions
      * @param int                      $priority
      *
      * @return static
      */
-    public function setRowUrls(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static
+    public function setRowUrls(UrlInterface|string|null $_url, ?array $restrictions = null, int $priority = 0): static
     {
         $this->row_urls = [];
-        return $this->addRowUrl($o_url, $restrictions, $priority);
+        return $this->addRowUrl($_url, $restrictions, $priority);
     }
 
 
     /**
      * Sets the URL that applies to each row
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      * @param array|null               $restrictions
      * @param int                      $priority
      *
      * @return static
      */
-    public function addRowUrl(UrlInterface|string|null $o_url, ?array $restrictions = null, int $priority = 0): static
+    public function addRowUrl(UrlInterface|string|null $_url, ?array $restrictions = null, int $priority = 0): static
     {
-        if ($o_url) {
+        if ($_url) {
         $this->getRowUrls();
 
         $this->row_urls[] = [
-            'url'          => Url::new($o_url),
+            'url'          => Url::new($_url),
             'restrictions' => $restrictions,
             'priority'     => $priority
         ];
@@ -684,11 +684,11 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected function renderTopButtons(): ?string
     {
-        if (empty($this->o_top_buttons)) {
+        if (empty($this->_top_buttons)) {
             return null;
         }
 
-        return $this->o_top_buttons->addClass('top-buttons')->render();
+        return $this->_top_buttons->addClass('top-buttons')->render();
     }
 
 
@@ -1004,34 +1004,34 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
     /**
      * Sets the URL that applies to each column
      *
-     * @param UrlInterface|string $o_url
+     * @param UrlInterface|string $_url
      * @param array|null          $restrictions
      * @param int                 $priority
      *
      * @return static
      */
-    public function setColumnUrls(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static
+    public function setColumnUrls(UrlInterface|string $_url, ?array $restrictions = null, int $priority = 0): static
     {
         $this->column_urls = [];
-        return $this->addColumnUrl($o_url, $restrictions, $priority);
+        return $this->addColumnUrl($_url, $restrictions, $priority);
     }
 
 
     /**
      * Adds a URL that apply to each column cell (when optionally matching the restrictions)
      *
-     * @param UrlInterface|string $o_url
+     * @param UrlInterface|string $_url
      * @param array|null          $restrictions
      * @param int                 $priority
      *
      * @return static
      */
-    public function addColumnUrl(UrlInterface|string $o_url, ?array $restrictions = null, int $priority = 0): static
+    public function addColumnUrl(UrlInterface|string $_url, ?array $restrictions = null, int $priority = 0): static
     {
         $this->getColumnUrls();
 
         $this->column_urls[] = [
-            'url'          => $o_url,
+            'url'          => $_url,
             'restrictions' => $restrictions,
             'priority'     => $priority,
         ];
@@ -1216,14 +1216,14 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      */
     protected function renderAnchor(mixed $row_id, mixed $column, string $value, array $row_values, array $params, ?array $queries): ?string
     {
-        $o_url = $this->getCellUrl($row_values, $params);
+        $_url = $this->getCellUrl($row_values, $params);
 
-        if (empty($o_url) or (array_get_safe($params, 'no_render_url'))) {
+        if (empty($_url) or (array_get_safe($params, 'no_render_url'))) {
             return $value;
         }
 
         // Ensure all :ROW and :COLUMN markings are converted
-        $url        = $o_url->getSource();
+        $url        = $_url->getSource();
         $anchor_url = $url;
         $anchor_url = str_replace(':ROW'     , urlencode((string) $row_id), $anchor_url);
         $anchor_url = str_replace('%3AROW'   , urlencode((string) $row_id), $anchor_url);
@@ -1232,7 +1232,7 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
         $attributes = '';
 
         if ($queries) {
-            $o_url->addQueries($queries);
+            $_url->addQueries($queries);
         }
 
         if ($this->anchor_data_attributes) {
@@ -1241,21 +1241,21 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
             }
         }
 
-        $o_anchor = array_get_safe($this->anchors, $url);
+        $_anchor = array_get_safe($this->anchors, $url);
 
-        if (empty($o_anchor)) {
-            $o_anchor = Anchor::new($o_url)
+        if (empty($_anchor)) {
+            $_anchor = Anchor::new($_url)
                               ->setClass($this->renderAnchorClassString())
                               ->setExtraAttributes($attributes);
 
-            if (!$o_anchor->hasRequiredRights()) {
+            if (!$_anchor->hasRequiredRights()) {
                 return null;
             }
 
-            $this->anchors[$url] = $o_anchor;
+            $this->anchors[$url] = $_anchor;
         }
 
-        return $o_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
+        return $_anchor->clearRenderCache() // TODO Remove this once setting Element attributes automatically clears the render cache!
                         ->setUrlObject($anchor_url, false)
                         ->setContent($value)
                         ->render();

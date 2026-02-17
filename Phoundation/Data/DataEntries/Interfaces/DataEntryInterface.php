@@ -21,11 +21,19 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -69,7 +77,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
      * object, as long as it exists in the database.
      *
-     * If the DataEntry doesn't exist in the database, then this method will check if perhaps it exists as a
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
      * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
      * readonly mode automatically as they cannot be stored in the database.
      *
@@ -461,7 +469,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(): DataEntryFormInterface;
+    public function getHtmlFormObject(): DataEntryFormInterface;
 
     /**
      * Returns the definitions for the columns in this table
@@ -527,14 +535,14 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @param string                                  $at_key
      * @param ElementInterface|ElementsBlockInterface $value
-     * @param DefinitionInterface|array|null          $o_definition
+     * @param DefinitionInterface|array|null          $_definition
      * @param bool                                    $after
      *
      * @return static
      * @todo Improve by first splitting meta data off the new data entry and then ALWAYS prepending it to ensure its at
      *       the front
      */
-    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $o_definition = null, bool $after = true): static;
+    public function injectElement(string $at_key, ElementInterface|ElementsBlockInterface $value, DefinitionInterface|array|null $_definition = null, bool $after = true): static;
 
 
     /**
@@ -694,12 +702,12 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object
@@ -977,7 +985,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions The file restrictions to apply to this object
      * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                   FsRestrictions class, but as a path string, or
      *                                                                   array of path strings, then this method will
@@ -989,14 +997,53 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *                                                                   convert that into a FsRestrictions object and
      *                                                                   this is the $label modifier for that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns either the specified restrictions, or this object's restrictions, or system default restrictions
      *
-     * @param PhoRestrictionsInterface|null $o_restrictions
+     * @param PhoRestrictionsInterface|null $_restrictions
      *
      * @return PhoRestrictionsInterface
      */
-    public function ensureRestrictionsObject(?PhoRestrictionsInterface $o_restrictions): PhoRestrictionsInterface;
+    public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
+
+
+    /**
+     * Creates and returns an HTML for the data in this entry
+     *
+     * @param UrlInterface|null $back_url The URL for the back button
+     *
+     * @return CardInterface
+     */
+    public function getHtmlCardObject(?UrlInterface $back_url): CardInterface;
+
+    /**
+     * Returns a default button set containing basic buttons to manage this DataEntry object data
+     *
+     * The buttons typically contained are "Save", "Back", "Audit", and "Delete" and contain handlers for each button
+     *
+     * @param UrlInterface|null $back_url [null] The URL for the web page where the back button must redirect
+     * @param array|string|null $buttons  [null] Contains the buttons that should be used, defaults to buttons specified in DataEntry::getDefaultButtons()
+     *
+     * @return ButtonsInterface
+     */
+    public function getDefaultButtonsObject(UrlInterface $back_url = null, array|string|null $buttons = null): ButtonsInterface;
+
+    /**
+     * Returns an array containing the names of the default buttons for this DataEntry object
+     *
+     * @return array
+     */
+    public function getDefaultButtons(): array;
+
+    /**
+     * Returns the default handler for the specified button
+     *
+     * @param string            $button
+     * @param UrlInterface|null $_url
+     *
+     * @return callable
+     */
+    public function getDefaultButtonHandler(string $button, UrlInterface $_url = null): callable;
 }

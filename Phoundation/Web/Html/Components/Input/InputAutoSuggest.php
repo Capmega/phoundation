@@ -232,8 +232,8 @@ class InputAutoSuggest extends InputText
      */
     public function render(): ?string
     {
-        $this->o_attributes = $this->renderInputAttributes()
-                                   ->appendSource($this->o_attributes);
+        $this->_attributes = $this->renderInputAttributes()
+                                   ->appendSource($this->_attributes);
 
         return parent::render();
     }
@@ -286,14 +286,14 @@ class InputAutoSuggest extends InputText
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)
-                     ->setEventHandlers($o_definition->getEventHandlers());
+        return parent::setDefinitionObject($_definition)
+                     ->setEventHandlers($_definition->getEventHandlers());
     }
 }

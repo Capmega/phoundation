@@ -44,11 +44,11 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
         parent::__construct($source);
 
         // Set basic definitions
-        $this->o_definitions->setDefinitionRender('date_range', false)
+        $this->_definitions->setDefinitionRender('date_range', false)
                             ->setDefinitionRender('users_id'  , false)
                             ->setDefinitionRender('status'    , false);
 
-        $this->o_definitions->add(DefinitionFactory::newDescription('query')
+        $this->_definitions->add(DefinitionFactory::newDescription('query')
                                                    ->setLabel(tr('Query'))
                                                    ->setSize(12)
                                                    ->setOptional(true)
@@ -56,7 +56,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                    ->setCliColumn('-q,--query "QUERY"')
                                                    ->setRows(10));
 
-        $this->o_definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
+        $this->_definitions->addButtons(Buttons::new()->addButton(tr('Execute')));
     }
 
 

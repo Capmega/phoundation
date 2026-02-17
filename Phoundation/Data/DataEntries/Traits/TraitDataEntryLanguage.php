@@ -119,12 +119,12 @@ trait TraitDataEntryLanguage
     /**
      * Returns the languages_id for this user
      *
-     * @param LanguageInterface|null $o_object
+     * @param LanguageInterface|null $_object
      *
      * @return static
      */
-    public function setLanguageObject(?LanguageInterface $o_object): static
+    public function setLanguageObject(?LanguageInterface $_object): static
     {
-        return $this->setVirtualObject('languages', $o_object);
+        return $this->setVirtualObject('languages', $_object);
     }
 }

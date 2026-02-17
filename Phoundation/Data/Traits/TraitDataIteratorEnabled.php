@@ -26,9 +26,9 @@ trait TraitDataIteratorEnabled
     /**
      * Tracks the enableds iterator
      *
-     * @var IteratorInterface $o_enableds
+     * @var IteratorInterface $_enableds
      */
-    protected IteratorInterface $o_enableds;
+    protected IteratorInterface $_enableds;
 
 
     /**
@@ -38,24 +38,24 @@ trait TraitDataIteratorEnabled
      */
     public function getEnabledsObject(): IteratorInterface
     {
-        if (empty($this->o_enableds)) {
-            $this->o_enableds = new Iterator();
+        if (empty($this->_enableds)) {
+            $this->_enableds = new Iterator();
         }
 
-        return $this->o_enableds;
+        return $this->_enableds;
     }
 
 
     /**
      * Sets the enableds iterator
      *
-     * @param IteratorInterface|array $o_enableds
+     * @param IteratorInterface|array $_enableds
      *
      * @return static
      */
-    public function setEnabledsObject(IteratorInterface|array $o_enableds): static
+    public function setEnabledsObject(IteratorInterface|array $_enableds): static
     {
-        $this->o_enableds = new Iterator($o_enableds);
+        $this->_enableds = new Iterator($_enableds);
         return $this;
     }
 
@@ -63,16 +63,16 @@ trait TraitDataIteratorEnabled
     /**
      * Adds the specified enableds iterator
      *
-     * @param IteratorInterface|array $o_enableds
+     * @param IteratorInterface|array $_enableds
      *
      * @return static
      */
-    public function addEnabledsObject(IteratorInterface|array $o_enableds): static
+    public function addEnabledsObject(IteratorInterface|array $_enableds): static
     {
         $this->getEnabledsObject();
 
-        foreach ($o_enableds as $key => $value) {
-            $this->o_enableds->add($value, $key);
+        foreach ($_enableds as $key => $value) {
+            $this->_enableds->add($value, $key);
         };
 
         return $this;

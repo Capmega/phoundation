@@ -234,7 +234,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      *
      * @var ValidatorInterface|null
      */
-    protected ?ValidatorInterface $o_parent = null;
+    protected ?ValidatorInterface $_parent = null;
 
     /**
      * If set, all field failure keys will show the parent field as well
@@ -255,9 +255,9 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      * Required to test if selected_optional property is initialized or not
      *
      * @todo Check if we can get rid of this reflectionproperty stuff, its very hacky
-     * @var ReflectionProperty $o_reflection_selected_optional
+     * @var ReflectionProperty $_reflection_selected_optional
      */
-    protected ReflectionProperty $o_reflection_selected_optional;
+    protected ReflectionProperty $_reflection_selected_optional;
 
     /**
      * Required to test if process_value property is initialized or not
@@ -458,7 +458,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                 ]));
             }
 
-            // from_key doesn't exist, initialize the from_key as a null value
+            // from_key does not exist, initialize the from_key as a null value
             $this->source[$from_key] = null;
         }
 
@@ -789,13 +789,13 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     /**
      * Link the specified DataEntry to this validator
      *
-     * @param DataEntryInterface|null $o_data_entry
+     * @param DataEntryInterface|null $_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(?DataEntryInterface $o_data_entry): static {
-        return $this->__setDataEntry($o_data_entry)
-                    ->setId($o_data_entry?->getId(false));
+    public function setDataEntryObject(?DataEntryInterface $_data_entry): static {
+        return $this->__setDataEntry($_data_entry)
+                    ->setId($_data_entry?->getId(false));
     }
 
 
@@ -1086,9 +1086,9 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $failure = trim($failure);
 
         if (Debug::isEnabled()) {
-            if ($this->o_definitions?->getDataEntryObject()) {
+            if ($this->_definitions?->getDataEntryObject()) {
                 Log::write(ts('Validation failed for ":class" DataEntry field ":field" with value ":value" because :failure', [
-                    ':class'   => get_class($this->o_definitions->getDataEntryObject()),
+                    ':class'   => get_class($this->_definitions->getDataEntryObject()),
                     ':field'   => ($this->parent_field ?? '-') . ' / ' . $selected_field . ' / ' . ($this->process_key ?? '-'),
                     ':failure' => $failure,
                     ':value'   => $this->source[$selected_field],
@@ -1358,7 +1358,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
         } else {
             // This field has not failed so far, so the OR does not have to check the rest. To do this, mark this field
-            // as having a default value, even though it (possibly) doesn't, this way any future checks will be skipped
+            // as having a default value, even though it (possibly) does not, this way any future checks will be skipped
             $this->selected_is_default = true;
         }
 
@@ -1367,7 +1367,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
 
 
     /**
-     * Will validate that the specified argument wasn't specified
+     * Will validate that the specified argument was not specified
      *
      * @param string $argument
      * @param mixed  $value                The value of said argument.
@@ -1456,7 +1456,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         $this->ensureSelected();
 
         // Create a new Validator object from the current value. If the current value is not an array (oopsie) then just
-        // send in an empty array so that the Validation chain won't break
+        // send in an empty array so that the Validation chain will not break
         if (!is_array($this->selected_value)) {
             $array = [];
             $child = new static($array, $this);
@@ -1653,9 +1653,9 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
             if (Core::inBootState() or $this->getValidationEnabled()) {
                 $permit          = $this->getPermitValidationFailures();
                 $this->exception = ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                                            ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                                            ->setDataEntryObject($this->_definitions?->getDataEntryObject())
                                                             ->addData([
-                                                                'class'    => $this->o_data_entry ? $this->o_data_entry::class : 'N/A',
+                                                                'class'    => $this->_data_entry ? $this->_data_entry::class : 'N/A',
                                                                 'failures' => $this->failures,
                                                                 'values'   => $values
                                                             ]);
@@ -1700,7 +1700,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         // Modify to fix all values that have validation issues. SOFT failures require no
         // modifications, HARD failures do
         foreach ($failures as $column => $failure) {
-            $o_definition = $this->getDataEntryObject()?->getDefinitionsObject()?->get($column);
+            $_definition = $this->getDataEntryObject()?->getDefinitionsObject()?->get($column);
 
             if ($failure['hard']) {
                 if (array_key_exists('required_datatype', $failure)) {
@@ -1720,7 +1720,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
                             $this->source[$column] = (int) $this->source[$column];
 
                             // We are forcing numbers to be 0 but that might cause problems with database id's
-                            if (empty($this->source[$column]) and $o_definition->hasRealInputType(EnumInputType::dbid)) {
+                            if (empty($this->source[$column]) and $_definition->hasRealInputType(EnumInputType::dbid)) {
                                 // Database ID's CANNOT be zero
                                 $this->source[$column] = null;
                             }
@@ -1783,18 +1783,18 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
      */
     protected function validateProcessParent(): void
     {
-        if ($this->o_parent) {
+        if ($this->_parent) {
 throw new ObsoleteException();
 //            // Copy failures from the child to the parent and return the parent to continue
 //            foreach ($this->failures as $field => $failure) {
-//                $this->o_parent->addSoftFailure($failure, $field);
+//                $this->_parent->addSoftFailure($failure, $field);
 //            }
 //
 //            // Clear the contents of this object to avoid stuck references
 //            $this->clear();
 //
 //            // TODO Fix parent support
-//            return $this->o_parent->validate();
+//            return $this->_parent->validate();
         }
     }
 
@@ -1970,7 +1970,7 @@ throw new ObsoleteException();
                     return true;
                 }
 
-                // If the value is set or not doesn't matter, it is okay
+                // If the value is set or not does not matter, it is okay
                 $value                      = $this->selected_optional;
                 $this->selected_is_default  = true;
                 $this->process_value_failed = true;
@@ -3116,7 +3116,7 @@ throw new ObsoleteException();
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->o_definitions?->get($column)->setForceValidations(true);
+            $this->_definitions?->get($column)->setForceValidations(true);
         });
     }
 
@@ -3159,7 +3159,7 @@ throw new ObsoleteException();
             $this->source[$this->field_prefix . $column] = $result;
 
             // Mark the column entry for forced processing, in case it was marked as not rendering to avoid validation issues
-            $this->o_definitions?->get($column)->setForceValidations(true);
+            $this->_definitions?->get($column)->setForceValidations(true);
         });
     }
 
@@ -3783,7 +3783,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -3813,7 +3813,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($formats) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMinCharacters(4)->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4020,7 +4020,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($width) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
@@ -4062,7 +4062,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($before, $equal) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()
                  ->hasMaxCharacters(32);
 
@@ -4103,7 +4103,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($after, $equal) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4146,7 +4146,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) {
-            // Sort-of arbitrary max size, just to ensure regex won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure regex will not receive a 2MB string
             $this->sanitizeTrim()->hasMaxCharacters(32);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4154,7 +4154,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            $o_cards = [
+            $_cards = [
                 'Amex Card'          => '^3[47][0-9]{13}$',
                 'BCGlobal'           => '^(6541|6556)[0-9]{12}$',
                 'Carte Blanche Card' => '^389[0-9]{11}$',
@@ -4173,7 +4173,7 @@ throw new ObsoleteException();
                 'Visa Master Card'   => '^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14})$',
             ];
 
-            foreach ($o_cards as $regex) {
+            foreach ($_cards as $regex) {
                 if (preg_match($regex, $value)) {
                     return;
                 }
@@ -4230,7 +4230,7 @@ throw new ObsoleteException();
         $this->content_test_count++;
 
         return $this->validateValues(function (&$value) use ($encoding) {
-            // Sort-of arbitrary max size, just to ensure Date class won't receive a 2MB string
+            // Sort-of arbitrary max size, just to ensure Date class will not receive a 2MB string
             $this->hasEncoding($encoding, true, 64);
 
             if ($this->process_value_failed or $this->selected_is_default) {
@@ -4704,7 +4704,7 @@ throw new ObsoleteException();
         // Was a path specified? A path is required here!
         if (!$path) {
             $this->addSoftFailure(tr('must contain a path'));
-            return new $class($path, $this->o_restrictions);
+            return new $class($path, $this->_restrictions);
         }
 
         // Check each specified directory if the file exists there.
@@ -4721,7 +4721,7 @@ throw new ObsoleteException();
                                     ->checkRestrictions(false);
 
                 // The path should be a PhoPath object with restrictions from the specified directory that is tested
-                // Get the absolute "path", "file" doesn't need to exist here, that can be checked later
+                // Get the absolute "path", "file" does not need to exist here, that can be checked later
                 $test = $class::new($path, $exists_in_directory->getRestrictionsObject())
                               ->makeReal($exists_in_directory);
 
@@ -4732,15 +4732,15 @@ throw new ObsoleteException();
             }
 
         } else {
-            // Okay, we shouldn't check if it exists IN a directly but does it exists at all?
+            // Okay, we should not check if it exists IN a directly but does it exists at all?
             $does_exist = file_exists($path);
             $test       = $class::new($path, PhoRestrictions::new($path));
         }
 
         if (empty($does_exist)) {
-            // The file, whatever it is, doesn't exist
+            // The file, whatever it is, does not exist
             if ($require_exist) {
-                // File doesn't exist, but should exist
+                // File does not exist, but should exist
                 if ($type) {
                     $this->addSoftFailure(tr('must be an existing ":type" in paths ":paths"', [
                         ':type'  => $type,
@@ -4757,7 +4757,7 @@ throw new ObsoleteException();
         } else {
             // The file, whatever it is, does exist
             if ($require_exist === false) {
-                // The file exists, but shouldn't exist
+                // The file exists, but should not exist
                 $this->addSoftFailure(tr('must not exist'));
             }
 
@@ -4769,7 +4769,7 @@ throw new ObsoleteException();
                 }
 
             } elseif (is_bool($must_be_directory)) {
-                // The file shouldn't be a directory
+                // The file should not be a directory
                 if ($test->isDirectory()) {
                     $this->addSoftFailure(tr('cannot be a directory'));
                 }
@@ -5595,33 +5595,33 @@ throw new ObsoleteException();
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
      * @param string|null             $failure
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static
+    public function isUnique(?string $failure = null, ?ConnectorInterface $_connector = null): static
     {
         $this->test_count++;
         $this->content_test_count++;
 
-        return $this->validateValues(function (&$value) use ($failure, $o_connector) {
+        return $this->validateValues(function (&$value) use ($failure, $_connector) {
             if ($this->process_value_failed or $this->selected_is_default) {
                 // Validation already failed or defaulted, do not test anything more
                 return;
             }
 
-            $o_data_entry = $this->o_definitions?->getDataEntryObject();
+            $_data_entry = $this->_definitions?->getDataEntryObject();
             $field        = Strings::from($this->selected_field, $this->field_prefix);
 
-            if ($o_data_entry) {
+            if ($_data_entry) {
                 // TODO Add support for connector passing here
-                if (($o_data_entry::class)::exists([$field => $value], $this->id)) {
+                if (($_data_entry::class)::exists([$field => $value], $this->id)) {
                     $this->addSoftFailure($failure ?? tr('already exists'));
                 }
 
             } else {
                 // Not a DataEntry object, use manual query
-                if (sql($o_connector)->setDebug($this->debug)->exists($this->table, $field, $value, $this->id)) {
+                if (sql($_connector)->setDebug($this->debug)->exists($this->table, $field, $value, $this->id)) {
                     $this->addSoftFailure($failure ?? tr('already exists'));
                 }
             }
@@ -6775,7 +6775,7 @@ throw new ObsoleteException();
             if ($this->selected_field and empty($this->test_count)) {
                 if ($this->getDatatypeValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot select field ":field" for object ":object", the previously selected field ":previous" has no validations performed yet', [
-                        ':object'   => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : '-'),
+                        ':object'   => ($this->_definitions?->getDataEntryObject() ? get_class($this->_definitions->getDataEntryObject()) : '-'),
                         ':field'    => $field,
                         ':previous' => $this->selected_field,
                     ]));
@@ -6787,7 +6787,7 @@ throw new ObsoleteException();
             if ($this->selected_field and empty($this->content_test_count)) {
                 if ($this->getContentValidationEnabled()) {
                     throw new ValidatorException(tr('Cannot select field ":field" for class ":class", the previously selected field ":previous" has no content validations performed yet', [
-                        ':class'    => ($this->o_definitions?->getDataEntryObject() ? get_class($this->o_definitions->getDataEntryObject()) : 'N/A'),
+                        ':class'    => ($this->_definitions?->getDataEntryObject() ? get_class($this->_definitions->getDataEntryObject()) : 'N/A'),
                         ':field'    => $field,
                         ':previous' => $this->selected_field,
                     ]));
@@ -6844,9 +6844,9 @@ throw new ObsoleteException();
     protected function construct(?ValidatorInterface $parent = null, array &$source = []): void
     {
         $this->source = &$source;
-        $this->o_parent = $parent;
+        $this->_parent = $parent;
 
-        $this->o_reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
+        $this->_reflection_selected_optional = new ReflectionProperty($this, 'selected_optional');
         $this->reflection_process_value       = new ReflectionProperty($this, 'process_value');
     }
 

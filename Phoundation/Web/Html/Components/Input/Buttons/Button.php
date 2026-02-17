@@ -80,7 +80,7 @@ class Button extends Input implements ButtonInterface
     public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($this->floating) {
-            // TODO What does this do? When setting a value while floating is on, we render an icon but don't do anything with it? This code makes little sense
+            // TODO What does this do? When setting a value while floating is on, we render an icon but do not do anything with it? This code makes little sense
             $this->addClasses('btn-floating');
 
             Icons::new()
@@ -128,7 +128,7 @@ class Button extends Input implements ButtonInterface
     public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
-            // TODO What does this do? When setting a value while floating is on, we render an icon but don't do anything with it? This code makes little sense
+            // TODO What does this do? When setting a value while floating is on, we render an icon but do not do anything with it? This code makes little sense
             $this->addClasses('btn-floating');
 
             Icons::new()
@@ -252,7 +252,7 @@ class Button extends Input implements ButtonInterface
         }
 
         // Should we render this URL at all?
-        if ($this->o_url) {
+        if ($this->_url) {
             // Should we render this URL at all?
             if (!$this->hasRenderRights()) {
                 return null;

@@ -30,6 +30,6 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         parent::__construct();
 
-        $this->o_definitions->get('users_id')->setLabel('From user');
+        $this->_definitions->get('users_id')->setLabel('From user');
     }
 }

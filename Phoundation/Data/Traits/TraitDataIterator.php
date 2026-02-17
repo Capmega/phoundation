@@ -24,9 +24,9 @@ trait TraitDataIterator
     /**
      *
      *
-     * @var IteratorInterface|null $o_iterator
+     * @var IteratorInterface|null $_iterator
      */
-    protected ?IteratorInterface $o_iterator = null;
+    protected ?IteratorInterface $_iterator = null;
 
 
     /**
@@ -36,7 +36,7 @@ trait TraitDataIterator
      */
     public function getIteratorObject(): ?IteratorInterface
     {
-        return $this->o_iterator;
+        return $this->_iterator;
     }
 
 
@@ -49,7 +49,7 @@ trait TraitDataIterator
      */
     public function setIteratorObject(IteratorInterface|null $iterator = null): static
     {
-        $this->o_iterator = $iterator;
+        $this->_iterator = $iterator;
         return $this;
     }
 }

@@ -112,7 +112,7 @@ class Domains
             return $_SERVER['HTTP_HOST'];
         }
 
-        // Ensure $domain doesn't end with . (Which IS valid, but would mess up
+        // Ensure $domain does not end with . (Which IS valid, but would mess up
         $domain = Strings::from(config()->getString('web.domains.primary.web'), '//');
         $domain = Strings::until($domain, '/');
         $domain = Strings::ensureEndsNotWith($domain, '.');
@@ -207,7 +207,7 @@ class Domains
             static::$primary_web_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['web']))->getHost();
 
             if (!static::$primary_web_domain) {
-                // Whoops! We didn't get our primary domain from configuration, likely configuration  is not available yet
+                // Whoops! We did not get our primary domain from configuration, likely configuration  is not available yet
                 // Assume the current domain is the primary domain instead
                 static::$primary_web_domain = Domains::getCurrent();
 
@@ -235,7 +235,7 @@ class Domains
             static::$primary_cdn_domain = (string) Url::new((string) isset_get(static::$domains_configuration['primary']['cdn']))->getHost();
 
             if (!static::$primary_cdn_domain) {
-                // Whoops! We didn't get our primary domain from configuration, likely configuration  is not available yet
+                // Whoops! We did not get our primary domain from configuration, likely configuration  is not available yet
                 // Assume the current domain is the primary domain instead
                 static::$primary_cdn_domain = Domains::getCurrent();
 
@@ -262,7 +262,7 @@ class Domains
 
             if ($configuration === null) {
                 if (!Core::isState('setup')) {
-                    // In set up we won't have configuration and that is fine. If we are not in set up, then it is not
+                    // In set up we will not have configuration and that is fine. If we are not in set up, then it is not
                     // so fine
                     throw new ConfigPathDoesNotExistsException(tr('The configuration path "web.domains" does not exist'));
                 }
@@ -441,7 +441,7 @@ class Domains
 
             } catch (ConfigPathDoesNotExistsException $e) {
                 if (!Core::isState('setup')) {
-                    // In setup mode, we won't have any configuration, but we will be able to continue
+                    // In setup mode, we will not have any configuration, but we will be able to continue
                     throw $e;
                 }
             }

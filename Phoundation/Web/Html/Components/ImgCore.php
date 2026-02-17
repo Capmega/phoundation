@@ -210,7 +210,7 @@ class ImgCore extends SpanCore implements ImgInterface
      */
     public function setSrc(Stringable|string|null $src): static
     {
-//        // Get a built src string. If $built_src is equal to specified $src then it wasn't changed and so it is an
+//        // Get a built src string. If $built_src is equal to specified $src then it was not changed and so it is an
 //        $domain         = Url::getDomain($src);
 //        $built_src      = Url::getCdn($src);
 //        $this->external = $built_src->isExternal($src);
@@ -340,7 +340,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //        }
 //
 //        /*
-//         * Correct the src parameter if it doesn't contain a domain yet by
+//         * Correct the src parameter if it does not contain a domain yet by
 //         * adding the CDN domain
 //         *
 //         * Also check if the file should be automatically converted to a
@@ -468,7 +468,7 @@ class ImgCore extends SpanCore implements ImgInterface
 //
 //                    } else {
 //                        /*
-//                         * Image doesn't exist.
+//                         * Image does not exist.
 //                         */
 //                        log_console(tr('html_img(): Can not analyze image ":src", the local directory ":directory" does not exist', array(':src' => $params['src'], ':directory' => $file_src)), 'yellow');
 //                        $image[0] = 0;

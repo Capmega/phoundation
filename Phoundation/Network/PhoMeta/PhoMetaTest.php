@@ -243,19 +243,19 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
             throw PhoMetaTestNoDatabaseException::new(tr('Database Info Missing from PhoMetaTest source'));
         }
 
-        $o_connector = Connector::new($database_connector)->setDatabase($database_selector);
+        $_connector = Connector::new($database_connector)->setDatabase($database_selector);
 
         Log::action(ts('Saving key ":key" in database ":connector" at ":domain::port" database number ":db_number" for HL7 component ":component"', [
             ':key'       => $key,
             ':connector' => $database_connector,
-            ':domain'    => $o_connector->getHostname(),
-            ':port'      => $o_connector->getPort(),
+            ':domain'    => $_connector->getHostname(),
+            ':port'      => $_connector->getPort(),
             ':db_number' => $database_selector,
             ':component' => $component,
 
         ]));
 
-        Redis::new($o_connector)->set($component, $key)->close();
+        Redis::new($_connector)->set($component, $key)->close();
 
         return $this;
     }
@@ -264,13 +264,13 @@ class PhoMetaTest extends DataEntry implements PhoMetaTestInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newVariable('component')
+        $_definitions->add(DefinitionFactory::newVariable('component')
                                              ->setMaxLength(32)
                                              ->setLabel('Tested component'))
 

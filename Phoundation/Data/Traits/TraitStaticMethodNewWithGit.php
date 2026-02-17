@@ -3,7 +3,7 @@
 /**
  * Trait TraitStaticMethodNewWithGit
  *
- * This trait contains just the static new() command with $o_git as an optional parameter
+ * This trait contains just the static new() command with $_git as an optional parameter
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -22,14 +22,14 @@ use Phoundation\Developer\Versioning\Git\Interfaces\GitInterface;
 trait TraitStaticMethodNewWithGit
 {
     /**
-     * Returns a new static object that accepts $o_git in the constructor
+     * Returns a new static object that accepts $_git in the constructor
      *
-     * @param GitInterface|null $o_git
+     * @param GitInterface|null $_git
      *
      * @return static
      */
-    public static function new(GitInterface|null $o_git = null): static
+    public static function new(GitInterface|null $_git = null): static
     {
-        return new static($o_git);
+        return new static($_git);
     }
 }

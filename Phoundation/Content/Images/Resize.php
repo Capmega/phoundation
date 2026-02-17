@@ -141,7 +141,7 @@ class Resize extends PhoFile
      */
     protected function convert(): Process
     {
-        return Process::new('convert', $this->o_restrictions);
+        return Process::new('convert', $this->_restrictions);
     }
 
 

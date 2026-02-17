@@ -145,11 +145,11 @@ trait TraitMethodsVirtualColumns {
      * Loads data to all virtual columns
      *
      * @param string                  $table
-     * @param DataEntryInterface|null $o_object
+     * @param DataEntryInterface|null $_object
      *
      * @return static
      */
-    protected function setVirtualObject(string $table, ?DataEntryInterface $o_object = null): static
+    protected function setVirtualObject(string $table, ?DataEntryInterface $_object = null): static
     {
         if (array_key_exists($table, $this->virtual_objects)) {
             // The virtual object has already been loaded
@@ -158,7 +158,7 @@ trait TraitMethodsVirtualColumns {
 
         $configuration = $this->getVirtualConfiguration($table);
 
-        if (empty($o_object)) {
+        if (empty($_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
                 if (empty($identifier)) {
@@ -172,13 +172,13 @@ trait TraitMethodsVirtualColumns {
                     ':identifier' => Json::encode($identifier),
                 ]), 3);
 
-                $o_object = $configuration['class']::new()
+                $_object = $configuration['class']::new()
                                                    ->setDebug($this->getDebug())
                                                    ->setMetaEnabled($this->getMetaEnabled())
                                                    ->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
-                // This means that a column was specified to be checked that doesn't exist in the Definitions object
+                // This means that a column was specified to be checked that does not exist in the Definitions object
                 throw DataEntryInvalidVirtualConfigurationException::new(tr('Cannot find value for defined virtual column ":column" in class ":class", this column does not exist in the definitions object', [
                     ':class'  => $this::class,
                     ':column' => $e->getDataKey('column'),
@@ -191,11 +191,11 @@ trait TraitMethodsVirtualColumns {
         }
 
         // Cache the loaded object
-        $this->virtual_objects[$table] = $o_object;
+        $this->virtual_objects[$table] = $_object;
 
         // Set all configured columns
         foreach ($configuration['columns'] as $column => $table_column) {
-            $this->set($o_object?->get($column), $table_column);
+            $this->set($_object?->get($column), $table_column);
         }
 
         return $this;
@@ -328,7 +328,7 @@ trait TraitMethodsVirtualColumns {
             }
         }
 
-        // Configuration doesn't exist. Can we autoload it?
+        // Configuration does not exist. Can we autoload it?
         $table_name = Strings::capitalize($table);
 
         if (str_contains($table_name, '_')) {

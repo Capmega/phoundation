@@ -210,7 +210,7 @@ abstract class Template implements TemplateInterface
                 return $include_class;
             }
 
-            // So at this point, we didn't find a file. Try the parent of this class, see if that one perhaps has a
+            // So at this point, we did not find a file. Try the parent of this class, see if that one perhaps has a
             // renderer available?
             $class = get_parent_class($class);
 

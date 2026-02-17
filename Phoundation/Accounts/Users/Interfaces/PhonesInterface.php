@@ -17,11 +17,11 @@ interface PhonesInterface extends DataIteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static;
 
 
     /**

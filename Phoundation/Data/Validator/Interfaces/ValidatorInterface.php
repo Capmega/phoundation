@@ -935,11 +935,11 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @note This requires Validator::setTable() to be set with a valid, existing table
      *
      * @param string|null             $failure
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      *
      * @return static
      */
-    public function isUnique(?string $failure = null, ?ConnectorInterface $o_connector = null): static;
+    public function isUnique(?string $failure = null, ?ConnectorInterface $_connector = null): static;
 
     /**
      * Sanitize the selected value by applying htmlentities()
@@ -1302,11 +1302,11 @@ interface ValidatorInterface extends IteratorBaseInterface
     /**
      * Sets the data entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    public function setDefinitionsObject(DefinitionsInterface $o_definitions): static;
+    public function setDefinitionsObject(DefinitionsInterface $_definitions): static;
 
     /**
      * This method will validate that the specified key is set as well, in case the current key is not the default

@@ -41,9 +41,9 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
     /**
      * The status for this file
      *
-     * @var StatusInterface $o_status
+     * @var StatusInterface $_status
      */
-    protected StatusInterface $o_status;
+    protected StatusInterface $_status;
 
 
     /**
@@ -57,7 +57,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
     {
         $this->source     = $file->getSource();
         $this->git_target = $git_target;
-        $this->o_status   = (is_string($status) ? new Status($status) : $status);
+        $this->_status   = (is_string($status) ? new Status($status) : $status);
     }
 
 
@@ -94,7 +94,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function getStatusObject(): StatusInterface
     {
-        return $this->o_status;
+        return $this->_status;
     }
 
 
@@ -105,7 +105,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function getStatus(): string
     {
-        return $this->o_status->getStatus();
+        return $this->_status->getStatus();
     }
 
 
@@ -116,7 +116,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function getReadableStatus(): string
     {
-        return $this->o_status->getReadable();
+        return $this->_status->getReadable();
     }
 
 
@@ -127,7 +127,7 @@ class StatusFile extends PhoFileCore implements StatusFileInterface
      */
     public function hasConflict(): bool
     {
-        return $this->o_status->isConflict();
+        return $this->_status->isConflict();
     }
 
 

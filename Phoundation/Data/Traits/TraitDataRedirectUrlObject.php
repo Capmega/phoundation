@@ -24,9 +24,9 @@ trait TraitDataRedirectUrlObject
     /**
      * The redirect_url for this object
      *
-     * @var UrlInterface|null $o_redirect_url
+     * @var UrlInterface|null $_redirect_url
      */
-    protected ?UrlInterface $o_redirect_url = null;
+    protected ?UrlInterface $_redirect_url = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataRedirectUrlObject
      */
     public function getRedirectUrlObject(): ?UrlInterface
     {
-        return $this->o_redirect_url;
+        return $this->_redirect_url;
     }
 
 
     /**
      * Sets the redirect_url
      *
-     * @param UrlInterface|null $o_redirect_url
+     * @param UrlInterface|null $_redirect_url
      *
      * @return static
      */
-    public function setRedirectUrlObject(UrlInterface|null $o_redirect_url): static
+    public function setRedirectUrlObject(UrlInterface|null $_redirect_url): static
     {
-        $this->o_redirect_url = $o_redirect_url;
+        $this->_redirect_url = $_redirect_url;
         return $this;
     }
 }

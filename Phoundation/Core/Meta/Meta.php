@@ -49,7 +49,7 @@ use Throwable;
 class Meta implements MetaInterface
 {
     /**
-     * If true will store and process metadata. If false, it won't
+     * If true will store and process metadata. If false, it will not
      *
      * @var bool $enabled
      */
@@ -328,7 +328,7 @@ class Meta implements MetaInterface
             return $meta;
         }
 
-        // Return an empty meta-object that won't store any actions
+        // Return an empty meta-object that will not store any actions
         return new Meta(0);
     }
 

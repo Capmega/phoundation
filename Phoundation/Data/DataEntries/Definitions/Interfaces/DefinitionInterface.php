@@ -1213,11 +1213,11 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Validate this column according to the column definitions
      *
-     * @param ValidatorInterface $o_validator
+     * @param ValidatorInterface $_validator
      *
      * @return bool
      */
-    public function validate(ValidatorInterface $o_validator): bool;
+    public function validate(ValidatorInterface $_validator): bool;
 
 
     /**
@@ -1330,7 +1330,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     /**
      * Sets the server and filesystem restrictions for this object
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions The file restrictions to apply to this object
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions The file restrictions to apply to this object
      * @param bool                                       $write          If $restrictions is not specified as a
      *                                                                FsRestrictions class, but as a path string, or
      *                                                                array of path strings, then this method will
@@ -1342,7 +1342,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      *                                                                convert that into a FsRestrictions object and this
      *                                                                is the $label modifier for that object
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
     /**
      * Returns if this column is forced processed or not
@@ -1619,7 +1619,7 @@ interface DefinitionInterface extends BeforeAfterContentInterface
     public function setProperties(?array $properties): static;
 
     /**
-     * Returns the value for the requested event key, or NULL if it doesn't exist
+     * Returns the value for the requested event key, or NULL if it does not exist
      *
      * @param string|float|int $key
      *

@@ -61,7 +61,7 @@ class Json
             return null;
         }
 
-        // JavaScript doesn't handle the big numbers that Phoundation manages, so always require JSON_BIGINT_AS_STRING!
+        // JavaScript does not handle the big numbers that Phoundation manages, so always require JSON_BIGINT_AS_STRING!
         $options |= JSON_BIGINT_AS_STRING;
 
         if (Debug::isEnabled() and !$force_single_line) {

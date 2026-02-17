@@ -21,11 +21,11 @@ interface InputInterface extends ElementInterface, BeforeAfterContentInterface
     /**
      * Returns a new input element from
      *
-     * @param DefinitionInterface $o_definition
+     * @param DefinitionInterface $_definition
      *
      * @return static
      */
-    public static function newFromDataEntryDefinition(DefinitionInterface $o_definition): static;
+    public static function newFromDataEntryDefinition(DefinitionInterface $_definition): static;
 
 
     /**

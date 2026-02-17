@@ -93,7 +93,7 @@ class Connectors extends DataIterator implements ConnectorsInterface
             if (!$ignore_sql_exceptions) {
                 // In some cases, we need access to configured connectors while database connectors  are not available
                 // because the database may not exist, or a database version may be so old that the databases_connectors
-                // table doesn't exist. In those cases where we know that this might happen, we will ignore SQL
+                // table does not exist. In those cases where we know that this might happen, we will ignore SQL
                 // exceptions and continue loading connectors from configuration
                 throw $e;
             }
@@ -171,18 +171,18 @@ class Connectors extends DataIterator implements ConnectorsInterface
             throw new OutOfBoundsException(tr('Cannot get connector object, no connector name specified'));
         }
 
-        $o_connector = parent::get($key, $default, $exception);
+        $_connector = parent::get($key, $default, $exception);
 
-        if (empty($o_connector)) {
-            // This connector doesn't exist in the source yet.
+        if (empty($_connector)) {
+            // This connector does not exist in the source yet.
             // Create it, it will add itself automatically with the specific name ("system[mysql]:base@127.0.0.1/tracking" for example))
-            $o_connector = Connector::new($key);
+            $_connector = Connector::new($key);
 
             // Add this connector as well with its generic name ("system", for example) so that we can easily find it back later
-            $this->add($o_connector, $key);
+            $this->add($_connector, $key);
         }
 
-        return $o_connector;
+        return $_connector;
     }
 
 

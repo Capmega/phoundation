@@ -47,13 +47,13 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     {
         parent::__construct();
 
-        $this->o_definitions->add(Definition::new('roles_id')
+        $this->_definitions->add(Definition::new('roles_id')
                                             ->setLabel(tr('Role'))
                                             ->setSize(4)
                                             ->setOptional(true)
                                             ->setElement(EnumElement::select)
                                             ->setInputType(EnumInputType::dbid)
-                                            ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                            ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                               return Roles::new()
                                                           ->getHtmlSelectOld()
                                                           ->setAutoSubmit(true)
@@ -68,7 +68,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                             ->setOptional(true)
                                             ->setElement(EnumElement::select)
                                             ->setInputType(EnumInputType::dbid)
-                                            ->setOutput(function (DefinitionInterface $o_definition, string $key, string $field_name, array $source) {
+                                            ->setOutput(function (DefinitionInterface $_definition, string $key, string $field_name, array $source) {
                                                 return Rights::new()
                                                              ->getHtmlSelectOld()
                                                              ->setAutoSubmit(true)
@@ -77,9 +77,9 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
                                                              ->setSelected(isset_get($this->source[$key]));
                                             }));
 
-        $this->o_definitions->get('date_range')->setRender(false);
-        $this->o_definitions->get('users_id')->setRender(false);
-        $this->o_definitions->get('status')->setSize(4);
+        $this->_definitions->get('date_range')->setRender(false);
+        $this->_definitions->get('users_id')->setRender(false);
+        $this->_definitions->get('status')->setSize(4);
     }
 
 
@@ -130,35 +130,35 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
     /**
      * Automatically apply current filters to the query builder
      *
-     * @param QueryBuilderInterface $o_builder
+     * @param QueryBuilderInterface $_builder
      *
      * @return static
      */
-    public function applyFiltersToQueryBuilder(QueryBuilderInterface $o_builder): static
+    public function applyFiltersToQueryBuilder(QueryBuilderInterface $_builder): static
     {
-        if ($this->o_applied_filters->keyExists('roles_id') and $this->o_definitions->isRendered('roles_id', false)) {
+        if ($this->_applied_filters->keyExists('roles_id') and $this->_definitions->isRendered('roles_id', false)) {
             if ($this->getRolesId()) {
-                $o_builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
+                $_builder->addJoin('JOIN  `accounts_users_roles` AS `accounts_users_roles_filter`
                                    ON    `accounts_users_roles_filter`.`roles_id` = :roles_id
                                      AND `accounts_users_roles_filter`.`users_id`  = `accounts_users`.`id` ', [
                                          ':roles_id' => $this->getRolesId()]);
             }
         }
 
-        if ($this->o_applied_filters->keyExists('rights_id') and $this->o_definitions->isRendered('rights_id', false)) {
+        if ($this->_applied_filters->keyExists('rights_id') and $this->_definitions->isRendered('rights_id', false)) {
             if ($this->getRightsId()) {
-                $o_builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
+                $_builder->addJoin('JOIN  `accounts_users_rights` AS `accounts_users_rights_filter`
                                    ON    `accounts_users_rights_filter`.`rights_id` = :rights_id
                                      AND `accounts_users_rights_filter`.`users_id`  = `accounts_users`.`id` ', [
                                          ':rights_id' => $this->getRightsId()]);
             }
         }
 
-        $this->o_applied_filters->removeKeys([
+        $this->_applied_filters->removeKeys([
             'roles_id',
             'rights_id',
         ]);
 
-        return parent::applyFiltersToQueryBuilder($o_builder);
+        return parent::applyFiltersToQueryBuilder($_builder);
     }
 }

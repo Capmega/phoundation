@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataObjectVersionFileType
  *
- * Adds support for EnumVersionFileType $o_version_file_type to your class
+ * Adds support for EnumVersionFileType $_version_file_type to your class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openpath.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -24,9 +24,9 @@ trait TraitDataObjectVersionFileType
     /**
      * The path to use
      *
-     * @var EnumVersionFileType|null $o_version_file_type
+     * @var EnumVersionFileType|null $_version_file_type
      */
-    protected ?EnumVersionFileType $o_version_file_type = null;
+    protected ?EnumVersionFileType $_version_file_type = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectVersionFileType
      */
     public function getVersionFileTypeObject(): ?EnumVersionFileType
     {
-        return $this->o_version_file_type;
+        return $this->_version_file_type;
     }
 
 
     /**
      * Sets the version file
      *
-     * @param EnumVersionFileType|null $o_version_file
+     * @param EnumVersionFileType|null $_version_file
      *
      * @return static
      */
-    public function setVersionFileTypeObject(?EnumVersionFileType $o_version_file): static
+    public function setVersionFileTypeObject(?EnumVersionFileType $_version_file): static
     {
-        $this->o_version_file_type = $o_version_file;
+        $this->_version_file_type = $_version_file;
         return $this;
     }
 }

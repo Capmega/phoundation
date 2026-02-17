@@ -27,7 +27,7 @@
  *
  * OTHER:   Any kind of request that  is not covered by the above list
  *
- * UNKNOWN: System doesn't know yet what type of request we are currently handling, should only happen very early on at
+ * UNKNOWN: System does not know yet what type of request we are currently handling, should only happen very early on at
  *          the startup phase
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

@@ -27,9 +27,9 @@ trait TraitDataDefinitions
     /**
      * Meta-information about the keys in this DataEntry
      *
-     * @var DefinitionsInterface|null $o_definitions
+     * @var DefinitionsInterface|null $_definitions
      */
-    protected ?DefinitionsInterface $o_definitions = null;
+    protected ?DefinitionsInterface $_definitions = null;
 
 
     /**
@@ -56,7 +56,7 @@ trait TraitDataDefinitions
      */
     protected function checkDefinitionsObject(?string $action = null): DefinitionsInterface
     {
-        if (empty($this->o_definitions)) {
+        if (empty($this->_definitions)) {
             if ($this instanceof DataEntryInterface) {
                 if ($this->isInitialized()) {
                     throw new OutOfBoundsException(tr('The ":class" DataEntry object is initialized but has no Definitions class object set', [
@@ -78,12 +78,12 @@ trait TraitDataDefinitions
             }
         }
 
-        if ($this->o_definitions->isEmpty()) {
+        if ($this->_definitions->isEmpty()) {
             throw new OutOfBoundsException(tr('The ":class" DataEntry object has a Definitions object but it is empty', [
                 ':class' => static::class,
             ]));
         }
 
-        return $this->o_definitions;
+        return $this->_definitions;
     }
 }

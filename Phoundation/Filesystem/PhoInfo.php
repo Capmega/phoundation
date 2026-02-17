@@ -32,19 +32,19 @@ class PhoInfo extends EntryCore implements PhoInfoInterface
     /**
      * PhoInfo class constructor
      *
-     * @param PhoPathInterface $o_path
+     * @param PhoPathInterface $_path
      */
-    public function __construct(PhoPathInterface $o_path)
+    public function __construct(PhoPathInterface $_path)
     {
-        $this->o_path = $o_path;
+        $this->_path = $_path;
 
         $this->source = [
-            'path'       => $o_path->getSource(),
-            'type'       => $o_path->getTypeName(),
-            'size'       => $o_path->getSize(),
-            'binary'     => $o_path->isBinary(),
-            'filesystem' => $o_path->getFilesystemObject()->getSource(),
-            'encrypted'  => $o_path->isEncrypted(),
+            'path'       => $_path->getSource(),
+            'type'       => $_path->getTypeName(),
+            'size'       => $_path->getSize(),
+            'binary'     => $_path->isBinary(),
+            'filesystem' => $_path->getFilesystemObject()->getSource(),
+            'encrypted'  => $_path->isEncrypted(),
         ];
     }
 }

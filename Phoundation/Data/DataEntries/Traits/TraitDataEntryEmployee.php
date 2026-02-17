@@ -120,12 +120,12 @@ trait TraitDataEntryEmployee
     /**
      * Returns the employees_id for this user
      *
-     * @param EmployeeInterface|null $o_object
+     * @param EmployeeInterface|null $_object
      *
      * @return static
      */
-    public function setEmployeeObject(?EmployeeInterface $o_object): static
+    public function setEmployeeObject(?EmployeeInterface $_object): static
     {
-        return $this->setVirtualObject('employees', $o_object);
+        return $this->setVirtualObject('employees', $_object);
     }
 }

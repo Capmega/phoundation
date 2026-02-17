@@ -101,11 +101,11 @@ interface RoutingParametersInterface
     /**
      * Sets the server restrictions
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      *
      * @return static
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions): static;
 
 
     /**

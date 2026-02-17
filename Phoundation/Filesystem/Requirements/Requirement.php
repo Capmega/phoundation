@@ -76,16 +76,16 @@ class Requirement extends DataEntry
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName()
+        $_definitions->add(DefinitionFactory::newName()
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(12)
                                              ->setMaxLength(128)
                                              ->setLabel(tr('Name'))
                                              ->setHelpText(tr('The unique identifier name for this requirement'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isUnique();
                                            }))
                     ->add(DefinitionFactory::newSeoName())
                     ->add(Definition::new('path')
@@ -94,8 +94,8 @@ class Requirement extends DataEntry
                                     ->setMaxLength(255)
                                     ->setLabel(tr('Path'))
                                     ->setHelpText(tr('The path that these requirements apply to'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isFile();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isFile();
                                     }))
                     ->add(Definition::new('filesystem')
                                     ->setInputType(EnumInputType::select)

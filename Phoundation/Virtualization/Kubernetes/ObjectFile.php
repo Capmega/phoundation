@@ -41,7 +41,7 @@ abstract class ObjectFile
     public function __construct(KubernetesObject $object)
     {
         $this->object = $object;
-        $this->o_file = DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
+        $this->_file = DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($object->getKind()) . '/' . $this->object->getName() . '.yml';
     }
 
 
@@ -59,7 +59,7 @@ abstract class ObjectFile
         }
         $data = $this->renderConfiguration();
         $data = yaml_emit($data);
-        PhoFile::new($this->o_file)
+        PhoFile::new($this->_file)
             ->setRestrictionsObject(DIRECTORY_ROOT . 'config/kubernetes/' . strtolower($this->object->getKind()) . '/', true, 'kubernetes')
             ->create($data);
 

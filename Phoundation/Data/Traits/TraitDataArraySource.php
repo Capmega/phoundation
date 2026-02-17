@@ -149,7 +149,7 @@ trait TraitDataArraySource
      * @note: PHP arrays can either be real arrays (with index keystarting from 0, continuing linearly) or (anything
      *        else) hash maps. Most PHP arrays are hash maps because they do not contain "just a list of values", they
      *        contain a key => value list. These hash maps work exactly the same as normal arrays in PHP and in 99.9%
-     *        of the cases, you won't notice the difference. Json::encode(), however, WILL notice the difference. A PHP
+     *        of the cases, you will not notice the difference. Json::encode(), however, WILL notice the difference. A PHP
      *        array will be JSON encoded as "[item, item, ...]" and may be required for many JavaScript applications.
      *        Hash maps, on the other hand, will be JSON encoded as "{key: item, key: item, ...}". Almost all
      *        Phoundation Iterator objects will contain sources that are in reality hash maps, and as such, will render

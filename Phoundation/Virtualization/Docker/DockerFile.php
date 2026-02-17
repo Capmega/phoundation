@@ -90,20 +90,20 @@ class DockerFile
     public function writeConfig(): static
     {
         // Delete old docker configuration files
-        PhoFile::new($this->o_directory . '.docker')
-            ->setRestrictionsObject($this->o_restrictions->getChild('.docker'))
+        PhoFile::new($this->_directory . '.docker')
+            ->setRestrictionsObject($this->_restrictions->getChild('.docker'))
             ->delete();
-        PhoFile::new($this->o_directory . 'docker-compose.yml')
-            ->setRestrictionsObject($this->o_restrictions->getChild('docker-compose.yml'))
+        PhoFile::new($this->_directory . 'docker-compose.yml')
+            ->setRestrictionsObject($this->_restrictions->getChild('docker-compose.yml'))
             ->delete();
-        PhoFile::new($this->o_directory . '.docker/Dockerfile')
-            ->setRestrictionsObject($this->o_restrictions->getChild('.docker/Dockerfile'))
+        PhoFile::new($this->_directory . '.docker/Dockerfile')
+            ->setRestrictionsObject($this->_restrictions->getChild('.docker/Dockerfile'))
             ->create('FROM php:8.2-apache
 COPY . /app
 COPY .docker/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN chown -R www-data:www-data /app && a2enmod rewrite');
-        PhoFile::new($this->o_directory . '.docker/vhost.conf')
-            ->setRestrictionsObject($this->o_restrictions->getChild('.docker/vhost.conf'))
+        PhoFile::new($this->_directory . '.docker/vhost.conf')
+            ->setRestrictionsObject($this->_restrictions->getChild('.docker/vhost.conf'))
             ->create('<VirtualHost *:80>
     DocumentRoot /app/public
     <Directory “/app/public”>
@@ -113,14 +113,14 @@ RUN chown -R www-data:www-data /app && a2enmod rewrite');
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>');
-        PhoFile::new($this->o_directory . 'docker-compose.yml')
-            ->setRestrictionsObject($this->o_restrictions->getChild('docker-compose.yml'))
+        PhoFile::new($this->_directory . 'docker-compose.yml')
+            ->setRestrictionsObject($this->_restrictions->getChild('docker-compose.yml'))
             ->create('version: ‘3’
 services:
   docker-tutorial:
     build:
       context: .
-      dockerfile: ' . $this->o_directory . '.docker/Dockerfile
+      dockerfile: ' . $this->_directory . '.docker/Dockerfile
     image: ' . $this->image . '
     ports:
       – 8080:80
@@ -157,11 +157,11 @@ services:
         $process = Process::new('docker')
                           ->setSudo(true)
                           ->setTimeout(300)
-                          ->setExecutionDirectory($this->o_directory)
+                          ->setExecutionDirectory($this->_directory)
                           ->addArguments([
                               'build',
                               '-f',
-                              $this->o_directory . '.docker/Dockerfile',
+                              $this->_directory . '.docker/Dockerfile',
                               '-t',
                               $this->image,
                               '.',

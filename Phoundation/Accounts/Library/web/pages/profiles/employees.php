@@ -96,6 +96,6 @@ foreach ($users as $user) {
 
 
 // Build card
-echo $o_card = Card::new()
+echo $_card = Card::new()
                  ->setContent('<div class="row">' . $content . '</div>')
                  ->render();

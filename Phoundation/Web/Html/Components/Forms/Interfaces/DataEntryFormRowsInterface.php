@@ -31,12 +31,12 @@ interface DataEntryFormRowsInterface
     /**
      * Adds the column component and its definition as a DataEntryFormColumn
      *
-     * @param DefinitionInterface|null    $o_definition
+     * @param DefinitionInterface|null    $_definition
      * @param RenderInterface|string|null $component
      *
      * @return static
      */
-    public function add(?DefinitionInterface $o_definition = null, RenderInterface|string|null $component = null): static;
+    public function add(?DefinitionInterface $_definition = null, RenderInterface|string|null $component = null): static;
 
 
     /**

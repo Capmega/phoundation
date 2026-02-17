@@ -35,11 +35,11 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$o_task = Task::new()->load($get['id']);
-$o_card = Card::new()
-              ->setTitle($o_task->getName())
+$_task = Task::new()->load($get['id']);
+$_card = Card::new()
+              ->setTitle($_task->getName())
               ->setMaximizeSwitch(true)
-              ->setContent($o_task->getHtmlDataEntryFormObject())
+              ->setContent($_task->getHtmlFormObject())
               ->setButtonsObject(Buttons::new()->addButton(
                   tr('Back'),
                   EnumDisplayMode::secondary,
@@ -50,7 +50,7 @@ $o_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
@@ -61,28 +61,28 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('This page shows the details of a single specific task. The information on this page cannot be modified');
 
 
 // Set page meta-data
-$o_url = Url::new('/reports/os/tasks.html')->makeWww()->addQueries(
+$_url = Url::new('/reports/os/tasks.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 );
 
 Response::setHeaderTitle(tr('Task'));
-Response::setHeaderSubTitle($o_task->getDisplayId());
+Response::setHeaderSubTitle($_task->getDisplayId());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'             , tr('Home')),
     Breadcrumb::new('/security.html', tr('Security')),
-    Breadcrumb::new($o_url          , tr('Task management')),
-    Breadcrumb::new(''              , $o_task->getDisplayId()),
+    Breadcrumb::new($_url          , tr('Task management')),
+    Breadcrumb::new(''              , $_task->getDisplayId()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_card                                 , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_card                                 , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

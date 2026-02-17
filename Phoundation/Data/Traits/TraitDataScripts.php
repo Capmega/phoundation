@@ -26,9 +26,9 @@ trait TraitDataScripts
     /**
      * The scripts to use
      *
-     * @var ScriptsInterface|null $o_scripts
+     * @var ScriptsInterface|null $_scripts
      */
-    protected ?ScriptsInterface $o_scripts = null;
+    protected ?ScriptsInterface $_scripts = null;
 
 
     /**
@@ -40,27 +40,27 @@ trait TraitDataScripts
      */
     public function getScriptsObject(bool $auto_initialize = false): ?ScriptsInterface
     {
-        if ($this->o_scripts === null) {
+        if ($this->_scripts === null) {
             if ($auto_initialize) {
                 // Auto initialize
-                $this->o_scripts = new Scripts();
+                $this->_scripts = new Scripts();
             }
         }
 
-        return $this->o_scripts;
+        return $this->_scripts;
     }
 
 
     /**
      * Adds the specified Script object callbacks to this class
      *
-     * @param callable $o_scripts
+     * @param callable $_scripts
      *
      * @return static
      */
-    public function addScriptObjectCallback(callable $o_scripts): static
+    public function addScriptObjectCallback(callable $_scripts): static
     {
-        $this->getScriptsObject(true)->add($o_scripts);
+        $this->getScriptsObject(true)->add($_scripts);
         return $this;
     }
 
@@ -68,19 +68,19 @@ trait TraitDataScripts
     /**
      * Adds the specified script(s) to this class
      *
-     * @param ScriptsInterface|ScriptInterface|callable|null $o_scripts
+     * @param ScriptsInterface|ScriptInterface|callable|null $_scripts
      *
      * @return static
      */
-    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $o_scripts): static
+    public function addScriptObject(ScriptsInterface|ScriptInterface|callable|null $_scripts): static
     {
-        if ($o_scripts instanceof ScriptsInterface) {
-            foreach ($o_scripts as $o_script) {
-                $this->addScriptObject($o_script);
+        if ($_scripts instanceof ScriptsInterface) {
+            foreach ($_scripts as $_script) {
+                $this->addScriptObject($_script);
             }
 
         } else {
-            $this->getScriptsObject(true)->add($o_scripts);
+            $this->getScriptsObject(true)->add($_scripts);
         }
 
         return $this;
@@ -90,13 +90,13 @@ trait TraitDataScripts
     /**
      * Sets the scripts
      *
-     * @param ScriptsInterface|null $o_scripts
+     * @param ScriptsInterface|null $_scripts
      *
      * @return static
      */
-    public function setScriptsObject(?ScriptsInterface $o_scripts): static
+    public function setScriptsObject(?ScriptsInterface $_scripts): static
     {
-        $this->o_scripts = $o_scripts;
+        $this->_scripts = $_scripts;
         return $this;
     }
 }

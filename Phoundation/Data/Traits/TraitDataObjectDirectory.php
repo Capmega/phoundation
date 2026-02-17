@@ -22,21 +22,21 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 trait TraitDataObjectDirectory
 {
     use TraitDataObjectDirectoryReadonly {
-        setDirectoryObject as protected __TraitsetDirectoryObject;
+        setDirectoryObject as protected ___setDirectoryObject;
     }
 
 
     /**
      * Sets the directory
      *
-     * @param PhoDirectoryInterface|null $o_directory
+     * @param PhoDirectoryInterface|null $_directory
      * @param string|null                $prefix
      * @param bool                       $must_exist
      *
      * @return static
      */
-    public function setDirectoryObject(?PhoDirectoryInterface $o_directory, ?string $prefix = null, bool $must_exist = true): static
+    public function setDirectoryObject(?PhoDirectoryInterface $_directory, ?string $prefix = null, bool $must_exist = true): static
     {
-        return $this->__TraitsetDirectoryObject($o_directory, $prefix, $must_exist);
+        return $this->___setDirectoryObject($_directory, $prefix, $must_exist);
     }
 }

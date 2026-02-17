@@ -3,7 +3,7 @@
 /**
  * Class AutoComplete
  *
- * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it has not been yet.
  *
  * The class supports autocompletion of commands, global system arguments, command arguments and command values.
  * Commands must use Documentation::setAutoComplete() for this
@@ -55,7 +55,7 @@
  * @see       https://unix.stackexchange.com/questions/148497/how-to-customize-bash-command-completion
  * @see       https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
  *
- * @todo      Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo      Fix known issues with "foo" and "foo-bar", the second item will not ever be shown
  * @todo      Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and
  *            "bar"
  * @todo      Fix known issue that when only one result is returned, it should add a space to automatically go to the
@@ -97,7 +97,7 @@ use Stringable;
 class CliAutoComplete
 {
     /**
-     * The word location for the auto complete. NULL if auto complete hasn't been enabled
+     * The word location for the auto complete. NULL if auto complete has not been enabled
      *
      * @var int|null $position
      */
@@ -267,7 +267,7 @@ class CliAutoComplete
 
             switch (count($matches)) {
                 case 0:
-                    // This shouldn't happen at all, there is a match or we wouldn't be here!
+                    // This should not happen at all, there is a match or we would not be here!
                     throw new CliAutoCompleteException(tr('Found no match while there should be a match'));
 
                 case 1:
@@ -293,12 +293,12 @@ class CliAutoComplete
         }
 
         if ($argument_command) {
-            // We have an argument command specified, likely it doesn't exist
+            // We have an argument command specified, likely it does not exist
             if (str_starts_with($argument_command, '-')) {
                 // This is a system modifier argument, show the system modifier arguments instead.
                 $data['commands'] = [];
 
-                foreach (static::$system_arguments as $arguments => $o_definitions) {
+                foreach (static::$system_arguments as $arguments => $_definitions) {
                     $arguments = explode(',', $arguments);
 
                     foreach ($arguments as $argument) {
@@ -593,19 +593,19 @@ class CliAutoComplete
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return void
      */
-    public static function processCommandPositions(IteratorInterface|array|null $o_definitions)
+    public static function processCommandPositions(IteratorInterface|array|null $_definitions)
     {
-        if (!$o_definitions) {
+        if (!$_definitions) {
             return;
         }
 
-        if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions instanceof IteratorInterface) {
             // From here use array
-            $o_definitions = $o_definitions->getSource();
+            $_definitions = $_definitions->getSource();
         }
 
         // Get the word where we're <TAB>bing on
@@ -613,12 +613,12 @@ class CliAutoComplete
         $word = trim((string) $word);
 
         // First check position!
-        static::processCommandPosition($o_definitions, $word, static::$position);
+        static::processCommandPosition($_definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        static::processCommandPosition($o_definitions, $word, null);
-        static::processCommandPosition($o_definitions, $word, -1);
-        static::processCommandPosition($o_definitions, $word, 'all');
+        static::processCommandPosition($_definitions, $word, null);
+        static::processCommandPosition($_definitions, $word, -1);
+        static::processCommandPosition($_definitions, $word, 'all');
     }
 
 
@@ -683,19 +683,19 @@ class CliAutoComplete
     /**
      * Process command arguments
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return never
      */
-    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $o_definitions): never
+    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $_definitions): never
     {
-        if ($o_definitions) {
-            if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions) {
+            if ($_definitions instanceof IteratorInterface) {
                 // From here use array
-                $o_definitions = $o_definitions->getSource();
+                $_definitions = $_definitions->getSource();
             }
 
-            CliAutoComplete::processArguments(array_merge($o_definitions, static::$system_arguments));
+            CliAutoComplete::processArguments(array_merge($_definitions, static::$system_arguments));
         }
 
         CliAutoComplete::processArguments(static::$system_arguments);

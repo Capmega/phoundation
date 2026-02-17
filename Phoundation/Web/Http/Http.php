@@ -340,7 +340,7 @@ class Http
 
 
     /**
-     * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
+     * Return $_POST[dosubmit] value, and reset it to be sure it will not be applied twice
      *
      * @return mixed The value found in $_POST['dosubmit']
      * @copyright Copyright © 2022 Sven Olaf Oostenbrink

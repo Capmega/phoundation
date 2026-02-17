@@ -880,12 +880,12 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable    $o_validator
+     * @param callable    $_validator
      * @param string|null $name
      *
      * @return static
      */
-    public function addValidator(callable $o_validator, ?string $name = null): static;
+    public function addValidator(callable $_validator, ?string $name = null): static;
 
     /**
      * Returns true if the specified key exists in the array source
@@ -924,11 +924,11 @@ interface IteratorInterface extends IteratorBaseInterface
     /**
      * Sets the DataEntryInterface parent object
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static;
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static;
 
     /**
      * Returns if this Iterator requires a parent or not

@@ -18,13 +18,11 @@ use Phoundation\Accounts\Users\FilterForm;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Accounts\Users\Users;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
-use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Components\AnchorBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
-use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumDisplaySize;
 use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
@@ -35,11 +33,11 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build the "filters" card
-$o_filters      = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters      = FilterForm::new();
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Filters')
-                      ->setContent($o_filters)
+                      ->setContent($_filters)
                       ->setButtonsObject(Buttons::new()->addCreateButton(Url::new('/accounts/user.html'), true));
 
 
@@ -57,11 +55,11 @@ if (Request::isPostRequestMethod()) {
             case tr('Lock'):
                 if ($post['id']) {
                     foreach ($post['id'] as $id) {
-                        $o_user = User::new($id)->lock();
+                        $_user = User::new($id)->lock();
 
                         Response::getFlashMessagesObject()
                                 ->addSuccess(tr('The user ":user" has been locked', [
-                                    ':user' => $o_user->getName()
+                                    ':user' => $_user->getName()
                                 ]));
                     }
 
@@ -74,11 +72,11 @@ if (Request::isPostRequestMethod()) {
             case tr('Delete'):
                 if ($post['id']) {
                     foreach ($post['id'] as $id) {
-                        $o_user = User::new($id)->delete();
+                        $_user = User::new($id)->delete();
 
                         Response::getFlashMessagesObject()
                                 ->addSuccess(tr('The user ":user" has been deleted', [
-                                    ':user' => $o_user->getName()
+                                    ':user' => $_user->getName()
                                 ]));
                     }
 
@@ -102,8 +100,8 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the "users" object with filters applied
-$o_users = Users::new()->setFilterFormObject($o_filters);
-$o_users->getQueryBuilderObject()->addSelect('
+$_users = Users::new()->setFilterFormObject($_filters);
+$_users->getQueryBuilderObject()->addSelect('
                                      `accounts_users`.`id`, 
                                      TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`, 
                                      `accounts_users`.`email`, 
@@ -125,10 +123,10 @@ $o_users->getQueryBuilderObject()->addSelect('
 // Build "users" table
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
-$o_users_card = Card::new()
-                  ->setTitle(tr('Active users (:count)', [':count' => $o_users->getCount()]))
+$_users_card = Card::new()
+                  ->setTitle(tr('Active users (:count)', [':count' => $_users->getCount()]))
                   ->setSwitches('reload')
-                  ->setContent($o_users->getHtmlDataTableObject([
+                  ->setContent($_users->getHtmlDataTableObject([
                                            'id'            => tr('Id'),
                                            'profile_image' => tr('Profile image'),
                                            'email'         => tr('Email'),
@@ -147,13 +145,13 @@ $o_users_card = Card::new()
                                             ->addLockButton(true));
 
 
-$o_users_card->getFormObject()
+$_users_card->getFormObject()
              ->setAction(Url::newCurrent())
              ->setRequestMethod(EnumHttpRequestMethod::post);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new('/accounts/roles.html'   , tr('Manage roles')) .
@@ -162,7 +160,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -179,5 +177,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card  . $o_users_card        , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card  . $_users_card        , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

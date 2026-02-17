@@ -99,7 +99,7 @@ class ImageFile extends ContentFile implements ImageFileInterface
         }
 
         if ($return['size']) {
-            $return['mimetype'] = PhoFile::new($this->source, $this->o_restrictions)->getMimetype();
+            $return['mimetype'] = PhoFile::new($this->source, $this->_restrictions)->getMimetype();
         }
 
         if (Strings::until($return['mimetype'], '/') === 'image') {

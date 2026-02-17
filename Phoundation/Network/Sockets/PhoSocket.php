@@ -151,7 +151,7 @@ class PhoSocket implements Stringable, PhoSocketInterface
      * <p>Resources are always converted to strings with the structure "Resource id#1", where 1 is the resource number
      * assigned to the resource by PHP at runtime. While the exact structure of this string should not be relied on and
      * is subject to change, it will always be unique for a given resource within the lifetime of the script execution
-     * and won't be reused.</p>
+     * and will not be reused.</p>
      *
      * <p>If the resource object has been dereferrenced (set to <code>null</code>), this will return an empty
      * string.</p>

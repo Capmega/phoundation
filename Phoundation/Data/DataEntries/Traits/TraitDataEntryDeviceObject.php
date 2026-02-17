@@ -120,12 +120,12 @@ trait TraitDataEntryDeviceObject
     /**
      * Returns the devices_id for this user
      *
-     * @param DeviceInterface|null $o_object
+     * @param DeviceInterface|null $_object
      *
      * @return static
      */
-    public function setDeviceObject(?DeviceInterface $o_object): static
+    public function setDeviceObject(?DeviceInterface $_object): static
     {
-        return $this->setVirtualObject('devices', $o_object);
+        return $this->setVirtualObject('devices', $_object);
     }
 }

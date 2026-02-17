@@ -104,7 +104,7 @@ class Device extends PhoFile implements DeviceInterface
     public function scramble(): static
     {
         $this->checkUnmounted();
-        Process::new('dd', $this->o_restrictions)
+        Process::new('dd', $this->_restrictions)
                ->setSudo(true)
                ->setAcceptedExitCodes([
                    0,

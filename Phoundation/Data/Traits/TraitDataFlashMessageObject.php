@@ -26,7 +26,7 @@ trait TraitDataFlashMessageObject
      *
      * @var FlashMessageInterface|null
      */
-    protected ?FlashMessageInterface $o_message = null;
+    protected ?FlashMessageInterface $_message = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataFlashMessageObject
      */
     public function getFlashMessageObject(): ?FlashMessageInterface
     {
-        return $this->o_message;
+        return $this->_message;
     }
 
 
     /**
      * Sets the FlashMessage object for this object
      *
-     * @param FlashMessageInterface $o_message
+     * @param FlashMessageInterface $_message
      *
      * @return static
      */
-    public function setFlashMessageObject(FlashMessageInterface $o_message): static
+    public function setFlashMessageObject(FlashMessageInterface $_message): static
     {
-        $this->o_message = $o_message;
+        $this->_message = $_message;
         return $this;
     }
 }

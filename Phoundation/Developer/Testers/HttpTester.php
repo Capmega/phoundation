@@ -35,60 +35,60 @@ class HttpTester
     /**
      * A cache of all URL's that needs scraping
      *
-     * @var UrlsInterface $o_urls
+     * @var UrlsInterface $_urls
      */
-    protected UrlsInterface $o_urls;
+    protected UrlsInterface $_urls;
 
     /**
      * Tracks URL's that have failed
      *
-     * @var UrlsInterface $o_failed_urls
+     * @var UrlsInterface $_failed_urls
      */
-    protected UrlsInterface $o_failed_urls;
+    protected UrlsInterface $_failed_urls;
 
     /**
      * Tracks the URL's that do not exist (give a 404)
      *
-     * @var UrlsInterface $o_not_exists_urls
+     * @var UrlsInterface $_not_exists_urls
      */
-    protected UrlsInterface $o_not_exists_urls;
+    protected UrlsInterface $_not_exists_urls;
 
 
     /**
      * HttpTester class constructor
      */
-    public function __construct(UrlInterface $o_url)
+    public function __construct(UrlInterface $_url)
     {
-        $this->setUrlObject($o_url);
+        $this->setUrlObject($_url);
     }
 
 
     /**
      * Returns a new static object
      *
-     * @param UrlInterface $o_url
+     * @param UrlInterface $_url
      *
      * @return static
      */
-    public static function new(UrlInterface $o_url): static
+    public static function new(UrlInterface $_url): static
     {
-        return new static($o_url);
+        return new static($_url);
     }
 
 
     /**
      * Resets the HttpTester and adds the set URL to the URL's to be scanned
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      *
      * @return static
      */
-    public function setUrlObject(UrlInterface|string|null $o_url): static
+    public function setUrlObject(UrlInterface|string|null $_url): static
     {
-        $this->o_urls = new Urls();
-        $this->o_urls->add($o_url);
+        $this->_urls = new Urls();
+        $this->_urls->add($_url);
 
-        return $this->__setUrlObject($o_url);
+        return $this->__setUrlObject($_url);
     }
 
 
@@ -99,7 +99,7 @@ class HttpTester
      */
     public function getFailedUrlsObject(): UrlsInterface
     {
-        return $this->o_failed_urls;
+        return $this->_failed_urls;
     }
 
 
@@ -110,7 +110,7 @@ class HttpTester
      */
     public function getNotExistsUrls(): UrlsInterface
     {
-        return $this->o_not_exists_urls;
+        return $this->_not_exists_urls;
     }
 
 
@@ -121,12 +121,12 @@ class HttpTester
      */
     public function execute(): static
     {
-        while ($this->o_urls->isNotEmpty()) {
+        while ($this->_urls->isNotEmpty()) {
             Log::success(ts('Processing ":count" URL\'s', [
-                ':count' => $this->o_urls->count(),
+                ':count' => $this->_urls->count(),
             ]));
 
-            $url     = $this->o_urls->extractFirstValue();
+            $url     = $this->_urls->extractFirstValue();
             $scraper = Basic::new($url)->execute();
 
             switch ($scraper->getHttpCode()) {
@@ -135,11 +135,11 @@ class HttpTester
 showdie($urls->getSource());
                     $urls = $urls->keepMatchingValues(Url::newPrimaryDomainRootUrl(), Utils::MATCH_STARTS_WITH);
 
-                    $this->o_urls->addSource($urls)
+                    $this->_urls->addSource($urls)
                                  ->makeValuesUnique();
 
                     Log::success(ts('Found ":count" URL\'s on page', [
-                        ':count' => $this->o_urls->count(),
+                        ':count' => $this->_urls->count(),
                     ]));
 
                 case 301:
@@ -158,7 +158,7 @@ showdie($urls->getSource());
                         ':location' => $scraper->getRedirectLocation(),
                     ]));
 
-                    $this->o_not_exists_urls->add($url);
+                    $this->_not_exists_urls->add($url);
                     break;
 
                 default:
@@ -166,7 +166,7 @@ showdie($urls->getSource());
                         ':url' => $url
                     ]));
 
-                    $this->o_failed_urls->add($url);
+                    $this->_failed_urls->add($url);
             }
         }
 

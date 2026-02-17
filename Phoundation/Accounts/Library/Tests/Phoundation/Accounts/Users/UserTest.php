@@ -143,8 +143,8 @@ class UserTest extends TestCase
         }
 
         $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
-        $o_rights       = $unit_test_user->getRightsObject();
-        $this->assertInstanceOf(Rights::class, $o_rights);
+        $_rights       = $unit_test_user->getRightsObject();
+        $this->assertInstanceOf(Rights::class, $_rights);
     }
 
 
@@ -165,8 +165,8 @@ class UserTest extends TestCase
         }
 
         $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
-        $o_roles        = $unit_test_user->getRolesObject();
-        $this->assertInstanceOf(Roles::class, $o_roles);
+        $_roles        = $unit_test_user->getRolesObject();
+        $this->assertInstanceOf(Roles::class, $_roles);
     }
 
 
@@ -180,11 +180,11 @@ class UserTest extends TestCase
         $unit_test_user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $unit_test_user->addRoles('test');
 
-        $o_rights = $unit_test_user->getRightsObject();
-        $o_roles  = $unit_test_user->getRolesObject();
+        $_rights = $unit_test_user->getRightsObject();
+        $_roles  = $unit_test_user->getRolesObject();
 
-        $this->assertContains('test', $o_rights->getSourceKeys());
-        $this->assertContains('test', $o_roles->getSourceKeys());
+        $this->assertContains('test', $_rights->getSourceKeys());
+        $this->assertContains('test', $_roles->getSourceKeys());
     }
 
 
@@ -237,7 +237,7 @@ class UserTest extends TestCase
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertTrue($user->hasSomeRights(['everybody', 'god']));
 
-        // Test with Right that doesn't exist
+        // Test with Right that does not exist
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasSomeRights('fail'));
     }
@@ -274,7 +274,7 @@ class UserTest extends TestCase
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights(['everybody', 'god']));
 
-        // Test with Right that doesn't exist
+        // Test with Right that does not exist
         $user = User::new()->load(['email' => 'unittest@phoundation.org']);
         $this->assertFalse($user->hasAllRights('fail'));
     }

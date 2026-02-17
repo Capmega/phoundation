@@ -16,16 +16,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
-use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\HandlersInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
@@ -43,6 +44,62 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      * @var bool $group
      */
     protected bool $group = false;
+
+    /**
+     * Tracks the handler code for the various buttons
+     *
+     * @var HandlersInterface|null $_handlers
+     */
+    protected ?HandlersInterface $_handlers = null;
+
+
+    /**
+     * Returns the action handlers object
+     *
+     * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
+     *                              false, and the handlers object does not yet exist, NULL will be returned
+     *
+     * @return HandlersInterface
+     */
+    public function getHandlersObject(bool $auto_initialize = false): HandlersInterface
+    {
+        if (empty($this->_handlers)) {
+            if ($auto_initialize) {
+                $this->_handlers = new Handlers();
+            }
+        }
+
+        return $this->_handlers;
+    }
+
+
+    /**
+     * Sets the action handlers object
+     *
+     * @param HandlersInterface|null $_handlers
+     *
+     * @return static
+     */
+    public function setHandlersObject(HandlersInterface|null $_handlers): static
+    {
+        $this->_handlers = $_handlers;
+        return $this;
+    }
+
+
+    /**
+     * Adds a single handler for the specified button event
+     *
+     * @param callable $handler
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return static
+     */
+    public function addHandler(callable $handler, Stringable|string|float|int|null $key = null): static
+    {
+        $this->getHandlersObject(true)->add($handler, $key);
+        return $this;
+    }
 
 
     /**
@@ -221,7 +278,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setWrapping($this->wrapping)
                             ->setOutlined($this->outlined)
                             ->setRounded($this->rounded)
-                            ->addClasses($this->o_classes)
+                            ->addClasses($this->_classes)
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($value ?? $button)
@@ -274,14 +331,14 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      */
     public function render(): ?string
     {
-        $o_aria  = $this->getAriaObject();
-        $o_data = $this->getDataObject();
-        $o_class = $this->getClassesObject();
+        $_aria  = $this->getAriaObject();
+        $_data = $this->getDataObject();
+        $_class = $this->getClassesObject();
 
         foreach ($this as $button) {
-            $button->getAriaObject()->addSource($o_aria);
-            $button->getDataObject()->addSource($o_data);
-            $button->getClassesObject()->addSource($o_class);
+            $button->getAriaObject()->addSource($_aria);
+            $button->getDataObject()->addSource($_data);
+            $button->getClassesObject()->addSource($_class);
         }
 
         return parent::render();

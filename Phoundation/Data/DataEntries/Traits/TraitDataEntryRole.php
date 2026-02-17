@@ -96,12 +96,12 @@ trait TraitDataEntryRole
     /**
      * Returns the roles_id for this user
      *
-     * @param RoleInterface|null $o_object
+     * @param RoleInterface|null $_object
      *
      * @return static
      */
-    public function setRoleObject(?RoleInterface $o_object): static
+    public function setRoleObject(?RoleInterface $_object): static
     {
-        return $this->setVirtualObject('roles', $o_object);
+        return $this->setVirtualObject('roles', $_object);
     }
 }

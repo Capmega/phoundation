@@ -26,39 +26,39 @@ trait TraitGitProcess
     /**
      * The directory that will be checked
      *
-     * @var PhoPathInterface|null $o_path
+     * @var PhoPathInterface|null $_path
      */
-    protected ?PhoPathInterface $o_path;
+    protected ?PhoPathInterface $_path;
 
     /**
      * The git process
      *
-     * @var ProcessInterface|null $o_git_process
+     * @var ProcessInterface|null $_git_process
      */
-    protected ?ProcessInterface $o_git_process;
+    protected ?ProcessInterface $_git_process;
 
 
     /**
      * TraitGitProcess trait constructor
      *
-     * @param PhoPathInterface|null $o_parent_path
+     * @param PhoPathInterface|null $_parent_path
      */
-    public function __construct(?PhoPathInterface $o_parent_path = null)
+    public function __construct(?PhoPathInterface $_parent_path = null)
     {
-        $this->setPath($o_parent_path);
+        $this->setPath($_parent_path);
     }
 
 
     /**
      * Returns a new static object that accepts $directory in the constructor
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public static function new(?PhoPathInterface $o_path = null): static
+    public static function new(?PhoPathInterface $_path = null): static
     {
-        return new static($o_path);
+        return new static($_path);
     }
 
 
@@ -69,26 +69,26 @@ trait TraitGitProcess
      */
     public function getPath(): PhoPathInterface
     {
-        return $this->o_path;
+        return $this->_path;
     }
 
 
     /**
      * Returns the directory for this ChangedFiles object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPath(?PhoPathInterface $o_path): static
+    public function setPath(?PhoPathInterface $_path): static
     {
-        if ($o_path) {
-            $this->o_path        = $o_path->makeAbsolute()->checkReadable();
-            $this->o_git_process = Process::new('git')->setExecutionDirectory($this->o_path->getDirectoryObject());
+        if ($_path) {
+            $this->_path        = $_path->makeAbsolute()->checkReadable();
+            $this->_git_process = Process::new('git')->setExecutionDirectory($this->_path->getDirectoryObject());
 
         } else {
-            $this->o_path        = null;
-            $this->o_git_process = null;
+            $this->_path        = null;
+            $this->_git_process = null;
         }
 
         return $this;

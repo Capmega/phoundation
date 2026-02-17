@@ -139,7 +139,7 @@ class Roles extends DataIterator implements RolesInterface
             }
 
             // Add meta-information for parent
-            $this->o_parent->addMetaAction('Updated rights', data: $diff);
+            $this->_parent->addMetaAction('Updated rights', data: $diff);
         }
 
         return $this;
@@ -155,16 +155,16 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function hasRole(RoleInterface $role): bool
     {
-        if (!$this->o_parent) {
+        if (!$this->_parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified role, this roles list has no parent specified');
         }
 
-        if ($this->o_parent instanceof UserInterface) {
+        if ($this->_parent instanceof UserInterface) {
             return (bool) sql()->getRow('SELECT `id`
                                       FROM   `accounts_users_roles`
                                       WHERE  `users_id`  = :users_id
                                       AND    `roles_id` = :roles_id', [
-                ':users_id' => $this->o_parent->getId(),
+                ':users_id' => $this->_parent->getId(),
                 ':roles_id' => $role->getId(),
             ]);
         }
@@ -174,7 +174,7 @@ class Roles extends DataIterator implements RolesInterface
                                   FROM   `accounts_roles_rights`
                                   WHERE  `roles_id`  = :roles_id
                                   AND    `rights_id` = :rights_id', [
-            ':rights_id' => $this->o_parent->getId(),
+            ':rights_id' => $this->_parent->getId(),
             ':roles_id'  => $role->getId(),
         ]);
     }
@@ -196,7 +196,7 @@ class Roles extends DataIterator implements RolesInterface
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->checkParent(tr('add Role entry to parent ":parent"', [
-            ':parent' => $this->o_parent ? get_class($this->o_parent) : 'NULL'
+            ':parent' => $this->_parent ? get_class($this->_parent) : 'NULL'
         ]));
 
         if (empty($value)) {
@@ -230,22 +230,22 @@ class Roles extends DataIterator implements RolesInterface
         // Add the specified role to this roles list
         parent::append($value, $key, $skip_null_values, $exception);
 
-        if ($this->o_parent) {
+        if ($this->_parent) {
             // Add entry to parent, User or Right
-            if ($this->o_parent instanceof UserInterface) {
+            if ($this->_parent instanceof UserInterface) {
                 Log::action(ts('Adding role ":role" to user ":user"', [
-                    ':user' => $this->o_parent->getLogId(),
+                    ':user' => $this->_parent->getLogId(),
                     ':role' => $value->getLogId(),
                 ]), 3);
 
                 sql()->insert('accounts_users_roles', [
-                    'users_id' => $this->o_parent->getId(),
+                    'users_id' => $this->_parent->getId(),
                     'roles_id' => $value->getId(),
                 ]);
 
                 // This role has rights, so add the rights for this role to the user
                 foreach ($value->getRightsObject() as $right) {
-                    $this->o_parent->getRightsObject()
+                    $this->_parent->getRightsObject()
                                    ->add($right);
                 }
 
@@ -254,20 +254,20 @@ class Roles extends DataIterator implements RolesInterface
 
             // Since only UserInterface and RightInterface objects are allowed, this parent MUST have RightInterface
             Log::action(ts('Adding right ":right" to role ":role"', [
-                ':right' => $this->o_parent->getLogId(),
+                ':right' => $this->_parent->getLogId(),
                 ':role'  => $value->getLogId(),
             ]), 3);
 
             sql()->insert('accounts_roles_rights', [
-                'rights_id' => $this->o_parent->getId(),
+                'rights_id' => $this->_parent->getId(),
                 'roles_id'  => $value->getId(),
             ]);
 
             // Update all users with this role to get the new right as well!
-            foreach ($this->o_parent->getUsersObject() as $user) {
+            foreach ($this->_parent->getUsersObject() as $user) {
                 User::new()->load($user)
                     ->getRightsObject()
-                    ->add($this->o_parent);
+                    ->add($this->_parent);
             }
         }
 
@@ -286,7 +286,7 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        if ($this->o_parent and (($this->o_parent instanceof UserInterface) or ($this->o_parent instanceof RightInterface))) {
+        if ($this->_parent and (($this->_parent instanceof UserInterface) or ($this->_parent instanceof RightInterface))) {
             return $this->removeValues($keys, strict: $strict);
         }
 
@@ -320,59 +320,59 @@ class Roles extends DataIterator implements RolesInterface
 
         } else {
             // Delete a single role. Since this is a Role object, the entry already exists in the database
-            $o_role = Role::new($needles);
+            $_role = Role::new($needles);
 
-            if ($this->o_parent instanceof UserInterface) {
+            if ($this->_parent instanceof UserInterface) {
                 Log::action(ts('Removing role ":role" from user ":user"', [
-                    ':user' => $this->o_parent->getLogId(),
-                    ':role' => $o_role->getLogId(),
+                    ':user' => $this->_parent->getLogId(),
+                    ':role' => $_role->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_roles', [
-                    'users_id' => $this->o_parent->getId(),
-                    'roles_id' => $o_role->getId(),
+                    'users_id' => $this->_parent->getId(),
+                    'roles_id' => $_role->getId(),
                 ]);
 
-                $o_rights = $o_role->getRightsObject();
+                $_rights = $_role->getRightsObject();
 
                 // Delete this role from the internal list
-                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
+                parent::removeKeys($_role->getUniqueColumnValue(), $strict);
 
                 // Remove the rights related to this role
-                foreach ($o_rights as $o_right) {
+                foreach ($_rights as $_right) {
 
                     // Ensure this right  is not also given by another role
-                    foreach ($o_right->getRolesObject() as $check_role) {
+                    foreach ($_right->getRolesObject() as $check_role) {
                         if ($this->hasRole($check_role)) {
                             // Do not remove this right, another role gives it too.
                             continue 2;
                         }
                     }
 
-                    $this->o_parent->getRightsObject()->removeKeys($o_right, $strict);
+                    $this->_parent->getRightsObject()->removeKeys($_right, $strict);
                 }
 
-            } elseif ($this->o_parent instanceof RightInterface) {
+            } elseif ($this->_parent instanceof RightInterface) {
                 Log::action(ts('Removing role ":role" from right ":right"', [
-                    ':right' => $this->o_parent->getLogId(),
-                    ':role'  => $o_role->getLogId(),
+                    ':right' => $this->_parent->getLogId(),
+                    ':role'  => $_role->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_roles_rights', [
-                    'rights_id' => $this->o_parent->getId(),
-                    'roles_id'  => $o_role->getId(),
+                    'rights_id' => $this->_parent->getId(),
+                    'roles_id'  => $_role->getId(),
                 ]);
 
                 // Update all users with this right to remove the new right as well!
-                foreach ($this->o_parent->getUsersObject() as $o_user) {
+                foreach ($this->_parent->getUsersObject() as $_user) {
                     User::new()
-                        ->load($o_user)
+                        ->load($_user)
                         ->getRightsObject()
-                        ->removeKeys($this->o_parent, $strict);
+                        ->removeKeys($this->_parent, $strict);
                 }
 
                 // Remove right from the internal list
-                parent::removeKeys($o_role->getUniqueColumnValue(), $strict);
+                parent::removeKeys($_role->getUniqueColumnValue(), $strict);
 
             } else {
                 parent::removeValues($needles, $column, $strict);
@@ -393,22 +393,22 @@ class Roles extends DataIterator implements RolesInterface
     {
         $this->checkParent(tr('clear all entries from parent'));
 
-        if ($this->o_parent instanceof UserInterface) {
+        if ($this->_parent instanceof UserInterface) {
             Log::action(ts('Removing all roles from user ":user"', [
-                ':user' => $this->o_parent->getLogId(),
+                ':user' => $this->_parent->getLogId(),
             ]));
 
             sql()->query('DELETE FROM `accounts_users_roles` WHERE `users_id` = :users_id', [
-                'users_id' => $this->o_parent->getId(),
+                'users_id' => $this->_parent->getId(),
             ]);
 
-        } elseif ($this->o_parent instanceof RightInterface) {
+        } elseif ($this->_parent instanceof RightInterface) {
             Log::action(ts('Removing right ":right" from all roles', [
-                ':right' => $this->o_parent->getLogId(),
+                ':right' => $this->_parent->getLogId(),
             ]), 3);
 
             sql()->query('DELETE FROM `accounts_roles_rights` WHERE `rights_id` = :rights_id', [
-                'rights_id' => $this->o_parent->getId(),
+                'rights_id' => $this->_parent->getId(),
             ]);
         }
 
@@ -426,17 +426,17 @@ class Roles extends DataIterator implements RolesInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        if ($this->o_parent) {
-            if ($this->o_parent instanceof UserInterface) {
-                $this->o_query_builder->addJoin('JOIN  `accounts_users_roles` 
+        if ($this->_parent) {
+            if ($this->_parent instanceof UserInterface) {
+                $this->_query_builder->addJoin('JOIN  `accounts_users_roles` 
                                                    ON  `accounts_users_roles`.`users_id` = :users_id
                                                   AND  `accounts_users_roles`.`roles_id` = `accounts_roles`.`id`', [
-                    ':users_id' => $this->o_parent->getId(),
+                    ':users_id' => $this->_parent->getId(),
                 ]);
 
-            } elseif ($this->o_parent instanceof RightInterface) {
-                $this->o_query_builder->addWhere('`accounts_roles_rights`.`rights_id` = :rights_id', [
-                    ':rights_id' => $this->o_parent->getId(),
+            } elseif ($this->_parent instanceof RightInterface) {
+                $this->_query_builder->addWhere('`accounts_roles_rights`.`rights_id` = :rights_id', [
+                    ':rights_id' => $this->_parent->getId(),
                 ]);
             }
         }
@@ -589,19 +589,19 @@ class Roles extends DataIterator implements RolesInterface
     /**
      * @inheritDoc
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static
     {
-        if (!$o_parent instanceof UserInterface) {
-            if (!$o_parent instanceof RightInterface) {
+        if (!$_parent instanceof UserInterface) {
+            if (!$_parent instanceof RightInterface) {
                 throw new DataEntryInvalidParentException(tr('Cannot attach parent ":parent" with id ":id" to ":class" class object, must be of type "UserInterface" or "RightInterface"', [
-                    ':id'     => $o_parent->getLogId(),
-                    ':parent' => $o_parent::class,
+                    ':id'     => $_parent->getLogId(),
+                    ':parent' => $_parent::class,
                     ':class'  => $this::class,
                 ]));
             }
         }
 
-        return parent::setParentObject($o_parent);
+        return parent::setParentObject($_parent);
     }
 
 

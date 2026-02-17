@@ -29,7 +29,7 @@ trait TraitObjectTopButtons
      *
      * @var ButtonsInterface
      */
-    protected ButtonsInterface $o_top_buttons;
+    protected ButtonsInterface $_top_buttons;
 
 
     /**
@@ -39,11 +39,11 @@ trait TraitObjectTopButtons
      */
     public function hasTopButtons(): bool
     {
-        if (empty($this->o_top_buttons)) {
+        if (empty($this->_top_buttons)) {
             return false;
         }
 
-        return $this->o_top_buttons->isNotEmpty();
+        return $this->_top_buttons->isNotEmpty();
     }
 
 
@@ -54,28 +54,28 @@ trait TraitObjectTopButtons
      */
     public function getTopButtons(): ButtonsInterface
     {
-        if (empty($this->o_top_buttons)) {
-            $this->o_top_buttons = new Buttons();
+        if (empty($this->_top_buttons)) {
+            $this->_top_buttons = new Buttons();
         }
 
-        return $this->o_top_buttons;
+        return $this->_top_buttons;
     }
 
 
     /**
      * Sets the modal buttons
      *
-     * @param ButtonsInterface|null $o_top_buttons
+     * @param ButtonsInterface|null $_top_buttons
      *
      * @return static
      */
-    public function setTopButtons(?ButtonsInterface $o_top_buttons): static
+    public function setTopButtons(?ButtonsInterface $_top_buttons): static
     {
-        if ($o_top_buttons) {
-            $this->o_top_buttons = $o_top_buttons;
+        if ($_top_buttons) {
+            $this->_top_buttons = $_top_buttons;
 
         } else {
-            unset($this->o_top_buttons);
+            unset($this->_top_buttons);
         }
 
         return $this;

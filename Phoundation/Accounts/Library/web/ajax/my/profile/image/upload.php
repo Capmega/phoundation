@@ -33,25 +33,25 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Uploads\UploadHandler;
 
 
-$o_json_page = JsonPage::new();
+$_json_page = JsonPage::new();
 
 
 try {
     Request::getMethodRestrictionsObject()->require(EnumHttpRequestMethod::upload);
     Request::getFileUploadHandlersObject()
            ->add(UploadHandler::new('image')
-               ->addValidationFunction(function (FileValidatorInterface $o_validator) {
-                   $o_validator->isImage('jpg,png')->isSmallerThan('10MB')
+               ->addValidationFunction(function (FileValidatorInterface $_validator) {
+                   $_validator->isImage('jpg,png')->isSmallerThan('10MB')
                                ->validate();
                })
-               ->setFileCallback(function(PhoUploadedFileInterface $file) use ($o_json_page) {
+               ->setFileCallback(function(PhoUploadedFileInterface $file) use ($_json_page) {
                    // Set this image as the profile image
                    ProfileImage::newFromImageFile(new ImageFile($file))
                                ->setUserObject(Session::getUserObject())
                                ->save()
                                ->setDefault();
 
-                   $o_json_page->addFlashMessageSections(FlashMessage::new()
+                   $_json_page->addFlashMessageSections(FlashMessage::new()
                                                                      ->setMode(EnumDisplayMode::success)
                                                                      ->setTitle(tr('Success!'))
                                                                      ->setMessage(tr('Your profile picture has been updated')))
@@ -79,19 +79,19 @@ try {
                                                                                                    ':name' => Session::getUserObject()->getDisplayName()
                                                                                                ])))));
 
-                   $o_json_page->reply();
+                   $_json_page->reply();
                })
            )
            ->process();
 
 } catch (ValidationFailedException $e) {
     if (str_starts_with($e->getMessage(), 'No handler found for files')) {
-        $o_json_page->addFlashMessageSections(FlashMessage::new()
+        $_json_page->addFlashMessageSections(FlashMessage::new()
                                                           ->setMode(EnumDisplayMode::warning)
                                                           ->setTitle(tr('Warning!'))
                                                           ->setMessage(tr('Failed to update your profile image with the uploaded file, it is not an image')));
 
-        $o_json_page->reply();
+        $_json_page->reply();
     }
 
     throw $e;

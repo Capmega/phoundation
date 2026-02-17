@@ -24,9 +24,9 @@ trait TraitDataObjectGit
     /**
      * Tracks the Git object linked to this object
      *
-     * @var GitInterface $o_git
+     * @var GitInterface $_git
      */
-    protected GitInterface $o_git;
+    protected GitInterface $_git;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectGit
      */
     public function getGitObject(): GitInterface
     {
-        return $this->o_git;
+        return $this->_git;
     }
 
 
     /**
      * Sets the Git object linked to this object
      *
-     * @param GitInterface $o_git
+     * @param GitInterface $_git
      *
      * @return static
      */
-    public function setGitObject(GitInterface $o_git): static
+    public function setGitObject(GitInterface $_git): static
     {
-        $this->o_git = $o_git;
+        $this->_git = $_git;
         return $this;
     }
 }

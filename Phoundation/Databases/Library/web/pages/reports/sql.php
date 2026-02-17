@@ -36,16 +36,16 @@ Request::getMethodRestrictionsObject()->allow(EnumHttpRequestMethod::post);
 
 
 // Build users filter card
-$o_filters      = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters      = FilterForm::new();
+$_filters_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setTitle('SQL query filter')
-                    ->setContent($o_filters)
+                    ->setContent($_filters)
                     ->useForm(true);
 
 
 // Only allow SHOW and SELECT queries
-$query = $o_filters->getQuery();
+$query = $_filters->getQuery();
 
 
 // Build result table
@@ -63,7 +63,7 @@ try {
     }
 
     $results = DataIterator::new()
-                           ->setQuery($o_filters->getQuery())
+                           ->setQuery($_filters->getQuery())
                            ->getHtmlDataTableObject()
                                ->setId('results')
                                ->setCheckboxSelectors(EnumTableIdColumn::visible);
@@ -82,14 +82,14 @@ $results_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/reports.html')->makeWww(), tr('Reports')));
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('<p>This manual query report generator allows you to generate any type of report manually by typing the query</p>
@@ -108,5 +108,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card   . $results_card        , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card   . $results_card        , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

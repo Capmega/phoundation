@@ -73,7 +73,7 @@ $notification_card = Card::new()
     ->setCollapseSwitch(true)
     ->setMaximizeSwitch(true)
     ->setTitle($notification->getTitle())
-    ->setContent($notification->getHtmlDataEntryFormObject())
+    ->setContent($notification->getHtmlFormObject())
     ->setButtonsObject(Buttons::new()
                               ->addButton(tr('Mark unread'))
                               ->addBackButton(Url::newPrevious('/notifications/all.html'), true)
@@ -81,7 +81,7 @@ $notification_card = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/notifications/all.html')->makeWww(), tr('All notifications')) .
@@ -90,7 +90,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -114,4 +114,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($notification_card                      , EnumDisplaySize::nine, true)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

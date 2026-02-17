@@ -258,22 +258,55 @@ class Strings extends Utils
 
 
     /**
-     * Return a lowercase version of the $source string with the first letter capitalized
+     * Return the source string with the first letter capitalized
      *
-     * @param Stringable|string $source
-     * @param int               $position
+     * @param Stringable|string $source                 The source string to process
+     * @param int               $position        [0]    The index of the letter of each word that should be capitalized, starting at 0.
+     * @param bool              $force_lowercase [true] Will force all the rest of the letters to lowercase
      *
      * @return string
      */
-    public static function capitalize(Stringable|string $source, int $position = 0): string
+    public static function capitalize(Stringable|string $source, int $position = 0, bool $force_lowercase = true): string
     {
         $source = (string) $source;
 
-        if (!$position) {
-            return mb_strtoupper(mb_substr($source, 0, 1)) . mb_strtolower(mb_substr($source, 1));
+        if ($force_lowercase) {
+            $source = mb_strtolower($source);
         }
 
-        return mb_strtolower(mb_substr($source, 0, $position)) . mb_strtoupper(mb_substr($source, $position, 1)) . mb_strtolower(mb_substr($source, $position + 1));
+        if (!$position) {
+            return mb_strtoupper(mb_substr($source, 0, 1)) . mb_substr($source, 1);
+        }
+
+        return mb_substr($source, 0, $position) . mb_strtoupper(mb_substr($source, $position, 1)) . mb_substr($source, $position + 1);
+    }
+
+
+    /**
+     * Returns the specified string with each first letter of each word capitalized
+     *
+     * @param Stringable|string $source                 The source string to process
+     * @param int               $position        [0]    The index of the letter of each word that should be capitalized, starting at 0.
+     * @param bool              $force_lowercase [true] Will force all the rest of the letters of each word to lowercase
+     *
+     * @return string
+     */
+    public static function capitalizeWords(Stringable|string $source, int $position = 0, bool $force_lowercase = true): string
+    {
+        $source = (string) $source;
+
+        if ($force_lowercase) {
+            $source = mb_strtolower($source);
+        }
+
+        $source = mb_split(' ', $source);
+
+        foreach ($source as &$word) {
+            $word = Strings::capitalize($word);
+        }
+
+        unset($word);
+        return implode(' ', $source);
     }
 
 
@@ -1206,7 +1239,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1255,7 +1288,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1398,7 +1431,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -1448,7 +1481,7 @@ class Strings extends Utils
             }
 
             if ($pos === false) {
-                // The needle wasn't found (anymore)
+                // The needle was not found (anymore)
                 break;
             }
         }
@@ -2137,7 +2170,7 @@ class Strings extends Utils
     /**
      * Returns a string displaying the specified octal value
      *
-     * @todo Rewrite this crap, it doesn't check anything beyond numeric?
+     * @todo Rewrite this crap, it does not check anything beyond numeric?
      *
      * @param Stringable|string|int $source
      *

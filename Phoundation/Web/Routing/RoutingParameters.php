@@ -46,9 +46,9 @@ class RoutingParameters implements RoutingParametersInterface
     /**
      * Server restrictions indicating what the router can access
      *
-     * @var PhoRestrictions|array|string|null $o_restrictions
+     * @var PhoRestrictions|array|string|null $_restrictions
      */
-    protected PhoRestrictions|array|string|null $o_restrictions = null;
+    protected PhoRestrictions|array|string|null $_restrictions = null;
 
     /**
      * Sets the default base URL for all links generated
@@ -252,21 +252,21 @@ class RoutingParameters implements RoutingParametersInterface
      */
     public function getRestrictionsObject(): PhoRestrictionsInterface
     {
-        return $this->o_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
+        return $this->_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
     }
 
 
     /**
      * Sets the server restrictions
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      *
      * @return static
      * @todo Use TraitRestrictionsObject instead!
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions): static
     {
-        $this->o_restrictions = $o_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
+        $this->_restrictions = $_restrictions ?? PhoRestrictions::newWeb(false, 'RoutingParameter::setRestrictionsObject()');
 
         return $this;
     }

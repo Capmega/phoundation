@@ -253,7 +253,7 @@ class Route
         static::$url    = Strings::until(static::$url, '?');
 
         if ($this->detectFaviconRequest()) {
-            // This is a favicon request that by default won't be logged, unless exceptions are encountered
+            // This is a favicon request that by default will not be logged, unless exceptions are encountered
             // Ensure the post-processing function is registered
             Log::information(ts('[:method] ":url" from client ":client" with referer ":referer" (Favicon request, further logging disabled unless exception encountered)', [
                 ':method' => static::$method,
@@ -432,9 +432,9 @@ class Route
 
         // Get routing parameters and find the correct web page file for this route
         $parameters = static::getParametersObject()->select(static::$url);
-        $o_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
+        $_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
 
-        if ($o_file->hasExtension('php')) {
+        if ($_file->hasExtension('php')) {
             // Set up the request object, send parameters, attachment configuration and if this is a system request
             Request::setRoutingParameters($parameters);
             Request::setAttachment(static::$attachment);
@@ -442,17 +442,17 @@ class Route
             Core::setScriptState();
 
             // Target may NEVER be web/index.php because that will run the router into endless loops!
-            if ($o_file->isPath('index.php')) {
+            if ($_file->isPath('index.php')) {
                 throw new RouteException(tr('Will not route to resolved file "index.php" as this would cause an endless loop'));
             }
 
             // The route is a PHP file, so execute it. The Page object will take care of everything, even if it's an
             // attachment that the client will download instead of view in the browser.
-            Request::execute($o_file);
+            Request::execute($_file);
         }
 
         // The file is NOT a PHP executable, send the resolved file contents to the client directly
-        PhoFile::new(DIRECTORY_WEB . 'static/' . $o_file->getSource(), PhoRestrictions::newWeb(false, 'static'))->upload(false);
+        PhoFile::new(DIRECTORY_WEB . 'static/' . $_file->getSource(), PhoRestrictions::newWeb(false, 'static'))->upload(false);
         exit();
     }
 
@@ -535,7 +535,7 @@ class Route
             static::executeSystem(503);
         }
 
-        // Domain shouldn't end with a .
+        // Domain should not end with a .
         if (str_ends_with($_SERVER['HTTP_HOST'], '.')) {
             // Redirect to the same URL, but the host without .
             Log::warning(ts('Requested URI ":uri" host ":host" ends with a dot, automatically redirecting to cleaned URL', [
@@ -574,7 +574,7 @@ class Route
             Response::redirect($_SERVER['REQUEST_SCHEME'] . '://' . Strings::ensureEndsNotWith($_SERVER['HTTP_HOST'], '.') . $_SERVER['REQUEST_URI']);
         }
 
-        // Ensure URL doesn't end with a trailing &
+        // Ensure URL does not end with a trailing &
         if (str_ends_with($_SERVER['REQUEST_URI'], '&')) {
             Log::warning(ts('Requested URI ":uri" ends with one or multiple ampersands (&), automatically redirecting to cleaned URL', [
                 ':uri' => $_SERVER['REQUEST_URI'],
@@ -1652,7 +1652,7 @@ class Route
                     break;
 
                 case 'C':
-                    // URL cloaking will execute the resolved URL directly, so if it returns here at all it didn't match
+                    // URL cloaking will execute the resolved URL directly, so if it returns here at all it did not match
                     static::applyFlagCloak($flags_id);
                     return false;
 
@@ -2083,7 +2083,7 @@ class Route
         return;
         if (!$validated) {
             $validated = true;
-            // Check that the domain doesn't start or end with a dot (.) if it does, redirect to the domain without the .
+            // Check that the domain does not start or end with a dot (.) if it does, redirect to the domain without the .
             // In principle, this should already cause a shitload of other issues, like SSL certs not working, etc. but
             // still, just to be sure
             if (empty($_SERVER['HTTP_HOST'])) {

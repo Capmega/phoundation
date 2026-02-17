@@ -250,11 +250,11 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|UrlInterface|RenderInterface|null $o_parent
+     * @param DataEntryInterface|UrlInterface|RenderInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $o_parent): static;
+    public function setParentObject(DataEntryInterface|UrlInterface|RenderInterface|null $_parent): static;
 
 
     /**
@@ -334,12 +334,12 @@ interface DataIteratorInterface extends IteratorInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static;
 
     /**
      * Sets the QueryBuilder object to modify the internal query for this object

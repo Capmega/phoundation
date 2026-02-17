@@ -163,9 +163,9 @@ class Dropzone implements DropzoneInterface
     /**
      * The upload handler to which this dropzone belongs
      *
-     * @var UploadHandlerInterface $o_handler
+     * @var UploadHandlerInterface $_handler
      */
-    protected UploadHandlerInterface $o_handler;
+    protected UploadHandlerInterface $_handler;
 
 
     /**
@@ -180,7 +180,7 @@ class Dropzone implements DropzoneInterface
              ->setSelector($selector)
              ->setMaxFiles($this->getMaxFilesDefault())
              ->setRequestMethod(EnumHttpRequestMethod::post)
-             ->o_handler = $handler;
+             ->_handler = $handler;
     }
 
 
@@ -205,7 +205,7 @@ class Dropzone implements DropzoneInterface
      */
     public function getHandlerObject(): UploadHandlerInterface
     {
-        return $this->o_handler;
+        return $this->_handler;
     }
 
 
@@ -698,7 +698,7 @@ class Dropzone implements DropzoneInterface
     public function render(): ?string
     {
         $options = $this->generateOptionsJson([
-            'url'                   => $this->o_url->getSource(),
+            'url'                   => $this->_url->getSource(),
             'method'                => $this->request_method->value,
             'maxFiles'              => $this->max_files,
             'parallelUploads'       => $this->parallel_uploads,
@@ -754,7 +754,7 @@ class Dropzone implements DropzoneInterface
 //            'forceFallback'         => $this->force_fallback,
 
         return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); 
-                            phoundation.log("Setup dropzone with selector \"' . $this->selector . '\" and target \"' . $this->o_url . '\"")')
+                            phoundation.log("Setup dropzone with selector \"' . $this->selector . '\" and target \"' . $this->_url . '\"")')
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                      ->render();
     }

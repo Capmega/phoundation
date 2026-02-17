@@ -196,68 +196,68 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     /**
      * Sets the img for this profile image
      *
-     * @param ImgInterface $o_img
+     * @param ImgInterface $_img
      *
      * @return static
      */
-    public function setHtmlImgObject(ImgInterface $o_img): static
+    public function setHtmlImgObject(ImgInterface $_img): static
     {
-        return $this->setFile($o_img->getSrc())
-                    ->setDescription($o_img->getAlt());
+        return $this->setFile($_img->getSrc())
+                    ->setDescription($_img->getAlt());
     }
 
 
     /**
      * Returns the users_id for this user
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      *
      * @return static
      */
-    public function setUserObject(?UserInterface $o_user): static
+    public function setUserObject(?UserInterface $_user): static
     {
-        $o_file = $this->getFileObject();
+        $_file = $this->getFileObject();
 
-        if ($o_file) {
+        if ($_file) {
             // This profile image object has a file set, process it
             $this->setReadonly(false)
                  ->setRestrictionsObject(PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]));
 
-            $o_file->setRestrictionsObject($this->getRestrictionsObject());
+            $_file->setRestrictionsObject($this->getRestrictionsObject());
 
-            if ($o_user) {
-                $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $o_user->getId())
+            if ($_user) {
+                $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $_user->getId())
                                              ->ensure();
 
                 Log::action(ts('Adding image ":file" to profile images for user ":user"', [
-                    ':file' => $o_file->getRootname(),
-                    ':user' => $o_user->getLogId()
+                    ':file' => $_file->getRootname(),
+                    ':user' => $_user->getLogId()
                 ]), 4);
 
                 // If the profile image file is NOT in location CDN/img/files/profile/USERS_ID, move it there first
-                if (!$o_file->isInDirectory($cdn_directory)) {
+                if (!$_file->isInDirectory($cdn_directory)) {
                     Log::action(ts('Moving file ":file" to users profile image directory ":directory"', [
-                        ':file'      => $o_file->getRootname(),
+                        ':file'      => $_file->getRootname(),
                         ':directory' => $cdn_directory->getRootname()
                     ]));
 
-                    $this->setFileObject($o_file->move($cdn_directory));
+                    $this->setFileObject($_file->move($cdn_directory));
                 }
 
             } else {
                 // Assign the profile image to no user
-                $o_current = $this->getUserObject();
+                $_current = $this->getUserObject();
 
-                if ($o_current) {
+                if ($_current) {
                     // This profile image is currently assigned to a user and, as such, in its user directory. Move the file
                     // to a generic profile image directory
-                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $o_current->getId())
+                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $_current->getId())
                                                  ->ensure();
 
-                    if (!$o_file->isInDirectory($cdn_directory)) {
+                    if (!$_file->isInDirectory($cdn_directory)) {
                         Log::warning(ts('Profile image ":image" is linked to user ":user" and should be in ":path" but, well, its not...', [
-                            ':image' => $o_file->getRootname(),
-                            ':user'  => $o_user->getLogId(),
+                            ':image' => $_file->getRootname(),
+                            ':user'  => $_user->getLogId(),
                             ':path'  => $cdn_directory->getRootname()
                         ]));
                     }
@@ -266,18 +266,18 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                                  ->ensure();
 
                     Log::action(ts('Moving file ":file" to general users profile image directory ":directory"', [
-                        ':file'      => $o_file->getRootname(),
+                        ':file'      => $_file->getRootname(),
                         ':directory' => $cdn_directory->getRootname()
                     ]));
 
-                    $this->setFileObject($o_file->move($cdn_directory));
+                    $this->setFileObject($_file->move($cdn_directory));
                 }
 
-                $o_user = null;
+                $_user = null;
             }
         }
 
-        return $this->__setUserObject($o_user);
+        return $this->__setUserObject($_user);
     }
 
 
@@ -291,10 +291,10 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     public function setFileObject(PhoFileInterface|null $file): static
     {
         if ($file) {
-            $o_directory = PhoDirectory::newCdnObject();
+            $_directory = PhoDirectory::newCdnObject();
 
-            if ($file->isInDirectory($o_directory)) {
-                $file = $file->getFrom($o_directory);
+            if ($file->isInDirectory($_directory)) {
+                $file = $file->getFrom($_directory);
             }
         }
 
@@ -343,7 +343,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     protected function ensureFile(): static
     {
         if ($this->getFile()) {
-            $this->o_restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
+            $this->_restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
 
         } else {
             // This profile image has no file, assign the default profile image file
@@ -359,21 +359,21 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newUsersId())
+        $_definitions->add(DefinitionFactory::newUsersId())
 
                       ->add(DefinitionFactory::newId('uploads_id'))
 
                       ->add(DefinitionFactory::newFile()
                                            ->setMaxLength(2048)
                                            ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isFile([
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isFile([
                                                    PhoDirectory::newDataTmpObject(),
                                                    ($this->getUserObject() ? PhoDirectory::newCdnObject(true, 'img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
                                                ]);

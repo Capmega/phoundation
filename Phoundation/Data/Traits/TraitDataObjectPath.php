@@ -24,9 +24,9 @@ trait TraitDataObjectPath
     /**
      * The path to use
      *
-     * @var PhoPathInterface|null $o_path
+     * @var PhoPathInterface|null $_path
      */
-    protected ?PhoPathInterface $o_path = null;
+    protected ?PhoPathInterface $_path = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectPath
      */
     public function getPathObject(): ?PhoPathInterface
     {
-        return $this->o_path;
+        return $this->_path;
     }
 
 
     /**
      * Sets the path
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static
+    public function setPathObject(?PhoPathInterface $_path): static
     {
-        $this->o_path = $o_path;
+        $this->_path = $_path;
         return $this;
     }
 }

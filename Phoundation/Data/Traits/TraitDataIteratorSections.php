@@ -27,9 +27,9 @@ trait TraitDataIteratorSections
     /**
      * Tracks the sections iterator
      *
-     * @var IteratorInterface $o_sections
+     * @var IteratorInterface $_sections
      */
-    protected IteratorInterface $o_sections;
+    protected IteratorInterface $_sections;
 
 
     /**
@@ -39,24 +39,24 @@ trait TraitDataIteratorSections
      */
     public function getSectionsObject(): IteratorInterface
     {
-        if (empty($this->o_sections)) {
-            $this->o_sections = new Iterator();
+        if (empty($this->_sections)) {
+            $this->_sections = new Iterator();
         }
 
-        return $this->o_sections;
+        return $this->_sections;
     }
 
 
     /**
      * Returns the sections iterator
      *
-     * @param IteratorInterface|array $o_sections
+     * @param IteratorInterface|array $_sections
      *
      * @return static
      */
-    public function setSectionsObject(IteratorInterface|array $o_sections): static
+    public function setSectionsObject(IteratorInterface|array $_sections): static
     {
-        $this->o_sections = new Iterator($o_sections);
+        $this->_sections = new Iterator($_sections);
         return $this;
     }
 
@@ -64,16 +64,16 @@ trait TraitDataIteratorSections
     /**
      * Adds the specified sections iterator
      *
-     * @param IteratorInterface|array $o_sections
+     * @param IteratorInterface|array $_sections
      *
      * @return static
      */
-    public function addSectionsObject(IteratorInterface|array $o_sections): static
+    public function addSectionsObject(IteratorInterface|array $_sections): static
     {
         $this->getSectionsObject();
 
-        foreach ($o_sections as $key => $value) {
-            $this->o_sections->add($value, $key);
+        foreach ($_sections as $key => $value) {
+            $this->_sections->add($value, $key);
         };
 
         return $this;

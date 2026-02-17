@@ -55,11 +55,11 @@ class Branches extends IteratorCore implements BranchesInterface
     /**
      * Branches class constructor
      *
-     * @param RepositoryInterface $o_repository
+     * @param RepositoryInterface $_repository
      */
-    public function __construct(RepositoryInterface $o_repository) {
+    public function __construct(RepositoryInterface $_repository) {
         parent::__construct();
-        $this->o_repository = $o_repository;
+        $this->_repository = $_repository;
     }
 
 
@@ -70,7 +70,7 @@ class Branches extends IteratorCore implements BranchesInterface
      */
     public function load(): static
     {
-        $this->source = $this->o_repository->getGitObject()->getBranches(contains: $this->filter_revisions);
+        $this->source = $this->_repository->getGitObject()->getBranches(contains: $this->filter_revisions);
 
         // Branch names must match versions only
         foreach ($this->source as $branch => $selected) {

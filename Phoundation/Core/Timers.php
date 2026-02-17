@@ -77,14 +77,14 @@ class Timers implements TimersInterface
      */
     public static function new(string $group, string $label = '', bool $start = true): TimerInterface
     {
-        $o_timer = Timer::new($label, $start);
+        $_timer = Timer::new($label, $start);
 
         if (Debug::isEnabled()) {
             static::ensureGroup($group);
-            static::$timers[$group][] = $o_timer;
+            static::$timers[$group][] = $_timer;
         }
 
-        return $o_timer;
+        return $_timer;
     }
 
 

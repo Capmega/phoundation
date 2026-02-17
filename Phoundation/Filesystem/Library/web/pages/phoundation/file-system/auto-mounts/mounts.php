@@ -33,11 +33,11 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build the "filters" card
-$o_filters      = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters      = FilterForm::new();
+$_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Filters')
-                      ->setContent($o_filters);
+                      ->setContent($_filters);
 
 
 // Button clicked?
@@ -75,8 +75,8 @@ if (Request::isPostRequestMethod()) {
 
 
 // Get the mounts list and apply filters
-$o_mounts  = PhoMounts::new();
-$o_builder = $o_mounts->getQueryBuilderObject()
+$_mounts  = PhoMounts::new();
+$_builder = $_mounts->getQueryBuilderObject()
                       ->addSelect('`filesystem_mounts`.`id`, 
                                    `filesystem_mounts`.`name`, 
                                    `filesystem_mounts`.`filesystem`, 
@@ -85,49 +85,49 @@ $o_builder = $o_mounts->getQueryBuilderObject()
                                    `filesystem_mounts`.`status`, 
                                    `filesystem_mounts`.`created_on`');
 
-switch ($o_filters->get('status')) {
+switch ($_filters->get('status')) {
     case '__all':
         break;
 
     case null:
-        $o_builder->addWhere('`filesystem_mounts`.`status` IS NULL');
+        $_builder->addWhere('`filesystem_mounts`.`status` IS NULL');
         break;
 
     default:
-        $o_builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $o_filters->get('status')]);
+        $_builder->addWhere('`filesystem_mounts`.`status` = :status', [':status' => $_filters->get('status')]);
 }
 
 
 // Build SQL mounts table
-$o_buttons = Buttons::new()
+$_buttons = Buttons::new()
                     ->addCreateButton(Url::new('/phoundation/file-system/mount.html'))
                     ->addDeleteButton(true);
 
 // TODO Automatically re-select items if possible
 //    ->select($post['id']);
 
-$o_mounts_card = Card::new()
+$_mounts_card = Card::new()
                      ->setTitle('Available mounts')
                      ->setSwitches('reload')
                      ->useForm(true)
-                     ->setButtonsObject($o_buttons)
-                     ->setContent($o_mounts->load()
+                     ->setButtonsObject($_buttons)
+                     ->setContent($_mounts->load()
                                            ->getHtmlDataTableObject()->setRowUrls('/phoundation/file-system/mount+:ROW.html')
                                            ->setOrder([1 => 'asc']));
 
-$o_mounts_card->getFormObject()
+$_mounts_card->getFormObject()
               ->setAction(Url::newCurrent());
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/phoundation/file-system/roles.html')->makeWww(), tr('Filesystem connectors management')));
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
@@ -145,5 +145,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card . $o_mounts_card, EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card                , EnumDisplaySize::three);
+           ->addGridColumn($_filters_card . $_mounts_card, EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card                , EnumDisplaySize::three);

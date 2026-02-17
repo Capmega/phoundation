@@ -55,7 +55,7 @@ class SystemHttpErrorPage extends Page
     public function __construct(?string $name)
     {
         $this->setName($name);
-        $this->o_texts = new Iterator();
+        $this->_texts = new Iterator();
     }
 
 
@@ -99,7 +99,7 @@ class SystemHttpErrorPage extends Page
     {
         $text = $this->source;
 
-        foreach ($this->o_texts as $search => $replace) {
+        foreach ($this->_texts as $search => $replace) {
             $text = str_replace($search, (string) $replace, $text);
         }
 

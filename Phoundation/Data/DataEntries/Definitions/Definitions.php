@@ -119,7 +119,7 @@ class Definitions extends IteratorCore implements DefinitionsInterface
     {
         if (!$value instanceof DefinitionInterface) {
             throw new OutOfBoundsException(tr('Cannot add the specified value ":value" to the Definitions list for DataEntry class ":class", it must be a DefinitionInterface object but is a ":type" instead', [
-                ':class' => get_class_or_datatype($this->o_data_entry),
+                ':class' => get_class_or_datatype($this->_data_entry),
                 ':value' => $value,
                 ':type'  => get_class_or_datatype($value)
             ]));
@@ -129,13 +129,13 @@ class Definitions extends IteratorCore implements DefinitionsInterface
 
         if (in_array($key, ['connector'], true)) {
             throw new OutOfBoundsException(tr('The DataEntry ":class" class column / definition name ":column" is reserved and cannot be used for DataEntry columns', [
-                ':class'  => ($this->o_data_entry ? $this->o_data_entry::class : '-'),
+                ':class'  => ($this->_data_entry ? $this->_data_entry::class : '-'),
                 ':column' => $key
             ]));
         }
 
         // Ensure the added Definition has DataEntry and prefix set
-        $value->setDataEntryObject($this->o_data_entry)
+        $value->setDataEntryObject($this->_data_entry)
               ->setReadonly($value->getReadonly() or $this->getReadonly())
               ->setDisabled($value->getDisabled() or $this->getDisabled())
               ->setPrefix($this->getPrefix());
@@ -393,10 +393,10 @@ class Definitions extends IteratorCore implements DefinitionsInterface
      */
     public function modifyDefinition(Stringable|string|float|int $key, array $key_values, bool $exception = true): static
     {
-        $o_definition = $this->get($key, exception: $exception);
+        $_definition = $this->get($key, exception: $exception);
 
         foreach ($key_values as $key => $value) {
-            $o_definition->set($value, $key);
+            $_definition->set($value, $key);
         }
 
         return $this;

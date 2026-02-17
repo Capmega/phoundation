@@ -56,11 +56,11 @@ if ($argv['rights']) {
 }
 
 
-// Load role, ensure the new name doesn't exist yet, then modify it, save it
+// Load role, ensure the new name does not exist yet, then modify it, save it
 $role = Role::new()->load($argv['role']);
 
 if ($argv['name']) {
-    // If changing name, ensure it doesn't exist yet as it is a unique identifier
+    // If changing name, ensure it does not exist yet as it is a unique identifier
     Role::notExists(['name' => $argv['name']], $role->getId(), true);
 }
 

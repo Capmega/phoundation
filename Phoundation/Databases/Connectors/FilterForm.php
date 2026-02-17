@@ -46,7 +46,7 @@ class FilterForm extends \Phoundation\Web\Html\Components\Forms\FilterForm
 
         $connector = Connector::new();
 
-        $this->o_definitions = Definitions::new()
+        $this->_definitions = Definitions::new()
 
                                           ->add(Definition::new('status')
                                                         ->setLabel(tr('Status'))

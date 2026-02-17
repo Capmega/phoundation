@@ -406,7 +406,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Make sure the field value doesn't have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
+        // Make sure the field value does not have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
@@ -457,7 +457,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't be a variable name unless there is no alternative
+                // This is the short form argument, will not be a variable name unless there is no alternative
                 $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -481,7 +481,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $value = $this->argument($fields, $next, $this->test);
 
         } catch (OutOfBoundsException) {
-            // The field wasn't specified
+            // The field was not specified
             $value = null;
         }
 
@@ -543,7 +543,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't be a variable name unless there is no alternative
+                // This is the short form argument, will not be a variable name unless there is no alternative
                 $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -1008,10 +1008,10 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
 
             if (Core::inBootState() or $this->getValidationEnabled() and $exception) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                               ->setDataEntryObject($this->_definitions?->getDataEntryObject())
                                                ->makeWarning()
                                                ->addData([
-                                                   'class'    => get_class_or_datatype($this->o_definitions?->getDataEntryObject()),
+                                                   'class'    => get_class_or_datatype($this->_definitions?->getDataEntryObject()),
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ]);

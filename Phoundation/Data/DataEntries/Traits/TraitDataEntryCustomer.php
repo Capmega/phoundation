@@ -120,12 +120,12 @@ trait TraitDataEntryCustomer
     /**
      * Returns the customers_id for this user
      *
-     * @param CustomerInterface|null $o_object
+     * @param CustomerInterface|null $_object
      *
      * @return static
      */
-    public function setCustomerObject(?CustomerInterface $o_object): static
+    public function setCustomerObject(?CustomerInterface $_object): static
     {
-        return $this->setVirtualObject('customers', $o_object);
+        return $this->setVirtualObject('customers', $_object);
     }
 }

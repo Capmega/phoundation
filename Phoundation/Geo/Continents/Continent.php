@@ -77,18 +77,18 @@ class Continent extends DataEntry implements ContinentInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions;
+        $_definitions;
 
         return $this;
 //        throw new UnderConstructionException();
 //
-//        $data = $o_validator
+//        $data = $_validator
 //            ->select($this->getAlternateValidationField('code'), true)->hasMaxCharacters()->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //            ->select($this->getAlternateValidationField('continent'), true)->or('continents_id')->isName()->isQueryResult('SELECT `name` FROM `geo_continents` WHERE `name` = :name AND `status` IS NULL', [':name' => '$continent'])
 //            ->select($this->getAlternateValidationField('continents_id'), true)->or('continent')->isDbId()->isQueryResult  ('SELECT `id`   FROM `geo_continents` WHERE `id`   = :id   AND `status` IS NULL', [':id'   => '$continents_id'])
@@ -97,7 +97,7 @@ class Continent extends DataEntry implements ContinentInterface
 //            ->noArgumentsLeft($no_arguments_left)
 //            ->validate();
 //
-//        // Ensure the name doesn't exist yet as it is a unique identifier
+//        // Ensure the name does not exist yet as it is a unique identifier
 //        if ($data['name']) {
 //            static::notExists(['name' => $data['name']], $this->getId(), true);
 //        }

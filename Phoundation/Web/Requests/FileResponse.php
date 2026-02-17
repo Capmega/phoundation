@@ -224,9 +224,9 @@ class FileResponse extends PhoFile
         }
 
         // Ensure the specified file is valid and readable
-        PhoFile::new($file, $this->o_restrictions)->checkReadable();
+        PhoFile::new($file, $this->_restrictions)->checkReadable();
 
-        $this->o_restrictions->check($file, false);
+        $this->_restrictions->check($file, false);
 
         $this->file     = $file;
         $this->size     = $file->getSize();
@@ -373,7 +373,7 @@ class FileResponse extends PhoFile
         // Do we need compression?
         if ($this->compression === 'auto') {
             // Detect if the file is already compressed. If so, we do not need the server to try to compress the data
-            // stream too because it won't do anything (possibly make it even worse)
+            // stream too because it will not do anything (possibly make it even worse)
             $this->compression = !$this->isCompressed();
         }
         if ($this->compression) {
@@ -434,13 +434,13 @@ class FileResponse extends PhoFile
         file_put_contents($file, $data);
 
         if (!$callback) {
-            return PhoFile::new($file, $this->o_restrictions);
+            return PhoFile::new($file, $this->_restrictions);
         }
 
         // Execute the callbacks before returning the data, delete the temporary file after
         $file = $callback($file);
 
-        PhoFile::new($file, $this->o_restrictions)->delete();
+        PhoFile::new($file, $this->_restrictions)->delete();
 
         return $file;
     }

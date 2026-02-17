@@ -24,9 +24,9 @@ trait TraitDataObjectDirectoryReadonly
     /**
      * The directory for this object
      *
-     * @var PhoDirectoryInterface|null $o_directory
+     * @var PhoDirectoryInterface|null $_directory
      */
-    protected ?PhoDirectoryInterface $o_directory = null;
+    protected ?PhoDirectoryInterface $_directory = null;
 
 
     /**
@@ -36,22 +36,22 @@ trait TraitDataObjectDirectoryReadonly
      */
     public function getDirectoryObject(): ?PhoDirectoryInterface
     {
-        return $this->o_directory;
+        return $this->_directory;
     }
 
 
     /**
      * Sets the directory
      *
-     * @param PhoDirectoryInterface|null $o_directory
+     * @param PhoDirectoryInterface|null $_directory
      * @param string|null                $prefix
      * @param bool                       $must_exist
      *
      * @return static
      */
-    protected function setDirectoryObject(?PhoDirectoryInterface $o_directory, ?string $prefix = null, bool $must_exist = true): static
+    protected function setDirectoryObject(?PhoDirectoryInterface $_directory, ?string $prefix = null, bool $must_exist = true): static
     {
-        $this->o_directory = $o_directory?->makeAbsolute($prefix, $must_exist);
+        $this->_directory = $_directory?->makeAbsolute($prefix, $must_exist);
         return $this;
     }
 }

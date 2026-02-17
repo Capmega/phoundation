@@ -36,9 +36,9 @@ class Mpg123 extends Command
     {
         // Build the process parameters, then execute
         $this->clearArguments()
-             ->setRestrictionsObject(PhoRestrictions::getRestrictionsOrDefaultObject($this->o_restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mpg123', true, 'audio')))
+             ->setRestrictionsObject(PhoRestrictions::getRestrictionsOrDefaultObject($this->_restrictions, PhoRestrictions::new(DIRECTORY_DATA . 'mpg123', true, 'audio')))
              ->setCommand('mpg123')
-             ->addArgument($this->o_file)
+             ->addArgument($this->_file)
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);
     }
 }

@@ -74,13 +74,13 @@ class EmailAddressLinked extends DataEntry
     /**
      * Sets and returns the field definitions for the data fields in this DataEntry object
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newDatabaseId('emails_id')
+        $_definitions->add(DefinitionFactory::newDatabaseId('emails_id')
                                              ->setRender(false))
 
                       ->add(DefinitionFactory::newDatabaseId('address_id')

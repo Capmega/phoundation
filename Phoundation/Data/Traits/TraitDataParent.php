@@ -3,7 +3,7 @@
 /**
  * Trait TraitDataParent
  *
- * This trait adds support for storing DataEntryInterface $o_parent
+ * This trait adds support for storing DataEntryInterface $_parent
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,9 +29,9 @@ trait TraitDataParent
     /**
      * Tracks the parent object
      *
-     * @var DataEntryInterface|RenderInterface|PhoPathInterface|UrlInterface|null $o_parent
+     * @var DataEntryInterface|RenderInterface|PhoPathInterface|UrlInterface|null $_parent
      */
-    protected DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $o_parent = null;
+    protected DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $_parent = null;
 
     /**
      * Tracks if this object requires a parent, or not
@@ -48,20 +48,20 @@ trait TraitDataParent
      */
     #[ReturnTypeWillChange] public function getParentObject(): DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null
     {
-        return $this->o_parent;
+        return $this->_parent;
     }
 
 
     /**
      * Sets the DataEntryInterface parent object
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $_parent
      *
      * @return static
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|PhoPathInterface|null $_parent): static
     {
-        $this->o_parent = $o_parent;
+        $this->_parent = $_parent;
         return $this;
     }
 
@@ -75,7 +75,7 @@ trait TraitDataParent
      */
     protected function checkParent(string $action): static
     {
-        if (!$this->o_parent and $this->require_parent) {
+        if (!$this->_parent and $this->require_parent) {
             throw new OutOfBoundsException(tr('Cannot ":action", no parent specified for this ":class" object', [
                 ':action' => $action,
                 ':class'  => static::class,
