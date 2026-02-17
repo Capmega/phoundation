@@ -438,4 +438,14 @@ interface UrlInterface
      * @return static
      */
     public function addCurrentQueries(): static;
+
+    /**
+     * Performs a search / replace on this URL's source
+     *
+     * @param array $replace Contains all the search keys to replace with the values, key => value is search => replace.
+     * @param bool  $regex   If true, the keys should be regular expressions to perform more complex replacements
+     *
+     * @return static
+     */
+    public function replace(array $replace, bool $regex = false): static;
 }

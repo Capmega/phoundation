@@ -36,7 +36,7 @@ $get = GetValidator::new()
 
 // Build the page content
 $_incident = Incident::new()->load($get['id']);
-$_form     = $_incident->getHtmlDataEntryFormObject();
+$_form     = $_incident->getHtmlFormObject();
 $_card     = Card::new()
                   ->setTitle(tr('Incident data'))
                   ->setMaximizeSwitch(true)

@@ -69,7 +69,7 @@ $buttons = Buttons::new()
 $provider_card = Card::new()
                      ->setCollapseSwitch(true)
                      ->setTitle(tr('Edit data for provider :name', [':name' => $provider->getName()]))
-                     ->setContent($provider->getHtmlDataEntryFormObject()->render())
+                     ->setContent($provider->getHtmlFormObject()->render())
                      ->setButtonsObject($buttons);
 
 
