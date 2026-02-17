@@ -2366,7 +2366,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     $source = get_index_value($source, abs($identifier));
 
                 } catch (OutOfBoundsException) {
-                    // The specified identifier doesn't exist in the configuration
+                    // The specified identifier does not exist in the configuration
                     $source = null;
                 }
 
