@@ -1207,6 +1207,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             $name = trim($name);
+            $name = Strings::capitalizeWords($name);
 
             if (!($name)) {
                 if (!($name = $this->getUsername())) {

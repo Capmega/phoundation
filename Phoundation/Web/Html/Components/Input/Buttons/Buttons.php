@@ -16,8 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
-use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
@@ -25,7 +26,6 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
@@ -43,6 +43,76 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      * @var bool $group
      */
     protected bool $group = false;
+
+    /**
+     * Tracks the handler code for the various buttons
+     *
+     * @var IteratorInterface|null $_handlers
+     */
+    protected ?IteratorInterface $_handlers = null;
+
+
+    /**
+     * Returns the action handlers object
+     *
+     * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
+     *                              false, and the handlers object does not yet exist, NULL will be returned
+     *
+     * @return IteratorInterface
+     */
+    public function getHandlersObject(bool $auto_initialize = false): IteratorInterface
+    {
+        if (empty($this->_handlers)) {
+            if ($auto_initialize) {
+                $this->_handlers = new Iterator();
+            }
+        }
+
+        return $this->_handlers;
+    }
+
+
+    /**
+     * Sets the action handlers object
+     *
+     * @param IteratorInterface|null $_handlers
+     *
+     * @return static
+     */
+    public function setHandlers(IteratorInterface|null $_handlers): static
+    {
+        $this->_handlers = $_handlers;
+        return $this;
+    }
+
+
+    /**
+     * Adds a single handler for the specified button event
+     *
+     * @param callable $handler
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return static
+     */
+    public function addHandlers(callable $handler, Stringable|string|float|int|null $key = null): static
+    {
+        $this->getHandlersObject(true)->add($handler, $key);
+        return $this;
+    }
+
+
+    /**
+     * Adds a single "Save" handler to the handler list
+     *
+     * @param bool|null $float_right [null] If true, will add a float-right class to the handler. If false, the handler will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the handler will not be changed
+     *
+     * @return static
+     */
+    public function addSaveHandler(?bool $float_right = null): static
+    {
+        return $this->addHandler(SaveHandler::new()->setFloatRight($float_right));
+    }
 
 
     /**

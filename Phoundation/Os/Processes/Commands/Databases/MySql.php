@@ -135,49 +135,45 @@ class MySql extends Command
 
         switch ($file->getMimetype()) {
             case 'text/plain':
-                $this->setCommand('mysql')
-                     ->setTimeout($this->timeout)
-                     ->addArguments([
-                         '-h',  $this->_connector->getHostname(),
-                         '-u',  $this->_connector->getUsername(),
-                         '-p' . $this->_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
-                         '-B',  $this->_connector->getDatabase(),
-                     ]);
-
-                Tail::new()
-                    ->setTimeout($this->timeout)
-                    ->setFileObject($file)
-                    ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                    ->setPipe($this)
-                    ->execute();
-
+                Grep::new()
+                    ->setTimeout(null)
+                    ->setFilterReversed(true)
+                    ->setFilterRegularExpression(true)
+                    ->setFilter('/USE \`[a-z0-9_]\`;/i')
+                    ->setPipe(Grep::new()
+                                  ->setTimeout(null)
+                                  ->setFilterReversed(true)
+                                  ->setFilter('!999999\- enable the sandbox mode')
+                                  ->setPipe($this->setCommand('mysql')
+                                                 ->setTimeout($this->timeout)
+                                                 ->addArguments([
+                                                     '-h',  $this->_connector->getHostname(),
+                                                     '-u',  $this->_connector->getUsername(),
+                                                     '-p' . $this->_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
+                                                     '-B',  $this->_connector->getDatabase(),
+                                                 ])))->executeNoReturn();
                 break;
 
             case 'application/gzip':
-                $this->setCommand('mysql')
-                     ->setTimeout($this->timeout)
-                     ->addArguments([
-                         '-h',
-                         $this->_connector->getHostname(),
-                         '-u',
-                         $this->_connector->getUsername(),
-                         '-p' . $this->_connector->getPassword(),
-                         '-B',
-                         $this->_connector->getDatabase(),
-                     ]);
-
-                Grep::new()
-                    ->setFilterReversed(true)
-                    ->setFilterRegularExpression(true)
-                    ->setFilter("USE \`tracking\`;")
-                    ->setPipe(Zcat::new()
-                                  ->setTimeout($this->timeout)
-                                  ->setFileObject($file)
-                                  ->setPipe(Tail::new()
-                                                ->setTimeout($this->timeout)
-                                                ->addArgument('+2') // Strip the line     /*!999999\- enable the sandbox mode */
-                                                ->setPipe($this)))
-                    ->executeReturnArray();
+                Zcat::new()
+                    ->setTimeout($this->timeout)
+                    ->setFileObject($file)
+                    ->setPipe(Grep::new()
+                                  ->setFilterReversed(true)
+                                  ->setFilterRegularExpression(true)
+                                  ->setFilter("USE \`tracking\`;")
+                                  ->setPipe(Grep::new()
+                                                ->setFilterReversed(true)
+                                                ->setFilterRegularExpression(true)
+                                                ->setFilter("USE \`tracking\`;")
+                                                ->setPipe($this->setCommand('mysql')
+                                                               ->setTimeout($this->timeout)
+                                                               ->addArguments([
+                                                                   '-h', $this->_connector->getHostname(),
+                                                                   '-u', $this->_connector->getUsername(),
+                                                                   '-p' . $this->_connector->getPassword(),
+                                                                   '-B', $this->_connector->getDatabase(),
+                                                               ]))))->executeReturnArray();
 
                 break;
 

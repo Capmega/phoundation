@@ -23,6 +23,7 @@ use Phoundation\Data\Traits\TraitDataStringValue;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoPath;
@@ -66,6 +67,20 @@ class Grep extends Command
      * @var string|null $filter
      */
     protected ?string $filter = null;
+
+
+    /**
+     * Tail class constructor
+     *
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory
+     * @param string|null                                         $operating_system
+     * @param string|null                                         $packages
+     */
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $execution_directory = null, ?string $operating_system = null, ?string $packages = null)
+    {
+        parent::__construct($execution_directory, $operating_system, $packages);
+        $this->setCommand('grep');
+    }
 
 
     /**
@@ -201,10 +216,6 @@ class Grep extends Command
             throw new OutOfBoundsException(ts('Cannot grep, no filter specified'));
         }
 
-        if (empty($this->_file) and empty($this->_directory)) {
-            throw new OutOfBoundsException(ts('Cannot grep, no file or directory specified to grep in'));
-        }
-
         try {
             $this->setCommand('grep') //->setDebug(true)
                  ->setExecutionDirectory($this->_directory ?? $this->_file?->getDirectoryObject())
@@ -239,6 +250,36 @@ class Grep extends Command
 
 
     /**
+     * Builds and returns the command line that will be executed
+     *
+     * @param bool $background
+     * @param bool $pipe
+     *
+     * @return string
+     */
+    public function getFullCommandLine(bool $background = false, bool $pipe = false): string
+    {
+        if (empty($this->filter)) {
+            throw new OutOfBoundsException(ts('Cannot grep, no filter specified'));
+        }
+
+        if (empty($this->_file) and empty($this->_directory) and empty($this->pipe)) {
+            throw new OutOfBoundsException(ts('Cannot grep, no file or directory specified to grep in'));
+        }
+
+        $this->setCommand('grep') //->setDebug(true)
+             ->setExecutionDirectory($this->_directory ?? $this->_file?->getDirectoryObject())
+             ->addArguments($this->filter_reversed           ? '-v'                      : null)
+             ->addArguments($this->filter_regular_expression ? '-e'                      : null)
+             ->addArguments($this->filter)
+             ->addArguments($this->_file                     ? $this->_file              : null)
+             ->addArguments($this->_directory                ? [$this->_directory, '-R'] : null);
+
+        return parent::getFullCommandLine($background, $pipe);
+    }
+
+
+    /**
      * Execute the rsync operation and return the PID (background) or -1
      *
      * @param EnumExecuteMethod $method
@@ -257,7 +298,6 @@ class Grep extends Command
 
         // Return results
         return $this->clearArguments()
-                    ->setCommand('grep')
                     ->setAcceptedExitCodes([0, 1])
                     ->addArgument($this->value)
                     ->addArgument($this->_directory ?? $this->_file)

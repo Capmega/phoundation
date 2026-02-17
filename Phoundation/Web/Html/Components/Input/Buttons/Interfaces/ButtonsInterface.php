@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Input\Buttons\Interfaces;
 
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\AuditButton;
 use Phoundation\Web\Html\Components\Input\Buttons\BackButton;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
@@ -206,4 +207,33 @@ interface ButtonsInterface extends ElementsBlockInterface
      * @return static
      */
     public function addCreateButton(UrlInterface $_url, ?bool $float_right = false): static;
+
+    /**
+     * Returns the action handlers object
+     *
+     * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
+     *                              false, and the handlers object does not yet exist, NULL will be returned
+     *
+     * @return IteratorInterface
+     */
+    public function getHandlersObject(bool $auto_initialize = false): IteratorInterface;
+
+    /**
+     * Sets the action handlers object
+     *
+     * @param IteratorInterface|null $_handlers
+     *
+     * @return static
+     */
+    public function setHandlers(IteratorInterface|null $_handlers): static;
+
+    /**
+     * Adds a single handler for the specified button event
+     *
+     * @param callable $handler
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return static
+     */
+    public function addHandlers(callable $handler, Stringable|string|float|int|null $key = null): static;
 }

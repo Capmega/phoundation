@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Html\Components\Widgets\Cards;
 
 use PDOStatement;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCenter;
 use Phoundation\Data\Traits\TraitDataDescription;
@@ -30,18 +32,26 @@ use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
+use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
 use Stringable;
 
 
-class Card extends Widget
+class Card extends Widget implements CardInterface
 {
     use TraitDataCenter;
     use TraitDataTitle;
     use TraitDataDescription;
 
+
+    /**
+     * Tracks the optional DataEntry or Iterator source object
+     *
+     * @var DataEntryInterface|IteratorInterface|null $_source
+     */
+    protected DataEntryInterface|IteratorInterface|null $_source = null;
 
     /**
      * If this card is collapsable or not
@@ -159,7 +169,7 @@ class Card extends Widget
     public function setButtonsObject(ButtonsInterface|ButtonInterface|null $buttons): static
     {
         if ($buttons) {
-            if (is_object($buttons) and ($buttons instanceof ButtonInterface)) {
+            if ($buttons instanceof ButtonInterface) {
                 // This is a single button, store it in a buttons group
                 $buttons = Buttons::new()->addButton($buttons);
             }

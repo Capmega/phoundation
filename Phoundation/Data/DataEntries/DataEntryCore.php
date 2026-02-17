@@ -119,6 +119,8 @@ use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Requests\Request;
 use ReturnTypeWillChange;
@@ -5312,7 +5314,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Creates and returns an HTML for the data in this entry
      *
      * @return DataEntryFormInterface
-     * @todo Move this to the EntryCore class
      */
     public function getHtmlDataEntryFormObject(): DataEntryFormInterface
     {
@@ -5323,6 +5324,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                             ->setReadonly($this->readonly)
                             ->setDisabled($this->disabled)
                             ->setDefinitionsObject($this->getDefinitionsObject());
+    }
+
+
+    /**
+     * Creates and returns an HTML for the data in this entry
+     *
+     * @return CardInterface
+     */
+    public function getHtmlDataEntryCardObject(): CardInterface
+    {
+        $_form = $this->getHtmlDataEntryFormObject();
+
+        return Card::new();
     }
 
 
