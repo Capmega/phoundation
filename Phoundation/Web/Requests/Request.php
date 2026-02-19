@@ -1964,6 +1964,11 @@ class Request implements RequestInterface
      */
     protected static function ensureRequestPathPrefix(string $target): string
     {
+        if (str_starts_with($target, DIRECTORY_DATA)) {
+            // The specified target is an absolute path that needs no adjustment
+            return $target;
+        }
+
         $target = Strings::ensureBeginsNotWith($target, '/');
 
         return match (Request::getRequestType()) {
