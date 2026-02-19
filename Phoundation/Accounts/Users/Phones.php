@@ -142,7 +142,7 @@ class Phones extends DataIterator implements PhonesInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlFormObject(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
         $phone       = Phone::new()

@@ -137,7 +137,7 @@ class Emails extends DataIterator implements EmailsInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlFormObject(string $name = 'emails[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
         $email       = Email::new()

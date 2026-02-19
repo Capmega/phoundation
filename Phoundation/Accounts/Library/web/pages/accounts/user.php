@@ -291,7 +291,7 @@ if (!$_user->isNew()) {
                          ->setCollapseSwitch(true)
                          ->setCollapsed(true)
                          ->setTitle(tr('Additional email addresses for this user (:count)', [':count' => $_user->getEmailsObject()->getCount()]))
-                         ->setContent($_user->getEmailsObject()->getHtmlDataEntryFormObject())
+                         ->setContent($_user->getEmailsObject()->getHtmlFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($_button_save))
                                                    ->addBackButton(Url::newPrevious('/accounts/users.html')));
@@ -300,7 +300,7 @@ if (!$_user->isNew()) {
                          ->setCollapseSwitch(true)
                          ->setCollapsed(true)
                          ->setTitle(tr('Additional phone numbers for this user (:count)', [':count' => $_user->getPhonesObject()->getCount()]))
-                         ->setContent($_user->getPhonesObject()->getHtmlDataEntryFormObject())
+                         ->setContent($_user->getPhonesObject()->getHtmlFormObject())
                          ->setButtonsObject(Buttons::new()
                                                    ->addButton(isset_get($_button_save))
                                                    ->addBackButton(Url::newPrevious('/accounts/users.html')));
