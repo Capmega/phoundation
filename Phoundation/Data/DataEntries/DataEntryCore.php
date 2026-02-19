@@ -1275,8 +1275,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Initialize all columns that are NOT the ID column for this DataEntry object
             try {
                 foreach ($identifier as $column => $value) {
+                    // The ID column will never be automatically initialized as this item does not exist in the database
                     if ($column !== static::getIdColumn()) {
-                        $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()->get($column));
+                        // The status column will never be automatically initialized from identifier as the identifier typically contains multiple possible
+                        // statuses. The status should be set from a default value by the DataEntry object itself.
+                        if ($column !== 'status') {
+                            $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()->get($column));
+                        }
                     }
                 }
 
