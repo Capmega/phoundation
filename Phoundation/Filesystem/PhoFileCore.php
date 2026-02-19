@@ -554,7 +554,6 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         }
 
         $this->close();
-
         return $return;
     }
 

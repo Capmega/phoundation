@@ -292,6 +292,7 @@ class Grep extends Command
         if (!$this->_directory and !$this->_file) {
             throw new CommandsException(tr('Cannot execute grep, no file or path specified'));
         }
+
         if (!$this->value) {
             throw new CommandsException(tr('Cannot execute grep, no filter value specified'));
         }
