@@ -1062,7 +1062,7 @@ class Request implements RequestInterface
     {
         // Get a target string
         if (is_integer($_target)) {
-            $_target = 'system/' . $_target . '.php';
+            $_target = 'system/' . abs($_target) . '.php';
 
         } elseif ($_target instanceof PhoFileInterface) {
             $_target = $_target->getSource();
@@ -1074,8 +1074,8 @@ class Request implements RequestInterface
         // Determine the target file that is to be executed
         $_target         = Request::ensureRequestPathPrefix($_target);
         static::$_target = PhoFile::new($_target, Request::getRestrictionsObject())->makeAbsolute(DIRECTORY_WEB);
-
         static::$_target->checkRestrictions(false);
+
         Request::getTargets()->add(static::$_target);
         Request::addExecutedPath($_target); // TODO We should get this from targets
 
@@ -1964,9 +1964,7 @@ class Request implements RequestInterface
      */
     protected static function ensureRequestPathPrefix(string $target): string
     {
-        if (is_absolute_path($target)) {
-            return $target;
-        }
+        $target = Strings::ensureBeginsNotWith($target, '/');
 
         return match (Request::getRequestType()) {
             EnumRequestTypes::api     => Strings::ensureBeginsWith($target, 'api/'),
