@@ -734,17 +734,17 @@ class CliAutoComplete
     {
         Log::action(ts('Ensuring autocomplete availability'), 2);
 
-        $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
-                       ->makeAbsolute(must_exist: false);
+        $_file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
+                        ->makeAbsolute(must_exist: false);
 
-        if ($file->exists()) {
-            if ($file->isReadable()) {
+        if ($_file->exists()) {
+            if ($_file->isReadable()) {
                 // Check if it contains the setup for Phoundation
                 // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-                $results = Grep::new($file->getParentDirectoryObject())
-                               ->setValue('_phoundation pho')
-                               ->setFileObject($file)
-                               ->grep(EnumExecuteMethod::returnArray);
+                $results = Grep::new($_file->getParentDirectoryObject())
+                               ->setFilter('_phoundation pho')
+                               ->setFileObject($_file)
+                               ->executeReturnArray();
 
                 if ($results) {
                     // bash_completion contains rule for Phoundation
@@ -754,13 +754,13 @@ class CliAutoComplete
                     }
 
                     // Phoundation rule exists, update it forcibly by replacing the old command with the current
-                    $contents    = $file->getContentsAsString();
+                    $contents    = $_file->getContentsAsString();
                     $phoundation = Strings::from($contents, '_phoundation()');
                     $phoundation = Strings::untilReverse($phoundation, '_phoundation pho');
                     $phoundation = '_phoundation()' . $phoundation . '_phoundation pho';
                     $contents    = str_replace($phoundation, CliAutoComplete::getBashCompleteCommand(), $contents);
 
-                    $file->putContents($contents);
+                    $_file->putContents($contents);
 
                     Log::success('Updated auto complete for Phoundation in ~/.bash_completion');
                     Log::success('You may need to logout and login again for auto complete to work correctly with the new update');
@@ -769,12 +769,12 @@ class CliAutoComplete
 
             } else {
                 // File is not readable
-                if (!$file->uidMatchesPuid()) {
+                if (!$_file->uidMatchesPuid()) {
                     // Owner mismatch of file itself
                     Log::warning(ts('Not initializing existing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
-                        ':file'  => $file->getAbsolutePath(must_exist: false),
-                        ':fuid'  => $file->getOwnerUid(),
-                        ':fname' => $file->getOwnerName(),
+                        ':file'  => $_file->getAbsolutePath(must_exist: false),
+                        ':fuid'  => $_file->getOwnerUid(),
+                        ':fname' => $_file->getOwnerName(),
                         ':puid'  => Core::getProcessUid(),
                         ':pname' => Core::getProcessUsername()
                     ]));
@@ -784,9 +784,9 @@ class CliAutoComplete
 
                 // Different reason
                 Log::warning(ts('Cannot access bash completion file ":file", not performing auto-complete initialization check', [
-                    ':file'  => $file->getAbsolutePath(must_exist: false),
-                    ':fuid'  => $file->getOwnerUid(),
-                    ':fname' => $file->getOwnerName(),
+                    ':file'  => $_file->getAbsolutePath(must_exist: false),
+                    ':fuid'  => $_file->getOwnerUid(),
+                    ':fname' => $_file->getOwnerName(),
                     ':puid'  => Core::getProcessUid(),
                     ':pname' => Core::getProcessUsername()
                 ]));
@@ -796,12 +796,12 @@ class CliAutoComplete
 
         } else {
             // File does not exist. Does the parent directory match?
-            if (!$file->getParentDirectoryObject()->uidMatchesPuid()) {
+            if (!$_file->getParentDirectoryObject()->uidMatchesPuid()) {
                 Log::warning(ts('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
-                    ':directory' => $file->getParentDirectoryObject()->getAbsolutePath(must_exist: false),
-                    ':file'      => $file->getAbsolutePath(must_exist: false),
-                    ':fuid'      => $file->getParentDirectoryObject()->getOwnerUid(),
-                    ':fname'     => $file->getParentDirectoryObject()->getOwnerName(),
+                    ':directory' => $_file->getParentDirectoryObject()->getAbsolutePath(must_exist: false),
+                    ':file'      => $_file->getAbsolutePath(must_exist: false),
+                    ':fuid'      => $_file->getParentDirectoryObject()->getOwnerUid(),
+                    ':fname'     => $_file->getParentDirectoryObject()->getOwnerName(),
                     ':puid'      => Core::getProcessUid(),
                     ':pname'     => Core::getProcessUsername()
                 ]));
@@ -810,11 +810,11 @@ class CliAutoComplete
             }
 
             // Initialize the bash_completion file
-            $file->appendData('#/usr/bin/env bash' . PHP_EOL);
+            $_file->appendData('#/usr/bin/env bash' . PHP_EOL);
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        $file->appendData(PHP_EOL . CliAutoComplete::getBashCompleteCommand() . PHP_EOL);
+        $_file->appendData(PHP_EOL . CliAutoComplete::getBashCompleteCommand() . PHP_EOL);
 
         // Source the .bash_completion file
         Process::new('source', which_command: false)
