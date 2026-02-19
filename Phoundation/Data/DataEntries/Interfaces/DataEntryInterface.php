@@ -1028,7 +1028,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @return ButtonsInterface
      */
-    public function getDefaultButtonsObject(UrlInterface $back_url = null, array|string|null $buttons = null): ButtonsInterface;
+    public function getDefaultButtonsObject(?UrlInterface $back_url = null, array|string|null $buttons = null): ButtonsInterface;
 
     /**
      * Returns an array containing the names of the default buttons for this DataEntry object
@@ -1040,10 +1040,10 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Returns the default handler for the specified button
      *
-     * @param string            $button
-     * @param UrlInterface|null $_url
+     * @param string            $button        The button for which a handler is required
+     * @param UrlInterface|null $_url   [null] The optional URL for the requested button
      *
      * @return callable
      */
-    public function getDefaultButtonHandler(string $button, UrlInterface $_url = null): callable;
+    public function getDefaultButtonHandler(string $button, ?UrlInterface $_url = null): callable;
 }
