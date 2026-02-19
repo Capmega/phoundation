@@ -28,11 +28,13 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Forms\Interfaces\FilterFormInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\P;
 use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlTableInterface;
 use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
@@ -594,7 +596,10 @@ class Card extends Widget implements CardInterface
             }
         }
 
-        if ($content instanceof DataEntryFormInterface) {
+        if ($content instanceof FilterFormInterface) {
+            $content->validate();
+
+        } elseif ($content instanceof DataEntryFormInterface) {
             $this->addClass('form');
 
             if ($content->getDefinitionsObject()?->hasButtons()) {
@@ -603,6 +608,7 @@ class Card extends Widget implements CardInterface
 
         } elseif ($content instanceof HtmlTableInterface) {
             $this->addClass('table');
+
         }
 
         return parent::setContent($content, $make_safe);
