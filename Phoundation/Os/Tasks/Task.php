@@ -47,6 +47,7 @@ use Phoundation\Os\Processes\Traits\TraitDataEntryTask;
 use Phoundation\Os\Processes\Traits\TraitDataEntryWorkers;
 use Phoundation\Os\Workers\Worker;
 use Phoundation\Servers\Traits\TraitDataEntryServer;
+use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
@@ -168,7 +169,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStart(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe(PhoDateTimeInterface::class, 'start');
+        return PhoDateTime::newOrNull($this->getTypesafe('string', 'start'));
     }
 
 
@@ -179,7 +180,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function getStop(): ?PhoDateTimeInterface
     {
-        return $this->getTypesafe(PhoDateTimeInterface::class, 'stop');
+        return PhoDateTime::newOrNull($this->getTypesafe('string', 'stop'));
     }
 
 
@@ -217,6 +218,30 @@ class Task extends DataEntry implements TaskInterface
     public function setIonice(int|null $ionice): static
     {
         return $this->set(get_null($ionice), 'ionice');
+    }
+
+
+    /**
+     * Returns the asymmetric key used to encrypt the process output results, or null if the process results were not encrypted
+     *
+     * @return string|null
+     */
+    public function getResultsEncryptionKey(): ?string
+    {
+        return $this->getTypesafe('bool', 'results_encryption_key');
+    }
+
+
+    /**
+     * Sets the asymmetric key used to encrypt the process output results, or null if the results should not be encrypted
+     *
+     * @param string|null $results_encryption_key
+     *
+     * @return static
+     */
+    public function setResultsEncryptionKey(string|null $results_encryption_key): static
+    {
+        return $this->set($results_encryption_key, 'results_encryption_key');
     }
 
 
@@ -352,50 +377,54 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
-     * Returns pre_exec for this task
+     * Returns the pre-execution hook for this task
      *
      * @return string|null
      */
-    public function getPreExec(): ?string
+    public function getPreExecHook(): ?string
     {
-        return $this->getTypesafe('string', 'pre_exec');
+        return $this->getTypesafe('string', 'pre_execution_hook');
     }
 
 
     /**
-     * Sets pre_exec for this task
+     * Sets the pre-execution hook for this task
      *
-     * @param string|null $pre_exec
+     * @param string|null $hook            The hook file to execute before this task executes
+     * @param bool        $require [false] If true, the hook file must exist
      *
      * @return static
      */
-    public function setPreExec(?string $pre_exec): static
+    public function setPreExecutionHook(?string $hook, bool $require = false): static
     {
-        return $this->set($pre_exec, 'pre_exec');
+        Hook::checkExists($hook, null, $require);
+
+        return $this->set($hook, 'pre_execution_hook');
     }
 
 
     /**
-     * Returns post_exec for this task
+     * Returns the post-execution hook for this task
      *
      * @return string|null
      */
-    public function getPostExec(): ?string
+    public function getPostExecutionHook(): ?string
     {
-        return $this->getTypesafe('string', 'post_exec');
+        return $this->getTypesafe('string', 'post_execution_hook');
     }
 
 
     /**
-     * Sets post_exec for this task
+     * Sets post-execution hook for this task
      *
-     * @param string|null $post_exec
+     * @param string|null $hook            The hook file to execute after this task executes
+     * @param bool        $require [false] If true, the hook file must exist
      *
      * @return static
      */
-    public function setPostExec(?string $post_exec): static
+    public function setPostExecutionHook(?string $hook, bool $require = false): static
     {
-        return $this->set($post_exec, 'post_exec');
+        return $this->set($hook, 'post_execution_hook');
     }
 
 
@@ -415,9 +444,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns results for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getResults(): string
+    public function getResults(): ?string
     {
         return $this->getTypesafe('string', 'results');
     }
@@ -439,9 +468,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Returns executed_command for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getExecutedCommand(): string
+    public function getExecutedCommand(): ?string
     {
         return $this->getTypesafe('string', 'executed_command');
     }
@@ -582,29 +611,28 @@ class Task extends DataEntry implements TaskInterface
      */
     protected function doExecute(): static
     {
-        // Execute hook
-        Hook::new('tasks')
-            ->execute('pre-execute', ['task' => $this]);
+        // Execute pre-execution hook
+        Hook::new()->execute($this->getPreExecHook(), ['task' => $this]);
 
         // Execute the command
         $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
-                               ->setServerObject($this->getServer())
-                               ->setArguments($this->getArguments())
-                               ->setVariables($this->getVariables())
-                               ->setEnvironmentVariables($this->getEnvironmentVariables())
-                               ->setAcceptedExitCodes($this->getAcceptedExitCodes())
-                               ->setTimeout($this->getTimeout())
-                               ->setWait($this->getWait())
-                               ->setNice($this->getNice())
-                               ->setIoNiceClass($this->getIonice())
-                               ->setIoNiceLevel($this->getIoniceLevel())
-                               ->setNoCache($this->getNocache())
-                               ->setSudo($this->getSudo())
-                               ->setTerm($this->getTerm())
-                               ->setInputRedirect($this->getInputRedirect())
-                               ->setOutputRedirect($this->getOutputRedirect())
-                               ->setMinimumWorkers($this->getMinimumWorkers())
-                               ->setMaximumWorkers($this->getMaximumWorkers());
+                        ->setServerObject($this->getServer())
+                        ->setArguments($this->getArguments())
+                        ->setVariables($this->getVariables())
+                        ->setEnvironmentVariables($this->getEnvironmentVariables())
+                        ->setAcceptedExitCodes($this->getAcceptedExitCodes())
+                        ->setTimeout($this->getTimeout())
+                        ->setWait($this->getWait())
+                        ->setNice($this->getNice())
+                        ->setIoNiceClass($this->getIonice())
+                        ->setIoNiceLevel($this->getIoniceLevel())
+                        ->setNoCache($this->getNocache())
+                        ->setSudo($this->getSudo())
+                        ->setTerm($this->getTerm())
+                        ->setInputRedirect($this->getInputRedirect())
+                        ->setOutputRedirect($this->getOutputRedirect())
+                        ->setMinimumWorkers($this->getMinimumWorkers())
+                        ->setMaximumWorkers($this->getMaximumWorkers());
 
         // Update task in database
         $this->setStart(now())
@@ -614,7 +642,6 @@ class Task extends DataEntry implements TaskInterface
 
         // Execute the task
         try {
-
             $results = $worker->executeReturnString();
 
             Log::success(ts('Task ":task" finished execution in ":time"', [
@@ -649,13 +676,6 @@ class Task extends DataEntry implements TaskInterface
                             ])
                             ->send();
             }
-
-            // Execute hook
-            Hook::new('tasks')
-                ->execute('post-execute', [
-                    'task'   => $this,
-                    'worker' => $worker,
-                ]);
 
         } catch (ProcessFailedException $e) {
             Log::warning(ts('Task ":task" failed execution with ":e"', [
@@ -693,15 +713,11 @@ class Task extends DataEntry implements TaskInterface
                             ->send();
 
             }
-
-            // Execute hook
-            Hook::new('tasks')
-                ->execute('execution-failed', [
-                    'task'   => $this,
-                    'worker' => $worker,
-                ]);
         }
-
+show($this->getCreatedBy());
+showdie($this->getCreatedByObject()?->getId(false));
+        // Execute post execution hook
+        Hook::new()->execute($this->getPostExecutionHook(), ['task' => $this]);
         return $this;
     }
 
@@ -824,6 +840,17 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
+     * Returns accepted_exit_codes for this task
+     *
+     * @return array|null
+     */
+    public function getAcceptedExitCodes(): ?array
+    {
+        return Json::decode($this->getTypesafe('string', 'accepted_exit_codes'));
+    }
+
+
+    /**
      * Sets accepted_exit_codes for this task
      *
      * @param array|null $accepted_exit_codes
@@ -832,7 +859,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setAcceptedExitCodes(array|null $accepted_exit_codes): static
     {
-        return $this->set($accepted_exit_codes, 'accepted_exit_codes');
+        return $this->set(Json::encode($accepted_exit_codes), 'accepted_exit_codes');
     }
 
 
@@ -863,43 +890,6 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
-     * Sets variables for this task
-     *
-     * @param array|null $variables
-     *
-     * @return static
-     */
-    public function setVariables(array|null $variables): static
-    {
-        // Ensure that variables are valid
-        if ($variables) {
-            foreach ($variables as $key => $value) {
-                if (!preg_match('/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/', $key)) {
-                    throw new OutOfBoundsException(tr('Specified variable key ":key" is invalid, it should match pattern "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
-                        ':key' => $key,
-                    ]));
-                }
-            }
-        }
-
-        return $this->set($variables, 'variables');
-    }
-
-
-    /**
-     * Sets arguments for this task
-     *
-     * @param array|string|null $arguments
-     *
-     * @return static
-     */
-    public function setArguments(array|string|null $arguments): static
-    {
-        return $this->set(Strings::force($arguments, ' '), 'arguments');
-    }
-
-
-    /**
      * Returns full command including sudo and the arguments for this task
      *
      * @return string|null
@@ -924,24 +914,61 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
-     * Returns arguments for this task
-     *
-     * @return array|null
-     */
-    public function getArguments(): ?string
-    {
-        return $this->getTypesafe('string', 'arguments');
-    }
-
-
-    /**
      * Returns variables for this task
      *
      * @return array|null
      */
     public function getVariables(): ?array
     {
-        return $this->getTypesafe('array', 'variables');
+        return Json::decode($this->getTypesafe('array', 'variables'));
+    }
+
+
+    /**
+     * Sets variables for this task
+     *
+     * @param array|null $variables
+     *
+     * @return static
+     */
+    public function setVariables(array|null $variables): static
+    {
+        // Ensure that variables are valid
+        if ($variables) {
+            foreach ($variables as $key => $value) {
+                if (!preg_match('/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/', $key)) {
+                    throw new OutOfBoundsException(tr('Specified variable key ":key" is invalid, it should match pattern "/^:[A-Z0-9]+[A-Z0-9-]*[A-Z0-9]+$/", so a : symbol, and then at least 2 characters that can be only uppercase letters, or numbers, or dash, and cannot begin or end with a dash', [
+                        ':key' => $key,
+                    ]));
+                }
+            }
+        }
+
+        return $this->set(get_null(Json::encode($variables)), 'variables');
+    }
+
+
+    /**
+     * Returns arguments for this task
+     *
+     * @return array|null
+     */
+    public function getArguments(): ?array
+    {
+        return Json::decode($this->getTypesafe('string', 'arguments'));
+    }
+
+
+    /**
+     * Sets arguments for this task
+     *
+     * @param array|string|null $arguments
+     *
+     * @return static
+     */
+    public function setArguments(array|string|null $arguments): static
+    {
+        return $this->set(Json::encode($arguments), 'arguments');
     }
 
 
@@ -970,17 +997,6 @@ class Task extends DataEntry implements TaskInterface
     public function getEnvironmentVariables(): ?array
     {
         return $this->getTypesafe('array', 'environment_variables');
-    }
-
-
-    /**
-     * Returns accepted_exit_codes for this task
-     *
-     * @return array|null
-     */
-    public function getAcceptedExitCodes(): ?array
-    {
-        return $this->getTypesafe('array', 'accepted_exit_codes');
     }
 
 
@@ -1167,7 +1183,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStart(PhoDateTimeInterface|string|null $start): static
     {
-        return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
+        return $this->set(PhoDateTime::newOrNull($start, 'system')?->format('system_datetime'), 'stop');
     }
 
 
@@ -1232,7 +1248,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function setStop(PhoDateTimeInterface|string|null $stop): static
     {
-        return $this->set($stop ? new PhoDateTime($stop, 'system') : null, 'stop');
+        return $this->set(PhoDateTime::newOrNull($stop, 'system')?->format('system_datetime'), 'stop');
     }
 
 
@@ -1294,6 +1310,17 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
+     * Returns the workers for this object
+     *
+     * @return int
+     */
+    public static function getDefaultMaximumWorkers(): int
+    {
+        return config()->getInteger('tasks.workers.maximum', 25);
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $_definitions
@@ -1312,395 +1339,410 @@ class Task extends DataEntry implements TaskInterface
                                                $_validator->isCode();
                                            }))
 
-                    ->add(DefinitionFactory::newName())
+                     ->add(DefinitionFactory::newName())
 
-                    ->add(DefinitionFactory::newSeoName())
+                     ->add(DefinitionFactory::newSeoName())
 
-                    ->add(Definition::new('parents_id')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setLabel('Parent task')
-                                    ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDbId();
-                                    }))
+                     ->add(Definition::new('parents_id')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setLabel('Parent task')
+                                     ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
+                                     ->setSize(4)
+                                     ->setMaxLength(17)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDbId();
+                                     }))
 
-                    ->add(Definition::new('execute_after')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->setLabel('Execute after')
-                                    ->setCliColumn('[--execute-after DATETIME]')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDateTime();
-                                    }))
+                     ->add(Definition::new('execute_after')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::datetime_local)
+                                     ->setLabel('Execute after')
+                                     ->setCliColumn('[--execute-after DATETIME]')
+                                     ->setSize(4)
+                                     ->setMaxLength(17)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDateTime();
+                                     }))
 
-                    ->add(Definition::new('start')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->setLabel('Execution started on')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDateTime();
-                                    }))
+                     ->add(Definition::new('start')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setInputType(EnumInputType::datetime_local)
+                                     ->setLabel('Execution started on')
+                                     ->setSize(4)
+                                     ->setMaxLength(21)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDateTime();
+                                     }))
 
-                    ->add(Definition::new('stop')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->setLabel('Execution finished on')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDateTime();
-                                    }))
+                     ->add(Definition::new('stop')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setInputType(EnumInputType::datetime_local)
+                                     ->setLabel('Execution finished on')
+                                     ->setSize(4)
+                                     ->setMaxLength(21)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDateTime();
+                                     }))
 
-                    ->add(Definition::new('spent')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::float)
-                                    ->setLabel('Time spent on task execution')
-                                    ->setSize(4)
-                                    ->setMin(0)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isFloat();
-                                    }))
+                     ->add(Definition::new('spent')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setInputType(EnumInputType::float)
+                                     ->setLabel('Time spent on task execution')
+                                     ->setSize(4)
+                                     ->setMin(0)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isFloat();
+                                     }))
 
-                    ->add(Definition::new('send_to')
-                                    ->setOptional(true)
-                                    ->setVirtual(true)
-                                    ->setMaxLength(128)
-                                    ->setLabel('Send to user')
-                                    ->setCliColumn('[--send-to EMAIL]')
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isEmail();
-                                    }))
+                     ->add(Definition::new('send_to')
+                                     ->setOptional(true)
+                                     ->setVirtual(true)
+                                     ->setMaxLength(128)
+                                     ->setLabel('Send to user')
+                                     ->setCliColumn('[--send-to EMAIL]')
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isEmail();
+                                     }))
 
-                    ->add(Definition::new('send_to_id')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDbId();
-                                    }))
+                     ->add(Definition::new('send_to_id')
+                                     ->setOptional(true)
+                                     ->setRender(false)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setSource('SELECT `id`, CONCAT(`email`, " <", `first_names`, " ", `last_names`, ">") FROM `accounts_users` WHERE `status` IS NULL')
+                                     ->setSize(4)
+                                     ->setMaxLength(17)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDbId();
+                                     }))
 
-                    ->add(Definition::new('server')
-                                    ->setOptional(true)
-                                    ->setVirtual(true)
-                                    ->setMaxLength(255)
-                                    ->setLabel('Execute on server')
-                                    ->setCliColumn('[-s,--server HOSTNAME]')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->orColumn('servers_id')
-                                                  ->isName()
-                                                  ->setColumnFromQuery('servers_id', 'SELECT `id` 
-                                                                                      FROM   `servers` 
-                                                                                      WHERE  `hostname` = :hostname 
-                                                                                      AND   (`status` IS NULL OR `status` != "deleted")', [
-                                                                                          ':hostname' => '$server'
-                                                  ]);
-                                    }))
+                     ->add(Definition::new('server')
+                                     ->setOptional(true)
+                                     ->setVirtual(true)
+                                     ->setMaxLength(255)
+                                     ->setLabel('Execute on server')
+                                     ->setCliColumn('[-s,--server HOSTNAME]')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->orColumn('servers_id')
+                                                   ->isName()
+                                                   ->setColumnFromQuery('servers_id', 'SELECT `id` 
+                                                                                       FROM   `servers` 
+                                                                                       WHERE  `hostname` = :hostname 
+                                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                           ':hostname' => '$server'
+                                                   ]);
+                                     }))
 
-                    ->add(Definition::new('servers_id')
-                                    ->setOptional(true)
-                                    ->setRender(false)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->orColumn('server')
-                                                  ->isDbId()
-                                                  ->isQueryResult('SELECT `id` 
-                                                                   FROM   `servers` 
-                                                                   WHERE  `id` = :id 
-                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
-                                                                       ':id' => '$servers_id'
-                                                  ]);
-                                    }))
+                     ->add(Definition::new('servers_id')
+                                     ->setOptional(true)
+                                     ->setRender(false)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setSource('SELECT `id` FROM `servers` WHERE `status` IS NULL')
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->orColumn('server')
+                                                   ->isDbId()
+                                                   ->isQueryResult('SELECT `id` 
+                                                                    FROM   `servers` 
+                                                                    WHERE  `id` = :id 
+                                                                    AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                        ':id' => '$servers_id'
+                                                   ]);
+                                     }))
 
-                    ->add(Definition::new('roles_id')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setLabel('Notify roles')
-                                    ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
-                                    ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
-                                    ->setSize(4)
-                                    ->setMaxLength(17)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDbId();
-                                    }))
+                     ->add(Definition::new('roles_id')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setLabel('Notify roles')
+                                     ->setCliColumn('[-r,--roles "ROLE,ROLE,..."]')
+                                     ->setSource('SELECT `id` FROM `accounts_roles` WHERE `status` IS NULL')
+                                     ->setSize(4)
+                                     ->setMaxLength(17)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDbId();
+                                     }))
 
-                    ->add(Definition::new('execution_directory')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::text)
-                                    ->setLabel('Execution path')
-                                    ->setCliColumn('[-d,--execution-directory PATH]')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
-                                    }))
+                     ->add(Definition::new('execution_directory')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::text)
+                                     ->setLabel('Execution path')
+                                     ->setCliColumn('[-d,--execution-directory PATH]')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                     }))
 
-                    ->add(Definition::new('command')
-                                    ->setInputType(EnumInputType::text)
-                                    ->setLabel('Command')
-                                    ->setCliColumn('[-c,--command COMMAND]')
-                                    ->setSize(4))
+                     ->add(Definition::new('command')
+                                     ->setInputType(EnumInputType::text)
+                                     ->setLabel('Command')
+                                     ->setCliColumn('[-c,--command COMMAND]')
+                                     ->setSize(4))
 
-                    ->add(Definition::new('executed_command')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::text)
-                                    ->setLabel('Command')
-                                    ->setSize(4))
+                     ->add(Definition::new('executed_command')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setInputType(EnumInputType::text)
+                                     ->setLabel('Command')
+                                     ->setSize(4))
 
-                    ->add(Definition::new('arguments')
-                                    ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
-                                    ->setInputType(EnumInputType::array_json)
-                                    ->setLabel('Arguments')
-                                    ->setCliColumn('[-a,--arguments ARGUMENTS]')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isPrintable();
-                                        $_validator->skipValidation();
-                                    }))
+                     ->add(Definition::new('arguments')
+                                     ->setOptional(true)
+                                     ->setElement(EnumElement::textarea)
+                                     ->setInputType(EnumInputType::array_json)
+                                     ->setLabel('Arguments')
+                                     ->setCliColumn('[-a,--arguments ARGUMENTS]')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         // TODO Should the validation be skipped entirely for each field?
+                                         $_validator->isPrintable()->skipValidation();
+                                     }))
 
-                    ->add(Definition::new('variables')
-                                    ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
-                                    ->setInputType(EnumInputType::array_json)
-                                    ->setLabel('Argument variables')
-                                    ->setCliColumn('[-v,--variables VARIABLES]')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isPrintable();
-                                        $_validator->skipValidation();
-                                    }))
+                     ->add(Definition::new('variables')
+                                     ->setOptional(true)
+                                     ->setElement(EnumElement::textarea)
+                                     ->setInputType(EnumInputType::array_json)
+                                     ->setLabel('Argument variables')
+                                     ->setCliColumn('[-v,--variables VARIABLES]')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         // TODO Should the validation be skipped entirely for each field?
+                                         $_validator->isPrintable()->skipValidation();
+                                     }))
 
-                    ->add(Definition::new('environment_variables')
-                                    ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
-                                    ->setInputType(EnumInputType::array_json)
-                                    ->setLabel('Environment variables')
-                                    ->setCliColumn('[-e,--environment-variables VARIABLES]')
-                                    ->setSize(4))
+                     ->add(Definition::new('environment_variables')
+                                     ->setOptional(true)
+                                     ->setElement(EnumElement::textarea)
+                                     ->setInputType(EnumInputType::array_json)
+                                     ->setLabel('Environment variables')
+                                     ->setCliColumn('[-e,--environment-variables VARIABLES]')
+                                     ->setSize(4))
 
-                    ->add(Definition::new('clear_logs')
-                                    ->setOptional(true, false)
-                                    ->setInputType(EnumInputType::checkbox)
-                                    ->setLabel('Clear logs')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isBoolean();
-                                    }))
+                     ->add(Definition::new('clear_logs')
+                                     ->setOptional(true, false)
+                                     ->setInputType(EnumInputType::checkbox)
+                                     ->setLabel('Clear logs')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isBoolean();
+                                     }))
 
-                    ->add(Definition::new('escape_quotes')
-                                    ->setOptional(true, false)
-                                    ->setInputType(EnumInputType::checkbox)
-                                    ->setLabel('Escape quotes')
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isBoolean();
-                                    }))
+                     ->add(Definition::new('escape_quotes')
+                                     ->setOptional(true, false)
+                                     ->setInputType(EnumInputType::checkbox)
+                                     ->setLabel('Escape quotes')
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isBoolean();
+                                     }))
 
-                    ->add(Definition::new('nocache')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setLabel('No cache mode')
-                                    ->setSource([])
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {}))
+                     ->add(Definition::new('nocache')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setLabel('No cache mode')
+                                     ->setSource([])
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {}))
 
-                    ->add(Definition::new('ionice')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::select)
-                                    ->setLabel('IO nice')
-                                    ->setCliColumn('[-i,--ionice CLASSNUMBER]')
-                                    ->setSource([
-                                        0 => 'none',
-                                        1 => 'realtime',
-                                        2 => 'best_effort',
-                                        3 => 'idle',
-                                    ])
-                                    ->setSize(4))
+                     ->add(Definition::new('ionice')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::select)
+                                     ->setLabel('IO nice')
+                                     ->setCliColumn('[-i,--ionice CLASSNUMBER]')
+                                     ->setSource([
+                                         0 => 'none',
+                                         1 => 'realtime',
+                                         2 => 'best_effort',
+                                         3 => 'idle',
+                                     ])
+                                     ->setSize(4))
 
-                    ->add(Definition::new('ionice_level')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('IO nice level')
-                                    ->setCliColumn('[-l,--ionice-level LEVEL]')
-                                    ->setMin(0)
-                                    ->setMax(7)
-                                    ->setSize(4))
+                     ->add(Definition::new('ionice_level')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('IO nice level')
+                                     ->setCliColumn('[-l,--ionice-level LEVEL]')
+                                     ->setMin(0)
+                                     ->setMax(7)
+                                     ->setSize(4))
 
-                    ->add(Definition::new('nice')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Nice level')
-                                    ->setCliColumn('[-n,--nice LEVEL]')
-                                    ->setOptional(true, 0)
-                                    ->setMin(-20)
-                                    ->setMax(20)
-                                    ->setSize(4))
+                     ->add(Definition::new('nice')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Nice level')
+                                     ->setCliColumn('[-n,--nice LEVEL]')
+                                     ->setOptional(true, 0)
+                                     ->setMin(-20)
+                                     ->setMax(20)
+                                     ->setSize(4))
 
-                    ->add(Definition::new('timeout')
-                                    ->setOptional(true, 30)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Time limit')
-                                    ->setCliColumn('[-t,--timeout SECONDS]')
-                                    ->setOptional(true, 0)
-                                    ->setMin(0)
-                                    ->setSize(4))
+                     ->add(Definition::new('timeout')
+                                     ->setOptional(true, 30)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Time limit')
+                                     ->setCliColumn('[-t,--timeout SECONDS]')
+                                     ->setOptional(true, 0)
+                                     ->setMin(0)
+                                     ->setSize(4))
 
-                    ->add(Definition::new('wait')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Start wait')
-                                    ->setCliColumn('[-w,--wait SECONDS]')
-                                    ->setOptional(true, 0)
-                                    ->setMin(0)
-                                    ->setSize(4))
+                     ->add(Definition::new('wait')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Start wait')
+                                     ->setCliColumn('[-w,--wait SECONDS]')
+                                     ->setOptional(true, 0)
+                                     ->setMin(0)
+                                     ->setSize(4))
 
-                    ->add(Definition::new('minimum_workers')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Minimum workers')
-                                    ->setCliColumn('[--minimum-workers AMOUNT]')
-                                    ->setOptional(true, 0)
-                                    ->setMin(0)
-                                    ->setMax(10_000)
-                                    ->setSize(4))
+                     ->add(Definition::new('minimum_workers')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Minimum workers')
+                                     ->setCliColumn('[--minimum-workers AMOUNT]')
+                                     ->setOptional(true, 1)
+                                     ->setMin(1)
+                                     ->setMax(static::getDefaultMaximumWorkers())
+                                     ->setSize(4))
 
-                    ->add(Definition::new('maximum_workers')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Maximum workers')
-                                    ->setCliColumn('[--maximum-workers AMOUNT]')
-                                    ->setOptional(true, 0)
-                                    ->setMin(0)
-                                    ->setMax(10_000)
-                                    ->setSize(4))
+                     ->add(Definition::new('maximum_workers')
+                                     ->setOptional(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Maximum workers')
+                                     ->setCliColumn('[--maximum-workers AMOUNT]')
+                                     ->setOptional(true, 10)
+                                     ->setMin(1)
+                                     ->setMax(static::getDefaultMaximumWorkers())
+                                     ->setSize(4))
 
-                    ->add(Definition::new('sudo')
-                                    ->setOptional(true)
-                                    ->setLabel('Sudo required / command')
-                                    ->setCliColumn('[-s,--sudo "string"]')
-                                    ->setSize(6)
-                                    ->setMaxLength(32))
+                     ->add(Definition::new('sudo')
+                                     ->setOptional(true)
+                                     ->setLabel('Sudo required / command')
+                                     ->setCliColumn('[-s,--sudo "string"]')
+                                     ->setSize(6)
+                                     ->setMaxLength(32))
 
-                    ->add(Definition::new('term')
-                                    ->setOptional(true)
-                                    ->setLabel('Terminal command')
-                                    ->setCliColumn('[-t,--term "command"]')
-                                    ->setSize(6)
-                                    ->setMaxLength(32))
+                     ->add(Definition::new('term')
+                                     ->setOptional(true)
+                                     ->setLabel('Terminal command')
+                                     ->setCliColumn('[-t,--term "command"]')
+                                     ->setSize(6)
+                                     ->setMaxLength(32))
 
-                    ->add(Definition::new('pipe')
-                                    ->setOptional(true)
-                                    ->setLabel('Pipe to')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('pipe')
+                                     ->setOptional(true)
+                                     ->setLabel('Pipe to')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('input_redirect')
-                                    ->setOptional(true)
-                                    ->setLabel('Input redirect')
-                                    ->setSize(6)
-                                    ->setMaxLength(64))
+                     ->add(Definition::new('input_redirect')
+                                     ->setOptional(true)
+                                     ->setLabel('Input redirect')
+                                     ->setSize(6)
+                                     ->setMaxLength(64))
 
-                    ->add(Definition::new('output_redirect')
-                                    ->setOptional(true)
-                                    ->setLabel('Output redirect')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('output_redirect')
+                                     ->setOptional(true)
+                                     ->setLabel('Output redirect')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('restrictions')
-                                    ->setOptional(true)
-                                    ->setLabel('FsRestrictions')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('restrictions')
+                                     ->setOptional(true)
+                                     ->setLabel('FsRestrictions')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('packages')
-                                    ->setOptional(true)
-                                    ->setLabel('Packages')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('packages')
+                                     ->setOptional(true)
+                                     ->setLabel('Packages')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('pre_exec')
-                                    ->setOptional(true)
-                                    ->setLabel('Pre execute')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('pre_execution_hook')
+                                     ->setOptional(true)
+                                     ->setLabel('Pre execution hook')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('post_exec')
-                                    ->setOptional(true)
-                                    ->setLabel('Post execute')
-                                    ->setSize(6)
-                                    ->setMaxLength(510))
+                     ->add(Definition::new('post_execution_hook')
+                                     ->setOptional(true)
+                                     ->setLabel('Post execution hook')
+                                     ->setSize(6)
+                                     ->setMaxLength(510))
 
-                    ->add(Definition::new('accepted_exit_codes')
-                                    ->setOptional(true, [0])
-                                    ->setLabel('Accepted Exit Codes')
-                                    ->setElement(EnumElement::textarea)
-                                    ->setInputType(EnumInputType::array_json)
-                                    ->setSize(6)
-                                    ->setMaxLength(64))
+                     ->add(Definition::new('accepted_exit_codes')
+                                     ->setOptional(true, '[0]')
+                                     ->setLabel('Accepted Exit Codes')
+                                     ->setElement(EnumElement::textarea)
+                                     ->setInputType(EnumInputType::array_json)
+                                     ->setSize(6)
+                                     ->setMaxLength(64)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         // TODO Should the validation be skipped entirely for each field?
+                                         $_validator->isPrintable()->skipValidation();
+                                     }))
 
-                    ->add(Definition::new('results')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setLabel('Results')
-                                    ->setElement(EnumElement::textarea)
-                                    ->setSize(12)
-                                    ->setMaxLength(16_777_215)
-                                    ->setReadonly(true))
+                     ->add(Definition::new('results')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setLabel('Results')
+                                     ->setElement(EnumElement::textarea)
+                                     ->setSize(12)
+                                     ->setMaxLength(16_777_215)
+                                     ->setReadonly(true)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         // TODO Should the validation be skipped entirely for each field?
+                                         $_validator->skipValidation();
+                                     }))
 
-                    ->add(Definition::new('pid')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setLabel('Process ID')
-                                    ->setDisabled(true)
-                                    ->setSize(4)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDbId();
-                                    }))
+                     ->add(Definition::new('pid')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setInputType(EnumInputType::number)
+                                     ->setLabel('Process ID')
+                                     ->setDisabled(true)
+                                     ->setSize(4)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->isDbId();
+                                     }))
 
-                    ->add(Definition::new('exit_code')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setLabel('Exit code')
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(2)
-                                    ->setMin(0)
-                                    ->setMax(255))
+                     ->add(Definition::new('exit_code')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setLabel('Exit code')
+                                     ->setInputType(EnumInputType::number)
+                                     ->setSize(2)
+                                     ->setMin(0)
+                                     ->setMax(255))
 
-                    ->add(Definition::new('log_file')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setLabel('Log file')
-                                    ->setInputType(EnumInputType::text)
-                                    ->setSize(6)
-                                    ->setMaxLength(512))
+                     ->add(Definition::new('log_file')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setLabel('Log file')
+                                     ->setInputType(EnumInputType::text)
+                                     ->setSize(6)
+                                     ->setMaxLength(512))
 
-                    ->add(Definition::new('pid_file')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setLabel('PID file')
-                                    ->setInputType(EnumInputType::text)
-                                    ->setSize(6)
-                                    ->setMaxLength(512))
+                     ->add(Definition::new('pid_file')
+                                     ->setOptional(true)
+                                     ->setReadonly(true)
+                                     ->setLabel('PID file')
+                                     ->setInputType(EnumInputType::text)
+                                     ->setSize(6)
+                                     ->setMaxLength(512))
 
-                    ->add(DefinitionFactory::newComments()
-                                           ->setHelpText(tr('A description for this task')));
+                     ->add(Definition::new('results_encryption_key')
+                                     ->setOptional(true)
+                                     ->setRender(false)
+                                     ->setLabel('Results encryption key')
+                                     ->setInputType(EnumInputType::text)
+                                     ->setMaxLength(64))
+
+                     ->add(DefinitionFactory::newComments()
+                                            ->setHelpText(tr('A description for this task')));
 
         return $this;
-    }
+     }
 }

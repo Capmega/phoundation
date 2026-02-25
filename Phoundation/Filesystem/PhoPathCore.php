@@ -1331,9 +1331,9 @@ class PhoPathCore implements PhoPathInterface
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)
-               ->addArgument(Strings::ensureEndsNotWith($path, '/'), $escape)           // All files to be deleted
-               ->addArgument('-f')                                                      // No questions asked
-               ->addArgument(($path->isDirectory() and !$path->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
+               ->appendArgument(Strings::ensureEndsNotWith($path, '/'), $escape)           // All files to be deleted
+               ->appendArgument('-f')                                                      // No questions asked
+               ->appendArgument(($path->isDirectory() and !$path->isLink()) ? '-r' : null) // Only non-symlink directories delete recursive
                ->executeNoReturn();
 
         // If specified, to do so, clear the path upwards from the specified pattern
@@ -1804,16 +1804,16 @@ class PhoPathCore implements PhoPathInterface
         Process::new('find', $this->_restrictions)
                ->setSudo($sudo)
                ->setTimeout(60)
-               ->addArgument($this->source)
-               ->addArgument('-exec')
-               ->addArgument('shred')
-               ->addArgument('--remove=wipe')
-               ->addArgument('-f')
-               ->addArgument('-n')
-               ->addArgument('3')
-               ->addArgument('-z')
-               ->addArgument('{}')
-               ->addArgument('\;')
+               ->appendArgument($this->source)
+               ->appendArgument('-exec')
+               ->appendArgument('shred')
+               ->appendArgument('--remove=wipe')
+               ->appendArgument('-f')
+               ->appendArgument('-n')
+               ->appendArgument('3')
+               ->appendArgument('-z')
+               ->appendArgument('{}')
+               ->appendArgument('\;')
                ->executeReturnArray();
 
         // If specified, to do so, clear the path upwards from the specified pattern
@@ -2188,7 +2188,7 @@ class PhoPathCore implements PhoPathInterface
                 // Use operating system chmod command as PHP chmod does not support these functions
                 Process::new('chmod', $this->_restrictions)
                        ->setSudo($sudo)
-                       ->addArguments([
+                       ->appendArguments([
                            ($recursive ? '-R' : null),
                            '0' . decoct($mode),
                            $this->source,
@@ -2287,9 +2287,9 @@ class PhoPathCore implements PhoPathInterface
         foreach ($this->source as $pattern) {
             Process::new('chown', $this->_restrictions)
                    ->setSudo(true)
-                   ->addArgument($recursive ? '-R' : null)
-                   ->addArgument($user . ':' . $group)
-                   ->addArguments($this->source)
+                   ->appendArgument($recursive ? '-R' : null)
+                   ->appendArgument($user . ':' . $group)
+                   ->appendArguments($this->source)
                    ->executeReturnArray();
         }
 

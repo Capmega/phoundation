@@ -1026,7 +1026,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
         // Validate given order data and reformat
         foreach ($order as $column => $direction) {
-            if (!is_really_integer($column)) {
+            if (!is_numeric_integer($column)) {
                 throw new OutOfBoundsException(tr('Invalid table order specified. Order key ":column" represents a column index and must be an integer', [
                     ':column' => $column,
                 ]));

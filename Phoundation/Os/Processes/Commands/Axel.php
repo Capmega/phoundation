@@ -41,12 +41,12 @@ class Axel extends Command
         // Build the process parameters, then execute
         $this->clearArguments()
              ->setCommand('axel')
-             ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
-             ->addArguments($this->target ? [
+             ->appendArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
+             ->appendArguments($this->target ? [
                  '-O ',
                  $this->target,
              ] : null)
-             ->addArgument($this->source);
+             ->appendArgument($this->source);
         if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
             Log::success(ts('Executed wget as a background process with PID ":pid"', [

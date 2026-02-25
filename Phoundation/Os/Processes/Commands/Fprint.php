@@ -34,7 +34,7 @@ class Fprint extends Command
         // Build the process parameters, then execute
         $this->setCommand('fprint-enroll')
              ->clearArguments()
-             ->addArgument($id);
+             ->appendArgument($id);
         if ($method === EnumExecuteMethod::background) {
             $pid = $this->executeBackground();
             Log::success(ts('Executed fprint-enroll as a background process with PID ":pid"', [

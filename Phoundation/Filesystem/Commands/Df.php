@@ -71,14 +71,14 @@ class Df extends Command
     public function executeReturnArray(): array
     {
         $this->setCommand('df');
-        $this->addArgument('-T');
+        $this->appendArgument('-T');
 
         if ($this->check_inodes) {
-            $this->addArgument('-i');
+            $this->appendArgument('-i');
         }
 
         if ($this->_path) {
-            $this->addArgument($this->_path);
+            $this->appendArgument($this->_path);
         }
 
         return parent::executeReturnArray();

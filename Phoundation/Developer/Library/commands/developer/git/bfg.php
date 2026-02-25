@@ -29,7 +29,7 @@ Using this command requires the repository to be "clean", so changes are not all
 
 ARGUMENTS
 
-' . Strings::from(Composer::new()->addArguments([
+' . Strings::from(Composer::new()->appendArguments([
           'help',
           'remove',
       ])->executeReturnString(), 'Arguments:'));

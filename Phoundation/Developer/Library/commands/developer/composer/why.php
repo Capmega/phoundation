@@ -26,7 +26,7 @@ command
 
 ARGUMENTS
 
-' . Strings::from(Composer::new()->addArguments([
+' . Strings::from(Composer::new()->appendArguments([
                                                                               'help',
                                                                               'why',
                                                                           ])->executeReturnString(), 'Arguments:'));

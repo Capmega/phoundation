@@ -41,7 +41,7 @@ throw new UnderConstructionException();
         parent::__construct($execution_directory, $operating_system, $packages);
 
         $this->setCommand('java', false)
-             ->addArguments(['--jar', DIRECTORY_ROOT . 'data/bin/bfg']);
+             ->appendArguments(['--jar', DIRECTORY_ROOT . 'data/bin/bfg']);
     }
 
 
@@ -70,7 +70,7 @@ throw new UnderConstructionException();
     protected function executeComposer(EnumExecuteMethod $method, string $argument): IteratorInterface|array|string|int|bool|null
     {
 throw new UnderConstructionException();
-        $this->addArguments($argument);
+        $this->appendArguments($argument);
 
         try {
             array_unshift($this->arguments, [

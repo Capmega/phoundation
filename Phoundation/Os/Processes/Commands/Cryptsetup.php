@@ -54,10 +54,10 @@ class Cryptsetup extends Command
             ]));
 
             Process::new('echo')
-                   ->addArgument($key)
+                   ->appendArgument($key)
                    ->setPipe($this->setCommand('cryptsetup')
                                   ->setSudo(true)
-                                  ->addArguments([
+                                  ->appendArguments([
                                       '-q',
                                       '-v',
                                       'luksFormat',
@@ -74,7 +74,7 @@ class Cryptsetup extends Command
             }
             $this->setCommand('cryptsetup')
                  ->setSudo(true)
-                 ->addArguments([
+                 ->appendArguments([
                      '-q',
                      '-v',
                      'luksFormat',

@@ -38,7 +38,7 @@ class LsBlk extends Command
     {
         // Display all devices, display bytes instead of human-readable sizes
         $this->setCommand('lsblk');
-        $this->addArguments(['-a', '-b', '-l', '-f', '--json']);
+        $this->appendArguments(['-a', '-b', '-l', '-f', '--json']);
 
         return parent::executeReturnArray();
     }

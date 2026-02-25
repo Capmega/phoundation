@@ -32,11 +32,11 @@ class AptGet extends Command
     {
         $this->setCommand('apt-get')
              ->setSudo(true)
-             ->addArguments([
+             ->appendArguments([
                  '-y',
                  'install',
              ])
-             ->addArguments($packages)
+             ->appendArguments($packages)
              ->setTimeout(120)
              ->executePassthru();
     }
@@ -55,12 +55,12 @@ class AptGet extends Command
         Log::action(ts('Removing packages ":packages"', [':packages' => $packages]));
         $this->setCommand('apt')
              ->setSudo(true)
-             ->addArguments([
+             ->appendArguments([
                  'remove',
                  '-y',
              ])
-             ->addArgument($purge ? '--purge' : null)
-             ->addArguments($packages)
+             ->appendArgument($purge ? '--purge' : null)
+             ->appendArguments($packages)
              ->setTimeout(120)
              ->executePassthru();
     }

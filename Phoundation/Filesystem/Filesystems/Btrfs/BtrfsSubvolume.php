@@ -96,11 +96,11 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
     public function create(IteratorInterface|array|int|null $group_id = null): static
     {
         $this->_path->getDirectoryObject()->ensure();
-        $this->_process->addArguments(['subvolume', 'create']);
+        $this->_process->appendArguments(['subvolume', 'create']);
 
         if ($group_id) {
             foreach (Arrays::force($group_id) as $group) {
-                $this->_process->addArguments(['-i', $group]);
+                $this->_process->appendArguments(['-i', $group]);
             }
         }
 
@@ -119,11 +119,11 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
     public function delete(IteratorInterface|array|int|null $group_id = null): static
     {
         $this->_path->getDirectoryObject()->ensure();
-        $this->_process->addArguments(['subvolume', 'create']);
+        $this->_process->appendArguments(['subvolume', 'create']);
 
         if ($group_id) {
             foreach (Arrays::force($group_id) as $group) {
-                $this->_process->addArguments(['-i', $group]);
+                $this->_process->appendArguments(['-i', $group]);
             }
         }
 
@@ -141,7 +141,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function list(): IteratorInterface
     {
-        $_return = $this->_process->addArguments(['subvolume', 'list'])
+        $_return = $this->_process->appendArguments(['subvolume', 'list'])
                                     ->executeReturnIterator()
                                     ->removeKeys(0);
 

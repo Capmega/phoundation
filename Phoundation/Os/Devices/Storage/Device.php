@@ -111,7 +111,7 @@ class Device extends PhoFile implements DeviceInterface
                    1,
                ]) // Accept 1 if the DD process stopped due to disk full, which is expected
                ->setTimeout(0)
-               ->addArguments([
+               ->appendArguments([
                    'if=/dev/urandom',
                    'of=' . $this->source,
                    'bs=4096',

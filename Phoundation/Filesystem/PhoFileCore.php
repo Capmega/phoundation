@@ -1318,11 +1318,11 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
              ->checkExists();
 
         return Process::new('tail')
-                      ->addArguments($lines ? [
+                      ->appendArguments($lines ? [
                           '-n',
                           $lines,
                       ] : null)
-                      ->addArgument($this->source)
+                      ->appendArgument($this->source)
                       ->executeReturnArray();
     }
 
@@ -1366,7 +1366,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
 
         // fallocate the file
         Process::new('fallocate', $this->getParentDirectoryObject())
-               ->addArguments(['-l', $size, $this->source])
+               ->appendArguments(['-l', $size, $this->source])
                ->executeReturnIterator();
 
         return $this;

@@ -44,8 +44,8 @@ class Tar extends Command
 
             $this->setExecutionDirectory($target)
                  ->setCommand('tar')
-                 ->addArguments(['-x', '-f'])
-                 ->addArguments($file)
+                 ->appendArguments(['-x', '-f'])
+                 ->appendArguments($file)
                  ->setTimeout($timeout)
                  ->executeNoReturn();
 
@@ -79,9 +79,9 @@ class Tar extends Command
 
             $this->setExecutionDirectory($path->getParentDirectoryObject())
                  ->setCommand('tar')
-                 ->addArguments(['-c', ($compression ? 'j' : null), '-f'])
-                 ->addArguments($target)
-                 ->addArguments($path)
+                 ->appendArguments(['-c', ($compression ? 'j' : null), '-f'])
+                 ->appendArguments($target)
+                 ->appendArguments($path)
                  ->setTimeout($timeout)
                  ->executeNoReturn();
 

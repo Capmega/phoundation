@@ -38,7 +38,7 @@ class Which extends Command
             return $cache[$command];
         }
         $this->setCommand('which', false)
-             ->addArgument($command)
+             ->appendArgument($command)
              ->setUseRunfile(false)
              ->setTimeout(1);
         try {

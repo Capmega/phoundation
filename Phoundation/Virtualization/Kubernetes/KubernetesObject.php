@@ -84,7 +84,7 @@ class KubernetesObject
     {
         if ($this->getName()) {
             $output = Process::new('kubectl')
-                             ->addArguments([
+                             ->appendArguments([
                                  'get',
                                  $this->getCommand(),
                                  '-o=yaml',
@@ -145,7 +145,7 @@ class KubernetesObject
     public function delete(): static
     {
         Process::new('kubectl')
-               ->addArguments([
+               ->appendArguments([
                    'delete',
                    'deployment',
                    $this->name,
@@ -167,7 +167,7 @@ class KubernetesObject
     public function create(): static
     {
         Process::new('kubectl')
-               ->addArguments([
+               ->appendArguments([
                    'create',
                    'deployment',
                ]);
@@ -184,7 +184,7 @@ class KubernetesObject
     public function apply(): static
     {
         $this->output = Process::new('kubectl')
-                               ->addArguments([
+                               ->appendArguments([
                                    'apply',
                                    '-f',
                                    $this->getObjectFile()

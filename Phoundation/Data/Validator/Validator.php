@@ -46,6 +46,7 @@ use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\IteratorBase;
 use Phoundation\Data\Traits\TraitDataArraySource;
+use Phoundation\Data\Traits\TraitDataBooleanDirectMode;
 use Phoundation\Data\Traits\TraitDataClassException;
 use Phoundation\Data\Traits\TraitDataDataEntry;
 use Phoundation\Data\Traits\TraitDataDefinitions;
@@ -115,6 +116,7 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     }
     use TraitDataMethodPickValidatorInterface;
     use TraitDataPermitValidationFailures;
+    use TraitDataBooleanDirectMode;
 
 
     /**
@@ -1198,6 +1200,11 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
         // Store the failure
         $this->process_value_failed = true;
         $this->failures[$field]     = $failure;
+
+        if ($this->direct_mode) {
+            // Do not gather multiple failures, fail directly on the first encountered failure
+            $this->processFailures();
+        }
 
         return $this;
     }
@@ -5347,7 +5354,7 @@ throw new ObsoleteException();
                 return;
             }
 
-            // Try by regex. If that fails. try JSON decode
+            // Try by regex. If that fails, try JSON decode
             @json_decode($value);
 
             if (json_last_error() !== JSON_ERROR_NONE) {

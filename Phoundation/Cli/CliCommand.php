@@ -967,7 +967,7 @@ class CliCommand
 //                $pid = file_get_contents($run_dir . $command);
 //                $pid = trim($pid);
 //
-//                if (!is_numeric($pid) or !is_natural($pid) or ($pid > 65536)) {
+//                if (!is_numeric($pid) or !is_numeric_natural($pid) or ($pid > 65536)) {
 //                    Log::warning(ts('The run file ":file" contains invalid information, ignoring', [':file' => $run_dir . $command]));
 //
 //                } else {
@@ -2027,13 +2027,13 @@ return 'under construction';
                 Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
             }
 
-            if (!is_natural(PAGE)) {
+            if (!is_numeric_natural(PAGE)) {
                 throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
                     ':page' => PAGE,
                 ]));
             }
 
-            if (!is_natural(LIMIT)) {
+            if (!is_numeric_natural(LIMIT)) {
                 throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
                     ':limit' => LIMIT,
                 ]));

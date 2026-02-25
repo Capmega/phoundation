@@ -49,8 +49,8 @@ class Kill extends Command
             }
 
             $this->setCommand('kill')
-                 ->addArgument('-' . $signal)
-                 ->addArguments($pids)
+                 ->appendArgument('-' . $signal)
+                 ->appendArguments($pids)
                  ->setTimeout(10)
                  ->executeReturnArray();
 
@@ -88,8 +88,8 @@ class Kill extends Command
             }
 
             $this->setCommand('pkill')
-                 ->addArgument('-' . $signal)
-                 ->addArguments($processes)
+                 ->appendArgument('-' . $signal)
+                 ->appendArguments($processes)
                  ->setTimeout(10)
                  ->executeReturnArray();
 

@@ -548,7 +548,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                         ->setType('hook')
                         ->setTitle('Authentication hook returned no data')
                         ->setBody(tr('Cannot perform user authentication, hook script ":hook" returned no data', [
-                            ':hook' => $hook->getFile('authenticate')->getRootname(),
+                            ':hook' => $hook->getFileObject('authenticate')->getRootname(),
                         ]))
                         ->setDetails([
                             'account' => $hook->getArgument('identifier'),
@@ -560,7 +560,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             Log::warning(ts('Authentication hook ":hook" does not exist, attempting default internal authentication instead', [
-                ':hook' => $hook->getFile('authenticate')->getRootname(),
+                ':hook' => $hook->getFileObject('authenticate')->getRootname(),
             ]));
 
             // The hook file does not exist, try internal authentication
@@ -570,7 +570,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $authentication->setStatus('bad-hook-data')->save();
 
             throw new OutOfBoundsException(tr('Cannot perform user authentication, the hook script ":hook" returned a non UserInterface value ":value"', [
-                ':hook'  => $hook->getFile('authenticate')->getRootname(),
+                ':hook'  => $hook->getFileObject('authenticate')->getRootname(),
                 ':value' => $user,
             ]));
         }
@@ -597,7 +597,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         Log::warning(ts('Authenticated user ":user" with account authentication hook ":hook"', [
             ':user' => $user->getLogId(),
-            ':hook' => $hook->getFile('authenticate')->getRootname(),
+            ':hook' => $hook->getFileObject('authenticate')->getRootname(),
         ]));
 
         return $user;

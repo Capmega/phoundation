@@ -53,7 +53,7 @@ class ScanImage extends Command
     public function listDevices(): array
     {
         $output = $this->setCommand('scanimage')
-                       ->addArguments([
+                       ->appendArguments([
                            '--formatted-device-list',
                            '%d^^^%v^^^%m^^^%t^^^%i%n',
                        ])
@@ -219,7 +219,7 @@ class ScanImage extends Command
             } else {
                 // Get real options
                 $output = $this->setCommand('scanimage')
-                               ->addArguments([
+                               ->appendArguments([
                                    '--help',
                                    '--device-name',
                                    $device,
@@ -499,13 +499,13 @@ class ScanImage extends Command
             throw new ScannersException(tr('Cannot execute document scan, no profile specified'));
         }
         $this->setCommand('scanimage')
-             ->addArguments([
+             ->appendArguments([
                  '-d',
                  $this->profile->getDevice()
                                ->getUrl(),
              ])
-             ->addArguments($this->options)
-             ->addArguments($this->batch ? ['--batch=' . $path->getSource()] : [
+             ->appendArguments($this->options)
+             ->appendArguments($this->batch ? ['--batch=' . $path->getSource()] : [
                  '-o',
                  $path->getSource(),
              ])

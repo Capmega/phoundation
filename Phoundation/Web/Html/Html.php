@@ -1247,13 +1247,13 @@ class Html
         if (!$params['width']) {
             throw new HtmlException(tr('No width specified'));
         }
-        if (!is_natural($params['width'])) {
+        if (!is_numeric_natural($params['width'])) {
             throw new HtmlException(tr('html_video(): Invalid width ":width" specified', [':width' => $params['width']]));
         }
         if (!$params['height']) {
             throw new HtmlException(tr('html_video(): No height specified'));
         }
-        if (!is_natural($params['height'])) {
+        if (!is_numeric_natural($params['height'])) {
             throw new HtmlException(tr('html_video(): Invalid height ":height" specified', [':height' => $params['height']]));
         }
         /*

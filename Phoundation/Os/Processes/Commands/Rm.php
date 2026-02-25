@@ -40,7 +40,7 @@ class Rm extends Command
     {
         try {
             $this->setCommand('rm')
-                 ->addArguments([
+                 ->appendArguments([
                      $file,
                      '-f',
                      ($recurse_down ? '-r' : ''),

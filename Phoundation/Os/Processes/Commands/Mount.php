@@ -155,15 +155,15 @@ class Mount extends Command
                  ->setTimeout($timeout)
                  ->setSignal(9)
                  ->setSudo(true)
-                 ->addArguments([
+                 ->appendArguments([
                      (string) $source,
                      (string) $target,
                  ])
-                 ->addArguments($options ? [
+                 ->appendArguments($options ? [
                      '-o',
                      Strings::force($options, ','),
                  ] : null)
-                 ->addArguments($filesystem ? [
+                 ->appendArguments($filesystem ? [
                      '-t',
                      $filesystem,
                  ] : null)
@@ -238,7 +238,7 @@ class Mount extends Command
         return $this->clearArguments()
                     ->setCommand('mount')
                     ->setPipe(Process::new('grep')
-                                     ->addArgument($device))
+                                     ->appendArgument($device))
                     ->executeReturnIterator();
     }
 }

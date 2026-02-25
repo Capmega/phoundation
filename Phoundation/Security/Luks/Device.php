@@ -78,7 +78,7 @@ class Device extends PhoFile
         $this->luksCheckPath();
 
         Process::new('cryptsetup', $this->_restrictions)
-               ->addArguments(['luksAddKey', $this->source])
+               ->appendArguments(['luksAddKey', $this->source])
                ->setSudo(true)
                ->setPipeFrom($code)
                ->executeNoReturn();
@@ -99,7 +99,7 @@ class Device extends PhoFile
         $this->luksCheckPath();
 
         Process::new('cryptsetup', $this->_restrictions)
-               ->addArguments(['luksRemoveKey', $this->source])
+               ->appendArguments(['luksRemoveKey', $this->source])
                ->setSudo(true)
                ->setPipeFrom($code)
                ->executeNoReturn();
@@ -118,7 +118,7 @@ class Device extends PhoFile
         $this->luksCheckPath();
 
         return Process::new('cryptsetup', $this->_restrictions)
-                      ->addArguments(['luksDump', $this->source])
+                      ->appendArguments(['luksDump', $this->source])
                       ->setSudo(true)
                       ->executeReturnIterator();
     }
@@ -143,7 +143,7 @@ class Device extends PhoFile
         ]));
 
         Process::new('cryptsetup', $this->_restrictions)
-               ->addArguments(['luksFormat', '--batch-mode', $this->source])
+               ->appendArguments(['luksFormat', '--batch-mode', $this->source])
                ->setSudo(true)
                ->setPipeFrom($password)
                ->execute($method);
@@ -192,7 +192,7 @@ class Device extends PhoFile
         }
 
         return Process::new('cryptsetup', $this->_restrictions)
-                      ->addArguments(['status', $device_name])
+                      ->appendArguments(['status', $device_name])
                       ->setSudo(true)
                       ->executeReturnIterator(':');
     }
@@ -231,7 +231,7 @@ class Device extends PhoFile
         $this->luksCheckPath();
 
         $result = Process::new('cryptsetup', $this->_restrictions)
-               ->addArguments(['isLuks', $this->source])
+               ->appendArguments(['isLuks', $this->source])
                ->setSudo(true)
                ->executeReturnString();
 
@@ -249,7 +249,7 @@ class Device extends PhoFile
         $this->luksCheckPath();
 
         return Process::new('cryptsetup', $this->_restrictions)
-               ->addArguments(['luksUUID', $this->source])
+               ->appendArguments(['luksUUID', $this->source])
                ->setSudo(true)
                ->executeReturnString();
     }
@@ -281,7 +281,7 @@ class Device extends PhoFile
             }
 
             Process::new('cryptsetup', $this->_restrictions)
-                  ->addArguments(['luksOpen', $this->source, $device_name])
+                  ->appendArguments(['luksOpen', $this->source, $device_name])
                   ->setSudo(true)
                   ->setPipeFrom($passphrase)
                   ->execute($method);
@@ -357,7 +357,7 @@ class Device extends PhoFile
 
         try {
             Process::new('cryptsetup', $this->_restrictions)
-                ->addArguments(['luksClose', $this->device_name])
+                ->appendArguments(['luksClose', $this->device_name])
                 ->setSudo(true)
                 ->executeNoReturn();
 

@@ -34,13 +34,10 @@ ARGUMENTS
 [-t,--task TASK]                        The specific task code to execute');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-t,--task' => [
-                                              'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
-                                              'noword' => function ($word) { return Tasks::new()->autoCompleteFind(); },
-                                          ],
-                                      ],
-                                  ]);
+    'arguments' => [
+        '-t,--task' => function ($word) { return Tasks::new()->autoCompleteFind($word); },
+    ],
+]);
 
 
 // Get arguments

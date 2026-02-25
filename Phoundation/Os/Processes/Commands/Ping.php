@@ -32,7 +32,7 @@ class Ping extends Command
     {
         try {
             $output = $this->setCommand('ping')
-                           ->addArguments([
+                           ->appendArguments([
                                '-c',
                                1,
                                $restrictions,

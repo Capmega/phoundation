@@ -428,17 +428,18 @@ interface TaskInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getPreExec(): ?string;
+    public function getPreExecHook(): ?string;
 
 
     /**
      * Sets pre_exec for this task
      *
-     * @param string|null $pre_exec
+     * @param string|null $hook    The hook file to execute before this task executes
+     * @param bool        $require [false] If true, the hook file must exist
      *
      * @return static
      */
-    public function setPreExec(?string $pre_exec): static;
+    public function setPreExecutionHook(?string $hook, bool $require = false): static;
 
 
     /**
@@ -446,17 +447,18 @@ interface TaskInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getPostExec(): ?string;
+    public function getPostExecutionHook(): ?string;
 
 
     /**
      * Sets post_exec for this task
      *
-     * @param string|null $post_exec
+     * @param string|null $hook    The hook file to execute after this task executes
+     * @param bool        $require [false] If true, the hook file must exist
      *
      * @return static
      */
-    public function setPostExec(?string $post_exec): static;
+    public function setPostExecutionHook(?string $hook, bool $require = false): static;
 
 
     /**
@@ -480,9 +482,9 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns results for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getResults(): string;
+    public function getResults(): ?string;
 
 
     /**
@@ -524,9 +526,9 @@ interface TaskInterface extends DataEntryInterface
     /**
      * Returns executed_command for this task
      *
-     * @return string
+     * @return string|null
      */
-    public function getExecutedCommand(): string;
+    public function getExecutedCommand(): ?string;
 
 
     /**
@@ -534,7 +536,7 @@ interface TaskInterface extends DataEntryInterface
      *
      * @return array|null
      */
-    public function getArguments(): ?string;
+    public function getArguments(): ?array;
 
 
     /**
@@ -627,4 +629,36 @@ interface TaskInterface extends DataEntryInterface
      * @throws \Exception
      */
     public function apply(bool $require_clean_source = true, array|ValidatorInterface|null &$source = null): static;
+
+    /**
+     * Returns the hook that will be executed once the script finishes, if any
+     *
+     * @return string|null
+     */
+    public function getHook(): ?string;
+
+    /**
+     * Sets the hook that will be executed once the script finishes, if any
+     *
+     * @param string|null $hook
+     *
+     * @return static
+     */
+    public function setHook(string|null $hook): static;
+
+    /**
+     * Returns the asymmetric key used to encrypt the process output results, or null if the process results were not encrypted
+     *
+     * @return string|null
+     */
+    public function getResultsEncryptionKey(): ?string;
+
+    /**
+     * Sets the asymmetric key used to encrypt the process output results, or null if the results should not be encrypted
+     *
+     * @param string|null $results_encryption_key
+     *
+     * @return static
+     */
+    public function setResultsEncryptionKey(string|null $results_encryption_key): static;
 }

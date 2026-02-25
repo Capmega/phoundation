@@ -2217,16 +2217,14 @@ class Definition implements DefinitionInterface
             case EnumInputType::array_json:
                 $this->setElement(EnumElement::textarea, false)
                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                         $_validator->sanitizeForceArray(',')
-                                   ->sanitizeEncodeJson();
+                         $_validator->sanitizeEncodeJson();
                      }, 'array_json');
                 break;
 
             case EnumInputType::array_serialized:
                 $this->setElement(EnumElement::textarea)
                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                         $_validator->sanitizeForceArray(',')
-                                   ->sanitizeEncodeSerialized();
+                         $_validator->sanitizeEncodeSerialized();
                      }, 'array_serialized');
                 break;
 

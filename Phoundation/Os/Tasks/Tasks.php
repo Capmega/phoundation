@@ -51,9 +51,10 @@ class Tasks extends DataIterator implements TasksInterface
     public function __construct(ArrayableInterface|array|null $source = null)
     {
         if (!isset(static::$max_task_workers)) {
-            static::$max_task_workers = config()->getInteger('tasks.workers.maximum', 25);
+            static::$max_task_workers = Task::getDefaultMaximumWorkers();
         }
 
+        $this->setKeysAreUniqueColumn(true);
         parent::__construct($source);
     }
 
@@ -161,10 +162,10 @@ class Tasks extends DataIterator implements TasksInterface
         ]));
 
         try {
-            Pho::new()
+            Pho::new()->setDebug(true)
                ->setPhoCommands('tasks execute')
                ->setLabel(tr('task'))
-               ->addArguments(['-t', ':TASKSID'])
+               ->appendArguments(['-t', ':TASKSID'])
                ->setKey(':TASKSID')
                ->setValues($keys)
                ->setMaximumWorkers(static::$max_task_workers)
@@ -175,10 +176,10 @@ class Tasks extends DataIterator implements TasksInterface
             Log::exception($e);
 
             // Restart tasks execution in a separate process
-            Log::action(ts('Restarting pending tasks executer in new background process'));
+            Log::action(ts('Restarting pending tasks executor in new background process'));
 
             Pho::new()
-               ->setPhoCommands('tasks,execute')
+               ->setPhoCommands('tasks execute')
                ->executeBackground();
         }
 

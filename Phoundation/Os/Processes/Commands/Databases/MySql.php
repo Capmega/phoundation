@@ -146,7 +146,7 @@ class MySql extends Command
                                   ->setFilter('!999999\- enable the sandbox mode')
                                   ->setPipe($this->setCommand('mysql')
                                                  ->setTimeout($this->timeout)
-                                                 ->addArguments([
+                                                 ->appendArguments([
                                                      '-h',  $this->_connector->getHostname(),
                                                      '-u',  $this->_connector->getUsername(),
                                                      '-p' . $this->_connector->getPassword(), // The -p and password must be one string, so "-ppassword"!
@@ -168,7 +168,7 @@ class MySql extends Command
                                                 ->setFilter("USE \`tracking\`;")
                                                 ->setPipe($this->setCommand('mysql')
                                                                ->setTimeout($this->timeout)
-                                                               ->addArguments([
+                                                               ->appendArguments([
                                                                    '-h', $this->_connector->getHostname(),
                                                                    '-u', $this->_connector->getUsername(),
                                                                    '-p' . $this->_connector->getPassword(),
@@ -202,10 +202,10 @@ class MySql extends Command
         try {
             // Build the process parameters, then execute
             $this->setCommand('mysql')
-                 ->addArgument($this->hostname ? '--host' . $this->hostname : null)
-                 ->addArgument($this->port ? '--port' . $this->port : null)
-                 ->addArgument('--user' . $this->user)
-                 ->addArgument('--defaults-extra-file=' . $password_file);
+                 ->appendArgument($this->hostname ? '--host' . $this->hostname : null)
+                 ->appendArgument($this->port ? '--port' . $this->port : null)
+                 ->appendArgument('--user' . $this->user)
+                 ->appendArgument('--defaults-extra-file=' . $password_file);
 
             if ($this->source) {
                 $this->setInputRedirect($this->source);
@@ -326,7 +326,7 @@ class MySql extends Command
         $result = Process::new('mysql')
                          ->setSudo(true)
                          ->setTimeout(10)
-                         ->addArguments([
+                         ->appendArguments([
                              '-p' . $password,
                              '-u',
                              'root',
@@ -344,7 +344,7 @@ class MySql extends Command
         $mysql = Process::new('mysql')
                         ->setSudo(true)
                         ->setTimeout(10)
-                        ->addArguments([
+                        ->appendArguments([
                             '-p' . $password,
                             '-u',
                             'root',
@@ -353,7 +353,7 @@ class MySql extends Command
 
         Process::new('mysql_tzinfo_to_sql', PhoRestrictions::new('/usr/share/zoneinfo'))
                ->setTimeout(10)
-               ->addArgument('/usr/share/zoneinfo')
+               ->appendArgument('/usr/share/zoneinfo')
                ->setPipe($mysql)
                ->executePassthru();
     }

@@ -97,9 +97,9 @@ class DiffFiles extends PhoFilesCore
         $this->source = [];
 
         $files = $this->_git_process->clearArguments()
-                                     ->addArgument('diff')
-                                     ->addArgument($this->_path)
-                                     ->addArgument('--porcelain')
+                                     ->appendArgument('diff')
+                                     ->appendArgument($this->_path)
+                                     ->appendArgument('--porcelain')
                                      ->executeReturnArray();
 
         // Parse output

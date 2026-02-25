@@ -35,7 +35,7 @@ class Lsblk extends Command
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
                         ->setCommand('lsblk')
-                        ->addArgument('-J')
+                        ->appendArgument('-J')
                         ->executeReturnString();
         $return  = Iterator::new();
         $devices = Json::decode($devices);
@@ -91,7 +91,7 @@ class Lsblk extends Command
         // Build the process parameters, then execute
         $devices = $this->clearArguments()
                         ->setCommand('lsblk')
-                        ->addArgument('-J')
+                        ->appendArgument('-J')
                         ->executeReturnString();
         $return  = Iterator::new();
         $devices = Json::decode($devices);

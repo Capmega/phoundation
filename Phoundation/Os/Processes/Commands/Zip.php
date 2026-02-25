@@ -63,7 +63,7 @@ class Zip extends Command implements ZipInterface
         try {
             $this->setSourcePath($target)
                  ->setCommand('unzip')
-                 ->addArguments($this->source_path)
+                 ->appendArguments($this->source_path)
                  ->executeNoReturn();
 
             return $this->getExecutionDirectory();
@@ -93,9 +93,9 @@ class Zip extends Command implements ZipInterface
             }
 
             $this->setCommand('zip')
-                 ->addArguments('-rp' . $this->compression_level)
-                 ->addArguments($target)
-                 ->addArguments($this->source_path->makeRelative($this->source_path->getParentDirectoryObject()))
+                 ->appendArguments('-rp' . $this->compression_level)
+                 ->appendArguments($target)
+                 ->appendArguments($this->source_path->makeRelative($this->source_path->getParentDirectoryObject()))
                  ->executeNoReturn();
 
             return $target;

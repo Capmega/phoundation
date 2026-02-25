@@ -116,9 +116,9 @@ class UnMount extends Command
                      ->setCommand('umount')
                      ->setSudo(true)
                      ->setTimeout($timeout)
-                     ->addArgument($this->force ? '-f' : null)
-                     ->addArgument($this->lazy ? '-l' : null)
-                     ->addArgument($target)
+                     ->appendArgument($this->force ? '-f' : null)
+                     ->appendArgument($this->lazy ? '-l' : null)
+                     ->appendArgument($target)
                      ->executeNoReturn();
 
             } catch (ProcessFailedException $e) {

@@ -1574,4 +1574,37 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return bool
      */
     public function getConfigValidationEnabled(): bool;
+
+    /**
+     * Disable password validations
+     *
+     * @return void
+     */
+    public static function disablePasswords(): void;
+
+    /**
+     * Enable password validations
+     *
+     * @return void
+     */
+    public static function enablePasswords(): void;
+
+    /**
+     * Returns the direct-mode setting for this validator object
+     *
+     * @return bool
+     */
+    public function getDirectMode(): bool;
+
+    /**
+     * Sets the direct-mode setting for this validator object.
+     *
+     * NOTE: If null, will use the configured value instead
+     *
+     * @param bool|null $direct_mode The new value for direct mode. True will enable it, false will disable it, null will use the current configured setting
+     *                               instead
+     *
+     * @return $this
+     */
+    public function setDirectMode(?bool $direct_mode): static;
 }

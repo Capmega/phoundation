@@ -90,9 +90,9 @@ if ($count) {
             // Restart the command
             Pho::new()
                ->setPhoCommands('emails send')
-               ->addArgument('--auto-restart')
-               ->addArgument($argv['background'] ? '--background' : null)
-               ->addArguments($argv['limit']    ? ['--limit', $argv['limit']] : null)
+               ->appendArgument('--auto-restart')
+               ->appendArgument($argv['background'] ? '--background' : null)
+               ->appendArguments($argv['limit']    ? ['--limit', $argv['limit']] : null)
                ->execute($method);
         }
     }

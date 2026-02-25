@@ -67,8 +67,8 @@ class Interfaces
     {
         $results = Process::new('ifconfig')
                           ->setPipe(Process::new('egrep')
-                                           ->addArgument('-i')
-                                           ->addArgument('addr|inet'))
+                                           ->appendArgument('-i')
+                                           ->appendArgument('addr|inet'))
                           ->executeReturnString();
 
         if (!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {

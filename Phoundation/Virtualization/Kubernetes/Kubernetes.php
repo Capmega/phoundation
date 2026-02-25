@@ -85,7 +85,7 @@ class Kubernetes
      */
     public function setStartTimeout(int $timeout): static
     {
-        if (!is_natural($timeout, 0)) {
+        if (!is_numeric_natural($timeout, 0)) {
             throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
                 ':timeout' => $timeout,
             ]));
@@ -105,7 +105,7 @@ class Kubernetes
     {
         Process::new($this->command)
                ->setTimeout($this->start_timeout)
-               ->addArguments('start')
+               ->appendArguments('start')
                ->execute($method);
     }
 
@@ -127,7 +127,7 @@ class Kubernetes
     public function stop(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
-               ->addArguments('stop')
+               ->appendArguments('stop')
                ->execute($method);
     }
 
@@ -140,7 +140,7 @@ class Kubernetes
     public function getStatus(): Status
     {
         $output = Process::new($this->command)
-                         ->addArguments('status')
+                         ->appendArguments('status')
                          ->executeReturnArray();
 
         return new Status($output);
@@ -157,7 +157,7 @@ class Kubernetes
     public function delete(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
-               ->addArguments('delete')
+               ->appendArguments('delete')
                ->execute($method);
     }
 
@@ -170,7 +170,7 @@ class Kubernetes
     public function pause(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
-               ->addArguments('pause')
+               ->appendArguments('pause')
                ->execute($method);
     }
 
@@ -183,7 +183,7 @@ class Kubernetes
     public function unpause(EnumExecuteMethod $method = EnumExecuteMethod::passthru): void
     {
         Process::new($this->command)
-               ->addArguments('unpause')
+               ->appendArguments('unpause')
                ->execute($method);
     }
 
@@ -194,7 +194,7 @@ class Kubernetes
     public function dashboard(): void
     {
         Process::new($this->command)
-               ->addArguments('dashboard')
+               ->appendArguments('dashboard')
                ->executeBackground();
     }
 }
