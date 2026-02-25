@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Interfaces;
 
 use PDOStatement;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\QueryBuilder\Interfaces\QueryObjectInterface;
 
@@ -283,12 +284,12 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Sets the database connector
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static;
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static;
 
     /**
      * Returns a hash from the executed query
@@ -300,9 +301,25 @@ interface QueryBuilderInterface extends QueryObjectInterface
     /**
      * Returns the source of this object
      *
-     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     * @note: This object does not work with "source" data as such, so it will be constructed upon request
      *
      * @return array
      */
     public function getSource(): array;
+
+    /**
+     * Builds a comparison section for the specified column / value
+     *
+     * @param string|null                                        $table                   The table to build the query part for
+     * @param string                                             $column                  The column to build the query part for
+     * @param IteratorInterface|array|string|float|int|bool|null $value                   The value to build the query part with
+     * @param array|null                                         $bound_variables         The execution variables. Passed by reference as it will modify the
+     *                                                                                    array
+     * @param bool                                               $like            [false] If true, will use LIKE to compare, instead of =
+     * @param bool                                               $negative        [false] If true, will build a negative comparison (NOT IN, !=, NOT LIKE)
+     * @param int|null                                           $counter         [null]  If specified, will add the counter number to the bound variable name
+     *
+     * @return string|null
+     */
+    public static function renderComparison(?string $table, string $column, IteratorInterface|array|string|float|int|bool|null $value, ?array &$bound_variables, bool $like = false, bool $negative = false, ?int $counter = null): ?string;
 }

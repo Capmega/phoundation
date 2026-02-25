@@ -118,7 +118,7 @@ class DataIteratorCore extends IteratorCore implements DataIteratorInterface, Id
      *
      * @var QueryBuilderInterface
      */
-    protected QueryBuilderInterface $o_query_builder;
+    protected QueryBuilderInterface $_query_builder;
 
     /**
      * Tracks if entries are stored by id or unique column
@@ -302,7 +302,7 @@ throw new ObsoleteException();
     public function getQueryBuilderObject(): QueryBuilderInterface
     {
         $this->useQueryBuilder();
-        return $this->o_query_builder;
+        return $this->_query_builder;
     }
 
 
@@ -313,8 +313,8 @@ throw new ObsoleteException();
      */
     public function getQueryHash(): ?string
     {
-        if (isset($this->o_query_builder)) {
-            $hash = 'QB-' . $this->o_query_builder->getQueryHash() . sha1(sql()->parseQuery($this->query, $this->execute));
+        if (isset($this->_query_builder)) {
+            $hash = 'QB-' . $this->_query_builder->getQueryHash() . sha1(sql()->parseQuery($this->query, $this->execute));
 //Log::printr('QUERY BUILDER: ' . sql()->parseQuery($this->query_builder->getQuery(), $this->query_builder->getExecute()));
 
         } elseif ($this->query) {
@@ -342,9 +342,9 @@ throw new ObsoleteException();
     public function setDebug(bool $debug, bool $pass_along = true): static
     {
         if ($pass_along) {
-            if (isset($this->o_query_builder)) {
+            if (isset($this->_query_builder)) {
                 // Pass debug mode change along
-                $this->o_query_builder->setDebug(true, false);
+                $this->_query_builder->setDebug(true, false);
             }
         }
 
@@ -361,7 +361,7 @@ throw new ObsoleteException();
      */
     public function modifyQueryBuilderObject(callable $callback): static
     {
-        $callback($this->o_query_builder);
+        $callback($this->_query_builder);
         return $this;
     }
 
@@ -373,8 +373,8 @@ throw new ObsoleteException();
      */
     public function useQueryBuilder(): static
     {
-        if (empty($this->o_query_builder)) {
-            $this->o_query_builder = QueryBuilder::new($this)
+        if (empty($this->_query_builder)) {
+            $this->_query_builder = QueryBuilder::new($this)
                                                  ->setDebug($this->debug)
                                                  ->setFrom(static::getTable())
                                                  ->setMetaEnabled($this->getMetaEnabled())
@@ -395,7 +395,7 @@ throw new ObsoleteException();
      */
     public function setQueryBuilderObject(QueryBuilderInterface $query_builder): static
     {
-        $this->o_query_builder = $query_builder;
+        $this->_query_builder = $query_builder;
         return $this;
     }
 
@@ -410,7 +410,7 @@ throw new ObsoleteException();
      */
     public function setQuery(?string $query, ?array $execute = null): static
     {
-        unset($this->o_query_builder);
+        unset($this->_query_builder);
 
         $this->query   = $query;
         $this->execute = $execute;
@@ -436,11 +436,11 @@ throw new ObsoleteException();
             return $this;
         }
 
-        if (isset($this->o_query_builder)) {
+        if (isset($this->_query_builder)) {
             // Use the query builder
             if ($this->filter_form) {
                 // Add query builder filters from filter_form
-                $this->filter_form->applyFiltersToQueryBuilder($this->o_query_builder);
+                $this->filter_form->applyFiltersToQueryBuilder($this->_query_builder);
 
             } else {
                 // Is any QueryBuilder filtering setup? If not, set default filters
@@ -450,8 +450,8 @@ throw new ObsoleteException();
                 }
             }
 
-            $this->query   = $this->o_query_builder->getQuery();
-            $this->execute = $this->o_query_builder->getExecute();
+            $this->query   = $this->_query_builder->getQuery();
+            $this->execute = $this->_query_builder->getExecute();
             return $this;
         }
 
@@ -465,9 +465,9 @@ throw new ObsoleteException();
             }
 
             // Create a query with optional filtering for parents_id
-            if ($this->o_parent) {
-                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->o_parent::getTable(), '_') . '_id` = :parents_id AND ';
-                $this->execute[':parents_id'] = $this->o_parent->getId();
+            if ($this->_parent) {
+                $parent_filter = '`' . static::getTable() . '`.`' . Strings::fromReverse($this->_parent::getTable(), '_') . '_id` = :parents_id AND ';
+                $this->execute[':parents_id'] = $this->_parent->getId();
 
             } else {
                 $parent_filter = null;
@@ -1515,19 +1515,19 @@ throw new ObsoleteException();
         $source      = config()->getArray(Strings::ensureEndsNotWith(static::getConfigurationPath(), '.'), []);
         $entry       = static::getDefaultContentDataType();
         $entry       = new $entry();
-        $o_definitions = $entry->getDefinitionsObject();
+        $_definitions = $entry->getDefinitionsObject();
 
         // Ensure all entry definition columns are available, apply default values where they do not
         foreach ($source as &$value) {
             $value['status'] = 'configuration';
 
-            foreach ($o_definitions as $column => $o_definition) {
+            foreach ($_definitions as $column => $_definition) {
                 if (array_key_exists($column, $value)) {
                     continue;
                 }
 
                 // Apply the default value for this column
-                $value[$column] = $o_definition->getDefault();
+                $value[$column] = $_definition->getDefault();
             }
         }
 
@@ -1708,8 +1708,8 @@ throw new ObsoleteException();
         }
 
         // Place source in a validator
-        $o_validator = Validator::pick($source);
-        $source    = Arrays::groupByPrefix($o_validator->getSource(), non_prefix_action: Arrays::GROUP_BY_DROP);
+        $_validator = Validator::pick($source);
+        $source     = Arrays::groupByPrefix($_validator->getSource(), flags: Arrays::GROUP_BY_DROP | Arrays::GROUP_BY_NUMERIC);
 
         // First, ensure we have all the entries specified by the source
         if ($require_clean_source) {
@@ -1732,7 +1732,7 @@ throw new ObsoleteException();
 
         // Require clean source
         if ($require_clean_source) {
-            $o_validator->validate($require_clean_source);
+            $_validator->validate($require_clean_source);
         }
 
         return $this;

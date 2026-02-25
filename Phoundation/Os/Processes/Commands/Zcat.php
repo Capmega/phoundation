@@ -53,7 +53,7 @@ class Zcat extends Command
         if ($this->cached_command_line) {
             return $this->cached_command_line;
         }
-        $this->addArgument($this->o_file);
+        $this->addArgument($this->_file);
 
         return parent::getFullCommandLine($background);
     }

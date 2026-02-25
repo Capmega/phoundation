@@ -269,7 +269,7 @@ abstract class Curl implements CurlInterface
     /**
      * Curl class constructor
      */
-    public function __construct(UrlInterface|string|null $o_url = null)
+    public function __construct(UrlInterface|string|null $_url = null)
     {
         if (!extension_loaded('curl')) {
             throw new WebException(tr('The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'));
@@ -280,7 +280,7 @@ abstract class Curl implements CurlInterface
             $this->verbose = true;
         }
 
-        $this->o_url = Url::new($o_url);
+        $this->_url = Url::new($_url);
         $this->retry = 0;
 
         // Setup new cURL request
@@ -294,13 +294,13 @@ abstract class Curl implements CurlInterface
     /**
      * Returns a new cURL class
      *
-     * @param UrlInterface|string|null $o_url
+     * @param UrlInterface|string|null $_url
      *
      * @return static
      */
-    public static function new(UrlInterface|string|null $o_url = null): static
+    public static function new(UrlInterface|string|null $_url = null): static
     {
-        return new static($o_url);
+        return new static($_url);
     }
 
 

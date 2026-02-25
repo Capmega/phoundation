@@ -40,7 +40,7 @@ class TableAlter extends SchemaAbstract
             ]));
         }
 
-        $this->sql->query('RENAME TABLE :from TO :to', [
+        $this->_sql->query('RENAME TABLE :from TO :to', [
             ':from' => $this->name,
             ':tp'   => $name,
         ]);
@@ -98,7 +98,7 @@ class TableAlter extends SchemaAbstract
         $column = trim($column);
         $column = Strings::ensureEndsNotWith($column, ',');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` 
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` 
                            ADD COLUMN ' . $column . ' ' . $before_after);
 
         return $this;
@@ -108,12 +108,20 @@ class TableAlter extends SchemaAbstract
     /**
      * Drop the specified column from the table
      *
-     * @param string $column
+     * @param string $column          The column to drop
+     * @param bool $if_exists [false] If true, will only try to remove the index if it exists. If the index does not exist, nothing will be done. If false,
+     *                                the method will execute the DROP INDEX command which will fail if the index does not exist
      *
      * @return static
      */
-    public function dropColumn(string $column): static
+    public function dropColumn(string $column, bool $if_exists = false): static
     {
+        if ($if_exists) {
+            if (!$this->_parent->columnExists($column)) {
+                return $this;
+            }
+        }
+
         if (!$column) {
             throw new OutOfBoundsException(tr('No column specified'));
         }
@@ -121,7 +129,7 @@ class TableAlter extends SchemaAbstract
         $column = Strings::ensureBeginsNotWith($column, '`');
         $column = Strings::ensureEndsNotWith($column, '`');
 
-        $this->sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
+        $this->_sql->query('ALTER TABLE ' . $this->name . ' DROP COLUMN `' . $column . '`');
 
         return $this;
     }
@@ -149,7 +157,7 @@ class TableAlter extends SchemaAbstract
         $column        = Strings::ensureEndsNotWith($column         , '`');
         $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` MODIFY COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -177,7 +185,7 @@ class TableAlter extends SchemaAbstract
         $column        = Strings::ensureEndsNotWith($column         , '`');
         $to_definition = Strings::ensureEndsNotWith($to_definition  , ',');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` CHANGE COLUMN `' . $column . '` ' . $to_definition);
 
         return $this;
     }
@@ -209,10 +217,10 @@ class TableAlter extends SchemaAbstract
         $to_name   = Strings::ensureBeginsNotWith($to_name, '`');
         $to_name   = Strings::ensureEndsNotWith($to_name, '`');
 
-        $this->sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_name . '` TO `' . $to_name . '`');
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` RENAME COLUMN `' . $from_name . '` TO `' . $to_name . '`');
 
         if ($rename_index) {
-            if ($this->parent->indexExists($from_name)) {
+            if ($this->_parent->indexExists($from_name)) {
                 $this->renameIndex($from_name, $to_name);
             }
         }
@@ -250,7 +258,7 @@ class TableAlter extends SchemaAbstract
      */
     public function getDefinitions(): array
     {
-        return explode(PHP_EOL, $this->sql->getColumn('SHOW CREATE TABLE ' . $this->name, column: 'create table'));
+        return explode(PHP_EOL, $this->_sql->getColumn('SHOW CREATE TABLE ' . $this->name, column: 'create table'));
     }
 
 
@@ -295,13 +303,13 @@ class TableAlter extends SchemaAbstract
      */
     public function renameIndex(string $from_name, string $to_name): static
     {
-        $o_definition = $this->getDefinition($from_name, 'KEY');
-        $o_definition = str_replace($to_name    , '##########', $o_definition);
-        $o_definition = str_replace($from_name  , $to_name    , $o_definition);
-        $o_definition = str_replace('##########', $to_name    , $o_definition);
+        $_definition = $this->getDefinition($from_name, 'KEY');
+        $_definition = str_replace($to_name    , '##########', $_definition);
+        $_definition = str_replace($from_name  , $to_name    , $_definition);
+        $_definition = str_replace('##########', $to_name    , $_definition);
 
-        $this->sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
-        $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $o_definition);
+        $this->_sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
+        $this->_sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $_definition);
 
         return $this;
     }
@@ -317,10 +325,18 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
+            $test = strtoupper($index);
+
+            if (!str_contains($test, 'INDEX ') AND !str_contains($test, 'KEY ')) {
+                throw new OutOfBoundsException(ts('Cannot add specified index ":index", it does not contain the minimum amount of required keywords for a database index, like "INDEX" or "KEY"', [
+                    ':index' => $index,
+                ]));
+            }
+
             $index = trim($index);
             $index = Strings::ensureEndsNotWith($index, ',');
 
-            $this->sql->query('ALTER TABLE ' . $this->name . ' 
+            $this->_sql->query('ALTER TABLE ' . $this->name . ' 
                                ADD         ' . $index);
         }
 
@@ -331,15 +347,23 @@ class TableAlter extends SchemaAbstract
     /**
      * Drop the specified index from the table
      *
-     * @param string $index
+     * @param string $index           The index to drop
+     * @param bool $if_exists [false] If true, will only try to remove the index if it exists. If the index does not exist, nothing will be done. If false,
+     *                                the method will execute the DROP INDEX command which will fail if the index does not exist
      *
      * @return static
      */
-    public function dropIndex(string $index): static
+    public function dropIndex(string $index, bool $if_exists = false): static
     {
+        if ($if_exists) {
+            if (!$this->_parent->indexExists($index)) {
+                return $this;
+            }
+        }
+
         if ($index) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' 
-                               DROP KEY   `' . Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($index, '`'), '`') . '`');
+            $this->_sql->query('ALTER TABLE `' . $this->name . '` 
+                                DROP KEY    `' . Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($index, '`'), '`') . '`');
         }
 
         return $this;
@@ -381,7 +405,7 @@ class TableAlter extends SchemaAbstract
             $foreign_key = trim($foreign_key);
             $foreign_key = Strings::ensureEndsNotWith($foreign_key, ',');
 
-            $this->sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
+            $this->_sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
         }
 
         return $this;
@@ -391,14 +415,22 @@ class TableAlter extends SchemaAbstract
     /**
      * Drop the specified foreign_key from the table
      *
-     * @param string $foreign_key
+     * @param string $foreign_key         The foreign key to drop
+     * @param bool   $if_exists   [false] If true, will only try to remove the index if it exists. If the index does not exist, nothing will be done. If false,
+     *                                    the method will execute the DROP INDEX command which will fail if the index does not exist
      *
      * @return static
      */
-    public function dropForeignKey(string $foreign_key): static
+    public function dropForeignKey(string $foreign_key, bool $if_exists = false): static
     {
+        if ($if_exists) {
+            if (!$this->_parent->foreignKeyExists($foreign_key)) {
+                return $this;
+            }
+        }
+
         if ($foreign_key) {
-            $this->sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', needles_required: false) . '`');
+            $this->_sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', needles_required: false) . '`');
         }
 
         return $this;

@@ -46,7 +46,7 @@ class AuditButton extends Button
      */
     public function getConfiguredModifierKeysToEnableAuditButton(): array
     {
-        return config()->getArray('web.html.components.buttons.audit.modifier-keys');
+        return config()->getArray('web.html.components.buttons.audit.modifier-keys', []);
     }
 
 

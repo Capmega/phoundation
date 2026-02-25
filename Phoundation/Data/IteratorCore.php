@@ -138,9 +138,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Tracks validators that are required to pass to add values to this Iterator
      *
-     * @var IteratorInterface $o_validators
+     * @var IteratorInterface $_validators
      */
-    protected IteratorInterface $o_validators;
+    protected IteratorInterface $_validators;
 
 
     /**
@@ -262,26 +262,26 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Sets the parent
      *
-     * @param DataEntryInterface|RenderInterface|UrlInterface|null $o_parent
+     * @param DataEntryInterface|RenderInterface|UrlInterface|null $_parent
      *
      * @return static
      * @todo This is a mess, redo parent management. DataEntryInterface is very generic, is ok, RenderInterface is generic, is ok, UrlInterface is very specific, not ok. See Rights::setParentObject()
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static
     {
-        if ($o_parent instanceof DataEntryInterface) {
+        if ($_parent instanceof DataEntryInterface) {
             // Pass readonly flags. If the parent is readonly, then so is this list
-            if ($this->getReadonly() !== $o_parent->getReadonly()) {
-                $this->setReadonly($this->getReadonly() or $o_parent->getReadonly());
+            if ($this->getReadonly() !== $_parent->getReadonly()) {
+                $this->setReadonly($this->getReadonly() or $_parent->getReadonly());
             }
 
             // Pass disabled flags. If the parent is disabled, then so is this list
-            if ($this->getDisabled() !== $o_parent->getDisabled()) {
-                $this->setDisabled($this->getDisabled() or $o_parent->getDisabled());
+            if ($this->getDisabled() !== $_parent->getDisabled()) {
+                $this->setDisabled($this->getDisabled() or $_parent->getDisabled());
             }
         }
 
-        return $this->__setParentObject($o_parent);
+        return $this->__setParentObject($_parent);
     }
 
 
@@ -353,7 +353,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Returns the columns for the data in this Iterator.
      *
-     * If columns haven't been set already, it will automatically detect the columns from the first entry in the
+     * If columns have not been set already, it will automatically detect the columns from the first entry in the
      * Iterator
      *
      * @return array|null
@@ -476,8 +476,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
         // Apply validators as well? Only if datatype test  has not failed yet
         if (isset($this->validators)) {
-            foreach ($this->validators as $name => $o_validator) {
-                if (!$o_validator($value)) {
+            foreach ($this->validators as $name => $_validator) {
+                if (!$_validator($value)) {
                     throw IteratorValidatorFailedException::new(tr('Iterator value argument ":key" with value ":value" failed to pass validator ":validator"', [
                         ':key'       => $key ?? tr('N/A'),
                         ':value'     => $value,
@@ -515,14 +515,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     /**
      * Adds a validator callback that must be passed for data to be added to this Iterator object
      *
-     * @param callable    $o_validator
+     * @param callable    $_validator
      * @param string|null $name
      *
      * @return static
      */
-    public function addValidator(callable $o_validator, ?string $name = null): static
+    public function addValidator(callable $_validator, ?string $name = null): static
     {
-        $this->getValidatorsObject()->add($o_validator, $name);
+        $this->getValidatorsObject()->add($_validator, $name);
         return $this;
     }
 
@@ -1378,10 +1378,8 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             return null;
         }
 
-        $system_columns = $this->getColumns();
-
         if (empty($columns)) {
-            $columns = $system_columns;
+            $columns = $this->getColumns();
 
         } elseif (is_string($columns)) {
             $columns = Arrays::force($columns);
@@ -1405,28 +1403,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
-        if (isset($remove)) {
-            // Use all system columns and remove specified columns
-            $display_columns = $system_columns;
-
-            foreach ($columns as $column) {
-                if (str_starts_with($column, '-')) {
-                    $display_columns = Arrays::removeValues($display_columns, substr($column, 1));
-                }
-            }
-
-        } else {
-            $display_columns = $columns;
-        }
-
         // Initialize all requested column footers
         foreach($footers as $footer => &$value) {
             if ($footer === $totals_column) {
-                // This is the column that will have the "Totals:" label, ensure it won't try to add data from columns!
+                // This is the column that will have the "Totals:" label, ensure it will not try to add data from columns!
                 $value           = $totals_label ?? tr('Totals');
-                $display_columns = Arrays::removeValues($display_columns, $totals_column);
+                $columns = Arrays::removeValues($columns, $totals_column);
 
-            } elseif (array_key_exists($footer, $display_columns)) {
+            } elseif (array_key_exists($footer, $columns)) {
                 $value = 0;
             }
         }
@@ -1438,7 +1422,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             $value = Arrays::force($value);
 
             try {
-                foreach ($display_columns as $column) {
+                foreach ($columns as $column) {
                     $footers[$column] += get_numeric(array_get_safe($value, $column));
                 }
 
@@ -1752,7 +1736,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
         }
 
         if ($exception ?? $this->exception_on_get) {
-            // The key doesn't exist
+            // The key does not exist
             throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                 ':key'   => $key,
                 ':class' => static::class,
@@ -1976,7 +1960,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     #[ReturnTypeWillChange] public function renameKey(Stringable|string|int $key, Stringable|string|int $target, bool $exception = true): mixed
     {
-        // First, ensure the target doesn't exist yet!
+        // First, ensure the target does not exist yet!
         if (array_key_exists($target, $this->source)) {
             throw new IteratorException(tr('Cannot rename key ":key" to target ":target", the target key already exists', [
                 ':key'    => $key,
@@ -2092,7 +2076,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function getCacheKeySeed(): ?string
     {
-        return PROJECT . '#Iterator#' . static::class . '#' . Json::encode([Request::getUrl(), $this->getName(), ($this->o_parent ? ($this->o_parent::class . '-' . $this->o_parent->getId()) : '')]);
+        return PROJECT . '#Iterator#' . static::class . '#' . Json::encode([Request::getUrl(), $this->getName(), ($this->_parent ? ($this->_parent::class . '-' . $this->_parent->getId()) : '')]);
     }
 
 

@@ -19,6 +19,7 @@ namespace Phoundation\Databases\Sql\Schema;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
+use Phoundation\Databases\Sql\Interfaces\SqlInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
@@ -30,9 +31,9 @@ class Table extends SchemaAbstract implements TableInterface
     /**
      * The SQL interface
      *
-     * @var Sql $sql
+     * @var Sql $_sql
      */
-    protected Sql $sql;
+    protected Sql $_sql;
 
     /**
      * The columns for this table
@@ -60,12 +61,12 @@ class Table extends SchemaAbstract implements TableInterface
      * Table constructor
      *
      * @param string                $name
-     * @param Sql                   $sql
-     * @param SchemaAbstract|Schema $parent
+     * @param SqlInterface          $_sql
+     * @param SchemaAbstract|Schema $_parent
      */
-    public function __construct(string $name, Sql $sql, SchemaAbstract|Schema $parent)
+    public function __construct(string $name, SqlInterface $_sql, SchemaAbstract|Schema $_parent)
     {
-        parent::__construct($name, $sql, $parent);
+        parent::__construct($name, $_sql, $_parent);
 
         if ($name) {
             // Load this table
@@ -93,7 +94,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function define(): TableDefine
     {
-        return new TableDefine($this->name, $this->sql, $this);
+        return new TableDefine($this->name, $this->_sql, $this);
     }
 
 
@@ -104,7 +105,7 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function alter(): TableAlter
     {
-        return new TableAlter($this->name, $this->sql, $this);
+        return new TableAlter($this->name, $this->_sql, $this);
     }
 
 
@@ -142,8 +143,8 @@ class Table extends SchemaAbstract implements TableInterface
     {
         Log::warning(ts('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ":table"    => $this->name,
-            ":instance" => $this->sql->getConnector(),
-            ":database" => $this->sql->getDatabase(),
+            ":instance" => $this->_sql->getConnector(),
+            ":database" => $this->_sql->getDatabase(),
         ]), 3);
 
         sql()->query("DROP TABLES IF EXISTS `" . $this->name . "`");
@@ -263,7 +264,7 @@ class Table extends SchemaAbstract implements TableInterface
                                         AND      `kcu`.`REFERENCED_TABLE_NAME`   = :table     
                                         AND      `kcu`.`REFERENCED_COLUMN_NAME`  = :column 
                                         ORDER BY `kcu`.`TABLE_NAME`, `kcu`.`COLUMN_NAME`', [
-            ':schema' => $this->sql->getCurrentDatabase(),
+            ':schema' => $this->_sql->getCurrentDatabase(),
             ':table'  => $this->name,
             ':column' => $column,
         ]);

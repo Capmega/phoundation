@@ -98,7 +98,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
     /**
      * Exception code
      *
-     * @note Not sure what datatype PHP has for this, but it doesn't allow datatype specification here
+     * @note Not sure what datatype PHP has for this, but it does not allow datatype specification here
      * @var string $code
      */
     protected $code = 0;
@@ -520,7 +520,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                     return $return;
                 }
 
-                // The specified POAD doesn't contain a PhoException compatible object but something entirely different
+                // The specified POAD does not contain a PhoException compatible object but something entirely different
                 throw PhoException::new(tr('Failed to import exception object from POAD (Phoundation Object Array Data) source, decoded POAD data does not contain a valid exception object'))
                                   ->addData([
                                       'source'  => $source,
@@ -547,7 +547,7 @@ class PhoException extends RuntimeException implements PhoExceptionInterface
                                        ->addMessages(array_get_safe($source, 'messages'));
             }
 
-            return new $source['class']($source['message'], array_get_safe($source, 'code', 0), isset_get($previous));
+            return new $source['class']($source['message'], cast_integer_if_numeric(array_get_safe($source, 'code', 0)), isset_get($previous));
 
         } catch (Throwable $e) {
             throw PhoException::new(tr('Failed to generate exception object from import data'), $e)

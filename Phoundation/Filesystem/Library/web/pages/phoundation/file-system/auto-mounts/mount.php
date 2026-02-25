@@ -44,7 +44,7 @@ $get = GetValidator::new()
                    ->select('id')->isOptional()->isDbId()
                    ->validate();
 
-$o_mount = PhoMount::new()->loadThis($get['id']);
+$_mount = PhoMount::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -58,27 +58,27 @@ if (Request::isPostRequestMethod()) {
                     ->validate(false);
 
                 // Update mount, roles, emails, and phones
-                $o_mount->apply(false)->save();
+                $_mount->apply(false)->save();
 
                 Response::getFlashMessagesObject()->addSuccess(tr('The mount ":mount" has been saved', [
-                    ':mount' => $o_mount->getDisplayName()
+                    ':mount' => $_mount->getDisplayName()
                 ]));
 
                 // Redirect away from POST
-                Response::redirect(Url::new('/phoundation/file-system/mount+' . $o_mount->getId() . '.html')->makeWww());
+                Response::redirect(Url::new('/phoundation/file-system/mount+' . $_mount->getId() . '.html')->makeWww());
 
             case tr('Delete'):
-                $o_mount->delete();
+                $_mount->delete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The mount ":mount" has been deleted', [
-                    ':mount' => $o_mount->getDisplayName()
+                    ':mount' => $_mount->getDisplayName()
                 ]));
 
                 Response::redirect();
 
             case tr('Undelete'):
-                $o_mount->undelete();
+                $_mount->undelete();
                 Response::getFlashMessagesObject()->addSuccess(tr('The mount ":mount" has been undeleted', [
-                    ':mount' => $o_mount->getDisplayName()
+                    ':mount' => $_mount->getDisplayName()
                 ]));
 
                 Response::redirect();
@@ -87,64 +87,64 @@ if (Request::isPostRequestMethod()) {
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on page
         Response::getFlashMessagesObject()->addMessage($e);
-        $o_mount->forceApply();
+        $_mount->forceApply();
     }
 }
 
 
 // Save button
-if (!$o_mount->getReadonly()) {
-    $o_save = SaveButton::new();
+if (!$_mount->getReadonly()) {
+    $_save = SaveButton::new();
 }
 
 
 // Delete button.
-if (!$o_mount->isNew()) {
-    if ($o_mount->isDeleted()) {
-        $o_delete = UndeleteButton::new()->setFloatRight(true);
+if (!$_mount->isNew()) {
+    if ($_mount->isDeleted()) {
+        $_delete = UndeleteButton::new();
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $_delete = DeleteButton::new();
 
         // Audit button.
-        $o_audit = AuditButton::new()
+        $_audit = AuditButton::new()
                               ->setFloatRight(true)
-                              ->setUrlObject('/audit/meta+' . $o_mount->getMetaId() . '.html');
+                              ->setUrlObject('/audit/meta+' . $_mount->getMetaId() . '.html');
     }
 }
 
 
 // Build the "mount" form
-$o_mount_card = Card::new()
+$_mount_card = Card::new()
                     ->setCollapseSwitch(true)
                     ->setMaximizeSwitch(true)
-                    ->setTitle(tr('Edit mount :name', [':name' => $o_mount->getDisplayName()]))
-                    ->setContent($o_mount->getHtmlDataEntryFormObject())
-                    ->setButtonsObject(Buttons::new()->addButton(isset_get($o_save))
+                    ->setTitle(tr('Edit mount :name', [':name' => $_mount->getDisplayName()]))
+                    ->setContent($_mount->getHtmlFormObject())
+                    ->setButtonsObject(Buttons::new()->addButton(isset_get($_save))
                                                      ->addBackButton(Url::newPrevious('/phoundation/file-system/mounts.html'), true)
-                                                     ->addButton(isset_get($o_audit))
-                                                     ->addButton(isset_get($o_delete)));
+                                                     ->addButton(isset_get($_audit))
+                                                     ->addButton(isset_get($_delete)));
 
 
 // Build profile picture card
-$o_picture = Card::new()
+$_picture = Card::new()
                  ->setTitle(tr('FsMount profile picture'))
                  ->setContent(Img::new()
                                  ->addClasses('w100')
                                  ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                  //->setSrc($mount->getPicture())
-                                 ->setAlt(tr('Profile picture for :mount', [':mount' => $o_mount->getDisplayName()])));
+                                 ->setAlt(tr('Profile picture for :mount', [':mount' => $_mount->getDisplayName()])));
 
 
 // Build relevant links
-$o_relevant = Card::new()
+$_relevant = Card::new()
                   ->setMode(EnumDisplayMode::info)
                   ->setTitle(tr('Relevant links'))
                   ->setContent(AnchorBlock::new(Url::new('/phoundation/file-systems.html')->makeWww(), tr('Manage filesystems')));
 
 
 // Build documentation
-$o_documentation = Card::new()
+$_documentation = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Documentation'))
                        ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -153,22 +153,22 @@ $o_documentation = Card::new()
 
 
 // Set page meta-data
-Response::setPageTitle(tr('FsMount :mount', [':mount' => $o_mount->getDisplayName()]));
+Response::setPageTitle(tr('FsMount :mount', [':mount' => $_mount->getDisplayName()]));
 Response::setHeaderTitle(tr('FsMount'));
-Response::setHeaderSubTitle($o_mount->getDisplayName());
+Response::setHeaderSubTitle($_mount->getDisplayName());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                                    , tr('Home')),
     Breadcrumb::new('/system-administration.html'          , tr('System administration')),
     Breadcrumb::new('/phoundation/file-systems.html'       , tr('Filesystems')),
     Breadcrumb::new('/phoundation/file-systems/mounts.html', tr('FsMounts')),
-    Breadcrumb::new(''                                     , $o_mount->getDisplayName()),
+    Breadcrumb::new(''                                     , $_mount->getDisplayName()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn(GridColumn::new()
-                                     ->addContent($o_mount_card)
+                                     ->addContent($_mount_card)
                                      ->setSize(9)
                                      ->useForm(true))
-           ->addGridColumn($o_picture . $o_relevant . $o_documentation, EnumDisplaySize::three);
+           ->addGridColumn($_picture . $_relevant . $_documentation, EnumDisplaySize::three);

@@ -135,7 +135,7 @@ class Rights extends DataIterator implements RightsInterface
 
         $rights = Arrays::force($rights, null);
 
-        // Save each right in this list if it doesn't exist
+        // Save each right in this list if it does not exist
         foreach ($rights as $right) {
             if (is_numeric($right)) {
                 // This is an ID, not a name. Right names cannot be numeric
@@ -261,7 +261,7 @@ class Rights extends DataIterator implements RightsInterface
             }
 
             // Add meta-information for parent
-            $this->o_parent->addMetaAction('Updated rights', data: $diff);
+            $this->_parent->addMetaAction('Updated rights', data: $diff);
         }
 
         return $this;
@@ -294,10 +294,10 @@ class Rights extends DataIterator implements RightsInterface
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         $this->checkParent(tr('add Role entry to parent ":parent"', [
-            ':parent' => $this->o_parent ? get_class($this->o_parent) : 'NULL'
+            ':parent' => $this->_parent ? get_class($this->_parent) : 'NULL'
         ]));
 
-        if ($value and $this->o_parent) {
+        if ($value and $this->_parent) {
             // A right with commas is actually a list of multiple rights
             if (is_string($value) and str_contains($value, ',')) {
                 $value = Arrays::force($value);
@@ -319,11 +319,11 @@ class Rights extends DataIterator implements RightsInterface
 
             } catch (DataEntryNotExistsException $e) {
                 if (!$this->ensureRightsExist($value)) {
-                    // The specified right doesn't exist
+                    // The specified right does not exist
                     throw $e;
                 }
 
-                // The specified right didn't exist, but was automatically created
+                // The specified right did not exist, but was automatically created
                 $value = Right::new()->load($value);
             }
 
@@ -334,32 +334,32 @@ class Rights extends DataIterator implements RightsInterface
             }
 
             // Add entry to parent, User or Role
-            if ($this->o_parent instanceof UserInterface) {
+            if ($this->_parent instanceof UserInterface) {
                 Log::action(ts('Adding right ":right" to user ":user"', [
-                    ':user'  => $this->o_parent->getLogId(),
+                    ':user'  => $this->_parent->getLogId(),
                     ':right' => $value->getLogId(),
                 ]), 3);
 
                 sql()->insert('accounts_users_rights', [
-                    'users_id'  => $this->o_parent->getId(),
+                    'users_id'  => $this->_parent->getId(),
                     'rights_id' => $value->getId(),
                     'name'      => $value->getName(),
                     'seo_name'  => $value->getSeoName(),
                 ]);
 
-            } elseif ($this->o_parent instanceof RoleInterface) {
+            } elseif ($this->_parent instanceof RoleInterface) {
                 Log::action(ts('Adding right ":right" to role ":role"', [
-                    ':role'  => $this->o_parent->getLogId(),
+                    ':role'  => $this->_parent->getLogId(),
                     ':right' => $value->getLogId(),
                 ]), 3);
 
                 sql()->insert('accounts_roles_rights', [
-                    'roles_id'  => $this->o_parent->getId(),
+                    'roles_id'  => $this->_parent->getId(),
                     'rights_id' => $value->getId(),
                 ]);
 
                 // Update all roles with this right to get the new right as well!
-                foreach ($this->o_parent->getUsersObject() as $user) {
+                foreach ($this->_parent->getUsersObject() as $user) {
                     User::new()->load($user)
                         ->getRightsObject()
                         ->add($value);
@@ -375,39 +375,39 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * Returns true if the parent has the specified right
      *
-     * @param RightInterface $o_right
+     * @param RightInterface $_right
      *
      * @return bool
      */
-    public function hasRight(RightInterface $o_right): bool
+    public function hasRight(RightInterface $_right): bool
     {
-        if (!$this->o_parent) {
+        if (!$this->_parent) {
             throw OutOfBoundsException::new('Cannot check if parent has the specified right, this rights list has no parent specified');
         }
 
-        if ($this->o_parent instanceof UserInterface) {
+        if ($this->_parent instanceof UserInterface) {
             return (bool) sql()->getRow('SELECT `id` 
                                          FROM   `accounts_users_rights` 
                                          WHERE  `users_id`  = :users_id 
                                          AND    `rights_id` = :rights_id', [
-                ':users_id'  => $this->o_parent->getId(),
-                ':rights_id' => $o_right->getId(),
+                ':users_id'  => $this->_parent->getId(),
+                ':rights_id' => $_right->getId(),
             ]);
         }
 
-        if ($this->o_parent instanceof RoleInterface) {
+        if ($this->_parent instanceof RoleInterface) {
             // No user? Then it must be a role
             return (bool) sql()->getRow('SELECT `id` 
                                          FROM   `accounts_roles_rights` 
                                          WHERE  `roles_id`  = :roles_id 
                                          AND    `rights_id` = :rights_id', [
-                ':roles_id'  => $this->o_parent->getId(),
-                ':rights_id' => $o_right->getId(),
+                ':roles_id'  => $this->_parent->getId(),
+                ':rights_id' => $_right->getId(),
             ]);
         }
 
         //
-        return $this->hasKey($o_right->getName());
+        return $this->hasKey($_right->getName());
     }
 
 
@@ -421,7 +421,7 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function removeKeys(Stringable|array|string|int $keys, bool $strict = false): static
     {
-        if ($this->o_parent and (($this->o_parent instanceof UserInterface) or ($this->o_parent instanceof RoleInterface))) {
+        if ($this->_parent and (($this->_parent instanceof UserInterface) or ($this->_parent instanceof RoleInterface))) {
             return $this->removeValues($keys, strict: $strict);
         }
 
@@ -455,41 +455,41 @@ class Rights extends DataIterator implements RightsInterface
 
         } else {
             // Add single right. Since this is a Right object, the entry already exists in the database
-            $o_right = Right::new($needles);
+            $_right = Right::new($needles);
 
-            if ($this->o_parent instanceof UserInterface) {
+            if ($this->_parent instanceof UserInterface) {
                 Log::action(ts('Removing right ":right" from user ":user"', [
-                    ':user'  => $this->o_parent->getLogId(),
-                    ':right' => $o_right->getLogId(),
+                    ':user'  => $this->_parent->getLogId(),
+                    ':right' => $_right->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_users_rights', [
-                    'users_id'  => $this->o_parent->getId(),
-                    'rights_id' => $o_right->getId(),
+                    'users_id'  => $this->_parent->getId(),
+                    'rights_id' => $_right->getId(),
                 ]);
 
                 // Delete the right from the internal list
-                parent::removeKeys($o_right->getUniqueColumnValue(), strict: $strict);
+                parent::removeKeys($_right->getUniqueColumnValue(), strict: $strict);
 
-            } elseif ($this->o_parent instanceof RoleInterface) {
+            } elseif ($this->_parent instanceof RoleInterface) {
                 Log::action(ts('Removing right ":right" from role ":role"', [
-                    ':role'  => $this->o_parent->getLogId(),
-                    ':right' => $o_right->getLogId(),
+                    ':role'  => $this->_parent->getLogId(),
+                    ':right' => $_right->getLogId(),
                 ]), 3);
 
                 sql()->delete('accounts_roles_rights', [
-                    'roles_id'  => $this->o_parent->getId(),
-                    'rights_id' => $o_right->getId(),
+                    'roles_id'  => $this->_parent->getId(),
+                    'rights_id' => $_right->getId(),
                 ]);
 
                 // Update all users with this role to get the new right as well!
-                foreach ($this->o_parent->getUsersObject() as $o_user) {
-                    $o_user->getRightsObject()
-                           ->removeKeys($o_right, $strict);
+                foreach ($this->_parent->getUsersObject() as $_user) {
+                    $_user->getRightsObject()
+                           ->removeKeys($_right, $strict);
                 }
 
                 // Delete the right from the internal list
-                parent::removeValues($o_right->getUniqueColumnValue(), strict: $strict);
+                parent::removeValues($_right->getUniqueColumnValue(), strict: $strict);
 
             } else {
                 parent::removeValues($needles, $column, $strict);
@@ -511,12 +511,12 @@ class Rights extends DataIterator implements RightsInterface
         $this->checkParent(tr('clear all entries from parent'));
 
         Log::action(ts('Removing all rights from ":class" parent ":id"', [
-            ':class' => Strings::fromReverse($this->o_parent::class, '\\'),
-            ':id'    => $this->o_parent->getLogId(),
+            ':class' => Strings::fromReverse($this->_parent::class, '\\'),
+            ':id'    => $this->_parent->getLogId(),
         ]));
 
-        foreach ($this as $o_right) {
-            $this->removeValues($o_right);
+        foreach ($this as $_right) {
+            $this->removeValues($_right);
         }
 
         return $this;
@@ -533,13 +533,13 @@ class Rights extends DataIterator implements RightsInterface
      */
     public function load(IdentifierInterface|array|string|int|null $identifiers = null, bool $like = false): static
     {
-        if ($this->o_parent) {
+        if ($this->_parent) {
             // Load only rights for specified parent
-            if ($this->o_parent instanceof UserInterface) {
-                $this->o_query_builder->addJoin('JOIN  `accounts_users_rights` 
+            if ($this->_parent instanceof UserInterface) {
+                $this->_query_builder->addJoin('JOIN  `accounts_users_rights` 
                                                  ON    `accounts_users_rights`.`users_id`  = :users_id
                                                  AND   `accounts_users_rights`.`rights_id` = `accounts_rights`.`id`', [
-                    ':users_id' => $this->o_parent->getId(),
+                    ':users_id' => $this->_parent->getId(),
                 ]);
 
                 // Load the rights so that we can add "everybody" after it
@@ -579,9 +579,9 @@ class Rights extends DataIterator implements RightsInterface
                 return $this;
             }
 
-            if ($this->o_parent instanceof RoleInterface) {
-                $this->o_query_builder->addWhere('`accounts_roles_rights`.`roles_id` = :roles_id', [
-                    ':roles_id' => $this->o_parent->getId(),
+            if ($this->_parent instanceof RoleInterface) {
+                $this->_query_builder->addWhere('`accounts_roles_rights`.`roles_id` = :roles_id', [
+                    ':roles_id' => $this->_parent->getId(),
                 ]);
             }
         }
@@ -593,16 +593,16 @@ class Rights extends DataIterator implements RightsInterface
     /**
      * @inheritDoc
      */
-    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $o_parent): static
+    public function setParentObject(DataEntryInterface|RenderInterface|UrlInterface|null $_parent): static
     {
         // TODO This is a mess, redo parent management. Use the same allowed datatypes method as used for Iterator values!
-        if (!$o_parent instanceof UserInterface) {
-            if (!$o_parent instanceof RoleInterface) {
-                if (!$o_parent instanceof RenderInterface) {
-                    if (!$o_parent instanceof UrlInterface) {
+        if (!$_parent instanceof UserInterface) {
+            if (!$_parent instanceof RoleInterface) {
+                if (!$_parent instanceof RenderInterface) {
+                    if (!$_parent instanceof UrlInterface) {
                         throw new DataEntryInvalidParentException(tr('Cannot attach parent ":parent" with id ":id" to ":class" class object, must be of type "UserInterface" or "RoleInterface"', [
-                            ':id'     => $o_parent->getLogId(),
-                            ':parent' => $o_parent::class,
+                            ':id'     => $_parent->getLogId(),
+                            ':parent' => $_parent::class,
                             ':class'  => $this::class,
                         ]));
                     }
@@ -610,7 +610,7 @@ class Rights extends DataIterator implements RightsInterface
             }
         }
 
-        return parent::setParentObject($o_parent);
+        return parent::setParentObject($_parent);
     }
 
 
@@ -678,7 +678,7 @@ class Rights extends DataIterator implements RightsInterface
             return true;
         }
 
-        if (empty($this->rights) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
+        if (empty($this->source) and ($this->getParentObject() instanceof DataEntryInterface) and $this->getParentObject()->isNew()) {
             return false;
         }
 

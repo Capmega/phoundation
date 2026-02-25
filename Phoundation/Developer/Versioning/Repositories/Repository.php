@@ -105,16 +105,16 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns a new Repository object for the given $o_path object
+     * Returns a new Repository object for the given $_path object
      *
-     * @param PhoPathInterface $o_path
+     * @param PhoPathInterface $_path
      * @return static
      */
-    public static function newFromPathObject(PhoPathInterface $o_path): static
+    public static function newFromPathObject(PhoPathInterface $_path): static
     {
         return Repository::new()
-                         ->setName($o_path->getBasename())
-                         ->setPathObject($o_path);
+                         ->setName($_path->getBasename())
+                         ->setPathObject($_path);
     }
 
 
@@ -154,13 +154,13 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Returns true if the specified directory is a Phoundation compatible git repository
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      *
      * @return bool
      */
-    public static function repositoryIsPhoundation(PhoDirectoryInterface $o_directory): bool
+    public static function repositoryIsPhoundation(PhoDirectoryInterface $_directory): bool
     {
-        return (bool) Repository::detectPhoundationType($o_directory);
+        return (bool) Repository::detectPhoundationType($_directory);
     }
 
 
@@ -171,7 +171,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function isPhoundation(): bool
     {
-        return (bool) Repository::detectPhoundationType($this->o_git->getDirectoryObject());
+        return (bool) Repository::detectPhoundationType($this->_git->getDirectoryObject());
     }
 
 
@@ -186,34 +186,34 @@ class Repository extends DataEntry implements RepositoryInterface
      * cdn
      * phoundation
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      *
      * @return EnumPhoundationType|null
      */
-    public static function detectPhoundationType(PhoDirectoryInterface $o_directory): ?EnumPhoundationType
+    public static function detectPhoundationType(PhoDirectoryInterface $_directory): ?EnumPhoundationType
     {
-        if ($o_directory->addPath('.git')->exists()) {
-            if ($o_directory->addPath('.is-phoundation')->exists()) {
+        if ($_directory->addPath('.git')->exists()) {
+            if ($_directory->addPath('.is-phoundation')->exists()) {
                 return EnumPhoundationType::system;
             }
 
-            if ($o_directory->addPath('.is-phoundation-plugins')->exists()) {
+            if ($_directory->addPath('.is-phoundation-plugins')->exists()) {
                 return EnumPhoundationType::plugins;
             }
 
-            if ($o_directory->addPath('.is-phoundation-templates')->exists()) {
+            if ($_directory->addPath('.is-phoundation-templates')->exists()) {
                 return EnumPhoundationType::templates;
             }
 
-            if ($o_directory->addPath('.is-phoundation-data')->exists()) {
+            if ($_directory->addPath('.is-phoundation-data')->exists()) {
                 return EnumPhoundationType::data;
             }
 
-            if ($o_directory->addPath('.is-phoundation-cdn')->exists()) {
+            if ($_directory->addPath('.is-phoundation-cdn')->exists()) {
                 return EnumPhoundationType::cdn;
             }
 
-            if ($o_directory->addPath('config/project/phoundation')->exists()) {
+            if ($_directory->addPath('config/project/phoundation')->exists()) {
                 return EnumPhoundationType::project;
             }
         }
@@ -225,16 +225,16 @@ class Repository extends DataEntry implements RepositoryInterface
     /**
      * Detects and sets the "platform" variable for this class
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      * @return string|null
      */
-    public static function detectPlatform(PhoDirectoryInterface $o_directory): ?string
+    public static function detectPlatform(PhoDirectoryInterface $_directory): ?string
     {
-        if ($o_directory->addPath('.git')->exists()) {
+        if ($_directory->addPath('.git')->exists()) {
             return 'git';
         }
 
-        if ($o_directory->addPath('.svn')->exists()) {
+        if ($_directory->addPath('.svn')->exists()) {
             return 'subversion';
         }
 
@@ -279,10 +279,10 @@ class Repository extends DataEntry implements RepositoryInterface
 
         // Set default restrictions for this Repository object. Repositories can be pretty much anywhere, so we have to assume access to the entire filesystem
         if ($this->getPath()) {
-            $this->o_restrictions = PhoRestrictions::new($this->getPath(), true);
+            $this->_restrictions = PhoRestrictions::new($this->getPath(), true);
 
         } else {
-            $this->o_restrictions = PhoRestrictions::newFilesystemRootObject(true);
+            $this->_restrictions = PhoRestrictions::newFilesystemRootObject(true);
         }
 
         if (!$this->isLoading()) {
@@ -291,7 +291,7 @@ class Repository extends DataEntry implements RepositoryInterface
                  ->setType($this->detectPhoundationType($this->getPathObject()->getDirectoryObject())?->value);
         }
 
-        $this->o_git = new Git($this->getPathObject()->getDirectoryObject());
+        $this->_git = new Git($this->getPathObject()->getDirectoryObject());
         return $this;
     }
 
@@ -353,7 +353,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ':remote'     => $remote,
         ]));
 
-        $this->o_git->push($remote, $branch, $set_upstream);
+        $this->_git->push($remote, $branch, $set_upstream);
         return $this;
     }
 
@@ -377,7 +377,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ':remote'     => $remote,
         ]));
 
-        $this->o_git->pull($remote, $branch);
+        $this->_git->pull($remote, $branch);
         return $this;
     }
 
@@ -406,7 +406,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ]));
         }
 
-        $this->o_git->fetch($remote, $all);
+        $this->_git->fetch($remote, $all);
         return $this;
     }
 
@@ -418,7 +418,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getSize(): int
     {
-        return $this->o_git->getDirectoryObject()->getSize();
+        return $this->_git->getDirectoryObject()->getSize();
     }
 
 
@@ -429,7 +429,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getGitSize(): int
     {
-        return $this->o_git->getDirectoryObject()->addDirectory('.git')->getSize();
+        return $this->_git->getDirectoryObject()->addDirectory('.git')->getSize();
     }
 
 
@@ -514,7 +514,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getRemoteRepositories(): array
     {
-        return $this->o_git->getRemotes();
+        return $this->_git->getRemotes();
     }
 
 
@@ -573,7 +573,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ':repository' => $this->getName()
         ]));
 
-        $this->o_git->selectBranch($branch, $auto_create, $upstream);
+        $this->_git->selectBranch($branch, $auto_create, $upstream);
         return $this;
     }
 
@@ -587,7 +587,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
-        return $this->o_git->getSelectedBranch($return_if_detached);
+        return $this->_git->getSelectedBranch($return_if_detached);
     }
 
 
@@ -598,7 +598,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function getSelectedTag(): ?string
     {
-        return $this->o_git->getSelectedTag();
+        return $this->_git->getSelectedTag();
     }
 
 
@@ -611,7 +611,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function isOnBranch(string $branch): bool
     {
-        return $this->o_git->getSelectedBranch() === $branch;
+        return $this->_git->getSelectedBranch() === $branch;
     }
 
 
@@ -649,7 +649,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool
     {
-        $exists = array_key_exists($branch, $this->o_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->o_git->getTags()));
+        $exists = array_key_exists($branch, $this->_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
 
         if (!$exists) {
             // Branch does not yet exist for this repository, create it automatically?
@@ -703,7 +703,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ]));
         }
 
-        $this->o_git->createBranch($branch, $reset);
+        $this->_git->createBranch($branch, $reset);
 
         if ($remote or $set_upstream) {
             $this->push($this->selectRemoteRepository($remote), $branch, $set_upstream);
@@ -743,7 +743,7 @@ class Repository extends DataEntry implements RepositoryInterface
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteBranch($branch);
+            $this->_git->deleteBranch($branch);
 
         } else {
             Log::warning(ts('Not deleting branch ":branch" from repository ":repository", the branch does not exist', [
@@ -760,7 +760,7 @@ class Repository extends DataEntry implements RepositoryInterface
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteBranchRemote($branch, $remote);
+            $this->_git->deleteBranchRemote($branch, $remote);
         }
 
         return $this;
@@ -824,7 +824,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function tagExists(string $tag, bool $check_branches_too = false): bool
     {
-        return $this->getTagsObject()->keyExists($tag) or ($check_branches_too and array_key_exists($tag, $this->o_git->getTags()));
+        return $this->getTagsObject()->keyExists($tag) or ($check_branches_too and array_key_exists($tag, $this->_git->getTags()));
     }
 
 
@@ -861,7 +861,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ]));
         }
 
-        $this->o_git->createTag($tag, $message, $signed);
+        $this->_git->createTag($tag, $message, $signed);
         return $this;
     }
 
@@ -874,7 +874,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function createLightweightTag(string $name): static
     {
-        $this->o_git->createLightweightTag($name);
+        $this->_git->createLightweightTag($name);
         return $this;
     }
 
@@ -886,7 +886,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasTypeBranchSelected(): bool
     {
-        return $this->o_git->hasTypeBranchSelected();
+        return $this->_git->hasTypeBranchSelected();
     }
 
 
@@ -897,7 +897,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasTypeTagSelected(): bool
     {
-        return $this->o_git->hasTypeTagSelected();
+        return $this->_git->hasTypeTagSelected();
     }
 
 
@@ -910,7 +910,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasBranchSelected(string $branch): bool
     {
-        return $this->o_git->hasBranchSelected($branch);
+        return $this->_git->hasBranchSelected($branch);
     }
 
 
@@ -923,7 +923,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasBranchAvailable(string $branch): bool
     {
-        return $this->o_git->branchExists($branch);
+        return $this->_git->branchExists($branch);
     }
 
 
@@ -936,7 +936,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function hasTagSelected(string $tag): bool
     {
-        return $this->o_git->hasTagSelected($tag);
+        return $this->_git->hasTagSelected($tag);
     }
 
 
@@ -995,7 +995,7 @@ class Repository extends DataEntry implements RepositoryInterface
      */
     public function isOnTag(string $tag): bool
     {
-        return $this->o_git->getSelectedTag() === $tag;
+        return $this->_git->getSelectedTag() === $tag;
     }
 
 
@@ -1036,7 +1036,7 @@ class Repository extends DataEntry implements RepositoryInterface
             ':repository' => $this->getName()
         ]));
 
-        $this->o_git->selectTag($tag);
+        $this->_git->selectTag($tag);
         return $this;
     }
 
@@ -1071,7 +1071,7 @@ class Repository extends DataEntry implements RepositoryInterface
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteTag($tag);
+            $this->_git->deleteTag($tag);
 
         } else {
             Log::warning(ts('Not deleting tag ":tag" from repository ":repository", the tag does not exist', [
@@ -1088,7 +1088,7 @@ class Repository extends DataEntry implements RepositoryInterface
                 ':repository' => $this->getName()
             ]));
 
-            $this->o_git->deleteTagRemote($tag, $remote_repository);
+            $this->_git->deleteTagRemote($tag, $remote_repository);
         }
 
         return $this;
@@ -1384,7 +1384,7 @@ showdie();
                     ':version'    => $this->getSelectedBranchVersion(),
                 ]));
 
-                $this->o_git->merge($this->getSelectedBranchVersion());
+                $this->_git->merge($this->getSelectedBranchVersion());
                 Log::dot();
             }
 
@@ -1399,7 +1399,7 @@ showdie();
             ':version'    => $this->getSelectedBranchVersion(),
         ]));
 
-        $this->o_git->merge($this->getSelectedBranchVersion());
+        $this->_git->merge($this->getSelectedBranchVersion());
         return $this;
     }
 
@@ -1415,7 +1415,7 @@ showdie();
     public function mergeVersionSuffixes(array|string $suffixes): static
     {
         foreach (Arrays::force($suffixes) as $suffix) {
-            $this->o_git->merge($this->getSelectedBranchVersion() . '-' . $suffix);
+            $this->_git->merge($this->getSelectedBranchVersion() . '-' . $suffix);
         }
 
         return $this;
@@ -1436,7 +1436,7 @@ showdie();
             ':repository' => $this->getName(),
         ]));
 
-        return $this->o_git->grep($keyword, $grouped);
+        return $this->_git->grep($keyword, $grouped);
     }
 
 
@@ -1460,13 +1460,13 @@ showdie();
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName('platform')
+        $_definitions->add(DefinitionFactory::newName('platform')
                                              ->setSize(2)
                                              ->setLabel(tr('Platform'))
                                              ->setReadonly(true)

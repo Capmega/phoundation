@@ -29,11 +29,11 @@ class Remote extends Repository
     /**
      * Remote class constructor
      *
-     * @param GitInterface $o_git
+     * @param GitInterface $_git
      */
-    public function __construct(GitInterface $o_git)
+    public function __construct(GitInterface $_git)
     {
         parent::__construct();
-        $this->o_git = $o_git;
+        $this->_git = $_git;
     }
 }

@@ -120,12 +120,12 @@ trait TraitDataEntryCountry
     /**
      * Returns the countries_id for this user
      *
-     * @param CountryInterface|null $o_object
+     * @param CountryInterface|null $_object
      *
      * @return static
      */
-    public function setCountryObject(?CountryInterface $o_object): static
+    public function setCountryObject(?CountryInterface $_object): static
     {
-        return $this->setVirtualObject('countries', $o_object);
+        return $this->setVirtualObject('countries', $_object);
     }
 }

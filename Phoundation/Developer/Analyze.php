@@ -32,9 +32,9 @@ class Analyze
     /**
      * Analyze class constructor
      */
-    public function __construct(PhoPathInterface|string|null $o_path = null)
+    public function __construct(PhoPathInterface|string|null $_path = null)
     {
-        $this->setPathObject($o_path);
+        $this->setPathObject($_path);
     }
 
 
@@ -45,14 +45,14 @@ class Analyze
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path = null): static
+    public function setPathObject(?PhoPathInterface $_path = null): static
     {
-        if (!$o_path) {
+        if (!$_path) {
             // Default to the root directory of this project
-            $o_path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
+            $_path = new PhoPath(DIRECTORY_ROOT, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT));
         }
 
-        return $this->__setPathObject($o_path);
+        return $this->__setPathObject($_path);
     }
 
 

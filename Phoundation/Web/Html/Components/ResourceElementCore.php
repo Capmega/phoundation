@@ -282,7 +282,7 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
 
         if (is_string($source_query)) {
             // Get a PDOStatement instead by executing the query
-            $source_query = sql($this->o_connector)->setDebug($this->debug)
+            $source_query = sql($this->_connector)->setDebug($this->debug)
                                                    ->query($source_query, $execute);
         }
 
@@ -350,9 +350,9 @@ abstract class ResourceElementCore extends ElementCore implements ResourceElemen
      */
     public function getCacheKeySeed(): ?string
     {
-        if ($this->o_iterator) {
+        if ($this->_iterator) {
             // Get the cache key from the Iterator object
-            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->o_iterator->getCacheKeySeed()], force_single_line: true);
+            return PROJECT . '#ResourceElement#' . static::class . '#' . Json::encode(['render', Request::getUrl(), $this->_iterator->getCacheKeySeed()], force_single_line: true);
         }
 
         if ($this instanceof SelectedInterface) {

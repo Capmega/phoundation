@@ -36,7 +36,8 @@ class SaveButton extends Button
              ->setButtonType(EnumButtonType::submit)
              ->setContent($content ?? tr('Save'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
-             ->setMode($this->getConfiguredMode());
+             ->setMode($this->getConfiguredMode())
+             ->setFloatRight(true);
     }
 
 

@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.8.1';
     }
 
 
@@ -128,6 +128,26 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $this->ensureModifiedColumns([
                 'databases_connectors',
             ]);
+
+        })->addUpdate('0.8.1', function () {
+            // Fix indices to include `status` for databases_connectors
+            $tables = [
+                'databases_connectors'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
         });
     }
 }

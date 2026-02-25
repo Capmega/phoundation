@@ -57,7 +57,7 @@ trait TraitDataEntryNameLowercase
         }
 
         if (!$this->is_loading) {
-            // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+            // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL will not find
             // the entry if it does!
             $name     = strtolower($name);
             $seo_name = Seo::unique(

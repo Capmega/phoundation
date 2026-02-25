@@ -532,4 +532,15 @@ interface SqlInterface extends DatabaseInterface
      * @return IteratorInterface
      */
     public function getFkOnNonStandardKeys(): IteratorInterface;
+
+    /**
+     * Updates the status column in the specified table
+     *
+     * @param int         $id     The identifier to update
+     * @param string|null $status The status to update the entry with
+     * @param string      $table  The table in which to execute the update
+     *
+     * @return Sql
+     */
+    public function setStatus(int $id, ?string $status, string $table): static;
 }

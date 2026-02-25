@@ -38,7 +38,7 @@ abstract class KubernetesFile
      */
     public function __construct()
     {
-        $this->o_file = DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/';
+        $this->_file = DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/';
     }
 
 
@@ -53,7 +53,7 @@ abstract class KubernetesFile
         $data = yaml_emit($data);
 //        $data = Strings::from($data, PHP_EOL);
 //        $data = Strings::untilReverse($data, PHP_EOL);
-        PhoFile::new($this->o_file)
+        PhoFile::new($this->_file)
             ->setRestrictionsObject(DIRECTORY_ROOT . 'config/kubernetes/' . $this->kind . '/', true, 'kubernetes')
             ->create($data);
 

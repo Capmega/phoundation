@@ -191,6 +191,31 @@ class Url implements UrlInterface
 
 
     /**
+     * Performs a search / replace on this URL's source
+     *
+     * @param array $replace Contains all the search keys to replace with the values, key => value is search => replace.
+     * @param bool  $regex   If true, the keys should be regular expressions to perform more complex replacements
+     *
+     * @return static
+     */
+    public function replace(array $replace, bool $regex = false): static
+    {
+        if ($regex) {
+            foreach ($replace as $key => $value) {
+                $this->source = preg_replace($key, $value, $this->source);
+            }
+
+        } else {
+            foreach ($replace as $key => $value) {
+                $this->source = str_replace($key, $value, $this->source);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns a base URL
      *
      * @param bool $use_configured_root
@@ -750,7 +775,7 @@ class Url implements UrlInterface
 
 
     /**
-     * Returns the URL if it didn't match any of the filter URL's
+     * Returns the URL if it did not match any of the filter URL's
      *
      * @note Specified filters may be URL strings or UrlInterface objects. The filter will be converted to a URL object,
      *       so it also may be a pre-defined URL like "sign-in" or "index"
@@ -1169,7 +1194,7 @@ class Url implements UrlInterface
         ]);
 
         if ($cloak) {
-            // Found cloaking URL, update the created_on time so that it won't expire too soon
+            // Found cloaking URL, update the created_on time so that it will not expire too soon
             sql()->query('UPDATE `url_cloaks` 
                           SET    `created_on` = NOW() 
                           WHERE  `url`        = :url', [
@@ -1332,7 +1357,7 @@ class Url implements UrlInterface
             return static::newConfigured($url)->getSourceUnprocessed();
 
         } catch (UrlConfiguredUrlNotFoundException) {
-            // This wasn't a configured URL
+            // This was not a configured URL
             return $url;
         }
     }
@@ -1640,7 +1665,7 @@ class Url implements UrlInterface
      * Add the specified query / queries to the specified URL and return
      *
      * @note Do NOT add queries like key=URL (where URL is not URL encoded) in here, as URL may contain "=" and "&"
-     *       symbols which will be detected and cause exceptions as the system won't know where one query starts and the
+     *       symbols which will be detected and cause exceptions as the system will not know where one query starts and the
      *       other ends. Use Url::addUrlQuery() instead
      *
      * @note Do NOT add queries where either the key or value contains one of not URL encoded "? = + &"
@@ -1708,13 +1733,13 @@ class Url implements UrlInterface
     /**
      * This method will replace the current file value after the + with the specified value
      *
-     * @param Stringable|string|int|null $value                         The new value for the + value
-     * @param bool                       $auto_fix_missing_plus [false] If true, and the file does not contain a required plus symbol, the method will add the
-     *                                                                  "+ID" part right before the .extension of the filename
+     * @param Stringable|string|int|null $value                        The new value for the + value
+     * @param bool                       $auto_fix_missing_plus [true] If true, and the file does not contain a required plus symbol, the method will add the
+     *                                                                 "+ID" part right before the .extension of the filename
      *
      * @return static
      */
-    public function replacePlusValue(Stringable|string|int|null $value, bool $auto_fix_missing_plus = false): static
+    public function setPlusValue(Stringable|string|int|null $value, bool $auto_fix_missing_plus = true): static
     {
         $file = Strings::fromReverse($this->source, '/');
 
@@ -1731,7 +1756,7 @@ class Url implements UrlInterface
         if (!str_contains($file, '+')) {
             // The URL contains no plus value, add it?
             if (!$auto_fix_missing_plus) {
-                throw UrlException::new(ts('Cannot replace plus value for URL ":url", it contains no plus file', [
+                throw UrlException::new(ts('Cannot replace plus value for URL ":url", it contains no plus value', [
                     ':url' => $this->source
                 ]))->addHint(ts('This method can only be used on URLs like for example "https://domain.com/path/path/file+23874.html", the filename of the URL MUST have the format filename+ID.extension'));
             }
@@ -1752,9 +1777,9 @@ class Url implements UrlInterface
      *
      * @return static
      */
-    public function removePlusValue(): static
+    public function clearPlusValue(): static
     {
-        return $this->replacePlusValue(null, false);
+        return $this->setPlusValue(null, false);
     }
 
 
@@ -2024,7 +2049,7 @@ class Url implements UrlInterface
                 ]));
         }
 
-        // Decode and encode again, this way we won't double-encode and can be sure the value is encoded
+        // Decode and encode again, this way we will not double-encode and can be sure the value is encoded
         // This might mangle the + sign, so unmangle that manually
         foreach ($parts as &$part) {
             $part = Url::ensureStringUrlEncoding($part, $allow_encoded_plus);
@@ -2201,8 +2226,8 @@ class Url implements UrlInterface
      */
     public function getRightsObject(bool $use_cache = true): RightsInterface
     {
-        if (empty($this->o_rights) or !$use_cache) {
-            $this->o_rights = RightsBySeoName::new()->setParentObject($this);
+        if (empty($this->_rights) or !$use_cache) {
+            $this->_rights = RightsBySeoName::new()->setParentObject($this);
 
             if ($this->source) {
                 // Only check rights on local URL's. This means only URL's without host, or with internal / configured hosts
@@ -2214,18 +2239,18 @@ class Url implements UrlInterface
 
                     if ($parsed === null) {
                         // No rights are required at all, we can ignore minimum rights
-                        return $this->o_rights;
+                        return $this->_rights;
                     }
 
                     // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
-                    $this->o_rights->setSource(array_merge($this->getMimimumRights(),
+                    $this->_rights->setSource(array_merge($this->getMimimumRights(),
                                                            $parsed,
-                                                           $this->o_rights?->getSourceKeys() ?? []));
+                                                           $this->_rights?->getSourceKeys() ?? []));
                 }
             }
         }
 
-        return $this->o_rights;
+        return $this->_rights;
     }
 
 
@@ -2327,33 +2352,33 @@ class Url implements UrlInterface
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
+    public function userHasAccess(?UserInterface $_user = null, bool $use_cache = true): bool
     {
-        return ($o_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
+        return ($_user ?? Session::getUserObject())->hasAllRights($this->getRights($use_cache));
     }
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return static
      */
-    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
+    public function checkUserAccess(?UserInterface $_user = null, bool $use_cache = true): static
     {
-        if ($this->userHasAccess($o_user, $use_cache)) {
+        if ($this->userHasAccess($_user, $use_cache)) {
             return $this;
         }
 
         throw AccessDeniedException::new(tr('The user ":user" does not have access to URL ":url"', [
-            ':user' => $o_user->getLogId(),
+            ':user' => $_user->getLogId(),
             ':url'  => $this->getSource(),
         ]));
     }
@@ -2363,12 +2388,12 @@ class Url implements UrlInterface
      * Returns an Anchor object with this URL
      *
      * @param string|null           $content
-     * @param EnumAnchorTarget|null $o_target
+     * @param EnumAnchorTarget|null $_target
      *
      * @return AnchorInterface
      */
-    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface
+    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $_target = null): AnchorInterface
     {
-        return Anchor::new($this, $content)->setTargetObject($o_target);
+        return Anchor::new($this, $content)->setTargetObject($_target);
     }
 }

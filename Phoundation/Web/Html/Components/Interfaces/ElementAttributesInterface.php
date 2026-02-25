@@ -42,11 +42,11 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Sets the anchor for this element
      *
-     * @param UrlInterface|AnchorInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $_anchor
      *
      * @return Span
      */
-    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static;
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $_anchor): static;
 
     /**
      * Returns true if this element has an outer div set up
@@ -65,11 +65,11 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Sets the outer_element for this element
      *
-     * @param DivInterface|null $o_outer_div
+     * @param DivInterface|null $_outer_div
      *
      * @return Span
      */
-    public function setOuterDivObject(DivInterface|null $o_outer_div): static;
+    public function setOuterDivObject(DivInterface|null $_outer_div): static;
 
     /**
      * Returns the tooltip title
@@ -136,11 +136,11 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Sets the HTML element data-* attribute store
      *
-     * @param IteratorInterface|array|null $o_data
+     * @param IteratorInterface|array|null $_data
      *
      * @return static
      */
-    public function setDataObject(IteratorInterface|array|null $o_data): static;
+    public function setDataObject(IteratorInterface|array|null $_data): static;
 
     /**
      * Returns the HTML attributes as a string
@@ -159,11 +159,11 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Sets all HTML element attributes
      *
-     * @param array $o_attributes
+     * @param array $_attributes
      *
      * @return static
      */
-    public function setAttributesObject(array $o_attributes): static;
+    public function setAttributesObject(array $_attributes): static;
 
     /**
      * Adds the specified attribute
@@ -339,11 +339,11 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Set if the button is right aligned or not
      *
-     * @param bool $right
+     * @param bool|null $right If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default alignment
      *
      * @return static
      */
-    public function setFloatRight(bool $right): static;
+    public function setFloatRight(?bool $right): static;
 
     /**
      * Returns if the button is right aligned or not
@@ -471,49 +471,49 @@ interface ElementAttributesInterface extends ContentObjectInterface
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static;
+    public function setDefinitionObject(?DefinitionInterface $_definition): static;
 
     /**
      * Adds the specified class to the HTML element class attribute
      *
-     * @param IteratorInterface|callable|array|string|null $o_class
+     * @param IteratorInterface|callable|array|string|null $_class
      *
      * @return static
      */
-    public function addClass(IteratorInterface|callable|array|string|null $o_class): static;
+    public function addClass(IteratorInterface|callable|array|string|null $_class): static;
 
     /**
      * Adds the specified classes to the HTML element class attribute
      *
-     * @param IteratorInterface|callable|array|string|null $o_classes
+     * @param IteratorInterface|callable|array|string|null $_classes
      *
      * @return static
      */
-    public function addClasses(IteratorInterface|callable|array|string|null $o_classes): static;
+    public function addClasses(IteratorInterface|callable|array|string|null $_classes): static;
 
     /**
      * Removes the specified classes from the HTML element class attribute
      *
      * @note This is a wrapper method for Element::removeClass()
      *
-     * @param IteratorInterface|array|string|null $o_class
+     * @param IteratorInterface|array|string|null $_class
      *
      * @return static
      */
-    public function removeClass(IteratorInterface|array|string|null $o_class): static;
+    public function removeClass(IteratorInterface|array|string|null $_class): static;
 
     /**
      * Removes the specified class from the HTML element class attribute
      *
-     * @param IteratorInterface|array|string|null $o_classes
+     * @param IteratorInterface|array|string|null $_classes
      *
      * @return static
      */
-    public function removeClasses(IteratorInterface|array|string|null $o_classes): static;
+    public function removeClasses(IteratorInterface|array|string|null $_classes): static;
 
     /**
      * Renders and returns the content that come before this element

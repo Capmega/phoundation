@@ -40,8 +40,9 @@ class Arrays extends Utils
      */
     const int GROUP_BY_DROP      = 1;
     const int GROUP_BY_NULL      = 2;
-    const int NO_GROUP_BY        = 3;
-    const int GROUP_BY_EXCEPTION = 4;
+    const int NO_GROUP_BY        = 4;
+    const int GROUP_BY_EXCEPTION = 8;
+    const int GROUP_BY_NUMERIC   = 16;
 
 
     /**
@@ -1989,7 +1990,7 @@ class Arrays extends Utils
      * @param array            $source
      * @param string|float|int $value
      *
-     * @return string|int|null NULL if the specified value didn't exist, the array key if it did
+     * @return string|int|null NULL if the specified value did not exist, the array key if it did
      */
     public static function unsetValue(array &$source, string|float|int $value): string|int|null
     {
@@ -2117,7 +2118,7 @@ class Arrays extends Utils
                 $keep_list[$key] = $value;
 
             } else {
-                // Key doesn't exist in source2, add it
+                // Key does not exist in source2, add it
                 $return['delete'][$key] = $value;
             }
         }
@@ -2132,7 +2133,7 @@ class Arrays extends Utils
             }
 
             if (!in_array($value, $source1, true)) {
-                // Key doesn't exist in source1, add it and next
+                // Key does not exist in source1, add it and next
                 $return['add'][$key] = $value;
             }
         }
@@ -2359,7 +2360,7 @@ class Arrays extends Utils
                     }
 
                 } else {
-                    // Give key a character, doesn't matter which, so that we know that we've encountered a non
+                    // Give key a character, does not matter which, so that we know that we've encountered a non
                     // separator character
                     $key = 'a';
                 }
@@ -2712,7 +2713,7 @@ class Arrays extends Utils
             $key = Strings::from($key, $prefix, needle_required: true);
 
             if (!$key) {
-                // This key didn't have the specified class
+                // This key did not have the specified class
                 continue;
             }
 
@@ -3801,20 +3802,39 @@ class Arrays extends Utils
     /**
      * Separates an array of keys that contain a prefix into sub-arrays where the prefix is the key
      *
-     * @param array|null  $source
-     * @param string $separator
-     * @param int $non_prefix_action        How to handle keys that do not contain the specified separator and whose
-     *                                      prefix cannot be determined. Must be one of:
-     *                                          self:GROUP_BY_DROP: Drop keys without prefix
-     *                                          self:GROUP_BY_NULL: Add keys without prefix to subarray under key "NULL"
-     *                                          self:GROUP_BY_EXCEPTION: Throw exception if a key without prefix found
+     * @param array|null $source                        The source array that will be processed
+     * @param string     $separator [_]                 The character on which the string will be broken up for grouping
+     * @param int        $flags     [self::NO_GROUP_BY] How to handle keys that do not contain the specified separator and whose prefix cannot be determined.
+     *                                                  Must be one of:
      *
+     *                                                  self:GROUP_BY_DROP      : Drop keys without prefix
+     *                                                  self:GROUP_BY_NULL      : Add keys without prefix to subarray under key "NULL"
+     *                                                  self:GROUP_BY_EXCEPTION : Throw exception if a key without prefix found
+     *                                                  self:GROUP_BY_NUMERIC   : Requires the grouping prefix to be numeric, or the value will be
+     *                                                                            considered to have no prefix
      *
      * @return array
+     *
+     * @throws OutOfBoundsException
      */
-    public static function groupByPrefix(?array $source = null, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY])] int $non_prefix_action = self::NO_GROUP_BY): array
+    public static function groupByPrefix(?array $source, string $separator = '_', #[ExpectedValues(values: [self::GROUP_BY_NULL, self::GROUP_BY_DROP, self::GROUP_BY_EXCEPTION, self::NO_GROUP_BY, self::GROUP_BY_NUMERIC])] int $flags = self::NO_GROUP_BY): array
     {
-        $return = [];
+        // Decode flags
+        $return               = [];
+        $options              = [];
+        $options['null']      = (bool)  ($flags & Arrays::GROUP_BY_NULL);
+        $options['drop']      = (bool)  ($flags & Arrays::GROUP_BY_DROP);
+        $options['exception'] = (bool)  ($flags & Arrays::GROUP_BY_EXCEPTION);
+        $options['no_group']  = (bool)  ($flags & Arrays::NO_GROUP_BY);
+        $options['numeric']   = (bool)  ($flags & Arrays::GROUP_BY_NUMERIC);
+
+        if (!($options['null'] xor $options['drop'] xor $options['exception'] xor $options['no_group'])) {
+            throw OutOfBoundsException::new(ts('The flags GROUP_BY_NULL, GROUP_BY_DROP, GROUP_BY_EXCEPTION, GROUP_BY_NUMERIC are exclusive only one of them must be specified'))
+                                      ->addData([
+                                          'flags'         => $flags,
+                                          'decoded_flags' => $options
+                                      ]);
+        }
 
         if (empty($source)) {
             return $return;
@@ -3825,27 +3845,38 @@ class Arrays extends Utils
                 $prefix = Strings::until($key, $separator);
                 $key    = Strings::from($key, $separator);
 
-                $return[$prefix][$key] = $value;
+                if (!$options['numeric'] or is_numeric($prefix)) {
+                    $return[$prefix][$key] = $value;
+                    continue;
+                }
+            }
 
-            } else {
-                switch ($non_prefix_action):
-                    case self::GROUP_BY_DROP:
-                        break;
+            // This value seems to not have a prefix
+            switch ($flags) {
+                case $options['drop']:
+                    // Drop the non-prefix item
+                    break;
 
-                    case self::GROUP_BY_NULL: $return[null][$key] = $value;
-                        break;
+                case $options['null']:
+                    // Group the non-prefix item in the NULL group
+                    $return[null][$key] = $value;
+                    break;
 
-                    case self::NO_GROUP_BY: $return[$key] = $value;
-                        break;
+                case $options['no_group']:
+                    // Do not group this item at all
+                    $return[$key] = $value;
+                    break;
 
-                    case self::GROUP_BY_EXCEPTION: throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
+                case $options['exception']:
+                    // Throw an exception because this value cannot be grouped
+                    throw ArraysKeyException::new(tr('Key ":key" did not contain separator ":separator", unable to assign it to one of the following groups: ":groups"', [
                         ':key'       => $key,
                         ':separator' => $separator,
                         ':groups'    => json::encode(array_keys($return)),
                     ]));
-                endswitch;
             }
         }
+
 
         return $return;
     }
@@ -4435,6 +4466,33 @@ class Arrays extends Utils
 
 
     /**
+     * Adds the specified value to the specified source if the value is not NULL
+     *
+     * @param array                            $source        The source array to which the key must be added
+     * @param mixed                            $value         The value that will be tested and added
+     * @param Stringable|string|float|int|null $key    [null] Optionally, the key with which to add the value to the array. If not specified, the value will
+     *                                                        simply be appended at the end of the array
+     *
+     * @return array
+     */
+    public static function appendNotNull(array $source, mixed $value, Stringable|string|float|int|null $key = null): array
+    {
+        if ($value === null) {
+            return $source;
+        }
+
+        if ($key) {
+            $source[$key] = $value;
+
+        } else {
+            $source[] = $value;
+        }
+
+        return $source;
+    }
+
+
+    /**
      * Checks if there is a required match and throws an exception if not
      *
      * @param array $needles
@@ -4562,7 +4620,7 @@ class Arrays extends Utils
                         continue;
                     }
 
-                    // This needle didn't match
+                    // This needle did not match
 
                     if ($flags['all']) {
                         // We are in "all" mode, and a single needle failed, so do not consider any other needles.
@@ -4662,6 +4720,39 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if the specified source contains any value that is NULL
+     *
+     * @param array      $source                   The source array that will be tested
+     * @param array|null $consider_null_too [null] If specified, must contain a list of values that will be considered NULL too for this function
+     *
+     * @return bool
+     */
+    public static function containsNullValue(array $source, ?array $consider_null_too = null): bool
+    {
+        $return = in_array(null, $source, true);
+
+        if ($return) {
+            return true;
+        }
+
+        if ($consider_null_too) {
+            // Check other values that we might consider being NULL
+            foreach ($consider_null_too as $null) {
+                $null = strtoupper($null);
+
+                foreach ($source as $value) {
+                    if (strtoupper($value) === $null) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
      * Process the given array with the specified needles for full matching and return the requested result
      *
      * @param int         $action
@@ -4722,7 +4813,7 @@ class Arrays extends Utils
                         continue;
                     }
 
-                    // At this point, this needle didn't match
+                    // At this point, this needle did not match
                     if ($flags['all']) {
                         // We are in "all" mode, and a single needle failed, so do not consider any other needles.
                         $needles_match = false;
@@ -4745,6 +4836,171 @@ class Arrays extends Utils
         }
 
         return Arrays::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Returns true if all the values of the source array start with one or more of the specified characters
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $or_none    [false] If true, will return true if none of the values started with the specified characters
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function allValuesStartWith(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    {
+        $found_character = null;
+        $characters      = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    $found_character = $character;
+                    goto ok;
+                }
+            }
+
+            // Character was not found!
+            if ($or_none) {
+                if (empty($found_character)) {
+                    // We have not found a character yet, and no value matching is fine as well
+                    continue;
+                }
+            }
+
+            return false;
+            ok:
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Returns true if any the values of the source array start with one or more of the specified characters
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function anyValuesStartWith(array $source, array|string $characters, bool $exception = true): bool
+    {
+        $characters = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Returns true if all the values of the source array start with one or more of the specified characters, and if all values start with the same character
+     *
+     * @param array        $source             The source array to test
+     * @param array|string $characters         The characters that all source values have to start with
+     * @param bool         $or_none    [false] If true, will return true if none of the values started with the specified characters
+     * @param bool         $exception  [true]  If true, and the array contains a value that is not scalar, an OutOfBoundsException will be thrown
+     *
+     * @return bool
+     */
+    public static function allValuesStartWithSame(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    {
+        $found_character = null;
+        $characters      = Arrays::force($characters);
+
+        foreach ($source as $key => $value) {
+            if (!is_scalar($value)) {
+                if ($value !== null) {
+                    if ($exception) {
+                        throw OutOfBoundsException::new(ts('Cannot process source array, key ":key" contains a non scalar value', [
+                            ':key' => $key
+                        ]))->addData([
+                            ':key'   => $key,
+                            ':value' => $value
+                        ]);
+                    }
+                }
+
+                // Ignore this value
+                continue;
+            }
+
+            foreach ($characters as $character) {
+                if (str_starts_with($value, $character)) {
+                    if ($found_character) {
+                        if ($character === $found_character) {
+                            // This value started with the same character
+                            goto ok;
+                        }
+
+                        return false;
+                    }
+
+                    if ($found_character === false) {
+                        // We found a character for this value, but a previous value had no character found!
+                        return false;
+                    }
+
+                    $found_character = $character;
+                    goto ok;
+                }
+            }
+
+            if ($or_none) {
+                if (empty($found_character)) {
+                    // We have not found a character yet, and no value matching is fine as well
+                    $found_character = false;
+                    continue;
+                }
+            }
+
+            return false;
+            ok:
+        }
+
+        return true;
     }
 
 

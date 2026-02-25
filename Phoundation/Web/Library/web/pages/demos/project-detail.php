@@ -170,7 +170,7 @@ Response::setBreadcrumbs([
                 </div>
                 <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
                     <h3 class="text-primary"><i class="fas fa-paint-brush"></i> AdminLTE v3</h3>
-                    <p class="text-muted">Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu
+                    <p class="text-muted">Raw denim you probably have not heard of them jean shorts Austin. Nesciunt tofu
                         stumptown aliqua butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, qui irure
                         terr.</p><br>
                     <div class="text-muted">

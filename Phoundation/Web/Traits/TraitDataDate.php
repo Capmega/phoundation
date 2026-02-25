@@ -29,9 +29,9 @@ trait TraitDataDate
     /**
      * Tracks the date on which the date calendar should start
      *
-     * @var PhoDateTimeInterface|null $o_start_date
+     * @var PhoDateTimeInterface|null $_start_date
      */
-    protected ?PhoDateTimeInterface $o_start_date = null;
+    protected ?PhoDateTimeInterface $_start_date = null;
 
     /**
      * Tracks the day on which the date calendar should start, 0 for Sunday, 1 for Monday, ... until 6
@@ -50,16 +50,16 @@ trait TraitDataDate
     /**
      * Tracks the minimum allowed date
      *
-     * @var PhoDateTimeInterface|null $o_minimum_date
+     * @var PhoDateTimeInterface|null $_minimum_date
      */
-    protected ?PhoDateTimeInterface $o_minimum_date = null;
+    protected ?PhoDateTimeInterface $_minimum_date = null;
 
     /**
      * Tracks the maximum allowed date
      *
-     * @var PhoDateTimeInterface|null $o_maximum_date
+     * @var PhoDateTimeInterface|null $_maximum_date
      */
-    protected ?PhoDateTimeInterface $o_maximum_date = null;
+    protected ?PhoDateTimeInterface $_maximum_date = null;
 
     /**
      * Tracks if date should be confirmed on select
@@ -202,7 +202,7 @@ trait TraitDataDate
      */
     public function getStartDateObject(): ?PhoDateTimeInterface
     {
-        return $this->o_start_date;
+        return $this->_start_date;
     }
 
 
@@ -215,7 +215,7 @@ trait TraitDataDate
      */
     public function setStartDateObject(?PhoDateTimeInterface $date): static
     {
-        $this->o_start_date = $date;
+        $this->_start_date = $date;
         return $this;
     }
 
@@ -288,7 +288,7 @@ trait TraitDataDate
      */
     public function getMinimumDateObject(): ?PhoDateTimeInterface
     {
-        return $this->o_minimum_date;
+        return $this->_minimum_date;
     }
 
 
@@ -301,18 +301,18 @@ trait TraitDataDate
      */
     public function setMinimumDateObject(?PhoDateTimeInterface $date): static
     {
-        if ($this->o_maximum_date) {
-            if ($date < $this->o_maximum_date) {
+        if ($this->_maximum_date) {
+            if ($date < $this->_maximum_date) {
                 throw new OutOfBoundsException(tr('Cannot set minimum date ":date" on ":class" class ":name", it already has a earlier maximum date ":max" set', [
                     ':day'   => $date,
-                    ':max'   => $this->o_maximum_date,
+                    ':max'   => $this->_maximum_date,
                     ':class' => static::class,
                     ':name ' => $this->getName()
                 ]));
             }
         }
 
-        $this->o_minimum_date = $date;
+        $this->_minimum_date = $date;
         return $this;
     }
 
@@ -324,7 +324,7 @@ trait TraitDataDate
      */
     public function getMaximumDateObject(): ?PhoDateTimeInterface
     {
-        return $this->o_maximum_date;
+        return $this->_maximum_date;
     }
 
 
@@ -337,18 +337,18 @@ trait TraitDataDate
      */
     public function setMaximumDateObject(?PhoDateTimeInterface $date): static
     {
-        if ($this->o_minimum_date) {
-            if ($date < $this->o_minimum_date) {
+        if ($this->_minimum_date) {
+            if ($date < $this->_minimum_date) {
                 throw new OutOfBoundsException(tr('Cannot set minimum date ":date" on ":class" class ":name", it already has a later minimum date ":min" set', [
                     ':day'   => $date,
-                    ':min'   => $this->o_minimum_date,
+                    ':min'   => $this->_minimum_date,
                     ':class' => static::class,
                     ':name ' => $this->getName()
                 ]));
             }
         }
 
-        $this->o_maximum_date = $date;
+        $this->_maximum_date = $date;
         return $this;
     }
 

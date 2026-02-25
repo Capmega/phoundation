@@ -26,39 +26,39 @@ trait TraitGit
     /**
      * The path that will be checked
      *
-     * @var PhoDirectoryInterface $o_directory
+     * @var PhoDirectoryInterface $_directory
      */
-    protected PhoDirectoryInterface $o_directory;
+    protected PhoDirectoryInterface $_directory;
 
     /**
      * The git process
      *
-     * @var GitInterface $o_git
+     * @var GitInterface $_git
      */
-    protected GitInterface $o_git;
+    protected GitInterface $_git;
 
 
     /**
      * GitPath class constructor
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      */
-    public function __construct(PhoDirectoryInterface $o_directory)
+    public function __construct(PhoDirectoryInterface $_directory)
     {
-        $this->setDirectoryObject($o_directory);
+        $this->setDirectoryObject($_directory);
     }
 
 
     /**
      * Returns a new GitPath object
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      *
      * @return static
      */
-    public static function new(PhoDirectoryInterface $o_directory): static
+    public static function new(PhoDirectoryInterface $_directory): static
     {
-        return new static($o_directory);
+        return new static($_directory);
     }
 
 
@@ -69,7 +69,7 @@ trait TraitGit
      */
     public function getGitObject(): GitInterface
     {
-        return $this->o_git;
+        return $this->_git;
     }
 
 
@@ -81,21 +81,21 @@ trait TraitGit
      */
     public function getDirectoryObject(?string $sub_directory = null): PhoDirectoryInterface
     {
-        return $this->o_directory->addDirectory($sub_directory);
+        return $this->_directory->addDirectory($sub_directory);
     }
 
 
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      *
      * @return static
      */
-    public function setDirectoryObject(PhoDirectoryInterface $o_directory): static
+    public function setDirectoryObject(PhoDirectoryInterface $_directory): static
     {
-        $this->o_directory = $o_directory->makeAbsolute()->checkWritable();
-        $this->o_git       = Git::new($this->o_directory);
+        $this->_directory = $_directory->makeAbsolute()->checkWritable();
+        $this->_git       = Git::new($this->_directory);
 
         return $this;
     }

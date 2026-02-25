@@ -105,8 +105,8 @@ $mail->addAddress(get_null(config()->getString('email.redirect.all', '')) ?? $to
 
 try {
     if ($argv['from']) {
-        $o_from = User::new()->load($argv['from']);
-        $mail->setFrom($o_from->getEmail(), $o_from->getDisplayName());
+        $_from = User::new()->load($argv['from']);
+        $mail->setFrom($_from->getEmail(), $_from->getDisplayName());
 
     } else {
         $mail->setFrom(Email::getDefaultFromAddress(), Email::getDefaultFromName() . (Core::isProductionEnvironment() ? null : ' (' . ENVIRONMENT . ')'));

@@ -162,13 +162,13 @@ class Language extends DataEntry implements LanguageInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName()
+        $_definitions->add(DefinitionFactory::newName()
                                              ->setDisabled(true)
                                              ->setHelpText(tr('The name for this language')))
 

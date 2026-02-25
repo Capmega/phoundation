@@ -86,11 +86,11 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
     /**
      * Sets the definition
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(DefinitionInterface|null $o_definition): static;
+    public function setDefinitionObject(DefinitionInterface|null $_definition): static;
 
 
     /**
@@ -104,11 +104,11 @@ interface ElementsBlockInterface extends ComponentInterface, ElementAttributesIn
     /**
      * Sets the anchor for this element
      *
-     * @param UrlInterface|AnchorInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $_anchor
      *
      * @return static
      */
-    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static;
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $_anchor): static;
 
 
     /**

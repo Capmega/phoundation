@@ -69,16 +69,16 @@ class Memcached implements MemcachedInterface
      *
      * @note Instance always defaults to "system" if not specified
      *
-     * @param ConnectorInterface $o_connector
+     * @param ConnectorInterface $_connector
      */
-    public function __construct(ConnectorInterface $o_connector)
+    public function __construct(ConnectorInterface $_connector)
     {
         // Ensure PHP has memcached support and that the specified connector is a memcached connector
-        $o_connector->checkDriver('memcached');
+        $_connector->checkDriver('memcached');
 
         if (static::getEnabled()) {
             // Get instance information and connect to memcached servers
-            $this->setConnectorObject($o_connector)->connect();
+            $this->setConnectorObject($_connector)->connect();
         }
     }
 
@@ -109,14 +109,14 @@ class Memcached implements MemcachedInterface
     /**
      * Sets the database connector object
      *
-     * @param ConnectorInterface|null $o_connector
+     * @param ConnectorInterface|null $_connector
      * @param string|int|null         $database
      *
      * @return static
      */
-    public function setConnectorObject(?ConnectorInterface $o_connector, string|int|null $database = null): static
+    public function setConnectorObject(?ConnectorInterface $_connector, string|int|null $database = null): static
     {
-        $this->__setConnectorObject($o_connector, $database)
+        $this->__setConnectorObject($_connector, $database)
              ->configuration = $this->getConnectorObject()->getMemcachedConfiguration();
 
         return $this;
@@ -154,7 +154,7 @@ class Memcached implements MemcachedInterface
         }
 
         if (isset($e) or $failed) {
-            // We haven't been able to connect to any memcached server at all!
+            // We have not been able to connect to any memcached server at all!
             Log::warning($this->log(ts('Failed to connect to any memcached server')), 10);
 
             Incident::new()
@@ -509,7 +509,7 @@ class Memcached implements MemcachedInterface
      * cas_hits              0          Number of successful 'cas' commands.
      * cas_misses            0          'cas' calls fail if the value has been changed since it was requested from the
      *                                  cache. We are currently not using "cas" at all, so all three cas values are zero.
-     * cmd_flush             0          The "flush_all" command clears the whole cache and shouldn't be used during
+     * cmd_flush             0          The "flush_all" command clears the whole cache and should not be used during
      *                                  normal operation.
      * cmd_get               1626823    Number of 'get' commands received since server startup not counting if they were
      *                                  successful or not.
@@ -532,7 +532,7 @@ class Memcached implements MemcachedInterface
      * decr_hits             0          The 'decr' command decreases a stored (integer) value by 1. A 'hit' is a 'decr'
      *                                  call to an existing key.
      * decr_misses           0          'decr' command calls to undefined keys.
-     * delete_hits           138707     Stored keys may be deleted using the 'delete' command, this system doesn't
+     * delete_hits           138707     Stored keys may be deleted using the 'delete' command, this system does not
      *                                  delete cached data itself, but it is using the Memcached to avoid recaching-races
      *                                  and the race keys are deleted once the race is over and fresh content has been
      *                                  cached.
@@ -548,7 +548,7 @@ class Memcached implements MemcachedInterface
      *                                  cached value was too old.
      * incr_hits             0          Number of successful 'incr' commands processed. 'incr' is a replace adding 1 to
      *                                  the stored value and failing if no value is stored. This specific installation
-     *                                  (currently) doesn't use incr/decr commands, so all their values are zero.
+     *                                  (currently) does not use incr/decr commands, so all their values are zero.
      * incr_misses           0          Number of failed "incr" commands (see incr_hits).
      * limit_maxbytes        1073741824 Maximum configured cache size (set on the command line while starting the
      *                                  memcached server), look at the "bytes" value for the actual usage.

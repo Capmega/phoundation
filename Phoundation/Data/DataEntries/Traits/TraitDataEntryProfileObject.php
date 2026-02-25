@@ -120,12 +120,12 @@ trait TraitDataEntryProfileObject
     /**
      * Returns the profiles_id for this user
      *
-     * @param ProfileInterface|null $o_object
+     * @param ProfileInterface|null $_object
      *
      * @return static
      */
-    public function setProfileObject(?ProfileInterface $o_object): static
+    public function setProfileObject(?ProfileInterface $_object): static
     {
-        return $this->setVirtualObject('profiles', $o_object);
+        return $this->setVirtualObject('profiles', $_object);
     }
 }

@@ -138,7 +138,7 @@ class Mount extends Command
      */
     public function mount(Stringable|string $source, Stringable|string $target, ?string $filesystem = null, Stringable|array|string|null $options = null, ?int $timeout = null): void
     {
-        PhoDirectory::new($target, $this->o_restrictions)
+        PhoDirectory::new($target, $this->_restrictions)
                  ->ensure();
         Hook::new('phoundation')
             ->execute('file-system/mount', [

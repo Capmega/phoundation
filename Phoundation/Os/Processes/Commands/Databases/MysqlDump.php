@@ -408,15 +408,15 @@ class MysqlDump extends Command implements MysqlDumpInterface
 
         // TODO Improve this, we make a file object a string and a file object again
         $file = PhoPath::absolutePath($file, DIRECTORY_DATA . 'sources/', false);
-        $file = PhoFile::new($file, $this->o_restrictions)->ensureParentDirectory();
+        $file = PhoFile::new($file, $this->_restrictions)->ensureParentDirectory();
 
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')
              ->clearArguments()
              ->addArguments([
-                 '-h', $this->o_connector->getHostname(),
-                 '-u', $this->o_connector->getUsername(),
-                 '-p' . $this->o_connector->getPassword()])
+                 '-h', $this->_connector->getHostname(),
+                 '-u', $this->_connector->getUsername(),
+                 '-p' . $this->_connector->getPassword()])
              ->addArgument($this->disable_keys                    ? '--disable-keys'    : null)
              ->addArgument($this->events                          ? '--events'          : null)
              ->addArgument($this->routines                        ? '--routines'        : null)
@@ -426,8 +426,8 @@ class MysqlDump extends Command implements MysqlDumpInterface
              ->addArgument($this->comments                        ? '--comments'        : '--skip-comments')
              ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
 
-        if ($this->o_connector->getPort()) {
-            $this->addArguments(['-p', $this->o_connector->getPort()]);
+        if ($this->_connector->getPort()) {
+            $this->addArguments(['-p', $this->_connector->getPort()]);
         }
 
         // Add databases

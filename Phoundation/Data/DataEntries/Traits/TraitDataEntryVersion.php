@@ -57,7 +57,7 @@ trait TraitDataEntryVersion
 
         if (!$this->is_loading) {
             // Get SEO version and ensure that the seo_version does NOT surpass the version maxlength because MySQL
-            // won't find the entry if it does!
+            // will not find the entry if it does!
             $seo_version = Seo::unique(
                 substr($version, 0, $this->getDefinitionsObject()->get('version')->getMaxLength()),
                 static::getTable(),

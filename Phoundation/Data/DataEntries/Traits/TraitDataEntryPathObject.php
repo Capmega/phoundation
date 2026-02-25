@@ -48,12 +48,12 @@ trait TraitDataEntryPathObject
     /**
      * Sets the path for this object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static
+    public function setPathObject(?PhoPathInterface $_path): static
     {
-        return $this->setPath($o_path->getSource());
+        return $this->setPath($_path->getSource());
     }
 }

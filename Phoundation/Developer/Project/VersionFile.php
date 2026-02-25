@@ -44,11 +44,11 @@ class VersionFile extends VersionCore implements VersionFileInterface
     /**
      * VersionFile class constructor
      *
-     * @param EnumVersionFileType $o_version_file_type The version file to use
+     * @param EnumVersionFileType $_version_file_type The version file to use
      */
-    public function __construct(EnumVersionFileType $o_version_file_type, bool $auto_save = true)
+    public function __construct(EnumVersionFileType $_version_file_type, bool $auto_save = true)
     {
-        $this->setVersionFileTypeObject($o_version_file_type)
+        $this->setVersionFileTypeObject($_version_file_type)
              ->setAutoSave($auto_save);
     }
 
@@ -56,17 +56,17 @@ class VersionFile extends VersionCore implements VersionFileInterface
     /**
      * Sets the version file
      *
-     * @param EnumVersionFileType|null $o_version_file
+     * @param EnumVersionFileType|null $_version_file
      *
      * @return static
      */
-    public function setVersionFileTypeObject(?EnumVersionFileType $o_version_file): static
+    public function setVersionFileTypeObject(?EnumVersionFileType $_version_file): static
     {
-        $o_file = PhoFile::new(DIRECTORY_ROOT . 'config/project/' . $o_version_file->value, PhoRestrictions::newConfig(true, 'project/'));
+        $_file = PhoFile::new(DIRECTORY_ROOT . 'config/project/' . $_version_file->value, PhoRestrictions::newConfig(true, 'project/'));
 
-        return $this->__setVersionFileObject($o_version_file)
-                    ->setFileObject($o_file)
-                    ->setSource($o_file->getContentsAsString());
+        return $this->__setVersionFileObject($_version_file)
+                    ->setFileObject($_file)
+                    ->setSource($_file->getContentsAsString());
     }
 
 
@@ -78,7 +78,7 @@ class VersionFile extends VersionCore implements VersionFileInterface
     protected function autoSave(): static
     {
         if ($this->getAutoSave()) {
-            $this->o_file->setContents($this->getSource());
+            $this->_file->setContents($this->getSource());
         }
 
         return $this;

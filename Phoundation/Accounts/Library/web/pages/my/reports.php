@@ -35,6 +35,6 @@ Response::setBreadcrumbs([
 // Return the card
 return Card::new()
            ->setTitle(tr('Reports available to me'))
-           ->setContent(AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/review.html')->makeWww(), tr('Review & submit')) .
-                        AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/daily.html')->makeWww(), tr('My summary report')) .
-                        AnchorBlock::new(Url::new('/timesheets/my-timesheet-reports/detailed.html')->makeWww(), tr('My detailed report')));
+           ->setContent(AnchorBlock::new(Url::new('/my/reports/timesheets/review.html')->makeWww(), tr('Review & submit')) .
+                        AnchorBlock::new(Url::new('/my/reports/timesheets/daily.html')->makeWww(), tr('My summary report')) .
+                        AnchorBlock::new(Url::new('/my/reports/timesheets/detailed.html')->makeWww(), tr('My detailed report')));

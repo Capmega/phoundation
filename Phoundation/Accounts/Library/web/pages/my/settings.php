@@ -34,14 +34,14 @@ GetValidator::new()->validate();
 
 
 // Get the user
-$o_user = Session::getUserObject();
+$_user = Session::getUserObject();
 
 
 // Apply and save the changes
 if (Request::isPostRequestMethod()) {
     switch (Request::getSubmitButton()) {
         case tr('Save'):
-            $o_user->getConfigurationsObject()->apply()->save();
+            $_user->getConfigurationsObject()->apply()->save();
             Response::getFlashMessagesObject()->addSuccess(tr('Your settings have been saved'));
             Response::redirect();
 
@@ -54,17 +54,17 @@ if (Request::isPostRequestMethod()) {
 
 
 // Build the "settings" card
-$o_settings_card = Card::new()
+$_settings_card = Card::new()
                        ->setTitle(tr('Edit your account settings'))
-                       ->setContent($o_user->getConfigurationsObject()->getHtmlDataEntryFormObject())
+                       ->setContent($_user->getConfigurationsObject()->getHtmlFormObject())
                        ->setButtonsObject(Buttons::new()
                                                ->addSaveButton(true)
-                                               ->addButton(isset_get($o_delete))
-                                               ->addButton(isset_get($o_audit)));
+                                               ->addButton(isset_get($_delete))
+                                               ->addButton(isset_get($_audit)));
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
@@ -75,7 +75,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('In this settings page you may configure various details about how your account behaves on this platform. These settings are unique to your account alone');
@@ -83,7 +83,7 @@ $o_documentation_card = Card::new()
 
 // Set page meta-data
 Response::setHeaderTitle(tr('My settings'));
-Response::setHeaderSubTitle($o_user->getDisplayName());
+Response::setHeaderSubTitle($_user->getDisplayName());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'               , tr('Home')),
     Breadcrumb::new('/my/profile.html', tr('My profile')),
@@ -93,5 +93,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-            ->addGridColumn($o_settings_card                          , EnumDisplaySize::nine, true)
-            ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+            ->addGridColumn($_settings_card                          , EnumDisplaySize::nine, true)
+            ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

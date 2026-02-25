@@ -219,7 +219,7 @@ class Cli
 
                             } catch (PhpException $e) {
                                 if (!array_key_exists($column, $column_sizes)) {
-                                    // The source doesn't contain the specified column. Continue rendering without this column.
+                                    // The source does not contain the specified column. Continue rendering without this column.
                                     $not_rendered[$column] = $column;
                                     continue;
                                 }

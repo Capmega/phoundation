@@ -112,7 +112,7 @@ class InputTextArea extends InputText
      */
     public function getMinLength(): ?int
     {
-        return $this->o_attributes->get('minlength');
+        return $this->_attributes->get('minlength');
     }
 
 
@@ -136,7 +136,7 @@ class InputTextArea extends InputText
      */
     public function getMaxLength(): ?int
     {
-        return $this->o_attributes->get('maxlength');
+        return $this->_attributes->get('maxlength');
     }
 
 
@@ -160,7 +160,7 @@ class InputTextArea extends InputText
      */
     public function getAutoComplete(): bool
     {
-        return Strings::toBoolean($this->o_attributes->get('autocomplete'));
+        return Strings::toBoolean($this->_attributes->get('autocomplete'));
     }
 
 
@@ -194,21 +194,21 @@ class InputTextArea extends InputText
 
         // Merge the system values over the set attributes
         return parent::renderAttributesIteratorObject()
-                     ->appendSource($this->o_attributes, $return);
+                     ->appendSource($this->_attributes, $return);
     }
 
 
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)
-                     ->setContent($o_definition->getContent());
+        return parent::setDefinitionObject($_definition)
+                     ->setContent($_definition->getContent());
     }
 }

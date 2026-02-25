@@ -37,7 +37,8 @@ class UndeleteButton extends Button
              ->setButtonType(EnumButtonType::submit)
              ->setContent($content ?? tr('Undelete'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
-             ->setMode($this->getConfiguredMode());
+             ->setMode($this->getConfiguredMode())
+             ->setFloatRight(true);
     }
 
 

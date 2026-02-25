@@ -51,8 +51,8 @@ $argv = ArgvValidator::new()
 
 
 // Synchronize all available repositories
-$o_repositories = Repositories::new()->load();
+$_repositories = Repositories::new()->load();
 
 Log::cli(ts('Releasing revision, this might take a few seconds...'), 'action');
 
-$o_repositories->releaseRevision(EnumPhoundationClass::phoundation, $argv['number']);
+$_repositories->releaseRevision(EnumPhoundationClass::phoundation, $argv['number']);

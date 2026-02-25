@@ -110,11 +110,11 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     /**
      * Workers constructor
      *
-     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $o_execution_directory
+     * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $_execution_directory
      */
-    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $o_execution_directory = null)
+    public function __construct(PhoRestrictionsInterface|PhoDirectoryInterface|null $_execution_directory = null)
     {
-        parent::__construct($o_execution_directory);
+        parent::__construct($_execution_directory);
     }
 
 
@@ -462,7 +462,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     {
         // Check the workers that are still active
         foreach ($this->workers as $pid => $worker) {
-            $ps = Ps::new($this->o_restrictions)
+            $ps = Ps::new($this->_restrictions)
                     ->ps($pid);
 
             if ($ps) {

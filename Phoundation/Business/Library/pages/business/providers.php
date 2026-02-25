@@ -32,7 +32,7 @@ use Phoundation\Web\Requests\Response;
 
 // Build providers filter card
 $filters      = FilterForm::new();
-$o_filters_card = Card::new()
+$_filters_card = Card::new()
                ->setTitle('Providers filters')
                ->setCollapseSwitch(true)
                ->setContent($filters->render())
@@ -54,7 +54,7 @@ $providers_card->getFormObject()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setCollapseSwitch(true)
@@ -63,7 +63,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setCollapseSwitch(true)
@@ -80,5 +80,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_filters_card   . $providers_card      , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_filters_card   . $providers_card      , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

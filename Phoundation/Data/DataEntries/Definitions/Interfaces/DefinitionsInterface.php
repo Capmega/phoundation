@@ -44,11 +44,11 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Sets the data entry
      *
-     * @param DataEntryInterface $o_data_entry
+     * @param DataEntryInterface $_data_entry
      *
      * @return static
      */
-    public function setDataEntryObject(DataEntryInterface $o_data_entry): static;
+    public function setDataEntryObject(DataEntryInterface $_data_entry): static;
 
 
     /**
@@ -148,20 +148,20 @@ interface DefinitionsInterface extends IteratorInterface
     /**
      * Adds the specified buttons to this buttons list
      *
-     * @param ButtonsInterface|null $o_buttons
+     * @param ButtonsInterface|null $_buttons
      *
      * @return static
      */
-    public function addButtons(?ButtonsInterface $o_buttons): static;
+    public function addButtons(?ButtonsInterface $_buttons): static;
 
     /**
      * Sets the modal buttons
      *
-     * @param DropdownButtonInterface|ButtonInterface|null $o_button
+     * @param DropdownButtonInterface|ButtonInterface|null $_button
      *
      * @return static
      */
-    public function addButton(DropdownButtonInterface|ButtonInterface|null $o_button): static;
+    public function addButton(DropdownButtonInterface|ButtonInterface|null $_button): static;
 
     /**
      * Direct method to render or not render entries

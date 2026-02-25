@@ -24,12 +24,12 @@ class BtrfsProperty extends Btrfs {
     /**
      * Returns new static object
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public static function new(?PhoPathInterface $o_path = null): static
+    public static function new(?PhoPathInterface $_path = null): static
     {
-        return new static ($o_path);
+        return new static ($_path);
     }
 }

@@ -33,9 +33,9 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
     /**
      * The database interface for this schema
      *
-     * @var Sql $sql
+     * @var Sql $_sql
      */
-    protected Sql $sql;
+    protected Sql $_sql;
 
     /**
      * The SQL configuration
@@ -47,24 +47,24 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
     /**
      * The parent object
      *
-     * @var SchemaAbstractInterface|SchemaInterface $parent
+     * @var SchemaAbstractInterface|SchemaInterface $_parent
      */
-    protected SchemaAbstractInterface|SchemaInterface $parent;
+    protected SchemaAbstractInterface|SchemaInterface $_parent;
 
 
     /**
      * SchemaAbstract class constructor
      *
      * @param string                                  $name
-     * @param Sql                                     $sql
-     * @param SchemaAbstractInterface|SchemaInterface $parent
+     * @param SqlInterface                            $_sql
+     * @param SchemaAbstractInterface|SchemaInterface $_parent
      */
-    public function __construct(string $name, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent)
+    public function __construct(string $name, SqlInterface $_sql, SchemaAbstractInterface|SchemaInterface $_parent)
     {
-        $this->sql                       = $sql;
+        $this->_sql                      = $_sql;
         $this->name                      = $name;
-        $this->parent                    = $parent;
-        $this->configuration             = $sql->getConfiguration();
+        $this->_parent                   = $_parent;
+        $this->configuration             = $_sql->getConfiguration();
         $this->configuration['database'] = $name;
     }
 
@@ -73,14 +73,14 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
      * Returns a new SchemaAbstract type object
      *
      * @param string                                  $name
-     * @param Sql                                     $sql
-     * @param SchemaAbstractInterface|SchemaInterface $parent
+     * @param Sql                                     $_sql
+     * @param SchemaAbstractInterface|SchemaInterface $_parent
      *
      * @return static
      */
-    public static function new(string $name, Sql $sql, SchemaAbstractInterface|SchemaInterface $parent): static
+    public static function new(string $name, Sql $_sql, SchemaAbstractInterface|SchemaInterface $_parent): static
     {
-        return new static($name, $sql, $parent);
+        return new static($name, $_sql, $_parent);
     }
 
 
@@ -91,7 +91,7 @@ abstract class SchemaAbstract implements SchemaAbstractInterface
      */
     public function getSqlObject(): SqlInterface
     {
-        return $this->sql;
+        return $this->_sql;
     }
 
 

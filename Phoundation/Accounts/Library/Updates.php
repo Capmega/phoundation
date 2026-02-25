@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.10.0';
+        return '0.10.4';
     }
 
 
@@ -1314,10 +1314,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.10.0', function () {
             // Add support for session state
-            $o_table = sql()->getSchemaObject()->getTableObject('accounts_users');
+            $_table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
-            if (!$o_table->columnExists('session_state')) {
-                $o_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
+            if (!$_table->columnExists('session_state')) {
+                $_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
             }
 
             // Add support for modified_on and modified_by
@@ -1342,6 +1342,82 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'accounts_users_rights',
                 'accounts_users_roles',
             ]);
+
+        })->addUpdate('0.10.1', function () {
+            // Fix indices to include `status`
+            $_table  = sql()->getSchemaObject()->getTableObject('accounts_users');
+            $indices = [
+                'email',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('email_status', true)
+                            ->addIndex('UNIQUE KEY `email_status` (`email`, `status`)');
+
+        })->addUpdate('0.10.2', function () {
+            // Fix indices to include `status`
+            $tables = [
+                'accounts_roles',
+                'accounts_rights',
+                'accounts_groups'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
+
+        })->addUpdate('0.10.4', function () {
+                // Fix table accounts_emails
+                $_table  = sql()->getSchemaObject()->getTableObject('accounts_emails');
+                $indices = [
+                    'email',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('email_status', true)
+                                ->addIndex('UNIQUE KEY `email_status` (`email`, `status`)');
+
+                // Fix table accounts_phones
+                $_table  = sql()->getSchemaObject()->getTableObject('accounts_phones');
+                $indices = [
+                    'phone',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('phone_status', true)
+                                ->addIndex('UNIQUE KEY `phone_status` (`phone`, `status`)');
+
+                // Fix table accounts_settings
+                $_table  = sql()->getSchemaObject()->getTableObject('accounts_settings');
+                $indices = [
+                    'users_id_hash',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('users_id_hash_status', true)
+                                ->addIndex('UNIQUE KEY `users_id_hash_status` (`users_id`, `hash`, `status`)');
         });
     }
 }

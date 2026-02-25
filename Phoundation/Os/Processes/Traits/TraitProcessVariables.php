@@ -399,16 +399,16 @@ trait TraitProcessVariables
      *
      * @note NULL means this local server
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static
     {
         $this->cached_command_line = null;
-        return $this->__setRestrictionsObject($o_restrictions, $write, $label);
+        return $this->__setRestrictionsObject($_restrictions, $write, $label);
     }
 
 
@@ -857,7 +857,7 @@ trait TraitProcessVariables
     {
         $this->cached_command_line = null;
         $this->execution_directory = $execution_directory;
-        $this->o_restrictions        = $execution_directory?->getRestrictionsObject() ?? PhoRestrictions::new();
+        $this->_restrictions        = $execution_directory?->getRestrictionsObject() ?? PhoRestrictions::new();
 
         return $this;
     }
@@ -1132,7 +1132,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Returns the CLI return values that are accepted as "success" and won't cause an exception
+     * Returns the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return array
      */
@@ -1143,7 +1143,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array|int|null $exit_codes
      *
@@ -1159,7 +1159,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array|int|null $exit_codes
      *
@@ -1178,7 +1178,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param int $exit_code
      *
@@ -1197,7 +1197,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Clears the CLI return values that are accepted as "success" and won't cause an exception
+     * Clears the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return static This process so that multiple methods can be chained
      */
@@ -1870,7 +1870,7 @@ trait TraitProcessVariables
 
             } else {
                 // Redirect output to a file. Make sure the parent directory exists first
-                PhoDirectory::new(dirname($redirect), $this->o_restrictions->getParent())->ensure();
+                PhoDirectory::new(dirname($redirect), $this->_restrictions->getParent())->ensure();
 
                 $this->output_redirect[$channel] = ($append ? '>>' : '> ') . $redirect;
             }
@@ -1941,7 +1941,7 @@ trait TraitProcessVariables
         $this->cached_command_line = null;
 
         if ($redirect) {
-            PhoFile::new($redirect, $this->o_restrictions)->checkReadable();
+            PhoFile::new($redirect, $this->_restrictions)->checkReadable();
             $this->input_redirect[$channel] = $redirect;
         }
 

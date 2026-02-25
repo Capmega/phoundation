@@ -29,17 +29,17 @@ class PhoLocale extends Locale implements PhoLocaleInterface
      *
      * @var UserInterface
      */
-    protected UserInterface $o_user;
+    protected UserInterface $_user;
 
 
     /**
      * PhoLocale class constructor
      *
-     * @param UserInterface $o_user
+     * @param UserInterface $_user
      */
-    public function __construct(UserInterface $o_user)
+    public function __construct(UserInterface $_user)
     {
-        $this->o_user = $o_user;
+        $this->_user = $_user;
     }
 
 
@@ -50,7 +50,7 @@ class PhoLocale extends Locale implements PhoLocaleInterface
      */
     public function getUserObject(): UserInterface
     {
-        return $this->o_user;
+        return $this->_user;
     }
 
 

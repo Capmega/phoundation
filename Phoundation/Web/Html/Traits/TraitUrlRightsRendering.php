@@ -31,14 +31,14 @@ use Phoundation\Web\Html\Enums\EnumAnchorRenderRightsFail;
 trait TraitUrlRightsRendering
 {
     /**
-     * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
+     * Tracks if the anchor should render anyway even if the user does not have all the required rights
      *
      * @var EnumAnchorRenderRightsFail $render_rights_fail
      */
     protected EnumAnchorRenderRightsFail $render_rights_fail = EnumAnchorRenderRightsFail::not;
 
     /**
-     * Tracks if the anchor should render anyway even if the user doesn't have all the required rights
+     * Tracks if the anchor should render anyway even if the user does not have all the required rights
      *
      * @var EnumAnchorRenderEmpty $render_empty
      */
@@ -62,28 +62,28 @@ trait TraitUrlRightsRendering
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool
+    public function userHasAccess(?UserInterface $_user = null, bool $use_cache = true): bool
     {
-        return $this->getUrlObject()->userHasAccess($o_user, $use_cache);
+        return $this->getUrlObject()->userHasAccess($_user, $use_cache);
     }
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return static
      */
-    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static
+    public function checkUserAccess(?UserInterface $_user = null, bool $use_cache = true): static
     {
-        $this->getUrlObject()->checkUserAccess($o_user, $use_cache);
+        $this->getUrlObject()->checkUserAccess($_user, $use_cache);
         return $this;
     }
 
@@ -91,26 +91,26 @@ trait TraitUrlRightsRendering
     /**
      * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $cache
      *
      * @return bool
      */
-    public function hasRequiredRights(?UserInterface $o_user = null, bool $cache = true): bool
+    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = true): bool
     {
-        $o_user = $o_user ?? Session::getUserObject();
+        $_user = $_user ?? Session::getUserObject();
 
-        if ($cache and ($this->has_required_rights === $o_user)) {
+        if ($cache and ($this->has_required_rights === $_user)) {
             //  We already know this user has access to the required rights, return cached response
             return true;
         }
 
-        $this->o_url->ensureAbsolute();
+        $this->_url->ensureAbsolute();
 
-        $has_required_rights = $o_user->getRightsObject()->hasAll($this->getRights());
+        $has_required_rights = $_user->getRightsObject()->hasAll($this->getRights());
 
         if ($has_required_rights) {
-            $this->has_required_rights = $o_user;
+            $this->has_required_rights = $_user;
             return true;
         }
 
@@ -135,13 +135,13 @@ trait TraitUrlRightsRendering
     /**
      * Sets the manually specified required rights to render this Anchor object
      *
-     * @param RightsInterface|null $o_rights
+     * @param RightsInterface|null $_rights
      *
      * @return static
      */
-    protected function setRightsObject(RightsInterface|null $o_rights): static
+    protected function setRightsObject(RightsInterface|null $_rights): static
     {
-        $this->getUrlObject()->setRightsObject($o_rights);
+        $this->getUrlObject()->setRightsObject($_rights);
         return $this;
     }
 
@@ -149,13 +149,13 @@ trait TraitUrlRightsRendering
     /**
      * Adds the specified right to the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function addRight(RightInterface|string|null $o_right): static
+    public function addRight(RightInterface|string|null $_right): static
     {
-        $this->getUrlObject()->addRight($o_right);
+        $this->getUrlObject()->addRight($_right);
         return $this;
     }
 
@@ -163,19 +163,19 @@ trait TraitUrlRightsRendering
     /**
      * Removes the specified right from the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function removeRight(RightInterface|string|null $o_right): static
+    public function removeRight(RightInterface|string|null $_right): static
     {
-        $this->getUrlObject()->removeRight($o_right);
+        $this->getUrlObject()->removeRight($_right);
         return $this;
     }
 
 
     /**
-     * Sets how this anchor will render if the user doesn't have all the required rights
+     * Sets how this anchor will render if the user does not have all the required rights
      *
      * @param EnumAnchorRenderRightsFail $render_rights_fail
      *
@@ -189,7 +189,7 @@ trait TraitUrlRightsRendering
 
 
     /**
-     * Returns how this anchor will render if the user doesn't have all the required rights
+     * Returns how this anchor will render if the user does not have all the required rights
      *
      * @return EnumAnchorRenderRightsFail
      */

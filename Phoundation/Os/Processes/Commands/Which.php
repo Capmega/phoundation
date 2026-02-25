@@ -46,7 +46,7 @@ class Which extends Command
             $result   = reset($output);
             $realpath = realpath($result);
             if (!$realpath) {
-                // So which gave us a path that doesn't exist or that we cannot access
+                // So which gave us a path that does not exist or that we cannot access
                 throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [
                     ':command' => $command,
                     ':result'  => $result,

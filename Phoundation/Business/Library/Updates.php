@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.10.0';
+        return '0.10.1';
     }
 
 
@@ -348,6 +348,72 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'business_invoices_items',
                 'business_providers',
             ]);
+
+        })->addUpdate('0.10.1', function () {
+            // Fix indices to include `status` for business_companies and business_branches
+            $tables = [
+                'business_companies',
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'categories_name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('categories_id_name_status', true)
+                                ->addIndex('UNIQUE KEY `categories_id_name_status` (`categories_id`, `name`, `status`)');
+            }
+
+            // Fix indices to include `status` for business_companies and business_branches
+            $tables = [
+                'business_branches'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'company_name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('companies_id_name_status', true)
+                                ->addIndex('UNIQUE KEY `companies_id_name_status` (`companies_id`, `name`, `status`)');
+            }
+
+            // Fix business_departments
+            $_table  = sql()->getSchemaObject()->getTableObject('business_departments');
+            $indices = [
+                'company_branch_name',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('companies_id_branches_id_name_status', true)
+                            ->addIndex('UNIQUE KEY `companies_id_branches_id_name_status` (`companies_id`, `branches_id`, `name`, `status`)');
+
+            // Fix business_invoices
+            $_table  = sql()->getSchemaObject()->getTableObject('business_invoices');
+            $indices = [
+                'invoice_number',
+            ];
+
+            foreach ($indices as $index) {
+                $_table->alter()->dropIndex($index, true);
+            }
+
+            $_table->alter()->dropIndex('invoice_number_status', true)
+                            ->addIndex('UNIQUE KEY `invoice_number_status` (`invoice_number`, `status`)');
+
         });
     }
 }

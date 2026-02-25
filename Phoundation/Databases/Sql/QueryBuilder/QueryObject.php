@@ -230,7 +230,7 @@ class QueryObject implements QueryObjectInterface
     /**
      * Returns the source of this object
      *
-     * @note: This object doesn't work with "source" data as such, so it will be constructed upon request
+     * @note: This object does not work with "source" data as such, so it will be constructed upon request
      *
      * @return array
      */
@@ -349,7 +349,6 @@ class QueryObject implements QueryObjectInterface
     public function setBoundVariables(array $bound_variables): static
     {
         $this->bound_variables = $bound_variables;
-
         return $this;
     }
 
@@ -369,7 +368,6 @@ class QueryObject implements QueryObjectInterface
         }
 
         $this->bound_variables[Strings::ensureBeginsWith($column, ':')] = $value;
-
         return $this;
     }
 

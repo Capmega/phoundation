@@ -12,11 +12,11 @@ interface VersionFileInterface extends VersionInterface
     /**
      * Sets the version file
      *
-     * @param EnumVersionFileType|null $o_version_file
+     * @param EnumVersionFileType|null $_version_file
      *
      * @return static
      */
-    public function setVersionFileTypeObject(?EnumVersionFileType $o_version_file): static;
+    public function setVersionFileTypeObject(?EnumVersionFileType $_version_file): static;
 
     /**
      * Returns the version file

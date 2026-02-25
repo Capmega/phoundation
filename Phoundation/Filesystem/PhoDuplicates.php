@@ -51,21 +51,21 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
     /**
      * The parent_directory object that generated this FsDuplicates object
      *
-     * @var PhoPathInterface|null $o_parent_path
+     * @var PhoPathInterface|null $_parent_path
      */
-    protected ?PhoPathInterface $o_parent_path;
+    protected ?PhoPathInterface $_parent_path;
 
 
     /**
      * PhoDuplicates class constructor
      *
-     * @param PhoPathInterface|null                            $o_parent_path
+     * @param PhoPathInterface|null                            $_parent_path
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
-    public function __construct(?PhoPathInterface $o_parent_path = null, IteratorInterface|array|string|PDOStatement|null $source = null)
+    public function __construct(?PhoPathInterface $_parent_path = null, IteratorInterface|array|string|PDOStatement|null $source = null)
     {
         $this->setAcceptedDataTypes(PhoFile::class);
-        $this->o_parent_path = $o_parent_path;
+        $this->_parent_path = $_parent_path;
         parent::__construct($source);
     }
 
@@ -77,7 +77,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
      */
     public function getParentPathObject(): ?PhoPathInterface
     {
-        return $this->o_parent_path;
+        return $this->_parent_path;
     }
 
 
@@ -121,7 +121,7 @@ class PhoDuplicates extends Iterator implements PhoDuplicatesInterface
      */
     public function deleteKeepFirst(): static
     {
-        $this->deleted_files = new PhoFiles($this->o_parent_path);
+        $this->deleted_files = new PhoFiles($this->_parent_path);
 
         foreach ($this->source as $files) {
             $first = true;

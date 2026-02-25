@@ -63,11 +63,11 @@ interface ElementInterface extends ComponentInterface, ElementAttributesInterfac
     /**
      * Sets the definition
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(DefinitionInterface|null $o_definition): static;
+    public function setDefinitionObject(DefinitionInterface|null $_definition): static;
 
 
     /**
@@ -81,11 +81,11 @@ interface ElementInterface extends ComponentInterface, ElementAttributesInterfac
     /**
      * Sets the anchor for this element
      *
-     * @param UrlInterface|AnchorInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $_anchor
      *
      * @return Span
      */
-    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static;
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $_anchor): static;
 
 
     /**

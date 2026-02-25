@@ -78,7 +78,7 @@ trait TraitDataEntryHostname
      */
     protected function setSeoHostnameFromHostname(?string $hostname): static
     {
-        // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL won't find
+        // Get SEO name and ensure that the seo_name does NOT surpass the name maxlength because MySQL will not find
         // the entry if it does!
         try {
             if ($hostname) {
@@ -93,7 +93,7 @@ trait TraitDataEntryHostname
             }
 
         } catch (SqlTableDoesNotExistException $e) {
-            // Crap, the table we are working on doesn't exist, WTF? No biggie, we are likely in init mode, and
+            // Crap, the table we are working on does not exist, WTF? No biggie, we are likely in init mode, and
             // then we can ignore this issue as we are likely working from configuration instead
             if (!Core::inInitState()) {
                 throw $e;

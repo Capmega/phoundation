@@ -225,20 +225,20 @@ interface UrlInterface
     /**
      * Adds the specified right to the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function addRight(RightInterface|string|null $o_right): static;
+    public function addRight(RightInterface|string|null $_right): static;
 
     /**
      * Removes the specified right from the list
      *
-     * @param RightInterface|string|null $o_right
+     * @param RightInterface|string|null $_right
      *
      * @return static
      */
-    public function removeRight(RightInterface|string|null $o_right): static;
+    public function removeRight(RightInterface|string|null $_right): static;
 
     /**
      * Returns the rights required by any user to view this URL using the current routing parameters
@@ -251,34 +251,34 @@ interface UrlInterface
     /**
      * Returns true if the current session user (or the specified one) has access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return bool
      */
-    public function userHasAccess(?UserInterface $o_user = null, bool $use_cache = true): bool;
+    public function userHasAccess(?UserInterface $_user = null, bool $use_cache = true): bool;
 
 
     /**
-     * Throws an AccessDeniedException if the current session user (or the specified one) doesn't have access to this URL
+     * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      * @param bool               $use_cache
      *
      * @return static
      * @throws AccessDeniedException
      */
-    public function checkUserAccess(?UserInterface $o_user = null, bool $use_cache = true): static;
+    public function checkUserAccess(?UserInterface $_user = null, bool $use_cache = true): static;
 
     /**
      * Returns an Anchor object with this URL
      *
      * @param string|null           $content
-     * @param EnumAnchorTarget|null $o_target
+     * @param EnumAnchorTarget|null $_target
      *
      * @return AnchorInterface
      */
-    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $o_target = null): AnchorInterface;
+    public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $_target = null): AnchorInterface;
 
     /**
      * Returns the components for the current URL.
@@ -438,4 +438,14 @@ interface UrlInterface
      * @return static
      */
     public function addCurrentQueries(): static;
+
+    /**
+     * Performs a search / replace on this URL's source
+     *
+     * @param array $replace Contains all the search keys to replace with the values, key => value is search => replace.
+     * @param bool  $regex   If true, the keys should be regular expressions to perform more complex replacements
+     *
+     * @return static
+     */
+    public function replace(array $replace, bool $regex = false): static;
 }

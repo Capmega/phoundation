@@ -81,7 +81,7 @@ class LocalCache
             }
         }
 
-        // The specified key / subkey doesn't exist
+        // The specified key / subkey does not exist
         return null;
     }
 
@@ -105,7 +105,7 @@ class LocalCache
         }
 
         if ($return === null) {
-            // Entry doesn't exist, generate it now
+            // Entry does not exist, generate it now
             return static::set($callback($key, $sub_key), $key, $sub_key);
         }
 
@@ -142,7 +142,7 @@ class LocalCache
         }
 
         if ($return === null) {
-            // Entry doesn't exist, generate the list now, the entry SHOULD be in there somewhere
+            // Entry does not exist, generate the list now, the entry SHOULD be in there somewhere
             $return = $callback($datatype);
 
             // Ensure the callback return datatype matches the required datatype

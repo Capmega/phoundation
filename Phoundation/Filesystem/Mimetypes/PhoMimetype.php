@@ -94,41 +94,41 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * Returns a new mimetype object
      *
-     * @param PhoPathInterface $o_path
+     * @param PhoPathInterface $_path
      *
      * @return static
      */
-    public static function newFromPath(PhoPathInterface $o_path): static
+    public static function newFromPath(PhoPathInterface $_path): static
     {
-        return static::new()->setPathObject($o_path);
+        return static::new()->setPathObject($_path);
     }
 
 
     /**
      * Sets the file property and reloads the mimetype data based off the path mimetype
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static
+    public function setPathObject(?PhoPathInterface $_path): static
     {
-        $this->__setPathObject($o_path);
+        $this->__setPathObject($_path);
 
         try {
             return $this->load([
-                'mimetype'  => $o_path->getMimetype(),
-                'extension' => $o_path->getExtension(),
+                'mimetype'  => $_path->getMimetype(),
+                'extension' => $_path->getExtension(),
                 'priority'  => 0
             ]);
 
         } catch (DataEntryNotExistsException) {
             // This mimetype is not supported or found, load nothing
             Log::warning(ts('Not loading mimetype data for path ":path", no mimetype available in database or configuration for identifier ":data"', [
-                ':path' => $o_path,
+                ':path' => $_path,
                 ':data' => [
-                    'mimetype'  => $o_path->getMimetype(),
-                    'extension' => $o_path->getExtension(),
+                    'mimetype'  => $_path->getMimetype(),
+                    'extension' => $_path->getExtension(),
                     'priority'  => 0
                 ]
             ]), 5);
@@ -360,13 +360,13 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return PhoMimetype
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName()
+        $_definitions->add(DefinitionFactory::newName()
                                              ->setOptional(false)
                                              ->setInputType(EnumInputType::name)
                                              ->setSize(6)
@@ -403,8 +403,8 @@ class PhoMimetype extends DataEntry implements PhoMimetypeInterface
                                            ->setMaxLength(128)
                                            ->setLabel('Mimetype')
                                            ->setHelpText(tr('The mimetype for this extension'))
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->matchesRegex('/\w+\/[a-z0-9-.]+/');
                                            }))
 
                     ->add(DefinitionFactory::newNumber('priority')

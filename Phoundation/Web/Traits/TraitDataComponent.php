@@ -26,7 +26,7 @@ trait TraitDataComponent
      *
      * @var ComponentInterface|null
      */
-    protected ?ComponentInterface $o_component = null;
+    protected ?ComponentInterface $_component = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataComponent
      */
     public function getComponentObject(): ?ComponentInterface
     {
-        return $this->o_component;
+        return $this->_component;
     }
 
 
     /**
      * Sets the web HTML component object
      *
-     * @param ComponentInterface|null $o_component
+     * @param ComponentInterface|null $_component
      *
      * @return static
      */
-    public function setComponentObject(?ComponentInterface $o_component): static
+    public function setComponentObject(?ComponentInterface $_component): static
     {
-        $this->o_component = $o_component;
+        $this->_component = $_component;
         return $this;
     }
 }

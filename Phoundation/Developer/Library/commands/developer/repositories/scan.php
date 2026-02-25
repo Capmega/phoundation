@@ -73,17 +73,17 @@ Log::cli(ts('Scanning ":path" for repositories, this might take a few seconds...
     ':path' => $argv['path']
 ]), 'action');
 
-$o_repositories = Repositories::new()->scan($argv['path'], !$argv['no_auto_disable'], !$argv['no_delete_gone']);
+$_repositories = Repositories::new()->scan($argv['path'], !$argv['no_auto_disable'], !$argv['no_delete_gone']);
 
 
 // Process permission denied errors
-if ($o_repositories->getNumberOfResultsWithPermissionDenied()) {
+if ($_repositories->getNumberOfResultsWithPermissionDenied()) {
     Log::cli(ts('Encountered "permission denied" on  following ":count" paths', [
-        ':count' => $o_repositories->getNumberOfResultsWithPermissionDenied()
+        ':count' => $_repositories->getNumberOfResultsWithPermissionDenied()
     ]), 'warning');
 
     if (Debug::isEnabled()) {
-        foreach ($o_repositories->getResultsWithPermissionDenied() as $repository) {
+        foreach ($_repositories->getResultsWithPermissionDenied() as $repository) {
             Log::cli($repository, 'warning');
         }
     }
@@ -92,7 +92,7 @@ if ($o_repositories->getNumberOfResultsWithPermissionDenied()) {
 
 // Done!
 Log::cli(ts('Found ":new" new repositories, deleted ":deleted" repositories, there are ":count" repositories in the database', [
-    ':new'     => $o_repositories->getNewCount(),
+    ':new'     => $_repositories->getNewCount(),
     ':count'   => Repositories::new()->load()->getCount(),
-    ':deleted' => $o_repositories->getDeletedCount()
+    ':deleted' => $_repositories->getDeletedCount()
 ]), 'success');

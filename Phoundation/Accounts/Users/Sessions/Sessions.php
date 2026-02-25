@@ -189,9 +189,9 @@ class Sessions
         $max_seconds = $max_seconds ?? config()->getInteger('web.sessions.cookies.lifetime', 0);
 
         while ($session = $sessions->fetch()) {
-            $o_session = UserSession::new($session, false);
+            $_session = UserSession::new($session, false);
 
-            if (!$o_session->getIdentifier() or !$o_session->get('last_activity') or ((time() - $o_session->get('last_activity')) > $max_seconds)) {
+            if (!$_session->getIdentifier() or !$_session->get('last_activity') or ((time() - $_session->get('last_activity')) > $max_seconds)) {
                 $count++;
                 static::stop($session);
             }

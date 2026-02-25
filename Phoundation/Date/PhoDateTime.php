@@ -720,7 +720,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
     {
-        // DateInterval doesn't calculate milliseconds / microseconds, do that manually
+        // DateInterval does not calculate milliseconds / microseconds, do that manually
         $diff    = new PhoDateInterval(parent::diff($targetObject, $absolute), $roundup);
         $diff->u = (int) $this->format('u') - (int) $targetObject->format('u');
 
@@ -878,7 +878,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function isPeriodBegin(): bool
     {
-        return in_array($this->format('d'), ['1', '16'], true);
+        return in_array($this->format('j'), ['1', '16'], true);
     }
 
 

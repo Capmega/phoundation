@@ -36,11 +36,11 @@ interface GitInterface
     /**
      * Returns the path for this ChangedFiles object
      *
-     * @param PhoDirectoryInterface $o_directory
+     * @param PhoDirectoryInterface $_directory
      *
      * @return static
      */
-    public function setDirectoryObject(PhoDirectoryInterface $o_directory): static;
+    public function setDirectoryObject(PhoDirectoryInterface $_directory): static;
 
     /**
      * Clone the specified URL to this path

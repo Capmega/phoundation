@@ -244,7 +244,7 @@ class PhoDate extends PhoDateTime implements PhoDateInterface
      * Translate the specified day and month names
      *
      * Translate the date
-     * Seriously PHP, you couldn't add either translatable dates to
+     * Seriously PHP, you could not add either translatable dates to
      * date() or have strftime() have the same format? strftime() lacks
      * loads of items, so it cant be used, and date() cannot have
      * translated dates. Great!

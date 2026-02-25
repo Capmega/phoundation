@@ -96,12 +96,12 @@ trait TraitDataEntryUser
     /**
      * Returns the users_id for this user
      *
-     * @param UserInterface|null $o_object
+     * @param UserInterface|null $_object
      *
      * @return static
      */
-    public function setUserObject(?UserInterface $o_object): static
+    public function setUserObject(?UserInterface $_object): static
     {
-        return $this->setVirtualObject('users', $o_object);
+        return $this->setVirtualObject('users', $_object);
     }
 }

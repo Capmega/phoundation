@@ -246,7 +246,7 @@ class UserSession implements UserSessionInterface
             }
 
             if ($exception) {
-                // The key doesn't exist
+                // The key does not exist
                 throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
                     ':key'   => $key,
                     ':class' => $this::class,
@@ -254,7 +254,7 @@ class UserSession implements UserSessionInterface
             }
 
         } elseif ($exception) {
-            // The session data doesn't exist
+            // The session data does not exist
             throw new NotExistsException(tr('The ":class" object does not have session data loaded', [
                 ':key'   => $key,
                 ':class' => $this::class,
@@ -333,7 +333,7 @@ class UserSession implements UserSessionInterface
 
 
     /**
-     * Returns the session data for the specified session, or NULL if it `doesn't exist
+     * Returns the session data for the specified session, or NULL if it `does not exist
      *
      * @param string      $identifier
      * @param string|null $handler

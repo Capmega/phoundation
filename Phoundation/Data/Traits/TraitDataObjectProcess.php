@@ -24,9 +24,9 @@ trait TraitDataObjectProcess
     /**
      * The process_name for this object
      *
-     * @var ProcessInterface|null $o_process
+     * @var ProcessInterface|null $_process
      */
-    protected ?ProcessInterface $o_process = null;
+    protected ?ProcessInterface $_process = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectProcess
      */
     public function getProcessObject(): ?ProcessInterface
     {
-        return $this->o_process;
+        return $this->_process;
     }
 
 
     /**
      * Sets the process name
      *
-     * @param ProcessInterface|null $o_process
+     * @param ProcessInterface|null $_process
      *
      * @return static
      */
-    protected function setProcessObject(?ProcessInterface $o_process): static
+    protected function setProcessObject(?ProcessInterface $_process): static
     {
-        $this->o_process = $o_process;
+        $this->_process = $_process;
         return $this;
     }
 }

@@ -65,7 +65,7 @@ $relevant_card = Card::new()
                      ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
                                   AnchorBlock::new(Url::new('/my/settings.html')->makeWww(), tr('Manage my settings')) .
                                   AnchorBlock::new(Url::new('/my/password.html')->makeWww(), tr('Change my password')) .
-                                  hr(AnchorBlock::new(Url::new('/timesheets/day.html')->makeWww(), tr('Timesheet')) .
+                                  hr(AnchorBlock::new(Url::new('/my/timesheets/day.html')->makeWww(), tr('Timesheet')) .
                                      AnchorBlock::new(Url::new('/my/billing/parts.html')->makeWww()->addRedirect(Url::newCurrent()), tr('My billing parts'))));
 
 

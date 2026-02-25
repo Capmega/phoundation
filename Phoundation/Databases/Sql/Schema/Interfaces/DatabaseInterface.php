@@ -60,9 +60,9 @@ interface DatabaseInterface extends SchemaAbstractInterface
      *
      * @param string $name
      *
-     * @return Table
+     * @return TableInterface
      */
-    public function table(string $name): Table;
+    public function getTableObject(string $name): TableInterface;
 
 
     /**

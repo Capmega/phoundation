@@ -32,7 +32,7 @@ class Updates extends Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.0';
+        return '0.9.1';
     }
 
 
@@ -490,22 +490,46 @@ class Updates extends Libraries\Updates
             ]);
 
         })->addUpdate('0.9.0', function () {
-            $o_table = sql()->getSchemaObject()->getTableObject('core_versions');
+            $_table = sql()->getSchemaObject()->getTableObject('core_versions');
 
-            if (!$o_table->columnExists('phoundation_version')) {
-                $o_table->alter()->addColumn('`phoundation_version` bigint NULL', 'AFTER `version`');
+            if (!$_table->columnExists('phoundation_version')) {
+                $_table->alter()->addColumn('`phoundation_version` bigint NULL', 'AFTER `version`');
             }
 
-            if (!$o_table->indexExists('phoundation_version')) {
-                $o_table->alter()->addIndex('KEY `phoundation_version` (`phoundation_version`)');
+            if (!$_table->indexExists('phoundation_version')) {
+                $_table->alter()->addIndex('KEY `phoundation_version` (`phoundation_version`)');
             }
 
-            if (!$o_table->columnExists('project_version')) {
-                $o_table->alter()->addColumn('`project_version` bigint NULL', 'AFTER `version`');
+            if (!$_table->columnExists('project_version')) {
+                $_table->alter()->addColumn('`project_version` bigint NULL', 'AFTER `version`');
             }
 
-            if (!$o_table->indexExists('project_version')) {
-                $o_table->alter()->addIndex('KEY `project_version` (`project_version`)');
+            if (!$_table->indexExists('project_version')) {
+                $_table->alter()->addIndex('KEY `project_version` (`project_version`)');
+            }
+
+        })->addUpdate('0.9.1', function () {
+            // Fix indices to include `status` for business_companies and business_branches
+            $tables = [
+                'core_plugins',
+                'core_templates'
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                    'class',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->dropIndex('class_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)')
+                                ->addIndex('UNIQUE KEY `class_status` (`class`, `status`)');
             }
         });
     }

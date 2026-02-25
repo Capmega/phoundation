@@ -153,23 +153,23 @@ class User extends DataEntry implements UserInterface
     /**
      * The extra email addresses for this user
      *
-     * @var EmailsInterface $o_emails
+     * @var EmailsInterface $_emails
      */
-    protected EmailsInterface $o_emails;
+    protected EmailsInterface $_emails;
 
     /**
      * The extra phones for this user
      *
-     * @var PhonesInterface $o_phones
+     * @var PhonesInterface $_phones
      */
-    protected PhonesInterface $o_phones;
+    protected PhonesInterface $_phones;
 
     /**
      * The roles for this user
      *
-     * @var RolesInterface $o_roles
+     * @var RolesInterface $_roles
      */
-    protected RolesInterface $o_roles;
+    protected RolesInterface $_roles;
 
     /**
      * Columns that will NOT be inserted
@@ -186,7 +186,7 @@ class User extends DataEntry implements UserInterface
      *
      * @var PhoLocaleInterface
      */
-    protected PhoLocaleInterface $o_locale;
+    protected PhoLocaleInterface $_locale;
 
 
     /**
@@ -324,7 +324,7 @@ class User extends DataEntry implements UserInterface
     /**
      * Returns a single user object for a single user that has the specified role.
      *
-     * @note Will throw a NotExistsException if the specified role doesn't exist
+     * @note Will throw a NotExistsException if the specified role does not exist
      *
      * @param RoleInterface|array|string|int $role
      *
@@ -382,7 +382,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = $this->loadFromAlternativeEmail();
 
             if (!$user) {
-                // The requested user identifier doesn't exist
+                // The requested user identifier does not exist
                 throw $e;
             }
         }
@@ -429,7 +429,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
         }
 
-        // Couldn't load user from alternative email address
+        // Could not load user from alternative email address
         return null;
     }
 
@@ -564,7 +564,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 ':hook' => $hook->getFile('authenticate')->getRootname(),
             ]));
 
-            // The hook file doesn't exist, try internal authentication
+            // The hook file does not exist, try internal authentication
             $user = User::doAuthenticate($hook->getArgument('identifier'), $hook->getArgument('password'), $hook->getArgument('authentication'), $hook->getArgument('domain'));
 
         } elseif (!$user instanceof UserInterface) {
@@ -726,11 +726,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         $identifier       = ['email' => $this->getEmail()];
-        $o_authentication = Authentication::new()
+        $_authentication = Authentication::new()
                                           ->setAction($action)
                                           ->setAccount(Json::encode($identifier, JSON_OBJECT_AS_ARRAY));
 
-        static::doAuthenticateDomain($identifier, $this, $o_authentication, $domain);
+        static::doAuthenticateDomain($identifier, $this, $_authentication, $domain);
         return $this;
     }
 
@@ -961,13 +961,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
             // Get user default roles and the user roles object
             $roles   = config()->getArray('security.accounts.roles.default', []);
-            $o_roles = $this->getRolesObject();
+            $_roles = $this->getRolesObject();
 
             if ($roles) {
                 // Add all default roles one by one
                 foreach (Arrays::force($roles) as $role) {
                     try {
-                        $o_roles->add(Role::new()->loadOrThis($role)->save());
+                        $_roles->add(Role::new()->loadOrThis($role)->save());
 
                     } catch (DataEntryNotExistsException $e) {
                         // Oh noes! This default role does not exist!
@@ -985,7 +985,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 }
 
                 // Write the default roles to the database
-                $o_roles->save();
+                $_roles->save();
             }
         }
 
@@ -1208,6 +1208,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             }
 
             $name = trim($name);
+            $name = Strings::capitalizeWords($name);
 
             if (!($name)) {
                 if (!($name = $this->getUsername())) {
@@ -1345,18 +1346,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             ]));
         }
 
-        if (!isset($this->o_roles)) {
+        if (!isset($this->_roles)) {
             if ($this->getId(false)) {
-                $this->o_roles = RolesBySeoName::new()
+                $this->_roles = RolesBySeoName::new()
                                                ->setParentObject($this)
                                                ->load();
 
             } else {
-                $this->o_roles = RolesBySeoName::new()->setParentObject($this);
+                $this->_roles = RolesBySeoName::new()->setParentObject($this);
             }
         }
 
-        return $this->o_roles;
+        return $this->_roles;
     }
 
 
@@ -2356,19 +2357,19 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getEmailsObject(): EmailsInterface
     {
-        if (!isset($this->o_emails)) {
+        if (!isset($this->_emails)) {
             if ($this->isNew()) {
-                $this->o_emails = Emails::new()->setParentObject($this);
+                $this->_emails = Emails::new()->setParentObject($this);
 
             } else {
-                $this->o_emails = Emails::new()
+                $this->_emails = Emails::new()
                                         ->setParentObject($this)
                                         ->load();
             }
 
         }
 
-        return $this->o_emails;
+        return $this->_emails;
     }
 
 
@@ -2391,18 +2392,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getPhonesObject(): PhonesInterface
     {
-        if (!isset($this->o_phones)) {
+        if (!isset($this->_phones)) {
             if ($this->isNew()) {
-                $this->o_phones = Phones::new()->setParentObject($this);
+                $this->_phones = Phones::new()->setParentObject($this);
 
             } else {
-                $this->o_phones = Phones::new()
+                $this->_phones = Phones::new()
                                         ->setParentObject($this)
                                         ->load();
             }
         }
 
-        return $this->o_phones;
+        return $this->_phones;
     }
 
 
@@ -2737,11 +2738,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         parent::__construct(false);
 
-        $o_user = $this->loadOrThis(['email' => 'guest']);
+        $_user = $this->loadOrThis([
+            'status' => 'system',
+            'email'  => 'guest'
+        ]);
 
-        if ($o_user !== $this) {
-            $this->setSource($o_user->getSourceUnprocessed())
-                 ->setObjectState($o_user->getObjectState());
+        if ($_user !== $this) {
+            $this->setSource($_user->getSourceUnprocessed())
+                 ->setObjectState($_user->getObjectState());
         }
 
         $this->source['redirect'] = null;
@@ -2750,7 +2754,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['nickname'] = tr('Guest');
 
         if ($this->isNew()) {
-            // Guest user doesn't yet exist, save it now. Since guest user MAY be created automatically by guest itself
+            // Guest user does not yet exist, save it now. Since guest user MAY be created automatically by guest itself
             // we will NOT save the created_by column (making created_by the system user)
             $this->setMetaColumns([
                 'id',
@@ -2772,7 +2776,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function initSystemUser(): static
     {
-        // System user is readonly and also doesn't register meta-requests
+        // System user is readonly and also does not register meta-requests
         $this->readonly     = true;
         $this->meta_enabled = false;
 
@@ -2784,8 +2788,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         $this->source['email']    = 'system';
         $this->source['nickname'] = tr('System');
 
-        $this->o_roles  = RolesBySeoName::new()->load(['name' => 'god']);
-        $this->o_rights = RightsBySeoName::new()->load(['name' => 'god']);
+        $this->_roles  = RolesBySeoName::new()->load(['name' => 'god']);
+        $this->_rights = RightsBySeoName::new()->load(['name' => 'god']);
 
         return $this;
     }
@@ -2909,8 +2913,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getLocaleObject(): PhoLocaleInterface
     {
-        if (empty($this->o_locale)) {
-            $this->o_locale = new PhoLocale($this);
+        if (empty($this->_locale)) {
+            $this->_locale = new PhoLocale($this);
         }
 
         return new PhoLocale($this);
@@ -2920,14 +2924,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the available data keys for the User class
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->get('status')->setNullDisplay(tr('Ok'));
-        $o_definitions->add(Definition::new('remote_id')
+        $_definitions->get('status')->setNullDisplay(tr('Ok'));
+        $_definitions->add(Definition::new('remote_id')
                                       ->setOptional(true)
                                       ->setRender(false)
                                       ->setInputType(EnumInputType::number))
@@ -2982,10 +2986,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                     ->add(DefinitionFactory::newDivider()
                                            ->setRender(function() {
-                                               return $this->o_definitions->getDefinitionRender('last_sign_in')
-                                                  and $this->o_definitions->getDefinitionRender('sign_in_count')
-                                                  and $this->o_definitions->getDefinitionRender('authentication_failures')
-                                                  and $this->o_definitions->getDefinitionRender('locked_until');
+                                               return $this->_definitions->getDefinitionRender('last_sign_in')
+                                                  and $this->_definitions->getDefinitionRender('sign_in_count')
+                                                  and $this->_definitions->getDefinitionRender('authentication_failures')
+                                                  and $this->_definitions->getDefinitionRender('locked_until');
                                            }))
 
                     ->add(DefinitionFactory::newEmail()
@@ -2993,20 +2997,20 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setSize(3)
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                // Email address is optional IF remote_id is specified.
                                                // Validate the email address.
-                                               $o_validator->orColumn('remote_id');
-                                               $o_validator->isUnique(tr('already exists as a primary email address'));
+                                               $_validator->orColumn('remote_id');
+                                               $_validator->isUnique(tr('already exists as a primary email address'));
 
                                                $exists = sql()->getRow('SELECT `id` 
                                                                         FROM   `accounts_emails` 
                                                                         WHERE  `email` = :email', [
-                                                                            ':email' => $o_validator->getSelectedValue(),
+                                                                            ':email' => $_validator->getSelectedValue(),
                                                ]);
 
                                                if ($exists) {
-                                                   $o_validator->addSoftFailure(tr('already exists as an additional email address'));
+                                                   $_validator->addSoftFailure(tr('already exists as an additional email address'));
                                                }
                                            }))
 
@@ -3018,8 +3022,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setCliAutoComplete(true)
                                     ->setLabel(tr('Restrict to domain(s)'))
                                     ->setHelpText(tr('The domain(s) where this user will be able to sign in'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isDomain();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isDomain();
                                     }))
 
                     ->add(Definition::new('username')
@@ -3030,8 +3034,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Username'))
                                     ->setHelpGroup(tr('Personal information'))
                                     ->setHelpText(tr('The unique username for this user.'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isName(64);
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isName(64);
                                     }))
 
                     ->add(DefinitionFactory::newName('nickname')
@@ -3089,15 +3093,15 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Gender'))
                                     ->setHelpGroup(tr('Personal information'))
                                     ->setHelpText(tr('The gender for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->hasMaxCharacters(6);
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->hasMaxCharacters(6);
                                     }))
 
                     ->add(DefinitionFactory::newUsersEmail('leaders_email')
                                            ->setCliColumn('--leader USER-EMAIL')
                                            ->clearValidationFunctions()
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->orColumn('leaders_id')
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->orColumn('leaders_id')
                                                          ->isEmail()
                                                          ->setColumnFromQuery('leaders_id', 'SELECT `id` 
                                                                                              FROM   `accounts_users` 
@@ -3112,8 +3116,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setLabel(tr('Leader'))
                                            ->setHelpGroup(tr('Hierarchical information'))
                                            ->setHelpText(tr('The user that is the leader for this user'))
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->orColumn('leaders_email')
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->orColumn('leaders_email')
                                                          ->isDbId()
                                                          ->isQueryResult('SELECT `id` 
                                                                           FROM   `accounts_users` 
@@ -3132,8 +3136,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Is leader'))
                                     ->setHelpGroup(tr('Hierarchical information'))
                                     ->setHelpText(tr('Sets if this user is a leader itself'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isBoolean();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isBoolean();
                                     }))
 
                     ->add(DefinitionFactory::newCode('code')
@@ -3150,8 +3154,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setMin(1)
                                     ->setMax(9)
                                     ->setHelpText(tr('The priority for this user, between 1 and 9'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isInteger();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isInteger();
                                     }))
 
                     ->add(DefinitionFactory::newDateTime('birthdate')
@@ -3159,10 +3163,10 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setCliColumn('-b,--birthdate')
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('The birthdate for this user'))
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->sanitizeToDateTime()
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->sanitizeToDateTime()
                                                            ->isBefore(PhoDateTime::new(), true)
-                                                           ->sanitizeTransform(function ($value, $source, $o_validator) {
+                                                           ->sanitizeTransform(function ($value, $source, $_validator) {
                                                                return $value?->format('Y-m-d');
                                                            });
                                            }))
@@ -3171,9 +3175,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setSize(3)
                                            ->setHelpGroup(tr('Personal information'))
                                            ->setHelpText(tr('Main phone number where this user may be contacted'))
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                // Validate the email address
-                                               $o_validator->isUnique(tr('already exists as a primary phone number'));
+                                               $_validator->isUnique(tr('already exists as a primary phone number'));
                                            }))
 
                     ->add(DefinitionFactory::newLanguagesName()
@@ -3195,8 +3199,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Address'))
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The address where this user resides'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isPrintable();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isPrintable();
                                     }))
 
                     ->add(Definition::new('zipcode')
@@ -3209,8 +3213,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Zip code'))
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The zip code (postal code) where this user resides'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isPrintable();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isPrintable();
                                     }))
 
                     ->add(DefinitionFactory::newCountriesName()
@@ -3292,8 +3296,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Accuracy'))
                                     ->setHelpGroup(tr('Location information'))
                                     ->setHelpText(tr('The accuracy of this users location'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isFloat();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isFloat();
                                     }))
 
                     ->add(Definition::new('type')
@@ -3305,8 +3309,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Type'))
                                     ->setHelpGroup(tr(''))
                                     ->setHelpText(tr('The type classification for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isName();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isName();
                                     }))
 
                     ->add(Definition::new('keywords')
@@ -3318,9 +3322,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setLabel(tr('Keywords'))
                                     ->setHelpGroup(tr('Account information'))
                                     ->setHelpText(tr('The keywords for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isPrintable();
-                                        //$o_validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isPrintable();
+                                        //$_validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
                                     }))
 
                     ->add(DefinitionFactory::newDivider('redirect-divider'))
@@ -3334,7 +3338,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setLabel(tr('Redirect URL'))
                                            ->setHelpGroup(tr('Account information'))
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
-                                           ->addPreSaveFunctions(function (DefinitionInterface $o_definition, mixed $value) {
+                                           ->addPreSaveFunctions(function (DefinitionInterface $_definition, mixed $value) {
                                                // User redirect URL's must be stored without hostname and language specification!
                                                $value = trim((string) $value);
 
@@ -3393,7 +3397,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setRender(false))
 
                     ->add(DefinitionFactory::newCode('notifications_hash')
-                                    // This hash is set directly so it won't really be touched by DataEntry
+                                    // This hash is set directly so it will not really be touched by DataEntry
                                     ->setOptional(true)
                                     ->setDirectUpdate(true)
                                     ->setRender(false)
@@ -3408,8 +3412,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setMaxLength(64)
                                     ->setNullDisplay(false)
                                     ->setHelpText(tr('The password for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isStrongPassword();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isStrongPassword();
                                     }))
 
                     ->add(DefinitionFactory::newCode('mfa_code')
@@ -3420,8 +3424,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setInputType(EnumInputType::password)
                                     ->setMaxLength(64)
                                     ->setHelpText(tr('The MFA code for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isCode(max_characters: 64);
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isCode(max_characters: 64);
                                     }))
 
                     ->add(DefinitionFactory::newNumber('mfa_timeslice')
@@ -3431,16 +3435,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                     ->setCliAutoComplete(true)
                                     ->setInputType(EnumInputType::positiveInteger)
                                     ->setHelpText(tr('The MFA timeslice for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                        $o_validator->isInteger()->isPositive();
+                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                        $_validator->isInteger()->isPositive();
                                     }))
 
                     ->add(DefinitionFactory::newId('profile_images_id')
                                            ->setOptional(true)
                                            ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               if ($o_validator->getSelectedValue()) {
-                                                   $o_validator->isTrue(ProfileImage::exists($o_validator->getSelectedValue()), 'profile image must exist');
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               if ($_validator->getSelectedValue()) {
+                                                   $_validator->isTrue(ProfileImage::exists($_validator->getSelectedValue()), 'profile image must exist');
                                                }
                                             }))
 
@@ -3448,14 +3452,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setLabel('Profile image')
                                            ->setOptional(true)
                                            ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               if ($o_validator->getSelectedValue()) {
+                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               if ($_validator->getSelectedValue()) {
                                                    if ($this->isNew()) {
                                                        // Cannot save a profile image with a user that does not yet exist in the database
-                                                       $o_validator->addSoftFailure(tr('requires that the user is saved first'));
+                                                       $_validator->addSoftFailure(tr('requires that the user is saved first'));
 
                                                    } else {
-                                                       $o_validator->isFile(
+                                                       $_validator->isFile(
                                                            PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
                                                        );
                                                    }

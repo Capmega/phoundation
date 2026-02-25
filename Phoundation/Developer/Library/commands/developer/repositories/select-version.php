@@ -60,20 +60,20 @@ OPTIONAL ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->select('-c,--no-create')->isOptional()->isBoolean()
                      ->select('-r,--results')->isOptional()->isBoolean()
+                     ->select('suffix')->isOptional()->matchesRegex('/^[a-z0-9-]+$/i')
                      ->validate();
 
 
 // Synchronize all available repositories
-$o_repositories = Repositories::new()->load();
+$_repositories = Repositories::new()->load();
 
 Log::cli(ts('Automatically selecting branches for ":count" repositories, this might take a few seconds...', [
-    ':count' => $o_repositories->getCount()
+    ':count' => $_repositories->getCount()
 ]), 'action');
 
-$o_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
+$_repositories->selectVersionBranch($argv['suffix'], !$argv['no_create']);
 
 
 // Display results?

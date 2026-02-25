@@ -245,7 +245,7 @@ interface ProcessVariablesInterface extends Stringable
 
 
     /**
-     * Returns the CLI return values that are accepted as "success" and won't cause an exception
+     * Returns the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return array
      */
@@ -253,7 +253,7 @@ interface ProcessVariablesInterface extends Stringable
 
 
     /**
-     * Clears the CLI return values that are accepted as "success" and won't cause an exception
+     * Clears the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @return static This process so that multiple methods can be chained
      */
@@ -261,7 +261,7 @@ interface ProcessVariablesInterface extends Stringable
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array $exit_codes
      *
@@ -271,7 +271,7 @@ interface ProcessVariablesInterface extends Stringable
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param array $exit_codes
      *
@@ -281,7 +281,7 @@ interface ProcessVariablesInterface extends Stringable
 
 
     /**
-     * Sets the CLI return values that are accepted as "success" and won't cause an exception
+     * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
      * @param int $exit_code
      *
@@ -304,13 +304,13 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @note NULL means this local server
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static;
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static;
 
 
     /**

@@ -56,7 +56,7 @@ class Menu extends ElementsBlock implements MenuInterface
 
             if (array_key_exists('rights', $entry)) {
                 if (!Session::getUserObject()->hasAllRights($entry['rights'])) {
-                    // User doesn't have access
+                    // User does not have access
                     unset($source[$label]);
                     continue;
                 }

@@ -165,13 +165,13 @@ class Email extends DataEntry implements EmailInterface
     /**
      * Sets the available data keys for this entry
      *
-     * @param DefinitionsInterface $o_definitions
+     * @param DefinitionsInterface $_definitions
      *
      * @return static
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newCode('verification_code')
+        $_definitions->add(DefinitionFactory::newCode('verification_code')
                                              ->setOptional(true)
                                              ->setRender(false)
                                              ->setReadonly(true))
@@ -188,16 +188,16 @@ class Email extends DataEntry implements EmailInterface
                                              ->setSize(4)
                                              ->setOptional(true)
                                              ->setHelpText(tr('The extra email address for the user'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                  // Email cannot exist in accounts_users or accounts_emails!
-                                                 $o_validator->isUnique(tr('already exists as an additional email address'));
+                                                 $_validator->isUnique(tr('already exists as an additional email address'));
 
                                                  $exists = sql()->getRow('SELECT `id` FROM `accounts_users` WHERE `email` = :email', [
-                                                     ':email' => $o_validator->getSelectedValue(),
+                                                     ':email' => $_validator->getSelectedValue(),
                                                  ]);
 
                                                  if ($exists) {
-                                                     $o_validator->addSoftFailure(tr('value ":email" already exists as a primary email address', [':email' => $o_validator->getSelectedValue()]));
+                                                     $_validator->addSoftFailure(tr('value ":email" already exists as a primary email address', [':email' => $_validator->getSelectedValue()]));
                                                  }
                                              }))
 

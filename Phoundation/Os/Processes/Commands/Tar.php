@@ -52,7 +52,7 @@ class Tar extends Command
             return $target;
 
         } catch (ProcessFailedException $e) {
-            // The command tar failed, most of the time either $file doesn't exist, or we do not have access
+            // The command tar failed, most of the time either $file does not exist, or we do not have access
             static::handleException('tar', $e, function ($e) use ($file) {
                 PhoFile::new($file)->checkReadable($e);
             });
@@ -88,7 +88,7 @@ class Tar extends Command
             return $target;
 
         } catch (ProcessFailedException $e) {
-            // The command tar failed, most of the time either $file doesn't exist, or we do not have access
+            // The command tar failed, most of the time either $file does not exist, or we do not have access
             static::handleException('tar', $e, function ($e, $file, $line) use ($path) {
                 PhoFile::new($path)->checkReadable('tar', $e);
             });

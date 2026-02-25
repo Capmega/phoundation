@@ -3,7 +3,7 @@
 /**
  * Trait TraitEventHandler
  *
- * This trait adds support for managing an $o_events object in your class
+ * This trait adds support for managing an $_events object in your class
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://openpath.org/licenses/GPL-2.0 GNU Public License, Events 2
@@ -28,9 +28,9 @@ trait TraitEventHandler
     /**
      * The path to use
      *
-     * @var EventsInterface|null $o_events
+     * @var EventsInterface|null $_events
      */
-    protected ?EventsInterface $o_events = null;
+    protected ?EventsInterface $_events = null;
 
 
     /**
@@ -40,24 +40,24 @@ trait TraitEventHandler
      */
     public function getEventsObject(): EventsInterface
     {
-        if (empty($this->o_events)) {
-            $this->o_events = new Events();
+        if (empty($this->_events)) {
+            $this->_events = new Events();
         }
 
-        return $this->o_events;
+        return $this->_events;
     }
 
 
     /**
      * Sets the version object
      *
-     * @param EventsInterface $o_events The new Events handler class for this object
+     * @param EventsInterface $_events The new Events handler class for this object
      *
      * @return static
      */
-    public function setEventsObject(EventsInterface $o_events): static
+    public function setEventsObject(EventsInterface $_events): static
     {
-        $this->o_events = $o_events;
+        $this->_events = $_events;
         return $this;
     }
 

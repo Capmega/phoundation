@@ -30,18 +30,18 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
     /**
      * Tracks the filesystem for this subvolume
      *
-     * @var BtrfsFilesystemInterface $o_filesystem
+     * @var BtrfsFilesystemInterface $_filesystem
      */
-    protected BtrfsFilesystemInterface $o_filesystem;
+    protected BtrfsFilesystemInterface $_filesystem;
 
 
     /**
      * BtrfsSubvolume class constructor
      *
-     * @param BtrfsFilesystemInterface $o_filesystem
-     * @param PhoPathInterface|null    $o_path
+     * @param BtrfsFilesystemInterface $_filesystem
+     * @param PhoPathInterface|null    $_path
      */
-    public function __construct(BtrfsFilesystemInterface $o_filesystem, ?PhoPathInterface $o_path = null)
+    public function __construct(BtrfsFilesystemInterface $_filesystem, ?PhoPathInterface $_path = null)
     {
         parent::__construct();
     }
@@ -50,14 +50,14 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
     /**
      * Returns new static object
      *
-     * @param BtrfsFilesystemInterface $o_filesystem
-     * @param PhoPathInterface|null    $o_path
+     * @param BtrfsFilesystemInterface $_filesystem
+     * @param PhoPathInterface|null    $_path
      *
      * @return static
      */
-    public static function new(BtrfsFilesystemInterface $o_filesystem, ?PhoPathInterface $o_path = null): static
+    public static function new(BtrfsFilesystemInterface $_filesystem, ?PhoPathInterface $_path = null): static
     {
-        return new static ($o_filesystem, $o_path);
+        return new static ($_filesystem, $_path);
     }
 
 
@@ -68,20 +68,20 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function getFilesystemObject(): BtrfsFilesystemInterface
     {
-        return $this->o_filesystem;
+        return $this->_filesystem;
     }
 
 
     /**
      * Sets the BtrfsFilesystem object for this BtrsSubvolume object
      *
-     * @param BtrfsFilesystemInterface $o_filesystem
+     * @param BtrfsFilesystemInterface $_filesystem
      *
      * @return BtrfsSubvolume
      */
-    public function setFilesystemObject(BtrfsFilesystemInterface $o_filesystem): static
+    public function setFilesystemObject(BtrfsFilesystemInterface $_filesystem): static
     {
-        $this->o_filesystem = $o_filesystem;
+        $this->_filesystem = $_filesystem;
         return $this;
     }
 
@@ -95,16 +95,16 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function create(IteratorInterface|array|int|null $group_id = null): static
     {
-        $this->o_path->getDirectoryObject()->ensure();
-        $this->o_process->addArguments(['subvolume', 'create']);
+        $this->_path->getDirectoryObject()->ensure();
+        $this->_process->addArguments(['subvolume', 'create']);
 
         if ($group_id) {
             foreach (Arrays::force($group_id) as $group) {
-                $this->o_process->addArguments(['-i', $group]);
+                $this->_process->addArguments(['-i', $group]);
             }
         }
 
-        $this->o_process->executeReturnIterator();
+        $this->_process->executeReturnIterator();
         return $this;
     }
 
@@ -118,16 +118,16 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function delete(IteratorInterface|array|int|null $group_id = null): static
     {
-        $this->o_path->getDirectoryObject()->ensure();
-        $this->o_process->addArguments(['subvolume', 'create']);
+        $this->_path->getDirectoryObject()->ensure();
+        $this->_process->addArguments(['subvolume', 'create']);
 
         if ($group_id) {
             foreach (Arrays::force($group_id) as $group) {
-                $this->o_process->addArguments(['-i', $group]);
+                $this->_process->addArguments(['-i', $group]);
             }
         }
 
-        $this->o_process->executeReturnIterator();
+        $this->_process->executeReturnIterator();
         return $this;
     }
 
@@ -141,18 +141,18 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function list(): IteratorInterface
     {
-        $o_return = $this->o_process->addArguments(['subvolume', 'list'])
+        $_return = $this->_process->addArguments(['subvolume', 'list'])
                                     ->executeReturnIterator()
                                     ->removeKeys(0);
 
-        foreach ($o_return as $key => $device) {
+        foreach ($_return as $key => $device) {
             $device = Strings::from($device, ':');
             $device = trim($device);
 
-            $o_return->set($device, $key);
+            $_return->set($device, $key);
         }
 
-        return $o_return;
+        return $_return;
     }
 
 
@@ -163,7 +163,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      */
     public function isSubvolume(): bool
     {
-        return $this->list()->valueExists($this->o_path);
+        return $this->list()->valueExists($this->_path);
     }
 
 
@@ -180,7 +180,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
         }
 
         throw new FilesystemBtrfsException(tr('Specified path ":path" is not a BTRFS subvolume.', [
-            ':path' => $this->o_path,
+            ':path' => $this->_path,
         ]));
     }
 }

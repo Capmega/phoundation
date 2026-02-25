@@ -255,7 +255,7 @@ class DateNavigator extends ElementsBlock
                                                                                     ->setId('date')
                                                                                     ->setAutoSubmit(true)
                                                                                     ->addClasses('text-center')
-                                                                                    ->setValue($this->o_date)
+                                                                                    ->setValue($this->_date)
                                                                                     ->setMax(PhoDateTime::newToday('user')))))
 
                    ->addGridColumn(GridColumn::new()

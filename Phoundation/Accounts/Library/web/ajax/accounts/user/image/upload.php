@@ -48,8 +48,8 @@ try {
     Request::getMethodRestrictionsObject()->require(EnumHttpRequestMethod::upload);
     Request::getFileUploadHandlersObject()
         ->add(UploadHandler::new('image')
-            ->addValidationFunction(function (FileValidatorInterface $o_validator) {
-                $o_validator->isImage('jpg,png')->isSmallerThan('10MB')
+            ->addValidationFunction(function (FileValidatorInterface $_validator) {
+                $_validator->isImage('jpg,png')->isSmallerThan('10MB')
                     ->validate();
             })
             ->setFileCallback(function(PhoUploadedFileInterface $file) use ($user) {

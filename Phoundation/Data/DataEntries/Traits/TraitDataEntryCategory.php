@@ -121,12 +121,12 @@ trait TraitDataEntryCategory
     /**
      * Returns the categories_id for this user
      *
-     * @param CategoryInterface|null $o_object
+     * @param CategoryInterface|null $_object
      *
      * @return static
      */
-    public function setCategoryObject(?CategoryInterface $o_object): static
+    public function setCategoryObject(?CategoryInterface $_object): static
     {
-        return $this->setVirtualObject('categories', $o_object);
+        return $this->setVirtualObject('categories', $_object);
     }
 }

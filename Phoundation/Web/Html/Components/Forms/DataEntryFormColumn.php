@@ -67,7 +67,7 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
      */
     protected function defaultRender(): ?string
     {
-        if (!$this->o_definition) {
+        if (!$this->_definition) {
             throw new OutOfBoundsException(tr('Cannot render form component, no definition specified'));
         }
 
@@ -76,21 +76,21 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
         }
 
         $scripts      = '';
-        $o_definition = $this->o_definition;
+        $_definition = $this->_definition;
 
         // Add marker to all labels that are obligatory
-        if (!$o_definition->getOptional() and !$o_definition->getReadOnly() and !$o_definition->getDisabled()) {
-            $o_definition->setLabel('* ' . $o_definition->getLabel());
+        if (!$_definition->getOptional() and !$_definition->getReadOnly() and !$_definition->getDisabled()) {
+            $_definition->setLabel('* ' . $_definition->getLabel());
         }
 
         // Add scripts?
-        if ($o_definition->getScriptsObject()) {
-            foreach ($o_definition->getScriptsObject() as $script) {
+        if ($_definition->getScriptsObject()) {
+            foreach ($_definition->getScriptsObject() as $script) {
                 $scripts .= $script->render();
             }
         }
 
-        if ($o_definition->getHidden()) {
+        if ($_definition->getHidden()) {
             // Hidden elements do not display anything beyond the hidden <input>
             return $this->column_component . $scripts;
         }
@@ -109,14 +109,14 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
             }
         }
 
-        $this->render .= match ($o_definition->getInputType()?->value) {
-            default => '  <div class="' . Html::safe($o_definition->getSize() ? 'col-sm-' . $o_definition->getSize() : 'col') . ($o_definition->getVisible() ? '' : ' invisible') . ($o_definition->getDisplay() ? '' : ' d-none') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
+        $this->render .= match ($_definition->getInputType()?->value) {
+            default => '  <div class="' . Html::safe($_definition->getSize() ? 'col-sm-' . $_definition->getSize() : 'col') . ($_definition->getVisible() ? '' : ' invisible') . ($_definition->getDisplay() ? '' : ' d-none') . (isset($class) ? ' ' . $class : '') . '"' . (isset($attributes) ? ' ' . $attributes : '') . '>
                                  <div data-mdb-input-init class="form-outline">
                                      ' . $render . $scripts . '
-                                     <label class="form-label" for="' . Html::safe($o_definition->getColumn()) . '">' . Html::safe($o_definition->getLabel()) . '</label>
+                                     <label class="form-label" for="' . Html::safe($_definition->getColumn()) . '">' . Html::safe($_definition->getLabel()) . '</label>
                                  </div>
                              </div>',
-            //            ' . $this->renderTooltip($o_definition) . '
+            //            ' . $this->renderTooltip($_definition) . '
         };
 
         return $this->render;
@@ -126,16 +126,16 @@ class DataEntryFormColumn extends ElementsBlock implements DataEntryFormColumnIn
     /**
      * Renders and returns the tooltip for the specified definition
      *
-     * @param DefinitionInterface $o_definition
+     * @param DefinitionInterface $_definition
      *
      * @return string|null
      */
-    protected function renderTooltip(DefinitionInterface $o_definition): ?string
+    protected function renderTooltip(DefinitionInterface $_definition): ?string
     {
-        if ($o_definition->getTooltip()) {
+        if ($_definition->getTooltip()) {
             // Render and return the tooltip
             return Tooltip::new()
-                          ->setTitle($o_definition->getTooltip())
+                          ->setTitle($_definition->getTooltip())
                           ->setUseIcon(true)
                           ->render();
         }

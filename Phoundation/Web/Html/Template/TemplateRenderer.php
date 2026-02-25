@@ -47,11 +47,11 @@ class TemplateRenderer implements TemplateRendererInterface
     /**
      * Renderer class element
      *
-     * @param ComponentInterface|null $o_component
+     * @param ComponentInterface|null $_component
      */
-    public function __construct(ComponentInterface|null $o_component)
+    public function __construct(ComponentInterface|null $_component)
     {
-        $this->o_component = $o_component;
+        $this->_component = $_component;
     }
 
 
@@ -134,7 +134,7 @@ class TemplateRenderer implements TemplateRendererInterface
         if (empty($this->render_function)) {
             throw new TemplateException(ts('Cannot render because no template render function specified. This likely means that the current template ":template" does not have (render) support for the current object ":class" that needs rendering, and no default render function is available either, or that the template object is trying to use a non-existing parent rendering function', [
                 ':template' => Request::getTemplateObject(),
-                ':class'    => $this->o_component::class,
+                ':class'    => $this->_component::class,
             ]));
         }
 

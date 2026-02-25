@@ -42,7 +42,7 @@ trait TraitDataProperties
 
 
     /**
-     * Returns the value for the requested property key, or NULL if it doesn't exist
+     * Returns the value for the requested property key, or NULL if it does not exist
      *
      * @param string|float|int $key
      * @param mixed|null       $default
@@ -68,7 +68,7 @@ trait TraitDataProperties
 
 
     /**
-     * Returns the value for the requested property key, or NULL if it doesn't exist
+     * Returns the value for the requested property key, or NULL if it does not exist
      *
      * @param string|float|int $key
      * @param mixed|null       $default

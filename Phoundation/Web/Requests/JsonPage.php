@@ -585,8 +585,8 @@ class JsonPage implements JsonPageInterface
     protected function createMessage(array|Stringable|string|null $data): string
     {
         // Add any outstanding page flash messages so that they get sent as well.
-        foreach (Response::getFlashMessagesObject() as $o_flash_message) {
-            static::$flash[] = $o_flash_message->renderArray();
+        foreach (Response::getFlashMessagesObject() as $_flash_message) {
+            static::$flash[] = $_flash_message->renderArray();
         }
 
         // Clean up the data array

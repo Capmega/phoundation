@@ -103,6 +103,24 @@ function is_empty(mixed $value): bool
 
 
 /**
+ * Returns $source concatenated with $value if $source is not empty
+ *
+ * @param string|null $source
+ * @param mixed       $value
+ *
+ * @return string|null
+ */
+function concat_if_not_empty(?string $source, ?string $value): ?string
+{
+    if ($source) {
+        return $source . $value;
+    }
+
+    return $source;
+}
+
+
+/**
  * Returns the given value to the specified new value unless the new value is boolean FALSE
  *
  * @param mixed $original
@@ -210,6 +228,62 @@ function get_index_value(IteratorInterface|array $source, int $index, bool $exce
     }
 
     return array_pop($return);
+}
+
+
+/**
+ * Will store the value in the source array under the specified key and optionally subkey.
+ *
+ * The main feature of this function is that it will automatically generate the primary key as an array if it does not yet exist
+ *
+ * @param array|null                      &$source         The source array to put the specified value in
+ * @param mixed                            $value          The value that will be stored in the source array
+ * @param Stringable|string|float|int|null $key            The primary key under which to store the value
+ * @param Stringable|string|float|int|null $sub_key [null] If specified, the secondary key under which to store the value. If an empty string "" is specified,
+ *                                                         the value will be stored with $source[$key][] = $value, storing the value in a numeric sub key
+ *
+ * @return void
+ */
+function array_put(?array &$source, mixed $value, Stringable|string|float|int|null $key, Stringable|string|float|int|null $sub_key = null): void
+{
+    if (!$source) {
+        $source = [];
+    }
+
+    if ($sub_key === null) {
+        $source[$key] = $value;
+
+    } else {
+        if (!array_key_exists($key, $source)) {
+            if ($key) {
+                $source[$key] = [];
+
+            } else {
+                $source[]     = [];
+            }
+
+        } elseif (!is_array($source[$key])) {
+            throw OutOfBoundsException::new(ts('Cannot put value ":value" in array with key ":key" and sub key ":sub_key", the key ":akey" already exists but is not an array', [
+                ':value'   => $value,
+                ':key'     => $key,
+                ':sub_key' => $sub_key,
+                ':akey'    => $key,
+            ]))->addData([
+                ':source'            => $source,
+                ':key'               => $key,
+                ':sub_key'           => $sub_key,
+                ':value'             => $value,
+                ':current_key_value' => $source[$key],
+            ]);
+        }
+
+        if ($sub_key === '') {
+            $source[$key][]         = $value;
+
+        } else {
+            $source[$key][$sub_key] = $value;
+        }
+    }
 }
 
 
@@ -489,6 +563,35 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
 
 
 /**
+ * Casts the specified source value to integer if it is numeric
+ *
+ * @param Stringable|string|int|float|null $source            The source variable to process
+ * @param bool                             $allow_null [true] If true, and the source is NULL, will return NULL. If false, and the source is NULL, will throw an
+ *                                                            OutOfBoundsException
+ *
+ * @return int|null
+ *
+ * @throws OutOfBoundsException
+ */
+function cast_integer_if_numeric(Stringable|string|int|float|null $source, bool $allow_null = false): ?int
+{
+    if (($source === null) and $allow_null) {
+        return null;
+    }
+
+    if (is_numeric($source)) {
+        return (int) $source;
+    }
+
+    throw OutOfBoundsException::new(ts('Cannot cast the specified value ":value" to integer, the value is not numeric', [
+        ':value' => $source,
+    ]))->addData([
+        'value' => $source,
+    ]);
+}
+
+
+/**
  * Will return $return if the specified item id is in the specified source.
  *
  * @param array      $source
@@ -559,7 +662,7 @@ function isset_get(mixed &$variable, mixed $default = null): mixed
         return $variable;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
     return $default;
 }
@@ -804,7 +907,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
         return null;
     }
 
-    // The previous isset would have actually set the variable with null, unset it to ensure it won't exist
+    // The previous isset would have actually set the variable with null, unset it to ensure it will not exist
     unset($variable);
 
     if ($default === null) {
@@ -812,7 +915,7 @@ function isset_get_typed(array|string $types, mixed &$variable, mixed $default =
     }
 
     // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-    // type doesn't match
+    // type does not match
     return isset_get_typed($types, $default);
 }
 
@@ -1008,7 +1111,7 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
     try {
         // Return the default variable after validating datatype. This WILL throw an exception, no matter what, if the data
-        // type doesn't match
+        // type does not match
         return isset_get_typed($types, $default);
 
     } catch (DatatypeNotPermittedException $e) {
@@ -1560,7 +1663,7 @@ function showbacktrace(int $count = 0, int $trace_offset = 2, bool $quiet = fals
  *
  * @see get_false()
  * @see get_empty()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  * @note    This function is a wrapper for get_empty($source, null);
@@ -1593,7 +1696,7 @@ function get_null(mixed $source): mixed
  * Return false if the specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @see get_null()
- * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $source The value to be tested. If this value does not evaluate to empty, it will be returned
  *
  * @return mixed Either $source or null, depending on if $source is empty or not
  */
@@ -1813,11 +1916,11 @@ function execute(): ?string
  * @note This function is used to execute hooks to give them their own empty function scope
  *
  * @param string        $__file
- * @param HookInterface $o_hook
+ * @param HookInterface $_hook
  *
  * @return mixed
  */
-function execute_hook(string $__file, HookInterface $o_hook): mixed
+function execute_hook(string $__file, HookInterface $_hook): mixed
 {
     $return = include($__file);
 

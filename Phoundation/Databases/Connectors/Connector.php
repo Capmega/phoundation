@@ -75,9 +75,9 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * The database for this connector
      *
-     * @var DatabaseInterface|null $o_database
+     * @var DatabaseInterface|null $_database
      */
-    protected ?DatabaseInterface $o_database = null;
+    protected ?DatabaseInterface $_database = null;
 
 
     /**
@@ -113,6 +113,8 @@ class Connector extends DataEntry implements ConnectorInterface
                 $this->setDatabase($database);
             }
         }
+
+        $this->setPermittedColumns('connections');
     }
 
 
@@ -193,20 +195,20 @@ class Connector extends DataEntry implements ConnectorInterface
      */
     public function getDatabaseObject(): ?DatabaseInterface
     {
-        return $this->o_database;
+        return $this->_database;
     }
 
 
     /**
      * Returns the database for this Connector, if connected. Will return NULL if not connected
      *
-     * @param DatabaseInterface|null $o_database
+     * @param DatabaseInterface|null $_database
      *
      * @return static
      */
-    public function setDatabaseObject(?DatabaseInterface $o_database): static
+    public function setDatabaseObject(?DatabaseInterface $_database): static
     {
-        $this->o_database = $o_database;
+        $this->_database = $_database;
         return $this;
     }
 
@@ -288,7 +290,7 @@ class Connector extends DataEntry implements ConnectorInterface
         $hostname = $this->__getHostname();
 
         if ($hostname === 'localhost') {
-            // PDO has a weird quirk where it will ignore port settings when the host is localhost. 127.0.0.1 doesn't
+            // PDO has a weird quirk where it will ignore port settings when the host is localhost. 127.0.0.1 does not
             // seem to have this so force the use of that instead. This should also skip hostname lookups, as fast as
             // that would be
             $hostname = '127.0.0.1';
@@ -336,7 +338,7 @@ class Connector extends DataEntry implements ConnectorInterface
 
 
     /**
-     * Returns the unique identifier for this database entry, which will be the ID column if it doesn't have any
+     * Returns the unique identifier for this database entry, which will be the ID column if it does not have any
      *
      * @param bool $exception
      *
@@ -985,13 +987,13 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newName()
+        $_definitions->add(DefinitionFactory::newName()
                                              ->setOptional(false)
                                              ->setSize(4)
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                               $o_validator->isUnique();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                               $_validator->isUnique();
                                            }))
 
                       ->add(DefinitionFactory::newSeoName())
@@ -1038,8 +1040,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setOptional(true, 'localhost')
                                              ->setLabel(tr('Hostname'))
                                              ->setSize(8)
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isDomain();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isDomain();
                                              }))
 
                       ->add(DefinitionFactory::newNumber('port')
@@ -1047,8 +1049,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setOptional(true)
                                              ->setLabel(tr('Port'))
                                              ->setSize(4)
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isInteger()
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isInteger()
                                                              ->isBetween(0, 65535);
                                              }))
 
@@ -1056,40 +1058,40 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setInputType(EnumInputType::text)
                                              ->setSize(4)
                                              ->setLabel(tr('Username'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isUsername();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isUsername();
                                              }))
 
                       ->add(DefinitionFactory::newPassword('password')
                                              ->setInputType(EnumInputType::password)
                                              ->setSize(4)
                                              ->setLabel(tr('Password'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isUsername();
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isUsername();
                                              }))
 
                       ->add(DefinitionFactory::newVariable('database')
                                              ->setInputType(EnumInputType::variable)
                                              ->setSize(4)
                                              ->setLabel(tr('Database'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->hasMaxCharacters(64);
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->hasMaxCharacters(64);
                                              }))
 
                       ->add(DefinitionFactory::newNumber('connect_timeout')
                                              ->setInputType(EnumInputType::positiveInteger)
                                              ->setSize(2)
                                              ->setLabel(tr('Connect timeout'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isInteger()->isBetween(0, 120);
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isInteger()->isBetween(0, 120);
                                              }))
 
                       ->add(DefinitionFactory::newNumber('query_timeout')
                                              ->setInputType(EnumInputType::positiveInteger)
                                              ->setSize(2)
                                              ->setLabel(tr('Query timeout'))
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isInteger()->isBetween(0, 3600);
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isInteger()->isBetween(0, 3600);
                                              }))
 
                       ->add(Definition::new('mode')
@@ -1097,8 +1099,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setOptional(true, 'PIPES_AS_CONCAT,IGNORE_SPACE')
                                       ->setLabel(tr('Mode'))
                                       ->setSize(3)
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                          $o_validator->hasMaxCharacters(2048);
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                          $_validator->hasMaxCharacters(2048);
                                       }))
 
                       ->add(Definition::new('attributes')
@@ -1106,8 +1108,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setOptional(true)
                                       ->setLabel(tr('Attributes'))
                                       ->setSize(3)
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                          $o_validator->hasMaxCharacters(2048);
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                          $_validator->hasMaxCharacters(2048);
                                       }))
 
                       ->add(Definition::new('character_set')
@@ -1115,9 +1117,9 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setLabel(tr('Character set'))
                                       ->setOptional(true, config()->getString('databases.mysql.character-set', 'utf8mb4'))
                                       ->setSize(3)
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
 // TODO Improve validation of this column
-                                          $o_validator->hasMaxCharacters(64);
+                                          $_validator->hasMaxCharacters(64);
                                       }))
 
                       ->add(Definition::new('collate')
@@ -1125,9 +1127,9 @@ class Connector extends DataEntry implements ConnectorInterface
                                       ->setLabel(tr('Collate'))
                                       ->setSize(3)
                                       ->setOptional(true, config()->getString('databases.mysql.collate', 'utf8mb4_general_ci'))
-                                      ->addValidationFunction(function (ValidatorInterface $o_validator) {
+                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
 // TODO Improve validation of this column
-                                          $o_validator->hasMaxCharacters(64);
+                                          $_validator->hasMaxCharacters(64);
                                       }))
 
                       ->add(DefinitionFactory::newTimezonesName()
@@ -1151,8 +1153,8 @@ class Connector extends DataEntry implements ConnectorInterface
                                              ->setLabel(tr('Maximum row limit'))
                                              ->setInputType(EnumInputType::positiveInteger)
                                              ->setSize(1)
-                                             ->addValidationFunction(function (ValidatorInterface $o_validator) {
-                                                 $o_validator->isLessThan(1_000_000_000);
+                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                 $_validator->isLessThan(1_000_000_000);
                                              }))
 
                       ->add(DefinitionFactory::newNumber('auto_increment')

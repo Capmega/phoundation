@@ -21,13 +21,13 @@ use Phoundation\Databases\Sql\Limit;
 
 
 CliDocumentation::setAutoComplete(User::getAutoComplete([
-                                                            'positions' => [
-                                                                0 => [
-                                                                    'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
-                                                                    'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
-                                                                ],
-                                                            ],
-                                                        ]));
+    'positions' => [
+        0 => [
+            'word'   => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE COALESCE(`username`, `email`, `code`) LIKE :word AND `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+            'noword' => 'SELECT COALESCE(`username`, `email`, `code`) AS `email` FROM `accounts_users` WHERE `status` IS NULL LIMIT ' . Limit::getShellAutoCompletion(),
+        ],
+    ],
+]));
 
 CliDocumentation::setUsage('./pho accounts users delete USER_EMAIL');
 

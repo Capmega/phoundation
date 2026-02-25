@@ -87,7 +87,7 @@ trait TraitDataEntryAlias
      */
     protected function setSeoAliasFromAlias(?string $alias): static
     {
-        // Get SEO alias and ensure that the seo_alias does NOT surpass the alias maxlength because MySQL won't find
+        // Get SEO alias and ensure that the seo_alias does NOT surpass the alias maxlength because MySQL will not find
         // the entry if it does!
         try {
             if ($this->supports_seo_alias and $alias) {
@@ -107,7 +107,7 @@ trait TraitDataEntryAlias
             }
 
         } catch (SqlNoDatabaseSelectedException |SqlUnknownDatabaseException | SqlTableDoesNotExistException $e) {
-            // Crap, the table (or entire database!) that we are working on doesn't exist, WTF? No biggie, we are likely
+            // Crap, the table (or entire database!) that we are working on does not exist, WTF? No biggie, we are likely
             // in init mode, and then we can ignore this issue as we are likely working from configuration DataEntries
             // instead
             if (!Core::inInitState()) {

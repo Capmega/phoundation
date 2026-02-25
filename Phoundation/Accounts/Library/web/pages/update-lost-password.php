@@ -100,7 +100,7 @@ if (isset($updated)) {
             ])
             ->save();
 
-    // Yay, the password was updated! Now, auto sign-in so that the user won't have to sign in manually
+    // Yay, the password was updated! Now, auto sign-in so that the user will not have to sign in manually
     Session::signIn($user->getEmail(), $post['password']);
 
     // Set page meta-data

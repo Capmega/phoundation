@@ -786,7 +786,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a commands/ directory, we are fine
+            // This library does not have a commands/ directory, we are fine
             return;
         }
 
@@ -814,7 +814,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a hooks/ directory, we are fine
+            // This library does not have a hooks/ directory, we are fine
             return;
         }
 
@@ -842,7 +842,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a web/ directory, we are fine
+            // This library does not have a web/ directory, we are fine
             return;
         }
 
@@ -870,7 +870,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a config/ directory, we are fine
+            // This library does not have a config/ directory, we are fine
             return;
         }
 
@@ -898,7 +898,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a data/ directory, we are fine
+            // This library does not have a data/ directory, we are fine
             return;
         }
 
@@ -926,7 +926,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a Tests/ directory, we are fine
+            // This library does not have a Tests/ directory, we are fine
             return;
         }
 
@@ -954,7 +954,7 @@ class Library implements LibraryInterface
         $path         = PhoDirectory::new($path, $restrictions);
 
         if (!$path->exists()) {
-            // This library doesn't have a cron/ directory, we are fine
+            // This library does not have a cron/ directory, we are fine
             return;
         }
 

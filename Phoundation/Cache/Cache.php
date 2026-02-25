@@ -339,9 +339,9 @@ class Cache extends Database implements CacheInterface
                 return $this->__setConnector($connector, $database);
 
             } catch (ConnectorNotExistsException $e) {
-                // The requested cache connector doesn't exist, try the default "cache" connector instead
+                // The requested cache connector does not exist, try the default "cache" connector instead
                 try {
-                    // The requested connector doesn't exist. If the specified connector is a valid cache connector, then just
+                    // The requested connector does not exist. If the specified connector is a valid cache connector, then just
                     // use the general "cache" connector instead as a default
                     if ($allow_alternate) {
                         if (EnumCacheGroups::tryFrom($connector)) {
@@ -349,7 +349,7 @@ class Cache extends Database implements CacheInterface
                         }
                     }
 
-                    // The specified group wasn't recognized, maybe the "cache-" prefix was missing? Try adding it
+                    // The specified group was not recognized, maybe the "cache-" prefix was missing? Try adding it
                     if (EnumCacheGroups::tryFrom('cache-' . $connector)) {
                         return $this->setConnector('cache-' . $connector, $database, $allow_alternate);
                     }
@@ -554,7 +554,7 @@ class Cache extends Database implements CacheInterface
     /**
      * Read the specified object from the cache.
      *
-     * @note: NULL is returned if the specified hash doesn't exist in cache
+     * @note: NULL is returned if the specified hash does not exist in cache
      *
      * @param Stringable|string|float|int|null $key
      * @param callable|null                    $callback

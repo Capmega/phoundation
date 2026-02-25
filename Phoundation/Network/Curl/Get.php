@@ -40,14 +40,14 @@ class Get extends Curl
     /**
      * Get class constructor
      *
-     * @param Stringable|string|null $o_url
+     * @param Stringable|string|null $_url
      */
-    public function __construct(Stringable|string|null $o_url = null)
+    public function __construct(Stringable|string|null $_url = null)
     {
         $this->method          = EnumHttpRequestMethod::get;
         $this->follow_location = true;
 
-        parent::__construct($o_url);
+        parent::__construct($_url);
     }
 
 
@@ -64,7 +64,7 @@ class Get extends Curl
                                         FROM   `network_curl_cache` 
                                         WHERE  `url` = :url 
                                         AND    `created_on` + :cache < NOW()', [
-                ':url'   => $this->o_url,
+                ':url'   => $this->_url,
                 ':cache' => $this->cache_timeout,
             ]);
 
@@ -94,7 +94,7 @@ class Get extends Curl
             if (curl_errno($this->curl)) {
                 // Oops... cURL request failed!
                 throw CurlGetException::new(tr('The cURL request ":url" failed with error ":errno" ":error"', [
-                    ':url'   => $this->o_url,
+                    ':url'   => $this->_url,
                     ':errno' => curl_errno($this->curl),
                     ':error' => curl_error($this->curl),
                 ]))
@@ -113,7 +113,7 @@ class Get extends Curl
             $this->checkForCurlException($e);
 
             throw new CurlGetException(tr('Failed to make ":method" request for url ":url"', [
-                ':url'    => $this->o_url,
+                ':url'    => $this->_url,
                 ':method' => $this->method,
             ]), $e);
         }
@@ -157,12 +157,12 @@ class Get extends Curl
             unset($this->curl);
 
             sql()->delete('network_curl_cache', [
-                'url' => $this->o_url,
+                'url' => $this->_url,
             ]);
 
             sql()->insert('network_curl_cache', [
                 'created_by' => Session::getUserObject()->getId(),
-                'url'        => $this->o_url,
+                'url'        => $this->_url,
                 'data'       => Json::encode($this->result_data),
                 'headers'    => Json::encode($this->response_headers),
             ]);
@@ -185,7 +185,7 @@ class Get extends Curl
      */
     protected function prepare(): void
     {
-        if (empty($this->o_url)) {
+        if (empty($this->_url)) {
             throw new OutOfBoundsException('No URL or existing cURL connection specified');
         }
 
@@ -220,7 +220,7 @@ class Get extends Curl
 
         // Set general options
         curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($this->curl, CURLOPT_URL           , $this->o_url);
+        curl_setopt($this->curl, CURLOPT_URL           , $this->_url);
         curl_setopt($this->curl, CURLOPT_REFERER       , $this->referer);
         curl_setopt($this->curl, CURLOPT_USERAGENT     , $this->getUserAgent());
         curl_setopt($this->curl, CURLOPT_INTERFACE     , Interfaces::getRandomInterfaceIp());
@@ -243,7 +243,7 @@ class Get extends Curl
                                                             ->getStream());
             Log::action(ts('Preparing ":method" cURL request to URL ":url"', [
                 ':method' => $this->method,
-                ':url'    => $this->o_url,
+                ':url'    => $this->_url,
             ]), 2);
         }
 
@@ -307,55 +307,55 @@ class Get extends Curl
 
             case 400:
                 $e = new Curl404Exception(tr('Curl got HTTP code "400 - Bad Request" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 401:
                 $e = new Curl404Exception(tr('Curl got HTTP code "401 - Unauthorized" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 403:
                 $e = new Curl404Exception(tr('Curl got HTTP code "403 - Forbidden" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 404:
                 $e = new Curl404Exception(tr('Curl got HTTP code "404 - Not Found" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 410:
                 $e = new Curl404Exception(tr('Curl got HTTP code "410 - Gone" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 500:
                 $e = new Curl404Exception(tr('Curl got HTTP code "500 - Internal Server Errror" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             case 503:
                 $e = new Curl404Exception(tr('Curl got HTTP code "503 - Service Unavailable" for URL ":url"', [
-                    ':url' => $this->o_url,
+                    ':url' => $this->_url,
                 ]));
                 break;
 
             default:
                 $e = new CurlNon200Exception(tr('Curl got HTTP code ":http" for URL ":url"', [
                     ':http' => $this->getHttpCode(),
-                    ':url'  => $this->o_url,
+                    ':url'  => $this->_url,
                 ]));
         }
 
         throw $e->addData([
-            'url'             => $this->o_url,
+            'url'             => $this->_url,
             'output'          => $this->result_data,
             'request_headers' => $this->request_headers,
             'result_headers'  => $this->response_headers,
@@ -384,7 +384,7 @@ class Get extends Curl
                     // off during connection. This again may mean that the server overloaded. Wait for a few
                     // seconds, and try again for a limited number of times
                     Log::warning(ts('Got HTTP0 for url ":url" at attempt ":retry" with ":connect_timeout" seconds connect timeout', [
-                        ':url'             => $this->o_url,
+                        ':url'             => $this->_url,
                         ':retry'           => $this->retry,
                         ':connect_timeout' => $this->connect_timeout,
                     ]));
@@ -394,9 +394,9 @@ class Get extends Curl
                     return $this->execute();
 
                 case 'CURL92':
-                    // This server apparently doesn't support anything beyond HTTP1.1
+                    // This server apparently does not support anything beyond HTTP1.1
                     Log::warning(ts('Got HTTP92 for url ":url" at attempt ":retry", forcing protocol HTTP 1.1 to fix', [
-                        ':url'             => $this->o_url,
+                        ':url'             => $this->_url,
                         ':retry'           => $this->retry,
                         ':connect_timeout' => $this->connect_timeout,
                     ]));

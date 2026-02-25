@@ -16,16 +16,17 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Html\Components\Input\Buttons;
 
-use Iterator;
 use Phoundation\Core\Interfaces\ArrayableInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Iterator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\HandlersInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
-use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use ReturnTypeWillChange;
@@ -43,6 +44,62 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      * @var bool $group
      */
     protected bool $group = false;
+
+    /**
+     * Tracks the handler code for the various buttons
+     *
+     * @var HandlersInterface|null $_handlers
+     */
+    protected ?HandlersInterface $_handlers = null;
+
+
+    /**
+     * Returns the action handlers object
+     *
+     * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
+     *                              false, and the handlers object does not yet exist, NULL will be returned
+     *
+     * @return HandlersInterface
+     */
+    public function getHandlersObject(bool $auto_initialize = false): HandlersInterface
+    {
+        if (empty($this->_handlers)) {
+            if ($auto_initialize) {
+                $this->_handlers = new Handlers();
+            }
+        }
+
+        return $this->_handlers;
+    }
+
+
+    /**
+     * Sets the action handlers object
+     *
+     * @param HandlersInterface|null $_handlers
+     *
+     * @return static
+     */
+    public function setHandlersObject(HandlersInterface|null $_handlers): static
+    {
+        $this->_handlers = $_handlers;
+        return $this;
+    }
+
+
+    /**
+     * Adds a single handler for the specified button event
+     *
+     * @param callable $handler
+     * @param Stringable|string|float|int|null $key
+     *
+     * @return static
+     */
+    public function addHandler(callable $handler, Stringable|string|float|int|null $key = null): static
+    {
+        $this->getHandlersObject(true)->add($handler, $key);
+        return $this;
+    }
 
 
     /**
@@ -79,11 +136,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Save" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addSaveButton(bool $float_right = false): static
+    public function addSaveButton(?bool $float_right = null): static
     {
         return $this->addButton(SaveButton::new()->setFloatRight($float_right));
     }
@@ -92,12 +150,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Back" button to the button list
      *
-     * @param UrlInterface $_url                The URL where the audit button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addBackButton(UrlInterface $_url, bool $float_right = false): static
+    public function addBackButton(UrlInterface $_url, ?bool $float_right = null): static
     {
         return $this->addButton(BackButton::new()
                                            ->setUrlObject($_url)
@@ -108,12 +167,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Create" button to the button list
      *
-     * @param UrlInterface $_url                The URL where this button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addCreateButton(UrlInterface $_url, bool $float_right = false): static
+    public function addCreateButton(UrlInterface $_url, ?bool $float_right = false): static
     {
         return $this->addButton(CreateButton::new()
                                             ->setUrlObject($_url)
@@ -124,12 +184,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Audit" button to the button list
      *
-     * @param UrlInterface $_url                The URL where the audit button should point to
-     * @param bool         $float_right [false] If true, will add a float-right class to the button
+     * @param UrlInterface $_url            The URL where this button should point to
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addAuditButton(UrlInterface $_url, bool $float_right = false): static
+    public function addAuditButton(UrlInterface $_url, ?bool $float_right = null): static
     {
         return $this->addButton(AuditButton::new()
                                            ->setUrlObject($_url)
@@ -140,11 +201,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Delete" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addDeleteButton(bool $float_right = false): static
+    public function addDeleteButton(?bool $float_right = null): static
     {
         return $this->addButton(DeleteButton::new()->setFloatRight($float_right));
     }
@@ -153,11 +215,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Undelete" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addUndeleteButton(bool $float_right = false): static
+    public function addUndeleteButton(?bool $float_right = null): static
     {
         return $this->addButton(UndeleteButton::new()->setFloatRight($float_right));
     }
@@ -166,11 +229,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Lock" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addLockButton(bool $float_right = false): static
+    public function addLockButton(?bool $float_right = null): static
     {
         return $this->addButton(LockButton::new()->setFloatRight($float_right));
     }
@@ -179,11 +243,12 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Adds a single "Unlock" button to the button list
      *
-     * @param bool $float_right [false] If true, will add a float-right class to the button
+     * @param bool|null $float_right [null] If true, will add a float-right class to the button. If false, the button will not have the class added and will be
+     *                                      left aligned. If NULL, the default alignment for the button will not be changed
      *
      * @return static
      */
-    public function addUnlockButton(bool $float_right = false): static
+    public function addUnlockButton(?bool $float_right = null): static
     {
         return $this->addButton(UnlockButton::new()->setFloatRight($float_right));
     }
@@ -213,7 +278,7 @@ class Buttons extends ElementsBlock implements ButtonsInterface
                             ->setWrapping($this->wrapping)
                             ->setOutlined($this->outlined)
                             ->setRounded($this->rounded)
-                            ->addClasses($this->o_classes)
+                            ->addClasses($this->_classes)
                             ->setOutlined($outline)
                             ->setContent($button)
                             ->setValue($value ?? $button)
@@ -266,14 +331,14 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      */
     public function render(): ?string
     {
-        $o_aria  = $this->getAriaObject();
-        $o_data = $this->getDataObject();
-        $o_class = $this->getClassesObject();
+        $_aria  = $this->getAriaObject();
+        $_data = $this->getDataObject();
+        $_class = $this->getClassesObject();
 
         foreach ($this as $button) {
-            $button->getAriaObject()->addSource($o_aria);
-            $button->getDataObject()->addSource($o_data);
-            $button->getClassesObject()->addSource($o_class);
+            $button->getAriaObject()->addSource($_aria);
+            $button->getDataObject()->addSource($_data);
+            $button->getClassesObject()->addSource($_class);
         }
 
         return parent::render();

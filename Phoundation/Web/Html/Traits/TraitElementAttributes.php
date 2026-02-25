@@ -103,30 +103,30 @@ trait TraitElementAttributes
     /**
      * The HTML element attributes store
      *
-     * @var IteratorInterface $o_attributes
+     * @var IteratorInterface $_attributes
      */
-    protected IteratorInterface $o_attributes;
+    protected IteratorInterface $_attributes;
 
     /**
      * The HTML data-* element attribute store
      *
-     * @var IteratorInterface $o_data
+     * @var IteratorInterface $_data
      */
-    protected IteratorInterface $o_data;
+    protected IteratorInterface $_data;
 
     /**
      * The HTML element aria-* attribute store
      *
-     * @var IteratorInterface $o_aria
+     * @var IteratorInterface $_aria
      */
-    protected IteratorInterface $o_aria;
+    protected IteratorInterface $_aria;
 
     /**
      * The HTML class element attribute store
      *
-     * @var IteratorInterface $o_classes
+     * @var IteratorInterface $_classes
      */
-    protected IteratorInterface $o_classes;
+    protected IteratorInterface $_classes;
 
     /**
      * The HTML class element attribute cache
@@ -215,23 +215,23 @@ trait TraitElementAttributes
     /**
      * The tooltip object for this element
      *
-     * @var TooltipInterface $o_tooltip
+     * @var TooltipInterface $_tooltip
      */
-    protected TooltipInterface $o_tooltip;
+    protected TooltipInterface $_tooltip;
 
     /**
      * A possible anchor around this element
      *
-     * @var AnchorInterface|null $o_anchor
+     * @var AnchorInterface|null $_anchor
      */
-    protected ?AnchorInterface $o_anchor = null;
+    protected ?AnchorInterface $_anchor = null;
 
     /**
      * Contains data, arguments, classes, etc for the element around this element, if needed
      *
-     * @var DivInterface $o_outer_div
+     * @var DivInterface $_outer_div
      */
-    protected DivInterface $o_outer_div;
+    protected DivInterface $_outer_div;
 
     /**
      * Tracks the value to be displayed if the element value is NULL
@@ -274,8 +274,8 @@ trait TraitElementAttributes
      */
     public function __construct()
     {
-        $this->o_classes    = Iterator::new();
-        $this->o_attributes = Iterator::new()->setExceptionOnGet(false);
+        $this->_classes    = Iterator::new();
+        $this->_attributes = Iterator::new()->setExceptionOnGet(false);
     }
 
 
@@ -442,32 +442,32 @@ trait TraitElementAttributes
      */
     public function getAnchorObject(): AnchorInterface
     {
-        if (empty($this->o_anchor)) {
-            $this->o_anchor = Anchor::new()->setChildElement($this);
+        if (empty($this->_anchor)) {
+            $this->_anchor = Anchor::new()->setChildElement($this);
         }
 
-        return $this->o_anchor;
+        return $this->_anchor;
     }
 
 
     /**
      * Sets the anchor for this element
      *
-     * @param UrlInterface|AnchorInterface|null $o_anchor
+     * @param UrlInterface|AnchorInterface|null $_anchor
      *
      * @return Span
      */
-    public function setAnchorObject(UrlInterface|AnchorInterface|null $o_anchor): static
+    public function setAnchorObject(UrlInterface|AnchorInterface|null $_anchor): static
     {
-        if ($o_anchor) {
-            if ($o_anchor instanceof UrlInterface) {
-                $o_anchor = Anchor::new()->setUrlObject($o_anchor);
+        if ($_anchor) {
+            if ($_anchor instanceof UrlInterface) {
+                $_anchor = Anchor::new()->setUrlObject($_anchor);
             }
 
-            $this->o_anchor = $o_anchor->setChildElement($this);
+            $this->_anchor = $_anchor->setChildElement($this);
 
         } else {
-            $this->o_anchor = null;
+            $this->_anchor = null;
         }
 
         return $this;
@@ -481,7 +481,7 @@ trait TraitElementAttributes
      */
     public function hasOuterDiv(): bool
     {
-        return isset($this->o_outer_div);
+        return isset($this->_outer_div);
     }
 
 
@@ -492,28 +492,28 @@ trait TraitElementAttributes
      */
     public function getOuterDivObject(): DivInterface
     {
-        if (empty($this->o_outer_div)) {
-            $this->o_outer_div = Div::new()->setChildElement($this);
+        if (empty($this->_outer_div)) {
+            $this->_outer_div = Div::new()->setChildElement($this);
         }
 
-        return $this->o_outer_div;
+        return $this->_outer_div;
     }
 
 
     /**
      * Sets the outer_element for this element
      *
-     * @param DivInterface|null $o_outer_div
+     * @param DivInterface|null $_outer_div
      *
      * @return Span
      */
-    public function setOuterDivObject(DivInterface|null $o_outer_div): static
+    public function setOuterDivObject(DivInterface|null $_outer_div): static
     {
-        if ($o_outer_div) {
-            $this->o_outer_div = $o_outer_div->setChildElement($this);
+        if ($_outer_div) {
+            $this->_outer_div = $_outer_div->setChildElement($this);
 
         } else {
-            unset($this->o_outer_div);
+            unset($this->_outer_div);
         }
 
         return $this;
@@ -554,11 +554,11 @@ trait TraitElementAttributes
      */
     public function getTooltipObject(): TooltipInterface
     {
-        if (empty($this->o_tooltip)) {
-            $this->o_tooltip = Tooltip::new()->setSourceElement($this);
+        if (empty($this->_tooltip)) {
+            $this->_tooltip = Tooltip::new()->setSourceElement($this);
         }
 
-        return $this->o_tooltip;
+        return $this->_tooltip;
     }
 
 
@@ -628,33 +628,33 @@ trait TraitElementAttributes
      */
     public function getDataObject(bool $resolve_callbacks = true): IteratorInterface
     {
-        if (empty($this->o_data)) {
-            $this->o_data = new Iterator();
+        if (empty($this->_data)) {
+            $this->_data = new Iterator();
         }
 
         if ($resolve_callbacks) {
             // Resolve any value that is a callback instead of a normal value
-            $this->o_data = Arrays::resolveCallbacks($this->o_data);
+            $this->_data = Arrays::resolveCallbacks($this->_data);
         }
 
-        return $this->o_data;
+        return $this->_data;
     }
 
 
     /**
      * Sets the HTML element data-* attribute store
      *
-     * @param IteratorInterface|array|null $o_data
+     * @param IteratorInterface|array|null $_data
      *
      * @return static
      */
-    public function setDataObject(IteratorInterface|array|null $o_data): static
+    public function setDataObject(IteratorInterface|array|null $_data): static
     {
-        if (!$o_data) {
-            unset($this->o_data);
+        if (!$_data) {
+            unset($this->_data);
 
         } else {
-            $this->o_data = new Iterator($o_data);
+            $this->_data = new Iterator($_data);
         }
 
         return $this;
@@ -668,7 +668,7 @@ trait TraitElementAttributes
      */
     public function getAttributesString(): ?string
     {
-        return Arrays::implodeWithKeys($this->o_attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
+        return Arrays::implodeWithKeys($this->_attributes->getSource(), ' ', '=', '"', Utils::QUOTE_ALWAYS | Utils::HIDE_EMPTY_VALUES);
     }
 
 
@@ -679,20 +679,20 @@ trait TraitElementAttributes
      */
     public function getAttributesObject(): IteratorInterface
     {
-        return $this->o_attributes;
+        return $this->_attributes;
     }
 
 
     /**
      * Sets all HTML element attributes
      *
-     * @param array $o_attributes
+     * @param array $_attributes
      *
      * @return static
      */
-    public function setAttributesObject(array $o_attributes): static
+    public function setAttributesObject(array $_attributes): static
     {
-        $this->o_attributes = Iterator::new()->add($o_attributes);
+        $this->_attributes = Iterator::new()->add($_attributes);
 
         return $this;
     }
@@ -708,7 +708,7 @@ trait TraitElementAttributes
      */
     public function addAttribute(string|float|int|null $value, string $key): static
     {
-        $this->o_attributes->add($value, $key, exception: false);
+        $this->_attributes->add($value, $key, exception: false);
 
         return $this;
     }
@@ -725,7 +725,7 @@ trait TraitElementAttributes
      */
     public function setAttribute(mixed $value, string|float|int|null $key = null, bool $skip_null_values = true): static
     {
-        $this->o_attributes->add($value, $key, $skip_null_values, exception: false);
+        $this->_attributes->add($value, $key, $skip_null_values, exception: false);
 
         return $this;
     }
@@ -756,16 +756,16 @@ trait TraitElementAttributes
      */
     public function getAriaObject(bool $resolve_callbacks = true): IteratorInterface
     {
-        if (empty($this->o_aria)) {
-            $this->o_aria = new Iterator();
+        if (empty($this->_aria)) {
+            $this->_aria = new Iterator();
         }
 
         if ($resolve_callbacks) {
             // Resolve any value that is a callback instead of a normal value
-            $this->o_aria = Arrays::resolveCallbacks($this->o_aria);
+            $this->_aria = Arrays::resolveCallbacks($this->_aria);
         }
 
-        return $this->o_aria;
+        return $this->_aria;
     }
 
 
@@ -779,10 +779,10 @@ trait TraitElementAttributes
     public function setAriaObject(IteratorInterface|array|null $aria): static
     {
         if (!$aria) {
-            unset($this->o_aria);
+            unset($this->_aria);
 
         } else {
-            $this->o_aria = new Iterator($aria);
+            $this->_aria = new Iterator($aria);
         }
 
         return $this;
@@ -801,7 +801,7 @@ trait TraitElementAttributes
     public function getClass(?string $prefix = null, bool $add_definition_name_to_class = true): ?string
     {
         if (empty($this->class)) {
-            $this->class = implode(' ', Arrays::resolveCallbacks($this->o_classes->getSource()));
+            $this->class = implode(' ', Arrays::resolveCallbacks($this->_classes->getSource()));
 
             if ($add_definition_name_to_class) {
                 if ($this->getName()) {
@@ -984,16 +984,16 @@ trait TraitElementAttributes
     /**
      * Set if the button is right aligned or not
      *
-     * @param bool $right
+     * @param bool|null $right If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default alignment
      *
      * @return static
      */
-    public function setFloatRight(bool $right): static
+    public function setFloatRight(?bool $right): static
     {
         if ($right) {
             $this->addClass('float-right');
 
-        } else {
+        } elseif ($right !== null) {
             $this->removeClass('float-right');
         }
 
@@ -1019,7 +1019,7 @@ trait TraitElementAttributes
      */
     public function getClassesObject(): IteratorInterface
     {
-        return $this->o_classes;
+        return $this->_classes;
     }
 
 
@@ -1032,7 +1032,7 @@ trait TraitElementAttributes
      */
     public function setClassesObject(IteratorInterface|array|string|null $classes): static
     {
-        $this->o_classes = new Iterator();
+        $this->_classes = new Iterator();
 
         return $this->addClasses($classes);
     }
@@ -1241,7 +1241,7 @@ trait TraitElementAttributes
      */
     public function getSelectable(): bool
     {
-        return !$this->o_classes->hasKey('unselectable');
+        return !$this->_classes->hasKey('unselectable');
     }
 
 
@@ -1290,7 +1290,7 @@ trait TraitElementAttributes
      */
     public function getDefinitionObject(): ?DefinitionInterface
     {
-        if (empty($this->o_definition)) {
+        if (empty($this->_definition)) {
             $this->__setDefinitionObject(Definition::new($this->getName())
                                                    ->setDisplay($this->getDisplay())
                                                    ->setAfterContent($this->getAfterContent())
@@ -1316,59 +1316,59 @@ trait TraitElementAttributes
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
-        if ($o_definition) {
+        if ($_definition) {
             // Apply the definition rules to this element
-            $this->setName($o_definition->getName())
-                 ->setDisplay($o_definition->getDisplay())
-                 ->setAfterContent($o_definition->getAfterContent())
-                 ->setBeforeContent($o_definition->getBeforeContent())
-                 ->setVisible($o_definition->getVisible())
-                 ->addClasses($o_definition->getClasses())
-                 ->setDataObject($o_definition->getData())
-                 ->setAriaObject($o_definition->getAria())
-                 ->setDisabled($o_definition->getDisabled())
-                 ->setReadOnly($o_definition->getReadonly())
-                 ->setAutoFocus($o_definition->getAutoFocus())
-                 ->setNullDisplay($o_definition->getNullDisplay())
-                 ->setProperties($o_definition->getProperties())
-                 ->setSelectable($o_definition->getSelectable())
-                 ->setScriptsObject($o_definition->getScriptsObject());
+            $this->setName($_definition->getName())
+                 ->setDisplay($_definition->getDisplay())
+                 ->setAfterContent($_definition->getAfterContent())
+                 ->setBeforeContent($_definition->getBeforeContent())
+                 ->setVisible($_definition->getVisible())
+                 ->addClasses($_definition->getClasses())
+                 ->setDataObject($_definition->getData())
+                 ->setAriaObject($_definition->getAria())
+                 ->setDisabled($_definition->getDisabled())
+                 ->setReadOnly($_definition->getReadonly())
+                 ->setAutoFocus($_definition->getAutoFocus())
+                 ->setNullDisplay($_definition->getNullDisplay())
+                 ->setProperties($_definition->getProperties())
+                 ->setSelectable($_definition->getSelectable())
+                 ->setScriptsObject($_definition->getScriptsObject());
         }
 
-        return $this->__setDefinitionObject($o_definition);
+        return $this->__setDefinitionObject($_definition);
     }
 
 
     /**
      * Adds the specified class to the HTML element class attribute
      *
-     * @param IteratorInterface|callable|array|string|null $o_class
+     * @param IteratorInterface|callable|array|string|null $_class
      *
      * @return static
      */
-    public function addClass(IteratorInterface|callable|array|string|null $o_class): static
+    public function addClass(IteratorInterface|callable|array|string|null $_class): static
     {
-        return $this->addClasses($o_class);
+        return $this->addClasses($_class);
     }
 
 
     /**
      * Adds the specified classes to the HTML element class attribute
      *
-     * @param IteratorInterface|callable|array|string|null $o_classes
+     * @param IteratorInterface|callable|array|string|null $_classes
      *
      * @return static
      */
-    public function addClasses(IteratorInterface|callable|array|string|null $o_classes): static
+    public function addClasses(IteratorInterface|callable|array|string|null $_classes): static
     {
-        foreach (Arrays::force($o_classes, ' ') as $class) {
-            $this->o_classes->add($class, $class, exception: false);
+        foreach (Arrays::force($_classes, ' ') as $class) {
+            $this->_classes->add($class, $class, exception: false);
         }
 
         return $this;
@@ -1380,27 +1380,27 @@ trait TraitElementAttributes
      *
      * @note This is a wrapper method for Element::removeClass()
      *
-     * @param IteratorInterface|array|string|null $o_class
+     * @param IteratorInterface|array|string|null $_class
      *
      * @return static
      */
-    public function removeClass(IteratorInterface|array|string|null $o_class): static
+    public function removeClass(IteratorInterface|array|string|null $_class): static
     {
-        return $this->removeClasses($o_class);
+        return $this->removeClasses($_class);
     }
 
 
     /**
      * Removes the specified class from the HTML element class attribute
      *
-     * @param IteratorInterface|array|string|null $o_classes
+     * @param IteratorInterface|array|string|null $_classes
      *
      * @return static
      */
-    public function removeClasses(IteratorInterface|array|string|null $o_classes): static
+    public function removeClasses(IteratorInterface|array|string|null $_classes): static
     {
-        foreach (Arrays::force($o_classes, ' ') as $class) {
-            $this->o_classes->removeKeys($class);
+        foreach (Arrays::force($_classes, ' ') as $class) {
+            $this->_classes->removeKeys($class);
         }
 
         return $this;

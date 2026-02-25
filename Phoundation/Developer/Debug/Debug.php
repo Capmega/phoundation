@@ -1034,7 +1034,7 @@ class Debug
         }
 
         if ($counter++ >= $count) {
-            // Ensure that the shutdown function doesn't try to show the 404 page
+            // Ensure that the shutdown function does not try to show the 404 page
             Core::removeShutdownCallback('route[postprocess]');
             exit(Strings::ensureEndsWith(str_replace('%count%', (string) $count, $message), PHP_EOL));
         }
@@ -1077,7 +1077,7 @@ class Debug
             return 1;
         }
 
-        // They are the same, so ordering doesn't matter
+        // They are the same, so ordering does not matter
         return 0;
     }
 
@@ -1228,7 +1228,7 @@ class Debug
         }
 
         // Add debug bar javascript directly to the footer, as this debug bar is added AFTER html_generate_js() and so
-        // won't be processed anymore
+        // will not be processed anymore
         Html::prependToFooter(html_script('$("#debug-bar").click(function(e) { $("#debug-bar").find(".list").toggleClass("hidden"); });'));
 
         // Setup required variables

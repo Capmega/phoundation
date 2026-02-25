@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.8.1';
     }
 
 
@@ -427,6 +427,32 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'geo_features',
                 'geo_cities',
             ]);
+
+        })->addUpdate('0.8.1', function () {
+            // Fix indices to include `status` for all the geo tables
+            $tables = [
+                'geo_timezones',
+                'geo_continents',
+                'geo_countries',
+                'geo_states',
+                'geo_counties',
+                'geo_features',
+                'geo_cities',
+            ];
+
+            foreach ($tables as $table) {
+                $_table  = sql()->getSchemaObject()->getTableObject($table);
+                $indices = [
+                    'name',
+                ];
+
+                foreach ($indices as $index) {
+                    $_table->alter()->dropIndex($index, true);
+                }
+
+                $_table->alter()->dropIndex('name_status', true)
+                                ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
         });
     }
 }

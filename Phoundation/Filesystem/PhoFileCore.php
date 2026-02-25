@@ -143,13 +143,13 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         $directory = dirname($this->source);
         $mode      = config()->get('filesystem.modes.defaults.file', $mode ?? 0640);
 
-        $this->o_restrictions->check($directory, true);
+        $this->_restrictions->check($directory, true);
 
-        PhoDirectory::new(dirname($this->source), $this->o_restrictions)->ensure($pattern_mode);
+        PhoDirectory::new(dirname($this->source), $this->_restrictions)->ensure($pattern_mode);
 
         if (!file_exists($this->source)) {
             // Create the file
-            PhoDirectory::new(dirname($this->source), $this->o_restrictions)
+            PhoDirectory::new(dirname($this->source), $this->_restrictions)
                      ->execute()
                      ->setRequiredMode(0770)
                      ->onDirectoriesOnly(function () use ($mode) {
@@ -241,7 +241,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         $restrictions = $this->ensureRestrictionsObject($restrictions);
 
         // Check these restrictions and the new file restrictions
-        $this->o_restrictions->check($this->source, true);
+        $this->_restrictions->check($this->source, true);
         $restrictions->check($target, false);
 
         stream_context_set_params($context, [
@@ -439,7 +439,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     public function pathContainsSymlink(?string $prefix = null): bool
     {
         // Check filesystem restrictions and if file exists
-        $this->o_restrictions->check($this->source, true);
+        $this->_restrictions->check($this->source, true);
 
         // Build up the directory
         if (str_starts_with($this->source, '/')) {
@@ -466,7 +466,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         $this->source = Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($this->source, '/'), '/');
 
         // Check filesystem restrictions
-        $this->o_restrictions->check($this->source, false);
+        $this->_restrictions->check($this->source, false);
 
         foreach (explode('/', $this->source) as $section) {
             $location .= $section;
@@ -554,7 +554,6 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         }
 
         $this->close();
-
         return $return;
     }
 
@@ -691,8 +690,8 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     {
         throw new UnderConstructionException('$this->copyTree() is under construction');
         // Check filesystem restrictions
-        $this->o_restrictions->check($source, false);
-        $this->o_restrictions->check($destination, true);
+        $this->_restrictions->check($source, false);
+        $this->_restrictions->check($destination, true);
         // Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset
         // filemode (take from config, TRUE)
         if (!is_bool($mode) and !is_null($mode)) {
@@ -795,7 +794,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
                         // clean
                         if (!is_dir($destination . $this->source)) {
                             // Were overwriting here!
-                            file_delete($destination . $this->source, $this->o_restrictions);
+                            file_delete($destination . $this->source, $this->_restrictions);
                         }
                     }
                     $this->directory($destination . $this->source)
@@ -933,7 +932,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
             copy($this->source, $target);
         }
 
-        return new static($target, $this->o_restrictions);
+        return new static($target, $this->_restrictions);
     }
 
 
@@ -1173,7 +1172,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      */
     public function checkSha256(string $sha256, bool $ignore_sha_fail = false): static
     {
-        $file_sha = Sha256::new($this->o_restrictions)->sha256($this->source);
+        $file_sha = Sha256::new($this->_restrictions)->sha256($this->source);
 
         if ($sha256 !== $file_sha) {
             if (!$ignore_sha_fail) {
@@ -1200,7 +1199,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
     {
         Tar::new()->untar($this);
 
-        return PhoPath::new(dirname($this->source), $this->o_restrictions);
+        return PhoPath::new(dirname($this->source), $this->_restrictions);
     }
 
 
@@ -1211,7 +1210,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      */
     public function gzip(): PhoFileInterface
     {
-        return Gzip::new($this->o_restrictions)->gzip($this);
+        return Gzip::new($this->_restrictions)->gzip($this);
     }
 
 
@@ -1224,7 +1223,7 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
      */
     public function gunzip(): PhoFileInterface
     {
-        return Gzip::new($this->o_restrictions)->gunzip($this);
+        return Gzip::new($this->_restrictions)->gunzip($this);
     }
 
 
@@ -1277,8 +1276,8 @@ class PhoFileCore extends PhoPathCore implements PhoFileInterface
         }
 
         // Check filesystem restrictions and if file exists
-        $this->o_restrictions->check($this->source, false);
-        $target->o_restrictions->check($target, true);
+        $this->_restrictions->check($this->source, false);
+        $target->_restrictions->check($target, true);
 
         // Source file must exist
         $this->checkExists();

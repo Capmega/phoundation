@@ -4,7 +4,7 @@ namespace Phoundation\Data\Traits;
 
 trait TraitDataStaticArrayUnclean {
     /**
-     * Tracks unclean records that weren't validated before static::validate() was called
+     * Tracks unclean records that were not validated before static::validate() was called
      *
      * @var array|null $unclean
      */

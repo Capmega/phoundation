@@ -150,7 +150,7 @@ Response::setPageTitle(tr('Request a new password'));
                 <form action="<?= Url::newCurrent() ?>" method="post">
                     <?php Csrf::getHiddenElement() ?>
                     <?php
-                    if ($o_component->getEnabled('email')) {
+                    if ($_component->getEnabled('email')) {
                         ?>
                         <div class="input-group mb-3">
                             <input type="email" name="email" id="email" class="form-control"

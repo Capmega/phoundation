@@ -120,12 +120,12 @@ trait TraitDataEntryCompany
     /**
      * Returns the companies_id for this user
      *
-     * @param CompanyInterface|null $o_object
+     * @param CompanyInterface|null $_object
      *
      * @return static
      */
-    public function setCompanyObject(?CompanyInterface $o_object): static
+    public function setCompanyObject(?CompanyInterface $_object): static
     {
-        return $this->setVirtualObject('companies', $o_object);
+        return $this->setVirtualObject('companies', $_object);
     }
 }

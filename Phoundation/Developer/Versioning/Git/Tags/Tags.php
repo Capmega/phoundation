@@ -36,12 +36,12 @@ class Tags extends IteratorCore implements Interfaces\TagsInterface
     /**
      * Tags class constructor
      *
-     * @param RepositoryInterface $o_repository
+     * @param RepositoryInterface $_repository
      */
-    public function __construct(RepositoryInterface $o_repository) {
+    public function __construct(RepositoryInterface $_repository) {
         parent::__construct();
 
-        $this->setRepositoryObject($o_repository)
+        $this->setRepositoryObject($_repository)
              ->load();
     }
 
@@ -53,7 +53,7 @@ class Tags extends IteratorCore implements Interfaces\TagsInterface
      */
     public function load(): static
     {
-        $this->source = $this->o_repository->getGitObject()->getTags();
+        $this->source = $this->_repository->getGitObject()->getTags();
         return $this;
     }
 

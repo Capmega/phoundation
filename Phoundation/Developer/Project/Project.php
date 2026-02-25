@@ -90,16 +90,16 @@ class Project implements ProjectInterface
     /**
      * Project constructor
      *
-     * @param PhoDirectoryInterface|null $o_directory
+     * @param PhoDirectoryInterface|null $_directory
      */
-    public function __construct(PhoDirectoryInterface|null $o_directory = null)
+    public function __construct(PhoDirectoryInterface|null $_directory = null)
     {
-        if (!$o_directory) {
+        if (!$_directory) {
             // Default to the directory of this project
-            $o_directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
+            $_directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
         }
 
-        $this->___construct($o_directory);
+        $this->___construct($_directory);
     }
 
 
@@ -163,13 +163,13 @@ class Project implements ProjectInterface
     /**
      * Returns a new Phoundation object
      *
-     * @param string|null $o_directory
+     * @param string|null $_directory
      *
      * @return static
      */
-    public static function new(?string $o_directory = null): static
+    public static function new(?string $_directory = null): static
     {
-        return new static($o_directory);
+        return new static($_directory);
     }
 
 
@@ -217,12 +217,12 @@ class Project implements ProjectInterface
             Log::success(ts('Finished project setup'));
 
         } catch (Throwable $e) {
-            Log::warning('Setup failed with the following exception. Cancelling setup process and removing files.');
+            Log::warning('Setup failed with the following exception. Canceling setup process and removing files.');
             Log::warning($e);
 
             // Remove the project and continue throwing the exception
             Project::remove();
-            Log::warning(ts('Setup process was cancelled'));
+            Log::warning(ts('Setup process was canceled'));
             throw $e;
         }
     }
@@ -374,13 +374,13 @@ class Project implements ProjectInterface
     /**
      * Validate the specified project information
      *
-     * @param ValidatorInterface $o_validator
+     * @param ValidatorInterface $_validator
      *
      * @return array
      */
-    public static function validate(ValidatorInterface $o_validator): array
+    public static function validate(ValidatorInterface $_validator): array
     {
-        return $o_validator->select('admin_email')->isEmail()
+        return $_validator->select('admin_email')->isEmail()
                          ->select('admin_pass1')->isPassword()
                          ->select('admin_pass2')->isPassword()
                          ->isEqualTo('admin_pass1')->select('domain')->isDomain()
@@ -591,7 +591,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getGitObject(): GitInterface
     {
-        return $this->o_git;
+        return $this->_git;
     }
 
 
@@ -618,7 +618,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function isPhoundationProject(string $directory): bool
     {
         // Is the path readable?
-        $directory = PhoDirectory::new($directory, $this->o_restrictions)
+        $directory = PhoDirectory::new($directory, $this->_restrictions)
                                  ->checkReadable()
                                  ->getSource();
 
@@ -648,7 +648,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function resetHead(): static
     {
-        $this->o_git->reset('HEAD');
+        $this->_git->reset('HEAD');
 
         return $this;
     }
@@ -681,9 +681,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                    ->ensureNoChanges();
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->o_git->getStatusFilesObject()->getCount()) {
-                $this->o_git->add(DIRECTORY_ROOT);
-                $this->o_git->getStashObject()->stash();
+            if ($this->_git->getStatusFilesObject()->getCount()) {
+                $this->_git->add(DIRECTORY_ROOT);
+                $this->_git->getStashObject()->stash();
 
                 $stash = true;
             }
@@ -692,15 +692,15 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
             $this->cacheLibraries($skip_caching)->copyPhoundationFilesLocal($phoundation_path, $branch);
 
             // If there are changes, then add and commit
-            if ($this->o_git->getStatusFilesObject()->getCount()) {
+            if ($this->_git->getStatusFilesObject()->getCount()) {
                 if (!$message) {
                     $message = tr('Phoundation update');
                 }
 
-                $this->o_git->add([DIRECTORY_ROOT]);
+                $this->_git->add([DIRECTORY_ROOT]);
 
                 if ($commit) {
-                    $this->o_git->commit($message, $signed);
+                    $this->_git->commit($message, $signed);
                 }
 
                 Log::warning(ts('Committed local Phoundation update to git'));
@@ -711,8 +711,8 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->o_git->getStashObject()->pop();
-                $this->o_git->reset('HEAD');
+                $this->_git->getStashObject()->pop();
+                $this->_git->reset('HEAD');
             }
 
             return $this;
@@ -720,9 +720,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(ts('Moving stashed files back'));
-                $this->o_git->getStashObject()
+                $this->_git->getStashObject()
                           ->pop();
-                $this->o_git->reset('HEAD');
+                $this->_git->reset('HEAD');
             }
 
             throw $e;
@@ -744,7 +744,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        return $this->o_git->branchExists($branch);
+        return $this->_git->branchExists($branch);
     }
 
 
@@ -759,7 +759,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         if (!$default) {
             // Select the current branch
-            $default = $this->o_git->getSelectedBranch();
+            $default = $this->_git->getSelectedBranch();
 
             Log::notice(ts('Using project branch ":branch"', [
                 ':branch' => $default,
@@ -784,7 +784,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         }
 
         // Select the current branch
-        $this->o_git->selectBranch($branch);
+        $this->_git->selectBranch($branch);
 
         Log::notice(ts('Set project branch to ":branch"', [
             ':branch' => $branch,
@@ -801,7 +801,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getCoreChanges(): IteratorInterface
     {
-        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('Phoundation'));
+        return $this->_git->getStatusFilesObject($this->_directory->addDirectory('Phoundation'));
     }
 
 
@@ -825,17 +825,17 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     {
         // Ensure that all the plugin directories exist
         foreach (['Plugins', 'Templates', 'data/vendors'] as $directory) {
-            $this->o_directory->addDirectory($directory)->ensure();
+            $this->_directory->addDirectory($directory)->ensure();
         }
 
         // Get and return all changes
-        return $this->o_git
-                    ->getStatusFilesObject($this->o_directory->addDirectory('Plugins'))
-                        ->addSource($this->o_git->getStatusFilesObject(
-                            $this->o_directory->addDirectory('Templates')
+        return $this->_git
+                    ->getStatusFilesObject($this->_directory->addDirectory('Plugins'))
+                        ->addSource($this->_git->getStatusFilesObject(
+                            $this->_directory->addDirectory('Templates')
                         ))
-                        ->addSource($this->o_git->getStatusFilesObject(
-                            $this->o_directory->addDirectory('data/vendors')
+                        ->addSource($this->_git->getStatusFilesObject(
+                            $this->_directory->addDirectory('data/vendors')
                         ));
     }
 
@@ -874,7 +874,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getTemplatesChanges(): IteratorInterface
     {
-        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('data/templates'));
+        return $this->_git->getStatusFilesObject($this->_directory->addDirectory('data/templates'));
     }
 
 
@@ -908,7 +908,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public function getDataChanges(): IteratorInterface
     {
-        return $this->o_git->getStatusFilesObject($this->o_directory->addDirectory('data/vendors'));
+        return $this->_git->getStatusFilesObject($this->_directory->addDirectory('data/vendors'));
     }
 
 
@@ -1068,7 +1068,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
     public function updateLocalProjectPlugins(?string $branch, ?string $message = null, bool $signed = false, ?string $phoundation_path = null, bool $skip_caching = false, bool $commit = true): static
     {
         if (!$branch) {
-            $branch = $this->o_git->getSelectedBranch();
+            $branch = $this->_git->getSelectedBranch();
             Log::notice(ts('Trying to pull plugin updates from Phoundation using current project branch ":branch"', [
                 ':branch' => $branch,
             ]));
@@ -1081,9 +1081,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
         try {
             // Add all files to index to ensure everything will be stashed
-            if ($this->o_git->getStatusFilesObject()->getCount()) {
-                $this->o_git->add(DIRECTORY_ROOT);
-                $this->o_git->getStashObject()
+            if ($this->_git->getStatusFilesObject()->getCount()) {
+                $this->_git->add(DIRECTORY_ROOT);
+                $this->_git->getStashObject()
                           ->stash();
                 $stash = true;
             }
@@ -1094,17 +1094,17 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // If there are changes, then add and commit
             if (
-                $this->o_git->getStatusFilesObject()
+                $this->_git->getStatusFilesObject()
                           ->getCount()
             ) {
                 if (!$message) {
                     $message = tr('Phoundation plugins update');
                 }
 
-                $this->o_git->add([DIRECTORY_ROOT]);
+                $this->_git->add([DIRECTORY_ROOT]);
 
                 if ($commit) {
-                    $this->o_git->commit($message, $signed);
+                    $this->_git->commit($message, $signed);
                 }
 
                 Log::warning(ts('Committed local Phoundation update to git'));
@@ -1115,9 +1115,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
 
             // Stash pop the previous changes and reset HEAD to ensure the index is empty
             if (isset($stash)) {
-                $this->o_git->getStashObject()
+                $this->_git->getStashObject()
                           ->pop();
-                $this->o_git->reset('HEAD');
+                $this->_git->reset('HEAD');
             }
 
             return $this;
@@ -1125,9 +1125,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         } catch (Throwable $e) {
             if (isset($stash)) {
                 Log::warning(ts('Moving stashed files back'));
-                $this->o_git->getStashObject()
+                $this->_git->getStashObject()
                           ->pop();
-                $this->o_git->reset('HEAD');
+                $this->_git->reset('HEAD');
             }
 
             throw $e;
@@ -1322,11 +1322,11 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     if (file_exists(DIRECTORY_ROOT . 'config/project/version')) {
                         // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                         // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
+                        // will not be able to work our way around this.
                         throw new ProjectException(tr('Project version file "config/project/version" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
 
-                    // The file doesn't exist, that is good. Go to setup mode
+                    // The file does not exist, that is good. Go to setup mode
                     Log::toAlternateLog('Project version file "config/project/version" does not exist, entering setup mode');
 
                     throw new ProjectException(tr('Project version file ":path" cannot be read. Please ensure it exists', [
@@ -1376,11 +1376,11 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                     if (file_exists(DIRECTORY_ROOT . 'config/project/phoundation')) {
                         // Okay, we have a problem here! The project file DOES exist but is not readable. This is either
                         // (likely) a security file owner / group / mode issue, or a filesystem problem. Either way, we
-                        // won't be able to work our way around this.
+                        // will not be able to work our way around this.
                         throw new ProjectException(tr('Project version file "config/project/phoundation" does exist but is not readable. Please check the owner, group and mode for this file'));
                     }
 
-                    // The file doesn't exist, that is good. Go to setup mode
+                    // The file does not exist, that is good. Go to setup mode
                     Log::toAlternateLog('Project Phoundation version file "config/project/phoundation" does not exist, entering setup mode');
 
                     throw new ProjectException(tr('Project Phoundation version file ":path" cannot be read. Please ensure it exists', [

@@ -24,9 +24,9 @@ trait TraitDataUserObject
     /**
      * The user for this object
      *
-     * @var UserInterface|null $o_user
+     * @var UserInterface|null $_user
      */
-    protected ?UserInterface $o_user = null;
+    protected ?UserInterface $_user = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataUserObject
      */
     public function getUserObject(): ?UserInterface
     {
-        return $this->o_user;
+        return $this->_user;
     }
 
 
     /**
      * Sets the user
      *
-     * @param UserInterface|null $o_user
+     * @param UserInterface|null $_user
      *
      * @return static
      */
-    public function setUserObject(?UserInterface $o_user): static
+    public function setUserObject(?UserInterface $_user): static
     {
-        $this->o_user = get_null($o_user);
+        $this->_user = get_null($_user);
         return $this;
     }
 }

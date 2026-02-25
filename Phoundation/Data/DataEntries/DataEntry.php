@@ -65,13 +65,13 @@
  * exactly what columns are available to this entry, and will also know how to properly validate each column. When any
  * value inside the object is changed, the object cannot write to disk without first validating each column value. If
  * any validation fails, a ValidationFailedException will be thrown. DataEntry objects also have definition information
- * on how to display the object in an HTML page, so DataEntry::getHtmlDataEntryFormObject() will return an
+ * on how to display the object in an HTML page, so DataEntry::getHtmlFormObject() will return an
  * HtmlDataEntryForm that allows the contents of this DataEntry object to be rendered for a web page correctly and
  * automatically. The definitions also contain information on how to handle command line arguments and even command line
  * auto-suggest, making building scripts to handle these objects straightforward.
  *
  * The definitions also tell the DataEntry object what columns are available. Some DataEntry extending classes will have
- * special get/set handler methods, others won't. All columns are available through DataEntry::get(), or
+ * special get/set handler methods, others will not. All columns are available through DataEntry::get(), or
  * DataEntry::set(), but for example, the User object also has User::getEmail(), User::setNickname(), etc.
  *
  * DataEntry objects can automatically receive and apply GET, POST, or argv data using the GetValidator, PostValidator,

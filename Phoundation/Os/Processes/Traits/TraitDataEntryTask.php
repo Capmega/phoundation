@@ -23,9 +23,9 @@ use Phoundation\Os\Tasks\Task;
 trait TraitDataEntryTask
 {
     /**
-     * @var TaskInterface|null $o_task
+     * @var TaskInterface|null $_task
      */
-    protected ?TaskInterface $o_task = null;
+    protected ?TaskInterface $_task = null;
 
 
     /**
@@ -49,7 +49,7 @@ trait TraitDataEntryTask
      */
     public function setTasksId(?int $id): static
     {
-        if ($this->o_task?->getId() === $id) {
+        if ($this->_task?->getId() === $id) {
             return $this;
         }
 
@@ -77,7 +77,7 @@ trait TraitDataEntryTask
      */
     public function setTasksCode(?string $code): static
     {
-        if ($this->o_task?->getCode() === $code) {
+        if ($this->_task?->getCode() === $code) {
             return $this;
         }
 
@@ -92,7 +92,7 @@ trait TraitDataEntryTask
      */
     public function getTask(): ?TaskInterface
     {
-        return $this->o_task;
+        return $this->_task;
     }
 
 
@@ -112,15 +112,15 @@ trait TraitDataEntryTask
     /**
      * Sets the task ID, Practitioner Number, and Email
      *
-     * @param TaskInterface|null $o_task
+     * @param TaskInterface|null $_task
      *
      * @return static
      */
-    protected function setTaskData(?TaskInterface $o_task): static
+    protected function setTaskData(?TaskInterface $_task): static
     {
-        $this->o_task = $o_task;
+        $this->_task = $_task;
 
-        return $this->set($o_task?->getId(false), 'tasks_id')
-                    ->set($o_task?->getCode()   , 'tasks_code');
+        return $this->set($_task?->getId(false), 'tasks_id')
+                    ->set($_task?->getCode()   , 'tasks_code');
     }
 }

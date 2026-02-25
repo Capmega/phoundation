@@ -57,11 +57,11 @@ class Post extends Get
     /**
      * Post class constructor
      *
-     * @param Stringable|string|null $o_url
+     * @param Stringable|string|null $_url
      */
-    public function __construct(Stringable|string|null $o_url = null)
+    public function __construct(Stringable|string|null $_url = null)
     {
-        parent::__construct($o_url);
+        parent::__construct($_url);
 
         // Disable 301 302 location header following since this would cause the POST to go to GET
         $this->method          = EnumHttpRequestMethod::post;

@@ -120,12 +120,12 @@ trait TraitDataEntryBranch
     /**
      * Returns the branches_id for this user
      *
-     * @param BranchInterface|null $o_object
+     * @param BranchInterface|null $_object
      *
      * @return static
      */
-    public function setBranchObject(?BranchInterface $o_object): static
+    public function setBranchObject(?BranchInterface $_object): static
     {
-        return $this->setVirtualObject('branches', $o_object);
+        return $this->setVirtualObject('branches', $_object);
     }
 }

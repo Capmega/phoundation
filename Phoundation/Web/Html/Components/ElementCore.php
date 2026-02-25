@@ -91,9 +91,9 @@ abstract class ElementCore implements ElementInterface
             return $this->render;
         }
 
-        if (isset($this->o_tooltip)) {
-            if ($this->o_tooltip->getUseIcon()) {
-                if ($this->o_tooltip->getRenderBefore()) {
+        if (isset($this->_tooltip)) {
+            if ($this->_tooltip->getUseIcon()) {
+                if ($this->_tooltip->getRenderBefore()) {
                     $this->addClass('has-tooltip-icon-left');
 
                 } else {
@@ -111,7 +111,7 @@ abstract class ElementCore implements ElementInterface
             throw new OutOfBoundsException(tr('Cannot render HTML element, no element type specified'));
         }
 
-        $auto_submit = $this->o_attributes->get('auto_submit', exception: false);
+        $auto_submit = $this->_attributes->get('auto_submit', exception: false);
 
         if ($auto_submit) {
             if (!is_object($auto_submit)) {
@@ -167,7 +167,7 @@ abstract class ElementCore implements ElementInterface
             });
         }
 
-        $this->o_attributes->removeKeys('auto_submit');
+        $this->_attributes->removeKeys('auto_submit');
 
         $renderer_class  = $this->getRenderClass();
         $render_function = function () {
@@ -199,10 +199,10 @@ abstract class ElementCore implements ElementInterface
             // already add the "before content" and "after content". Do NOT add before and after content here!
             $render = $renderer_class::new($this)
                                      ->setRenderFunction($render_function)
-                                     ->render() . $this->o_scripts?->render();
+                                     ->render() . $this->_scripts?->render();
 
         } else {
-            // The template component doesn't exist, return the basic Phoundation version
+            // The template component does not exist, return the basic Phoundation version
             Log::warning(ts('No template render class found for element component ":component", rendering basic HTML', [
                 ':component' => static::class,
             ]), 2);
@@ -211,16 +211,16 @@ abstract class ElementCore implements ElementInterface
             $render = $this->renderBeforeContent() .
                       $render_function() .
                       $this->renderAfterContent() .
-                      $this->o_scripts?->render();
+                      $this->_scripts?->render();
         }
 
-        if (isset($this->o_tooltip)) {
-            $render = $this->o_tooltip->render($render);
+        if (isset($this->_tooltip)) {
+            $render = $this->_tooltip->render($render);
         }
 
-        if ($this->o_anchor) {
+        if ($this->_anchor) {
             // This element has an anchor. Render the anchor -which will render this element to be its contents- instead
-            return $this->renderBeforeContent() . $this->o_anchor->setContent($render)
+            return $this->renderBeforeContent() . $this->_anchor->setContent($render)
                                                                  ->setChildElement(null)
                                                                  ->render() . $this->renderAfterContent();
         }
@@ -284,8 +284,8 @@ abstract class ElementCore implements ElementInterface
         }
 
         // Add data-* entries
-        if (isset($this->o_data)) {
-            foreach ($this->o_data as $key => $value) {
+        if (isset($this->_data)) {
+            foreach ($this->_data as $key => $value) {
                 if ($value === null) {
                     $return['data-' . $key] = null;
 
@@ -296,14 +296,14 @@ abstract class ElementCore implements ElementInterface
         }
 
         // Add aria-* entries
-        if (isset($this->o_aria)) {
-            foreach ($this->o_aria as $key => $value) {
+        if (isset($this->_aria)) {
+            foreach ($this->_aria as $key => $value) {
                 $return['aria-' . $key] = $value;
             }
         }
 
         // Merge the system values over the set attributes
-        return $this->o_attributes->appendSource($return);
+        return $this->_attributes->appendSource($return);
     }
 
 

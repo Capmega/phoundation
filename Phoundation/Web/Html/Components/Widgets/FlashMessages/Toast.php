@@ -38,12 +38,12 @@ class Toast extends WidgetCore implements ToastInterface
     /**
      * Toast class constructor
      *
-     * @param FlashMessageInterface $o_message
+     * @param FlashMessageInterface $_message
      */
-    public function __construct(FlashMessageInterface $o_message)
+    public function __construct(FlashMessageInterface $_message)
     {
         parent::__construct();
-        $this->o_message = $o_message;
+        $this->_message = $_message;
     }
 
 
@@ -61,13 +61,13 @@ class Toast extends WidgetCore implements ToastInterface
     /**
      * Returns a new Toast object
      *
-     * @param FlashMessageInterface $o_message
+     * @param FlashMessageInterface $_message
      *
      * @return static
      */
-    public static function new(FlashMessageInterface $o_message): static
+    public static function new(FlashMessageInterface $_message): static
     {
-        return new static($o_message);
+        return new static($_message);
     }
 
 
@@ -79,15 +79,15 @@ class Toast extends WidgetCore implements ToastInterface
      */
     public function renderArray(): array
     {
-        if (empty($this->o_message)) {
+        if (empty($this->_message)) {
             throw new OutOfBoundsException(tr('Cannot render Toast object, no FlashMessage object specified'));
         }
 
-        $o_message = $this->o_message;
-        $image     = $o_message->getImage()?->getImgObject();
+        $_message = $this->_message;
+        $image     = $_message->getImage()?->getImgObject();
 
-        if ($o_message->getTop()) {
-            if ($o_message->getLeft()) {
+        if ($_message->getTop()) {
+            if ($_message->getLeft()) {
                 $position = 'topLeft';
 
             } else {
@@ -95,7 +95,7 @@ class Toast extends WidgetCore implements ToastInterface
             }
 
         } else {
-            if ($o_message->getLeft()) {
+            if ($_message->getLeft()) {
                 $position = 'bottomLeft';
 
             } else {
@@ -107,11 +107,11 @@ class Toast extends WidgetCore implements ToastInterface
         switch (Request::getTemplateObject()->getSeoName()) {
             case 'mdb':
                 $return = [
-                    'class'    => $o_message->getMode()->value,
-                    'title'    => Html::safe($o_message->getTitle()),
-                    'subtitle' => Html::safe($o_message->getSubTitle()),
+                    'class'    => $_message->getMode()->value,
+                    'title'    => Html::safe($_message->getTitle()),
+                    'subtitle' => Html::safe($_message->getSubTitle()),
                     'position' => Strings::fromCamelcaseToCharacterSeparated($position, '-'),
-                    'body'     => Html::safe($o_message->getContent()),
+                    'body'     => Html::safe($_message->getContent()),
                     'template' => Request::getTemplateObject()->getSeoName(),
                 ];
 
@@ -119,11 +119,11 @@ class Toast extends WidgetCore implements ToastInterface
 
             case 'adminlte':
                 $return = [
-                    'class'    => 'bg-' . $o_message->getMode()->value,
-                    'title'    => Html::safe($o_message->getTitle()),
-                    'subtitle' => Html::safe($o_message->getSubTitle()),
+                    'class'    => 'bg-' . $_message->getMode()->value,
+                    'title'    => Html::safe($_message->getTitle()),
+                    'subtitle' => Html::safe($_message->getSubTitle()),
                     'position' => $position,
-                    'body'     => Html::safe($o_message->getContent()),
+                    'body'     => Html::safe($_message->getContent()),
                     'template' => Request::getTemplateObject()->getSeoName(),
                 ];
 
@@ -140,13 +140,13 @@ class Toast extends WidgetCore implements ToastInterface
             $return['image-alt'] = Html::safe($image->getAlt());
         }
 
-        if ($o_message->getIcon()) {
-            $return['icon'] = 'fas fa-' . Html::safe($o_message->getIcon()) . ' fa-lg';
+        if ($_message->getIcon()) {
+            $return['icon'] = 'fas fa-' . Html::safe($_message->getIcon()) . ' fa-lg';
         }
 
-        if ($o_message->getAutoClose()) {
+        if ($_message->getAutoClose()) {
             $return['autohide'] = true;
-            $return['delay']    = $o_message->getAutoClose();
+            $return['delay']    = $_message->getAutoClose();
         }
 
         return $return;

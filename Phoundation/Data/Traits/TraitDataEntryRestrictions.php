@@ -42,22 +42,22 @@ trait TraitDataEntryRestrictions
     /**
      * Sets access restrictions for this task
      *
-     * @param PhoRestrictionsInterface|array|string|null $o_restrictions
+     * @param PhoRestrictionsInterface|array|string|null $_restrictions
      * @param bool                                       $write
      * @param string|null                                $label
      *
      * @return static
      */
-    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $o_restrictions = null, bool $write = false, ?string $label = null): static
+    public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static
     {
-        if ($o_restrictions) {
-            if (!$o_restrictions instanceof PhoRestrictionsInterface) {
-                $o_restrictions = PhoRestrictions::newFromImport($o_restrictions);
+        if ($_restrictions) {
+            if (!$_restrictions instanceof PhoRestrictionsInterface) {
+                $_restrictions = PhoRestrictions::newFromImport($_restrictions);
             }
         }
 
-        return $this->set($o_restrictions?->getPoadString(), 'restrictions')
-                    ->__setRestrictionsObject($o_restrictions);
+        return $this->set($_restrictions?->getPoadString(), 'restrictions')
+                    ->__setRestrictionsObject($_restrictions);
     }
 
 

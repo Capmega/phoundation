@@ -3,7 +3,7 @@
 /**
  * Class AutoComplete
  *
- * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it hasn't been yet.
+ * This class executes all BaSH autocompletion including registering ./pho for autocompletion if it has not been yet.
  *
  * The class supports autocompletion of commands, global system arguments, command arguments and command values.
  * Commands must use Documentation::setAutoComplete() for this
@@ -55,7 +55,7 @@
  * @see       https://unix.stackexchange.com/questions/148497/how-to-customize-bash-command-completion
  * @see       https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html
  *
- * @todo      Fix known issues with "foo" and "foo-bar", the second item won't ever be shown
+ * @todo      Fix known issues with "foo" and "foo-bar", the second item will not ever be shown
  * @todo      Fix known issues with result set having entries containing spaces, "foo bar" will be shown as "foo" and
  *            "bar"
  * @todo      Fix known issue that when only one result is returned, it should add a space to automatically go to the
@@ -97,7 +97,7 @@ use Stringable;
 class CliAutoComplete
 {
     /**
-     * The word location for the auto complete. NULL if auto complete hasn't been enabled
+     * The word location for the auto complete. NULL if auto complete has not been enabled
      *
      * @var int|null $position
      */
@@ -267,7 +267,7 @@ class CliAutoComplete
 
             switch (count($matches)) {
                 case 0:
-                    // This shouldn't happen at all, there is a match or we wouldn't be here!
+                    // This should not happen at all, there is a match or we would not be here!
                     throw new CliAutoCompleteException(tr('Found no match while there should be a match'));
 
                 case 1:
@@ -293,12 +293,12 @@ class CliAutoComplete
         }
 
         if ($argument_command) {
-            // We have an argument command specified, likely it doesn't exist
+            // We have an argument command specified, likely it does not exist
             if (str_starts_with($argument_command, '-')) {
                 // This is a system modifier argument, show the system modifier arguments instead.
                 $data['commands'] = [];
 
-                foreach (static::$system_arguments as $arguments => $o_definitions) {
+                foreach (static::$system_arguments as $arguments => $_definitions) {
                     $arguments = explode(',', $arguments);
 
                     foreach ($arguments as $argument) {
@@ -593,19 +593,19 @@ class CliAutoComplete
     /**
      * Process auto complete for this command from the definitions specified by the command
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return void
      */
-    public static function processCommandPositions(IteratorInterface|array|null $o_definitions)
+    public static function processCommandPositions(IteratorInterface|array|null $_definitions)
     {
-        if (!$o_definitions) {
+        if (!$_definitions) {
             return;
         }
 
-        if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions instanceof IteratorInterface) {
             // From here use array
-            $o_definitions = $o_definitions->getSource();
+            $_definitions = $_definitions->getSource();
         }
 
         // Get the word where we're <TAB>bing on
@@ -613,12 +613,12 @@ class CliAutoComplete
         $word = trim((string) $word);
 
         // First check position!
-        static::processCommandPosition($o_definitions, $word, static::$position);
+        static::processCommandPosition($_definitions, $word, static::$position);
 
         // Do we have an "all other positions" entry?
-        static::processCommandPosition($o_definitions, $word, null);
-        static::processCommandPosition($o_definitions, $word, -1);
-        static::processCommandPosition($o_definitions, $word, 'all');
+        static::processCommandPosition($_definitions, $word, null);
+        static::processCommandPosition($_definitions, $word, -1);
+        static::processCommandPosition($_definitions, $word, 'all');
     }
 
 
@@ -683,19 +683,19 @@ class CliAutoComplete
     /**
      * Process command arguments
      *
-     * @param IteratorInterface|array|null $o_definitions
+     * @param IteratorInterface|array|null $_definitions
      *
      * @return never
      */
-    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $o_definitions): never
+    #[NoReturn] public static function processCommandArguments(IteratorInterface|array|null $_definitions): never
     {
-        if ($o_definitions) {
-            if ($o_definitions instanceof IteratorInterface) {
+        if ($_definitions) {
+            if ($_definitions instanceof IteratorInterface) {
                 // From here use array
-                $o_definitions = $o_definitions->getSource();
+                $_definitions = $_definitions->getSource();
             }
 
-            CliAutoComplete::processArguments(array_merge($o_definitions, static::$system_arguments));
+            CliAutoComplete::processArguments(array_merge($_definitions, static::$system_arguments));
         }
 
         CliAutoComplete::processArguments(static::$system_arguments);
@@ -734,17 +734,17 @@ class CliAutoComplete
     {
         Log::action(ts('Ensuring autocomplete availability'), 2);
 
-        $file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
-                       ->makeAbsolute(must_exist: false);
+        $_file = PhoFile::new('~/.bash_completion', PhoRestrictions::newWritableObject('~/.bash_completion'))
+                        ->makeAbsolute(must_exist: false);
 
-        if ($file->exists()) {
-            if ($file->isReadable()) {
+        if ($_file->exists()) {
+            if ($_file->isReadable()) {
                 // Check if it contains the setup for Phoundation
                 // TODO Check if this is an issue with huge bash_completion files, are there huge files out there?
-                $results = Grep::new($file->getParentDirectoryObject())
-                               ->setValue('_phoundation pho')
-                               ->setFileObject($file)
-                               ->grep(EnumExecuteMethod::returnArray);
+                $results = Grep::new($_file->getParentDirectoryObject())
+                               ->setFilter('_phoundation pho')
+                               ->setFileObject($_file)
+                               ->executeReturnArray();
 
                 if ($results) {
                     // bash_completion contains rule for Phoundation
@@ -754,13 +754,13 @@ class CliAutoComplete
                     }
 
                     // Phoundation rule exists, update it forcibly by replacing the old command with the current
-                    $contents    = $file->getContentsAsString();
+                    $contents    = $_file->getContentsAsString();
                     $phoundation = Strings::from($contents, '_phoundation()');
                     $phoundation = Strings::untilReverse($phoundation, '_phoundation pho');
                     $phoundation = '_phoundation()' . $phoundation . '_phoundation pho';
                     $contents    = str_replace($phoundation, CliAutoComplete::getBashCompleteCommand(), $contents);
 
-                    $file->putContents($contents);
+                    $_file->putContents($contents);
 
                     Log::success('Updated auto complete for Phoundation in ~/.bash_completion');
                     Log::success('You may need to logout and login again for auto complete to work correctly with the new update');
@@ -769,12 +769,12 @@ class CliAutoComplete
 
             } else {
                 // File is not readable
-                if (!$file->uidMatchesPuid()) {
+                if (!$_file->uidMatchesPuid()) {
                     // Owner mismatch of file itself
                     Log::warning(ts('Not initializing existing bash completion file ":file" as its owner UID ":fuid (:fname)" does not match this process UID ":puid (:pname)"', [
-                        ':file'  => $file->getAbsolutePath(must_exist: false),
-                        ':fuid'  => $file->getOwnerUid(),
-                        ':fname' => $file->getOwnerName(),
+                        ':file'  => $_file->getAbsolutePath(must_exist: false),
+                        ':fuid'  => $_file->getOwnerUid(),
+                        ':fname' => $_file->getOwnerName(),
                         ':puid'  => Core::getProcessUid(),
                         ':pname' => Core::getProcessUsername()
                     ]));
@@ -784,9 +784,9 @@ class CliAutoComplete
 
                 // Different reason
                 Log::warning(ts('Cannot access bash completion file ":file", not performing auto-complete initialization check', [
-                    ':file'  => $file->getAbsolutePath(must_exist: false),
-                    ':fuid'  => $file->getOwnerUid(),
-                    ':fname' => $file->getOwnerName(),
+                    ':file'  => $_file->getAbsolutePath(must_exist: false),
+                    ':fuid'  => $_file->getOwnerUid(),
+                    ':fname' => $_file->getOwnerName(),
                     ':puid'  => Core::getProcessUid(),
                     ':pname' => Core::getProcessUsername()
                 ]));
@@ -796,12 +796,12 @@ class CliAutoComplete
 
         } else {
             // File does not exist. Does the parent directory match?
-            if (!$file->getParentDirectoryObject()->uidMatchesPuid()) {
+            if (!$_file->getParentDirectoryObject()->uidMatchesPuid()) {
                 Log::warning(ts('Not trying to initialize bash completion file ":file" as the owner UID ":fuid (:fname)" of the parent directory ":directory" does not match this process UID ":puid (:pname)"', [
-                    ':directory' => $file->getParentDirectoryObject()->getAbsolutePath(must_exist: false),
-                    ':file'      => $file->getAbsolutePath(must_exist: false),
-                    ':fuid'      => $file->getParentDirectoryObject()->getOwnerUid(),
-                    ':fname'     => $file->getParentDirectoryObject()->getOwnerName(),
+                    ':directory' => $_file->getParentDirectoryObject()->getAbsolutePath(must_exist: false),
+                    ':file'      => $_file->getAbsolutePath(must_exist: false),
+                    ':fuid'      => $_file->getParentDirectoryObject()->getOwnerUid(),
+                    ':fname'     => $_file->getParentDirectoryObject()->getOwnerName(),
                     ':puid'      => Core::getProcessUid(),
                     ':pname'     => Core::getProcessUsername()
                 ]));
@@ -810,11 +810,11 @@ class CliAutoComplete
             }
 
             // Initialize the bash_completion file
-            $file->appendData('#/usr/bin/env bash' . PHP_EOL);
+            $_file->appendData('#/usr/bin/env bash' . PHP_EOL);
         }
 
         // Phoundation command line auto complete has not yet been set up, do so now.
-        $file->appendData(PHP_EOL . CliAutoComplete::getBashCompleteCommand() . PHP_EOL);
+        $_file->appendData(PHP_EOL . CliAutoComplete::getBashCompleteCommand() . PHP_EOL);
 
         // Source the .bash_completion file
         Process::new('source', which_command: false)

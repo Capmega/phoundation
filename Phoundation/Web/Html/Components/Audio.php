@@ -44,7 +44,7 @@ class Audio extends Element
      */
     public function getPreload(): ?EnumAudioPreload
     {
-        return EnumAudioPreload::from($this->o_attributes->get('preload', exception: false));
+        return EnumAudioPreload::from($this->_attributes->get('preload', exception: false));
     }
 
 
@@ -68,7 +68,7 @@ class Audio extends Element
      */
     public function getFileObject(): ?PhoFileInterface
     {
-        $file = $this->o_attributes->get('src', exception: false);
+        $file = $this->_attributes->get('src', exception: false);
 
         if ($file) {
             $file = new PhoFile($file);
@@ -100,7 +100,7 @@ class Audio extends Element
     {
         // For the moment generate the HTML directly
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . Url::new((string) $this->o_attributes->get('src', exception: false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
+                    <source src="' . Url::new((string) $this->_attributes->get('src', exception: false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
                 </audio>';
     }
 }

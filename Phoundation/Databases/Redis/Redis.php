@@ -126,7 +126,7 @@ class Redis implements RedisInterface
         if (empty($this->client)) {
             try {
                 // Read configuration and connect
-                $config = $this->o_connector->getRedisConfiguration();
+                $config = $this->_connector->getRedisConfiguration();
 
                 $this->client = new \Redis();
                 $this->client->connect(

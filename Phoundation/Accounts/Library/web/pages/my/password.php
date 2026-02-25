@@ -100,15 +100,15 @@ $buttons = Buttons::new()
 
 
 // Build the "user" form
-$o_card = Card::new()
+$_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('Change your password'))
-            ->setContent($password->getHtmlDataEntryFormObject())
+            ->setContent($password->getHtmlFormObject())
             ->setButtonsObject($buttons);
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/my/profile.html')->makeWww(), tr('Manage my profile')) .
@@ -116,7 +116,7 @@ $o_relevant_card = Card::new()
                                   //AnchorBlock::new(Url::new('/my/authentication-history.html')->makeWww(), tr('Review my authentication history')));
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('<p>Here you can update your password</p>
@@ -136,5 +136,5 @@ Response::setBreadcrumbs([
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_card                                   , EnumDisplaySize::nine, true)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_card                                   , EnumDisplaySize::nine, true)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

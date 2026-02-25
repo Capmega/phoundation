@@ -406,7 +406,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             ]));
         }
 
-        // Make sure the field value doesn't have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
+        // Make sure the field value does not have any extras like "-e,--email EMAIL" <<< The EMAIL part is extra
         $fields = Strings::until($fields, ' ');
 
         // Unset various values first to ensure the byref link is broken
@@ -457,7 +457,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't be a variable name unless there is no alternative
+                // This is the short form argument, will not be a variable name unless there is no alternative
                 $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -481,7 +481,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             $value = $this->argument($fields, $next, $this->test);
 
         } catch (OutOfBoundsException) {
-            // The field wasn't specified
+            // The field was not specified
             $value = null;
         }
 
@@ -543,7 +543,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
             }
 
             if (str_starts_with($clean_field, '-')) {
-                // This is the short form argument, won't be a variable name unless there is no alternative
+                // This is the short form argument, will not be a variable name unless there is no alternative
                 $clean_field = Strings::ensureBeginsNotWith($clean_field, '-');
                 $clean_field = str_replace('-', '_', $clean_field);
                 continue;
@@ -957,18 +957,29 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     /**
      * Called at the end of defining all validation rules.
      *
-     * This method will check the failures array and if any failures were registered, it will throw an exception
+     * This method will check the "failures" array and, if any failures were registered, will throw an exception
      *
-     * @param bool $require_clean_source
+     * @note See also the configuration path "security.validation.enabled", if this configuration is false, validate() will also not throw a
+     *       ValidationFailedException
+     *
+     * @param bool $require_clean_source [true] If true, requires that this validation will select and validate ALL values in the validator source. If any
+     *                                          variables are left when Validator::validate() is called, a ValidationFailedException will be thrown
+     * @param bool $exception            [true] If true, and validation failed, will throw a ValidationFailedException. If false, will log the failure, and
+     *                                          return the data as if validation was successful. THIS IS ONLY ALLOWED ON DEBUG PLATFORMS! This variable will
+     *                                          cause a ValidatorException if this variable is false on production platforms
+     *
      *
      * @return array
+     *
+     * @throws ValidationFailedException
+     * @throws ValidatorException
      */
-    public function validate(bool $require_clean_source = true): array
+    public function validate(bool $require_clean_source = true, bool $exception = true): array
     {
         // Check if there is still a field selected that has no test applied.
         // If so, fail, because all fields must be tested
         if ($this->selected_field and !$this->test_count) {
-            if (!config()->getBoolean('security.validation.disabled', false)) {
+            if (!config()->getBoolean('security.validation.disabled', false) and $exception) {
                 throw new ValidatorException(tr('Cannot validate because the last selected field ":field" has no validations performed yet', [
                     ':field' => $this->selected_field,
                 ]));
@@ -980,7 +991,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if (static::$argv) {
             // Unprocessed fields
             if ($require_clean_source) {
-                if (config()->getBoolean('security.validation.enabled', true)) {
+                if ($this->getValidationEnabled() and $exception) {
                     throw ValidationFailedException::new(tr('Data validation failed because of the following unknown fields'))
                                                    ->addData([
                                                        'failures' => static::$argv,
@@ -995,12 +1006,12 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         if ($this->failures) {
             $values = Arrays::keepKeys($this->source, array_keys($this->failures));
 
-            if (Core::inBootState() or config()->getBoolean('security.validation.enabled', true)) {
+            if (Core::inBootState() or $this->getValidationEnabled() and $exception) {
                 throw ValidationFailedException::new(tr('Data validation failed with the following issues:'))
-                                               ->setDataEntryObject($this->o_definitions?->getDataEntryObject())
+                                               ->setDataEntryObject($this->_definitions?->getDataEntryObject())
                                                ->makeWarning()
                                                ->addData([
-                                                   'class'    => get_class_or_datatype($this->o_definitions?->getDataEntryObject()),
+                                                   'class'    => get_class_or_datatype($this->_definitions?->getDataEntryObject()),
                                                    'failures' => $this->failures,
                                                    'values'   => $values
                                                ]);

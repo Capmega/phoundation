@@ -39,14 +39,14 @@ $plugin = Plugin::new()->load($get['id']);
 $plugin_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
-                   ->setContent($plugin->getHtmlDataEntryFormObject())
+                   ->setContent($plugin->getHtmlFormObject())
                    ->setButtonsObject(Buttons::new()
                                              ->addSaveButton()
                                              ->addBackButton(Url::newPrevious('/plugins/plugins.html'), true));
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                      ->setMode(EnumDisplayMode::info)
                      ->setTitle(tr('Relevant links'))
                      ->setContent(AnchorBlock::new(Url::new('/developer/slow-pages.html')->makeWww(), tr('Slow pages')) .
@@ -54,7 +54,7 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                           ->setMode(EnumDisplayMode::info)
                           ->setTitle(tr('Documentation'))
                           ->setContent('<p>Soluta a rerum quia est blanditiis ipsam ut libero. Pariatur est ut qui itaque dolor nihil illo quae. Asperiores ut corporis et explicabo et. Velit perspiciatis sunt dicta maxime id nam aliquid repudiandae. Et id quod tempore.</p>
@@ -75,4 +75,4 @@ Response::setBreadcrumbs([
 // Render and return the page grid
 return Grid::new()
            ->addGridColumn($plugin_card                            , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

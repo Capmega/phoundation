@@ -42,7 +42,7 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$o_role = Role::new()->loadThis($get['id']);
+$_role = Role::new()->loadThis($get['id']);
 
 
 // Validate POST and submit
@@ -56,63 +56,63 @@ if (Request::isPostRequestMethod()) {
                                      ->validate(false);
 
                 // Update role and rights
-                $o_role->apply()
+                $_role->apply()
                        ->save()
                        ->getRightsObject()
                            ->setRights($post['rights_id']);
 
-                Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $o_role->getName()]));
-                Response::redirect('accounts/role+' . $o_role->getId() . '.html');
+                Response::getFlashMessagesObject()->addSuccess(tr('Role ":role" has been saved', [':role' => $_role->getName()]));
+                Response::redirect('accounts/role+' . $_role->getId() . '.html');
 
             case tr('Delete'):
-                $o_role->delete();
+                $_role->delete();
 
-                Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been deleted', [':role' => $o_role->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been deleted', [':role' => $_role->getName()]));
                 Response::redirect();
 
             case tr('Undelete'):
-                $o_role->undelete();
+                $_role->undelete();
 
-                Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been undeleted', [':role' => $o_role->getName()]));
+                Response::getFlashMessagesObject()->addSuccess(tr('The role ":role" has been undeleted', [':role' => $_role->getName()]));
                 Response::redirect();
         }
 
     } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
         // Oops! Show validation errors and remain on the page
         Response::getFlashMessagesObject()->addMessage($e);
-        $o_role->forceApply();
+        $_role->forceApply();
     }
 }
 
 
 // Audit button.
-if ($o_role->isNotNew()) {
-    $o_audit = Button::new()
+if ($_role->isNotNew()) {
+    $_audit = Button::new()
                      ->setFloatRight(true)
                      ->setMode(EnumDisplayMode::information)
-                     ->setUrlObject('/audit/meta+' . $o_role->getMetaId() . '.html')
+                     ->setUrlObject('/audit/meta+' . $_role->getMetaId() . '.html')
                      ->setFloatRight(true)
                      ->setContent(tr('Audit'));
 
-    if ($o_role->isDeleted()) {
-        $o_delete = Button::new()
+    if ($_role->isDeleted()) {
+        $_delete = Button::new()
                           ->setFloatRight(true)
                           ->setMode(EnumDisplayMode::warning)
                           ->setOutlined(true)
                           ->setContent(tr('Undelete'));
 
     } else {
-        $o_delete = DeleteButton::new()->setFloatRight(true);
+        $_delete = DeleteButton::new();
     }
 
-    $o_users = $o_role->getUsersObject();
+    $_users = $_role->getUsersObject();
 
     // Build the "users" list section
-    $o_users_card = Card::new()
-                      ->setTitle(tr('Users that have this role (:count)', [':count' => $o_users->getCount()]))
+    $_users_card = Card::new()
+                      ->setTitle(tr('Users that have this role (:count)', [':count' => $_users->getCount()]))
                       ->setCollapseSwitch(true)
                       ->setMaximizeSwitch(true)
-                      ->setContent($o_users->getHtmlDataTableObject([
+                      ->setContent($_users->getHtmlDataTableObject([
                                                'id'            => tr('Id'),
                                                'profile_image' => tr('Profile image'),
                                                'email'         => tr('Email'),
@@ -127,20 +127,20 @@ if ($o_role->isNotNew()) {
 
 
 // Build the role card
-$o_role_card = Card::new()
-                   ->setTitle(tr('Edit data for role :name', [':name' => $o_role->getName()]))
+$_role_card = Card::new()
+                   ->setTitle(tr('Edit data for role :name', [':name' => $_role->getName()]))
                    ->setCollapseSwitch(true)
                    ->setMaximizeSwitch(true)
-                   ->setContent($o_role->getHtmlDataEntryFormObject())
+                   ->setContent($_role->getHtmlFormObject())
                    ->setButtonsObject(Buttons::new()
                                              ->addSaveButton()
                                              ->addBackButton(Url::newPrevious('/accounts/roles.html'), true)
-                                             ->addButton(isset_get($o_delete))
-                                             ->addButton(isset_get($o_audit)));
+                                             ->addButton(isset_get($_delete))
+                                             ->addButton(isset_get($_audit)));
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new('/accounts/users.html' , tr('Manage users')) .
@@ -149,28 +149,28 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.');
 
 
 // Build the "rights" list management section
-$o_rights_card = Card::new()
+$_rights_card = Card::new()
                      ->setTitle(tr('Rights for this role'))
                      ->setCollapseSwitch(true)
                      ->setMaximizeSwitch(true)
-                     ->setContent($o_role->getRightsHtmlDataEntryForm());
+                     ->setContent($_role->getRightsHtmlDataEntryForm());
 
 
 // Set page meta-data
 Response::setHeaderTitle(tr('Role'));
-Response::setHeaderSubTitle($o_role->getDisplayName());
+Response::setHeaderSubTitle($_role->getDisplayName());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'                   , tr('Home')),
     Breadcrumb::new('/accounts.html'      , tr('Accounts')),
     Breadcrumb::new('/accounts/roles.html', tr('Roles')),
-    Breadcrumb::new(''                    , $o_role->getDisplayName()),
+    Breadcrumb::new(''                    , $_role->getDisplayName()),
 ]);
 
 
@@ -178,8 +178,8 @@ Response::setBreadcrumbs([
 return Grid::new()
            ->addGridColumn(GridColumn::new()
                                      // The role card and all additional cards
-                                     ->addContent($o_role_card . $o_rights_card)
+                                     ->addContent($_role_card . $_rights_card)
                                      ->setSize(9)
                                      ->useForm(true))
-          ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three)
-          ->addGridColumn(isset_get($o_users_card)                , EnumDisplaySize::nine);
+          ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three)
+          ->addGridColumn(isset_get($_users_card)                , EnumDisplaySize::nine);

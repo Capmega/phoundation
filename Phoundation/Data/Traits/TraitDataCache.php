@@ -87,10 +87,10 @@ trait TraitDataCache
 
         // Pass
         if ($this instanceof ContentObjectInterface) {
-            $o_content = $this->getContent();
+            $_content = $this->getContent();
 
-            if ($o_content instanceof CacheableObjectInterface) {
-                $o_content->setUseCache($use_cache);
+            if ($_content instanceof CacheableObjectInterface) {
+                $_content->setUseCache($use_cache);
             }
         }
 

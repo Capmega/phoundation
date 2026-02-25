@@ -37,7 +37,8 @@ class LockButton extends Button
              ->setButtonType(EnumButtonType::submit)
              ->setContent($content ?? tr('Lock'), $make_safe)
              ->setOutlined($this->getConfiguredOutline())
-             ->setMode($this->getConfiguredMode());
+             ->setMode($this->getConfiguredMode())
+             ->setFloatRight(true);
     }
 
 

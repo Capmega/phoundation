@@ -80,7 +80,7 @@ class Button extends Input implements ButtonInterface
     public function setValue(Stringable|string|float|int|null $value, bool $make_safe = false): static
     {
         if ($this->floating) {
-            // TODO What does this do? When setting a value while floating is on, we render an icon but don't do anything with it? This code makes little sense
+            // TODO What does this do? When setting a value while floating is on, we render an icon but do not do anything with it? This code makes little sense
             $this->addClasses('btn-floating');
 
             Icons::new()
@@ -128,7 +128,7 @@ class Button extends Input implements ButtonInterface
     public function setContent(RenderInterface|callable|string|float|int|null $content, bool $make_safe = false): static
     {
         if ($this->floating) {
-            // TODO What does this do? When setting a value while floating is on, we render an icon but don't do anything with it? This code makes little sense
+            // TODO What does this do? When setting a value while floating is on, we render an icon but do not do anything with it? This code makes little sense
             $this->addClasses('btn-floating');
 
             Icons::new()
@@ -165,7 +165,7 @@ class Button extends Input implements ButtonInterface
             if ($this->getRequireKeysToEnable()) {
                 // Disable this button by default, only enable it with a special key combination.
                 // This button will then also need a tooltip indicating that it is "disabled" until you press those keys.
-                $title = tr('To enable this button, please press down the :keys :label', [
+                $title = tr('This button is locked for safety. To use it, please press down the :keys :label', [
                     ':keys'  => Strings::force($this->getRequireKeysToEnable(), ' and '),
                     ':label' => Strings::plural(get_element_count($this->getRequireKeysToEnable()), tr('key'), tr('keys'))
                 ]);
@@ -219,7 +219,7 @@ class Button extends Input implements ButtonInterface
         } else {
             if (!$this->getValue()) {
                 // By default, use the content as value
-                $this->setValue(strip_tags($this->getContent()));
+                $this->setValue(strip_tags((string) $this->getContent()));
             }
         }
 
@@ -252,7 +252,7 @@ class Button extends Input implements ButtonInterface
         }
 
         // Should we render this URL at all?
-        if ($this->o_url) {
+        if ($this->_url) {
             // Should we render this URL at all?
             if (!$this->hasRenderRights()) {
                 return null;

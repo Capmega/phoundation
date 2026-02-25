@@ -19,13 +19,13 @@ class Remotes extends IteratorCore implements RemotesInterface
     /**
      * Remote class constructor
      *
-     * @param RepositoryInterface $o_repository
+     * @param RepositoryInterface $_repository
      */
-    public function __construct(RepositoryInterface $o_repository)
+    public function __construct(RepositoryInterface $_repository)
     {
         parent::__construct();
         $this->default      = config()->getString('developer.versioning.git.remotes.default', 'origin');
-        $this->o_repository = $o_repository;
+        $this->_repository = $_repository;
 
         $this->load();
     }
@@ -38,7 +38,7 @@ class Remotes extends IteratorCore implements RemotesInterface
      */
     public function load(): static
     {
-        $this->source = $this->o_repository->getGitObject()->getRemotes();
+        $this->source = $this->_repository->getGitObject()->getRemotes();
         return $this;
     }
 }

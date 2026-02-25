@@ -36,23 +36,23 @@ class Btrfs
     /**
      * BtrFs class constructor
      *
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      */
-    public function __construct(?PhoPathInterface $o_path = null)
+    public function __construct(?PhoPathInterface $_path = null)
     {
-        $this->setPathObject($o_path);
+        $this->setPathObject($_path);
     }
 
 
     /**
-     * @param PhoPathInterface|null $o_path
+     * @param PhoPathInterface|null $_path
      *
      * @return static
      */
-    public function setPathObject(?PhoPathInterface $o_path): static
+    public function setPathObject(?PhoPathInterface $_path): static
     {
-        return $this->__setPathObject($o_path)
-                    ->setProcessObject(Process::new('btrfs', $o_path?->getDirectoryObject())
+        return $this->__setPathObject($_path)
+                    ->setProcessObject(Process::new('btrfs', $_path?->getDirectoryObject())
                                               ->setSudo(true));
     }
 

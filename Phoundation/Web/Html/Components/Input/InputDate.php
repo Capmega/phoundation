@@ -101,7 +101,7 @@ class InputDate extends InputText
      */
     public function getMax(): ?int
     {
-        return $this->o_attributes->get('max');
+        return $this->_attributes->get('max');
     }
 
 
@@ -129,7 +129,7 @@ class InputDate extends InputText
      */
     public function getMin(): ?int
     {
-        return $this->o_attributes->get('min');
+        return $this->_attributes->get('min');
     }
 
 
@@ -169,15 +169,15 @@ class InputDate extends InputText
     /**
      * Set the DataEntry Definition on this element
      *
-     * @param DefinitionInterface|null $o_definition
+     * @param DefinitionInterface|null $_definition
      *
      * @return static
      */
-    public function setDefinitionObject(?DefinitionInterface $o_definition): static
+    public function setDefinitionObject(?DefinitionInterface $_definition): static
     {
         // Copy data used for input controls
-        return parent::setDefinitionObject($o_definition)
-                     ->setMinimumDateObject($o_definition->getMinimumDateObject())
-                     ->setMaximumDateObject($o_definition->getMaximumDateObject());
+        return parent::setDefinitionObject($_definition)
+                     ->setMinimumDateObject($_definition->getMinimumDateObject())
+                     ->setMaximumDateObject($_definition->getMaximumDateObject());
     }
 }

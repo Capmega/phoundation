@@ -22,11 +22,11 @@ use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 trait TraitDataObjectFile
 {
     /**
-     * The path to use
+     * The file to use
      *
-     * @var PhoFileInterface|null $o_file
+     * @var PhoFileInterface|null $_file
      */
-    protected ?PhoFileInterface $o_file = null;
+    protected ?PhoFileInterface $_file = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataObjectFile
      */
     public function getFileObject(): ?PhoFileInterface
     {
-        return $this->o_file;
+        return $this->_file;
     }
 
 
     /**
      * Sets the file object
      *
-     * @param PhoFileInterface|null $o_file
+     * @param PhoFileInterface|null $_file
      *
      * @return static
      */
-    public function setFileObject(?PhoFileInterface $o_file): static
+    public function setFileObject(?PhoFileInterface $_file): static
     {
-        $this->o_file = $o_file;
+        $this->_file = $_file;
         return $this;
     }
 }

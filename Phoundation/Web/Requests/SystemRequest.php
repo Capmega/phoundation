@@ -227,7 +227,7 @@ class SystemRequest implements SystemRequestInterface
     {
         static $rebuild = false;
         if (($e instanceof SystemPageNotFoundException) and !$rebuild) {
-            // A system page doesn't exist? Has the web cache directory been built? Rebuild it once and try again.
+            // A system page does not exist? Has the web cache directory been built? Rebuild it once and try again.
             $rebuild = true;
             try {
                 Log::warning(ts('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
@@ -238,7 +238,7 @@ class SystemRequest implements SystemRequestInterface
                 static::executePage($variables);
 
             } catch (Throwable $e) {
-                // Nah, didn't solve the issue
+                // Nah, did not solve the issue
                 if (!($e instanceof SystemPageNotFoundException)) {
                     // A different issue?
                     Log::error(ts('Rebuilding web cache failed with exception below'));
@@ -370,7 +370,7 @@ class SystemRequest implements SystemRequestInterface
             Log::warning(ts('Applying known hacking rules'));
 
             foreach (config()->getArray('web.route.known-hacks') as $hacks) {
-                // TODO Fix this. This is old code and the specified method doesn't even exist anymore
+                // TODO Fix this. This is old code and the specified method does not even exist anymore
                 static::try($hacks['regex'], array_get_safe($hacks, 'url'), array_get_safe($hacks, 'flags'));
             }
         }

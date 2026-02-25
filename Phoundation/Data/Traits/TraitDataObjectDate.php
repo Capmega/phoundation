@@ -28,9 +28,9 @@ trait TraitDataObjectDate
     /**
      * The date to use
      *
-     * @var PhoDateTimeInterface|null $o_date
+     * @var PhoDateTimeInterface|null $_date
      */
-    protected ?PhoDateTimeInterface $o_date = null;
+    protected ?PhoDateTimeInterface $_date = null;
 
 
     /**
@@ -40,7 +40,7 @@ trait TraitDataObjectDate
      */
     public function getDateObject(): ?PhoDateTimeInterface
     {
-        return $this->o_date;
+        return $this->_date;
     }
 
 
@@ -53,7 +53,7 @@ trait TraitDataObjectDate
      */
     public function setDateObject(?PhoDateTimeInterface $date): static
     {
-        $this->o_date = $date;
+        $this->_date = $date;
         return $this;
     }
 }

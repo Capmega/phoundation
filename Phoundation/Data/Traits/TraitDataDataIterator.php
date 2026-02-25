@@ -24,9 +24,9 @@ trait TraitDataDataIterator
     /**
      * The data entry
      *
-     * @var DataIteratorInterface|null $o_data_iterator
+     * @var DataIteratorInterface|null $_data_iterator
      */
-    protected ?DataIteratorInterface $o_data_iterator = null;
+    protected ?DataIteratorInterface $_data_iterator = null;
 
 
     /**
@@ -36,20 +36,20 @@ trait TraitDataDataIterator
      */
     public function getDataIteratorObject(): ?DataIteratorInterface
     {
-        return $this->o_data_iterator;
+        return $this->_data_iterator;
     }
 
 
     /**
      * Sets the DataIterator object
      *
-     * @param DataIteratorInterface|null $o_data_iterator
+     * @param DataIteratorInterface|null $_data_iterator
      *
      * @return static
      */
-    public function setDataIteratorObject(?DataIteratorInterface $o_data_iterator): static
+    public function setDataIteratorObject(?DataIteratorInterface $_data_iterator): static
     {
-        $this->o_data_iterator = $o_data_iterator;
+        $this->_data_iterator = $_data_iterator;
         return $this;
     }
 }

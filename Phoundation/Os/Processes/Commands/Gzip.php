@@ -58,9 +58,9 @@ class Gzip extends Command
             return new PhoFile($file . '.gz');
 
         } catch (ProcessFailedException $e) {
-            // The gzip tar failed, most of the time either $file doesn't exist, or we do not have access
+            // The gzip tar failed, most of the time either $file does not exist, or we do not have access
             static::handleException('gzip', $e, function () use ($file) {
-                PhoFile::new($file, $this->o_restrictions)->checkReadable();
+                PhoFile::new($file, $this->_restrictions)->checkReadable();
             });
         }
     }
@@ -100,7 +100,7 @@ class Gzip extends Command
             return $target;
 
         } catch (ProcessFailedException $e) {
-            // The command gunzip failed, most of the time either $file doesn't exist, or we do not have access
+            // The command gunzip failed, most of the time either $file does not exist, or we do not have access
             static::handleException('gunzip', $e, function () use ($file) {
                 PhoFile::new($file)
                     ->checkReadable();

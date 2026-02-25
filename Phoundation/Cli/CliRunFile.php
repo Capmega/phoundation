@@ -77,11 +77,11 @@ class CliRunFile extends PhoFileCore implements CliRunFileInterface
     public function __construct(string $command)
     {
         $this->setAutoMount(false)
-             ->o_restrictions = PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
+             ->_restrictions = PhoRestrictions::new(DIRECTORY_SYSTEM . 'run/', true);
 
         static::$directory = PhoDirectory::new(
             DIRECTORY_SYSTEM . 'run/',
-            $this->o_restrictions
+            $this->_restrictions
         )->setAutoMount(false);
 
         $this->setCommand(Strings::from($command, DIRECTORY_COMMANDS))

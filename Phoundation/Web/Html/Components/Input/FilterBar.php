@@ -35,8 +35,8 @@ class FilterBar extends InputSelect
         Script::new()
               ->setContent('$("' . $this->getId() . '").select2();')
               ->render();
-        $this->o_attributes = $this->renderInputAttributes()
-                                   ->appendSource($this->o_attributes);
+        $this->_attributes = $this->renderInputAttributes()
+                                   ->appendSource($this->_attributes);
 
         return parent::render();
 //        <div class="select2-purple">

@@ -300,7 +300,7 @@ class Plugins extends DataIterator implements PluginsInterface
                     Log::error($e);
 
                 } catch (PluginNotExistsException $e) {
-                    // The plugin doesn't exist!
+                    // The plugin does not exist!
                     Log::error(ts('Failed to start plugin ":vendor/:plugin" because it does not exist', [
                         ':vendor' => $plugin['vendor'],
                         ':plugin' => $plugin['name'],

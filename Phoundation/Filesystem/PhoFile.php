@@ -59,7 +59,7 @@ class PhoFile extends PhoFileCore
     {
         return static::new(
             DIRECTORY_DATA . $file,
-            $restrictions
+            $restrictions ?? PhoRestrictions::newDataObject()
         );
     }
 

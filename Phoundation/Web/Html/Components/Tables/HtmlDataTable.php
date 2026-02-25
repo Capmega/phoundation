@@ -275,11 +275,11 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
     /**
      * Sets table top-buttons
      *
-     * @param ButtonsInterface|array|string|null $o_buttons
+     * @param ButtonsInterface|array|string|null $_buttons
      *
      * @return static
      */
-    public function setButtonsObject(ButtonsInterface|array|string|null $o_buttons): static
+    public function setButtonsObject(ButtonsInterface|array|string|null $_buttons): static
     {
         // For now only built in buttons are supported
         $builtin = [
@@ -293,10 +293,10 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
         ];
 
         // Validate buttons and reformat definition
-        $o_buttons = Arrays::force($o_buttons);
+        $_buttons = Arrays::force($_buttons);
         $source    = [];
 
-        foreach ($o_buttons as $button) {
+        foreach ($_buttons as $button) {
             if (!array_key_exists($button, $builtin)) {
                 throw new OutOfBoundsException(tr('Unknown button ":button" specified. Please specify one of ":builtin"', [
                     ':button'  => $button,
@@ -307,7 +307,7 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
             $source['"' . $button . '"'] = $builtin[$button];
         }
 
-        $this->o_buttons = new Buttons($source);
+        $this->_buttons = new Buttons($source);
 
         return $this;
     }
@@ -1327,8 +1327,8 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
                 $options[] = 'orderFixed: { pre: [' . implode(', ' . PHP_EOL, $this->order_fixed) . '] }';
             }
 
-            if (isset($this->o_buttons) and $this->o_buttons->isNotEmpty()) {
-                $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->o_buttons->getSource())) . ' ] }';
+            if (isset($this->_buttons) and $this->_buttons->isNotEmpty()) {
+                $options[] = 'buttons: { buttons: [ ' . implode(', ' . PHP_EOL, array_keys($this->_buttons->getSource())) . ' ] }';
             }
 
             if ($this->responsive) {

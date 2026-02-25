@@ -171,7 +171,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
 
         $url         = Url::new('sign-key')->makeWww();
         $url         = str_replace(':key', $this->getUuid(), (string) $url);
-        $this->o_url = Url::new($url)->makeWww();
+        $this->_url = Url::new($url)->makeWww();
 
         return $this;
     }
@@ -308,9 +308,9 @@ class SignInKey extends DataEntry implements SignInKeyInterface
     /**
      * @inheritDoc
      */
-    protected function setDefinitionsObject(DefinitionsInterface $o_definitions): static
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $o_definitions->add(DefinitionFactory::newUsersId())
+        $_definitions->add(DefinitionFactory::newUsersId())
 
                       ->add(DefinitionFactory::newUuid())
 

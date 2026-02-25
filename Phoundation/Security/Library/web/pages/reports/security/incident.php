@@ -35,12 +35,12 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$o_incident = Incident::new()->load($get['id']);
-$o_form     = $o_incident->getHtmlDataEntryFormObject();
-$o_card     = Card::new()
+$_incident = Incident::new()->load($get['id']);
+$_form     = $_incident->getHtmlFormObject();
+$_card     = Card::new()
                   ->setTitle(tr('Incident data'))
                   ->setMaximizeSwitch(true)
-                  ->setContent($o_form)
+                  ->setContent($_form)
                   ->setButtonsObject(Buttons::new()->addButton(
                       tr('Back'), EnumDisplayMode::secondary,
                       Url::newPrevious('/reports/security/incidents.html')->addQueries(
@@ -50,7 +50,7 @@ $o_card     = Card::new()
 
 
 // Build relevant links
-$o_relevant_card = Card::new()
+$_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
                        ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($get['date_range'] ? 'date_range=' . $get['date_range'] : ''), tr('Authentications management')) .
@@ -61,28 +61,28 @@ $o_relevant_card = Card::new()
 
 
 // Build documentation
-$o_documentation_card = Card::new()
+$_documentation_card = Card::new()
                             ->setMode(EnumDisplayMode::info)
                             ->setTitle(tr('Documentation'))
                             ->setContent('This page shows the details of a single specific incident. The information on this page cannot be modified');
 
 
 // Set page meta-data
-$o_url = Url::new('/reports/security/incidents.html')->makeWww()->addQueries(
+$_url = Url::new('/reports/security/incidents.html')->makeWww()->addQueries(
     $get['date_range'] ? 'date_range=' . $get['date_range'] : ''
 );
 
 Response::setHeaderTitle(tr('Incident'));
-Response::setHeaderSubTitle($o_incident->getDisplayId());
+Response::setHeaderSubTitle($_incident->getDisplayId());
 Response::setBreadcrumbs([
     Breadcrumb::new('/'             , tr('Home')),
     Breadcrumb::new('/security.html', tr('Security')),
-    Breadcrumb::new($o_url          , tr('Incidents management')),
-    Breadcrumb::new(''              , $o_incident->getDisplayId()),
+    Breadcrumb::new($_url          , tr('Incidents management')),
+    Breadcrumb::new(''              , $_incident->getDisplayId()),
 ]);
 
 
 // Render and return the page grid
 return Grid::new()
-           ->addGridColumn($o_card                                 , EnumDisplaySize::nine)
-           ->addGridColumn($o_relevant_card . $o_documentation_card, EnumDisplaySize::three);
+           ->addGridColumn($_card                                 , EnumDisplaySize::nine)
+           ->addGridColumn($_relevant_card . $_documentation_card, EnumDisplaySize::three);

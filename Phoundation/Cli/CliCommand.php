@@ -576,7 +576,7 @@ class CliCommand
             return;
         }
 
-        // UID mismatch, stop logging to file as that likely won't be possible at all. Also stop all file access
+        // UID mismatch, stop logging to file as that likely will not be possible at all. Also stop all file access
         Log::disableFile();
         PhoFile::disable();
 
@@ -646,7 +646,7 @@ class CliCommand
         // Re-execute this PHO command with sudo as the correct user
         passthru($command, $result_code);
 
-        // We likely won't be able to log here (nor should we), so disable logging
+        // We likely will not be able to log here (nor should we), so disable logging
         Core::setReady();
         Core::exit($result_code, direct_exit: true);
     }
@@ -697,14 +697,14 @@ class CliCommand
         }
 
         if (!config()->getEnvironment()) {
-            // Config class didn't get environment, this means the process died somewhere during startup.
+            // Config class did not get environment, this means the process died somewhere during startup.
             // We cannot log using the Log class, so die with the exit message
             if (PLATFORM_CLI) {
                 echo Strings::ensureEndsWith($exit_message, PHP_EOL);
                 exit($exit_code);
             }
 
-            // We won't show anything on the web platform
+            // We will not show anything on the web platform
             Log::toAlternateLog($exit_message);
             exit();
         }
@@ -905,7 +905,7 @@ class CliCommand
      * command name. If so, then the system can be sure that this command is already running, and the function will
      * throw an exception
      *
-     * @param bool $close If set true, the function will stop ensuring that the command won't be run again
+     * @param bool $close If set true, the function will stop ensuring that the command will not be run again
      *
      * @return void
      * @example  Have a command run itself recursively, which will be stopped by cli_run_once_local()
@@ -992,7 +992,7 @@ class CliCommand
 //                        }
 //                    }
 //                }
-//                // PhoFile exists, or contains invalid data, but PID either doesn't exist, or is used by a different
+//                // PhoFile exists, or contains invalid data, but PID either does not exist, or is used by a different
 //                // process. Remove the PID file
 //                Log::warning(ts('cli_run_once_local(): Cleaning up stale run file ":file"', [':file' => $run_dir . $command]));
 //                file_delete([
@@ -1099,7 +1099,7 @@ class CliCommand
 
             // Check if this command has support for auto complete. If not
             if (!CliAutoComplete::hasSupport($command)) {
-                // This command has no auto complete support, so if we execute the command it won't go for auto
+                // This command has no auto complete support, so if we execute the command it will not go for auto
                 // complete but execute normally, which is not what we want. We are done here.
                 exit();
             }
@@ -1169,7 +1169,7 @@ class CliCommand
             ArgvValidator::removeCommand($command);
 
             if (!file_exists($file) and !file_exists($file . '.php')) {
-                // The specified directory doesn't exist. Does a part exist, perhaps? Get the parent and find out
+                // The specified directory does not exist. Does a part exist, perhaps? Get the parent and find out
                 try {
                     $files = Arrays::removeMatchingValues(scandir(dirname($file)), '/^\./', flags: Utils::MATCH_REGEX);
                     $files = Arrays::replaceValuesWithCallbackReturn($files, function ($key, $value) { return strip_extension($value); });
