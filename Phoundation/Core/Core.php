@@ -1276,6 +1276,23 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns a marker that indicates alternative (non production) environments
+     *
+     * A marker typically looks like " (ENVIRONMENTNAME)"
+     *
+     * @return string|null
+     */
+    public static function getNonProductionEnvironmentMarker(): ?string
+    {
+        if(Core::isProductionEnvironment()) {
+            return null;
+        }
+
+        return ' (' . ENVIRONMENT . ')';
+    }
+
+
+    /**
      * Returns true if the system is running in production environment
      *
      * @param bool|null $production
@@ -1798,6 +1815,49 @@ class Core implements CoreInterface
     public static function getRuntime(): float
     {
         return STARTTIME - microtime(true);
+    }
+
+
+    /**
+     * Returns true if the total process runtime has surpassed the specified amount of seconds
+     *
+     * @param float|int $seconds
+     *
+     * @return bool
+     */
+    public static function hasRuntimeOver(float|int $seconds): bool
+    {
+        return Core::getRuntime() <= $seconds;
+    }
+
+
+    /**
+     * Exits this process cleanly if the total amount of runtime for this process surpasses the specified amount of seconds
+     *
+     * This is a slightly "nicer" way of shutting down a process when it reaches a certain amount of runtime seconds, than relying on set_time_limit() throwing
+     * a PHP error
+     *
+     * This method may be useful in the main loop of commands that run as a service in the background for an X amount of time
+     *
+     * @param float|int|null $seconds
+     *
+     * @return void
+     */
+    public static function exitOverRuntime(float|int|null $seconds): void
+    {
+        if ($seconds === null) {
+            // Do not exit, we can run forever!
+            return;
+        }
+
+        if (Core::hasRuntimeOver($seconds)) {
+            Log::warning(ts('Process has been running for ":seconds" seconds with a ":limit" limit, shutting down', [
+                ':seconds' => $seconds,
+                ':limit'   => Core::getRuntime(),
+            ]));
+
+            exit();
+        }
     }
 
 
