@@ -65,7 +65,7 @@
  * exactly what columns are available to this entry, and will also know how to properly validate each column. When any
  * value inside the object is changed, the object cannot write to disk without first validating each column value. If
  * any validation fails, a ValidationFailedException will be thrown. DataEntry objects also have definition information
- * on how to display the object in an HTML page, so DataEntry::getHtmlDataEntryFormObject() will return an
+ * on how to display the object in an HTML page, so DataEntry::getHtmlFormObject() will return an
  * HtmlDataEntryForm that allows the contents of this DataEntry object to be rendered for a web page correctly and
  * automatically. The definitions also contain information on how to handle command line arguments and even command line
  * auto-suggest, making building scripts to handle these objects straightforward.

@@ -56,7 +56,7 @@ if (Request::isPostRequestMethod()) {
 // Build the "settings" card
 $_settings_card = Card::new()
                        ->setTitle(tr('Edit your account settings'))
-                       ->setContent($_user->getConfigurationsObject()->getHtmlDataEntryFormObject())
+                       ->setContent($_user->getConfigurationsObject()->getHtmlFormObject())
                        ->setButtonsObject(Buttons::new()
                                                ->addSaveButton(true)
                                                ->addButton(isset_get($_delete))

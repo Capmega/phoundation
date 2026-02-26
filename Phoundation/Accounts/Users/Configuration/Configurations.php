@@ -199,7 +199,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(string $name = 'configuration', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlFormObject(string $name = 'configuration', bool $meta_visible = false): DataEntryFormInterface
     {
         return DataEntryForm::new()
                             ->setSource(Arrays::toStringFromBoolean($this->source, true: 'on', false: 'off'))

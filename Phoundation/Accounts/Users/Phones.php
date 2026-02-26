@@ -142,12 +142,12 @@ class Phones extends DataIterator implements PhonesInterface
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
+    public function getHtmlFormObject(string $name = 'phones[][]', bool $meta_visible = false): DataEntryFormInterface
     {
         // Add extra entry with nothing selected
         $phone       = Phone::new()
                             ->setPrefix($name)
-                            ->getHtmlDataEntryFormObject()
+                            ->getHtmlFormObject()
                             ->setRenderMeta($meta_visible);
 
         $_definitions = $phone->getDefinitionsObject();
@@ -160,7 +160,7 @@ class Phones extends DataIterator implements PhonesInterface
 
         foreach ($this->ensureDataEntries() as $phone) {
             $content[] = $phone->setPrefix($name)
-                               ->getHtmlDataEntryFormObject()
+                               ->getHtmlFormObject()
                                ->setRenderMeta($meta_visible)
                                ->render();
         }

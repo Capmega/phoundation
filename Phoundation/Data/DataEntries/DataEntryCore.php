@@ -117,12 +117,17 @@ use Phoundation\Utils\Traits\TraitEventHandler;
 use Phoundation\Utils\Utils;
 use Phoundation\Web\Html\Components\Forms\DataEntryForm;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
 use Phoundation\Web\Html\Components\Widgets\Cards\Card;
 use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
 use Phoundation\Web\Html\Enums\EnumInputType;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -1270,8 +1275,13 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Initialize all columns that are NOT the ID column for this DataEntry object
             try {
                 foreach ($identifier as $column => $value) {
+                    // The ID column will never be automatically initialized as this item does not exist in the database
                     if ($column !== static::getIdColumn()) {
-                        $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()->get($column));
+                        // The status column will never be automatically initialized from identifier as the identifier typically contains multiple possible
+                        // statuses. The status should be set from a default value by the DataEntry object itself.
+                        if ($column !== 'status') {
+                            $this->setColumnValueWithObjectSetter($value, $column, false, $this->getDefinitionsObject()->get($column));
+                        }
                     }
                 }
 
@@ -5315,7 +5325,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(): DataEntryFormInterface
+    public function getHtmlFormObject(): DataEntryFormInterface
     {
         return DataEntryForm::new()
                             ->setUseCache($this->getUseCache())
@@ -5330,13 +5340,140 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Creates and returns an HTML for the data in this entry
      *
+     * @param UrlInterface|null $back_url The URL for the back button
+     *
      * @return CardInterface
      */
-    public function getHtmlDataEntryCardObject(): CardInterface
+    public function getHtmlCardObject(?UrlInterface $back_url): CardInterface
     {
-        $_form = $this->getHtmlDataEntryFormObject();
+        return Card::new()
+                   ->setTitle(tr(':object :name', [
+                       ':object' => static::getEntryName(),
+                       ':name'   => $this->getDisplayName()
+                   ]))
+                   ->useForm(true)
+                   ->setCollapseSwitch(true)
+                   ->setMaximizeSwitch(true)
+                   ->setDataEntryObject($this)
+                   ->setButtonsObject($this->getDefaultButtonsObject($back_url));
+    }
 
-        return Card::new();
+
+    /**
+     * Returns a default button set containing basic buttons to manage this DataEntry object data
+     *
+     * The buttons typically contained are "Save", "Back", "Audit", and "Delete" and contain handlers for each button
+     *
+     * @param UrlInterface|null $back_url [null] The URL for the web page where the back button must redirect
+     * @param array|string|null $buttons [null] Contains the buttons that should be used, defaults to buttons specified in DataEntry::getDefaultButtons()
+     *
+     * @return ButtonsInterface
+     */
+    public function getDefaultButtonsObject(?UrlInterface $back_url = null, array|string|null $buttons = null): ButtonsInterface
+    {
+        $_return = Buttons::new();
+        $buttons = $buttons ?? $this->getDefaultButtons();
+        $buttons = Arrays::force($buttons, ',');
+
+        foreach ($buttons as $button) {
+            switch ($button) {
+                case 'save':
+                    $_return->addSaveButton()->addHandler($this->getDefaultButtonHandler('save', Url::newCurrent()->setPlusValue($this->getId(false))), 'save');
+                    break;
+
+                case 'back':
+                    $_return->addBackButton($back_url);
+                    break;
+
+                case 'audit':
+                    if ($this->isNotNew()) {
+                        $_return->addAuditButton(Url::new('/audit/meta+' . $this->getMetaId() . '.html'));
+                    }
+
+                    break;
+
+                case 'delete':
+                    if ($this->isNotNew()) {
+                        if ($this->isDeleted()) {
+                            $_return->addUndeleteButton()->addHandler($this->getDefaultButtonHandler('undelete'), 'undelete');
+
+                        } else {
+                            $_return->addDeleteButton()->addHandler($this->getDefaultButtonHandler('delete', $back_url), 'delete');
+                        }
+                    }
+
+                    break;
+
+                default:
+                    throw OutOfBoundsException::new(ts('Unsupported or invalid default button ":button" specified', [
+                        ':button' => $button
+                    ]))->addData([
+                        ':buttons'            => $buttons,
+                        ':unsupported_button' => $button
+                    ]);
+            }
+        }
+
+        return $_return;
+    }
+
+
+    /**
+     * Returns an array containing the names of the default buttons for this DataEntry object
+     *
+     * @return array
+     */
+    public function getDefaultButtons(): array
+    {
+        return ['save', 'back', 'delete', 'audit'];
+    }
+
+
+    /**
+     * Returns the default handler for the specified button
+     *
+     * @param string            $button        The button for which a handler is required
+     * @param UrlInterface|null $_url   [null] The optional URL for the requested button
+     *
+     * @return callable
+     */
+    public function getDefaultButtonHandler(string $button, ?UrlInterface $_url = null): callable
+    {
+        return match ($button) {
+            'save' => function ($_entry) use($_url) {
+                          $_entry->apply()->save();
+
+                          Response::getFlashMessagesObject()->addSuccess(tr(':object ":name" has been saved', [
+                              ':object' => static::getEntryName(),
+                              ':name'   => $_entry->getName()
+                          ]));
+
+                          Response::redirect(Url::newCurrent()->setPlusValue($this->getId(false))->makeWww());
+                      },
+
+            'delete' => function ($_entry) use($_url) {
+                            $_entry->delete();
+
+                            Response::getFlashMessagesObject()->addSuccess(tr(':object ":name" has been deleted', [
+                                ':object' => static::getEntryName(),
+                                ':name'   => $_entry->getName()
+                            ]));
+
+                            Response::redirect(Url::newCurrent()->setPlusValue($_url)->makeWww());
+                        },
+
+            'undelete' => function ($_entry) use($_url) {
+                              $_entry->undelete();
+
+                              Response::getFlashMessagesObject()->addSuccess(tr(':object ":name" has been undeleted', [
+                                  ':object' => static::getEntryName(),
+                                  ':name'   => $_entry->getName()
+                              ]));
+
+                              Response::redirect(Url::newCurrent()->setPlusValue($this->getId(false))->makeWww());
+                          }
+
+        };
     }
 
 

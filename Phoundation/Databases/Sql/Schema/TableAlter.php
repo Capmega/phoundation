@@ -325,6 +325,14 @@ class TableAlter extends SchemaAbstract
     public function addIndex(string $index): static
     {
         if ($index) {
+            $test = strtoupper($index);
+
+            if (!str_contains($test, 'INDEX ') AND !str_contains($test, 'KEY ')) {
+                throw new OutOfBoundsException(ts('Cannot add specified index ":index", it does not contain the minimum amount of required keywords for a database index, like "INDEX" or "KEY"', [
+                    ':index' => $index,
+                ]));
+            }
+
             $index = trim($index);
             $index = Strings::ensureEndsNotWith($index, ',');
 

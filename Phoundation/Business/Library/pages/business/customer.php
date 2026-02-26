@@ -70,7 +70,7 @@ $buttons = Buttons::new()
 $customer_card = Card::new()
                      ->setCollapseSwitch(true)
                      ->setTitle(tr('Edit data for customer :name', [':name' => $customer->getName()]))
-                     ->setContent($customer->getHtmlDataEntryFormObject()->render())
+                     ->setContent($customer->getHtmlFormObject()->render())
                      ->setButtonsObject($buttons);
 
 

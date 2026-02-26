@@ -191,6 +191,31 @@ class Url implements UrlInterface
 
 
     /**
+     * Performs a search / replace on this URL's source
+     *
+     * @param array $replace Contains all the search keys to replace with the values, key => value is search => replace.
+     * @param bool  $regex   If true, the keys should be regular expressions to perform more complex replacements
+     *
+     * @return static
+     */
+    public function replace(array $replace, bool $regex = false): static
+    {
+        if ($regex) {
+            foreach ($replace as $key => $value) {
+                $this->source = preg_replace($key, $value, $this->source);
+            }
+
+        } else {
+            foreach ($replace as $key => $value) {
+                $this->source = str_replace($key, $value, $this->source);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns a base URL
      *
      * @param bool $use_configured_root
@@ -1708,13 +1733,13 @@ class Url implements UrlInterface
     /**
      * This method will replace the current file value after the + with the specified value
      *
-     * @param Stringable|string|int|null $value                         The new value for the + value
-     * @param bool                       $auto_fix_missing_plus [false] If true, and the file does not contain a required plus symbol, the method will add the
-     *                                                                  "+ID" part right before the .extension of the filename
+     * @param Stringable|string|int|null $value                        The new value for the + value
+     * @param bool                       $auto_fix_missing_plus [true] If true, and the file does not contain a required plus symbol, the method will add the
+     *                                                                 "+ID" part right before the .extension of the filename
      *
      * @return static
      */
-    public function replacePlusValue(Stringable|string|int|null $value, bool $auto_fix_missing_plus = false): static
+    public function setPlusValue(Stringable|string|int|null $value, bool $auto_fix_missing_plus = true): static
     {
         $file = Strings::fromReverse($this->source, '/');
 
@@ -1731,7 +1756,7 @@ class Url implements UrlInterface
         if (!str_contains($file, '+')) {
             // The URL contains no plus value, add it?
             if (!$auto_fix_missing_plus) {
-                throw UrlException::new(ts('Cannot replace plus value for URL ":url", it contains no plus file', [
+                throw UrlException::new(ts('Cannot replace plus value for URL ":url", it contains no plus value', [
                     ':url' => $this->source
                 ]))->addHint(ts('This method can only be used on URLs like for example "https://domain.com/path/path/file+23874.html", the filename of the URL MUST have the format filename+ID.extension'));
             }
@@ -1752,9 +1777,9 @@ class Url implements UrlInterface
      *
      * @return static
      */
-    public function removePlusValue(): static
+    public function clearPlusValue(): static
     {
-        return $this->replacePlusValue(null, false);
+        return $this->setPlusValue(null, false);
     }
 
 

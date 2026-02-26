@@ -86,7 +86,7 @@ if (!$authentication->isNew()) {
 
 
 // Build the "authentication" card
-$form = $authentication->getHtmlDataEntryFormObject();
+$form = $authentication->getHtmlFormObject();
 $_card = Card::new()
             ->setTitle(tr('Edit data for authentication :id', [':id' => $authentication->getId()]))
             ->setContent($form)

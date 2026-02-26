@@ -39,7 +39,7 @@ $plugin = Plugin::new()->load($get['id']);
 $plugin_card = Card::new()
                    ->setCollapseSwitch(true)
                    ->setTitle(tr('Edit data for Plugin :name', [':name' => $plugin->getName()]))
-                   ->setContent($plugin->getHtmlDataEntryFormObject())
+                   ->setContent($plugin->getHtmlFormObject())
                    ->setButtonsObject(Buttons::new()
                                              ->addSaveButton()
                                              ->addBackButton(Url::newPrevious('/plugins/plugins.html'), true));
