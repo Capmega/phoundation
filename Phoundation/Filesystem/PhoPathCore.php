@@ -1318,7 +1318,7 @@ class PhoPathCore implements PhoPathInterface
      */
     public function delete(string|bool $clean_path = true, bool $sudo = false, bool $escape = true, bool $use_run_file = true): static
     {
-        Log::action(ts('Deleting file ":file"', [':file' => $this->source]), 3);
+        Log::action(ts('Deleting file ":file"', [':file' => $this->source]), 2);
 
         // Check filesystem restrictions
         $this->checkRestrictions(true)->checkWriteAccess();
