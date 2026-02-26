@@ -2623,7 +2623,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             // On non-production environments, the user must have the right ENVIRONMENT (as in, whatever the environment name is) to be able to receive
             // notifications
             if (Core::isProductionEnvironment() or $this->hasAllRights(ENVIRONMENT)) {
-                return Notification::new()->setUserObject($this);
+                if (!$this->isSystemUser()) {
+                    return Notification::new()->setUserObject($this);
+                }
             }
 
         } else {
