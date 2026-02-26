@@ -652,4 +652,20 @@ interface TaskInterface extends DataEntryInterface
      * @return float
      */
     public function getTimeSpent(): float;
+
+    /**
+     * Returns if this task should automatically start the tasks executioner if it currently is not running
+     *
+     * @return bool
+     */
+    public function getAutoStartExecutioner(): bool;
+
+    /**
+     * Sets if this task should automatically start the tasks executioner if it currently is not running
+     *
+     * @param bool $auto_start_executioner
+     *
+     * @return $this
+     */
+    public function setAutoStartExecutioner(bool $auto_start_executioner): static;
 }

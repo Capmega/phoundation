@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Workers;
 
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Traits\TraitDataLabel;
 use Phoundation\Exception\OutOfBoundsException;
@@ -29,12 +30,15 @@ use Phoundation\Os\Processes\Commands\Ps;
 use Phoundation\Os\Processes\Exception\WorkersException;
 use Phoundation\Os\Processes\Interfaces\WorkersCoreInterface;
 use Phoundation\Os\Processes\ProcessCore;
+use Phoundation\Os\Traits\TraitDataFloatIntMaximumExecutionTime;
 use Phoundation\Utils\Strings;
 
 
 class WorkersCore extends ProcessCore implements WorkersCoreInterface
 {
     use TraitDataLabel;
+    use TraitDataFloatIntMaximumExecutionTime;
+
 
     /**
      * The workers that are managed by this class
@@ -395,6 +399,8 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
                 usleep($this->cycle_sleep);
                 $current = $this->getCurrent();
             }
+
+            Core::exitOverRuntime($this->getMaximumExecutionTime());
         }
 
         if ($this->wait_worker_finish) {

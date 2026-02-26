@@ -155,4 +155,20 @@ interface WorkersCoreInterface extends ProcessInterface
      * @return void
      */
     public function stop(): void;
+
+    /**
+     * Sets the maximum amount of time that a master worker process may be running
+     *
+     * @return float|int|null
+     */
+    public function getMaximumExecutionTime(): float|int|null;
+
+    /**
+     * Sets the maximum amount of time that a master worker process may be running
+     *
+     * @param float|int|null $time
+     *
+     * @return static
+     */
+    public function setMaximumExecutionTime(float|int|null $time): static;
 }

@@ -42,6 +42,7 @@ use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
 use Phoundation\Os\Processes\Exception\TasksException;
@@ -57,7 +58,7 @@ use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
-
+use Stringable;
 
 class Task extends DataEntry implements TaskInterface
 {
@@ -82,6 +83,13 @@ class Task extends DataEntry implements TaskInterface
      * @var TaskInterface|null $parent
      */
     protected TaskInterface|null $parent = null;
+
+    /**
+     * Tracks if this task should automatically start the tasks executioner if it currently is not running
+     *
+     * @var bool $auto_start_executioner
+     */
+    protected bool $auto_start_executioner = true;
 
 
     /**
@@ -140,6 +148,31 @@ class Task extends DataEntry implements TaskInterface
     public function setParentsId(?int $parents_id): static
     {
         return $this->set($parents_id, 'parents_id');
+    }
+
+
+    /**
+     * Returns if this task should automatically start the tasks executioner if it currently is not running
+     *
+     * @return bool
+     */
+    public function getAutoStartExecutioner(): bool
+    {
+        return $this->auto_start_executioner;
+    }
+
+
+    /**
+     * Sets if this task should automatically start the tasks executioner if it currently is not running
+     *
+     * @param bool $auto_start_executioner
+     *
+     * @return $this
+     */
+    public function setAutoStartExecutioner(bool $auto_start_executioner): static
+    {
+        $this->auto_start_executioner = $auto_start_executioner;
+        return $this;
     }
 
 
@@ -488,6 +521,22 @@ class Task extends DataEntry implements TaskInterface
     public function getExecutedCommand(): ?string
     {
         return $this->getTypesafe('string', 'executed_command');
+    }
+
+
+    /**
+     * Starts the task executioner job as a background task if it is not yet running
+     *
+     * @return static
+     */
+    public function startExecutioner(): static
+    {
+        Pho::new()
+           ->setPhoCommands('tasks execute')
+           ->appendArgument('-a')
+           ->executeBackground();
+
+        return $this;
     }
 
 
@@ -987,6 +1036,142 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
+     * Adds multiple arguments to the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function appendArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
+    {
+        if ($arguments) {
+            if (is_array($arguments)) {
+                foreach (Arrays::force($arguments, null) as $argument) {
+                    if (!$argument) {
+                        if ($argument !== 0) {
+                            // Ignore empty arguments
+                            continue;
+                        }
+                    }
+
+                    // Add multiple arguments
+                    $this->appendArguments($argument, $escape_arguments, $escape_quotes);
+                }
+
+            } else {
+                // Add a single argument
+                $this->appendArgument($arguments, $escape_arguments, $escape_quotes);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds multiple arguments to the beginning of the (existing list of) arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|int|float|null $arguments
+     * @param bool                                   $escape_arguments
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
+    {
+        if ($arguments) {
+            if (is_array($arguments)) {
+                // Since we are prepending, reverse the array!
+                $arguments = array_reverse($arguments);
+
+                foreach ($arguments as $argument) {
+                    if (!$argument) {
+                        if ($argument !== 0) {
+                            // Ignore empty arguments
+                            continue;
+                        }
+                    }
+
+                    // Add multiple arguments
+                    $this->prependArguments($argument, $escape_arguments, $escape_quotes);
+                }
+
+            } else {
+                // Add a single argument
+                $this->prependArgument($arguments, $escape_arguments, $escape_quotes);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds an argument to the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool                                   $escape_argument
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function appendArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
+    {
+        if ($argument !== null) {
+            if (is_array($argument)) {
+                return $this->appendArguments($argument, $escape_argument, $escape_quotes);
+            }
+
+            // TODO This is wildly inefficient as each update requires a JSON encode and decode. Improve this somehow
+            $arguments   = $this->getArguments();
+            $arguments[] = [
+                'escape_argument' => $escape_argument,
+                'escape_quotes'   => $escape_quotes,
+                'argument'        => (string) $argument,
+            ];
+
+            $this->setArguments($arguments);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Adds an argument to the beginning of the existing list of arguments for the command that will be executed
+     *
+     * @param Stringable|array|string|float|int|null $argument
+     * @param bool                                   $escape_argument
+     * @param bool                                   $escape_quotes
+     *
+     * @return static This process so that multiple methods can be chained
+     */
+    public function prependArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
+    {
+        if ($argument !== null) {
+            if (is_array($argument)) {
+                return $this->prependArguments($argument, $escape_argument, $escape_quotes);
+            }
+
+            // TODO This is wildly inefficient as each update requires a JSON encode and decode. Improve this somehow
+            $arguments = $this->getArguments();
+
+            array_unshift($arguments,  [
+                'escape_argument' => $escape_argument,
+                'escape_quotes'   => $escape_quotes,
+                'argument'        => (string) $argument,
+            ]);
+
+            $this->setArguments($arguments);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Returns execution_directory for this task
      *
      * @return PhoDirectoryInterface|null
@@ -1121,8 +1306,9 @@ class Task extends DataEntry implements TaskInterface
     /**
      * Save this task to disk
      *
-     * @param bool        $force
-     * @param string|null $comments
+     * @param bool        $force           [false] If true, will save even if the Task object has not been modified
+     * @param bool        $skip_validation [false] If true, will skip validation, even when it should be necessary
+     * @param string|null $comments        [null]  Meta comment on this Task, stating why it was saved
      *
      * @return static
      */
@@ -1131,13 +1317,18 @@ class Task extends DataEntry implements TaskInterface
         if ($this->saveBecauseModified($force)) {
             if (!$this->isNew()) {
                 // This is not a new entry, save as normal
-                return parent::save();
-            }
+                parent::save();
 
-            // Validate data, generate a new code, and write it to the database
-            return $this->validate()
-                        ->generateCode()
-                        ->write($force, $comments);
+            } else {
+                // Validate data, generate a new code, and write it to the database
+                $this->validate()
+                     ->generateCode()
+                     ->write($force, $comments);
+            }
+        }
+
+        if ($this->getAutoStartExecutioner()) {
+            $this->startExecutioner();
         }
 
         return $this;
@@ -1437,9 +1628,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->orColumn('servers_id')
                                                    ->isName()
-                                                   ->setColumnFromQuery('servers_id', 'SELECT `id` 
-                                                                                       FROM   `servers` 
-                                                                                       WHERE  `hostname` = :hostname 
+                                                   ->setColumnFromQuery('servers_id', 'SELECT `id`
+                                                                                       FROM   `servers`
+                                                                                       WHERE  `hostname` = :hostname
                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                            ':hostname' => '$server'
                                                    ]);
@@ -1453,9 +1644,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->orColumn('server')
                                                    ->isDbId()
-                                                   ->isQueryResult('SELECT `id` 
-                                                                    FROM   `servers` 
-                                                                    WHERE  `id` = :id 
+                                                   ->isQueryResult('SELECT `id`
+                                                                    FROM   `servers`
+                                                                    WHERE  `id` = :id
                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                         ':id' => '$servers_id'
                                                    ]);
