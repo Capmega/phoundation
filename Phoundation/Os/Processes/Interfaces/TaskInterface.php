@@ -428,7 +428,7 @@ interface TaskInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getPreExecHook(): ?string;
+    public function getPreExecutionHook(): ?string;
 
 
     /**
@@ -631,22 +631,6 @@ interface TaskInterface extends DataEntryInterface
     public function apply(bool $require_clean_source = true, array|ValidatorInterface|null &$source = null): static;
 
     /**
-     * Returns the hook that will be executed once the script finishes, if any
-     *
-     * @return string|null
-     */
-    public function getHook(): ?string;
-
-    /**
-     * Sets the hook that will be executed once the script finishes, if any
-     *
-     * @param string|null $hook
-     *
-     * @return static
-     */
-    public function setHook(string|null $hook): static;
-
-    /**
      * Returns the asymmetric key used to encrypt the process output results, or null if the process results were not encrypted
      *
      * @return string|null
@@ -661,4 +645,11 @@ interface TaskInterface extends DataEntryInterface
      * @return static
      */
     public function setResultsEncryptionKey(string|null $results_encryption_key): static;
+
+    /**
+     * Returns the amount of time in seconds spent on this task
+     *
+     * @return float
+     */
+    public function getTimeSpent(): float;
 }

@@ -22,6 +22,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryKey;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
@@ -31,6 +32,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntrySpent;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStart;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStop;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryValues;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Traits\TraitDataEntryRestrictions;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -38,6 +40,7 @@ use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
 use Phoundation\Filesystem\PhoDirectory;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Exception\TaskAlreadyExecutedException;
@@ -79,6 +82,19 @@ class Task extends DataEntry implements TaskInterface
      * @var TaskInterface|null $parent
      */
     protected TaskInterface|null $parent = null;
+
+
+    /**
+     * Task class constructor
+     *
+     * @param IdentifierInterface|false|array|int|string|null $identifier
+     * @param EnumLoadParameters|null                         $on_null_identifier
+     * @param EnumLoadParameters|null                         $on_not_exists
+     */
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
+        parent::__construct($identifier, $on_null_identifier, $on_not_exists);
+        $this->setRestrictionsObject(PhoRestrictions::newRootObject());
+    }
 
 
     /**
@@ -141,24 +157,23 @@ class Task extends DataEntry implements TaskInterface
 
 
     /**
-     * Returns the number of time in seconds spent on this task
-     *
-     * @param PhoDateTimeInterface|string|null $execute_after
+     * Returns the amount of time in seconds spent on this task
      *
      * @return float
      */
-    public function getTimeSpent(PhoDateTimeInterface|string|null $execute_after): float
+    public function getTimeSpent(): float
     {
         if (!$this->getStart()) {
             throw new TasksException(tr('Cannot calculate time spent on task, it has not yet started'));
         }
+
         if (!$this->getStop()) {
             throw new TasksException(tr('Cannot calculate time spent on task, it has not yet finished'));
         }
 
         return $this->getStop()
-                    ->diff($this->getStart())
-                    ->getTotalMilliSeconds() * 1000;
+                    ->diff($this->getStart()->getDateTimeObject())
+                    ->getTotalMilliSeconds() * 1_000;
     }
 
 
@@ -381,7 +396,7 @@ class Task extends DataEntry implements TaskInterface
      *
      * @return string|null
      */
-    public function getPreExecHook(): ?string
+    public function getPreExecutionHook(): ?string
     {
         return $this->getTypesafe('string', 'pre_execution_hook');
     }
@@ -612,7 +627,7 @@ class Task extends DataEntry implements TaskInterface
     protected function doExecute(): static
     {
         // Execute pre-execution hook
-        Hook::new()->execute($this->getPreExecHook(), ['task' => $this]);
+        Hook::new()->execute($this->getPreExecutionHook(), ['task' => $this]);
 
         // Execute the command
         $worker = Worker::new($this->getCommand(), $this->getExecutionDirectory())
@@ -714,8 +729,7 @@ class Task extends DataEntry implements TaskInterface
 
             }
         }
-show($this->getCreatedBy());
-showdie($this->getCreatedByObject()?->getId(false));
+
         // Execute post execution hook
         Hook::new()->execute($this->getPostExecutionHook(), ['task' => $this]);
         return $this;
@@ -979,13 +993,7 @@ showdie($this->getCreatedByObject()?->getId(false));
      */
     public function getExecutionDirectory(): ?PhoDirectoryInterface
     {
-        $directory = $this->getTypesafe('string', 'execution_directory');
-
-        if ($directory) {
-            return new PhoDirectory($directory, $this->_restrictions);
-        }
-
-        return null;
+        return PhoDirectory::newOrNull($this->getTypesafe('string', 'execution_directory'), $this->getRestrictionsObject());
     }
 
 
