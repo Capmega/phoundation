@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace Phoundation\Emails\Library;
 
 
+use Phoundation\Accounts\Roles\Role;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -254,6 +256,19 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'emails_labels',
                 'emails',
             ]);
+
+        })->addUpdate('post_always', function () {
+            // Make sure that the "developer" role has "force-email" added
+            Role::new()->load('developer')
+                       ->getRightsObject()
+                           ->setAutoCreate(true)
+                           ->add('force-email');
+
+            // Make sure that the "test" role has "force-email" added
+            Role::new()->load('test')
+                       ->getRightsObject()
+                           ->setAutoCreate(true)
+                           ->add('force-email');
         });
     }
 }

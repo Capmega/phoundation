@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Emails;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
@@ -71,6 +73,26 @@ class Email extends DataEntry
     public static function getUniqueColumn(): ?string
     {
         return null;
+    }
+
+
+    /**
+     * Returns a configured email address that (if configured) will always be used for all emails
+     *
+     * @param UserInterface|null $_user
+     *
+     * @return string|null
+     */
+    public static function getOverrideEmail(?UserInterface $_user = null): ?string
+    {
+        $_user = $_user ?? Session::getUserObject();
+
+        if ($_user->hasAllRights('force-email')) {
+            // The user has the "force-email" right, which cancels email overrides
+            return null;
+        }
+
+        return get_null(config()->getString('email.override.all', ''));
     }
 
 

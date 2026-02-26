@@ -23,14 +23,14 @@ use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-l,--limit' => true,
-                                          '-r,--auto-restart' => false,
-                                          '-b,--background' => false,
-                                      ],
-                                  ]);
+    'arguments' => [
+        '-l,--limit'        => true,
+        '-r,--auto-restart' => false,
+        '-b,--background'   => false,
+    ],
+]);
 
-CliDocumentation::setUsage('./pho email send');
+CliDocumentation::setUsage('./pho email pending send');
 
 CliDocumentation::setHelp('This command will send out emails that are pending sending
 
@@ -82,6 +82,7 @@ if ($count) {
             if ($argv['background']) {
                 Log::action(ts('Restarting send process as background process'), 10);
                 $method = EnumExecuteMethod::background;
+
             } else {
                 Log::action(ts('Restarting send process as background process'), 10);
                 $method = EnumExecuteMethod::passthru;
@@ -89,7 +90,7 @@ if ($count) {
 
             // Restart the command
             Pho::new()
-               ->setPhoCommands('emails send')
+               ->setPhoCommands('email pending send')
                ->appendArgument('--auto-restart')
                ->appendArgument($argv['background'] ? '--background' : null)
                ->appendArguments($argv['limit']    ? ['--limit', $argv['limit']] : null)
