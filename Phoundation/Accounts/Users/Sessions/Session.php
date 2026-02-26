@@ -1376,7 +1376,9 @@ class Session implements SessionInterface
 
                 } else {
                     // All other environments just get a log warning
-                    Log::warning(ts('CSRF is disabled on production environment, this is generally considered a bad bad idea'));
+                    Log::warning(ts('CSRF is disabled on environment ":environment". While this is generally considered a bad bad idea, but may be needed on development or trial type environments. Please make sure your system is safe enough without CSRF!', [
+                        ':environment' => ENVIRONMENT
+                    ]));
                 }
             }
 

@@ -112,6 +112,7 @@ use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Enums\EnumElement;
 use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Domains;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Json\Users;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
@@ -2048,6 +2049,36 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function setOffsetLongitude(?float $offset_longitude): static
     {
         return $this->set($offset_longitude, 'offset_longitude');
+    }
+
+
+    /**
+     * Returns true if the user has a redirect, or if $_url is specified, if the redirect is the same as the specified URL
+     *
+     * @param UrlInterface|null $_url [null] If specified, will return true if the specified URL matches the current redirect URL for the user. If NULL, will
+     *                                       return true if the User has any redirect at all
+     *
+     *
+     * @return bool
+     */
+    public function hasRedirect(?UrlInterface $_url = null): bool
+    {
+        if ($_url) {
+            return $_url->makeWww() === $this->getRedirectObject()->makeWww();
+        }
+
+        return (bool) $this->getRedirect();
+    }
+
+
+    /**
+     * Returns the redirect Url object for this user
+     *
+     * @return UrlInterface|null
+     */
+    public function getRedirectObject(): ?UrlInterface
+    {
+        return Url::newOrNull($this->getRedirect());
     }
 
 

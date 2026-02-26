@@ -17,6 +17,7 @@ use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Stringable;
 
 interface UserInterface extends DataEntryInterface
@@ -778,6 +779,24 @@ interface UserInterface extends DataEntryInterface
      * @return ProfileImagesInterface
      */
     public function getProfileImagesObject(): ProfileImagesInterface;
+
+
+    /**
+     * Returns true if the user has a redirect, or if $_url is specified, if the redirect is the same as the specified URL
+     *
+     * @param UrlInterface|null $_url [null] If specified, will return true if the specified URL matches the current redirect URL for the user. If NULL, will
+     *                                       return true if the User has any redirect at all
+     *
+     * @return bool
+     */
+    public function hasRedirect(?UrlInterface $_url = null): bool;
+
+    /**
+     * Returns the redirect Url object for this user
+     *
+     * @return UrlInterface|null
+     */
+    public function getRedirectObject(): ?UrlInterface;
 
     /**
      * Returns true if this user has the specified password
