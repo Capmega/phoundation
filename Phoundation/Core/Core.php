@@ -1846,6 +1846,8 @@ class Core implements CoreInterface
 //                ]));
 //        }
 //    }
+
+
     /**
      * Implementation of the sleep() method that is process interrupt signal safe.
      *
@@ -1915,10 +1917,10 @@ class Core implements CoreInterface
     {
         if (Core::$usleep) {
             // Ups, we were sleeping, but it got interrupted. Resume
-            usleep(Core::$usleep - (microtime(true) * 1000000) + $offset);
+            usleep(Core::$usleep - (microtime(true) * 1_000_000) + $offset);
 
         } else {
-            Core::$usleep = (microtime(true) * 1000000) + $micro_seconds;
+            Core::$usleep = (microtime(true) * 1_000_000) + $micro_seconds;
             usleep($micro_seconds);
         }
 
