@@ -154,6 +154,16 @@ interface UrlInterface
     public static function ensureStringUrlEncoding(string $source, bool $allow_encoded_plus = false): string;
 
     /**
+     * Returns a complete web URL
+     *
+     * @param bool $use_configured_root If true, the builder will not use the root URI from the routing parameters but
+     *                                  from the static configuration
+     *
+     * @return static
+     */
+    public function makeWww(bool $use_configured_root = false): static;
+
+    /**
      * Returns if the queries in this URL are properly encoded, or not
      *
      * @return bool

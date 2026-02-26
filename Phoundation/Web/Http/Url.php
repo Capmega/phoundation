@@ -99,7 +99,7 @@ class Url implements UrlInterface
     /**
      * Url class constructor
      *
-     * @param UrlInterface|string|int|null $source
+     * @param UrlInterface|string|int|null $source The source URL for the new Url object
      */
     protected function __construct(UrlInterface|string|int|null $source = null)
     {
@@ -134,7 +134,7 @@ class Url implements UrlInterface
     /**
      * Returns a new Url object
      *
-     * @param UrlInterface|string|int|null $source
+     * @param UrlInterface|string|int|null $source The source URL for the new Url object
      *
      * @return static
      */
@@ -145,9 +145,26 @@ class Url implements UrlInterface
 
 
     /**
+     * Returns a new Url object unless the specified source URL was NULL, then NULL will be returned
+     *
+     * @param UrlInterface|string|int|null $source The source URL for the new Url object
+     *
+     * @return static|null
+     */
+    public static function newOrNull(UrlInterface|string|int|null $source = null): ?static
+    {
+        if ($source === null) {
+            return null;
+        }
+
+        return static::new($source);
+    }
+
+
+    /**
      * Returns a new Url object
      *
-     * @param PhoPathInterface|null $source
+     * @param UrlInterface|string|int|null $source The source URL for the new Url object
      *
      * @return static
      */

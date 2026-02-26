@@ -1598,10 +1598,22 @@ class Response implements ResponseInterface
         //        }
 
         // Build URL
-        $target = Url::new($url)->makeWww();
+        $_target = Url::new($url)->makeWww();
+
+        // Make sure this user can redirect and has no forced redirect configured!
+        if (Session::getUserObject()->hasRedirect()) {
+            if (!Session::getUserObject()->hasRedirect($_target)) {
+                // Well, THIS is a problem! We want to redirect to B, but user will always redirect back to A, so this redirect will never work
+                throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", the user has forced redirect ":redirect" configured that would redirect the user away from the current required target', [
+                    ':url'      => $_target,
+                    ':user'     => Session::getUserObject()->getLogId(),
+                    ':redirect' => Session::getUserObject()->getRedirect(),
+                ]));
+            }
+        }
 
         // Protect against endless redirecting.
-        if ($target->isCurrent()) {
+        if ($_target->isCurrent()) {
             // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
@@ -1615,25 +1627,26 @@ class Response implements ResponseInterface
                         // no break;
 
                     case 'referer':
-                        $target = Url::newCurrentDomainRootUrl();
+                        $_target = Url::newCurrentDomainRootUrl();
                         break;
 
                     default:
                         if (!Session::userChanged()) {
                             // Redirecting to the same page for the same user may cause an endless redirect loop
-                            throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the same URL as the current page and the current request method is not POST', [
-                                ':url' => $target,
+                            throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", its the same URL as the current page and the current request method is not POST', [
+                                ':url'  => $_target,
+                                ':user' => Session::getUserObject()->getLogId(),
                             ]));
                         }
 
-                        $target = Url::newCurrentDomainRootUrl();
+                        $_target = Url::newCurrentDomainRootUrl();
                 };
             }
         }
 
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = Url::new($target)->makeWww()->addQueries(['target' => $_GET['target']]);
+            $_target = Url::new($_target)->makeWww()->addQueries(['target' => $_GET['target']]);
         }
 
         /*
@@ -1673,21 +1686,21 @@ class Response implements ResponseInterface
             Log::action(ts('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
                 ':http' => $http_code,
                 ':time' => $time_delay,
-                ':url'  => $target,
+                ':url'  => $_target,
             ]));
 
             Response::setHttpCode($http_code);
-            header('Refresh: ' . $time_delay . ';' . $target, true, $http_code);
+            header('Refresh: ' . $time_delay . ';' . $_target, true, $http_code);
 
         } else {
             // Redirect immediately
             Log::action(ts('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
-                ':url'  => $target,
+                ':url'  => $_target,
             ]));
 
             Response::setHttpCode($http_code);
-            header('Location:' . $target, true, $http_code);
+            header('Location:' . $_target, true, $http_code);
         }
 
         exit();
