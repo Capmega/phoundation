@@ -1050,4 +1050,11 @@ interface PhoDateTimeInterface
      * @return static
      */
     public function makeNextYearEnd(): static;
+
+    /**
+     * Returns a PHP DateTimeInterface class object
+     *
+     * @return DateTimeInterface
+     */
+    public function getDateTimeObject(): DateTimeInterface;
 }

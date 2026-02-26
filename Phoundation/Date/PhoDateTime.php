@@ -190,6 +190,17 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 
 
     /**
+     * Returns a PHP DateTimeInterface class object
+     *
+     * @return DateTimeInterface
+     */
+    public function getDateTimeObject(): DateTimeInterface
+    {
+        return new DateTime($this->getSource(), $this->getTimezone());
+    }
+
+
+    /**
      * Returns a new DateTime object for tomorrow
      *
      * @return static
@@ -737,8 +748,8 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
             }
         }
 
-        $diff->f = round($diff->u / 1000);
-        $diff->u = $diff->u - ($diff->f * 1000);
+        $diff->f = round($diff->u / 1_000);
+        $diff->u = $diff->u - ($diff->f * 1_000);
 
         return $diff;
     }
