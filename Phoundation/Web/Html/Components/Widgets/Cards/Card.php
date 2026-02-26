@@ -23,6 +23,8 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataCenter;
 use Phoundation\Data\Traits\TraitDataDescription;
 use Phoundation\Data\Traits\TraitDataTitle;
+use Phoundation\Data\Validator\Exception\ValidationFailedException;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
@@ -36,6 +38,9 @@ use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Interfaces\TabsInterface;
 use Phoundation\Web\Html\Components\Widgets\Tabs\Tabs;
 use Phoundation\Web\Html\Components\Widgets\Widget;
+use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 use Stringable;
 
 
@@ -130,6 +135,13 @@ class Card extends Widget implements CardInterface
      */
     protected ?string $header_title_tag = null;
 
+    /**
+     * Tracks the optional DataEntry object to automatically handle events
+     *
+     * @var DataEntryInterface|null
+     */
+    protected ?DataEntryInterface $_data_entry = null;
+
 
     /**
      * Card class constructor
@@ -142,6 +154,34 @@ class Card extends Widget implements CardInterface
         // By default, cards will not render if they have no content
         $this->render_on_empty_content = false;
     }
+
+
+    /**
+     * Returns the DataEntry object for this card object, if available
+     *
+     * @return DataEntryInterface|null
+     */
+    public function getDataEntryObject(): ?DataEntryInterface
+    {
+        return $this->_data_entry;
+    }
+
+
+    /**
+     * Sets the DataEntry object for this card object
+     *
+     * Note: This will also set the content of this Card object with the HtmlFormObject from the specified DataEntry object
+     *
+     * @param DataEntryInterface|null $_data_entry The DataEntry object to set in this Card Object
+     *
+     * @return static
+     */
+    public function setDataEntryObject(?DataEntryInterface $_data_entry): static
+    {
+        $this->_data_entry = $_data_entry;
+        return $this->setContent($_data_entry?->getHtmlFormObject());
+    }
+
 
 
     /**
@@ -176,6 +216,47 @@ class Card extends Widget implements CardInterface
 
             $this->buttons = $buttons->setReadonly($this->getReadonly() or $buttons->getReadonly())
                                      ->setDisabled($this->getDisabled() or $buttons->getDisabled());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Handle button events like "save", "delete", etc
+     *
+     * @return static
+     */
+    public function handleButtonEvents(): static
+    {
+        if (empty($this->_data_entry)) {
+            throw new OutOfBoundsException(ts('The ":class" object cannot handle button events because the required DataEntry object has not been set', [
+                ':class' => static::class,
+            ]));
+        }
+
+        // Validate POST and submit
+        if (Request::isPostRequestMethod()) {
+            try {
+                switch (PostValidator::new()->getSubmitButton()) {
+                    case tr('Save'):
+                        $this->getButtonsObject()->getHandlersObject()->get('save')($this->getDataEntryObject());
+                        break;
+
+                    case tr('Delete'):
+                        $this->getButtonsObject()->getHandlersObject()->get('delete')($this->getDataEntryObject());
+                        break;
+
+                    case tr('Undelete'):
+                        $this->getButtonsObject()->getHandlersObject()->get('undelete')($this->getDataEntryObject());
+                        break;
+                }
+
+            } catch (ValidationFailedException $e) {
+                // Oops! Show validation errors and remain on the page
+                Response::getFlashMessagesObject()->addMessage($e);
+                $this->getDataEntryObject()->forceApply();
+            }
         }
 
         return $this;

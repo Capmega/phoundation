@@ -24,6 +24,7 @@ use Phoundation\Web\Html\Components\ElementsBlock;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\DropdownButtonInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\HandlersInterface;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumDisplayMode;
 use Phoundation\Web\Html\Traits\TraitButtonProperties;
@@ -47,9 +48,9 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Tracks the handler code for the various buttons
      *
-     * @var IteratorInterface|null $_handlers
+     * @var HandlersInterface|null $_handlers
      */
-    protected ?IteratorInterface $_handlers = null;
+    protected ?HandlersInterface $_handlers = null;
 
 
     /**
@@ -58,13 +59,13 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
      *                              false, and the handlers object does not yet exist, NULL will be returned
      *
-     * @return IteratorInterface
+     * @return HandlersInterface
      */
-    public function getHandlersObject(bool $auto_initialize = false): IteratorInterface
+    public function getHandlersObject(bool $auto_initialize = false): HandlersInterface
     {
         if (empty($this->_handlers)) {
             if ($auto_initialize) {
-                $this->_handlers = new Iterator();
+                $this->_handlers = new Handlers();
             }
         }
 
@@ -75,11 +76,11 @@ class Buttons extends ElementsBlock implements ButtonsInterface
     /**
      * Sets the action handlers object
      *
-     * @param IteratorInterface|null $_handlers
+     * @param HandlersInterface|null $_handlers
      *
      * @return static
      */
-    public function setHandlers(IteratorInterface|null $_handlers): static
+    public function setHandlersObject(HandlersInterface|null $_handlers): static
     {
         $this->_handlers = $_handlers;
         return $this;
@@ -94,24 +95,10 @@ class Buttons extends ElementsBlock implements ButtonsInterface
      *
      * @return static
      */
-    public function addHandlers(callable $handler, Stringable|string|float|int|null $key = null): static
+    public function addHandler(callable $handler, Stringable|string|float|int|null $key = null): static
     {
         $this->getHandlersObject(true)->add($handler, $key);
         return $this;
-    }
-
-
-    /**
-     * Adds a single "Save" handler to the handler list
-     *
-     * @param bool|null $float_right [null] If true, will add a float-right class to the handler. If false, the handler will not have the class added and will be
-     *                                      left aligned. If NULL, the default alignment for the handler will not be changed
-     *
-     * @return static
-     */
-    public function addSaveHandler(?bool $float_right = null): static
-    {
-        return $this->addHandler(SaveHandler::new()->setFloatRight($float_right));
     }
 
 

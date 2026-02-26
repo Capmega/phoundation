@@ -133,7 +133,7 @@ $buttons = Buttons::new()->addSaveButton(true);
 $_card = Card::new()
             ->setCollapseSwitch(true)
             ->setTitle(tr('My profile information'))
-            ->setContent($user->getHtmlDataEntryFormObject())
+            ->setContent($user->getHtmlFormObject())
             ->setButtonsObject($buttons);
 
 

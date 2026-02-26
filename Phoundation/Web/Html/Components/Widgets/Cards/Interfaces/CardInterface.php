@@ -2,6 +2,7 @@
 
 namespace Phoundation\Web\Html\Components\Widgets\Cards\Interfaces;
 
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
@@ -207,4 +208,11 @@ interface CardInterface extends WidgetInterface
      * @return TabsInterface|null
      */
     public function getTabsObject(bool $create = true): ?TabsInterface;
+
+    /**
+     * Handle button events like "save", "delete", etc
+     *
+     * @return static
+     */
+    public function handleButtonEvents(): static;
 }

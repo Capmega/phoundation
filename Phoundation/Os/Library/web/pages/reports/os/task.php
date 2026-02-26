@@ -39,7 +39,7 @@ $_task = Task::new()->load($get['id']);
 $_card = Card::new()
               ->setTitle($_task->getName())
               ->setMaximizeSwitch(true)
-              ->setContent($_task->getHtmlDataEntryFormObject())
+              ->setContent($_task->getHtmlFormObject())
               ->setButtonsObject(Buttons::new()->addButton(
                   tr('Back'),
                   EnumDisplayMode::secondary,

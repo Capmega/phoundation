@@ -21,11 +21,19 @@ use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
+use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
+use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementInterface;
 use Phoundation\Web\Html\Components\Interfaces\ElementsBlockInterface;
+use Phoundation\Web\Html\Components\Widgets\Cards\Card;
+use Phoundation\Web\Html\Components\Widgets\Cards\Interfaces\CardInterface;
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use ReturnTypeWillChange;
 use Stringable;
 use Throwable;
@@ -461,7 +469,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @return DataEntryFormInterface
      */
-    public function getHtmlDataEntryFormObject(): DataEntryFormInterface;
+    public function getHtmlFormObject(): DataEntryFormInterface;
 
     /**
      * Returns the definitions for the columns in this table
@@ -999,4 +1007,43 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return PhoRestrictionsInterface
      */
     public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface;
+
+
+    /**
+     * Creates and returns an HTML for the data in this entry
+     *
+     * @param UrlInterface|null $back_url The URL for the back button
+     *
+     * @return CardInterface
+     */
+    public function getHtmlCardObject(?UrlInterface $back_url): CardInterface;
+
+    /**
+     * Returns a default button set containing basic buttons to manage this DataEntry object data
+     *
+     * The buttons typically contained are "Save", "Back", "Audit", and "Delete" and contain handlers for each button
+     *
+     * @param UrlInterface|null $back_url [null] The URL for the web page where the back button must redirect
+     * @param array|string|null $buttons  [null] Contains the buttons that should be used, defaults to buttons specified in DataEntry::getDefaultButtons()
+     *
+     * @return ButtonsInterface
+     */
+    public function getDefaultButtonsObject(UrlInterface $back_url = null, array|string|null $buttons = null): ButtonsInterface;
+
+    /**
+     * Returns an array containing the names of the default buttons for this DataEntry object
+     *
+     * @return array
+     */
+    public function getDefaultButtons(): array;
+
+    /**
+     * Returns the default handler for the specified button
+     *
+     * @param string            $button
+     * @param UrlInterface|null $_url
+     *
+     * @return callable
+     */
+    public function getDefaultButtonHandler(string $button, UrlInterface $_url = null): callable;
 }

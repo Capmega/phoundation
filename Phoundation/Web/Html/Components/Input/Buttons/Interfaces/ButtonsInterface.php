@@ -214,18 +214,18 @@ interface ButtonsInterface extends ElementsBlockInterface
      * @param bool $auto_initialize If true, and the handlers object has not yet been created, will automatically initialize the object, and return it. If
      *                              false, and the handlers object does not yet exist, NULL will be returned
      *
-     * @return IteratorInterface
+     * @return HandlersInterface
      */
-    public function getHandlersObject(bool $auto_initialize = false): IteratorInterface;
+    public function getHandlersObject(bool $auto_initialize = false): HandlersInterface;
 
     /**
      * Sets the action handlers object
      *
-     * @param IteratorInterface|null $_handlers
+     * @param HandlersInterface|null $_handlers
      *
      * @return static
      */
-    public function setHandlers(IteratorInterface|null $_handlers): static;
+    public function setHandlersObject(HandlersInterface|null $_handlers): static;
 
     /**
      * Adds a single handler for the specified button event
@@ -235,5 +235,5 @@ interface ButtonsInterface extends ElementsBlockInterface
      *
      * @return static
      */
-    public function addHandlers(callable $handler, Stringable|string|float|int|null $key = null): static;
+    public function addHandler(callable $handler, Stringable|string|float|int|null $key = null): static;
 }

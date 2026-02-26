@@ -41,114 +41,30 @@ $get = GetValidator::new()
 
 
 // Build the page content
-$_right = Right::new()
-                ->loadThis($get['id']);
+$_right = Right::new()->loadThis($get['id']);
+$_card  = $_right->getHtmlCardObject(Url::new('accounts/rights.html'))
+                 ->handleButtonEvents();
 
 
-// Validate POST and submit
-if (Request::isPostRequestMethod()) {
-    try {
-        switch (PostValidator::new()->getSubmitButton()) {
-            case tr('Save'):
-                // Update right
-                $_right->apply()
-                        ->save();
-
-// TODO Implement timers
-//showdie(Timers::get('query'));
-
-                Response::getFlashMessagesObject()->addSuccess(tr('Right ":right" has been saved', [':right' => $_right->getName()]));
-                Response::redirect(Url::new('/accounts/right+' . $_right->getId() . '.html')->makeWww());
-
-            case tr('Delete'):
-                $_right->delete();
-
-                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been deleted', [':right' => $_right->getName()]));
-                Response::redirect();
-
-            case tr('Undelete'):
-                $_right->undelete();
-
-                Response::getFlashMessagesObject()->addSuccess(tr('The right ":right" has been undeleted', [':right' => $_right->getName()]));
-                Response::redirect();
-        }
-
-    } catch (IncidentsException | ValidationFailedException | AccessDeniedException $e) {
-        // Oops! Show validation errors and remain on the page
-        Response::getFlashMessagesObject()->addMessage($e);
-        $_right->forceApply();
-    }
-}
-
-
-// Audit button.
+// Build the "users" list section if this right already existed in the database (meaning that some users might already use it, display those here)
 if (!$_right->isNew()) {
-    $_audit = Button::new()
-                     ->setFloatRight(true)
-                     ->setMode(EnumDisplayMode::information)
-                     ->setUrlObject('/audit/meta+' . $_right->getMetaId() . '.html')
-                     ->setFloatRight(true)
-                     ->setContent(tr('Audit'));
-
-    if ($_right->isDeleted()) {
-        $_delete = Button::new()
-                          ->setFloatRight(true)
-                          ->setMode(EnumDisplayMode::warning)
-                          ->setOutlined(true)
-                          ->setContent(tr('Undelete'));
-
-    } else {
-        $_delete = DeleteButton::new();
-    }
-
-    $_users = $_right->getUsersObject();
-// :TODO: Fix Users class first, make sure that Users::load() uses query builder instead of direct queries!
-//    $_users->getQueryBuilderObject()->addSelect('        `accounts_users`.`id`,
-//                                                  TRIM(CONCAT(`first_names`, " ", `last_names`)) AS `name`,
-//                                                  `accounts_users`.`email`,
-//                                                  `accounts_users`.`status`,
-//                                                  GROUP_CONCAT(CONCAT(UPPER(LEFT(`accounts_roles`.`name`, 1)), SUBSTRING(`accounts_roles`.`name`, 2)) SEPARATOR ", ") AS `roles`,
-//                                                  `accounts_users`.`sign_in_count`,
-//                                                  `accounts_users`.`created_on`,
-//                                                  `accounts_users`.`profile_image`')
-//                             ->addJoin('LEFT JOIN `accounts_users_roles`
-//                                               ON `accounts_users_roles`.`users_id` = `accounts_users`.`id`')
-//                             ->addJoin('LEFT JOIN `accounts_roles`
-//                                               ON `accounts_roles`.`id` = `accounts_users_roles`.`roles_id`')
-//                             ->addWhere('         `accounts_users`.`email` != "guest"')
-//                             ->addGroupBy('       `accounts_users`.`id`');
-
-    // Build the "users" list section
     $_users_card = Card::new()
                         ->setTitle(tr('Users that have this right'))
                         ->setCollapseSwitch(true)
                         ->setMaximizeSwitch(true)
-                        ->setContent($_users->load()->getHtmlDataTableObject([
-                                                         'id'            => tr('Id'),
-                                                         'profile_image' => tr('Profile image'),
-                                                         'email'         => tr('Email'),
-                                                         'name'          => tr('Name'),
-                                                         'roles'         => tr('Roles'),
-                                                         'status'        => tr('Status'),
-                                                         'sign_in_count' => tr('Signins'),
-                                                         'created_on'    => tr('Created on'),
-                                                     ])
-                                                     ->setRowUrls('/accounts/user+:ROW.html'));
+                        ->setContent($_right->getUsersObject()
+                                            ->load()->getHtmlDataTableObject([
+                                                        'id'            => tr('Id'),
+                                                        'profile_image' => tr('Profile image'),
+                                                        'email'         => tr('Email'),
+                                                        'name'          => tr('Name'),
+                                                        'roles'         => tr('Roles'),
+                                                        'status'        => tr('Status'),
+                                                        'sign_in_count' => tr('Signins'),
+                                                        'created_on'    => tr('Created on'),
+                                                    ])
+                                                    ->setRowUrls('/accounts/user+:ROW.html'));
 }
-
-
-// Build the right card
-$_card = Card::new()
-              ->setTitle(tr('Edit data for right :name', [':name' => $_right->getName()]))
-              ->setCollapseSwitch(true)
-              ->setMaximizeSwitch(true)
-              ->setContent($_right->getHtmlDataEntryFormObject())
-              ->useForm(true)
-              ->setButtonsObject(Buttons::new()
-                                        ->addSaveButton()
-                                        ->addBackButton(Url::newPrevious('/accounts/rights.html'), true)
-                                        ->addButton(isset_get($_delete))
-                                        ->addButton(isset_get($_audit)));
 
 
 // Build relevant links
