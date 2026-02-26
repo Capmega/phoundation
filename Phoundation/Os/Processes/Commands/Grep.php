@@ -225,9 +225,8 @@ class Grep extends Command
                  ->addArguments($this->_file                     ? $this->_file              : null)
                  ->addArguments($this->_directory                ? [$this->_directory, '-R'] : null);
 
-            $result = parent::executeReturnArray();
-
             // Directory grep results are in format file:line, reformat and group the data
+            $result = parent::executeReturnArray();
             $return = null;
 
             foreach ($result as $line) {
@@ -263,6 +262,7 @@ class Grep extends Command
             throw new OutOfBoundsException(ts('Cannot grep, no filter specified'));
         }
 
+        // TODO This is checking the pipe out, should be checking the in pipe
         if (empty($this->_file) and empty($this->_directory) and empty($this->pipe)) {
             throw new OutOfBoundsException(ts('Cannot grep, no file or directory specified to grep in'));
         }
@@ -272,7 +272,7 @@ class Grep extends Command
              ->addArguments($this->filter_reversed           ? '-v'                      : null)
              ->addArguments($this->filter_regular_expression ? '-e'                      : null)
              ->addArguments($this->filter)
-             ->addArguments($this->_file                     ? $this->_file              : null)
+             ->addArguments($this->_file                     ?: null)
              ->addArguments($this->_directory                ? [$this->_directory, '-R'] : null);
 
         return parent::getFullCommandLine($background, $pipe);
