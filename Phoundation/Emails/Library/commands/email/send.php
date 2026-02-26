@@ -123,5 +123,5 @@ if (!$mail->send()) {
 
 Log::success(ts('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
-    ':user'    => $to->getLogId(),
+    ':user'    => $mail->getToAddresses(),
 ]), 10);
