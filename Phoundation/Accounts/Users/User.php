@@ -2064,7 +2064,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function hasRedirect(?UrlInterface $_url = null): bool
     {
         if ($_url) {
-            return $_url->makeWww() === $this->getRedirectObject()->makeWww();
+            return $_url->makeWww() === $this->getRedirectObject();
         }
 
         return (bool) $this->getRedirect();
@@ -2105,18 +2105,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the redirect for this user
      *
-     * @param Stringable|string|null $redirect
+     * @param Stringable|string|null $_redirect
      *
      * @return static
      */
-    public function setRedirect(Stringable|string|null $redirect = null): static
+    public function setRedirect(Stringable|string|null $_redirect = null): static
     {
-        if ($redirect) {
-            // Ensure there is a valid redirect URL
-            $redirect = Url::new($redirect)->makeWww();
-        }
+        $_redirect = Url::newOrNull(get_null($_redirect));
+        $_redirect?->makeWww()->getSource();
 
-        return $this->set(get_null((string) $redirect), 'redirect');
+        return $this->set($_redirect, 'redirect');
     }
 
 

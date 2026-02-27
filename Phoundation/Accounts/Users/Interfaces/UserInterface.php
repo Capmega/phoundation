@@ -477,11 +477,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param Stringable|string|null $redirect
+     * @param Stringable|string|null $_redirect
      *
      * @return static
      */
-    public function setRedirect(Stringable|string|null $redirect = null): static;
+    public function setRedirect(Stringable|string|null $_redirect = null): static;
 
 
     /**

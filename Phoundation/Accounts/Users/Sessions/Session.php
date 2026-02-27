@@ -259,13 +259,40 @@ class Session implements SessionInterface
     /**
      * Sets if any request for this session should be redirected to a different page
      *
-     * @param UrlInterface|null $_redirect
+     * @param string|null $_redirect The redirect for this user session which will redirect (almost) every page for the user to this redirect only
      *
      * @return void
      */
-    public static function setRedirectObject(?UrlInterface $_redirect): void
+    public static function setRedirect(string|null $_redirect): void
     {
-        static::$_redirect = $_redirect;
+        $_redirect = get_null($_redirect);
+        $_redirect = Url::new($_redirect);
+
+        $_SESSION['redirect'] = $_redirect?->makeWww()->getSource();
+    }
+
+
+    /**
+     * Sets if any request for this session should be redirected to a different page
+     *
+     * @param UrlInterface|null $_redirect The redirect for this user session which will redirect (almost) every page for the user to this redirect only
+     *
+     * @return void
+     */
+    public static function setRedirectObject(UrlInterface|null $_redirect): void
+    {
+        Session::setRedirect($_redirect->getSource());
+    }
+
+
+    /**
+     * Returns if any request for this session should be redirected to a different page
+     *
+     * @return string|null
+     */
+    public static function getRedirect(): ?string
+    {
+        return get_null((string) array_get_safe($_SESSION, 'redirect'));
     }
 
 
@@ -276,7 +303,7 @@ class Session implements SessionInterface
      */
     public static function getRedirectObject(): ?UrlInterface
     {
-        return static::$_redirect;
+        return Url::newOrNull(static::getRedirect());
     }
 
 
@@ -2150,6 +2177,9 @@ class Session implements SessionInterface
 
             return null;
         }
+
+        // Always unset session redirects
+        unset($_SESSION['redirect']);
 
         try {
             if (isset($_SESSION['user']['impersonate_id'])) {

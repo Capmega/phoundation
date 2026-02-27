@@ -235,7 +235,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
 
         if ($this->getRedirect()) {
-            Session::setRedirect($this->getRedirectObject());
+            Session::setRedirectObject($this->getRedirectObject());
             Response::redirect($this->getRedirect());
         }
 
