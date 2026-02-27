@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.10.4';
+        return '0.11.0';
     }
 
 
@@ -1418,6 +1418,44 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
                 $_table->alter()->dropIndex('users_id_hash_status', true)
                                 ->addIndex('UNIQUE KEY `users_id_hash_status` (`users_id`, `hash`, `status`)');
+
+        })->addUpdate('0.11.0', function () {
+            // Fix accounts_user_sessions table
+            sql()->getSchemaObject()->getTableObject('accounts_user_sessions')->drop()->define()
+                 ->setColumns('
+                    `id` bigint NOT NULL AUTO_INCREMENT,
+                    `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `created_by` bigint NULL DEFAULT NULL,
+                    `modified_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `modified_by` bigint NULL DEFAULT NULL,
+                    `meta_id` bigint NULL DEFAULT NULL,
+                    `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                    `identifier` varchar(64) NULL DEFAULT NULL,
+                    `domain` varchar(128) NULL DEFAULT NULL,
+                    `users_id` varchar(64) NULL DEFAULT NULL,
+                    `remote_ip` varchar(48) NULL DEFAULT NULL,
+                    `remote_ip_real` varchar(48) NULL DEFAULT NULL,
+                    `closed` datetime NULL DEFAULT NULL,
+
+                ')->setIndices('                
+                    PRIMARY KEY (`id`),
+                    UNIQUE KEY `identifier` (`identifier`),
+                    KEY `created_on` (`created_on`),
+                    KEY `created_by` (`created_by`),
+                    KEY `status` (`status`),
+                    KEY `meta_id` (`meta_id`),
+                    KEY `domain` (`domain`),
+                    KEY `users_id` (`users_id`),
+                    KEY `closed` (`closed`),
+                    KEY `remote_ip` (`remote_ip`),
+                    KEY `remote_ip_real` (`remote_ip_real`),
+
+                ')->setForeignKeys('
+                    CONSTRAINT `fk_accounts_user_sessions_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                    CONSTRAINT `fk_accounts_user_sessions_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                ')->create();
+
         });
     }
 }

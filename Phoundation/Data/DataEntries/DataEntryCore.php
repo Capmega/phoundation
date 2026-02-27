@@ -1338,7 +1338,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
+     * Loads the data for this DataEntry object matching the specified identifier that MUST exist in the database
      *
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified object, as long as it exists in the
      * database.

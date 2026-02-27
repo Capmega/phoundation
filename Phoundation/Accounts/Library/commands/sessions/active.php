@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Sessions\Sessions;
+use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
@@ -35,4 +35,5 @@ ARGUMENTS
 $argv = ArgvValidator::new()->validate();
 
 
-Log::cli(Sessions::getActiveCount());
+// Display active session count
+Log::cli(UserSessions::new()->getActiveCount());

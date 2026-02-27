@@ -4,18 +4,13 @@
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\UserSession;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
+use Phoundation\Exception\OutOfBoundsException;
 use Stringable;
 
-interface UserSessionInterface
+interface UserSessionInterface extends DataEntryInterface
 {
-    /**
-     * Returns the databse id for this session record
-     *
-     * @return int|null
-     */
-    public function getId(): ?int;
-
     /**
      * Returns the session identifier
      *
@@ -102,4 +97,29 @@ interface UserSessionInterface
      * @return static
      */
     public function save(): static;
+
+    /**
+     * Copies the data for this session to a session with the specified identifier
+     *
+     * @param string $identifier
+     *
+     * @return $this
+     */
+    public function copyTo(string $identifier): static;
+
+    /**
+     * Returns if the specified identifier is an active session.
+     *
+     * @return bool
+     */
+     public function isActive(): bool;
+
+    /**
+     * Adds data to the specified sessions list
+     *
+     * @param array $session
+     *
+     * @return static
+     */
+    public function addData(array $session): static;
 }

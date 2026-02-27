@@ -2679,27 +2679,6 @@ class Session implements SessionInterface
 
 
     /**
-     * Adds data to the specified sessions list
-     *
-     * @param array $session
-     *
-     * @return array
-     */
-    public static function addData(array $session): array
-    {
-        // Ensure the session exists!
-        $session['data']          = UserSession::new($session['identifier'], false)->getSource();
-        $session['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
-        $session['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'stop') ?? array_get_safe($session, 'start');
-        $session['last_activity'] = PhoDateTime::new($session['last_activity']);
-        $session['start']         = PhoDateTime::new($session['start']);
-        $session['stop']          = PhoDateTime::new($session['stop']);
-
-        return $session;
-    }
-
-
-    /**
      * Returns if the session should sign out when Session::exit() is called
      *
      * @return int|null

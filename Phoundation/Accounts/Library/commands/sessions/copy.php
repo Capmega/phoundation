@@ -14,14 +14,11 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Date\PhoDateTime;
-use Phoundation\Utils\Strings;
+
 
 CliDocumentation::setUsage('./pho sessions copy SESSIONID SESSIONID
 ./pho sessions copy mt5hvb34te9e5f9ge3e7n6rffg kloq3564j4j6k277xcern6qqz3');
@@ -49,4 +46,5 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-$source = UserSession::new($argv['session'])->getSource();
+// Copy the session data for the specified source session to the specified target session
+$source = UserSession::new($argv['session'])->copyTo($argv['target']);

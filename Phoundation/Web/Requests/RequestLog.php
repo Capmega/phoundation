@@ -24,7 +24,7 @@ use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryAction;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCookies;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryHeaders;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryHttpCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryIntegerIncidentsId;
@@ -45,7 +45,7 @@ class RequestLog extends DataEntry
 {
     use TraitDataEntryMethod;
     use TraitDataEntryUrl;
-    use TraitDataEntryDomain;
+    use TraitDataEntryStringDomain;
     use TraitDataEntryAction;
     use TraitDataEntryHttpCode;
     use TraitDataEntryStringGlobalId;
@@ -106,7 +106,8 @@ class RequestLog extends DataEntry
         $_definitions->removeKeys('meta_divider')
 
                      ->add(DefinitionFactory::newCreatedBy()
-                                            ->setOptional(true))
+                                            ->setOptional(true)
+                                            ->setRender(true))
 
                      ->add(DefinitionFactory::newDivider('meta_divider'))
 

@@ -18,10 +18,19 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
-use Phoundation\Data\Traits\TraitDataArraySource;
+use Phoundation\Data\DataEntries\DataEntry;
+use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
+use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringIdentifier;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -31,78 +40,50 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
+use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
 
-class UserSession implements UserSessionInterface
+
+class UserSession extends DataEntry implements UserSessionInterface
 {
-    use TraitDataArraySource {
-        get as protected __Get;
-        set as protected __Set;
+    use TraitDataEntryStringIdentifier;
+    use TraitDataEntryStringDomain;
+    use TraitDataEntryStringRemoteIp;
+    use TraitDataEntryStringRemoteIpReal;
+
+
+    /**
+     * Returns the table name used by this object
+     *
+     * @return string|null
+     */
+    public static function getTable(): ?string
+    {
+        return 'accounts_user_sessions';
     }
 
 
     /**
-     * Session class constructor
+     * Returns the name of this DataEntry class
      *
-     * @param string|bool|null $identifier
-     * @param bool             $exception
+     * @return string
      */
-    public function __construct(string|bool|null $identifier = false, bool $exception = true)
+    public static function getEntryName(): string
     {
-        if (empty($identifier)) {
-            // Do not load any session data at all
-            return;
-        }
-
-        $data   = static::load($identifier);
-        $source = sql()->getRow('SELECT * FROM `accounts_user_sessions` WHERE `identifier` = :identifier', [
-            ':identifier' => $identifier
-        ]);
-
-        if (empty($data)) {
-            if ($exception) {
-                throw new SessionNotExistsException(tr('The specified session ":session" does not exist', [
-                    ':session' => $identifier,
-                ]));
-            }
-
-            $this->source = [
-                'string' => null,
-                'data'   => [],
-            ];
-
-        } else {
-            $this->source           = $source;
-            $this->source['string'] = $data;
-            $this->source['data']   = static::unserialize($data);
-        }
+        return tr('User session');
     }
 
 
     /**
-     * Returns a new static object
+     * Returns the field that is unique for this object
      *
-     * @param string $identifier
-     * @param bool   $exception
-     *
-     * @return static
+     * @return string|null
      */
-    public static function new(string $identifier, bool $exception = true): static
+    public static function getUniqueColumn(): ?string
     {
-        return new static($identifier, $exception);
-    }
-
-
-    /**
-     * Returns the databse id for this session record
-     *
-     * @return int|null
-     */
-    public function getId(): ?int
-    {
-        return $this->source['id'];
+        return 'identifier';
     }
 
 
@@ -206,28 +187,6 @@ class UserSession implements UserSessionInterface
 
 
     /**
-     * Returns the source for this object
-     *
-     * @return array
-     */
-    public function getSource(): array
-    {
-        return array_get_safe($this->source, 'data');
-    }
-
-
-    /**
-     * Returns the source keys for this object
-     *
-     * @return array
-     */
-    public function getSourceKeys(): array
-    {
-        return array_keys($this->getSource());
-    }
-
-
-    /**
      *  Returns the value for the specified session user data key
      *
      * @param Stringable|string|float|int $key
@@ -288,25 +247,23 @@ class UserSession implements UserSessionInterface
 
 
     /**
-     * Delete the specified session
+     * Deletes this session
      *
-     * @param string $session
-     *
-     * @return void
+     * @return static
      */
-    public static function delete(string $session): void
+    public function delete(?string $comments = null, bool $auto_save = true): static
     {
         $handler = ini_get('session.save_handler');
 
         switch ($handler) {
             case 'memcached':
                 // Remove the session from memcached
-                mc('sessions')->delete($session);
+                mc('sessions')->delete($this->getIdentifier());
                 break;
 
             case 'files':
                 // Remove the session from files
-                PhoFile::new(ini_get('session.save_path'), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))
+                PhoFile::new(ini_get('session.save_path') . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))
                        ->delete();
                 break;
 
@@ -315,50 +272,42 @@ class UserSession implements UserSessionInterface
                     ':handler' => $handler,
                 ]));
         }
+
+        return $this;
     }
 
 
     /**
-     * Returns true if the specified session exists in the sessions store
-     *
-     * @param string $identifier
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public static function exists(string $identifier): bool
+    public function load(IdentifierInterface|int|array|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        return sql()->exists('accounts_user_sessions', 'identifier', $identifier);
-    }
+        parent::load($identifier, $on_null_identifier, $on_not_exists);
 
-
-    /**
-     * Returns the session data for the specified session, or NULL if it `does not exist
-     *
-     * @param string      $identifier
-     * @param string|null $handler
-     *
-     * @return string|null
-     */
-    public static function load(string $identifier, ?string $handler = null): ?string
-    {
         $handler = $handler ?? ini_get('session.save_handler');
-
-        return match ($handler) {
+        $data    = match ($handler) {
             'memcached' => mc('sessions')->get($identifier),
             'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $identifier, PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
-            default     => throw new OutOfBoundsException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+            ''          => throw new SessionException(tr('No session save handler ":handler" configured')),
+            default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
             ])),
         };
+
+        return $this->addData($data);
     }
 
 
     /**
-     * Saves the session data
+     * Will save the data from this data entry to the database
+     *
+     * @param bool        $force
+     * @param bool        $skip_validation
+     * @param string|null $comments
      *
      * @return static
      */
-    public function save(): static
+    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
         $data    = static::serialize($this->source['data']);
         $handler = $handler ?? ini_get('session.save_handler');
@@ -366,18 +315,18 @@ class UserSession implements UserSessionInterface
         match ($handler) {
             'memcached' => mc('sessions')->set($data, $this->getIdentifier()),
             'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
-            ''          => throw new OutOfBoundsException(tr('No session save handler ":handler" configured')),
-            default     => throw new OutOfBoundsException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+            ''          => throw new SessionException(tr('No session save handler ":handler" configured')),
+            default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
             ])),
         };
 
-        return $this;
+        return parent::save($force, $skip_validation, $comments);
     }
 
 
     /**
-     * Registers a new started session in the accounts_user_sessions table
+     * Registers a new started session in the accounts_user_sessions table and returns a UserSession object for it
      *
      * @param int|null $users_id
      * @param string   $domain
@@ -388,43 +337,44 @@ class UserSession implements UserSessionInterface
      */
     public static function start(?int $users_id, string $domain, string $ip, string $identifier): static
     {
-        try {
-            sql()->insert('accounts_user_sessions', [
-                'ip'         => $ip,
-                'domain'     => $domain,
-                'users_id'   => $users_id,
-                'identifier' => $identifier,
-            ]);
+        $retry = 0;
 
-            return static::new($identifier, false);
+        while ($retry++ < 5) {
+            try {
+                sql()->insert('accounts_user_sessions', [
+                    'id'         => Numbers::getRandomInt(),
+                    'ip'         => $ip,
+                    'domain'     => $domain,
+                    'users_id'   => $users_id,
+                    'identifier' => $identifier,
+                ]);
 
-        } catch (SqlContstraintDuplicateEntryException $e) {
-            throw new SessionDuplicateIdentifierException(tr('Duplicate session identifier ":identifier" encountered', [
-                ':identifier' => $identifier,
-            ]), $e);
+                return static::new($identifier, false);
+
+            } catch (SqlContstraintDuplicateEntryException $e) {
+                // TODO This blindly assumes duplicate identifier while it can also be a duplicate ID. For a duplicate session identifier, it will retry 5 times with the same value. Chances of this happening are VERY TIY, but FIX THIS ANYWAY
+                // Duplicate ID or identifier, try again
+            }
         }
+
+        // TODO We COULD have encountered 5x an existing accounts_user_sessions.id, even though its a 1 in (5 x PHP_INT_MAX) chance
+        throw new SessionDuplicateIdentifierException(tr('Duplicate session identifier ":identifier" encountered', [
+            ':identifier' => $identifier,
+        ]), $e);
     }
 
 
     /**
      * Stops this session
      *
-     * @param int    $users_id
-     * @param string $domain
-     * @param string $ip
-     * @param string $identifier
-     *
      * @return void
      */
-    public static function stop(int $users_id, string $domain, string $ip, string $identifier): void
+    public function stop(): void
     {
         sql()->update('accounts_user_sessions', [
             'stop' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)
         ], [
-            'users_id'   => $users_id,
-            'domain'     => $domain,
-            'ip'         => $ip,
-            'identifier' => $identifier,
+            'identifier' => $this->getIdentifier(),
         ]);
     }
 
@@ -510,9 +460,9 @@ class UserSession implements UserSessionInterface
             $data         = unserialize(substr($source, $offset));
             $return[$key] = $data;
             $offset      += strlen(serialize($data));
-       }
+        }
 
-       return $return;
+        return $return;
     }
 
 
@@ -533,26 +483,152 @@ class UserSession implements UserSessionInterface
         }
 
         while ($offset < strlen($source)) {
-                $num          = ord($source[$offset]);
-                $offset      += 1;
-                $key          = substr($source, $offset, $num);
-                $offset      += $num;
-                $data         = unserialize(substr($source, $offset));
-                $return[$key] = $data;
-                $offset      += strlen(serialize($data));
-            }
+            $num          = ord($source[$offset]);
+            $offset      += 1;
+            $key          = substr($source, $offset, $num);
+            $offset      += $num;
+            $data         = unserialize(substr($source, $offset));
+            $return[$key] = $data;
+            $offset      += strlen(serialize($data));
+        }
 
         return $return;
      }
 
 
     /**
-     * @param string $identifier
+     * Returns if the specified identifier is an active session.
      *
      * @return bool
      */
-     public static function isActive(string $identifier): bool
+     public function isActive(): bool
      {
-        return (bool) mc('sessions')->get($identifier);
+         $session = mc('sessions')->get($this->getIdentifier());
+
+         if ($session) {
+            if (array_get_safe($session, 'stop')) {
+                return false;
+            }
+
+            return true;
+         }
+
+         return false;
      }
+
+
+    /**
+     * Returns if the specified identifier is an active session.
+     *
+     * @note If called as a static method, an identifier MUST be specified. If called as an object method, no identifier may be specified
+     *
+     * @param string $identifier The session identifier string to test
+     *
+     * @return bool
+     */
+     public static function isActiveSession(string $identifier): bool
+     {
+         if (empty($identifier)) {
+             throw new OutOfBoundsException(ts('Cannot check if session identifier is active, no (or empty) identifier specified'));
+         }
+
+         $session = mc('sessions')->get($identifier);
+
+         if ($session) {
+            if (array_get_safe($session, 'stop')) {
+                return false;
+            }
+
+            return true;
+         }
+
+         return false;
+     }
+
+
+    /**
+     * Adds data to the specified sessions list
+     *
+     * @param array $session
+     *
+     * @return static
+     */
+    public function addData(array $session): static
+    {
+        // Ensure the session exists!
+        $this->source['data']          = UserSession::new($session['identifier'], false)->getSource();
+        $this->source['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
+        $this->source['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'stop') ?? array_get_safe($session, 'start');
+        $this->source['last_activity'] = PhoDateTime::new($this->source['last_activity']);
+        $this->source['start']         = PhoDateTime::new($session['start']);
+        $this->source['stop']          = PhoDateTime::new($session['stop']);
+
+        return $this;
+    }
+
+
+    /**
+     * Copies the data for this session to a session with the specified identifier
+     *
+     * @param string $identifier
+     *
+     * @return $this
+     */
+    public function copyTo(string $identifier): static
+    {
+throw new UnderConstructionException();
+    }
+
+
+    /**
+     * Sets the available data keys for this entry
+     *
+     * @param DefinitionsInterface $_definitions
+     *
+     * @return static
+     */
+    protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
+    {
+        $_definitions->removeKeys('meta_divider')
+
+                     ->add(DefinitionFactory::newCreatedBy()
+                                            ->setOptional(true)
+                                            ->setRender(true))
+
+                     ->add(DefinitionFactory::newDivider('meta_divider'))
+
+                     ->add(DefinitionFactory::newCode('identifier')
+                                            ->setLabel(tr('Identifier'))
+                                            ->setDisabled(true)
+                                            ->setReadonly(true)
+                                            ->setSize(6))
+
+                     ->add(DefinitionFactory::newDomain()
+                                            ->setDisabled(true)
+                                            ->setReadonly(true)
+                                            ->setSize(6))
+
+                    ->add(DefinitionFactory::newUsersId())
+
+                    ->add(DefinitionFactory::newIpAddress('remote_ip')
+                                           ->setLabel(tr('Remote IP Address'))
+                                           ->setReadonly(true)
+                                           ->setOptional(true)
+                                           ->setSize(4))
+
+                    ->add(DefinitionFactory::newIpAddress('remote_ip_real')
+                                           ->setLabel(tr('Real Remote IP Address'))
+                                           ->setReadonly(true)
+                                           ->setOptional(true)
+                                           ->setSize(4))
+
+                    ->add(DefinitionFactory::newDateTime('closed')
+                                           ->setReadonly(true)
+                                           ->setOptional(true)
+                                           ->setMaxLength(4)
+                                           ->setHelpText(tr('Global ID'))
+                                           ->setSize(3));
+
+        return $this;
+    }
 }

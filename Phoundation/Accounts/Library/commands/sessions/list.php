@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Accounts\Users\Sessions\UserSession;
+use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
@@ -56,24 +57,24 @@ $argv = ArgvValidator::new()
 
 // Fetch a list of sessions
 if (ALL) {
-    $sessions = Sessions::getAll();
+    $_sessions = UserSessions::new()->loadAll();
 
 } elseif ($argv['user']) {
-    $sessions = Sessions::getActiveForUsersId(User::new()->loadColumns(['email' => $argv['user']])->getId());
+    $_sessions = UserSessions::new()->loadActiveForUsersId(User::new()->loadColumns(['email' => $argv['user']])->getId());
 
 } elseif ($argv['users_id']) {
-    $sessions = Sessions::getActiveForUsersId($argv['users_id']);
+    $_sessions = UserSessions::new()->loadActiveForUsersId($argv['users_id']);
 
 } elseif ($argv['ip']) {
-    $sessions = Sessions::getActiveForIp($argv['ip']);
+    $_sessions = UserSessions::new()->loadActiveForIp($argv['ip']);
 
 } else {
-    $sessions = Sessions::getActive();
+    $_sessions = UserSessions::new()->loadActive();
 }
 
 
 // Add user and session data to the list, then order it by last_activity
-$sessions = Sessions::addData($sessions)->uasort(function ($a, $b) {
+$_sessions = UserSessions::addData($_sessions)->uasort(function ($a, $b) {
     if ($a['last_activity'] < $b['last_activity']) {
         return 1;
     }
@@ -87,6 +88,6 @@ $sessions = Sessions::addData($sessions)->uasort(function ($a, $b) {
 
 
 // Display sessions
-foreach ($sessions as $identifier => $session) {
+foreach ($_sessions as $identifier => $session) {
     Log::cli(Strings::size($session['user']?->getLogId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . (array_get_safe($session, 'last_activity')?->setTimezone('user') ?? '-'));
 }

@@ -45,9 +45,11 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionsInterface;
 use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Accounts\Users\Sessions\Sessions;
+use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
@@ -66,7 +68,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryFirstNames;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
@@ -128,7 +130,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryComments;
     use TraitDataEntryData;
     use TraitDataEntryDescription;
-    use TraitDataEntryDomain;
+    use TraitDataEntryStringDomain;
     use TraitDataEntryEmail;
     use TraitDataEntryFirstNames;
     use TraitDataEntryGeo;
@@ -1292,11 +1294,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns an Iterator containing all the sessions for this user
      *
-     * @return IteratorInterface
+     * @return UserSessionsInterface
      */
-    public function getActiveSessions(): IteratorInterface
+    public function getActiveSessions(): UserSessionsInterface
     {
-        return Sessions::getActiveForUsersId($this->getId());
+        return UserSessions::new()->loadActiveForUsersId($this->getId());
     }
 
 
@@ -1326,9 +1328,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function addRoles(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true): static
     {
-        $this->getRolesObject()
-             ->add($value, $key, $skip_null_values);
-
+        $this->getRolesObject()->add($value, $key, $skip_null_values);
         return $this;
     }
 

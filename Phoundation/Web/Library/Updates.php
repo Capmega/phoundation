@@ -207,6 +207,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         `cookies` mediumtext NULL DEFAULT NULL,
                         `post` mediumtext NULL DEFAULT NULL,
                         `comments` mediumtext NULL DEFAULT NULL,
+                        
                     ')->setIndices('
                         PRIMARY KEY (`id`),
                         KEY `created_on` (`created_on`),
@@ -220,6 +221,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         KEY `http_code` (`http_code`),
                         KEY `global_id` (`global_id`),
                         KEY `local_id` (`local_id`),
+                        
                     ')->setForeignKeys('
                         CONSTRAINT `fk_web_requests_logs_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                         CONSTRAINT `fk_web_requests_logs_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
