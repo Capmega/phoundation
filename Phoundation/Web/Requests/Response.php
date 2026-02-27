@@ -19,6 +19,7 @@ namespace Phoundation\Web\Requests;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Accounts\Users\Locale\Language\Language;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionNotInitializedException;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\LocalCache;
@@ -1601,14 +1602,16 @@ class Response implements ResponseInterface
         $_target = Url::new($url)->makeWww();
 
         // Make sure this user can redirect and has no forced redirect configured!
-        if (Session::getUserObject()->hasRedirect()) {
-            if (!Session::getUserObject()->hasRedirect($_target)) {
-                // Well, THIS is a problem! We want to redirect to B, but user will always redirect back to A, so this redirect will never work
-                throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", the user has forced redirect ":redirect" configured that would redirect the user away from the current required target', [
-                    ':url'      => $_target,
-                    ':user'     => Session::getUserObject()->getLogId(),
-                    ':redirect' => Session::getUserObject()->getRedirect(),
-                ]));
+        if (Session::isInitialized()) {
+            if (Session::getUserObject()->hasRedirect()) {
+                if (!Session::getUserObject()->hasRedirect($_target)) {
+                    // Well, THIS is a problem! We want to redirect to B, but user will always redirect back to A, so this redirect will never work
+                    throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", the user has forced redirect ":redirect" configured that would redirect the user away from the current required target', [
+                        ':url'      => $_target,
+                        ':user'     => Session::getUserObject()->getLogId(),
+                        ':redirect' => Session::getUserObject()->getRedirect(),
+                    ]));
+                }
             }
         }
 

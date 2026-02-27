@@ -105,7 +105,7 @@ class Web
 //            if ($from_language !== 'en') {
 //                /*
 //                 * Translate the current non-English URL to English first
-//                 * because the specified could be in dutch whilst we want to end
+//                 * because The specified request could be in dutch whilst we want to end
 //                 * up with Spanish. So translate always
 //                 * FOREIGN1 > English > Foreign2.
 //                 *

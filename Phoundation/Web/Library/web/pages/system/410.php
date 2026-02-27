@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Page 409 - Conflict
+ * Page 410 - Gone
  *
- * This is the page that will be shown when the specified request could not be completed due to a conflict with the current
- * state of the target resource
+ * This is the page that will be shown when the requested resource is no longer available
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -34,26 +33,28 @@ switch (Request::getRequestType()) {
         // no break
 
     case EnumRequestTypes::api:
-        Response::setHttpCode(409);
-        JsonPage::new()->reply(['error' => tr('Conflict')]);
+        Response::setHttpCode(410);
+        JsonPage::new()->reply(['error' => tr('Gone')]);
 }
 
 
 // Set page meta-data
-Response::setHttpCode(409);
+Response::setHttpCode(410);
 Response::setRenderMainWrapper(false);
-Response::setPageTitle('409 - Conflict');
-Response::setHeaderTitle(tr('409 - Conflict'));
-Response::setDescription(tr('The specified request could not be completed due to a conflict with the current state of the target resource'));
+Response::setPageTitle('410 - Gone');
+Response::setHeaderTitle(tr('410 - Gone'));
+Response::setDescription(Request::get('message') ?? tr('The specified request could not be completed because the requested resource ":url" is no longer available', [
+    ':url' => Request::getReferer(true),
+]));
 Response::setBreadcrumbs();
 
 
 // Render and return the system page
 return Page::new('system/http-error')->addTextsObject([
-    ':h2'     => '409',
-    ':h3'     => tr('Conflict'),
+    ':h2'     => '410',
+    ':h3'     => tr('Gone'),
     ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('The specified request could not be completed due to a conflict with the current state of the target resource.', [
+    ':p'      => Request::get('message') ?? tr('The specified request could not be completed because the requested resource ":url" is no longer available.', [
         ':url' => Request::getReferer(true),
     ]),
     ':type'   => 'warning',

@@ -186,7 +186,7 @@ class Template implements TemplateInterface
                                             }
                                           }
                                         </style>
-                                        <div class="card rounded-6 shadow-3-soft" style="background-color: #fff9f2">
+                                        <div class="card rounded-6 shadow-3-soft" style="background-color: white">
                                           <div class="row g-0 d-flex align-items-center">
                                             <div class="col-lg-6 col-xl-5">
                                               <img src=":img" alt="' . tr('Background image') . '" class="w-100 rounded-t-2-5 rounded-tr-lg-0 rounded-bl-lg-2-5"/>

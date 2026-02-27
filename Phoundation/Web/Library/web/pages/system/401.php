@@ -18,9 +18,13 @@ use Phoundation\Core\Core;
 use Phoundation\Security\Incidents\Incident;
 use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
+
 try {
+    // Move the warning message to a flash message, then redirect
+    Response::getFlashMessagesObject()->addWarning(Request::get('message'));
     Response::setHttpCode(401);
     Response::redirect('signout');
 
