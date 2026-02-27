@@ -2094,7 +2094,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         if (Session::isInitialized()) {
             if ($this->getId(false) === Session::getUserObject()->getId()) {
                 // We are asking the redirect for the current user, not any random user
-                $return = Session::getRedirect() ?? $return;
+                $return = Session::getRedirectObject()?->getSource() ?? $return;
             }
         }
 
