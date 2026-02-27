@@ -14,14 +14,11 @@
 
 declare(strict_types=1);
 
-use Phoundation\Accounts\Users\Sessions\Sessions;
-use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Cli\CliDocumentation;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Validator\ArgvValidator;
-use Phoundation\Date\PhoDateTime;
 use Phoundation\Utils\Strings;
 
 CliDocumentation::setUsage('./pho sessions list
@@ -74,7 +71,7 @@ if (ALL) {
 
 
 // Add user and session data to the list, then order it by last_activity
-$_sessions = UserSessions::addData($_sessions)->uasort(function ($a, $b) {
+$_sessions->uasort(function ($a, $b) {
     if ($a['last_activity'] < $b['last_activity']) {
         return 1;
     }

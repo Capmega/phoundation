@@ -672,7 +672,7 @@ class Session implements SessionInterface
      */
     public static function initializePhpIni(): void
     {
-        $handler = Sessions::getHandler();
+        $handler = UserSessions::getHandler();
 
         // Force session cookie configuration
         ini_set('session.serialize_handler', 'php_serialize');
@@ -788,7 +788,7 @@ class Session implements SessionInterface
      */
     protected static function processHandler(): void
     {
-        switch (Sessions::getHandler()) {
+        switch (UserSessions::getHandler()) {
             case 'files':
                 $directory = PhoDirectory::new(
                     config()->getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),

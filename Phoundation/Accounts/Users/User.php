@@ -48,7 +48,6 @@ use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionsInterface;
 use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Accounts\Users\Sessions\Sessions;
 use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;

@@ -92,13 +92,6 @@ interface UserSessionInterface extends DataEntryInterface
     public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static;
 
     /**
-     * Saves the session data
-     *
-     * @return static
-     */
-    public function save(): static;
-
-    /**
      * Copies the data for this session to a session with the specified identifier
      *
      * @param string $identifier

@@ -19,7 +19,6 @@ namespace Phoundation\Accounts\Users\Sessions;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
-use Phoundation\Accounts\Users\Sessions\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntries\DataEntry;
