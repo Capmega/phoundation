@@ -196,7 +196,12 @@ class Git extends Versioning implements GitInterface
     public function branchExists(string $branch, bool $from_remotes = false): bool
     {
         $this->verifyBranch($branch);
-        return array_key_exists($branch, $this->getBranches($from_remotes));
+
+        if ($from_remotes) {
+            return (bool) Arrays::keepMatchingKeysEndingWith($this->getBranches(true), $branch);
+        }
+
+        return array_key_exists($branch, $this->getBranches());
     }
 
 
