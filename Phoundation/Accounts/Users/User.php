@@ -2064,7 +2064,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     public function hasRedirect(?UrlInterface $_url = null): bool
     {
         if ($_url) {
-            return $_url->makeWww() === $this->getRedirectObject();
+            return $_url->makeWww()->getSource() === $this->getRedirectObject()->getSource();
         }
 
         return (bool) $this->getRedirect();

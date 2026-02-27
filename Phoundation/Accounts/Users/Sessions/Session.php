@@ -263,10 +263,10 @@ class Session implements SessionInterface
      *
      * @return void
      */
-    public static function setRedirect(string|null $_redirect): void
+    public static function setRedirect(string|null $_redirect = null): void
     {
         $_redirect = get_null($_redirect);
-        $_redirect = Url::new($_redirect);
+        $_redirect = Url::newOrNull($_redirect);
 
         $_SESSION['redirect'] = $_redirect?->makeWww()->getSource();
     }
@@ -2059,6 +2059,8 @@ class Session implements SessionInterface
     {
         static::$key  = null;
         unset($_SESSION['sign-key']);
+
+        Session::setRedirect();
     }
 
 
