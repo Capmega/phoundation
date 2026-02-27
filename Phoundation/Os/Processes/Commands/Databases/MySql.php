@@ -116,10 +116,10 @@ class MySql extends Command
      *
      * @see https://kedar.nitty-witty.com/blog/a-unique-foreign-key-issue-in-mysql-8-4
      *
-     * @param PhoFileInterface $file
+     * @param PhoFileInterface $_file
      * @return TimerInterface
      */
-    public function import(PhoFileInterface $file): TimerInterface
+    public function import(PhoFileInterface $_file): TimerInterface
     {
         // Start timer and get file and database information
         $_timer    = Timer::new('mysql import');
@@ -133,13 +133,14 @@ class MySql extends Command
         // Check file restrictions and start the import
         Log::setThreshold($threshold);
 
-        switch ($file->getMimetype()) {
+        switch ($_file->getMimetype()) {
             case 'text/plain':
                 Grep::new()
                     ->setTimeout(null)
                     ->setFilterReversed(true)
                     ->setFilterRegularExpression(true)
                     ->setFilter('/USE \`[a-z0-9_]\`;/i')
+                    ->setFileObject($_file)
                     ->setPipe(Grep::new()
                                   ->setTimeout(null)
                                   ->setFilterReversed(true)
@@ -157,7 +158,7 @@ class MySql extends Command
             case 'application/gzip':
                 Zcat::new()
                     ->setTimeout($this->timeout)
-                    ->setFileObject($file)
+                    ->setFileObject($_file)
                     ->setPipe(Grep::new()
                                   ->setFilterReversed(true)
                                   ->setFilterRegularExpression(true)
@@ -179,8 +180,8 @@ class MySql extends Command
 
             default:
                 throw new FileTypeNotSupportedException(tr('The specified file ":file" has the unsupported filetype ":type"', [
-                    ':file' => $file->getSource(),
-                    ':type' => $file->getMimetype(),
+                    ':file' => $_file->getSource(),
+                    ':type' => $_file->getMimetype(),
                 ]));
         }
 

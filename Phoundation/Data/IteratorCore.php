@@ -1196,7 +1196,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      */
     public function keepMatchingAutocompleteValues(ArrayableInterface|Stringable|array|string|int|null $needles, ?string $column = null): static
     {
-        $this->source = Arrays::keepMatchingValuesStartingWith($this->source, $needles, Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH | Utils::SKIP_NULL_NEEDLES, $column);
+        $this->source = Arrays::keepMatchingValuesBeginningWith($this->source, $needles, Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH | Utils::SKIP_NULL_NEEDLES, $column);
         return $this;
     }
 
@@ -1300,9 +1300,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): static
+    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH, ?string $column = null): static
     {
-        return new static(Arrays::keepMatchingValuesStartingWith($this->source, $needles, $flags, $column));
+        return new static(Arrays::keepMatchingValuesBeginningWith($this->source, $needles, $flags, $column));
     }
 
 
@@ -1314,9 +1314,9 @@ class IteratorCore extends IteratorBase implements IteratorInterface
      *
      * @return static
      */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): static
+    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH): static
     {
-        return new static(Arrays::keepMatchingKeysStartingWith($this->source, $needles, $flags));
+        return new static(Arrays::keepMatchingKeysBeginningWith($this->source, $needles, $flags));
     }
 
 

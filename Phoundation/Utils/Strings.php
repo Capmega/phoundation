@@ -2717,24 +2717,24 @@ class Strings extends Utils
      * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
      * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
      * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
-     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     * Utils::MATCH_BEGINS_WITH       Will match needles for entries that start with the specified needles. Mutually
      *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
      * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
      * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
      *                                "0", "" does NOT match 0, etc.).
      * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
      * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
      * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
      *                                ignored while NULL values are still matched using the MATCH_NULL flag
@@ -2767,24 +2767,24 @@ class Strings extends Utils
      * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
      * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
      * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
-     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     * Utils::MATCH_BEGINS_WITH       Will match needles for entries that start with the specified needles. Mutually
      *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
      * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
      * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
      *                                "0", "" does NOT match 0, etc.).
      * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
      * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
      * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
      *                                ignored while NULL values are still matched using the MATCH_NULL flag
@@ -2817,24 +2817,24 @@ class Strings extends Utils
      * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
      * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
      * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
-     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     * Utils::MATCH_BEGINS_WITH       Will match needles for entries that start with the specified needles. Mutually
      *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
      * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
      * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
      *                                "0", "" does NOT match 0, etc.).
      * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
      * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
      * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
      *                                ignored while NULL values are still matched using the MATCH_NULL flag
