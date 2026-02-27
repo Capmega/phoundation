@@ -37,7 +37,7 @@ trait TraitDataEntryCode
      */
     public function getDisplayCode(): string|null
     {
-        return $this->formatDisplayVariables($this->getTypesafe('string', 'code'));
+        return $this->formatDisplayVariables($this->getCode());
     }
 
 

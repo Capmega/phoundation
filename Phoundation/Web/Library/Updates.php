@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.0';
+        return '0.10.0';
     }
 
 
@@ -177,6 +177,53 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.9.0', function () {
             sql()->getSchemaObject()->getTableObject('web_non200_urls')->drop();
+
+        })->addUpdate('0.10.0', function () {
+            // Add the web_requests_logs
+            sql()->getSchemaObject()
+                 ->getTableObject('web_requests_logs')
+                 ->drop()
+                 ->define()
+                     ->setColumns('
+                        `id` bigint NOT NULL AUTO_INCREMENT,
+                        `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        `created_by` bigint DEFAULT NULL,
+                        `meta_id` bigint NOT NULL,
+                        `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `action` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `http_code` int NULL DEFAULT NULL,
+                        `global_id` varchar(8) NOT NULL,
+                        `local_id` varchar(8) NOT NULL,
+                        `incidents_id` bigint NULL DEFAULT NULL,
+                        `pid` int NOT NULL,
+                        `platform` enum("web", "cli"),
+                        `remote_ip` varchar(48) NULL DEFAULT NULL,
+                        `remote_ip_real` varchar(48) NULL DEFAULT NULL,
+                        `domain` varchar(255) NULL DEFAULT NULL,
+                        `method` enum("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS", "CONNECT", "TRACE") NULL DEFAULT NULL,
+                        `url` varchar(4090) NULL DEFAULT NULL,
+                        `headers` mediumtext DEFAULT NULL,
+                        `cookies` mediumtext NULL DEFAULT NULL,
+                        `post` mediumtext NULL DEFAULT NULL,
+                        `comments` mediumtext NULL DEFAULT NULL,
+                    ')->setIndices('
+                        PRIMARY KEY (`id`),
+                        KEY `created_on` (`created_on`),
+                        KEY `created_by` (`created_by`),
+                        KEY `status` (`status`),
+                        KEY `meta_id` (`meta_id`),
+                        KEY `remote_ip` (`remote_ip`),
+                        KEY `remote_ip_real` (`remote_ip_real`),
+                        KEY `domain` (`domain`),
+                        KEY `method` (`method`),
+                        KEY `http_code` (`http_code`),
+                        KEY `global_id` (`global_id`),
+                        KEY `local_id` (`local_id`),
+                    ')->setForeignKeys('
+                        CONSTRAINT `fk_web_requests_logs_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                        CONSTRAINT `fk_web_requests_logs_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    ')->create();
         });
     }
 }
