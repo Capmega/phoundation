@@ -188,15 +188,15 @@ class Git extends Versioning implements GitInterface
     /**
      * Returns the current git branch for this directory
      *
-     * @param string $branch
-     * @param bool   $from_all
+     * @param string $branch               The branch name to check
+     * @param bool   $from_remotes [false] If true, will also check remotes for the requested branch
      *
      * @return bool
      */
-    public function branchExists(string $branch, bool $from_all = false): bool
+    public function branchExists(string $branch, bool $from_remotes = false): bool
     {
         $this->verifyBranch($branch);
-        return array_key_exists($branch, $this->getBranches($from_all));
+        return array_key_exists($branch, $this->getBranches($from_remotes));
     }
 
 
@@ -528,12 +528,12 @@ class Git extends Versioning implements GitInterface
 
         $source  = [];
         $results = $this->_process->clearArguments()
-                                   ->addArgument('branch')
-                                   ->addArgument('--quiet')
-                                   ->addArgument((ALL or $all) ? '-a' : null)
-                                   ->addArguments(($contains)   ? ['--contains', $contains] : null)
-                                   ->addArgument('--no-color')
-                                   ->executeReturnArray();
+                                  ->addArgument('branch')
+                                  ->addArgument('--quiet')
+                                  ->addArgument((ALL or $all) ? '-a' : null)
+                                  ->addArguments(($contains)   ? ['--contains', $contains] : null)
+                                  ->addArgument('--no-color')
+                                  ->executeReturnArray();
 
         foreach ($results as $line) {
             if (str_starts_with($line, '*')) {

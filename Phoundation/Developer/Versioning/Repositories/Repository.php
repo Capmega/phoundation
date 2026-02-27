@@ -638,32 +638,6 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns true if the requested branch exists for this repository
-     *
-     * @param string $branch                 The branch to search for
-     * @param bool   $check_tags_too [true]  If true will search for the branch name in the tags list as well
-     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it
-     *                                       does not yet exist
-     *
-     * @return bool
-     */
-    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool
-    {
-        $exists = array_key_exists($branch, $this->_git->getBranches()) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
-
-        if (!$exists) {
-            // Branch does not yet exist for this repository, create it automatically?
-            if ($auto_create) {
-                $this->createBranch($branch);
-                return true;
-            }
-        }
-
-        return $exists;
-    }
-
-
-    /**
      * Returns true if this repository has the requested suffix or version branch available
      *
      * @param string|null $version                The version branch that will be checked if it exists. If NULL, will
@@ -915,15 +889,43 @@ class Repository extends DataEntry implements RepositoryInterface
 
 
     /**
-     * Returns true if this repository has the specified branch available
+     * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch The branch that should be selected for this repository
+     * @param string $branch                 The branch to search for
+     * @param bool   $check_tags_too [true]  If true will search for the branch name in the tags list as well
+     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it does not yet exist
+     * @param bool   $from_remotes   [false] If true, will also check remotes
      *
      * @return bool
      */
-    public function hasBranchAvailable(string $branch): bool
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false, bool $from_remotes = false): bool
     {
-        return $this->_git->branchExists($branch);
+        $exists = array_key_exists($branch, $this->_git->getBranches($from_remotes)) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
+
+        if (!$exists) {
+            // Branch does not yet exist for this repository, create it automatically?
+            if ($auto_create) {
+                $this->createBranch($branch);
+                return true;
+            }
+        }
+
+        return $exists;
+    }
+
+
+    /**
+     * Returns true if this repository has the specified branch available
+     *
+     * @param string $branch               The branch that should be selected for this repository
+     * @param bool   $from_remotes [false] If true, will also check remotes for the requested branch
+     *
+     * @return bool
+     * @TODO Replace this with Repository::branchExists()
+     */
+    public function hasBranchAvailable(string $branch, bool $from_remotes = false): bool
+    {
+        return $this->_git->branchExists($branch, $from_remotes);
     }
 
 

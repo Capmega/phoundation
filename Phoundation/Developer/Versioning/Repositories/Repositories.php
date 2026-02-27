@@ -1123,7 +1123,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
-            if ($_repository->branchExists($branch)) {
+            if ($_repository->branchExists($branch, from_remotes: true)) {
                 Log::action(ts('Selecting version branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $_repository->getType(),
