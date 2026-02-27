@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Developer\Versioning\Git\Interfaces;
 
-use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;

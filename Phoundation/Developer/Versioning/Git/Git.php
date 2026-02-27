@@ -23,7 +23,6 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Developer\Phoundation\Exception\NotARepositoryException;
-use Phoundation\Developer\Versioning\Git\Branches\Interfaces\BranchesInterface;
 use Phoundation\Developer\Versioning\Git\Enums\EnumGitSelected;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchIsBehindRemoteBranchException;
 use Phoundation\Developer\Versioning\Git\Exception\GitBranchNotExistException;
