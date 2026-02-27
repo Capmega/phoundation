@@ -37,6 +37,7 @@ use Phoundation\Accounts\Users\Interfaces\SignInKeyInterface;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionNotInitializedException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionPostAndSignoutException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionStartFailedException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
@@ -171,6 +172,13 @@ class Session implements SessionInterface
      */
     protected static ?int $sign_out_on_exit = null;
 
+    /**
+     * Tracks if any request for this session should be redirected to a different page
+     *
+     * @var UrlInterface|null $_redirect
+     */
+    protected static ?UrlInterface $_redirect = null;
+
 
     /**
      * Singleton, ensure to always return the same Log object.
@@ -245,6 +253,30 @@ class Session implements SessionInterface
         }
 
         return static::$ip_address;
+    }
+
+
+    /**
+     * Sets if any request for this session should be redirected to a different page
+     *
+     * @param UrlInterface|null $_redirect
+     *
+     * @return void
+     */
+    public static function setRedirectObject(?UrlInterface $_redirect): void
+    {
+        static::$_redirect = $_redirect;
+    }
+
+
+    /**
+     * Returns if any request for this session should be redirected to a different page
+     *
+     * @return UrlInterface|null
+     */
+    public static function getRedirectObject(): ?UrlInterface
+    {
+        return static::$_redirect;
     }
 
 
@@ -1246,7 +1278,13 @@ class Session implements SessionInterface
     /**
      * Returns the user for this session
      *
+     * @note Executing this method requires that the session data has already been initialized. If this method is called before session data was initialized, a
+     *       SessionNotInitializedException will be thrown
+     *
      * @return UserInterface
+     *
+     * @throws SessionNotInitializedException Thrown when this method is accessed before the session itself has been initialized
+     * @throws EndlessLoopException           Thrown when this method detects that it was called recursively, which SHOULD never happen
      */
     public static function getUserObject(): UserInterface
     {
@@ -1259,7 +1297,7 @@ class Session implements SessionInterface
 
         $busy = true;
 
-        if (empty(session_id())) {
+        if (!Session::isInitialized()) {
             if (PLATFORM_WEB) {
                 // TODO Add support for session users. For now we return the system user
                 if (Request::isRequestType(EnumRequestTypes::api)) {
@@ -1267,7 +1305,7 @@ class Session implements SessionInterface
                     return static::getSystemUserObject();
                 }
 
-                throw new SessionException(tr('Cannot access session data yet, session has not yet been initialized'));
+                throw new SessionNotInitializedException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
             $return = static::getSystemUserObject();

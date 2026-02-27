@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\SignInKey;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Web\Requests\Request;
+use Phoundation\Web\Requests\Response;
 
 
 // Get the UUID key
@@ -35,7 +36,7 @@ try {
 
 } catch (SignInKeyUsedException $e) {
     // Show authentication failed but add a message
-    Request::executeSystem(401, message: tr('This link has already been used, please request a new link'));
+    Request::executeSystem(410, message: tr('This direct login link has already been used, please request a new link'));
 
 } catch (SignInKeyDifferentUserException $e) {
     // Show authentication failed but add a message

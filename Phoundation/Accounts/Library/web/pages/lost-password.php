@@ -57,6 +57,7 @@ if (Request::isPostRequestMethod()) {
                              ->select('email')->isEmail()
                              ->validate();
 
+        $get  = array_merge($get, $post);
         $user = User::new()->load(['email' => $post['email']]);
 
         if ($user->isLocked() or $user->isDeleted()) {
@@ -76,7 +77,7 @@ if (Request::isPostRequestMethod()) {
                     ->throw(AccessDeniedException::class);
         }
 
-        $key  = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
+        $key = $user->getSigninKey()->generate(Url::new('/update-lost-password.html')->makeWww());
 
         Pho::new('email send')
            ->setArguments([

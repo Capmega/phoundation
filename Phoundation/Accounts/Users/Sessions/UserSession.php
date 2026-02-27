@@ -16,9 +16,9 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Sessions;
 
-use Phoundation\Accounts\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionNotExistsException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\Traits\TraitDataArraySource;
@@ -34,7 +34,6 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 use ReturnTypeWillChange;
 use Stringable;
-
 
 class UserSession implements UserSessionInterface
 {

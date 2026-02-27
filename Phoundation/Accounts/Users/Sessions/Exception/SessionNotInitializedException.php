@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Class SessionNotExistsException
+ * Class SessionNotInitializedException
  *
- *
+ * This exception is thrown whenever session data is accessed while the session itself has not yet been initialized
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -14,10 +14,8 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Accounts\Exception;
+namespace Phoundation\Accounts\Users\Sessions\Exception;
 
-use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
-
-class SessionNotExistsException extends SessionException
+class SessionNotInitializedException extends SessionException
 {
 }

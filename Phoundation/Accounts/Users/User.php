@@ -2089,7 +2089,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getRedirect(): ?string
     {
-        return $this->getTypesafe('string', 'redirect');
+        $return = $this->getTypesafe('string', 'redirect');
+
+        if (Session::isInitialized()) {
+            if ($this->getId(false) === Session::getUserObject()->getId()) {
+                // We are asking the redirect for the current user, not any random user
+                $return = Session::getRedirect() ?? $return;
+            }
+        }
+
+        return $return;
     }
 
 
