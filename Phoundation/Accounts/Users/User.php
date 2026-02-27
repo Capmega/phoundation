@@ -1599,13 +1599,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getUpdatePassword(): ?DateTimeInterface
     {
-        $update_password = $this->getTypesafe('string', 'update_password');
-
-        if ($update_password) {
-            return new PhoDateTime($update_password);
-        }
-
-        return null;
+        return PhoDateTime::newOrNull($this->getTypesafe('string', 'update_password'));
     }
 
 
@@ -1618,12 +1612,8 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     protected function setUpdatePassword(DateTimeInterface|string|null $date_time): static
     {
-        if (is_bool($date_time)) {
-            // Update password immediately
-            $date_time = new PhoDateTime('1970');
-
-        } elseif ($date_time instanceof DateTimeInterface) {
-            $date_time = $date_time->getTimestamp();
+        if ($date_time === '0000-00-00 00:00:00') {
+            $date_time = null;
         }
 
         return $this->set($date_time, 'update_password');
@@ -2103,13 +2093,37 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Returns true if this user has any redirect URL other than NULL
+     *
+     * @return bool
+     */
+    public function hasRedirect(): bool
+    {
+        return (bool) $this->getRedirect();
+    }
+
+
+    /**
+     * Returns true if this user has the specified redirect URL
+     *
+     * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
+     *
+     * @return bool
+     */
+    public function hasSpecifiedRedirect(?UrlInterface $_redirect): bool
+    {
+        return $this->getRedirect() === $_redirect?->makeWww()->getSource();
+    }
+
+
+    /**
      * Sets the redirect for this user
      *
-     * @param Stringable|string|null $_redirect
+     * @param UrlInterface|string|null $_redirect [null] Sets the redirect URL for this user
      *
      * @return static
      */
-    public function setRedirect(Stringable|string|null $_redirect = null): static
+    public function setRedirect(UrlInterface|string|null $_redirect = null): static
     {
         $_redirect = Url::newOrNull(get_null($_redirect));
         $_redirect?->makeWww()->getSource();
@@ -3363,10 +3377,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                            ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
                                            ->addPreSaveFunctions(function (DefinitionInterface $_definition, mixed $value) {
                                                // User redirect URL's must be stored without hostname and language specification!
-                                               $value = Url::new($value);
+                                               $value = trim((string) $value);
 
-                                               if ($value->isProjectUrl()) {
-                                                   return Url::new($value)->getFromHostAndLanguage();
+                                               if ($value) {
+                                                   $value = Url::new($value);
+
+                                                   if ($value->isProjectUrl()) {
+                                                       return Url::new($value)->getFromHostAndLanguage();
+                                                   }
                                                }
 
                                                return $value;

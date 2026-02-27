@@ -477,11 +477,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param Stringable|string|null $_redirect
+     * @param UrlInterface|string|null $_redirect [null] Sets the redirect URL for this user
      *
      * @return static
      */
-    public function setRedirect(Stringable|string|null $_redirect = null): static;
+    public function setRedirect(UrlInterface|string|null $_redirect = null): static;
 
 
     /**
@@ -901,6 +901,15 @@ interface UserInterface extends DataEntryInterface
      * @return static
      */
     public function sendWelcomeEmail(): static;
+
+    /**
+     * Returns true if this user has the specified redirect URL
+     *
+     * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
+     *
+     * @return bool
+     */
+    public function hasSpecifiedRedirect(?UrlInterface $_redirect): bool;
 
     /**
      * Returns true if the user has SOME of the specified rights
