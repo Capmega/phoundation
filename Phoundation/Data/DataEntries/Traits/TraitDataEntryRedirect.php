@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
+use Phoundation\Web\Http\Interfaces\UrlInterface;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 
@@ -40,6 +42,30 @@ trait TraitDataEntryRedirect
      * @return static
      */
     public function setRedirect(Stringable|string|null $redirect): static
+    {
+        return $this->set(get_null((string) $redirect), 'redirect');
+    }
+
+
+    /**
+     * Returns the redirect object for this object
+     *
+     * @return UrlInterface|null
+     */
+    public function getRedirectObject(): ?UrlInterface
+    {
+        return Url::newOrNull($this->getTypesafe('string', 'redirect'));
+    }
+
+
+    /**
+     * Sets the redirect object for this object
+     *
+     * @param UrlInterface|null $redirect
+     *
+     * @return static
+     */
+    public function setRedirectObject(UrlInterface|null $redirect): static
     {
         return $this->set(get_null((string) $redirect), 'redirect');
     }
