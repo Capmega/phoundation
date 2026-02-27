@@ -2093,17 +2093,6 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
-     * Returns true if this user has any redirect URL other than NULL
-     *
-     * @return bool
-     */
-    public function hasRedirect(): bool
-    {
-        return (bool) $this->getRedirect();
-    }
-
-
-    /**
      * Returns true if this user has the specified redirect URL
      *
      * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
