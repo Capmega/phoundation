@@ -2143,7 +2143,7 @@ class Core implements CoreInterface
 
         if ($maintenance) {
             PhoFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
-            Log::warning(ts('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
+            Log::warning(ts('System has been relieved from maintenance mode. All web requests will now again be processed, all commands are available'), 10);
         }
 
         if ($readonly) {
@@ -3143,16 +3143,16 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  Core::executeUncaughtExceptionSystemPage(400, $e, log_message: tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
-            Core::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+            Core::executeUncaughtExceptionSystemPage(-401, $e, log_message: tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
             if (empty($new_target)) {
-                Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
+                Core::executeUncaughtExceptionSystemPage(500, $e, log_message: tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
 
             } else {
                 Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
@@ -3162,26 +3162,26 @@ class Core implements CoreInterface
                 ]));
 
                 // Execute the new system page target instead
-                Core::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
+                Core::executeUncaughtExceptionSystemPage($new_target , $e, log_message: $e->getMessage());
             }
 
         } catch (AccessDeniedException $e) {
-            Core::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
+            Core::executeUncaughtExceptionSystemPage(403, $e, log_message: tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
 
         } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException | FileNotExistException $e) {
-            Core::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
+            Core::executeUncaughtExceptionSystemPage(404, $e, log_message: tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            Core::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
+            Core::executeUncaughtExceptionSystemPage(405, $e, log_message: tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryExistsException $e) {
-            Core::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            Core::executeUncaughtExceptionSystemPage(409, $e, log_message: tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
-            Core::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
+            Core::executeUncaughtExceptionSystemPage(503, $e, log_message: tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
 
         } catch (PhoException | Throwable $e) {
-            Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
+            Core::executeUncaughtExceptionSystemPage(500, $e, log_message: tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
         }
 
         // Remove all caching headers
@@ -3475,14 +3475,15 @@ class Core implements CoreInterface
     /**
      * Tries to execute the specified system page on the web platform, returns void if unable to do so due to Debug mode
      *
-     * @param int $page            The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
-     *                             enabled
-     * @param Throwable   $e       The exception that caused this system page to be executed
-     * @param string|null $message The optional message to add to this system page
+     * @param int         $page               The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug
+     *                                        mode is enabled
+     * @param Throwable   $e                  The exception that caused this system page to be executed
+     * @param string|null $message     [null] The optional user-visible message to add to this system page
+     * @param string|null $log_message [null] The optional log-only message to add to this system page
      *
      * @return void
      */
-    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e, ?string $message = null): void
+    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e, ?string $message = null, ?string $log_message = null): void
     {
         // Any of these exceptions will be too severe to show a pretty error page
         $classes = [
@@ -3499,7 +3500,7 @@ class Core implements CoreInterface
             }
 
             // Try to show a pretty error page
-            Request::executeSystem($page, $e, $message);
+            Request::executeSystem($page, $e, $message, $log_message);
         }
 
         Response::setHttpCode(abs($page));

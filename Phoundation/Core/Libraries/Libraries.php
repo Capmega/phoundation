@@ -789,7 +789,6 @@ class Libraries
     public static function rebuildWebCache(): void
     {
         static::clearWebCache();
-
         Log::action(ts('Rebuilding web cache'), 4);
 
         // Get temporary directory to build cache and the current cache directory
