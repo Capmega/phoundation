@@ -545,7 +545,8 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
     public function getStatusObject(): StatusFilesInterface
     {
         if ($this->isEmpty()) {
-            throw new NoRepositoriesAvailableException(ts('Cannot get status for git repositories, there are no repositories available in the database'));
+            throw NoRepositoriesAvailableException::new(ts('Cannot get status for git repositories, there are no repositories available in the database'))
+                                                  ->addHint(ts('First run "./pho developer repositories scan" to load up repositories to work with'));
         }
 
         $_status_files = StatusFiles::new();
