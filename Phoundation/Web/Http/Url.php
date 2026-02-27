@@ -38,6 +38,8 @@ use Phoundation\Exception\PhpException;
 use Phoundation\Exception\RegexException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Components\Anchor;
@@ -1605,33 +1607,74 @@ class Url implements UrlInterface
 
 
     /**
-     * Adds a redirect=URL query to this URL
+     * Adds a ?redirect=URL query to this URL
      *
-     * @param Url|string|null $redirect                          The URL that should be added as "?redirect=URL" in this
-     *                                                           URL. If NULL, will not add anything. If empty string,
-     *                                                           will default to the current URL
-     * @param IteratorInterface|array|string|null $strip_queries If specified, will strip the specified query keys from
-     *                                                           the redirect URL before adding it to this URL
+     * @note ?redirect= queries only permit redirects to non root pages on project domains
+     *
+     * @param Url|string|null $redirect                          [null]     The URL that should be added as "?redirect=URL" in this URL. If NULL, will not add
+     *                                                                      anything. If empty string, will default to the current URL
+     * @param IteratorInterface|array|string|null $strip_queries [redirect] If specified, will strip the specified query keys from the redirect URL before
+     *                                                                      adding it to this URL
      *
      * @return static
      */
     public function addRedirect(Url|string|null $redirect = null, IteratorInterface|array|string|null $strip_queries = 'redirect'): static
     {
         // Use what URL?
-        if ($redirect === '') {
+        if (empty($redirect)) {
             $redirect = Url::newCurrent();
 
         } else {
             $redirect = Url::new($redirect)->makeWww();
         }
 
-        // Strip redirect?
-        if ($strip_queries) {
+        if (!$redirect->isProjectUrl()) {
+            Incident::new()
+                    ->setLog(10)
+                    ->setNotifyRoles('developers')
+                    ->setType('security')
+                    ->setSeverity(EnumSeverity::high)
+                    ->setTitle(ts('Encountered redirect to non project page, ignoring'))
+                    ->setBody(ts('The requested redirect URL ":url" points to a non project page, it will be removed', [
+                        ':url' => $redirect->getSource()
+                    ]))
+                    ->save();
+
+            $redirect = null;
+
+        } elseif ($redirect->isRootLevelPage()) {
+            Incident::new()
+                    ->setLog(10)
+                    ->setNotifyRoles('developers')
+                    ->setType('security')
+                    ->setSeverity(EnumSeverity::high)
+                    ->setTitle(ts('Encountered redirect to root level page, ignoring'))
+                    ->setBody(ts('The requested redirect URL ":url" points to a root level page, it will be removed', [
+                        ':url' => $redirect->getSource()
+                    ]))
+                    ->save();
+
+            $redirect = null;
+
+        } elseif ($strip_queries) {
+            // Strip redirect
             $redirect->removeQueryKeys($strip_queries);
         }
 
         // Done
         return $this->addUrlQuery($redirect, 'redirect');
+    }
+
+
+    /**
+     * Returns true if the page for this URL is on this site and is a root level page
+     *
+     * @return bool
+     * @todo Add support for sites that do not start at root!
+     */
+    public function isRootLevelPage(): bool
+    {
+        return $this->isProjectUrl() and preg_match('/^https?:\/\/[^\/]+\/\w{2}\/[^\/]+\.html(\?.*)?$/', $this->getSource());
     }
 
 

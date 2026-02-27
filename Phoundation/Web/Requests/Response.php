@@ -1416,8 +1416,7 @@ class Response implements ResponseInterface
                     if (!Response::skipRedirect()) {
                         // No, it is not, redirect!
                         Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getUserObject()
-                                              ->getLogId(),
+                            ':user' => Session::getUserObject()->getLogId(),
                             ':url'  => $redirect,
                         ]));
 
@@ -1432,8 +1431,7 @@ class Response implements ResponseInterface
                     }
 
                     Log::warning(ts('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
-                        ':user' => Session::getUserObject()
-                                          ->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                         ':url'  => $redirect,
                     ]));
                 }

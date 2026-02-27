@@ -1562,6 +1562,8 @@ class Request implements RequestInterface
                 Session::start();
             }
 
+            Response::checkForceRedirect();
+
             SystemRequest::new()->execute(abs($http_code), $e, $message, $log_message);
 
         } catch (Throwable $f) {
@@ -1764,6 +1766,8 @@ class Request implements RequestInterface
             // Start session here because processing the file not found will need it
             Session::start();
         }
+
+        Response::checkForceRedirect();
 
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
