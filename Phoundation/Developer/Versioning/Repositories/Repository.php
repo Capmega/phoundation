@@ -901,7 +901,7 @@ class Repository extends DataEntry implements RepositoryInterface
     public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false, bool $from_remotes = false): bool
     {
         if ($from_remotes) {
-            $exists = Arrays::keepMatchingKeysEndingWith($this->_git->getBranches($from_remotes), $branch) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
+            $exists = ((bool) Arrays::keepMatchingKeysEndingWith($this->_git->getBranches($from_remotes), $branch)) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
 
         } else {
             $exists = array_key_exists($branch, $this->_git->getBranches($from_remotes)) or ($check_tags_too and array_key_exists($branch, $this->_git->getTags()));
