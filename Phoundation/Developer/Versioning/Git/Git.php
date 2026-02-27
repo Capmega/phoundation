@@ -379,7 +379,7 @@ class Git extends Versioning implements GitInterface
     {
         $this->verifyBranch($branch);
 
-        if (!$this->branchExists($branch)) {
+        if (!$this->branchExists($branch, from_remotes: true)) {
             // The requested branch does not exist!
             if (!$auto_create) {
                 throw GitBranchNotExistException::new(ts('Cannot set current branch to ":branch" on repository ":repository", the branch does not exist', [
