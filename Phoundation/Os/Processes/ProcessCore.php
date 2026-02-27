@@ -178,7 +178,7 @@ abstract class ProcessCore implements ProcessInterface
         $this->setExecutionMethod(EnumExecuteMethod::returnArray);
 
         if ($this->debug) {
-            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
+            Log::printr($this->getFullCommandLine());
         }
 
         $command = $this->getFullCommandLine();

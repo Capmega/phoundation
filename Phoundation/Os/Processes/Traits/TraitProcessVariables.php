@@ -1255,7 +1255,7 @@ trait TraitProcessVariables
             } catch (CommandNotFoundException) {
                 // Check if the command exist on disk
                 if (($command !== 'which') and !file_exists($command)) {
-                    // The specified command was not found, we'll have to look for it anyway!
+                    // The specified command was not found, we will have to look for it anyway!
                     if (LocalCache::exists('Process::setCommand', $command)) {
                         return LocalCache::getLastChecked();
                     }
