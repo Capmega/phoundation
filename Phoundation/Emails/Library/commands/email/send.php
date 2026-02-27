@@ -89,10 +89,13 @@ $argv = ArgvValidator::new()
 //    ->setBody($argv['body'])
 //    ->send();
 
-// Send emails directly using PHPMailer
-$to   = User::new()->load($argv['to']);
-$mail = new PHPMailer();
 
+// Initialize "to"
+$to   = User::new()->load($argv['to']);
+
+
+// Initialize PHPMailer object
+$mail          = new PHPMailer();
 $mail->Host    = Email::getDefaultHostname();
 $mail->Port    = Email::getDefaultPort();
 $mail->Subject = $argv['subject'];
