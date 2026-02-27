@@ -1173,7 +1173,7 @@ class CliCommand
                 try {
                     $files = Arrays::removeMatchingValues(scandir(dirname($file)), '/^\./', flags: Utils::MATCH_REGEX);
                     $files = Arrays::replaceValuesWithCallbackReturn($files, function ($key, $value) { return strip_extension($value); });
-                    $files = Arrays::keepMatchingValuesStartingWith($files, basename($file));
+                    $files = Arrays::keepMatchingValuesBeginningWith($files, basename($file));
 
                 } catch (Throwable) {
                     $files = [];

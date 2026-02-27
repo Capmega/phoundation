@@ -119,8 +119,8 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
             $label = QueryBuilder::getLabel($column);
             $value = Arrays::force($value);
             $null  = Arrays::containsNullValue($value, ['NULL', '!NULL', '?NULL']); // No need to test ~NULL as there is no such thing as "NOT LIKE NULL"
-            $equal = Arrays::allValuesStartWithSame($value, ['!', '?', '~'], true);
-            $like  = ($like or Arrays::anyValuesStartWith($value, ['?', '~'])); // LIKE modifiers
+            $equal = Arrays::allValuesBeginWithSame($value, ['!', '?', '~'], true);
+            $like  = ($like or Arrays::anyValuesBeginWith($value, ['?', '~'])); // LIKE modifiers
 
             if ($like or $null or !$equal or (count($value) === 1)) {
                 // NULL value cannot be tested with IN
