@@ -1109,9 +1109,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         // Before we start, make sure all target repositories have either the suffix branch already available or if not
         // Make sure none of the repositories have changes
         // Make sure the project repository is on the right version
+        Log::action(ts('Checking all repositories in preparation of selecting version branches'), echo_screen: false);
         $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
              ->checkNoneHaveChanges(ts('select version branch'))
              ->checkProjectRepositoryVersion(ts('select version branch'), true);
+
+        Log::action(ts('Fetching all repositories in preparation of selecting version branches'), echo_screen: false);
+        $this->fetch();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $_repository) {
