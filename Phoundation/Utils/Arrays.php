@@ -4857,6 +4857,94 @@ class Arrays extends Utils
 
 
     /**
+     * Returns all permutations for the given source, optionally with sub-sets
+     *
+     * @param IteratorInterface|array|string|null $source                  The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets [false] If true, will for A, B, C not only return ABC, etc. but also sub sets like
+     *                                                                     A, AB, CB, etc.
+     * @param callable|null                       $callback        [null]  If specified, will execute the specified callback on each found permutation instead
+     *                                                                     of returning them, and will return NULL instead
+     * @return array|null
+     */
+    public static function getPermutations(IteratorInterface|array|string|null $source, ?bool $subsets = false, ?callable $callback = null): ?array
+    {
+        $source  = Arrays::force($source);
+
+        if (count($source) <= 1) {
+            $results = array_map('strval', $source);
+
+            if ($callback) {
+                foreach ($results as $result) {
+                    $callback($result);
+                }
+
+                return null;
+            }
+
+            return $results;
+        }
+
+        $results = [];
+
+        // Calculate full sets
+        if ($subsets !== true) {
+            // Get the main permutations
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    $result = $item . $permutation;
+
+                    if ($callback) {
+                        $callback($result);
+
+                    } else {
+                        $results[] = $result;
+                    }
+                }
+            }
+        }
+
+        // Calculate the subsets
+        if ($subsets !== false) {
+            // Single characters
+            foreach ($source as $item) {
+                if ($callback) {
+                    $callback((string) $item);
+
+                } else {
+                    $results[] = strval($item);
+                }
+            }
+
+            // Subsets of length 2 to N-1
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, true) as $permutation) {
+                    if (strlen($permutation) < count($source) - 1) {
+                        if ($callback) {
+                            $callback($item . $permutation);
+
+                        } else {
+                            $results[] = $item . $permutation;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($callback) {
+            return null;
+        }
+
+        return $results;
+    }
+
+
+    /**
      * Returns true if all the values of the source array start with one or more of the specified characters
      *
      * @param array        $source             The source array to test
