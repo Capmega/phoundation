@@ -1186,7 +1186,7 @@ class Core implements CoreInterface
             exit('exception before platform detection');
 
         } catch (Throwable $g) {
-            Core::uncaughtExceptionHandlerCrash($e, $f, $g);
+            Core::uncaughtExceptionHandlerCrash($e, isset_get($f), $g);
         }
     }
 
@@ -1245,13 +1245,13 @@ class Core implements CoreInterface
     /**
      * Handles issues where the uncaughtExceptionHandler itself crashed (yeah, that is a thing too)
      *
-     * @param Throwable $e
-     * @param Throwable $f
-     * @param Throwable $g
+     * @param Throwable      $e
+     * @param Throwable|null $f
+     * @param Throwable      $g
      *
      * @return never
      */
-    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, Throwable $f, Throwable $g): never
+    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, ?Throwable $f, Throwable $g): never
     {
         // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
         try {
@@ -1261,14 +1261,14 @@ class Core implements CoreInterface
 
                     error_log($g->getMessage());
                     error_log($g->getMessage());
-                    error_log($f->getMessage());
+                    error_log($f?->getMessage());
                     error_log($e->getMessage());
                     break;
 
                 case 'cli':
                     echo 'Fatal error:' . PHP_EOL;
                     echo $g->getMessage() . PHP_EOL;
-                    echo $f->getMessage() . PHP_EOL;
+                    echo $f?->getMessage() . PHP_EOL;
                     echo $e->getMessage() . PHP_EOL;
                     echo PHP_EOL;
 
