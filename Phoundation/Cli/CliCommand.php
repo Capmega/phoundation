@@ -1175,7 +1175,8 @@ class CliCommand
                     $files = Arrays::replaceValuesWithCallbackReturn($files, function ($key, $value) { return strip_extension($value); });
                     $files = Arrays::keepMatchingValuesBeginningWith($files, basename($file));
 
-                } catch (Throwable) {
+                } catch (Throwable $e) {
+                    Log::exception($e, echo_screen: false);
                     $files = [];
                 }
 
