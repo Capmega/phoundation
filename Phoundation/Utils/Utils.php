@@ -126,7 +126,7 @@ class Utils
                 return str_contains($value, $needle);
             }),
 
-            'start'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
+            'begin'    => Arrays::matchValuesFunction($action, $source, $needles, $flags, $column, function (mixed $value, mixed $needle, array $flags) {
                 return str_starts_with($value, $needle);
             }),
 
