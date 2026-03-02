@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.1';
+        return '0.9.0';
     }
 
 
@@ -137,6 +137,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 $_table->alter()
                         ->dropForeignKey('fk_os_tasks_parents_id')
                         ->addForeignKey('CONSTRAINT `fk_os_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `os_tasks` (`id`)');
+            }
+
+        })->addUpdate('0.9.0', function () {
+            // Add session code to the tasks
+            $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
+
+            if ($_table->columnExists('session_code')) {
+                $_table->alter()->modifyColumn('session_code` varchar(64) DEFAULT NULL,', 'AFTER `seo_name`');
+            }
+
+            if ($_table->indexExists('session_code')) {
+                $_table->alter()->addIndex('KEY `session_code` (`session_code`)');
             }
         });
     }
