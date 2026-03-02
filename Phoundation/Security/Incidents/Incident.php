@@ -105,6 +105,8 @@ class Incident extends DataEntryCore implements IncidentInterface
             $this->meta_columns = [
                 'id',
                 'created_on',
+                'modified_on',
+                'modified_by',
                 'meta_id',
                 'status',
                 'meta_state',
