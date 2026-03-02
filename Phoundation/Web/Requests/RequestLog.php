@@ -21,6 +21,7 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryAction;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCookies;
@@ -37,11 +38,12 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringPlatform;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
-use Phoundation\Security\Incidents\Incident;
+use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Requests\Interfaces\RequestLogInterface;
 
 
-class RequestLog extends DataEntry
+class RequestLog extends DataEntry implements RequestLogInterface
 {
     use TraitDataEntryMethod;
     use TraitDataEntryUrl;
@@ -103,15 +105,7 @@ class RequestLog extends DataEntry
      */
     protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $_definitions->removeKeys('meta_divider')
-
-                     ->add(DefinitionFactory::newCreatedBy()
-                                            ->setOptional(true)
-                                            ->setRender(true))
-
-                     ->add(DefinitionFactory::newDivider('meta_divider'))
-
-                     ->add(Definition::new('platform')
+        $_definitions->add(Definition::new('platform')
                                      ->setElement(EnumElement::select)
                                      ->setLabel(tr('Platform'))
                                      ->setDisabled(true)

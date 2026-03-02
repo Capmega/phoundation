@@ -2136,4 +2136,26 @@ class Request implements RequestInterface
     {
         return Request::getHeader('User-Agent');
     }
+
+
+    /**
+     * Returns the remote IP address where this request came from
+     *
+     * @return string|null
+     */
+    public static function getRemoteIpAddress(): ?string
+    {
+        return array_get_safe($_SERVER, 'REMOTE_ADDR');
+    }
+
+
+    /**
+     * Returns an alternative remote IP address where this request came from
+     *
+     * @return string|null
+     */
+    public static function getRemoteIpAddressReal(): ?string
+    {
+        return array_get_safe($_SERVER, 'HTTP_X_REAL_IP');
+    }
 }
