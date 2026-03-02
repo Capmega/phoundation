@@ -64,7 +64,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'identifier';
+        return 'code';
     }
 
 
@@ -159,7 +159,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      *
      * @return int
      */
-    public static function stopUser(int $users_id): int
+    public static function closeUser(int $users_id): int
     {
         $count    = 0;
         $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `users_id` = :users_id', [
@@ -190,10 +190,10 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      *
      * @return int
      */
-    public static function stopIp(string $ip): int
+    public static function closeIp(string $ip): int
     {
         $count    = 0;
-        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `ip` = :ip', [
+        $sessions = sql()->listKeyValue('SELECT `session`, `closed` FROM `accounts_user_sessions` WHERE `ip` = :ip', [
             'ip' => $ip,
         ]);
 
@@ -236,7 +236,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
         while ($session = $sessions->fetch()) {
             $_session = UserSession::new($session, false);
 
-            if (!$_session->getIdentifier() or !$_session->get('last_activity') or ((time() - $_session->get('last_activity')) > $max_seconds)) {
+            if (!$_session->getCode() or !$_session->get('last_activity') or ((time() - $_session->get('last_activity')) > $max_seconds)) {
                 $count++;
                 static::stop($session);
             }
@@ -283,10 +283,10 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActive(): static
     {
-        $this->source = sql()->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
-                                                   FROM   `accounts_user_sessions` 
-                                                   WHERE  `stop` IS NULL');
+        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
+                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                              FROM   `accounts_user_sessions` 
+                                              WHERE  `stop` IS NULL');
 
         return $this;
     }
@@ -299,9 +299,9 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAll(): static
     {
-        $this->source = sql()->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
-                                                   FROM   `accounts_user_sessions`');
+        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
+                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                              FROM   `accounts_user_sessions`');
 
         return $this;
     }
@@ -316,11 +316,11 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAllForUsersId(int $users_id): static
     {
-        $this->source = sql()->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
-                                                   FROM   `accounts_user_sessions` 
-                                                   WHERE  `users_id` = :users_id', [
-                                                       ':users_id' => $users_id
+        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
+                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                              FROM   `accounts_user_sessions` 
+                                              WHERE  `users_id` = :users_id', [
+                                                  ':users_id' => $users_id
         ]);
 
         return $this;
@@ -336,12 +336,12 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActiveForUsersId(int $users_id): static
     {
-        $this->source = sql()->setDebug(true)->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
-                                                                   FROM   `accounts_user_sessions` 
-                                                                   WHERE  `users_id` = :users_id 
-                                                                   AND    `stop` IS NULL', [
-                                                                       ':users_id' => $users_id
+        $this->source = sql()->setDebug(true)->listKeyValues('SELECT `code` AS `unique`, 
+                                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                              FROM   `accounts_user_sessions` 
+                                                              WHERE  `users_id` = :users_id 
+                                                              AND    `stop` IS NULL', [
+                                                                  ':users_id' => $users_id
         ]);
 
         return $this;
@@ -357,11 +357,11 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAllForIp(string $ip): static
     {
-        $this->source = sql()->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                          `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop` 
-                                                   FROM   `accounts_user_sessions` 
-                                                   WHERE  `ip` = :ip', [
-                                                       ':ip' => $ip
+        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
+                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop` 
+                                              FROM   `accounts_user_sessions` 
+                                              WHERE  `ip` = :ip', [
+                                                  ':ip' => $ip
         ]);
 
         return $this;
@@ -377,12 +377,12 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActiveForIp(string $ip): static
     {
-        $this->source = sql()->listKeyValues('SELECT `identifier` AS `unique`, 
-                                                     `id`, `domain`, `identifier`, `users_id`, `ip`, `start`, `stop`
+        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
+                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `ip` = :ip 
                                               AND    `stop` IS NULL', [
-                                                         ':ip' => $ip
+                                                  ':ip' => $ip
         ]);
 
         return $this;
@@ -434,8 +434,8 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function addData(array $sessions_data): static
     {
-        foreach ($this as $identifier => $_session) {
-            $this->get($identifier)->addData(array_get_safe($sessions_data, $identifier));
+        foreach ($this as $code => $_session) {
+            $this->get($code)->addData(array_get_safe($sessions_data, $code));
         }
 
         return $this;

@@ -16,41 +16,48 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Sessions;
 
-use Phoundation\Accounts\Users\Interfaces\UserInterface;
-use Phoundation\Accounts\Users\Sessions\Exception\SessionDuplicateIdentifierException;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
+use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringIdentifier;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Databases\Sql\Exception\SqlContstraintDuplicateEntryException;
-use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
-use Phoundation\Exception\NotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
-use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
-use ReturnTypeWillChange;
-use Stringable;
 
 
 class UserSession extends DataEntry implements UserSessionInterface
 {
-    use TraitDataEntryStringIdentifier;
+    use TraitDataEntryCode;
     use TraitDataEntryStringDomain;
     use TraitDataEntryStringRemoteIp;
     use TraitDataEntryStringRemoteIpReal;
+
+
+    /**
+     * UserSession class constructor
+     *
+     * @param IdentifierInterface|false|array|int|string|null $identifier
+     * @param EnumLoadParameters|null                         $on_null_identifier
+     * @param EnumLoadParameters|null                         $on_not_exists
+     */
+    public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
+        parent::__construct($identifier, $on_null_identifier, $on_not_exists);
+        $this->setAllowModify(false);
+    }
 
 
     /**
@@ -82,171 +89,98 @@ class UserSession extends DataEntry implements UserSessionInterface
      */
     public static function getUniqueColumn(): ?string
     {
-        return 'identifier';
+        return 'code';
     }
 
 
     /**
-     * Returns the session identifier
+     * Returns the session "close" datetime string or NULL if the session is still open
      *
-     * @return string
+     * @return string|null
      */
-    public function getIdentifier(): string
+    public function getOpened(): ?string
     {
-        return $this->source['identifier'];
+        return $this->getTypesafe('string', 'opened');
     }
 
 
     /**
-     * Returns the domain for this session
+     * Sets the session close datetime string or NULL if the session is still open
      *
-     * @return string
+     * @param PhoDateTimeInterface|string|null $close The session close date time
+     *
+     * @return static
      */
-    public function getDomain(): string
+    public function setOpened(PhoDateTimeInterface|string|null $close = null): static
     {
-        return $this->source['domain'];
+        return $this->set(PhoDateTime::newOrNull($close)?->format('mysql'), 'opened');
     }
 
 
     /**
-     * Returns the session IP
+     * Returns the session close datetime object
      *
-     * @return string
+     * @return PhoDateTimeInterface|null
      */
-    public function getIp(): string
+    public function getOpenedObject(): ?PhoDateTimeInterface
     {
-        return $this->source['ip'];
+        return PhoDateTime::newOrNull($this->getOpened());
     }
 
 
     /**
-     * Returns the session users id
+     * Returns the session "close" datetime string or NULL if the session is still open
      *
-     * @return int
+     * @return string|null
      */
-    public function getUsersId(): int
+    public function getClosed(): ?string
     {
-        return $this->source['users_id'];
+        return $this->getTypesafe('string', 'closed');
     }
 
 
     /**
-     * Returns the session user object
+     * Sets the session close datetime string or NULL if the session is still open
      *
-     * @return UserInterface
+     * @param PhoDateTimeInterface|string|null $close The session close date time
+     *
+     * @return static
      */
-    public function getUserObject(): UserInterface
+    public function setClosed(PhoDateTimeInterface|string|null $close = null): static
     {
-        return User::new()->load($this->source['users_id']);
+        return $this->set(PhoDateTime::newOrNull($close)?->format('mysql'), 'closed');
     }
 
 
     /**
-     * Returns the session start datetime string
+     * Returns the session close datetime object
      *
-     * @return string
+     * @return PhoDateTimeInterface|null
      */
-    public function getStart(): string
+    public function getClosedObject(): ?PhoDateTimeInterface
     {
-        return $this->source['start'];
+        return PhoDateTime::newOrNull($this->getClosed());
     }
 
 
     /**
-     * Returns the session start datetime object
+     * Closes this session
      *
-     * @return PhoDateTimeInterface
+     * This method will set the status of the UserSession entry to "closed" and set the "closed" value to "now" datetime
+     *
+     * @return static
      */
-    public function getStartObject(): PhoDateTimeInterface
+    public function close(): static
     {
-        return new PhoDateTime($this->source['start']);
-    }
-
-
-    /**
-     * Returns the session stop datetime string
-     *
-     * @return string
-     */
-    public function getStop(): string
-    {
-        return $this->source['stop'];
-    }
-
-
-    /**
-     * Returns the session stop datetime object
-     *
-     * @return PhoDateTimeInterface
-     */
-    public function getStopObject(): PhoDateTimeInterface
-    {
-        return new PhoDateTime($this->source['stop']);
-    }
-
-
-    /**
-     *  Returns the value for the specified session user data key
-     *
-     * @param Stringable|string|float|int $key
-     * @param mixed                       $default
-     * @param bool|null                   $exception
-     *
-     * @return mixed
-     */
-    #[ReturnTypeWillChange] public function get(Stringable|string|float|int $key, mixed $default = null, ?bool $exception = null): mixed
-    {
-        // Does this entry exist?
-        if (array_key_exists('data', $this->source)) {
-            if (array_key_exists($key, $this->source['data'])) {
-                return $this->source['data'][$key];
-            }
-
-            if ($exception) {
-                // The key does not exist
-                throw new NotExistsException(tr('The key ":key" does not exist in this ":class" object', [
-                    ':key'   => $key,
-                    ':class' => $this::class,
-                ]));
-            }
-
-        } elseif ($exception) {
-            // The session data does not exist
-            throw new NotExistsException(tr('The ":class" object does not have session data loaded', [
-                ':key'   => $key,
-                ':class' => $this::class,
-            ]));
-        }
-
-        return null;
-    }
-
-
-    /**
-     * Sets the specified session user data key to the specified value
-     *
-     * @param mixed                       $value
-     *
-     * @param Stringable|string|float|int $key
-     * @param bool                        $skip_null_values
-     *
-     * @return UserSession
-     */
-    public function set(mixed $value, Stringable|string|float|int $key, bool $skip_null_values = true): static
-    {
-        if ($value === null) {
-            if ($skip_null_values) {
-                return $this;
-            }
-        }
-
-        $this->source['data'][$key] = $value;
-        return $this;
+        return $this->setClosed(PhoDateTime::new())->save()->setStatus('closed');
     }
 
 
     /**
      * Deletes this session
+     *
+     * @param string|null $comments
+     * @param bool        $auto_save
      *
      * @return static
      */
@@ -257,12 +191,12 @@ class UserSession extends DataEntry implements UserSessionInterface
         switch ($handler) {
             case 'memcached':
                 // Remove the session from memcached
-                mc('sessions')->delete($this->getIdentifier());
+                mc('sessions')->delete($this->getCode());
                 break;
 
             case 'files':
                 // Remove the session from files
-                PhoFile::new(ini_get('session.save_path') . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))
+                PhoFile::new(ini_get('session.save_path') . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))
                        ->delete();
                 break;
 
@@ -277,7 +211,46 @@ class UserSession extends DataEntry implements UserSessionInterface
 
 
     /**
-     * @inheritDoc
+     * Loads the data for this DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified object, as long as it exists in the
+     * database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a configuration entry. This requires
+     * DataEntry::$config_path to be set. DataEntries from configuration will be in readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or DataEntry::getId(), which should return a valid
+     *       database id
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier              Identifier for the DataEntry object to load. Can be specified with a
+     *                                                                           [column => value] array, though also accepts an integer value which will
+     *                                                                           convert to [id_column => integer_value] or a string value which will convert to
+     *                                                                           [unique_column => string_value]]
+     *
+     * @param EnumLoadParameters|null $on_null_identifier                        Specifies how this load method will handle the specified identifier being NULL.
+     *                                                                           Options are: EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNoIdentifierSpecifiedException EnumLoadParameters::null: Will return
+     *                                                                           NULL EnumLoadParameters::this: Will return the object as-is, without loading
+     *                                                                           anything).
+     *
+     *                                                                           Defaults to EnumLoadParameters::exception
+     *
+     * @param EnumLoadParameters|null $on_not_exists                             Specifies how this load method will handle the specified identifier not
+     *                                                                           existing in the database. Options are: EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNotExistsException. EnumLoadParameters::null: Returns NULL
+     *                                                                           EnumLoadParameters::this Returns this, the object as-is, without loading
+     *                                                                           anything.
+     *
+     *                                                                           Defaults to EnumLoadParameters::exception
+     *
+     * @return static|null
+     *
+     * @throws DataEntryNoIdentifierSpecifiedException Thrown when the specified identifier is empty and $on_null_identifier is set to
+     *                                                 EnumLoadParameters::exception
+     * @throws DataEntryNotExistsException             Thrown when the specified identifier does not exist and $on_not_exists is set to
+     *                                                 EnumLoadParameters::exception
      */
     public function load(IdentifierInterface|int|array|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
@@ -285,9 +258,9 @@ class UserSession extends DataEntry implements UserSessionInterface
 
         $handler = $handler ?? ini_get('session.save_handler');
         $data    = match ($handler) {
-            'memcached' => mc('sessions')->get($identifier),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $identifier, PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
-            ''          => throw new SessionException(tr('No session save handler ":handler" configured')),
+            'memcached' => mc('sessions')->get($this->getCode()),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
+            ''          => throw new SessionException(tr('No session save handler configured')),
             default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
             ])),
@@ -300,21 +273,21 @@ class UserSession extends DataEntry implements UserSessionInterface
     /**
      * Will save the data from this data entry to the database
      *
-     * @param bool        $force
-     * @param bool        $skip_validation
-     * @param string|null $comments
+     * @param bool        $force           [false] If true, will force saving, even if the DataEntry object has not been modified
+     * @param bool        $skip_validation [false] If true, will skip validation even if it is required
+     * @param string|null $comments        [null]  If specified, will add these comments to the meta history
      *
      * @return static
      */
     public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static
     {
-        $data    = static::serialize($this->source['data']);
+        $data    = static::serialize(array_get_safe($this->source, 'data', []));
         $handler = $handler ?? ini_get('session.save_handler');
 
         match ($handler) {
-            'memcached' => mc('sessions')->set($data, $this->getIdentifier()),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getIdentifier(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
-            ''          => throw new SessionException(tr('No session save handler ":handler" configured')),
+            'memcached' => mc('sessions')->set($data, $this->getCode()),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
+            ''          => throw new SessionException(tr('No session save handler configured')),
             default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
             ])),
@@ -325,56 +298,25 @@ class UserSession extends DataEntry implements UserSessionInterface
 
 
     /**
-     * Registers a new started session in the accounts_user_sessions table and returns a UserSession object for it
+     * Registers a new opened session in the accounts_user_sessions table and returns a UserSession object for it
      *
-     * @param int|null $users_id
-     * @param string   $domain
-     * @param string   $ip
-     * @param string   $identifier
+     * @param string $code           The unique session code
+     * @param int    $users_id       The database id for the user that owns the session
+     * @param string $domain         The domain to which the session is locked (probably, later we may have multi domain sessions?)
+     * @param string $remote_ip      The remote IP address where the request came from
+     * @param string $remote_ip_real The "real" remote IP address where the request came from (if detected so)
      *
      * @return static
+     * @todo Check multi domain sessions support
      */
-    public static function start(?int $users_id, string $domain, string $ip, string $identifier): static
+    public static function newOpen(string $code, int $users_id, string $domain, string $remote_ip, string $remote_ip_real): static
     {
-        $retry = 0;
-
-        while ($retry++ < 5) {
-            try {
-                sql()->insert('accounts_user_sessions', [
-                    'id'         => Numbers::getRandomInt(),
-                    'ip'         => $ip,
-                    'domain'     => $domain,
-                    'users_id'   => $users_id,
-                    'identifier' => $identifier,
-                ]);
-
-                return static::new($identifier, false);
-
-            } catch (SqlContstraintDuplicateEntryException $e) {
-                // TODO This blindly assumes duplicate identifier while it can also be a duplicate ID. For a duplicate session identifier, it will retry 5 times with the same value. Chances of this happening are VERY TIY, but FIX THIS ANYWAY
-                // Duplicate ID or identifier, try again
-            }
-        }
-
-        // TODO We COULD have encountered 5x an existing accounts_user_sessions.id, even though its a 1 in (5 x PHP_INT_MAX) chance
-        throw new SessionDuplicateIdentifierException(tr('Duplicate session identifier ":identifier" encountered', [
-            ':identifier' => $identifier,
-        ]), $e);
-    }
-
-
-    /**
-     * Stops this session
-     *
-     * @return void
-     */
-    public function stop(): void
-    {
-        sql()->update('accounts_user_sessions', [
-            'stop' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)
-        ], [
-            'identifier' => $this->getIdentifier(),
-        ]);
+        return (new static())->setCode($code)
+                             ->setCreatedBy($users_id)
+                             ->setDomain($domain)
+                             ->setRemoteIp($remote_ip)
+                             ->setRemoteIpReal($remote_ip_real)
+                             ->save();
     }
 
 
@@ -432,11 +374,11 @@ class UserSession extends DataEntry implements UserSessionInterface
     /**
      * Unserializes session data using the internal php handler
      *
-     * @param $source
+     * @param string $source The source string that must be unserialized
      *
      * @return array
      */
-    protected static function unserializePhp($source): array
+    protected static function unserializePhp(string $source): array
     {
         $return = [];
         $offset = 0;
@@ -468,11 +410,11 @@ class UserSession extends DataEntry implements UserSessionInterface
     /**
      * Unserializes session data using the internal php_binary handler
      *
-     * @param $source
+     * @param string $source The source string that must be unserialized
      *
      * @return array
      */
-    protected static function unserializePhpBinary($source): array
+    protected static function unserializePhpBinary(string $source): array
     {
         $return = [];
         $offset = 0;
@@ -496,7 +438,7 @@ class UserSession extends DataEntry implements UserSessionInterface
 
 
     /**
-     * Returns if the specified identifier is an active session.
+     * Returns if this UserSession is an active session.
      *
      * @return bool
      */
@@ -505,7 +447,7 @@ class UserSession extends DataEntry implements UserSessionInterface
          $session = mc('sessions')->get($this->getIdentifier());
 
          if ($session) {
-            if (array_get_safe($session, 'stop')) {
+            if (array_get_safe($session, 'closed')) {
                 return false;
             }
 
@@ -517,24 +459,22 @@ class UserSession extends DataEntry implements UserSessionInterface
 
 
     /**
-     * Returns if the specified identifier is an active session.
+     * Returns if the specified code is an active session.
      *
-     * @note If called as a static method, an identifier MUST be specified. If called as an object method, no identifier may be specified
-     *
-     * @param string $identifier The session identifier string to test
+     * @param string $code The session identifier string to test
      *
      * @return bool
      */
-     public static function isActiveSession(string $identifier): bool
+     public static function isActiveSession(string $code): bool
      {
-         if (empty($identifier)) {
+         if (empty($code)) {
              throw new OutOfBoundsException(ts('Cannot check if session identifier is active, no (or empty) identifier specified'));
          }
 
-         $session = mc('sessions')->get($identifier);
+         $session = mc('sessions')->get($code);
 
          if ($session) {
-            if (array_get_safe($session, 'stop')) {
+            if (array_get_safe($session, 'closed')) {
                 return false;
             }
 
@@ -548,32 +488,39 @@ class UserSession extends DataEntry implements UserSessionInterface
     /**
      * Adds data to the specified sessions list
      *
-     * @param array $session
+     * @param array|string|null $session
      *
      * @return static
      */
-    public function addData(array $session): static
+    public function addData(array|string|null $session): static
     {
-        // Ensure the session exists!
-        $this->source['data']          = UserSession::new($session['identifier'], false)->getSource();
-        $this->source['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
-        $this->source['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'stop') ?? array_get_safe($session, 'start');
-        $this->source['last_activity'] = PhoDateTime::new($this->source['last_activity']);
-        $this->source['start']         = PhoDateTime::new($session['start']);
-        $this->source['stop']          = PhoDateTime::new($session['stop']);
+        if ($session) {
+            if (is_string($session)) {
+                // Decode the  session first
+                $session = $this->unserialize($session);
+            }
+showdie($session);
+            // Ensure the session exists!
+            $this->source['data']          = UserSession::new($session['code'], false)->getSource();
+            $this->source['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
+            $this->source['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'closed') ?? array_get_safe($session, 'opened');
+            $this->source['last_activity'] = PhoDateTime::new($this->source['last_activity']);
+            $this->source['opened']        = PhoDateTime::new($session['opened']);
+            $this->source['closed']        = PhoDateTime::new($session['closed']);
+        }
 
         return $this;
     }
 
 
     /**
-     * Copies the data for this session to a session with the specified identifier
+     * Copies the data for this session to a session with the specified code
      *
-     * @param string $identifier
+     * @param string $code
      *
      * @return $this
      */
-    public function copyTo(string $identifier): static
+    public function copyTo(string $code): static
     {
 throw new UnderConstructionException();
     }
@@ -588,45 +535,44 @@ throw new UnderConstructionException();
      */
     protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $_definitions->removeKeys('meta_divider')
-
-                     ->add(DefinitionFactory::newCreatedBy()
-                                            ->setOptional(true)
-                                            ->setRender(true))
-
-                     ->add(DefinitionFactory::newDivider('meta_divider'))
-
-                     ->add(DefinitionFactory::newCode('identifier')
-                                            ->setLabel(tr('Identifier'))
+        $_definitions->add(DefinitionFactory::newCode()
+                                            ->setLabel(tr('Code'))
                                             ->setDisabled(true)
                                             ->setReadonly(true)
                                             ->setSize(6))
+
+                     ->add(DefinitionFactory::newDateTime('opened')
+                                            ->setReadonly(true)
+                                            ->setOptional(true)
+                                            ->setMaxLength(4)
+                                            ->setLabel(tr('opened'))
+                                            ->setSize(3))
+
+                     ->add(DefinitionFactory::newDateTime('closed')
+                                            ->setReadonly(true)
+                                             ->setOptional(true)
+                                            ->setMaxLength(4)
+                                            ->setLabel(tr('Closed'))
+                                            ->setSize(3))
 
                      ->add(DefinitionFactory::newDomain()
                                             ->setDisabled(true)
                                             ->setReadonly(true)
                                             ->setSize(6))
 
-                    ->add(DefinitionFactory::newUsersId())
+                     ->add(DefinitionFactory::newUsersId())
 
-                    ->add(DefinitionFactory::newIpAddress('remote_ip')
-                                           ->setLabel(tr('Remote IP Address'))
-                                           ->setReadonly(true)
-                                           ->setOptional(true)
-                                           ->setSize(4))
+                     ->add(DefinitionFactory::newIpAddress('remote_ip')
+                                            ->setLabel(tr('Remote IP Address'))
+                                            ->setReadonly(true)
+                                            ->setOptional(true)
+                                            ->setSize(4))
 
-                    ->add(DefinitionFactory::newIpAddress('remote_ip_real')
-                                           ->setLabel(tr('Real Remote IP Address'))
-                                           ->setReadonly(true)
-                                           ->setOptional(true)
-                                           ->setSize(4))
-
-                    ->add(DefinitionFactory::newDateTime('closed')
-                                           ->setReadonly(true)
-                                           ->setOptional(true)
-                                           ->setMaxLength(4)
-                                           ->setHelpText(tr('Global ID'))
-                                           ->setSize(3));
+                     ->add(DefinitionFactory::newIpAddress('remote_ip_real')
+                                            ->setLabel(tr('Real Remote IP Address'))
+                                            ->setReadonly(true)
+                                            ->setOptional(true)
+                                            ->setSize(4));
 
         return $this;
     }

@@ -296,7 +296,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isGuest(): bool
     {
-        return array_get_safe($this->source, 'email') === 'guest';
+        return array_get_safe($this->source, 'email') === 'guest@phoundation';
     }
 
 
@@ -375,7 +375,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
-            if ($this->identifier === ['email' => 'guest']) {
+            if ($this->identifier === ['email' => 'guest@phoundation']) {
                 // Keep throwing the exception, the "guest" user will automatically initialize
                 throw $e;
             }
@@ -2774,7 +2774,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         $this->source['redirect'] = null;
-        $this->source['email']    = 'guest';
+        $this->source['email']    = 'guest@phoundation';
         $this->source['status']   = 'system';
         $this->source['nickname'] = tr('Guest');
 

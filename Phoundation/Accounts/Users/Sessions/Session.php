@@ -1215,24 +1215,25 @@ class Session implements SessionInterface
         // Register the session
         if (UserSession::exists(session_id())) {
             // Wut? This session has already been registered yet?
-            $session = UserSession::new(session_id());
+            $_session = UserSession::new(session_id());
 
             Incident::new()
                     ->setSeverity(EnumSeverity::high)
                     ->setType('Sessions')
                     ->setTitle(tr('Encountered duplicate session ID'))
-                    ->setBody(tr('Session identifier ":identifier" has already been registered for user ":user", generating new ID', [
-                        ':identifier' => session_id(),
-                        ':user'       => $session->getUserObject()->getLogId(),
+                    ->setBody(tr('Session code ":code" has already been registered for user ":user", generating new ID', [
+                        ':code' => session_id(),
+                        ':user' => $_session->getUserObject()->getLogId(),
                     ]))
                     ->setNotifyRoles('developer')
                     ->addDetails([
-                        'id'           => $session->getId(),
-                        'user'         => $session->getUserObject()->getLogId(),
-                        'identifier'   => $session->getIdentifier(),
-                        'domain'       => $session->getDomain(),
-                        'ip'           => $session->getIp(),
-                        'session_data' => $session->getSource()
+                        'id'             => $_session->getId(),
+                        'user'           => $_session->getCreatedByObject()->getLogId(),
+                        'code'           => $_session->getCode(),
+                        'domain'         => $_session->getDomain(),
+                        'remote_ip'      => $_session->getRemoteIp(),
+                        'remote_ip_real' => $_session->getRemoteIp(),
+                        'session_data'   => $_session->getSource()
                     ])
                     ->setLog(9)
                     ->save();
@@ -1255,13 +1256,13 @@ class Session implements SessionInterface
         $_SESSION['first_domain'] = static::$domain;
         $_SESSION['domain']       = static::$domain;
         $_SESSION['first_ip']     = static::getIpAddress();
-//                        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
-//                        $_SESSION['mobile']       = Core::readRegister('system', 'session', 'mobile');
-//                        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
-//                        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
+
+//        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
+//        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
+//        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
         // Register the user session
-        UserSession::start(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+        UserSession::newOpen(session_id(), static::getUserObject()->getId(), static::$domain, Request::getRemoteIpAddress(), Request::getRemoteIpAddress());
 
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
@@ -1269,7 +1270,7 @@ class Session implements SessionInterface
 
         } else {
             try {
-                $check = new DateTimeZone($_SESSION['user']['timezone']);
+                $_check = new DateTimeZone($_SESSION['user']['timezone']);
 
             } catch (Exception $e) {
                 // Timezone invalid for this user. Notification developers, and fix timezone for user
@@ -1286,7 +1287,6 @@ class Session implements SessionInterface
 
         // Detect and log client type
         Client::detect();
-
         return true;
     }
 
@@ -1448,7 +1448,7 @@ class Session implements SessionInterface
             }
 
             $_user = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
-                                 ->authenticateDomain(EnumAuthenticationAction::signin, $domain);
+                                ->authenticateDomain(EnumAuthenticationAction::signin, $domain);
 
             return static::signInWithUserObject($_user);
 
@@ -1457,6 +1457,7 @@ class Session implements SessionInterface
                 switch (Strings::fromReverse($e->getDataKey('class'), '\\')) {
                     case '':
                         // no break
+
                     case 'User':
                         Incident::new()
                                 ->setType('User does not exist')
@@ -2295,7 +2296,7 @@ class Session implements SessionInterface
         }
 
         // Stop the session
-        UserSession::stop(static::getUserObject()->getId(), static::$domain, Session::getIpAddress(), session_id());
+        UserSession::new()->loadOrNull(static::getId())?->close();
 
         // Attempt sign-out
         static::$user_changed = !static::getUserObject()->isGuest();
@@ -2390,7 +2391,7 @@ class Session implements SessionInterface
      *
      * @return UserSessionInterface
      */
-    public static function getUerSession(): UserSessionInterface
+    public static function getUserSession(): UserSessionInterface
     {
         if (empty(static::$_user_session)) {
             static::$_user_session = new UserSession(static::getId());
