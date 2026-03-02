@@ -1124,6 +1124,16 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             Log::dump('TRY SET "' . Strings::fromReverse(static::class, '\\') . '::$' . $key . ' TO "' . Strings::log($value) . ' [' . gettype($value) . ']"', 10, echo_header: false);
         }
 
+        if (!$this->allow_modify) {
+            if (!$this->isNew()) {
+                // Modifying existing DataEntry objects of this type is not allowed, sorry!
+                throw new ValidationFailedException(tr('The ":class" type DataEntry object ":identifier" is not allowing modifying existing entries', [
+                    ':class'      => static::class,
+                    ':identifier' => $this->getIdentifier(),
+                ]));
+            }
+        }
+
         // Make sure that definitions are available or give a clear error on what is going on
         if (empty($this->_definitions)) {
             if ($this->is_initialized) {
@@ -3249,9 +3259,10 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
         } else {
             if (!$this->allow_modify) {
-                // auto modify is not allowed, sorry!
-                throw new ValidationFailedException(tr('Not allowed to modify :entry', [
-                    ':entry' => strtolower(static::getEntryName()),
+                // Modifying existing DataEntry objects of this type is not allowed, sorry!
+                throw new ValidationFailedException(tr('The ":class" type DataEntry object ":identifier" is not allowing modifying existing entries', [
+                    ':class'      => static::class,
+                    ':identifier' => $this->getIdentifier(),
                 ]));
             }
         }
@@ -4357,7 +4368,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function setAllowModify(bool $allow_modify): static
     {
         $this->allow_modify = $allow_modify;
-
         return $this;
     }
 
@@ -4998,9 +5008,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Will save the data from this data entry to the database
      *
-     * @param bool        $force
-     * @param bool        $skip_validation
-     * @param string|null $comments
+     * @param bool        $force           [false] If true, will force saving, even if the DataEntry object has not been modified
+     * @param bool        $skip_validation [false] If true, will skip validation even if it is required
+     * @param string|null $comments        [null]  If specified, will add these comments to the meta history
      *
      * @return static
      */
