@@ -281,10 +281,10 @@ class Device extends PhoFile
             }
 
             Process::new('cryptsetup', $this->_restrictions)
-                  ->addArguments(['luksOpen', $this->source, $device_name])
-                  ->setSudo(true)
-                  ->setPipeFrom($passphrase)
-                  ->execute($method);
+                   ->addArguments(['luksOpen', $this->source, $device_name])
+                   ->setSudo(true)
+                   ->setPipeFrom($passphrase)
+                   ->execute($method);
 
         } catch (ProcessFailedException $e) {
             if ($e->dataMatchesRegex('/Device .+? already exists/i')) {
@@ -404,73 +404,53 @@ class Device extends PhoFile
     /**
      * Will try combinations of all specified keys and return the keys that could open this LUKS file
      *
-     * @param IteratorInterface|array $keys
+     * @param IteratorInterface|array|string $keys The keys to try
      *
-     * @return IteratorInterface
+     * @return string|null
      */
-    public function luksTryPasswordSections(IteratorInterface|array $keys): IteratorInterface
+    public function luksTryPasswordSections(IteratorInterface|array|string $keys): ?string
     {
         // Try opening a UUID named device to ensure we will not try opening a device name that already exists
-        $return       = [];
+        $return       = null;
         $keys         = Arrays::force($keys);
         $keys         = Arrays::filterEmpty($keys);
         $count        = count($keys);
         $device       = Strings::getUuid();
-        $combinations = static::getKeyCombinations($keys);
+        $combinations = Arrays::countPermutations($keys, null);
 
-        if (empty($keys)) {
+        if (empty($combinations)) {
             throw OutOfBoundsException::new(tr('No keys specified'))->makeWarning();
         }
 
         Log::action(ts('Trying ":total" combinations for ":count" keys', [
-            ':total' => count($combinations),
+            ':total' => $combinations,
             ':count' => $count
         ]));
 
-        foreach ($combinations as $id => $combination) {
+        Arrays::findPermutation($keys, null, function ($permutation) use (&$return, $device) {
+            static $count = 0;
+
             try {
-                Log::action(ts('Trying key ":id"', [':id' => $id]), 3, echo_newline: false);
-                $this->luksOpen($combination, $device)
+                Log::action(ts('Trying key ":id"', [':id' => $count++]), 3, echo_newline: false);
+
+                $this->luksOpen($permutation, $device)
                      ->luksClose();
 
                 // Yay, this key worked!
-                $return[] = $combination;
+                $return = $permutation;
                 Log::success(' ' . tr('[ Ok ]'), 3, echo_prefix: false);
+                return true;
 
             } catch (DeviceNoKeyAvailableWithPassphraseException) {
                 // This key does not work, next!
                 Log::error(' ' . tr('[ Failed ]'), 3, echo_prefix: false);
             }
-        }
 
-        return new Iterator($return);
-    }
+            return false;
+        });
 
-
-    /**
-     * Returns an array with all key combinations
-     *
-     * @param array       $keys
-     * @param array       $return
-     * @param array       $used_keys
-     * @param string|null $base
-     *
-     * @return array
-     */
-    public static function getKeyCombinations(array $keys, array &$return = [], array $used_keys = [], ?string $base = null): array
-    {
-        // Add all keys with the current base
-        // Now add the next line, next line should not use the already used keys
-        foreach ($keys as $key) {
-            if (in_array($key, $used_keys)) {
-                continue;
-            }
-
-            $return[] = $base . $key;
-            $used_keys[$key] = $key;
-
-            static::getKeyCombinations($keys, $return, $used_keys, $base . $key);
-            unset($used_keys[$key]);
+        if (empty($return)) {
+            throw OutOfBoundsException::new(tr('No permutation found'))->makeWarning();
         }
 
         return $return;

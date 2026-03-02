@@ -544,6 +544,11 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
      */
     public function getStatusObject(): StatusFilesInterface
     {
+        if ($this->isEmpty()) {
+            throw NoRepositoriesAvailableException::new(ts('Cannot get status for git repositories, there are no repositories available in the database'))
+                                                  ->addHint(ts('First run "./pho developer repositories scan" to load up repositories to work with'));
+        }
+
         $_status_files = StatusFiles::new();
 
         foreach ($this as $_repository) {
@@ -1104,9 +1109,13 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         // Before we start, make sure all target repositories have either the suffix branch already available or if not
         // Make sure none of the repositories have changes
         // Make sure the project repository is on the right version
+        Log::action(ts('Checking all repositories in preparation of selecting version branches'), echo_screen: false);
         $this->checkAllHaveSuffixOrVersionBranch($suffix, $phoundation_version, $project_version, $phoundation_branch, $project_branch, $auto_create)
              ->checkNoneHaveChanges(ts('select version branch'))
              ->checkProjectRepositoryVersion(ts('select version branch'), true);
+
+        Log::action(ts('Fetching all repositories in preparation of selecting version branches'), echo_screen: false);
+        $this->fetch();
 
         // Go over each repository, switch each to the correct branch
         foreach ($this as $_repository) {
@@ -1114,7 +1123,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
             $version = $this->getPhoundationOrProjectForType($_repository->getType(), $_repository->getName(), $phoundation_version, $project_version);
 
             // Can we switch to the branch, or do we have to create and push it first?
-            if ($_repository->branchExists($branch)) {
+            if ($_repository->branchExists($branch, from_remotes: true)) {
                 Log::action(ts('Selecting version branch ":branch" for ":type" repository ":repository"', [
                     ':branch'     => $branch,
                     ':type'       => $_repository->getType(),

@@ -1178,14 +1178,14 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function keepMatchingValuesStartingWith(IteratorInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): array
+    public static function keepMatchingValuesBeginningWith(IteratorInterface|array $source, ArrayableInterface|array|string|float|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH, ?string $column = null): array
     {
-        return Arrays::keepMatchingValues($source, $needles, $flags | Utils::MATCH_STARTS_WITH, $column);
+        return Arrays::keepMatchingValues($source, $needles, $flags | Utils::MATCH_BEGINS_WITH, $column);
     }
 
 
     /**
-     * Returns a list with all the values that match the specified value
+     * Returns a list with all the keys that begin with the specified value
      *
      * @param IteratorInterface|array                            $source
      * @param IteratorInterface|Stringable|array|string|int|null $needles
@@ -1193,9 +1193,24 @@ class Arrays extends Utils
      *
      * @return array
      */
-    public static function keepMatchingKeysStartingWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): array
+    public static function keepMatchingKeysBeginningWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL): array
     {
-        return Arrays::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_STARTS_WITH);
+        return Arrays::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_BEGINS_WITH);
+    }
+
+
+    /**
+     * Returns a list with all the keys that end with the specified value
+     *
+     * @param IteratorInterface|array                            $source
+     * @param IteratorInterface|Stringable|array|string|int|null $needles
+     * @param int                                                $flags
+     *
+     * @return array
+     */
+    public static function keepMatchingKeysEndingWith(IteratorInterface|array $source, IteratorInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL): array
+    {
+        return Arrays::keepMatchingKeys($source, $needles, $flags | Utils::MATCH_ENDS_WITH);
     }
 
 
@@ -4222,24 +4237,24 @@ class Arrays extends Utils
      * Utils::MATCH_CASE_INSENSITIVE  Will match needles for entries in case-insensitive mode.
      * Utils::MATCH_ALL               Will match needles for entries that contain all the specified needles.
      * Utils::MATCH_ANY               Will match needles for entries that contain any of the specified needles.
-     * Utils::MATCH_STARTS_WITH       Will match needles for entries that start with the specified needles. Mutually
+     * Utils::MATCH_BEGINS_WITH       Will match needles for entries that start with the specified needles. Mutually
      *                                exclusive with Utils::MATCH_ENDS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_ENDS_WITH         Will match needles for entries that end with the specified needles. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_CONTAINS,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_CONTAINS,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_CONTAINS          Will match needles for entries that contain the specified needles anywhere.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_FULL, and Utils::MATCH_REGEX.
      * Utils::MATCH_RECURSE           Will recurse into arrays, if encountered.
      * Utils::MATCH_NOT               Will match needles for entries that do NOT match the needle.
      * Utils::MATCH_STRICT            Will match needles for entries that match the needle strict (so 0 does NOT match
      *                                "0", "" does NOT match 0, etc.).
      * Utils::MATCH_FULL              Will match needles for entries that fully match the needle. Mutually
-     *                                exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_REGEX.
      * Utils::MATCH_REGEX             Will match needles for entries that match the specified regular expression.
-     *                                Mutually exclusive with Utils::MATCH_STARTS_WITH, Utils::MATCH_ENDS_WITH,
+     *                                Mutually exclusive with Utils::MATCH_BEGINS_WITH, Utils::MATCH_ENDS_WITH,
      *                                Utils::MATCH_CONTAINS, and Utils::MATCH_FULL.
      * Utils::MATCH_EMPTY             Will match empty values instead of ignoring them. NOTE: Empty values may be
      *                                ignored while NULL values are still matched using the MATCH_NULL flag
@@ -4258,7 +4273,7 @@ class Arrays extends Utils
         $return['all']                = (bool)  ($options & Utils::MATCH_ALL);
         $return['any']                = (bool)  ($options & Utils::MATCH_ANY);
         $return['require']            = (bool)  ($options & Utils::MATCH_REQUIRE);
-        $return['start']              = (bool)  ($options & Utils::MATCH_STARTS_WITH);
+        $return['begin']              = (bool)  ($options & Utils::MATCH_BEGINS_WITH);
         $return['end']                = (bool)  ($options & Utils::MATCH_ENDS_WITH);
         $return['contains']           = (bool)  ($options & Utils::MATCH_CONTAINS);
         $return['recurse']            = (bool)  ($options & Utils::MATCH_RECURSE);
@@ -4267,17 +4282,17 @@ class Arrays extends Utils
         $return['full']               = (bool)  ($options & Utils::MATCH_FULL);
         $return['regex']              = (bool)  ($options & Utils::MATCH_REGEX);
         $return['null']               = (bool)  ($options & Utils::MATCH_NULL);
-        $return['empty']              = (bool) (($options & Utils::MATCH_EMPTY) or $return['null']);
+        $return['empty']              =        (($options & Utils::MATCH_EMPTY) or $return['null']);
         $return['single']             = (bool)  ($options & Utils::MATCH_SINGLE);
         $return['trim']               = (bool)  ($options & Utils::MATCH_TRIM);
         $return['skip_null_needles']  = (bool)  ($options & Utils::SKIP_NULL_NEEDLES);
-        $return['skip_empty_needles'] = (bool) (($options & Utils::SKIP_EMPTY_NEEDLES) or $return['skip_null_needles']);
+        $return['skip_empty_needles'] =        (($options & Utils::SKIP_EMPTY_NEEDLES) or $return['skip_null_needles']);
 
         // Validate options
         if ($return['full']) {
             $return['match_mode'] = 'full';
 
-            if ($return['start'] or $return['end'] or $return['contains'] or $return['regex']) {
+            if ($return['begin'] or $return['end'] or $return['contains'] or $return['regex']) {
                 $mutually = true;
             }
 
@@ -4286,8 +4301,8 @@ class Arrays extends Utils
                 throw new OutOfBoundsException(tr('The MATCH_STRICT option can only be used with MATCH_FULL'));
             }
 
-            if ($return['start']) {
-                $return['match_mode'] = 'start';
+            if ($return['begin']) {
+                $return['match_mode'] = 'begin';
 
                 if ($return['end'] or $return['contains'] or $return['regex']) {
                     $mutually = true;
@@ -4318,7 +4333,7 @@ class Arrays extends Utils
         }
 
         if (isset($mutually)) {
-            throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_STARTS_WITH, MATCH_ENDS_WITH, MATCH_CONTAINS, MATCH_FULL, or MATCH_REGEX, they are mutually exclusive'));
+            throw new OutOfBoundsException(tr('Cannot mix location flags MATCH_BEGINS_WITH, MATCH_ENDS_WITH, MATCH_CONTAINS, MATCH_FULL, or MATCH_REGEX, they are mutually exclusive'));
         }
 
         if ($return['all']) {
@@ -4415,7 +4430,7 @@ class Arrays extends Utils
                 return str_contains($key, $needle);
             }),
 
-            'start'    => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
+            'begin'    => Arrays::matchKeysFunction($action, $source, $needles, $flags, function (mixed $key, mixed $needle, array $flags) {
                 return str_starts_with($key, $needle);
             }),
 
@@ -4594,6 +4609,7 @@ class Arrays extends Utils
         if ($needles) {
             foreach ($source as $key => $value) {
                 $needles_match = false;
+                $original      = $key;
 
                 foreach ($needles as $needle) {
                     if (!Arrays::useCleanedHaystackValue($key, $flags)) {
@@ -4629,7 +4645,95 @@ class Arrays extends Utils
                     }
                 }
 
-                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
+                Arrays::processMatch($needles_match, $action, $return, $needle, $original, $value);
+            }
+        }
+
+        return Arrays::checkMatch($needles, $flags, $return);
+    }
+
+
+    /**
+     * Process the given array with the specified needles for full matching and return the requested result
+     *
+     * @param int         $action
+     * @param array       $source   The source data to match against
+     * @param array       $needles  The needles to match against
+     * @param string|null $column   If specified will try to match against the specified value sub column
+     * @param array       $flags    The matching flags that may modify the match behavior
+     * @param callable    $function The callback function that executes the actual matching
+     *
+     * @return array
+     */
+    protected static function matchValuesFunction(int $action, array $source, array $needles, array $flags, ?string $column, callable $function): array
+    {
+        $return = [];
+
+        foreach ($source as $key => $value) {
+            if ($needles) {
+                $needles_match = false;
+                $original      = $value;
+
+                foreach ($needles as $needle) {
+                    $match = false;
+
+                    if (empty($needle)) {
+                        if ($needle === null) {
+                            if ($flags['skip_null_needles']) {
+                                $match = true;
+                            }
+
+                        } elseif ($flags['skip_empty_needles']) {
+                            $match = true;
+                        }
+
+                    } else {
+                        $string_value = Strings::getStringValue($value, $column);
+
+                        if (!Arrays::useCleanedHaystackValue($string_value, $flags)) {
+                            continue;
+                        }
+
+                        $match = $function($string_value, $needle, $flags);
+                    }
+
+                    if ($flags['not']) {
+                        // Invert the match result
+                        $match = !$match;
+                    }
+
+                    if ($match) {
+                        // This needle matched, yay!
+                        $needles_match = true;
+
+                        if ($flags['any']) {
+                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
+                            break;
+                        }
+
+                        // Check the next needle
+                        continue;
+                    }
+
+                    // At this point, this needle did not match
+                    if ($flags['all']) {
+                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
+                        $needles_match = false;
+                        break;
+                    }
+                }
+
+            } else {
+                // No needles specified!
+                $needles_match = true;
+                $string_value  = Strings::getStringValue($original, $column);
+            }
+
+            if ($action === Utils::MATCH_ACTION_RETURN_FULL_VALUES) {
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $original);
+
+            } else {
+                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $string_value);
             }
         }
 
@@ -4753,89 +4857,209 @@ class Arrays extends Utils
 
 
     /**
-     * Process the given array with the specified needles for full matching and return the requested result
+     * Returns all permutations for the given source, optionally with sub-sets
      *
-     * @param int         $action
-     * @param array       $source   The source data to match against
-     * @param array       $needles  The needles to match against
-     * @param string|null $column   If specified will try to match against the specified value sub column
-     * @param array       $flags    The matching flags that may modify the match behavior
-     * @param callable    $function The callback function that executes the actual matching
+     * @param IteratorInterface|array|string|null $source   The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets  If true, will for A, B, C not only return ABC, etc. but also sub sets like A, AB, CB, etc.
+     * @param callable                            $callback If specified, will execute the specified callback on each found permutation instead of returning
+     *                                                      them, and will return NULL instead
      *
-     * @return array
+     * @return string|null
      */
-    protected static function matchValuesFunction(int $action, array $source, array $needles, array $flags, ?string $column, callable $function): array
+    public static function findPermutation(IteratorInterface|array|string|null $source, ?bool $subsets, callable $callback): ?string
     {
-        $return = [];
+        $source = Arrays::force($source);
 
-        foreach ($source as $key => $value) {
-            if ($needles) {
-                $needles_match = false;
+        if (count($source) > 20) {
+            throw OutOfBoundsException::new(ts('Cannot find permutation, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => count($source),
+            ]));
+        }
 
-                foreach ($needles as $needle) {
-                    $match = false;
+        if (count($source) <= 1) {
+            $results = array_map('strval', $source);
 
-                    if (empty($needle)) {
-                        if ($needle === null) {
-                            if ($flags['skip_null_needles']) {
-                                $match = true;
-                            }
+            foreach ($results as $result) {
+                $return = $callback($result);
 
-                        } elseif ($flags['skip_empty_needles']) {
-                            $match = true;
-                        }
-
-                    } else {
-                        $string_value = Strings::getStringValue($value, $column);
-
-                        if (!Arrays::useCleanedHaystackValue($string_value, $flags)) {
-                            continue;
-                        }
-
-                        $match = $function($string_value, $needle, $flags);
-                    }
-
-                    if ($flags['not']) {
-                        // Invert the match result
-                        $match = !$match;
-                    }
-
-                    if ($match) {
-                        // This needle matched, yay!
-                        $needles_match = true;
-
-                        if ($flags['any']) {
-                            // We are in "any" mode, and a single needle matched, so do not consider any other needles.
-                            break;
-                        }
-
-                        // Check the next needle
-                        continue;
-                    }
-
-                    // At this point, this needle did not match
-                    if ($flags['all']) {
-                        // We are in "all" mode, and a single needle failed, so do not consider any other needles.
-                        $needles_match = false;
-                        break;
-                    }
+                if ($return === false) {
+                    return null;
                 }
 
-            } else {
-                // No needles specified!
-                $needles_match = true;
-                $string_value  = Strings::getStringValue($value, $column);
-            }
-
-            if ($action === Utils::MATCH_ACTION_RETURN_FULL_VALUES) {
-                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $value);
-
-            } else {
-                Arrays::processMatch($needles_match, $action, $return, $needle, $key, $string_value);
+                return $result;
             }
         }
 
-        return Arrays::checkMatch($needles, $flags, $return);
+        // Calculate full sets
+        if ($subsets !== true) {
+            // Get the main permutations
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    $return = $callback($item . $permutation);
+
+                    if ($return === false) {
+                        continue;
+                    }
+
+                    return $item . $permutation;
+                }
+            }
+        }
+
+        // Calculate the subsets
+        if ($subsets !== false) {
+            // Single characters
+            foreach ($source as $item) {
+                $return = $callback((string) $item);
+
+                if ($return === false) {
+                    continue;
+                }
+
+                return (string) $item;
+            }
+
+            // Subsets of length 2 to N-1
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, true) as $permutation) {
+                    if (strlen($permutation) < count($source) - 1) {
+                        $return = $callback($item . $permutation);
+
+                        if ($return === false) {
+                            continue;
+                        }
+
+                        return $item . $permutation;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns all permutations for the given source, optionally with sub-sets
+     *
+     * @param IteratorInterface|array|string|null $source                  The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets [false] If true, will for A, B, C not only return ABC, etc. but also sub sets like
+     *                                                                     A, AB, CB, etc.
+     * @return array
+     */
+    public static function getPermutations(IteratorInterface|array|string|null $source, ?bool $subsets = false): array
+    {
+        $source = Arrays::force($source);
+
+        if (count($source) > 20) {
+            throw OutOfBoundsException::new(ts('Cannot calculate permutations, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => count($source),
+            ]));
+        }
+
+        $results = [];
+
+        // Calculate full sets
+        if ($subsets !== true) {
+            if (count($source) <= 1) {
+                return array_map('strval', $source);
+            }
+
+            // Get the main permutations
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    $results[] = $item . $permutation;
+                }
+            }
+        }
+
+        // Calculate the subsets
+        if ($subsets !== false) {
+            // Single characters
+            if (count($source) > 1) {
+                foreach ($source as $item) {
+                    $results[] = strval($item);
+                }
+
+                // Subsets of length 2 to N-1
+                foreach ($source as $key => $item) {
+                    $remaining = $source;
+                    unset($remaining[$key]);
+
+                    foreach (Arrays::getPermutations($remaining, true) as $permutation) {
+                        if (strlen($permutation) < count($source) - 1) {
+                            $results[] = $item . $permutation;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
+
+
+    /**
+     * Counts and returns the possible permutations for the specified source array
+     *
+     * @param array     $source          The source array for which the number of permutations should be calculated
+     * @param bool|null $subsets [false] If true, will return only the count for complete sets. If false, will only return the count for sub sets. If null, will
+     *                                   return the count for both complete and sub sets
+     *
+     * @return int
+     */
+    public static function countPermutations(array $source, ?bool $subsets = false): int
+    {
+        $count = count($source);
+
+        if ($count === 0) {
+            return 0;
+        }
+
+        if ($count > 20) {
+            throw OutOfBoundsException::new(ts('Cannot calculate permutations, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => $count,
+            ]));
+        }
+
+        // Full permutations of n elements = n!
+        $_factorial = function (int $n): int
+        {
+            $return = 1;
+
+            for ($i = 2; $i <= $n; $i++) {
+                $return *= $i;
+            }
+
+            return $return;
+        };
+
+        // Sub-permutations = sum of P(n, k) for k = 1 to n-1 where P(n, k) = n! / (n - k)!
+        $_sub_factorial = function ($count) use ($_factorial) : int
+        {
+            $return = 0;
+
+            for ($k = 1; $k < $count; $k++) {
+                $return += $_factorial($count) / $_factorial($count - $k);
+            }
+
+            return $return;
+        };
+
+        return match ($subsets) {
+            false   => $_factorial($count),                           // Full permutations only
+            true    => $_sub_factorial($count),                       // Sub-permutations only
+            null    => $_factorial($count) + $_sub_factorial($count), // Both combined
+        };
     }
 
 
@@ -4849,7 +5073,7 @@ class Arrays extends Utils
      *
      * @return bool
      */
-    public static function allValuesStartWith(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    public static function allValuesBeginWith(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
     {
         $found_character = null;
         $characters      = Arrays::force($characters);
@@ -4903,7 +5127,7 @@ class Arrays extends Utils
      *
      * @return bool
      */
-    public static function anyValuesStartWith(array $source, array|string $characters, bool $exception = true): bool
+    public static function anyValuesBeginWith(array $source, array|string $characters, bool $exception = true): bool
     {
         $characters = Arrays::force($characters);
 
@@ -4945,7 +5169,7 @@ class Arrays extends Utils
      *
      * @return bool
      */
-    public static function allValuesStartWithSame(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
+    public static function allValuesBeginWithSame(array $source, array|string $characters, bool $or_none = false, bool $exception = true): bool
     {
         $found_character = null;
         $characters      = Arrays::force($characters);

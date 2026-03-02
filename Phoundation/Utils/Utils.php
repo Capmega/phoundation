@@ -34,7 +34,7 @@ class Utils
     const int MATCH_ALL              = 4;
     const int MATCH_REQUIRE          = 8;
     const int MATCH_STRICT           = 16;
-    const int MATCH_STARTS_WITH      = 32;
+    const int MATCH_BEGINS_WITH      = 32;
 
     const int MATCH_ENDS_WITH        = 64;
     const int MATCH_CONTAINS         = 128;

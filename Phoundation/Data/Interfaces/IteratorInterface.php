@@ -487,7 +487,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return IteratorInterface
      */
-    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH, ?string $column = null): IteratorInterface;
+    public function keepMatchingValuesStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH, ?string $column = null): IteratorInterface;
 
     /**
      * Returns a list with all the values that match the specified value
@@ -497,7 +497,7 @@ interface IteratorInterface extends IteratorBaseInterface
      *
      * @return IteratorInterface
      */
-    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_STARTS_WITH): IteratorInterface;
+    public function keepMatchingKeysStartingWith(ArrayableInterface|Stringable|array|string|int|null $needles, int $flags = Utils::MATCH_CASE_INSENSITIVE | Utils::MATCH_ALL | Utils::MATCH_BEGINS_WITH): IteratorInterface;
 
     /**
      * Returns the total amounts for all columns together for only the specified columns

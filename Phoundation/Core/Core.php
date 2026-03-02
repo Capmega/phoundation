@@ -53,6 +53,7 @@ use Phoundation\Data\Validator\ArgvValidator;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\GetValidator;
 use Phoundation\Data\Validator\PostValidator;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Date\PhoDateTimeZone;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Developer\Project\Project;
@@ -1140,9 +1141,9 @@ class Core implements CoreInterface
 
         // Start processing the uncaught exception
         try {
-            try {
-                if (Core::getReady()) {
-                    // Register exception incident in the database
+            if (Core::getReady()) {
+                // Register exception incident in the database
+                try {
                     Core::registerUncaughtExceptionIncident($e);
 
                     // Process platform-specific handling of this exception
@@ -1153,31 +1154,39 @@ class Core implements CoreInterface
                         case 'web':
                             Core::processUncaughtWebException($e, $state);
                     }
+
+                } catch (SqlTableDoesNotExistException $e) {
+                    // The required tables to register the incident apparently do not (yet) exist. Check if the database is initialized
+                    if (sql('system')->getColumn('SHOW TABLES LIKE "core_versions"')) {
+                        throw $e;
+                    }
+
+                    // continue normal exception handling flow
+
+                } catch (Throwable $f) {
+                    // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
+                    Core::processUncaughtExceptionException($e, $f, $state);
                 }
-
-                // The system crashed before Core was ready
-                if (CliAutoComplete::isActive()) {
-                    // If we are in autocomplete mode, so we are fine as it can end before Core is ready
-                    exit();
-                }
-
-                Log::error(ts('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
-                    ':class'   => get_class($e),
-                    ':type'    => Request::getRequestType()->value,
-                    ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
-                ]), 10);
-
-                Log::error($e, 10);
-
-                exit('exception before platform detection');
-
-            } catch (Throwable $f) {
-                // Great! The uncaught exception handler caused an exception itself! Try to log / notify both
-                Core::processUncaughtExceptionException($e, $f, $state);
             }
 
+            // The system crashed before Core was ready
+            if (CliAutoComplete::isActive()) {
+                // If we are in autocomplete mode, so we are fine as it can end before Core is ready
+                exit();
+            }
+
+            Log::error(ts('*** UNCAUGHT STARTUP EXCEPTION ":class" IN ":type" TYPE SCRIPT ":command" ***', [
+                ':class' => get_class($e),
+                ':type' => Request::getRequestType()->value,
+                ':command' => Strings::from(Core::getExecutedPath(), DIRECTORY_COMMANDS),
+            ]), 10);
+
+            Log::error($e, 10);
+
+            exit('exception before platform detection');
+
         } catch (Throwable $g) {
-            Core::uncaughtExceptionHandlerCrash($e, $f, $g);
+            Core::uncaughtExceptionHandlerCrash($e, isset_get($f), $g);
         }
     }
 
@@ -1236,13 +1245,13 @@ class Core implements CoreInterface
     /**
      * Handles issues where the uncaughtExceptionHandler itself crashed (yeah, that is a thing too)
      *
-     * @param Throwable $e
-     * @param Throwable $f
-     * @param Throwable $g
+     * @param Throwable      $e
+     * @param Throwable|null $f
+     * @param Throwable      $g
      *
      * @return never
      */
-    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, Throwable $f, Throwable $g): never
+    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, ?Throwable $f, Throwable $g): never
     {
         // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
         try {
@@ -1252,14 +1261,14 @@ class Core implements CoreInterface
 
                     error_log($g->getMessage());
                     error_log($g->getMessage());
-                    error_log($f->getMessage());
+                    error_log($f?->getMessage());
                     error_log($e->getMessage());
                     break;
 
                 case 'cli':
                     echo 'Fatal error:' . PHP_EOL;
                     echo $g->getMessage() . PHP_EOL;
-                    echo $f->getMessage() . PHP_EOL;
+                    echo $f?->getMessage() . PHP_EOL;
                     echo $e->getMessage() . PHP_EOL;
                     echo PHP_EOL;
 

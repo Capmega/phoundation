@@ -139,14 +139,14 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if the requested branch exists for this repository
      *
-     * @param string $branch The branch to search for
-     * @param bool $check_tags_too If true will search for the branch name in the tags list as well
-     * @param bool $auto_create [false] If true, will automatically create the branch on each repository where it
-     *                                       does not yet exist
+     * @param string $branch                 The branch to search for
+     * @param bool   $check_tags_too [true]  If true will search for the branch name in the tags list as well
+     * @param bool   $auto_create    [false] If true, will automatically create the branch on each repository where it does not yet exist
+     * @param bool   $from_remotes   [false] If true, will also check remotes
      *
      * @return bool
      */
-    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false): bool;
+    public function branchExists(string $branch, bool $check_tags_too = true, bool $auto_create = false, bool $from_remotes = false): bool;
 
     /**
      * Deletes the specified branch from this repository (and optionally the selected remote as well)
@@ -574,9 +574,10 @@ interface RepositoryInterface extends DataEntryInterface
     /**
      * Returns true if this repository has the specified branch available
      *
-     * @param string $branch The branch that should be selected for this repository
+     * @param string $branch               The branch that should be selected for this repository
+     * @param bool   $from_remotes [false] If true, will also check remotes for the requested branch
      *
      * @return bool
      */
-    public function hasBranchAvailable(string $branch): bool;
+    public function hasBranchAvailable(string $branch, bool $from_remotes = false): bool;
 }
