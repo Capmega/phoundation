@@ -49,7 +49,7 @@ class FsPdf extends PhoFile
         $data    = [];
         $results = Process::new()
                           ->setCommand('pdfinfo')
-                          ->addArguments($this->source)
+                          ->appendArguments($this->source)
                           ->executeReturnArray();
 
         foreach ($results as $line) {

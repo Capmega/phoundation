@@ -158,7 +158,7 @@ services:
                           ->setSudo(true)
                           ->setTimeout(300)
                           ->setExecutionDirectory($this->_directory)
-                          ->addArguments([
+                          ->appendArguments([
                               'build',
                               '-f',
                               $this->_directory . '.docker/Dockerfile',

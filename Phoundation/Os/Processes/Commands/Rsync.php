@@ -457,23 +457,23 @@ class Rsync extends Command implements RsyncInterface
         }
 
         // Build the process parameters, then execute
-        $this->addArgument($this->progress   ? '--progress'   : null)
-             ->addArgument($this->archive    ? '-a'           : null)
-             ->addArgument($this->quiet      ? '-q'           : null)
-             ->addArgument($this->verbose    ? '-v'           : null)
-             ->addArgument($this->compress   ? '-z'           : null)
-             ->addArgument($this->safe_links ? '--safe-links' : null)
-             ->addArgument($this->delete     ? '--delete'     : null)
-             ->addArgument($this->rsh        ? '-e'           : null)
-             ->addArgument($this->rsh)
-             ->addArgument($this->ssh_key    ? '-i'           : null)
-             ->addArgument($this->ssh_key)
-             ->addArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
-             ->addArgument($this->source)
-             ->addArgument($this->target);
+        $this->appendArgument($this->progress   ? '--progress'   : null)
+             ->appendArgument($this->archive    ? '-a'           : null)
+             ->appendArgument($this->quiet      ? '-q'           : null)
+             ->appendArgument($this->verbose    ? '-v'           : null)
+             ->appendArgument($this->compress   ? '-z'           : null)
+             ->appendArgument($this->safe_links ? '--safe-links' : null)
+             ->appendArgument($this->delete     ? '--delete'     : null)
+             ->appendArgument($this->rsh        ? '-e'           : null)
+             ->appendArgument($this->rsh)
+             ->appendArgument($this->ssh_key    ? '-i'           : null)
+             ->appendArgument($this->ssh_key)
+             ->appendArgument($this->rsync_path ? '--rsync-path=' . escapeshellarg($this->rsync_path) : null, false, false)
+             ->appendArgument($this->source)
+             ->appendArgument($this->target);
 
         foreach ($this->exclude as $exclude) {
-            $this->addArgument('--exclude=' . escapeshellarg($exclude), false, false);
+            $this->appendArgument('--exclude=' . escapeshellarg($exclude), false, false);
         }
 
         return parent::getFullCommandLine($background);

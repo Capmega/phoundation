@@ -21,6 +21,7 @@ namespace Phoundation\Filesystem;
 use PDOStatement;
 use Phoundation\Cli\CliCommand;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Poad\Poad;
 use Phoundation\Data\Traits\TraitDataArraySource;
 use Phoundation\Developer\Debug\Debug;
 use Phoundation\Exception\OutOfBoundsException;
@@ -117,7 +118,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
     public static function newFromImport(array|string $source): static
     {
         if (is_string($source)) {
-            $source = Json::decode($source);
+            return Poad::new($source)->getObject();
         }
 
         return PhoRestrictions::new()->setSource($source);

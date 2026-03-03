@@ -369,6 +369,7 @@ trait TraitProcessVariables
      */
     protected mixed $process_failed_handler = null;
 
+
     /**
      * Process class constructor
      *
@@ -407,7 +408,7 @@ trait TraitProcessVariables
      */
     public function setRestrictionsObject(PhoRestrictionsInterface|array|string|null $_restrictions = null, bool $write = false, ?string $label = null): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         return $this->__setRestrictionsObject($_restrictions, $write, $label);
     }
 
@@ -855,7 +856,7 @@ trait TraitProcessVariables
      */
     public function setExecutionDirectory(PhoDirectoryInterface|null $execution_directory): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->execution_directory = $execution_directory;
         $this->_restrictions        = $execution_directory?->getRestrictionsObject() ?? PhoRestrictions::new();
 
@@ -967,10 +968,8 @@ trait TraitProcessVariables
      */
     protected function setRunFile(): static
     {
-        $this->setRunDirectory(DIRECTORY_SYSTEM . 'run/pids/');
-
-        $this->cached_command_line = null;
-        $this->run_file            = static::$run_directory ? static::$run_directory . basename($this->command) : null;
+        $this->setRunDirectory(DIRECTORY_SYSTEM . 'run/pids/')
+             ->run_file = static::$run_directory ? static::$run_directory . basename($this->command) : null;
 
         return $this;
     }
@@ -998,7 +997,6 @@ trait TraitProcessVariables
     public function setUseRunFile(bool $use_run_file): static
     {
         $this->use_run_file = $use_run_file;
-
         return $this;
     }
 
@@ -1012,7 +1010,7 @@ trait TraitProcessVariables
 //     */
 //    public function setLogFile(string $directory): static
 //    {
-//        $this->cached_command_line = null;
+//        $this->clearFullCommandLineCache();
 //
 //        if (!$directory) {
 //            // Set the default log path
@@ -1050,8 +1048,8 @@ trait TraitProcessVariables
     public function setTerm(?string $term = null, bool $only_if_empty = false): static
     {
         if (!$this->term or !$only_if_empty) {
-            $this->cached_command_line = null;
-            $this->term                = $term;
+            $this->clearFullCommandLineCache()
+                 ->term = $term;
         }
 
         return $this;
@@ -1067,7 +1065,7 @@ trait TraitProcessVariables
 //     */
 //    public function setRunFile(string $directory): static
 //    {
-//        $this->cached_command_line = null;
+//        $this->clearFullCommandLineCache();
 //
 //        if (!$directory) {
 //            // Set the default log path
@@ -1108,7 +1106,7 @@ trait TraitProcessVariables
      */
     public function setSudo(string|bool|null $sudo, ?string $user = null): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         if (!$sudo) {
             $this->sudo = false;
@@ -1151,8 +1149,8 @@ trait TraitProcessVariables
      */
     public function setAcceptedExitCodes(array|int|null $exit_codes): static
     {
-        $this->cached_command_line = null;
-        $this->accepted_exit_codes = [];
+        $this->clearFullCommandLineCache()
+             ->accepted_exit_codes = [];
 
         return $this->addAcceptedExitCodes($exit_codes);
     }
@@ -1161,11 +1159,11 @@ trait TraitProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
-     * @param array|int|null $exit_codes
+     * @param array|string|int|null $exit_codes The exit codes that are accepted as a "successful" termination of the executed process
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCodes(array|int|null $exit_codes): static
+    public function addAcceptedExitCodes(array|string|int|null $exit_codes): static
     {
         if ($exit_codes) {
             foreach (Arrays::force($exit_codes) as $exit_code) {
@@ -1180,18 +1178,21 @@ trait TraitProcessVariables
     /**
      * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
-     * @param int $exit_code
+     * @param string|int $exit_code
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCode(int $exit_code): static
+    public function addAcceptedExitCode(string|int $exit_code): static
     {
-        if (($exit_code < 0) or ($exit_code > 255)) {
-            throw new OutOfBoundsException(tr('The specified $exit_code ":code" is invalid. Please specify a values between 0 and 255', [':code' => $exit_code]));
+        $exit_code = make_natural($exit_code, 0);
+
+        if ($exit_code > 255) {
+            throw new OutOfBoundsException(tr('The specified $exit_code ":code" is invalid. Please specify a values between 0 and 255', [
+                ':code' => $exit_code
+            ]));
         }
 
         $this->accepted_exit_codes[] = $exit_code;
-
         return $this;
     }
 
@@ -1204,7 +1205,6 @@ trait TraitProcessVariables
     public function clearAcceptedExitCodes(): static
     {
         $this->accepted_exit_codes = [];
-
         return $this;
     }
 
@@ -1236,8 +1236,8 @@ trait TraitProcessVariables
             $command = trim($command);
         }
 
-        $real_command              = $command;
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
+        $real_command = $command;
 
         if (!$command) {
             // Reset the command
@@ -1337,7 +1337,7 @@ trait TraitProcessVariables
     {
         $identifier                = $this->getIdentifier();
         $this->log_file            = DIRECTORY_DATA . 'log/' . $identifier;
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         Log::notice(ts('Set process identifier ":identifier"', [':identifier' => $identifier]), 2);
 
@@ -1352,7 +1352,7 @@ trait TraitProcessVariables
      */
     public function clearArguments(): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->arguments           = [];
 
         return $this;
@@ -1385,7 +1385,7 @@ trait TraitProcessVariables
     {
         $this->arguments = [];
 
-        return $this->addArguments($arguments, $escape_arguments, $escape_quotes);
+        return $this->appendArguments($arguments, $escape_arguments, $escape_quotes);
     }
 
 
@@ -1398,9 +1398,9 @@ trait TraitProcessVariables
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
+    public function appendArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         if ($arguments) {
             if (is_array($arguments)) {
@@ -1413,12 +1413,12 @@ trait TraitProcessVariables
                     }
 
                     // Add multiple arguments
-                    $this->addArguments($argument, $escape_arguments, $escape_quotes);
+                    $this->appendArguments($argument, $escape_arguments, $escape_quotes);
                 }
 
             } else {
                 // Add a single argument
-                $this->addArgument($arguments, $escape_arguments, $escape_quotes);
+                $this->appendArgument($arguments, $escape_arguments, $escape_quotes);
             }
         }
 
@@ -1427,7 +1427,7 @@ trait TraitProcessVariables
 
 
     /**
-     * Adds multiple arguments to the beginning of the existing list of arguments for the command that will be executed
+     * Adds multiple arguments to the beginning of the (existing list of) arguments for the command that will be executed
      *
      * @param Stringable|array|string|int|float|null $arguments
      * @param bool                                   $escape_arguments
@@ -1437,7 +1437,7 @@ trait TraitProcessVariables
      */
     public function prependArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true, bool $escape_quotes = true): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         if ($arguments) {
             if (is_array($arguments)) {
@@ -1475,14 +1475,14 @@ trait TraitProcessVariables
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
+    public function appendArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true, bool $escape_quotes = true): static
     {
         if ($argument !== null) {
             if (is_array($argument)) {
-                return $this->addArguments($argument, $escape_argument, $escape_quotes);
+                return $this->appendArguments($argument, $escape_argument, $escape_quotes);
             }
 
-            $this->cached_command_line = null;
+            $this->clearFullCommandLineCache();
             $this->arguments[]         = [
                 'escape_argument' => $escape_argument,
                 'escape_quotes'   => $escape_quotes,
@@ -1510,7 +1510,7 @@ trait TraitProcessVariables
                 return $this->prependArguments($argument, $escape_argument, $escape_quotes);
             }
 
-            $this->cached_command_line = null;
+            $this->clearFullCommandLineCache();
 
             array_unshift($this->arguments,  [
                 'escape_argument' => $escape_argument,
@@ -1594,7 +1594,7 @@ trait TraitProcessVariables
      */
     public function addEnvironmentVariables(array|string|null $environment_variables, bool $escape = true): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         if ($environment_variables) {
             foreach (Arrays::force($environment_variables, null) as $key => $value) {
                 $this->addEnvironmentVariable($value, $key, $escape);
@@ -1699,7 +1699,7 @@ trait TraitProcessVariables
      */
     public function setVariable(string $key, string|float|int $value): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->variables[$key]     = $value;
 
         return $this;
@@ -1772,7 +1772,7 @@ trait TraitProcessVariables
             $pipe->setTerm();
         }
 
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->pipe                = $pipe;
 
         return $this;
@@ -1803,7 +1803,7 @@ trait TraitProcessVariables
             $pipe->setPipe($this);
         }
 
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->pipe_from           = $pipe;
 
         return $this;
@@ -1879,7 +1879,7 @@ trait TraitProcessVariables
             unset($this->output_redirect[$channel]);
         }
 
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         return $this;
     }
@@ -1938,7 +1938,7 @@ trait TraitProcessVariables
     public function setInputRedirect(Stringable|string|null $redirect, int $channel = 1): static
     {
         $redirect                  = get_null($redirect);
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
 
         if ($redirect) {
             PhoFile::new($redirect, $this->_restrictions)->checkReadable();
@@ -1984,7 +1984,7 @@ trait TraitProcessVariables
      */
     public function setWait(?int $wait): static
     {
-        if (!is_natural($wait, 0)) {
+        if (!is_numeric_natural($wait, 0)) {
             if ($wait) {
                 throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
                     ':wait' => $wait,
@@ -1994,8 +1994,8 @@ trait TraitProcessVariables
             $wait = 0;
         }
 
-        $this->cached_command_line = null;
-        $this->wait                = $wait;
+        $this->clearFullCommandLineCache();
+        $this->wait = $wait;
 
         return $this;
     }
@@ -2026,15 +2026,15 @@ trait TraitProcessVariables
     public function setSignal(EnumSignal|int $signal): static
     {
         if (is_integer($signal)) {
-            if (!is_natural($signal, 1)) {
+            if (!is_numeric_natural($signal, 1)) {
                 throw new OutOfBoundsException(tr('The specified signal ":signal" is invalid, it must be a natural number 0 or higher', [
                     ':signal' => $signal,
                 ]));
             }
         }
 
-        $this->cached_command_line = null;
-        $this->signal              = Signals::check($signal)->value;
+        $this->clearFullCommandLineCache();
+        $this->signal = Signals::check($signal)->value;
 
         return $this;
     }
@@ -2061,7 +2061,7 @@ trait TraitProcessVariables
      */
     public function setPackages(Stringable|string $operating_system, IteratorInterface|array|string $packages): static
     {
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->packages->addForOperatingSystem($operating_system, $packages);
 
         return $this;
@@ -2104,7 +2104,7 @@ trait TraitProcessVariables
             $timeout = 0;
         }
 
-        $this->cached_command_line = null;
+        $this->clearFullCommandLineCache();
         $this->timeout             = $timeout;
 
         return $this;

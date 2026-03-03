@@ -401,7 +401,7 @@ class Sync
         $this->executeHook('pre-import-connector')
              ->getPhoCommand($server, 'databases import')
              ->setTimeout($this->timeout)
-             ->addArguments([
+             ->appendArguments([
                  '-L', Log::getThreshold(),
                  '--connector',
                  $connector->getName(),
@@ -446,7 +446,7 @@ class Sync
     {
         $this->getPhoCommand($server)
              ->setPhoCommands(['project', 'temporary', 'clear'])
-             ->addArguments($this->source_temp_path)
+             ->appendArguments($this->source_temp_path)
              ->executeNoReturn();
 
         return $this;
@@ -708,7 +708,7 @@ class Sync
         $this->executeHook('pre-dump-connector')
              ->getPhoCommand($server)
              ->setPhoCommands(['databases', 'export'])
-             ->addArguments([
+             ->appendArguments([
                  '--connector',
                  $connector->getName(),
                  '--database',
@@ -885,14 +885,14 @@ class Sync
         $result = Process::new('ls')
                          ->setServerObject($_server)
                          ->setSudo($this->configuration['sudo'])
-                         ->addArgument(Strings::slash($this->configuration['path']))
+                         ->appendArgument(Strings::slash($this->configuration['path']))
                          ->executeReturnString();
 
         if ($result) {
             $result = Process::new('ls')
                              ->setServerObject($_server)
                              ->setSudo($this->configuration['sudo'])
-                             ->addArgument(Strings::slash($this->configuration['path']) . 'pho')
+                             ->appendArgument(Strings::slash($this->configuration['path']) . 'pho')
                              ->executeReturnString();
 
             if ($result) {
@@ -939,7 +939,7 @@ class Sync
     {
         $path = $this->getPhoCommand($server)
                      ->setPhoCommands(['project', 'temporary', 'get'])
-                     ->addArguments('-Q')
+                     ->appendArguments('-Q')
                      ->executeReturnArray();
 
         $this->source_temp_path = Strings::slash(Arrays::firstValue($path));

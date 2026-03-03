@@ -29,4 +29,20 @@ interface TasksInterface extends DataIteratorInterface
      * @return static
      */
     public function execute(): static;
+
+    /**
+     * Returns whether this class should continue execution when no tasks are available anymore for execution
+     *
+     * @return bool
+     */
+    public function getContinueAfterFinish(): bool;
+
+    /**
+     * Sets whether this class should continue execution when no tasks are available anymore for execution
+     *
+     * @param bool $continue_after_finish
+     *
+     * @return static
+     */
+    public function setContinueAfterFinish(bool $continue_after_finish): static;
 }

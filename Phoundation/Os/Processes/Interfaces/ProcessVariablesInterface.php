@@ -273,21 +273,21 @@ interface ProcessVariablesInterface extends Stringable
     /**
      * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
-     * @param array $exit_codes
+     * @param array|string|int|null $exit_codes The exit codes that are accepted as a "successful" termination of the executed process
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCodes(array $exit_codes): static;
+    public function addAcceptedExitCodes(array|string|int|null $exit_codes): static;
 
 
     /**
      * Sets the CLI return values that are accepted as "success" and will not cause an exception
      *
-     * @param int $exit_code
+     * @param string|int $exit_code
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addAcceptedExitCode(int $exit_code): static;
+    public function addAcceptedExitCode(string|int $exit_code): static;
 
 
     /**
@@ -358,7 +358,7 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true): static;
+    public function appendArguments(Stringable|array|string|int|float|null $arguments, bool $escape_arguments = true): static;
 
 
     /**
@@ -371,7 +371,7 @@ interface ProcessVariablesInterface extends Stringable
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function addArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
+    public function appendArgument(Stringable|array|string|float|int|null $argument, bool $escape_argument = true): static;
 
 
     /**

@@ -57,31 +57,6 @@ use Phoundation\Web\Requests\Request;
 
 
 /**
- * Returns the number of elements specified
- *
- * If an array or Iterator object was specified, will return the number of elements inside
- *
- * If any non-list type data was specified, will return 1
- *
- * @param mixed $source The source data to count
- *
- * @return int
- */
-function get_element_count(mixed $source): int
-{
-    if ($source instanceof IteratorInterface) {
-        return $source->getCount();
-    }
-
-    if (is_array($source)) {
-        return count($source);
-    }
-
-    return 1;
-}
-
-
-/**
  * Improved version of PHP's empty that makes slightly more sense
  *
  * @param mixed $value
@@ -98,6 +73,331 @@ function is_empty(mixed $value): bool
         return true;
     }
 
+    return false;
+}
+
+
+/**
+ * Returns true if the specified number (of any datatype) is content wise an integer
+ *
+ * @param mixed    $source                      The source value that will be tested for being numeric integer
+ * @param int|null $higher_or_equal_than [null] If specified with a number, and the source number is numeric integer, the source number must be higher than
+ *                                              the specified number. Must be zero, or higher.
+ * @param int|null $lower_or_equal_than  [null] If specified with a number, and the source number is numeric integer, the source number must be lower than
+ *                                              the specified number. Must be zero, or higher, must be lower than $higher_or_equal_than
+ *
+ * @return bool
+ * @throws OutOfBoundsException Thrown when the specified $higher_or_equal_than value is higher than $lower_or_equal_than
+ */
+function is_numeric_integer(mixed $source, ?int $higher_or_equal_than = null, ?int $lower_or_equal_than = null): bool
+{
+    if (($lower_or_equal_than !== null) and ($higher_or_equal_than !== null) and ($higher_or_equal_than > $lower_or_equal_than)) {
+        throw new OutOfBoundsException(ts('Cannot detect if value ":value" is an integer number, the specified "$higher_or_equal_than" value ":higher_or_equal_than" MUST be lower than the specified "$lower_or_equal_than" value ":lower_or_equal_than"', [
+            ':higher_or_equal_than' => $higher_or_equal_than,
+            ':lower_or_equal_than'  => $lower_or_equal_than,
+            ':value'                => $source,
+        ]));
+    }
+
+    if ($source != (int) $source) {
+        return false;
+    }
+
+    if ($lower_or_equal_than !== null) {
+        if ($source > $lower_or_equal_than) {
+            return false;
+        }
+    }
+
+    if ($higher_or_equal_than !== null) {
+        if ($source < $higher_or_equal_than) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+/**
+ * Returns true if the specified number (of any datatype) is content-wise a natural number (that is, a positive, integer, number)
+ *
+ * @param mixed    $source                      The source value that will be tested for being numeric integer
+ * @param int|null $higher_or_equal_than [1]    If specified with a number, and the source number is numeric integer, the source number must be higher than
+ *                                              the specified number. Must be zero, or higher.
+ * @param int|null $lower_or_equal_than  [null] If specified with a number, and the source number is numeric integer, the source number must be lower than
+ *                                              the specified number. Must be zero, or higher, must be lower than $higher_or_equal_than
+ *
+ * @return bool
+ * @throws OutOfBoundsException Thrown when the specified $higher_or_equal_than value is higher than $lower_or_equal_than
+ */
+function is_numeric_natural(mixed $source, ?int $higher_or_equal_than = 1, ?int $lower_or_equal_than = null): bool
+{
+    return is_numeric_integer($source, $higher_or_equal_than, $lower_or_equal_than);
+}
+
+
+/**
+ * Returns true if the given path start with a /
+ *
+ * @param string $path
+ *
+ * @return bool
+ */
+function is_absolute_path(string $path): bool
+{
+    return starts_with($path, '/');
+}
+
+
+/**
+ * Returns true if the specified string is a valid version string
+ *
+ * @param string $version
+ *
+ * @return bool
+ */
+function is_version(string $version): bool
+{
+    $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
+
+    if ($return === false) {
+        throw new PhoException(tr('Failed to determine if ":version" is a valid version or not', [
+            ':version' => $version,
+        ]));
+    }
+
+    return (bool) $return;
+}
+
+
+/**
+ * Returns if this is a scalar with usable data
+ *
+ * @param mixed $source
+ * @param bool  $allow_null
+ *
+ * @return bool
+ */
+function is_data_scalar(mixed $source, bool $allow_null = false): bool
+{
+    if ($allow_null){
+        return is_string($source) || is_int($source) || is_float($source) || is_null($source);
+    }
+
+    return is_string($source) || is_int($source) || is_float($source);
+}
+
+
+/**
+ * Returns true if the specified source is an enum
+ *
+ * @param mixed $source
+ *
+ * @return bool
+ */
+function is_enum(mixed $source): bool
+{
+    return $source instanceof UnitEnum;
+}
+
+
+/**
+ * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
+ *
+ * Data type "object" and any datatype that is a class path will always return true
+ *
+ * @param string $datatype
+ *
+ * @return bool
+ */
+function is_class(string $datatype): bool
+{
+    return match ($datatype) {
+        'unknown type',
+        'resource',
+        'resource (closed)',
+        'array',
+        'string',
+        'double',
+        'integer',
+        'boolean',
+        'NULL'  => false,
+        default => true
+    };
+}
+
+
+/**
+ * Returns true if the specified value matches one or multiple of the specified datatypes or classes
+ *
+ * @note The variable is specified by reference, allowing non set variables to be used when calling this function, but
+ *       this causes it to disallow static values or function outputs to be passed
+ *
+ * @note IMPORTANT! After calling this function, $variable will exist in the scope of the calling function!
+ *
+ * @param array|string $types     If the data exists, it must have one of these data types. Can be specified as array or
+ *                                | separated string
+ * @param mixed        $variable  The variable to test
+ *
+ * @return bool
+ * @throws DatatypeNotPermittedException
+ */
+function is_datatype_or_class(array|string $types, mixed &$variable): bool
+{
+    // Ensure datatype
+    foreach (Arrays::force($types, '|') as $type) {
+        switch ($type) {
+            case 'scalar':
+                if (is_scalar($variable)) {
+                    return $variable;
+                }
+
+                break;
+
+            case 'string':
+                if (is_string($variable)) {
+                    return true;
+                }
+
+                if ($variable instanceof Stringable) {
+                    // This is fine, this object has __toString() implemented
+                    return true;
+                }
+
+                break;
+
+            case 'int':
+                // no break
+            case 'integer':
+                if (is_integer($variable)) {
+                    return true;
+                }
+
+                if (is_numeric($variable)) {
+                    // This is a number stored as a string, if it is an integer, then type cast it
+                    if ((int) $variable == $variable) {
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'double':
+                // no break
+            case 'float':
+                if (is_float($variable)) {
+                    return true;
+                }
+
+                if (is_numeric($variable)) {
+                    if (!is_integer($variable)) {
+                        // This is a float number stored as a string, convert it to integer
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'bool':
+                // no break
+            case 'boolean':
+                if (is_bool($variable)) {
+                    return true;
+                }
+
+                if (is_integer($variable)) {
+                    if ($variable === 1) {
+                        return true;
+                    }
+
+                    if ($variable === 0) {
+                        return true;
+                    }
+                }
+
+                if (is_string($variable)) {
+                    $variable = strtolower(trim($variable));
+
+                    if (($variable === 'true') or ($variable === '1')) {
+                        return true;
+                    }
+
+                    if (($variable === 'false') or ($variable === '0')) {
+                        return true;
+                    }
+                }
+
+                break;
+
+            case 'array':
+                if (is_array($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'resource':
+                if (is_resource($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'function':
+                // no break
+            case 'callable':
+                // no break
+            case 'closure':
+                if (is_callable($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'null':
+                if (is_null($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'datetime':
+                if ($variable instanceof DateTimeInterface) {
+                    return true;
+                }
+
+                break;
+
+            case 'object':
+                if (is_object($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'enum':
+                if (is_enum($variable)) {
+                    return true;
+                }
+
+                break;
+
+            case 'mixed':
+                // This is always ok
+                return true;
+
+            default:
+                // This should be an object of the specified type
+                if ($variable instanceof $type) {
+                    return true;
+                }
+
+                break;
+        }
+    }
+
+    // No datatype was matched
     return false;
 }
 
@@ -136,6 +436,31 @@ function get_value_unless_false(mixed $original, mixed $value): mixed
     }
 
     return $value;
+}
+
+
+/**
+ * Returns the number of elements specified
+ *
+ * If an array or Iterator object was specified, will return the number of elements inside
+ *
+ * If any non-list type data was specified, will return 1
+ *
+ * @param mixed $source The source data to count
+ *
+ * @return int
+ */
+function get_element_count(mixed $source): int
+{
+    if ($source instanceof IteratorInterface) {
+        return $source->getCount();
+    }
+
+    if (is_array($source)) {
+        return count($source);
+    }
+
+    return 1;
 }
 
 
@@ -310,47 +635,8 @@ function get_key_index(IteratorInterface|array $source, Stringable|string|float|
             'source' => $source,
         ]);
     }
-}
 
-
-
-
-/**
- * Returns true if the specified string is a valid version string
- *
- * @param string $version
- *
- * @return bool
- */
-function is_version(string $version): bool
-{
-    $return = preg_match('/\d{1,4}\.\d{1,4}\.\d{1,4}/', $version);
-
-    if ($return === false) {
-        throw new PhoException(tr('Failed to determine if ":version" is a valid version or not', [
-            ':version' => $version,
-        ]));
-    }
-
-    return (bool) $return;
-}
-
-
-/**
- * Returns if this is a scalar with usable data
- *
- * @param mixed $source
- * @param bool  $allow_null
- *
- * @return bool
- */
-function is_data_scalar(mixed $source, bool $allow_null = false): bool
-{
-    if ($allow_null){
-        return is_string($source) || is_int($source) || is_float($source) || is_null($source);
-    }
-
-    return is_string($source) || is_int($source) || is_float($source);
+    return null;
 }
 
 
@@ -606,19 +892,6 @@ function in_source(array $source, string|int $key): bool
     }
 
     return false;
-}
-
-
-/**
- * Returns true if the specified source is an enum
- *
- * @param mixed $source
- *
- * @return bool
- */
-function is_enum(mixed $source): bool
-{
-    return $source instanceof UnitEnum;
 }
 
 
@@ -1128,180 +1401,6 @@ function get_safe_typed(array|string $types, array $source, string|float|int $ke
 
 
 /**
- * Returns true if the specified value matches one or multiple of the specified datatypes or classes
- *
- * @note The variable is specified by reference, allowing non set variables to be used when calling this function, but
- *       this causes it to disallow static values or function outputs to be passed
- *
- * @note IMPORTANT! After calling this function, $variable will exist in the scope of the calling function!
- *
- * @param array|string $types     If the data exists, it must have one of these data types. Can be specified as array or
- *                                | separated string
- * @param mixed        $variable  The variable to test
- *
- * @return bool
- * @throws DatatypeNotPermittedException
- */
-function is_datatype_or_class(array|string $types, mixed &$variable): bool
-{
-    // Ensure datatype
-    foreach (Arrays::force($types, '|') as $type) {
-        switch ($type) {
-            case 'scalar':
-                if (is_scalar($variable)) {
-                    return $variable;
-                }
-
-                break;
-
-            case 'string':
-                if (is_string($variable)) {
-                    return true;
-                }
-
-                if ($variable instanceof Stringable) {
-                    // This is fine, this object has __toString() implemented
-                    return true;
-                }
-
-                break;
-
-            case 'int':
-                // no break
-            case 'integer':
-                if (is_integer($variable)) {
-                    return true;
-                }
-
-                if (is_numeric($variable)) {
-                    // This is a number stored as a string, if it is an integer, then type cast it
-                    if ((int) $variable == $variable) {
-                        return true;
-                    }
-                }
-
-                break;
-
-            case 'double':
-                // no break
-            case 'float':
-                if (is_float($variable)) {
-                    return true;
-                }
-
-                if (is_numeric($variable)) {
-                    if (!is_integer($variable)) {
-                        // This is a float number stored as a string, convert it to integer
-                        return true;
-                    }
-                }
-
-                break;
-
-            case 'bool':
-                // no break
-            case 'boolean':
-                if (is_bool($variable)) {
-                    return true;
-                }
-
-                if (is_integer($variable)) {
-                    if ($variable === 1) {
-                        return true;
-                    }
-
-                    if ($variable === 0) {
-                        return true;
-                    }
-                }
-
-                if (is_string($variable)) {
-                    $variable = strtolower(trim($variable));
-
-                    if (($variable === 'true') or ($variable === '1')) {
-                        return true;
-                    }
-
-                    if (($variable === 'false') or ($variable === '0')) {
-                        return true;
-                    }
-                }
-
-                break;
-
-            case 'array':
-                if (is_array($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'resource':
-                if (is_resource($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'function':
-                // no break
-            case 'callable':
-                // no break
-            case 'closure':
-                if (is_callable($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'null':
-                if (is_null($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'datetime':
-                if ($variable instanceof DateTimeInterface) {
-                    return true;
-                }
-
-                break;
-
-            case 'object':
-                if (is_object($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'enum':
-                if (is_enum($variable)) {
-                    return true;
-                }
-
-                break;
-
-            case 'mixed':
-                // This is always ok
-                return true;
-
-            default:
-                // This should be an object of the specified type
-                if ($variable instanceof $type) {
-                    return true;
-                }
-
-                break;
-        }
-    }
-
-    // No datatype was matched
-    return false;
-}
-
-
-/**
  * Returns true if the specified variable has the specified datatype, throws OutOfBounds exception otherwise
  *
  * @param mixed       $variable
@@ -1351,6 +1450,102 @@ function ensure_variable(mixed &$variable, mixed $initialize): mixed
 
 
 /**
+ * Converts the given value to integer if it is "integer compatible"
+ *
+ * PHP being (by default) weakly typed, and incoming data always being "stringified", we may have reasons to convert (for example) "2342" to 2342
+ *
+ * However, we cannot just cast (int) because the value may either not be "integer compatible" (that is to say, "1", not "1.1") or even numeric
+ *
+ * @param mixed    $source                      The source variable to convert
+ * @param int|null $higher_or_equal_than [1]    If specified with a number, and the source number is numeric integer, the source number must be higher than
+ *                                              the specified number. Must be zero, or higher.
+ * @param int|null $lower_or_equal_than  [null] If specified with a number, and the source number is numeric integer, the source number must be lower than
+ *                                              the specified number. Must be zero, or higher, must be lower than $higher_or_equal_than
+ *
+ * @return int
+ * @throws OutOfBoundsException Thrown when the specified source value is not numeric or "integer compatible" numeric
+ * @throws OutOfBoundsException Thrown when the specified $higher_or_equal_than value is higher than $lower_or_equal_than
+ * @throws OutOfBoundsException Thrown when the specified $value is not numeric, or not a natural number
+ */
+function make_natural(mixed $source, ?int $higher_or_equal_than = 1, ?int $lower_or_equal_than = null): int
+{
+    if ($higher_or_equal_than < 0) {
+        throw new OutOfBoundsException(ts('Cannot make value ":value" a natural number, the specified "$higher_or_equal_than" value ":higher_or_equal_than" MUST be 1 or higher', [
+            ':higher_or_equal_than' => $higher_or_equal_than,
+            ':value'                => $source,
+        ]));
+    }
+
+    if (!is_numeric_natural($source, $higher_or_equal_than, $lower_or_equal_than)) {
+        throw OutOfBoundsException::new(ts('Cannot convert value ":value" to integer, the value is not numeric, integer compatible numeric, or not a positive number', [
+            ':value' => $source
+        ]))->setData(['value' => $source]);
+    }
+
+    // Natural numbers must be integer numbers. Round to the nearest integer
+    return (int) $source;
+}
+
+
+/**
+ * Converts the given value to integer if it is "integer compatible"
+ *
+ * PHP being (by default) weakly typed, and incoming data always being "stringified", we may have reasons to convert (for example) "2342" to 2342
+ *
+ * However, we cannot just cast (int) because the value may either not be "integer compatible" (that is to say, "1", not "1.1") or even numeric
+ *
+ * @param mixed    $source                      The source value that will be tested for being numeric integer
+ * @param int|null $higher_or_equal_than [null] If specified with a number, and the source number is numeric integer, the source number must be higher than
+ *                                              the specified number. Must be zero, or higher.
+ * @param int|null $lower_or_equal_than  [null] If specified with a number, and the source number is numeric integer, the source number must be lower than
+ *                                              the specified number. Must be zero, or higher, must be lower than $higher_or_equal_than
+ *
+ * @return int
+ * @throws OutOfBoundsException Thrown when the specified source value is not numeric or "integer compatible" numeric
+ * @throws OutOfBoundsException Thrown when the specified $higher_or_equal_than value is higher than $lower_or_equal_than
+ */
+function make_integer(mixed $source, ?int $higher_or_equal_than = null, ?int $lower_or_equal_than = null): int
+{
+    if (!is_numeric_integer($source, $higher_or_equal_than, $lower_or_equal_than)) {
+        throw OutOfBoundsException::new(ts('Cannot convert value ":value" to integer, the value is not numeric or integer compatible numeric', [
+            ':value' => $source
+        ]))->setData(['value' => $source]);
+    }
+
+    // Natural numbers must be integer numbers. Round to the nearest integer
+    return (int) $source;
+}
+
+
+/**
+ * Converts the given value to float if it is numeric
+ *
+ * PHP being (by default) weakly typed, and incoming data always being "stringified", we may have reasons to convert (for example) "2342" to 2342
+ *
+ * However, we cannot just cast (int) because
+ *
+ * @param mixed $source                     The source variable to convert
+ * @param int   $digits [5]                 The number of digits that the number will be rounded to
+ * @param int   $mode   [PHP_ROUND_HALF_UP] Sets how the rounding will be processed. Must be one of PHP_ROUND_HALF_UP, PHP_ROUND_HALF_DOWN, PHP_ROUND_HALF_EVEN,
+ *                                          or PHP_ROUND_HALF_ODD.
+ *
+ * @return float
+ * @throws OutOfBoundsException Thrown when the specified source value is not numeric
+ */
+function make_float(mixed $source, int $digits = 5, int $mode = PHP_ROUND_HALF_UP): float
+{
+    if (!is_numeric($source)) {
+        throw OutOfBoundsException::new(ts('Cannot convert value ":value" to float, the value is not numeric', [
+            ':value' => $source
+        ]))->setData(['value' => $source]);
+    }
+
+    // Natural numbers must be integer numbers. Round to the nearest integer
+    return round($source, $digits, $mode);
+}
+
+
+/**
  * Force the specified number to be a natural number.
  *
  * This function will ensure that the specified $source variable is returned as an integer. If a float value was
@@ -1381,44 +1576,6 @@ function force_natural(mixed $source, int $default = 1, int $start = 1): int
 
     // Natural numbers must be integer numbers. Round to the nearest integer
     return (int) round($source);
-}
-
-
-/**
- * Returns true if the specified number is a natural number.
- *
- * A natural number here is defined as one of the set of positive whole numbers; a positive integer and the number 1 and
- * any other number obtained by adding 1 to it repeatedly. For ease of use, the number one can be adjusted if needed.
- *
- * @param mixed $source
- * @param int   $start
- *
- * @return bool
- */
-function is_natural(mixed $source, int $start = 1): bool
-{
-    if (!is_numeric($source)) {
-        return false;
-    }
-
-    if ($source < $start) {
-        return false;
-    }
-
-    return is_numeric_integer($source);
-}
-
-
-/**
- * Returns true if the specified number (may be any datatype) is content wise an integer
- *
- * @param mixed $source
- *
- * @return bool
- */
-function is_numeric_integer(mixed $source): bool
-{
-    return $source == (int) $source;
 }
 
 
@@ -1724,43 +1881,6 @@ function null_not(?bool $source): ?bool
     }
 
     return !$source;
-}
-
-
-/**
- * Returns if the specified variable (string or not) is actually an integer, or not
- *
- * @param mixed    $source
- * @param int|null $larger_than
- *
- * @return bool
- */
-function is_really_integer(mixed $source, ?int $larger_than = null): bool
-{
-    if ($source != (int) $source) {
-        return false;
-    }
-
-    if ($larger_than === null) {
-        return true;
-    }
-
-    // The number must be larger than...
-    return $source > $larger_than;
-}
-
-
-/**
- * Returns if the specified variable (string or not) is actually an integer, or not
- *
- * @param mixed $source
- * @param bool  $allow_zero
- *
- * @return bool
- */
-function is_really_natural(mixed $source, bool $allow_zero = false): bool
-{
-    return is_really_integer($source, $allow_zero ? 0 : 1);
 }
 
 
@@ -2423,19 +2543,6 @@ function strip_extension(?string $filename, bool $all_extensions = false): ?stri
 
 
 /**
- * Returns true if the given path start with a /
- *
- * @param string $path
- *
- * @return bool
- */
-function is_absolute_path(string $path): bool
-{
-    return starts_with($path, '/');
-}
-
-
-/**
  * Will implode all given entries to a string, quoting each item individually before imploding
  *
  * @param array $source
@@ -2521,32 +2628,6 @@ function hr(Stringable|string|null $content, bool $before = true): ?string
 
 
 /**
- * Returns true if the specified datatype is an object or class datatype, false if it is a standard PHP datatype
- *
- * Data type "object" and any datatype that is a class path will always return true
- *
- * @param string $datatype
- *
- * @return bool
- */
-function datatype_is_class(string $datatype): bool
-{
-    return match ($datatype) {
-        'unknown type',
-        'resource',
-        'resource (closed)',
-        'array',
-        'string',
-        'double',
-        'integer',
-        'boolean',
-        'NULL'  => false,
-        default => true
-    };
-}
-
-
-/**
  * Returns a ConfigInterface object for the specified section and environment
  *
  * @param string|null $section
@@ -2557,43 +2638,6 @@ function datatype_is_class(string $datatype): bool
 function config(?string $section = null, ?string $environment = null): ConfigInterface
 {
     return Config::fromSection($section, $environment);
-}
-
-
-/**
- * Returns true if the specified source is a valid email address
- *
- * @param Stringable|string $source
- *
- * @return bool
- */
-if (!function_exists('is_email')) {
-    function is_email(Stringable|string $source): bool
-    {
-        try {
-            Validate::new($source)
-                    ->isEmail();
-            return true;
-
-        } catch (ValidationFailedException) {
-            // Yeah, this is not an email address
-        }
-
-        return false;
-    }
-}
-
-
-/**
- * Returns a LogInterface object that will log to the specified file
- *
- * @param string $file
- *
- * @return LogInterface
- */
-function logmsg(string $file = 'syslog'): LogInterface
-{
-    return Log::toFile($file);
 }
 
 
@@ -2620,6 +2664,29 @@ function get_reference_count(mixed $variable): int
 
     //3 references are added, including when calling debug_zval_dump()
     return $count - 3;
+}
+
+
+/**
+ * Returns true if the specified source is a valid email address
+ *
+ * @param Stringable|string $source
+ *
+ * @return bool
+ */
+if (!function_exists('is_email')) {
+    function is_email(Stringable|string $source): bool
+    {
+        try {
+            Validate::new($source)->isEmail();
+            return true;
+
+        } catch (ValidationFailedException) {
+            // Yeah, this is not an email address
+        }
+
+        return false;
+    }
 }
 
 

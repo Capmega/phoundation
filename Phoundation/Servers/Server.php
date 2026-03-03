@@ -468,10 +468,10 @@ class Server extends DataEntry implements ServerInterface
         }
 
         return Process::new('ssh')
-                      ->addArguments($this->getPort() ? ['-p', $this->getPort()] : null)
-                      ->addArguments(['-t', '-i', $this->getSshAccountObject()->getFileObject()])
-                      ->addArgument($username . $this->getHostname())
-                      ->addArgument($command_line)
+                      ->appendArguments($this->getPort() ? ['-p', $this->getPort()] : null)
+                      ->appendArguments(['-t', '-i', $this->getSshAccountObject()->getFileObject()])
+                      ->appendArgument($username . $this->getHostname())
+                      ->appendArgument($command_line)
                       ->getBasicCommandLine();
     }
 

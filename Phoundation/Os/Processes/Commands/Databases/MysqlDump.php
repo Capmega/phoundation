@@ -413,21 +413,21 @@ class MysqlDump extends Command implements MysqlDumpInterface
         // Build the process parameters, then execute
         $this->setCommand('mysqldump')
              ->clearArguments()
-             ->addArguments([
+             ->appendArguments([
                  '-h', $this->_connector->getHostname(),
                  '-u', $this->_connector->getUsername(),
                  '-p' . $this->_connector->getPassword()])
-             ->addArgument($this->disable_keys                    ? '--disable-keys'    : null)
-             ->addArgument($this->events                          ? '--events'          : null)
-             ->addArgument($this->routines                        ? '--routines'        : null)
-             ->addArgument(!$this->create_databases               ? '--no-create-db'    : null)
-             ->addArgument(!$this->create_tables                  ? '--no-create-info'  : null)
-             ->addArgument($this->extended_insert                 ? '--extended-insert' : null)
-             ->addArgument($this->comments                        ? '--comments'        : '--skip-comments')
-             ->addArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
+             ->appendArgument($this->disable_keys                    ? '--disable-keys'    : null)
+             ->appendArgument($this->events                          ? '--events'          : null)
+             ->appendArgument($this->routines                        ? '--routines'        : null)
+             ->appendArgument(!$this->create_databases               ? '--no-create-db'    : null)
+             ->appendArgument(!$this->create_tables                  ? '--no-create-info'  : null)
+             ->appendArgument($this->extended_insert                 ? '--extended-insert' : null)
+             ->appendArgument($this->comments                        ? '--comments'        : '--skip-comments')
+             ->appendArgument(($this->comments and $this->dump_date) ? '--dump-date'       : null);
 
         if ($this->_connector->getPort()) {
-            $this->addArguments(['-p', $this->_connector->getPort()]);
+            $this->appendArguments(['-p', $this->_connector->getPort()]);
         }
 
         // Add databases
@@ -436,12 +436,12 @@ class MysqlDump extends Command implements MysqlDumpInterface
                 throw new OutOfBoundsException(tr('Cannot generate MySQL dump file, no database specified'));
 
             case 1:
-                $this->addArguments($this->databases);
+                $this->appendArguments($this->databases);
                 break;
 
             default:
-                $this->addArgument('--databases')
-                     ->addArguments($this->databases);
+                $this->appendArgument('--databases')
+                     ->appendArguments($this->databases);
         }
 
         // Optionally add gzip

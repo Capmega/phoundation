@@ -30,10 +30,10 @@ class Dpkg extends Command
     {
         $this->setCommand('dpkg')
              ->setSudo(true)
-             ->addArguments([
+             ->appendArguments([
                  '--get-selections',
              ])
-             ->addArguments($packages)
+             ->appendArguments($packages)
              ->setTimeout(10)
              ->executePassthru();
 

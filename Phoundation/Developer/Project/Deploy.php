@@ -241,7 +241,7 @@ class Deploy implements DeployInterface
                                            ->setHostname($this->env_config['server']['host'])
                                            ->setPort($this->env_config['server']['port'])
                                            ->setSshAccountObject())
-                   ->addArguments(['-p', $this->env_config['server']['path']])
+                   ->appendArguments(['-p', $this->env_config['server']['path']])
                    ->execute(EnumExecuteMethod::noReturn);
 
             // And then rsync!

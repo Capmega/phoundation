@@ -90,8 +90,8 @@ abstract class Command extends ProcessCore implements CommandInterface
                 Process::new($command, $restrictions)
                        ->setSudo('sudo -Esp "Testing sudo for \"' . $command . '\"..."')
                        ->setTimeout(0.3)
-                       ->addArgument('--version')
-                       ->addArgument('--version')
+                       ->appendArgument('--version')
+                       ->appendArgument('--version')
                        ->executeReturnArray();
             }
 

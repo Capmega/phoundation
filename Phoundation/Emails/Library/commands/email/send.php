@@ -30,6 +30,8 @@ CliDocumentation::setAutoComplete([
     'arguments' => [
         '-f,--from' => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
         '-t,--to'   => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
+        '--bcc'     => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
+        '--cc'      => function ($word) { return Users::new()->load()->keepMatchingKeys($word)->limitAutoComplete(); },
         '-s,--to'   => true,
         '-b,--body' => true,
         '--timeout' => true,
@@ -49,8 +51,6 @@ ARGUMENTS
 
 -b,--body STRING                        The email body
 
-[-f,--from EMAIL]                       The email address of the user from which this mail should be sent
-
 -h,--html                               If specified, the email body will be sent as HTML
 
 -s,--subject STRING                     The subject line for the email
@@ -63,15 +63,24 @@ ARGUMENTS
 OPTIONAL ARGUMENTS
 
 
---hostname HOST                         If specified, will use the specified host instead of the default configured host
+[--cc EMAIL [, EMAIL, EMAIL, ...]]      If specified, adds a CC for each specified email
 
---port PORT                             If specified, will use the specified host port instead of the default configured port');
+[--bcc EMAIL [, EMAIL, EMAIL, ...]]     If specified, adds a BCC for each specified email
+
+[-f,--from EMAIL]                       The email address of the user from which this mail should be sent
+
+[--hostname HOST]                       If specified, will use the specified host instead of the default configured host
+
+[--port PORT]                           If specified, will use the specified host port instead of the default configured port');
 
 
 // Validate arguments
 $argv = ArgvValidator::new()
+                     ->select('-a,--attachments', true)->isOptional()->sanitizeForceArray()->forEachField()->isFile()
                      ->select('-f,--from', true)->isOptional()->isEmail()
                      ->select('-t,--to', true)->isEmail()
+                     ->select('-c,--cc', true)->isOptional()->sanitizeForceArray()->forEachField()->isEmail()
+                     ->select('--bcc', true)->isOptional()->sanitizeForceArray()->forEachField()->isEmail()
                      ->select('-s,--subject', true)->hasMaxCharacters(255)
                      ->select('-b,--body', true)->hasMaxCharacters(16_777_200)
                      ->select('-h,--html')->isOptional()->isBoolean()
@@ -89,7 +98,8 @@ $argv = ArgvValidator::new()
 //    ->setBody($argv['body'])
 //    ->send();
 
-// Send emails directly using PHPMailer
+
+// Setup PHPMailer
 $to   = User::new()->load($argv['to']);
 $mail = new PHPMailer();
 
@@ -101,15 +111,43 @@ $mail->Timeout = Email::getDefaultTimeout();;
 
 $mail->isSMTP();
 $mail->isHTML($argv['html']);
-$mail->addAddress(get_null(config()->getString('email.redirect.all', '')) ?? $to->getEmail(), $to->getDisplayName());
+$mail->addAddress(Email::getOverrideEmail() ?? $to->getEmail(), $to->getDisplayName());
 
+
+// Optionally, add CC fields (But ONLY if emails are not overridden)
+if ($argv['cc']) {
+    foreach ($argv['cc'] as $cc) {
+        $_cc = User::new($cc);
+
+        // If an override email is set, adding them as CC only sends duplicate mails to the override email.
+        if (empty(Email::getOverrideEmail($_cc))) {
+            $mail->addCC($_cc->getEmail(), $_cc->getDisplayName());
+        }
+    }
+}
+
+
+// Optionally, add BCC fields (But ONLY if emails are not overridden)
+if ($argv['cc']) {
+    foreach ($argv['cc'] as $bcc) {
+        $_bcc = User::new($bcc);
+
+        // If an override email is set, adding them as BCC only sends duplicate mails to the override email.
+        if (empty(Email::getOverrideEmail($_bcc))) {
+            $mail->addBCC($_bcc->getEmail(), $_bcc->getDisplayName());
+        }
+    }
+}
+
+
+// Set the FROM field
 try {
     if ($argv['from']) {
         $_from = User::new()->load($argv['from']);
-        $mail->setFrom($_from->getEmail(), $_from->getDisplayName());
+        $mail->setFrom($_from->getEmail(), $_from->getDisplayName() . Core::getNonProductionEnvironmentMarker());
 
     } else {
-        $mail->setFrom(Email::getDefaultFromAddress(), Email::getDefaultFromName() . (Core::isProductionEnvironment() ? null : ' (' . ENVIRONMENT . ')'));
+        $mail->setFrom(Email::getDefaultFromAddress(), Email::getDefaultFromName() . Core::getNonProductionEnvironmentMarker());
     }
 
 } catch (ConfigPathDoesNotExistsException $e) {
@@ -117,10 +155,20 @@ try {
     Log::error(ts('Cannot send email because the configuration paths "email.from.email" and or "email.from.name" are not correctly configured'), 10);
 }
 
+
+// Add the attachments
+foreach ($argv['attachments'] as $_attachment) {
+    $mail->addAttachment($_attachment->getSource());
+}
+
+
+// Send the email
 if (!$mail->send()) {
     throw new NotificationsException(tr('Cannot send email because ":e"', [':e' => $mail->ErrorInfo]));
 }
 
+
+// Done!
 Log::success(ts('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
     ':user'    => $to->getLogId(),

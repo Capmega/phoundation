@@ -121,10 +121,10 @@ class Resize extends PhoFile
     public function getAbsoluteSize(int $width, int $height): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($width . 'x' . $height)
-                        ->addArgument($this->getTarget());
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($width . 'x' . $height)
+                        ->appendArgument($this->getTarget());
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
@@ -156,10 +156,10 @@ class Resize extends PhoFile
     public function absoluteKeepAspectration(int $width, int $height): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($width . 'x' . $height . '\\!')
-                        ->addArgument($this->target);
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($width . 'x' . $height . '\\!')
+                        ->appendArgument($this->target);
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
@@ -180,10 +180,10 @@ class Resize extends PhoFile
     public function shrinkOnlyLarger(int $width, int $height): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($width . 'x' . $height . '\\>')
-                        ->addArgument($this->target);
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($width . 'x' . $height . '\\>')
+                        ->appendArgument($this->target);
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
@@ -204,10 +204,10 @@ class Resize extends PhoFile
     public function enlargeOnlySmaller(int $width, int $height): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($width . 'x' . $height . '\\>')
-                        ->addArgument($this->target);
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($width . 'x' . $height . '\\>')
+                        ->appendArgument($this->target);
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
@@ -227,10 +227,10 @@ class Resize extends PhoFile
     public function percentage(float $percentage): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($percentage . '%')
-                        ->addArgument($this->target);
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($percentage . '%')
+                        ->appendArgument($this->target);
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);
@@ -250,10 +250,10 @@ class Resize extends PhoFile
     public function pixelCount(int $pixel_count): void
     {
         $process = $this->convert()
-                        ->addArgument($this->source)
-                        ->addArgument('-' . $this->method)
-                        ->addArgument($pixel_count . '@')
-                        ->addArgument($this->target);
+                        ->appendArgument($this->source)
+                        ->appendArgument('-' . $this->method)
+                        ->appendArgument($pixel_count . '@')
+                        ->appendArgument($this->target);
         if ($this->background) {
             // Resize in background
             $process->executeBackground(true);

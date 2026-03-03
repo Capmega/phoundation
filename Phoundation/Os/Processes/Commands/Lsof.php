@@ -36,7 +36,7 @@ class Lsof extends Command
         $return    = [];
         $processes = $this->clearArguments()
                           ->setCommand('lsof')
-                          ->addArgument($file)
+                          ->appendArgument($file)
                           ->executeReturnArray();
         foreach ($processes as $line => $process) {
             if ($line <= 2) {

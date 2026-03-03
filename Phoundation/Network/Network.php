@@ -35,9 +35,9 @@ class Network
     {
         try {
             return Process::new('dig')
-                          ->addArgument('+short')
-                          ->addArgument('myip.opendns.com')
-                          ->addArgument('@resolver1.opendns.com')
+                          ->appendArgument('+short')
+                          ->appendArgument('myip.opendns.com')
+                          ->appendArgument('@resolver1.opendns.com')
                           ->executeReturnString();
 
         } catch (ProcessFailedException $e) {

@@ -64,9 +64,9 @@ trait TraitDataEntryRestrictions
     /**
      * Returns the restrictions for this object as a string
      *
-     * @return string
+     * @return string|null
      */
-    public function getRestrictions(): string
+    public function getRestrictions(): ?string
     {
         return $this->getTypesafe('string', 'restrictions');
     }

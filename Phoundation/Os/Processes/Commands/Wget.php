@@ -41,12 +41,12 @@ class Wget extends Command
         // Build the process parameters, then execute
         $this->clearArguments()
              ->setCommand('wget')
-             ->addArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
-             ->addArguments($this->target ? [
+             ->appendArgument($this->bind_address ? '--bind-address=' . $this->bind_address : null)
+             ->appendArguments($this->target ? [
                  '-O',
                  $this->target,
              ] : null)
-             ->addArgument($this->source);
+             ->appendArgument($this->source);
 
         parent::execute($method);
 

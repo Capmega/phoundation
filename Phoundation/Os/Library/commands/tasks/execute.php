@@ -31,21 +31,33 @@ pending tasks that should be executed
 ARGUMENTS
 
 
-[-t,--task TASK]                        The specific task code to execute');
+-
+
+
+OPTIONAL ARGUMENTS
+
+
+[-t,--task TASK]                        The specific task code to execute
+
+[-e,--maximum-execution-time TIME]      If specified, the process will cleanly auto terminate after the specified amount of seconds
+
+[-c,--continue-after-finish]            If specified, the process will not terminate after all currently open commands have been executed, it will wait for new 
+                                        commands to become available instead');
 
 CliDocumentation::setAutoComplete([
-                                      'arguments' => [
-                                          '-t,--task' => [
-                                              'word'   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
-                                              'noword' => function ($word) { return Tasks::new()->autoCompleteFind(); },
-                                          ],
-                                      ],
-                                  ]);
+    'arguments' => [
+        '-t,--task'                   => function ($word) { return Tasks::new()->autoCompleteFind($word); },
+        '-e,--maximum-execution-time' => true,
+        '-c,--continue-after-finish'  => false,
+    ],
+]);
 
 
 // Get arguments
 $argv = ArgvValidator::new()
                      ->select('-t,--task', true)->isOptional()->isUuid()
+                     ->select('-e,--maximum-execution-time', true)->isOptional()->isPositive()
+                     ->select('-c,--continue-running', true)->isOptional()->isPositive()
                      ->validate();
 
 
@@ -64,7 +76,10 @@ if ($argv['task']) {
 } else {
     try {
         // Try to execute all pending tasks
-        Tasks::new()->load()->execute();
+        Tasks::new()->load()
+                    ->setContinueAfterFinish($argv['continue_after_finish'])
+                    ->setMaximumExecutionTime($argv['maximum_execution_time'])
+                    ->execute();
 
     } catch (NoTasksPendingExceptions $e) {
         Log::warning($e->getMessage(), 10);

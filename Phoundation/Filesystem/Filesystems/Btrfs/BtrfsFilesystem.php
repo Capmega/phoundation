@@ -50,7 +50,7 @@ class BtrfsFilesystem extends Btrfs implements BtrfsFilesystemInterface
     public function getUsage(): IteratorInterface
     {
         $iterator = [];
-        $return   = $this->_process->addArguments(['filesystem', 'usage', $this->_path->getSource(), '-T', '-b'])
+        $return   = $this->_process->appendArguments(['filesystem', 'usage', $this->_path->getSource(), '-T', '-b'])
                                     ->executeReturnIterator();
 
         foreach ($return as $usage) {
@@ -104,7 +104,7 @@ class BtrfsFilesystem extends Btrfs implements BtrfsFilesystemInterface
     {
         $pass     = false;
         $iterator = [];
-        $return   = $this->_process->addArguments(['filesystem', 'usage', $this->_path->getSource(), '-T', '-b'])
+        $return   = $this->_process->appendArguments(['filesystem', 'usage', $this->_path->getSource(), '-T', '-b'])
                                     ->executeReturnIterator();
 
         foreach ($return as $usage) {
@@ -165,7 +165,7 @@ class BtrfsFilesystem extends Btrfs implements BtrfsFilesystemInterface
     public function getFilesystems(bool $mounted = true): IteratorInterface
     {
         $return = [];
-        $result = $this->_process->addArguments(['filesystem', 'show', $mounted ? '--mounted' : '--all-devices'])
+        $result = $this->_process->appendArguments(['filesystem', 'show', $mounted ? '--mounted' : '--all-devices'])
                                   ->executeReturnString();
 
         foreach (explode("\n\n", $result) as $filesystem) {
@@ -233,7 +233,7 @@ class BtrfsFilesystem extends Btrfs implements BtrfsFilesystemInterface
     public function add(BtrfsDeviceInterface $device): static
     {
 throw new UnderConstructionException();
-        $_return = $this->_process->addArguments(['device', 'add'])
+        $_return = $this->_process->appendArguments(['device', 'add'])
                                     ->executeReturnIterator()
                                     ->removeKeys(0);
 

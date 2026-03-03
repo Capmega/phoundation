@@ -44,7 +44,7 @@ class Tests
         try {
             Process::new(DIRECTORY_ROOT . 'vendor/bin/phpunit')
                    ->setExecutionDirectory(PhoDirectory::newRootObject())
-                   ->addArguments(['--display-phpunit-deprecations'])
+                   ->appendArguments(['--display-phpunit-deprecations'])
                    ->execute(EnumExecuteMethod::passthru);
 
         } catch (ProcessFailedException $e) {

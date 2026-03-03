@@ -70,6 +70,7 @@ use Phoundation\Data\EntryCore;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Data\Traits\TraitDataBooleanDirectMode;
 use Phoundation\Data\Traits\TraitDataCacheKey;
 use Phoundation\Data\Traits\TraitDataClassException;
 use Phoundation\Data\Traits\TraitDataColumns;
@@ -164,6 +165,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataColumns;
     use TraitDataPermitValidationFailures;
     use TraitEventHandler;
+    use TraitDataBooleanDirectMode;
 
 
     /**
@@ -354,6 +356,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * @var mixed|null $unique_value
      */
     protected mixed $unique_value = null;
+
 
 
     /**
@@ -3267,7 +3270,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         // When in force mode we will NOT clear the failed columns so that they can be sent back to the user for
         // corrections
         try {
-            $data_source = Validator::pick($source)->setDefinitionsObject($this->_definitions);
+            $data_source = Validator::pick($source, $this->getDirectMode())->setDefinitionsObject($this->_definitions);
 
         } catch (TypeError $e) {
             if ($this->isInitialized()) {
@@ -4706,7 +4709,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         $created_by = $this->getTypesafe('int', 'created_by');
 
         if ($created_by === null) {
-            return null;
+            return User::newSystem();
         }
 
         return new User($created_by);
@@ -5297,7 +5300,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 // WARNING! DO NOT EXECUTE validateSourceData DIRECTLY IN THE ARRAY_MERGE! $this->validateSourceData()
                 // updates $this->source and the array_merge() call will use the initial version (so without the
                 // modifications from $this->validateSourceData())
-                $source       = $this->validateSource(ArrayValidator::new($source), true, false);
+                $source       = $this->validateSource(ArrayValidator::new($source)->setDirectMode($this->getDirectMode()), true, false);
                 $this->source = array_merge($this->source, $source);
             }
         }

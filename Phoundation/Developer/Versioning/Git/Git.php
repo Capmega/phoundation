@@ -176,8 +176,8 @@ class Git extends Versioning implements GitInterface
     public function clone(string $url): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('clone')
-                                  ->addArgument($url)
+                                  ->appendArgument('clone')
+                                  ->appendArgument($url)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -295,7 +295,7 @@ class Git extends Versioning implements GitInterface
     public function getSelectedBranch(bool $return_if_detached = false): ?string
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('branch')
+                                  ->appendArgument('branch')
                                   ->executeReturnArray();
 
         foreach ($output as $line) {
@@ -448,8 +448,8 @@ class Git extends Versioning implements GitInterface
 
         $current = $this->getSelectedBranch();
         $output  = $this->_process->clearArguments()
-                                   ->addArguments(['checkout', ($reset ? '-B' : '-b')])
-                                   ->addArgument($branch)
+                                   ->appendArguments(['checkout', ($reset ? '-B' : '-b')])
+                                   ->appendArgument($branch)
                                    ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -476,8 +476,8 @@ class Git extends Versioning implements GitInterface
         $this->verifyBranch($branch);
 
         $output = $this->_process->clearArguments()
-                                  ->addArguments(['branch', '-d', ($force or FORCE ? '-f' : null)])
-                                  ->addArgument($branch)
+                                  ->appendArguments(['branch', '-d', ($force or FORCE ? '-f' : null)])
+                                  ->appendArgument($branch)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -500,7 +500,7 @@ class Git extends Versioning implements GitInterface
 
         if ($this->branchExists($branch, true)) {
             $output = $this->_process->clearArguments()
-                                      ->addArguments(['push', $remote, ':' . $branch])
+                                      ->appendArguments(['push', $remote, ':' . $branch])
                                       ->executeReturnArray();
 
             Log::notice($output, 1, false);
@@ -533,11 +533,11 @@ class Git extends Versioning implements GitInterface
 
         $source  = [];
         $results = $this->_process->clearArguments()
-                                  ->addArgument('branch')
-                                  ->addArgument('--quiet')
-                                  ->addArgument((ALL or $all) ? '-a' : null)
-                                  ->addArguments(($contains)   ? ['--contains', $contains] : null)
-                                  ->addArgument('--no-color')
+                                  ->appendArgument('branch')
+                                  ->appendArgument('--quiet')
+                                  ->appendArgument((ALL or $all) ? '-a' : null)
+                                  ->appendArguments(($contains)   ? ['--contains', $contains] : null)
+                                  ->appendArgument('--no-color')
                                   ->executeReturnArray();
 
         foreach ($results as $line) {
@@ -566,8 +566,8 @@ class Git extends Versioning implements GitInterface
         $this->verifyTag($tag);
 
         $output = $this->_process->clearArguments()
-                                  ->addArguments(['tag', '-d', ($force or FORCE ? '-f' : null)])
-                                  ->addArgument($tag)
+                                  ->appendArguments(['tag', '-d', ($force or FORCE ? '-f' : null)])
+                                  ->appendArgument($tag)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -603,7 +603,7 @@ class Git extends Versioning implements GitInterface
 
         if ($this->tagExists($tag)) {
             $output = $this->_process->clearArguments()
-                                      ->addArguments(['push', $remote, ':' . $tag])
+                                      ->appendArguments(['push', $remote, ':' . $tag])
                                       ->executeReturnArray();
 
             Log::notice($output, 1, false);
@@ -628,8 +628,8 @@ class Git extends Versioning implements GitInterface
     public function getTags(): array
     {
         $return = $this->_process->clearArguments()
-                                  ->addArgument('tag')
-                                  ->addArgument('-l')
+                                  ->appendArgument('tag')
+                                  ->appendArgument('-l')
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -657,10 +657,10 @@ class Git extends Versioning implements GitInterface
         }
 
         $return = $this->_process->clearArguments()
-                                  ->addArgument('tag')
-                                  ->addArguments(['-a', $tag])
-                                  ->addArguments($message ? ['-m', $message] : null)
-                                  ->addArguments($this->selectSigned($signed) ? ['-s'] : null)
+                                  ->appendArgument('tag')
+                                  ->appendArguments(['-a', $tag])
+                                  ->appendArguments($message ? ['-m', $message] : null)
+                                  ->appendArguments($this->selectSigned($signed) ? ['-s'] : null)
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -685,8 +685,8 @@ class Git extends Versioning implements GitInterface
         }
 
         $return = $this->_process->clearArguments()
-                                  ->addArgument('tag')
-                                  ->addArguments($tag)
+                                  ->appendArgument('tag')
+                                  ->appendArguments($tag)
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -704,9 +704,9 @@ class Git extends Versioning implements GitInterface
     public function stash(PhoPathInterface|array|string|null $_paths = null): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('stash')
-                                  ->addArgument('--')
-                                  ->addArguments($_paths)
+                                  ->appendArgument('stash')
+                                  ->appendArgument('--')
+                                  ->appendArguments($_paths)
                                   ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -722,8 +722,8 @@ class Git extends Versioning implements GitInterface
     public function stashPop(): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('stash')
-                                  ->addArgument('pop')
+                                  ->appendArgument('stash')
+                                  ->appendArgument('pop')
                                   ->executeReturnArray();
 
         Log::notice($output, 4, false);
@@ -739,8 +739,8 @@ class Git extends Versioning implements GitInterface
     public function stashShow(): array
     {
         return $this->_process->clearArguments()
-                               ->addArgument('stash')
-                               ->addArgument('show')
+                               ->appendArgument('stash')
+                               ->appendArgument('show')
                                ->executeReturnArray();
     }
 
@@ -754,8 +754,8 @@ class Git extends Versioning implements GitInterface
     {
         $return  = [];
         $results = $this->_process->clearArguments()
-                                   ->addArgument('stash')
-                                   ->addArgument('list')
+                                   ->appendArgument('stash')
+                                   ->appendArgument('list')
                                    ->executeReturnArray();
 
         foreach ($results as $result) {
@@ -777,8 +777,8 @@ class Git extends Versioning implements GitInterface
     public function checkout(Stringable|array|string $branches_or_directories): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('checkout')
-                                  ->addArguments($branches_or_directories)
+                                  ->appendArgument('checkout')
+                                  ->appendArguments($branches_or_directories)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -794,7 +794,7 @@ class Git extends Versioning implements GitInterface
     public function getRemotes(): array
     {
         $return = $this->_process->clearArguments()
-                                  ->addArgument('remote')
+                                  ->appendArgument('remote')
                                   ->executeReturnArray();
 
         Log::notice($return, 1, false);
@@ -864,10 +864,10 @@ class Git extends Versioning implements GitInterface
     public function clean(array|string $branches_or_directories, bool $files, bool $directories): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('clean')
-                                  ->addArgument($files ? '-f' : null)
-                                  ->addArgument($directories ? '-d' : null)
-                                  ->addArguments($branches_or_directories)
+                                  ->appendArgument('clean')
+                                  ->appendArgument($files ? '-f' : null)
+                                  ->appendArgument($directories ? '-d' : null)
+                                  ->appendArguments($branches_or_directories)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -886,9 +886,9 @@ class Git extends Versioning implements GitInterface
     public function reset(string $revision, Stringable|array|string|null $files = null): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('reset')
-                                  ->addArgument($revision)
-                                  ->addArgument($files)
+                                  ->appendArgument('reset')
+                                  ->appendArgument($revision)
+                                  ->appendArgument($files)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -909,8 +909,8 @@ class Git extends Versioning implements GitInterface
             $files = '.';
         }
         $output = $this->_process->clearArguments()
-                                  ->addArgument('add')
-                                  ->addArgument($files)
+                                  ->appendArgument('add')
+                                  ->appendArgument($files)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -929,8 +929,8 @@ class Git extends Versioning implements GitInterface
     public function mv(PhoFileInterface $source, PhoFileInterface $target): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('mv')
-                                  ->addArguments([$source, $target])
+                                  ->appendArgument('mv')
+                                  ->appendArguments([$source, $target])
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -963,10 +963,10 @@ class Git extends Versioning implements GitInterface
     public function commit(string $message, ?bool $signed = null): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('commit')
-                                  ->addArgument('-m')
-                                  ->addArgument($message)
-                                  ->addArgument($this->selectSigned($signed) ? '-s' : null)
+                                  ->appendArgument('commit')
+                                  ->appendArgument('-m')
+                                  ->appendArgument($message)
+                                  ->appendArgument($this->selectSigned($signed) ? '-s' : null)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -982,8 +982,8 @@ class Git extends Versioning implements GitInterface
     public function uncommit(): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('reset')
-                                  ->addArgument('HEAD^')
+                                  ->appendArgument('reset')
+                                  ->appendArgument('HEAD^')
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -1054,11 +1054,11 @@ class Git extends Versioning implements GitInterface
     public function getDiff(array|string|null $files = null, bool $cached = false): string
     {
         return $this->_process->clearArguments()
-                               ->addArgument('diff')
-                               ->addArgument(NOCOLOR ? '--no-color' : null)
-                               ->addArgument($cached ? '--cached' : null)
-                               ->addArgument('--')
-                               ->addArguments($files)
+                               ->appendArgument('diff')
+                               ->appendArgument(NOCOLOR ? '--no-color' : null)
+                               ->appendArgument($cached ? '--cached' : null)
+                               ->appendArgument('--')
+                               ->appendArguments($files)
                                ->executeReturnString();
     }
 
@@ -1074,11 +1074,11 @@ class Git extends Versioning implements GitInterface
     public function getLog(array|string|null $files = null, bool $cached = false): string
     {
         return $this->_process->clearArguments()
-                               ->addArgument('log')
-                               ->addArgument(NOCOLOR ? '--no-color' : null)
-                               ->addArgument($cached ? '--cached' : null)
-                               ->addArgument('--')
-                               ->addArguments($files)
+                               ->appendArgument('log')
+                               ->appendArgument(NOCOLOR ? '--no-color' : null)
+                               ->appendArgument($cached ? '--cached' : null)
+                               ->appendArgument('--')
+                               ->appendArguments($files)
                                ->executeReturnString();
     }
 
@@ -1097,12 +1097,12 @@ class Git extends Versioning implements GitInterface
 
         } else {
             $output = $this->_process->clearArguments()
-                                      ->addArgument('apply')
-                                      ->addArgument('-v')
-                                      ->addArgument('--ignore-whitespace')
-                                      ->addArgument('--ignore-space-change')
-                                      ->addArgument('--whitespace=nowarn')
-                                      ->addArgument($patch_file->getSource())
+                                      ->appendArgument('apply')
+                                      ->appendArgument('-v')
+                                      ->appendArgument('--ignore-whitespace')
+                                      ->appendArgument('--ignore-space-change')
+                                      ->appendArgument('--whitespace=nowarn')
+                                      ->appendArgument($patch_file->getSource())
                                       ->executeReturnArray();
 
             Log::notice($output, 1, false);
@@ -1131,9 +1131,9 @@ class Git extends Versioning implements GitInterface
 
         try {
             $output = $this->_process->clearArguments()
-                                      ->addArgument('push')
-                                      ->addArgument($set_upstream ? '-u' : null)
-                                      ->addArguments([
+                                      ->appendArgument('push')
+                                      ->appendArgument($set_upstream ? '-u' : null)
+                                      ->appendArguments([
                                           $this->getDefaultRemote($repository),
                                           $branch,
                                       ])
@@ -1223,9 +1223,9 @@ class Git extends Versioning implements GitInterface
 
         try {
             $output = $this->_process->clearArguments()
-                                      ->addArgument('pull')
-                                      ->addArgument($this->getDefaultRemote($repository))
-                                      ->addArgument($branch)
+                                      ->appendArgument('pull')
+                                      ->appendArgument($this->getDefaultRemote($repository))
+                                      ->appendArgument($branch)
                                       ->executeReturnArray();
 
             Log::notice($output, 1, false);
@@ -1279,9 +1279,9 @@ class Git extends Versioning implements GitInterface
     public function fetch(?string $repository, bool $all = true): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArgument('fetch')
-                                  ->addArgument($all ? '--all' : null)
-                                  ->addArgument($repository)
+                                  ->appendArgument('fetch')
+                                  ->appendArgument($all ? '--all' : null)
+                                  ->appendArgument($repository)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -1297,7 +1297,7 @@ class Git extends Versioning implements GitInterface
     public function fetchAll(): static
     {
         $output = $this->_process->clearArguments()
-                                  ->addArguments(['fetch', '--all'])
+                                  ->appendArguments(['fetch', '--all'])
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -1317,8 +1317,8 @@ class Git extends Versioning implements GitInterface
         $this->verifyBranch($branch);
 
         $output = $this->_process->clearArguments()
-                                  ->addArgument('merge')
-                                  ->addArgument($branch)
+                                  ->appendArgument('merge')
+                                  ->appendArgument($branch)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -1338,8 +1338,8 @@ class Git extends Versioning implements GitInterface
         $this->verifyBranch($branch);
 
         $output = $this->_process->clearArguments()
-                                  ->addArgument('rebase')
-                                  ->addArgument($branch)
+                                  ->appendArgument('rebase')
+                                  ->appendArgument($branch)
                                   ->executeReturnArray();
 
         Log::notice($output, 1, false);
@@ -1396,7 +1396,7 @@ class Git extends Versioning implements GitInterface
     public function listRevisions(): array
     {
         return $this->_process->clearArguments()
-                               ->addArguments(['rev-list', ALL ? '--all' : null])
+                               ->appendArguments(['rev-list', ALL ? '--all' : null])
                                ->executeReturnArray();
     }
 
@@ -1413,8 +1413,8 @@ class Git extends Versioning implements GitInterface
     {
         $return  = [];
         $results = $this->_process->clearArguments()
-                                   ->addArguments(['grep', '-n', $keyword])
-                                   ->addArgument('$(git rev-list --all)', false, false)
+                                   ->appendArguments(['grep', '-n', $keyword])
+                                   ->appendArgument('$(git rev-list --all)', false, false)
                                    ->executeReturnArray();
 
         if (!$grouped) {
@@ -1454,8 +1454,8 @@ class Git extends Versioning implements GitInterface
     {
         $source  = [];
         $results = $this->_process->clearArguments()
-                                   ->addArguments(['branch', '--quiet', '--no-color'])
-                                   ->addArguments(['--contains', $revision])
+                                   ->appendArguments(['branch', '--quiet', '--no-color'])
+                                   ->appendArguments(['--contains', $revision])
                                    ->executeReturnArray();
 
         foreach ($results as $line) {

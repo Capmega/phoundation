@@ -242,6 +242,18 @@ abstract class ProcessCore implements ProcessInterface
 
 
     /**
+     * Clears the full command line
+     *
+     * @return static
+     */
+    public function clearFullCommandLineCache(): static
+    {
+        $this->cached_command_line = null;
+        return $this;
+    }
+
+
+    /**
      * Builds and returns the command line that will be executed
      *
      * @param bool $background
@@ -277,6 +289,7 @@ abstract class ProcessCore implements ProcessInterface
         $this->cached_command_line = $this->getBasicCommandLine();
 
         if ($this->execute_bash) {
+            // TODO This does NOT add any of the other options like sudo, timeout, wait, etc, that are added below?!!? Check this and document if there is a reason for this
             // Execute command as an internal BaSH command
             $this->cached_command_line = 'bash -c "' . $this->cached_command_line . '"';
 
@@ -387,10 +400,10 @@ abstract class ProcessCore implements ProcessInterface
 
         // Background commands get some extra options around
         if ($pipe) {
-
+// TODO Something is missing here and there isn't even a comment on what is missing?
         } else {
             if ($this->use_run_file) {
-                // Create command line with run-file
+                // Create command line with a run-file
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
 
@@ -400,7 +413,7 @@ abstract class ProcessCore implements ProcessInterface
                 }
 
             } else {
-                // Create command line without run-file
+                // Create command line without a run-file
                 if ($background) {
                     $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
 
@@ -783,7 +796,7 @@ abstract class ProcessCore implements ProcessInterface
         try {
             Process::new($this->command, $this->getRestrictionsObject())
                 ->setSudo(true)
-                ->addArgument('--version')
+                ->appendArgument('--version')
                 ->executeReturnArray();
 
             return true;

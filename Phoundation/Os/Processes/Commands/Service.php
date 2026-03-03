@@ -66,8 +66,8 @@ class Service extends Command
         return $this->clearArguments()
                     ->setSudo(true)
                     ->setCommand('service')
-                    ->addArgument($this->service_name)
-                    ->addArgument($action)
+                    ->appendArgument($this->service_name)
+                    ->appendArgument($action)
                     ->executeReturnArray();
     }
 

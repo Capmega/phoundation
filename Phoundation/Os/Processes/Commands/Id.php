@@ -39,7 +39,7 @@ class Id extends Command
         }
 
         $this->setCommand('id')
-             ->addArgument('-' . $section)
+             ->appendArgument('-' . $section)
              ->setTimeout(1);
 
         try {

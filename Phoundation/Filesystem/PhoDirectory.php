@@ -19,6 +19,8 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use Phoundation\Filesystem\Interfaces\PhoDirectoryInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\Traits\TraitDirectoryConstructor;
 use Phoundation\Filesystem\Traits\TraitDirectoryNew;
 use Phoundation\Utils\Strings;
@@ -28,6 +30,24 @@ class PhoDirectory extends PhoDirectoryCore
 {
     use TraitDirectoryConstructor;
     use TraitDirectoryNew;
+
+
+    /**
+     * Returns a new file object for a file in data/...
+     *
+     * @param string|null                   $file
+     * @param PhoRestrictionsInterface|null $restrictions
+     *
+     * @return PhoDirectoryInterface|null
+     */
+    public static function newOrNull(?string $file, ?PhoRestrictionsInterface $restrictions = null): ?PhoDirectoryInterface
+    {
+        if ($file) {
+            return static::new($file, $restrictions);
+        }
+
+        return null;
+    }
 
 
     /**

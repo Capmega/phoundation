@@ -44,9 +44,9 @@ class Cp extends Command
         // Build the process parameters, then execute
         $this->setCommand('cp')
              ->clearArguments()
-             ->addArgument('-a')
-             ->addArguments((string) $source)
-             ->addArgument((string) $target)
+             ->appendArgument('-a')
+             ->appendArguments((string) $source)
+             ->appendArgument((string) $target)
              ->execute($method);
     }
 }

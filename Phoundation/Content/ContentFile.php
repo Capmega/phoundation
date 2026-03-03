@@ -57,7 +57,7 @@ class ContentFile extends PhoFile implements ContentFileInterface
     protected function viewImage(): void
     {
         Process::new('feh', $this->_restrictions, 'feh')
-               ->addArgument($this->source)
+               ->appendArgument($this->source)
                ->executeBackground();
     }
 

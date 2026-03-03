@@ -28,7 +28,7 @@ enum EnumDateFormat: string
     case system_date     = 'system_date';
     case system_datetime = 'system_datetime';
     case iso_date        = 'iso_date';
-    case iso_date_time   = 'iso_date_time';
+    case iso_datetime    = 'iso_datetime';
     case mysql_date      = 'mysql_date';
     case mysql_datetime  = 'mysql_datetime';
     case file            = 'file';

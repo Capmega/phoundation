@@ -219,11 +219,11 @@ class Grep extends Command
         try {
             $this->setCommand('grep') //->setDebug(true)
                  ->setExecutionDirectory($this->_directory ?? $this->_file?->getDirectoryObject())
-                 ->addArguments($this->filter_reversed           ? '-v'                      : null)
-                 ->addArguments($this->filter_regular_expression ? '-e'                      : null)
-                 ->addArguments($this->filter)
-                 ->addArguments($this->_file                     ? $this->_file              : null)
-                 ->addArguments($this->_directory                ? [$this->_directory, '-R'] : null);
+                 ->appendArguments($this->filter_reversed           ? '-v'                      : null)
+                 ->appendArguments($this->filter_regular_expression ? '-e'                      : null)
+                 ->appendArguments($this->filter)
+                 ->appendArguments($this->_file                     ? $this->_file              : null)
+                 ->appendArguments($this->_directory                ? [$this->_directory, '-R'] : null);
 
             // Directory grep results are in format file:line, reformat and group the data
             $result = parent::executeReturnArray();
@@ -269,11 +269,11 @@ class Grep extends Command
 
         $this->setCommand('grep') //->setDebug(true)
              ->setExecutionDirectory($this->_directory ?? $this->_file?->getDirectoryObject())
-             ->addArguments($this->filter_reversed           ? '-v'                      : null)
-             ->addArguments($this->filter_regular_expression ? '-e'                      : null)
-             ->addArguments($this->filter)
-             ->addArguments($this->_file                     ?: null)
-             ->addArguments($this->_directory                ? [$this->_directory, '-R'] : null);
+             ->appendArguments($this->filter_reversed           ? '-v'                      : null)
+             ->appendArguments($this->filter_regular_expression ? '-e'                      : null)
+             ->appendArguments($this->filter)
+             ->appendArguments($this->_file                     ?: null)
+             ->appendArguments($this->_directory                ? [$this->_directory, '-R'] : null);
 
         return parent::getFullCommandLine($background, $pipe);
     }
@@ -300,9 +300,9 @@ class Grep extends Command
         // Return results
         return $this->clearArguments()
                     ->setAcceptedExitCodes([0, 1])
-                    ->addArgument($this->value)
-                    ->addArgument($this->_directory ?? $this->_file)
-                    ->addArgument($this->_directory ? '-R' : null)
+                    ->appendArgument($this->value)
+                    ->appendArgument($this->_directory ?? $this->_file)
+                    ->appendArgument($this->_directory ? '-R' : null)
                     ->execute($method);
     }
 }

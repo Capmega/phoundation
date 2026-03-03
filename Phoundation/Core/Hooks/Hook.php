@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Phoundation\Core\Hooks;
 
 use Phoundation\Core\Core;
+use Phoundation\Core\Hooks\Exception\HookNotExistsException;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
 use Phoundation\Core\Log\Log;
 use Phoundation\Exception\OutOfBoundsException;
@@ -53,9 +54,9 @@ class Hook implements HookInterface
     /**
      * The place where all hook scripts live
      *
-     * @var PhoDirectoryInterface $directory
+     * @var PhoDirectoryInterface $_directory
      */
-    protected PhoDirectoryInterface $directory;
+    protected PhoDirectoryInterface $_directory;
 
     /**
      * Parameters sent by the executing script
@@ -72,11 +73,11 @@ class Hook implements HookInterface
      */
     public function __construct(?string $class = null)
     {
-        $this->directory = new PhoDirectory(DIRECTORY_HOOKS, PhoRestrictions::newHooks());
-        $this->class     = Strings::ensureEndsNotWith(trim($class), '/') . '/';
+        $this->_directory = new PhoDirectory(DIRECTORY_HOOKS, PhoRestrictions::newHooks());
 
-        if ($this->class) {
-            $this->directory = $this->directory->addDirectory($this->class);
+        if ($class) {
+            $this->class      = Strings::ensureEndsNotWith(trim($class), '/') . '/';
+            $this->_directory = $this->_directory->addDirectory($this->class);
         }
     }
 
@@ -88,7 +89,7 @@ class Hook implements HookInterface
      */
     public function __toString(): string
     {
-        return $this->getFile();
+        return $this->getFileObject()->getSource();
     }
 
 
@@ -102,7 +103,7 @@ class Hook implements HookInterface
         return [
             'class'     => $this->class,
             'hook'      => $this->hook,
-            'file'      => $this->getFile(),
+            'file'      => $this->getFileObject(),
             'arguments' => $this->arguments,
         ];
     }
@@ -130,7 +131,38 @@ class Hook implements HookInterface
      */
     public function exists(string $hook): bool
     {
-        return $this->directory->addPath($hook . '.php')->exists();
+        return $this->_directory->addPath(Strings::ensureEndsWith($hook, '.php'))->exists();
+    }
+
+
+    /**
+     * Checks if the specified hook file exists for the specified class and throws a HookNotExistsException if it does not
+     *
+     * @param string      $class            The hook class (typically the parent directory where the hook files are located) must be a sub directory of ROOT/hooks/
+     * @param string|null $hook             The hook filename that should exist
+     * @param bool        $exception [true] If true, will throw an exception if the specified class / hook does not exist, else returns false instead
+     *
+     * @return bool
+     */
+    public static function checkExists(string $class, ?string $hook, bool $exception = true): bool
+    {
+        if ($hook === null) {
+            $hook  = Strings::fromReverse($class, '/');
+            $class = Strings::untilReverse($class, '/');
+        }
+
+        if (Hook::new($class)->exists($hook)) {
+            return true;
+        }
+
+        if ($exception) {
+            throw HookNotExistsException::new(ts('The specified hook ":class:hook" does not exist', [
+                ':class' => $class,
+                ':hook'  => $hook,
+            ]));
+        }
+
+        return false;
     }
 
 
@@ -150,23 +182,95 @@ class Hook implements HookInterface
      *
      * @param string|null $hook
      *
-     * @return mixed
+     * @return PhoFileInterface
      */
-    public function getFile(?string $hook = null): PhoFileInterface
+    public function getFileObject(?string $hook = null): PhoFileInterface
     {
-        return $this->directory->addPath(($hook ?? $this->hook) . '.php');
+        if ($hook) {
+            $this->setHook($hook);
+        }
+
+        return $this->_directory->addPath($this->hook . '.php');
+    }
+
+
+    /**
+     * Sets the hook file for this Hook object
+     *
+     * @param string|null $hook The hook identifier
+     *
+     * @return static
+     */
+    protected function setHook(?string $hook): static
+    {
+        if ($hook) {
+            if (empty($this->class)) {
+                $this->setClass(Strings::untilReverse($hook, '/'))
+                     ->hook  = Strings::ensureEndsNotWith(Strings::fromReverse($hook, '/'), '.php');
+
+            } else {
+                $this->hook = Strings::ensureEndsNotWith(Strings::ensureBeginsNotWith($hook, '/'), '.php');
+            }
+
+        } else {
+            $this->hook = null;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets the class directory for this Hook object
+     *
+     * @param string|null $class The class directory
+     *
+     * @return static
+     */
+    protected function setClass(?string $class): static
+    {
+        if ($class) {
+            $this->class = Strings::ensureEndsWith(Strings::ensureBeginsNotWith($class, '/'), '/');
+
+        } else {
+            $this->class = null;
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Sets arguments to pass to the hook
+     *
+     * @param array|null $arguments
+     *
+     * @return $this
+     */
+    protected function setArguments(?array $arguments = []): static
+    {
+        $this->arguments = $arguments;
+        return $this;
     }
 
 
     /**
      * Attempts to execute the specified hooks
      *
-     * @param string     $hook
-     * @param array|null $arguments
+     * Reminders:
+     * * ROOT is the root directory of this project
+     * * All hooks classes start in ROOT/hooks (symlink to ROOT/data/system/cache/hooks)
+     * * A hook class is a partial path, so it may contain /
+     * * A hook class may (for example) be accounts/users
+     * * A hook itself is a filename may only contain letters, numbers, and dashes and may (optionally, and not recommended for clarity) end with .php
+     * * The hook "notify" in the class "accounts/users" will execute the hook ROOT/data/system/cache/hooks/accounts/users/notify.php IF the file exists
+     *
+     * @param string|null $hook             The hook filename to execute. To execute, the filename must be in the directory for the specified class.
+     * @param array|null  $arguments [null] The arguments to pass along to the hook, if it exists
      *
      * @return mixed
      */
-    public function execute(string $hook, ?array $arguments = []): mixed
+    public function execute(?string $hook, ?array $arguments = null): mixed
     {
         if (Core::inInitState()) {
             // Do not execute hooks during project initialization, too many unexpected side effects are possible!
@@ -177,27 +281,33 @@ class Hook implements HookInterface
             return $this;
         }
 
-        $this->hook      = $hook;
-        $this->arguments = $arguments;
-        $file            = $this->getFile($hook);
+        if (empty($hook)) {
+            // No hook specified, do not execute anything
+            return null;
+        }
 
-        if (!$file->exists()) {
+        $this->setHook($hook)
+             ->setArguments($arguments);
+
+        $_file = $this->getFileObject($hook);
+
+        if (!$_file->exists()) {
             // Only execute existing files
             return null;
         }
 
         // Try executing it!
         Log::action(ts('Executing hook ":hook"', [
-            ':hook' => $this->class . $hook,
+            ':hook' => $this->class . $this->hook,
         ]));
 
         try {
-            return execute_hook($file->getSource(), $this);
+            return execute_hook($_file->getSource(), $this);
 
         } catch (Throwable $e) {
             // Ensure its readable, not a path, within the filesystem restrictions, etc...
             try {
-                $file->checkReadable();
+                $_file->checkReadable();
 
             } catch (FileNotReadableException $e) {
                 Log::Warning(ts('Failed to execute hook ":hook". The file exists, but is not readable', [

@@ -130,7 +130,7 @@ class Composer extends Command
      */
     protected function executeComposer(EnumExecuteMethod $method, string $command): IteratorInterface|array|string|int|bool|null
     {
-        $this->addArguments('--ansi');
+        $this->appendArguments('--ansi');
 
         try {
             array_unshift($this->arguments, [

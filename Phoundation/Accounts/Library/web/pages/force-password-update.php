@@ -29,7 +29,7 @@ use Phoundation\Web\Requests\Response;
 
 
 // Only allow being here when it was forced by redirect
-if (!Session::getUserObject()->getRedirect() or (Session::getUserObject()->getRedirect() !== (string)Url::new('/force-password-update.html')->makeWww())) {
+if (!Session::getUserObject()->getRedirect() or !Session::getUserObject()->hasSpecifiedRedirect(Url::new('/force-password-update.html'))) {
     Response::redirect('prev', 302, reason_warning: tr('Force password update is only available when it was accessed using forced user redirect'));
 }
 
@@ -47,10 +47,9 @@ if (Request::isPostRequestMethod()) {
                              ->validate();
 
         // Update the password for this session's user and remove the forced redirect to this page
-        Session::getUserObject()
-               ->changePassword($post['password'], $post['passwordv'])
-               ->setRedirect()
-               ->save();
+        Session::getUserObject()->changePassword($post['password'], $post['passwordv'])
+                                ->setRedirect()
+                                ->save();
 
         // Add a flash message and redirect to the original target
         Response::getFlashMessagesObject()->addSuccess(tr('Your password has been updated'));

@@ -25,11 +25,16 @@ use Phoundation\Os\Processes\Commands\Pho;
 use Phoundation\Os\Processes\Exception\NoTasksPendingExceptions;
 use Phoundation\Os\Processes\Exception\TasksException;
 use Phoundation\Os\Processes\Interfaces\TasksInterface;
+use Phoundation\Os\Traits\TraitDataFloatIntMaximumExecutionTime;
 use Phoundation\Web\Html\Components\Input\InputSelect;
 use Phoundation\Web\Html\Components\Input\Interfaces\InputSelectInterface;
 
+
 class Tasks extends DataIterator implements TasksInterface
 {
+    use TraitDataFloatIntMaximumExecutionTime;
+
+
     /**
      * Tracks the maximum number of tasks workers
      *
@@ -44,6 +49,13 @@ class Tasks extends DataIterator implements TasksInterface
      */
     protected static PhoDateTimeInterface $executing;
 
+    /**
+     * Tracks whether this class should continue execution when no tasks are available anymore for execution
+     *
+     * @var bool $continue_after_finish
+     */
+    public bool $continue_after_finish = false;
+
 
     /**
      * @param ArrayableInterface|array|null $source
@@ -51,9 +63,10 @@ class Tasks extends DataIterator implements TasksInterface
     public function __construct(ArrayableInterface|array|null $source = null)
     {
         if (!isset(static::$max_task_workers)) {
-            static::$max_task_workers = config()->getInteger('tasks.workers.maximum', 25);
+            static::$max_task_workers = Task::getDefaultMaximumWorkers();
         }
 
+        $this->setKeysAreUniqueColumn(true);
         parent::__construct($source);
     }
 
@@ -77,6 +90,31 @@ class Tasks extends DataIterator implements TasksInterface
     public static function getUniqueColumn(): ?string
     {
         return 'code';
+    }
+
+
+    /**
+     * Returns whether this class should continue execution when no tasks are available anymore for execution
+     *
+     * @return bool
+     */
+    public function getContinueAfterFinish(): bool
+    {
+        return $this->continue_after_finish;
+    }
+
+
+    /**
+     * Sets whether this class should continue execution when no tasks are available anymore for execution
+     *
+     * @param bool $continue_after_finish
+     *
+     * @return static
+     */
+    public function setContinueAfterFinish(bool $continue_after_finish): static
+    {
+        $this->continue_after_finish = $continue_after_finish;
+        return $this;
     }
 
 
@@ -148,39 +186,50 @@ class Tasks extends DataIterator implements TasksInterface
 
         static::$executing = now();
 
-        $keys = $this->getSourceKeys();
+        do {
+            $keys = $this->getSourceKeys();
 
-        if (!count($keys)) {
-            throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))
-                                          ->makeWarning();
-        }
+            if (!count($keys)) {
+                throw NoTasksPendingExceptions::new(tr('There are no pending tasks'))
+                                              ->makeWarning();
+            }
 
-        Log::action(ts('Executing ":count" pending tasks with ":workers" child worker', [
-            ':count'   => count($keys),
-            ':workers' => static::$max_task_workers,
-        ]));
+            if (empty($keys)) {
+                // There are no tasks. Wait a second, and try again
+                Log::warning(ts('No tasks pending execution, sleeping...'), 2);
+                sleep(1);
+                continue;
+            }
 
-        try {
-            Pho::new()
-               ->setPhoCommands('tasks execute')
-               ->setLabel(tr('task'))
-               ->addArguments(['-t', ':TASKSID'])
-               ->setKey(':TASKSID')
-               ->setValues($keys)
-               ->setMaximumWorkers(static::$max_task_workers)
-               ->start();
+            Log::action(ts('Executing ":count" pending tasks with ":workers" child worker(s)', [
+                ':count'   => count($keys),
+                ':workers' => static::$max_task_workers,
+            ]));
 
-        } catch (TasksException $e) {
-            Log::error(ts('Execution of pending tasks failed'));
-            Log::exception($e);
+            try {
+                Pho::new()
+                   ->setPhoCommands('tasks execute')
+                   ->setLabel(tr('task'))
+                   ->appendArguments(['-t', ':TASKSID'])
+                   ->setKey(':TASKSID')
+                   ->setValues($keys)
+                   ->setMaximumWorkers(static::$max_task_workers)
+                   ->setMaximumExecutionTime($this->getMaximumExecutionTime())
+                   ->start();
 
-            // Restart tasks execution in a separate process
-            Log::action(ts('Restarting pending tasks executer in new background process'));
+            } catch (TasksException $e) {
+                Log::error(ts('Execution of pending tasks failed'));
+                Log::exception($e);
 
-            Pho::new()
-               ->setPhoCommands('tasks,execute')
-               ->executeBackground();
-        }
+                // Restart tasks execution in a separate process
+                Log::action(ts('Restarting pending tasks executor in new background process'));
+
+                Pho::new()
+                   ->setPhoCommands('tasks execute')
+                   ->executeBackground();
+            }
+
+        } while ($this->getContinueAfterFinish()); // All tasks are executing, but continue and check for new tasks to appear
 
         return $this;
     }

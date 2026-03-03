@@ -40,6 +40,13 @@ class PhoCore extends WorkersCore implements PhoInterface
      */
     protected ?array $pho_commands;
 
+    /**
+     * Tracks if environment and pho sub commands have been added to the command line
+     *
+     * @var bool $added_environment_commands
+     */
+    protected bool $added_environment_commands = false;
+
 
     /**
      * Initializes the PhoCore class.
@@ -70,8 +77,8 @@ class PhoCore extends WorkersCore implements PhoInterface
         // --no-warnings     is always added because all pho commands should NEVER cause warning type exceptions.
         $this->setExecutionDirectory(PhoDirectory::newRootObject())
              ->setCommand($pho->getSource(), false)
-             ->addArguments(['--no-audio', '--no-warnings'])
-             ->addArguments(Core::getIgnoreReadonly() || Core::inInitState() ? '--ignore-readonly' : null)
+             ->appendArguments(['--no-audio', '--no-warnings'])
+             ->appendArguments(Core::getIgnoreReadonly() || Core::inInitState() ? '--ignore-readonly' : null)
              ->setPhoCommands($commands)
              ->setEnvironment(ENVIRONMENT)
              ->setTimeout($this->timeout);
@@ -128,9 +135,13 @@ class PhoCore extends WorkersCore implements PhoInterface
         }
 
         // Add the Phoundation commands to the arguments
-        if (!$this->cached_command_line) {
-            $this->prependArguments(['-E', $this->environment]);
-            $this->prependArguments($this->pho_commands);
+        if (empty($this->cached_command_line)) {
+            if (!$this->added_environment_commands) {
+                $this->prependArguments($this->pho_commands);
+                $this->prependArguments(['-E', $this->environment]);
+
+                $this->added_environment_commands = true;
+            }
         }
 
         return parent::getFullCommandLine($background);

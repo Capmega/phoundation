@@ -75,7 +75,7 @@ class SystemCtl extends Command
 
         $this->getProcessObject()
                     ->checkProcessName($command)
-                    ->addArgument([$command, $this->getOsProcessName()])
+                    ->appendArgument([$command, $this->getOsProcessName()])
                     ->executePassthru();
         return $this;
     }
@@ -91,7 +91,7 @@ class SystemCtl extends Command
     {
         return $this->getProcessObject()
                     ->checkProcessName($command)
-                    ->addArgument([$command, $this->getOsProcessName()])
+                    ->appendArgument([$command, $this->getOsProcessName()])
                     ->executeReturnArray();
     }
 
@@ -105,7 +105,7 @@ class SystemCtl extends Command
     protected function executeCommandReturnNothing(string $command): static
     {
         return $this->getProcessObject()
-                    ->addArgument([$command])
+                    ->appendArgument([$command])
                     ->executeNoReturn();
     }
 
@@ -119,7 +119,7 @@ class SystemCtl extends Command
     protected function executeCommandReturnArray(string $command): array
     {
         return $this->getProcessObject()
-                    ->addArgument([$command])
+                    ->appendArgument([$command])
                     ->executeReturnArray();
     }
 

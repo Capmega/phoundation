@@ -65,7 +65,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function scan(bool $all = false): IteratorInterface
     {
-        $_return = $this->_process->addArguments(['device', 'scan', $all ? 'all' : null])
+        $_return = $this->_process->appendArguments(['device', 'scan', $all ? 'all' : null])
                                     ->executeReturnIterator()
                                     ->removeKeys(0);
 
@@ -119,7 +119,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
         $this->checkDevice();
 
         $iterator = [];
-        $return   = $this->_process->addArguments(['device', 'stats', $this->_path->getSource()])
+        $return   = $this->_process->appendArguments(['device', 'stats', $this->_path->getSource()])
                                     ->executeReturnIterator();
 
         foreach ($return as $stat) {
@@ -141,7 +141,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function resetStatistics(): static
     {
-        $this->_process->addArguments(['device', 'stats', $this->_path->getSource(), '--reset'])
+        $this->_process->appendArguments(['device', 'stats', $this->_path->getSource(), '--reset'])
                         ->executeNoReturn();
 
         return $this;
@@ -157,7 +157,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      */
     public function remove(): static
     {
-        $this->_process->addArguments(['device', 'remove', $this->_path->getSource()])
+        $this->_process->appendArguments(['device', 'remove', $this->_path->getSource()])
                         ->executeNoReturn();
 
         return $this;

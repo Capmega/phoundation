@@ -99,9 +99,9 @@ class StatusFiles extends PhoFilesCore implements StatusFilesInterface
         $this->source = [];
 
         $files = $this->_git_process->clearArguments()
-                                     ->addArgument('status')
-                                     ->addArgument($this->_path)
-                                     ->addArgument('--porcelain')
+                                     ->appendArgument('status')
+                                     ->appendArgument($this->_path)
+                                     ->appendArgument('--porcelain')
                                      ->executeReturnArray();
 
         // Parse output

@@ -41,7 +41,7 @@ class Ps extends Command
             }
 
             $output = $this->setCommand('ps')
-                           ->addArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
+                           ->appendArguments(['-p', $pid, '--no-headers', '-o', 'pid,ppid,comm,cmd,args'])
                            ->setTimeout(1)
                            ->setAcceptedExitCodes([0, 1])
                            ->executeReturnArray();
@@ -86,7 +86,7 @@ class Ps extends Command
                 throw new OutOfBoundsException(tr('Specified pid ":pid" is invalid, it should be an integer number 1 or higher', [':pid' => $pid]));
             }
             $output = $this->setCommand('ps')
-                           ->addArguments([
+                           ->appendArguments([
                                '-p',
                                $pid,
                                '--no-headers',

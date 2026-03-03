@@ -37,7 +37,7 @@ class Chmod extends Command
         try {
             $mode = Strings::fromOctal($mode);
             $this->setCommand('chmod')
-                 ->addArguments([
+                 ->appendArguments([
                      $mode,
                      $file,
                      ($recurse ? '-R' : ''),

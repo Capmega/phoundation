@@ -437,9 +437,9 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         foreach ($sections as $directory => $section) {
             // Find all import commands and execute them
             $files = Process::new('find')
-                            ->addArgument(DIRECTORY_ROOT . $directory)
-                            ->addArgument('-name')
-                            ->addArgument('Import.php')
+                            ->appendArgument(DIRECTORY_ROOT . $directory)
+                            ->appendArgument('-name')
+                            ->appendArgument('Import.php')
                             ->executeReturnArray();
 
             Log::notice(ts('Found ":count" import classes for section ":section"', [
@@ -508,7 +508,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Process::new('chmod')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
+               ->appendArguments(['-x,ug+r,g-w,o-rwx', '.', '-R'])
                ->executePassthru();
 
         // TODO Use the Find command that has all these parameters implemented as clear methods
@@ -516,28 +516,28 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Process::new('find')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments(['.', '-type', 'd', '-exec', 'chmod', 'ug+x', '{}','\\;',])
+               ->appendArguments(['.', '-type', 'd', '-exec', 'chmod', 'ug+x', '{}', '\\;',])
                ->executePassthru();
 
         // No file should be executable
         Process::new('find')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments(['.', '-type', 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;', ])
+               ->appendArguments(['.', '-type', 'f', '-exec', 'chmod', 'ug-x', '{}', '\\;', ])
                ->executePassthru();
 
         // ./cli is the only file that can be executed
         Process::new('chmod')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments(['ug+w', './pho', ])
+               ->appendArguments(['ug+w', './pho', ])
                ->executePassthru();
 
         // Readable directories: data/,
         Process::new('chmod')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments([
+               ->appendArguments([
                    '-x,ug+r,g-w,o-rwx',
                    DIRECTORY_DATA,
                    '-R',
@@ -548,7 +548,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Process::new('chmod')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments([
+               ->appendArguments([
                    '-ug+w',
                    DIRECTORY_SYSTEM,
                    DIRECTORY_DATA . 'log',
@@ -561,7 +561,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         Process::new('chown')
                ->setExecutionDirectory($directory)
                ->setSudo(true)
-               ->addArguments(['www-data:www-data', '.', '-R', ])
+               ->appendArguments(['www-data:www-data', '.', '-R', ])
                ->executePassthru();
     }
 

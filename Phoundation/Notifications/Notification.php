@@ -763,10 +763,10 @@ FILES variables:
 
             Pho::new()
                ->setPhoCommands('email send')
-               ->addArgument('-h')
-               ->addArguments(['-t', $this->getOverrideEmail() ?? $user->getEmail()])
-               ->addArguments(['-s', $this->getTitle()])
-               ->addArguments(['-b', $message])
+               ->appendArgument('-h')
+               ->appendArguments(['-t', $this->getOverrideEmail() ?? $user->getEmail()])
+               ->appendArguments(['-s', $this->getTitle()])
+               ->appendArguments(['-b', $message])
                ->executeBackground();
 
         } else {
