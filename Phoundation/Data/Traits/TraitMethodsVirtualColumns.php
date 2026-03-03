@@ -195,7 +195,10 @@ trait TraitMethodsVirtualColumns {
 
         // Set all configured columns
         foreach ($configuration['columns'] as $column => $table_column) {
-            $this->set($_object?->get($column), $table_column);
+            // Only try to load up columns that have definitions or that are permitted!
+            if ($this->getDefinitionsObject()->keyExists($column) or $this->columnIsPermitted($column)) {
+                $this->set($_object?->get($column), $table_column);
+            }
         }
 
         return $this;

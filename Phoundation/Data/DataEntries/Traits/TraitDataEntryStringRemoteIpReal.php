@@ -40,12 +40,13 @@ trait TraitDataEntryStringRemoteIpReal
      */
     public function setRemoteIpReal(string|null $remote_ip): static
     {
-        if (strlen($remote_ip) > 48) {
-            throw new OutOfBoundsException(ts('Specified remote_ip_real ":remote_ip" has more than 48 characters', [
-                ':remote_ip' => $remote_ip
-            ]));
+        if ($remote_ip) {
+            if (strlen($remote_ip) > 48) {
+                throw new OutOfBoundsException(ts('Specified remote_ip_real ":remote_ip" has more than 48 characters', [
+                    ':remote_ip' => $remote_ip
+                ]));
+            }
         }
-
 
         return $this->set(get_null($remote_ip), 'remote_ip_real');
     }

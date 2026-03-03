@@ -85,6 +85,7 @@ use Phoundation\Data\Traits\TraitDataMetaEnabled;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
+use Phoundation\Data\Traits\TraitDataReadonlyColumns;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
@@ -164,6 +165,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     use TraitDataColumns;
     use TraitDataPermitValidationFailures;
     use TraitEventHandler;
+    use TraitDataReadonlyColumns;
 
 
     /**
@@ -652,7 +654,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
             if ($this->isNew()) {
                 // The source is still empty! Is the item perhaps available but flagged deleted? Try loading without status?
-                if ($this->ignore_deleted or Session::getUserObject()->hasAllRights('access-deleted')) {
+                if ($this->ignore_deleted or Session::hasAllRights('access-deleted')) {
                     if (array_key_exists('status', $this->identifier)) {
                         // TODO See the @todo comments. This function needs to look for LIKE "deleted%" instead, and must be able to handle multiple results!
                         $identifier = $this->identifier;
@@ -1134,6 +1136,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             }
         }
 
+        $this->checkColumnIsReadonly($key, ts('set column'));
+
         // Make sure that definitions are available or give a clear error on what is going on
         if (empty($this->_definitions)) {
             if ($this->is_initialized) {
@@ -1452,7 +1456,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     throw DataEntryNoIdentifierSpecifiedException::new(tr('Cannot load ":class" DataEntry object, it has no identifier specified', [
                         ':class'  => static::class,
                     ]))->addData([
-                        'class'  => static::class,
+                        ':class'  => static::class,
                     ]);
             }
         }
@@ -1588,9 +1592,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
      *
-     * @return static
+     * @return static|null
      */
-    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): static
+    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static
     {
         return $this->load($identifier, EnumLoadParameters::this, EnumLoadParameters::null);
     }

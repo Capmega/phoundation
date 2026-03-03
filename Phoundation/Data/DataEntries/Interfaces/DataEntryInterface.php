@@ -1134,9 +1134,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
      *
-     * @return static
+     * @return static|null
      */
-    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): static;
+    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static;
 
     /**
      * Loads data into this DataEntry object that matches specified identifier, or NULL if no identifier was specified, or THIS if it does not exist
