@@ -1612,8 +1612,8 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function round(EnumDateTimeSegment $segment): static
     {
-        $date = $this->format('Y m d H i s v u');
-        $date = explode(' ', $date);
+        $date = $this->format('Y-m-d-H-i-s-v-u');
+        $date = explode('-', $date);
 
         switch ($segment) {
             case EnumDateTimeSegment::millennium:
@@ -1675,8 +1675,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function makeDayBegin(): static
     {
-        $date = $this->format('Y m d');
-        $date = explode(' ', $date);
+        $date = $this->format('Y-m-d');
+
+        $date = explode('-', $date);
         $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
         $this->setTime(0, 0, 0, 0);
 
@@ -1691,8 +1692,8 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function makeDayEnd(): static
     {
-        $date = $this->format('Y m d');
-        $date = explode(' ', $date);
+        $date = $this->format('Y-m-d');
+        $date = explode('-', $date);
 
         $this->setDate((int) $date[0], (int) $date[1], (int) $date[2]);
         $this->setTime(23, 59, 59, 999999);
@@ -1710,8 +1711,8 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      */
     public function makeCurrentTime(DateTimeZone|PhoDateTimeZone|string|null $timezone = null): static
     {
-        $time = PhoDateTime::new('now', $timezone ?? $this->getTimezone())->format('H i s u');
-        $time = explode(' ', $time);
+        $time = PhoDateTime::new('now', $timezone ?? $this->getTimezone())->format('H-i-s-u');
+        $time = explode('-', $time);
 
         $this->setTime((int) $time[0], (int) $time[1], (int) $time[2], (int) $time[3]);
 
