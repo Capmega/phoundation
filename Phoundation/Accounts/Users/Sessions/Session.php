@@ -1261,9 +1261,6 @@ class Session implements SessionInterface
 //        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
-        // Register the user session
-        UserSession::newOpen(session_id(), Session::getUserObject()->getId(), Session::$domain, Request::getRemoteIpAddress(), Request::getRemoteIpAddress());
-
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
             $_SESSION['user']['timezone'] = config()->get('timezone.display', 'UTC');
