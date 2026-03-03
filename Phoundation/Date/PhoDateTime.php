@@ -436,19 +436,19 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
         }
 
         $return = match ($format) {
-            EnumDateFormat::user_time       => Session::getLocaleObject()->getTimeFormatPhp(),
-            EnumDateFormat::user_date       => Session::getLocaleObject()->getDateFormatPhp(),
-            EnumDateFormat::user_datetime   => Session::getLocaleObject()->getDateTimeFormatPhp(),
-            EnumDateFormat::human_time      => config()->getString('locale.dates.formats.human.time'    , PhoDateTimeFormats::getDefaultTimeFormatPhp(), true),
-            EnumDateFormat::human_date      => config()->getString('locale.dates.formats.human.date'    , PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
-            EnumDateFormat::human_datetime  => config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
-            EnumDateFormat::iso_date,
-            EnumDateFormat::system_date,
-            EnumDateFormat::mysql_date      => 'Y-m-d',
-            EnumDateFormat::iso_date_time,
-            EnumDateFormat::mysql_datetime  => 'Y-m-d>>DATETIMESEPARATOR<<H:i:s',
-            EnumDateFormat::file            => 'ymd-His',
-            default                         => null,
+            EnumDateFormat::user_time, 'user_time'                    => Session::getLocaleObject()->getTimeFormatPhp(),
+            EnumDateFormat::user_date, 'user_date'                    => Session::getLocaleObject()->getDateFormatPhp(),
+            EnumDateFormat::user_datetime, 'user_datetime'            => Session::getLocaleObject()->getDateTimeFormatPhp(),
+            EnumDateFormat::human_time, 'human_time'                  => config()->getString('locale.dates.formats.human.time'    , PhoDateTimeFormats::getDefaultTimeFormatPhp(), true),
+            EnumDateFormat::human_date, 'human_date'                  => config()->getString('locale.dates.formats.human.date'    , PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
+            EnumDateFormat::human_datetime, 'human_datetime'          => config()->getString('locale.dates.formats.human.datetime', PhoDateTimeFormats::getDefaultDateFormatPhp(), true),
+            EnumDateFormat::iso_date, 'iso_date',
+            EnumDateFormat::system_date, 'system_date',
+            EnumDateFormat::mysql_date, 'mysql_date'                  => 'Y-m-d',
+            EnumDateFormat::iso_date_time, 'iso_date_time',
+            EnumDateFormat::mysql_datetime, 'mysql_datetime', 'mysql' => 'Y-m-d>>DATETIMESEPARATOR<<H:i:s',
+            EnumDateFormat::file, 'file'                              => 'ymd-His',
+            default                                                   => $format, // Return the specific format as-is
         };
 
         if ($return === null) {
@@ -457,13 +457,13 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
         }
 
         return match ($format) {
-            EnumDateFormat::iso_date,
-            EnumDateFormat::system_date,
-            EnumDateFormat::mysql_date,
-            EnumDateFormat::iso_date_time,
-            EnumDateFormat::mysql_datetime,
-            EnumDateFormat::file            => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide, ' '),
-            default                         => PhoDateTimeFormats::cleanDateFormat($return, $width),
+            EnumDateFormat::iso_date, 'iso_date',
+            EnumDateFormat::system_date, 'system_date',
+            EnumDateFormat::mysql_date, 'mysql_date',
+            EnumDateFormat::iso_date_time, 'iso_date_time',
+            EnumDateFormat::mysql_datetime, 'mysql_datetime',
+            EnumDateFormat::file, 'file'                      => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide, ' '),
+            default                                           => PhoDateTimeFormats::cleanDateFormat($return, $width),
         };
     }
 
