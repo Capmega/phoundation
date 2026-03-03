@@ -70,15 +70,17 @@ trait TraitDataReadonlyColumns
     public function checkColumnIsReadonly(string $column, string $action): static
     {
         if (!$this->isLoading()) {
-            if ($this->getColumnIsReadonly($column)) {
-                if (!$this->isNew()) {
-                    throw DataEntryColumnReadonlyException::new(tr('Unable to perform action ":action", the column ":column" in the ":object" object is readonly', [
-                        ':action' => $action,
-                        ':column'  => $column,
-                        ':object' => Strings::fromReverse(static::class, '\\'),
-                    ]))->setData([
-                        'column' => $column,
-                    ]);
+            if (!$this->isResolvingVirtualColumn()) {
+                if ($this->getColumnIsReadonly($column)) {
+                    if (!$this->isNew()) {
+                        throw DataEntryColumnReadonlyException::new(tr('Unable to perform action ":action", the column ":column" in the ":object" object is readonly', [
+                            ':action' => $action,
+                            ':column'  => $column,
+                            ':object' => Strings::fromReverse(static::class, '\\'),
+                        ]))->setData([
+                            'column' => $column,
+                        ]);
+                    }
                 }
             }
         }

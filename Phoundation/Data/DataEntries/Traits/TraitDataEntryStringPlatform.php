@@ -41,14 +41,15 @@ trait TraitDataEntryStringPlatform
      */
     public function setPlatform(EnumPlatformType|string|null $platform): static
     {
-        if (is_object($platform)) {
-            $platform = $platform->value;
+        if ($platform) {
+            if (is_object($platform)) {
+                $platform = $platform->value;
 
-        } else {
-            // Test of the specified platform is valid
-            $platform = EnumPlatformType::tryFrom($platform)->value;
+            } else {
+                // Test of the specified platform is valid
+                $platform = EnumPlatformType::from($platform)->value;
+            }
         }
-
 
         return $this->set(get_null($platform), 'platform');
     }

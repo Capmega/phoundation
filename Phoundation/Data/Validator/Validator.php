@@ -55,6 +55,7 @@ use Phoundation\Data\Traits\TraitDataMaxStringSize;
 use Phoundation\Data\Traits\TraitDataMetaColumns;
 use Phoundation\Data\Traits\TraitDataMethodPickValidatorInterface;
 use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
+use Phoundation\Exception\PhoException;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Validator\Exception\KeyAlreadySelectedException;
 use Phoundation\Data\Validator\Exception\NoKeySelectedException;
@@ -731,13 +732,33 @@ abstract class Validator extends IteratorBase implements ValidatorInterface
     {
         if ($this->test_count > 0) {
             // Cannot NOT validate, validation Tests have already been executed on it.
-            throw new OutOfBoundsException(tr('Cannot skip validation Tests on key ":key", there have already been ":count" validation Tests been executed on it', [
+            throw new OutOfBoundsException(tr('Cannot skip validation tests on key ":key", there have already been ":count" validation tests executed on it', [
                 ':key'   => $this->selected_field,
                 ':count' => $this->test_count
             ]));
         }
 
         $this->test_count         = PHP_INT_MIN;
+        $this->content_test_count = PHP_INT_MIN;
+        return $this;
+    }
+
+
+    /**
+     * This method will allow the currently selected key to pass without performing any validation Tests
+     *
+     * @return static
+     */
+    public function doNotValidateContent(): static
+    {
+        if ($this->content_test_count > 0) {
+            // Cannot NOT validate, validation Tests have already been executed on it.
+            throw new OutOfBoundsException(tr('Cannot skip validation tests on key ":key", there have already been ":count" content validation tests executed on it', [
+                ':key'   => $this->selected_field,
+                ':count' => $this->test_count
+            ]));
+        }
+
         $this->content_test_count = PHP_INT_MIN;
         return $this;
     }

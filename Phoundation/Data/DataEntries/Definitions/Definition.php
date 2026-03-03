@@ -108,7 +108,7 @@ class Definition implements DefinitionInterface
     /**
      * Validations to execute to ensure
      */
-    protected array $validations = [];
+    protected array $_validations = [];
 
     /**
      * Definitions for this Definition
@@ -1011,6 +1011,19 @@ class Definition implements DefinitionInterface
     public function getColumn(): ?string
     {
         return get_safe_typed('string', $this->source, 'column');
+    }
+
+
+    /**
+     * Returns true if this Definition is for the specified column
+     *
+     * @param string|null $column The column name to test
+     *
+     * @return bool
+     */
+    public function hasColumn(?string $column): bool
+    {
+        return $this->getColumn() === $column;
     }
 
 
@@ -2216,17 +2229,19 @@ class Definition implements DefinitionInterface
 
             case EnumInputType::array_json:
                 $this->setElement(EnumElement::textarea, false)
+                     ->clearValidationFunctions()
                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                         $_validator->sanitizeForceArray(',')
-                                   ->sanitizeEncodeJson();
+                         // TODO Reenable some sort of validations! This field currently has ZERO validations? Seriously?
+                         $_validator->doNotValidate();
                      }, 'array_json');
                 break;
 
             case EnumInputType::array_serialized:
                 $this->setElement(EnumElement::textarea)
+                     ->clearValidationFunctions()
                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                         $_validator->sanitizeForceArray(',')
-                                   ->sanitizeEncodeSerialized();
+                         // TODO Reenable some sort of validations! This field currently has ZERO validations? Seriously?
+                         $_validator->doNotValidate();
                      }, 'array_serialized');
                 break;
 
@@ -2387,7 +2402,7 @@ class Definition implements DefinitionInterface
      */
     public function clearValidationFunctions(): static
     {
-        $this->validations = [];
+        $this->_validations = [];
         return $this;
     }
 
@@ -2413,11 +2428,11 @@ class Definition implements DefinitionInterface
 
         if ($name) {
             // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
-            $this->validations[$name] = $function;
+            $this->_validations[$name] = $function;
 
         } else {
             // Add the validation for this column, but wrap it in a lambda function that will also set content test as done
-            $this->validations[] = $function;
+            $this->_validations[] = $function;
         }
 
         return $this;
@@ -3792,8 +3807,8 @@ class Definition implements DefinitionInterface
 
         if ($this->validateProcessNoValidationOrDefaults($_validator, $column)) {
             // Apply all validations
-            foreach ($this->validations as $validation) {
-                $validation($_validator);
+            foreach ($this->_validations as $_validation) {
+                $_validation($_validator);
             }
         }
 

@@ -1155,4 +1155,20 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return static|null
      */
     public function loadNullOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static;
+
+    /**
+     * Returns true if this DataEntry object is currently in the process of loading data
+     *
+     * @return bool
+     */
+    public function isResolvingVirtualColumn(): bool;
+
+    /**
+     * Returns the value for the specified flag
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function getFlag(string $flag): bool;
 }

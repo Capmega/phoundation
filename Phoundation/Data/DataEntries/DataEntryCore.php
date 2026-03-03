@@ -2200,6 +2200,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function setSource(DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source = null, array|null $execute = null, bool $filter_meta = false): static
     {
         $this->ensureMetaColumns();
+
         $this->is_loading = true;
         $this->source     = [];
 
@@ -5146,6 +5147,58 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isLoading(): bool
     {
         return $this->is_loading;
+    }
+
+
+    /**
+     * Returns true if this DataEntry object is currently in the process of loading data
+     *
+     * @return bool
+     */
+    public function isResolvingVirtualColumn(): bool
+    {
+        return array_get_safe($this->flags, 'is_resolving_virtual_column', false);
+    }
+
+
+    /**
+     * Returns the value for the specified flag
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function getFlag(string $flag): bool
+    {
+        return array_get_safe($this->flags, $flag, false);
+    }
+
+
+    /**
+     * Sets the specified flag
+     *
+     * @param string $flag  The flag to set
+     *
+     * @return static
+     */
+    protected function setFlag(string $flag): static
+    {
+        $this->flags[$flag] = true;
+        return $this;
+    }
+
+
+    /**
+     * Clears the specified flag
+     *
+     * @param string $flag  The flag to clear
+     *
+     * @return static
+     */
+    protected function clearFlag(string $flag): static
+    {
+        unset($this->flags[$flag]);
+        return $this;
     }
 
 

@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Data\DataEntries\Traits;
 
-
 use Phoundation\Exception\OutOfBoundsException;
 
 trait TraitDataEntryIntegerIncidentsId
@@ -41,10 +40,12 @@ trait TraitDataEntryIntegerIncidentsId
      */
     public function setIncidentsId(int|null $id): static
     {
-        if ($id <= 0) {
-            throw new OutOfBoundsException(ts('The specified incidents_id ":incidents_id" is negative, which is not allowed as it must be a database id', [
-                ':incidents_id' => $id
-            ]));
+        if ($id !== null) {
+            if ($id <= 0) {
+                throw new OutOfBoundsException(ts('The specified incidents_id ":incidents_id" is negative, which is not allowed as it must be a database id', [
+                    ':incidents_id' => $id
+                ]));
+            }
         }
 
         return $this->set(get_null($id), 'incidents_id');
