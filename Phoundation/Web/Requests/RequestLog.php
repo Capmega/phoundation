@@ -17,14 +17,15 @@ declare(strict_types=1);
 
 namespace Phoundation\Web\Requests;
 
+use Phoundation\Core\Core;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryAction;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCookies;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryResponseAction;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryHeaders;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryHttpCode;
@@ -39,7 +40,9 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Web\Html\Enums\EnumElement;
+use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Requests\Interfaces\RequestLogInterface;
 
 
@@ -48,7 +51,7 @@ class RequestLog extends DataEntry implements RequestLogInterface
     use TraitDataEntryMethod;
     use TraitDataEntryUrl;
     use TraitDataEntryStringDomain;
-    use TraitDataEntryAction;
+    use TraitDataEntryResponseAction;
     use TraitDataEntryHttpCode;
     use TraitDataEntryStringGlobalId;
     use TraitDataEntryStringLocalId;
@@ -97,6 +100,35 @@ class RequestLog extends DataEntry implements RequestLogInterface
 
 
     /**
+     * Generates a new request object from the request data and saves it to the database, then returns it
+     *
+     * @param string|null $comments Optional comments for this request
+     *
+     * @return static
+     */
+    public static function saveCurrent(?string $comments = null): static
+    {
+        return static::new()
+                     ->setPid(Core::getPid())
+                     ->setLocalId(Core::getLocalId())
+                     ->setGlobalId(Core::getGlobalId())
+                     ->setPlatform(Core::getPlatform())
+                     ->setRemoteIp(Request::getRemoteIpAddress())
+                     ->setRemoteIpReal(Request::getRemoteIpAddressReal())
+                     ->setMethod(Request::getRequestMethod())
+                     ->setUrl(Request::getUrl())
+                     ->setDomain(Request::getDomain())
+                     ->setAction(Response::getAction())
+                     ->setHttpCode(Response::getHttpCode())
+                     ->setIncidentsId(Response::getIncidentsId())
+                     ->setCookies($_COOKIE)
+                     ->setPost(PostValidator::getBackup())
+                     ->setHeaders(Request::getHeaders()->getSource())
+                     ->setComments($comments)
+                     ->save();
+    }
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $_definitions
@@ -123,15 +155,15 @@ class RequestLog extends DataEntry implements RequestLogInterface
                                     ->setReadonly(true)
                                     ->setSize(6)
                                     ->setSource([
-                                        'GET'     => 'GET',
-                                        'POST'    => 'POST',
-                                        'PUT'     => 'PUT',
-                                        'DELETE'  => 'DELETE',
-                                        'PATCH'   => 'PATCH',
-                                        'HEAD'    => 'HEAD',
-                                        'OPTIONS' => 'OPTIONS',
-                                        'CONNECT' => 'CONNECT',
-                                        'TRACE'   => 'TRACE',
+                                        'get'     => 'GET',
+                                        'post'    => 'POST',
+                                        'put'     => 'PUT',
+                                        'delete'  => 'DELETE',
+                                        'patch'   => 'PATCH',
+                                        'head'    => 'HEAD',
+                                        'options' => 'OPTIONS',
+                                        'connect' => 'CONNECT',
+                                        'trace'   => 'TRACE',
                                     ]))
 
                     ->add(DefinitionFactory::newDomain()
@@ -195,53 +227,37 @@ class RequestLog extends DataEntry implements RequestLogInterface
                                            ->setMaxLength(16)
                                            ->setSize(3))
 
-                    ->add(DefinitionFactory::newCode('action')
-                                           ->setReadonly(true)
-                                           ->setOptional(true)
-                                           ->setHelpText(tr('Action taken'))
-                                           ->setMaxLength(16)
-                                           ->setSize(3))
-
-                    ->add(Definition::new('url')
-                                    ->setSize(2)
-                                    ->setOptional(true)
-                                    ->setMaxLength(2048)
-                                    ->setCliColumn('--url')
-                                    ->setLabel(tr('URL')))
-
-                    ->add(Definition::new('url')
-                                    ->setSize(2)
-                                    ->setOptional(true)
-                                    ->setMaxLength(2048)
-                                    ->setCliColumn('--url')
-                                    ->setLabel(tr('URL')))
-
+                    ->add(DefinitionFactory::newUrl()
+                                           ->setOptional(true))
+// TODO Re-enable setMaxLength!
                     ->add(Definition::new('headers')
                                     ->setReadonly(true)
                                     ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumInputType::array_json)
                                     ->setLabel(tr('Headers'))
-                                    ->setMaxlength(16_777_215)
+//                                    ->setMaxlength(16_777_215)
                                     ->setRows(10)
                                     ->setSize(12))
 
                     ->add(Definition::new('cookies')
                                     ->setReadonly(true)
                                     ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumInputType::array_json)
                                     ->setLabel(tr('Cookies'))
-                                    ->setMaxlength(16_777_215)
+//                                    ->setMaxlength(16_777_215)
                                     ->setRows(10)
                                     ->setSize(12))
 
                     ->add(Definition::new('post')
                                     ->setReadonly(true)
                                     ->setOptional(true)
-                                    ->setElement(EnumElement::textarea)
+                                    ->setInputType(EnumInputType::array_json)
                                     ->setLabel(tr('POST data'))
-                                    ->setMaxlength(16_777_215)
+//                                    ->setMaxlength(16_777_215)
                                     ->setRows(10)
-                                    ->setSize(12));
+                                    ->setSize(12))
+
+                    ->add(DefinitionFactory::newComments());
 
         return $this;
     }

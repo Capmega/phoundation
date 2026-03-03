@@ -56,8 +56,10 @@ use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumHeaderFooterType;
+use Phoundation\Web\Requests\Enums\EnumRequestActions;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
+use Phoundation\Web\Requests\Exception\ResponseException;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
 use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
@@ -242,6 +244,20 @@ class Response implements ResponseInterface
      */
     protected static bool $direct_output_mode = false;
 
+    /**
+     * Tracks the action taken for this response.
+     *
+     * @var EnumRequestActions|null $action
+     */
+    protected static ?EnumRequestActions $action = null;
+
+    /**
+     * Tracks the optional incidents_id in case an incident was registered for the request
+     *
+     * @var int|null $incidents_id
+     */
+    protected static ?int $incidents_id = null;
+
 
     /**
      * Response class constructor
@@ -258,6 +274,60 @@ class Response implements ResponseInterface
         // Add required page headers
         Response::addConfiguredHeadDataAttribute();
         Response::setCharset(Response::getCharset());
+    }
+
+
+    /**
+     * Returns the optional incidents_id in case an incident was registered for the request
+     *
+     * @note IMPORTANT Currently, requests only support a single incident. If multiple incidents have been reported, only the first incident will be registered!
+     *
+     * @return int|null
+     */
+    public static function getIncidentsId(): ?int
+    {
+        return Response::$incidents_id;
+    }
+
+
+    /**
+     * Returns the optional incidents_id in case an incident was registered for the request
+     *
+     * @note IMPORTANT Currently, requests only support a single incident. If multiple incidents have been reported, only the first incident will be registered!
+     *
+     * @param int|null $incidents_id The database id of the incident that was registered, if any
+     *
+     * @return void
+     */
+    public static function setIncidentsId(?int $incidents_id): void
+    {
+        if (empty(Response::$incidents_id)) {
+            Response::$incidents_id = $incidents_id;
+        }
+    }
+
+
+    /**
+     * Returns the Response action for this Request
+     *
+     * @return EnumRequestActions|null
+     */
+    public static function getAction(): ?EnumRequestActions
+    {
+        return Response::$action;
+    }
+
+
+    /**
+     * Returns the Response action for this Request
+     *
+     * @param EnumRequestActions|null $action The action
+     *
+     * @return void
+     */
+    public static function setAction(?EnumRequestActions $action): void
+    {
+        Response::$action = $action;
     }
 
 
@@ -1596,6 +1666,9 @@ class Response implements ResponseInterface
         //            ]));
         //        }
 
+        // Set Response action to redirected
+        Response::setAction(EnumRequestActions::redirected);
+
         // Build URL
         $_target = Url::new($url)->makeWww();
 
@@ -1885,6 +1958,7 @@ class Response implements ResponseInterface
                 Response::generateHttpHeaders();
                 Response::sendHttpHeaders();
                 Response::sendOutput();
+                Response::setAction(EnumRequestActions::sent_content);
             }
         }
 
@@ -2224,6 +2298,9 @@ class Response implements ResponseInterface
      */
     #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
     {
+        // Register the request
+        RequestLog::saveCurrent();
+
         // If something went really, really wrong...
         if ($sig_kill) {
             exit($exit_message);
