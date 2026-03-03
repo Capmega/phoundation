@@ -543,4 +543,15 @@ interface SqlInterface extends DatabaseInterface
      * @return Sql
      */
     public function setStatus(int $id, ?string $status, string $table): static;
+
+    /**
+     * Connect to the database and do a DB version check.
+     * If the database was already connected, then ignore and continue.
+     * If the database version check fails, then exception
+     *
+     * @param bool $use_database
+     *
+     * @return static
+     */
+    public function connect(bool $use_database = true): static;
 }

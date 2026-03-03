@@ -89,8 +89,8 @@ class Databases
     public static function getConnectorObject(ConnectorInterface|string $connector): ConnectorInterface
     {
         if ($connector instanceof ConnectorInterface) {
-            if (!static::getConnectorsObject()->keyExists($connector->getDisplayName())) {
-                static::getConnectorsObject()->add($connector, $connector->getDisplayName());
+            if (!Databases::getConnectorsObject()->keyExists($connector->getDisplayName())) {
+                Databases::getConnectorsObject()->add($connector, $connector->getDisplayName());
             }
 
             // The specified connector is already an object, return it
@@ -102,7 +102,7 @@ class Databases
         }
 
         // Connectors::get() will automatically load the required connector object if it  is not loaded yet
-        return static::getConnectorsObject()->get($connector);
+        return Databases::getConnectorsObject()->get($connector);
     }
 
 
@@ -113,11 +113,11 @@ class Databases
      */
     public static function getConnectorsObject(): ConnectorsInterface
     {
-        if (empty(static::$connectors)) {
-            static::$connectors = Connectors::new();
+        if (empty(Databases::$connectors)) {
+            Databases::$connectors = Connectors::new();
         }
 
-        return static::$connectors;
+        return Databases::$connectors;
     }
 
 
@@ -159,15 +159,24 @@ class Databases
      */
     protected static function getDatabase(ConnectorInterface|string $connector, string $class, bool $connect = true, bool $use_database = true): SqlInterface|RedisInterface|MemcachedInterface|MongoDb|FileDb|NullDb|ElasticSearchInterface
     {
-        $_connector    = Databases::getConnectorObject($connector);
+        $_connector     = Databases::getConnectorObject($connector);
         $connector_name = $_connector->getDisplayName();
 
-        if (!array_key_exists($connector_name, static::$databases)) {
+        if (!array_key_exists($connector_name, Databases::$databases)) {
             // This connector  is not registered yet, so connect and add it to the "connectors" list
-            static::$databases[$connector_name] = new $class($_connector, $connect, $use_database);
+            Databases::$databases[$connector_name] = new $class($_connector, $connect, $use_database);
         }
 
-        return static::$databases[$connector_name];
+        // The requested connector already exists in the list. If we have $connect = true, make sure that that current connector is connected to its database!
+        $_return = Databases::$databases[$connector_name];
+
+        if ($connect) {
+            if (!$_return->isConnected()) {
+                $_return->connect();
+            }
+        }
+
+        return $_return;
     }
 
 
@@ -190,12 +199,12 @@ class Databases
             $connector_name = $connector_name->value;
         }
 
-        if (!array_key_exists($connector_name, static::$databases)) {
+        if (!array_key_exists($connector_name, Databases::$databases)) {
             // This connector  is not registered yet, so connect and add it to the "connectors" list
-            static::$databases[$connector_name] = new Cache($connector_name, allow_alternate_connector: $allow_alternate_connector);
+            Databases::$databases[$connector_name] = new Cache($connector_name, allow_alternate_connector: $allow_alternate_connector);
         }
 
-        return static::$databases[$connector_name];
+        return Databases::$databases[$connector_name];
     }
 
 
@@ -215,7 +224,7 @@ class Databases
             $connector = 'system';
         }
 
-        return static::getDatabase($connector, Sql::class, $connect, $use_database);
+        return Databases::getDatabase($connector, Sql::class, $connect, $use_database);
     }
 
 
@@ -230,7 +239,7 @@ class Databases
      */
     public static function getMemcached(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): MemcachedInterface
     {
-        return static::getDatabase($connector, Memcached::class, $connect, $use_database);
+        return Databases::getDatabase($connector, Memcached::class, $connect, $use_database);
     }
 
 
@@ -245,7 +254,7 @@ class Databases
      */
     public static function getElasticSearch(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): ElasticSearchInterface
     {
-        return static::getDatabase($connector, ElasticSearch::class, $connect, $use_database);
+        return Databases::getDatabase($connector, ElasticSearch::class, $connect, $use_database);
     }
 
 
@@ -260,7 +269,7 @@ class Databases
      */
     public static function getRedis(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): RedisInterface
     {
-        return static::getDatabase($connector, Redis::class, $connect, $use_database);
+        return Databases::getDatabase($connector, Redis::class, $connect, $use_database);
     }
 
 
@@ -275,7 +284,7 @@ class Databases
      */
     public static function getMongo(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): MongoDb
     {
-        return static::getDatabase($connector, MongoDb::class, $connect, $use_database);
+        return Databases::getDatabase($connector, MongoDb::class, $connect, $use_database);
     }
 
 
@@ -290,7 +299,7 @@ class Databases
      */
     public static function getNullDb(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): NullDb
     {
-        return static::getDatabase($connector, NullDb::class, $connect, $use_database);
+        return Databases::getDatabase($connector, NullDb::class, $connect, $use_database);
     }
 
 
@@ -305,6 +314,6 @@ class Databases
      */
     public static function getFileDb(ConnectorInterface|string $connector, bool $connect = true, bool $use_database = true): FileDb
     {
-        return static::getDatabase($connector, FileDb::class, $connect, $use_database);
+        return Databases::getDatabase($connector, FileDb::class, $connect, $use_database);
     }
 }

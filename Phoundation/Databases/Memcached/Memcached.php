@@ -126,9 +126,9 @@ class Memcached implements MemcachedInterface
     /**
      * Connect to the memcached servers
      *
-     * @return void
+     * @return static
      */
-    protected function connect(): void
+    public function connect(): static
     {
         $this->memcached = new \Memcached();
         $failed = 0;
@@ -167,6 +167,19 @@ class Memcached implements MemcachedInterface
                     )]))
                     ->save();
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Returns true if this memcached driver is connected to memcached databases
+     *
+     * @return bool
+     */
+    public function isConnected(): bool
+    {
+       return (bool) $this->memcached;
     }
 
 

@@ -855,7 +855,7 @@ class Sql implements SqlInterface
      *
      * @return static
      */
-    protected function connect(bool $use_database = true): static
+    public function connect(bool $use_database = true): static
     {
         try {
             if ($this->pdo) {
