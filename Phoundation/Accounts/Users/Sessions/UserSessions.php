@@ -162,13 +162,13 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public static function closeUser(int $users_id): int
     {
         $count    = 0;
-        $sessions = sql()->listKeyValue('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `users_id` = :users_id', [
+        $sessions = sql()->listKeyValue('SELECT `session`, `closed` FROM `accounts_user_sessions` WHERE `users_id` = :users_id', [
             'users_id' => $users_id,
         ]);
 
         if ($sessions) {
-            foreach ($sessions as $session => $stop) {
-                if ($stop) {
+            foreach ($sessions as $session => $closed) {
+                if ($closed) {
                     // Remove the session
                     $count++;
                     UserSession::delete($session);
@@ -176,7 +176,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)], ['users_id' => $users_id]);
+            sql()->update('accounts_user_sessions', ['closed' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)], ['users_id' => $users_id]);
         }
 
         return $count;
@@ -198,8 +198,8 @@ class UserSessions extends DataIterator implements UserSessionsInterface
         ]);
 
         if ($sessions) {
-            foreach ($sessions as $session => $stop) {
-                if ($stop) {
+            foreach ($sessions as $session => $closed) {
+                if ($closed) {
                     // Remove the session
                     $count++;
                     UserSession::delete($session);
@@ -207,7 +207,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
             }
 
             // Register all sessions as closed
-            sql()->update('accounts_user_sessions', ['stop' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)], ['ip' => $ip]);
+            sql()->update('accounts_user_sessions', ['closed' => PhoDateTime::new()->format(EnumDateFormat::mysql_datetime)], ['ip' => $ip]);
         }
 
         return $count;
@@ -219,18 +219,18 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      *
      * The last action is stored in the $_SESSION data, so go over all sessions, check if they still exist in memcached
      *
-     * If not, update the stop to now
+     * If not, update the closed to now
      *
-     * If yes, check the last action, and if that passed $max seconds, update the stop time to now as well
+     * If yes, check the last action, and if that passed $max seconds, update the closed time to now as well
      *
      * @param int|null $max_seconds
      *
      * @return int
      */
-    public static function stopExpired(?int $max_seconds = null): int
+    public static function closeExpired(?int $max_seconds = null): int
     {
         $count       = 0;
-        $sessions    = sql()->query('SELECT `session` FROM `accounts_user_sessions` WHERE `stop` IS NULL');
+        $sessions    = sql()->query('SELECT `session` FROM `accounts_user_sessions` WHERE `closed` IS NULL');
         $max_seconds = $max_seconds ?? config()->getInteger('web.sessions.cookies.lifetime', 0);
 
         while ($session = $sessions->fetch()) {
@@ -238,7 +238,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
 
             if (!$_session->getCode() or !$_session->get('last_activity') or ((time() - $_session->get('last_activity')) > $max_seconds)) {
                 $count++;
-                static::stop($session);
+                static::close($session);
             }
         }
 
@@ -253,9 +253,9 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      *
      * @return bool
      */
-    public static function stop(string $session): bool
+    public static function close(string $session): bool
     {
-        $session_data = sql()->getRow('SELECT `session`, `stop` FROM `accounts_user_sessions` WHERE `session` = :session', [
+        $session_data = sql()->getRow('SELECT `session`, `closed` FROM `accounts_user_sessions` WHERE `session` = :session', [
             'session' => $session,
         ]);
 
@@ -265,9 +265,9 @@ class UserSessions extends DataIterator implements UserSessionsInterface
             ]));
         }
 
-        if ($session_data['stop']) {
+        if ($session_data['closed']) {
             // Remove the session
-            UserSession::delete($session);
+            UserSession::new($session)->close();
             return true;
         }
 
@@ -284,9 +284,9 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadActive(): static
     {
         $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
                                               FROM   `accounts_user_sessions` 
-                                              WHERE  `stop` IS NULL');
+                                              WHERE  `closed` IS NULL');
 
         return $this;
     }
@@ -300,7 +300,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadAll(): static
     {
         $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
                                               FROM   `accounts_user_sessions`');
 
         return $this;
@@ -317,7 +317,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadAllForUsersId(int $users_id): static
     {
         $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `users_id` = :users_id', [
                                                   ':users_id' => $users_id
@@ -337,10 +337,10 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadActiveForUsersId(int $users_id): static
     {
         $this->source = sql()->setDebug(true)->listKeyValues('SELECT `code` AS `unique`, 
-                                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
                                                               FROM   `accounts_user_sessions` 
                                                               WHERE  `users_id` = :users_id 
-                                                              AND    `stop` IS NULL', [
+                                                              AND    `closed` IS NULL', [
                                                                   ':users_id' => $users_id
         ]);
 
@@ -358,7 +358,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadAllForIp(string $ip): static
     {
         $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop` 
+                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed` 
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `ip` = :ip', [
                                                   ':ip' => $ip
@@ -378,10 +378,10 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function loadActiveForIp(string $ip): static
     {
         $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `ip`, `start`, `stop`
+                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `ip` = :ip 
-                                              AND    `stop` IS NULL', [
+                                              AND    `closed` IS NULL', [
                                                   ':ip' => $ip
         ]);
 
@@ -398,7 +398,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     {
         return sql()->getColumn('SELECT COUNT(`id`) AS `count` 
                                  FROM   `accounts_user_sessions` 
-                                 WHERE  `stop` IS NULL');
+                                 WHERE  `closed` IS NULL');
     }
 
 

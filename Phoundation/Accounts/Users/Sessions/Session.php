@@ -187,11 +187,11 @@ class Session implements SessionInterface
      */
     public static function getInstance(): static
     {
-        if (!isset(static::$instance)) {
-            static::$instance = new static();
+        if (!isset(Session::$instance)) {
+            Session::$instance = new static();
         }
 
-        return static::$instance;
+        return Session::$instance;
     }
 
 
@@ -232,27 +232,27 @@ class Session implements SessionInterface
             return null;
         }
 
-        if (empty(static::$ip_address)) {
+        if (empty(Session::$ip_address)) {
             // Correctly detect the remote IP
 
             // Set fields to check for IP
             $fields = [
                 'x_real_ip'      => true,
                 'http_client_ip' => true,
-                'remote_addr'    => true,static::$ip_address
+                'remote_addr'    => true,Session::$ip_address
             ];
 
             foreach ($_SERVER as $key => $value) {
                 $key = strtolower($key);
 
                 if (array_key_exists($key, $fields)) {
-                    static::$ip_address = $value;
+                    Session::$ip_address = $value;
                     break;
                 }
             }
         }
 
-        return static::$ip_address;
+        return Session::$ip_address;
     }
 
 
@@ -303,7 +303,7 @@ class Session implements SessionInterface
      */
     public static function getRedirectObject(): ?UrlInterface
     {
-        return Url::newOrNull(static::getRedirect());
+        return Url::newOrNull(Session::getRedirect());
     }
 
 
@@ -336,7 +336,7 @@ class Session implements SessionInterface
      */
     public static function start(): void
     {
-        if (static::$has_started_up) {
+        if (Session::$has_started_up) {
             Log::warning(ts('Session has already started, not starting again'));
             return;
         }
@@ -357,7 +357,7 @@ class Session implements SessionInterface
      */
     public static function hasStartedUp(): bool
     {
-        return static::$has_started_up;
+        return Session::$has_started_up;
     }
 
 
@@ -368,7 +368,7 @@ class Session implements SessionInterface
      */
     public static function userChanged(): bool
     {
-        return static::$user_changed;
+        return Session::$user_changed;
     }
 
 
@@ -382,9 +382,9 @@ class Session implements SessionInterface
     {
         // :TODO: The next section may be included in the whitelabel domain check
         // Check if the requested domain is allowed
-        static::$domain = $_SERVER['HTTP_HOST'];
+        Session::$domain = $_SERVER['HTTP_HOST'];
 
-        if (!static::$domain) {
+        if (!Session::$domain) {
             // No domain was requested at all, so probably instead of a domain name, an IP was requested. Redirect to
             // the domain name
             Response::redirect();
@@ -392,7 +392,7 @@ class Session implements SessionInterface
 
         // Check the detected domain against the configured domain. If it does not match then check if it is a registered
         // whitelabel domain
-        if (static::$domain === Request::getDomain()) {
+        if (Session::$domain === Request::getDomain()) {
             // This is the primary domain
 
         } else {
@@ -413,7 +413,7 @@ class Session implements SessionInterface
 
                 case 'sub':
                     // White label domains are disabled, but subdomains from the primary domain are allowed
-                    if (Strings::from(static::$domain, '.') !== Request::getDomain()) {
+                    if (Strings::from(Session::$domain, '.') !== Request::getDomain()) {
                         Log::warning(ts('Whitelabels are set to subdomains only, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Request::getDomain(),
@@ -424,14 +424,14 @@ class Session implements SessionInterface
 
                 case 'list':
                     // This domain must be registered in the whitelabels list
-                    static::$domain = sql()->getColumn('SELECT `domain` 
+                    Session::$domain = sql()->getColumn('SELECT `domain` 
                                                         FROM   `whitelabels` 
                                                         WHERE  `domain` = :domain 
                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
                                                               ':domain' => $_SERVER['HTTP_HOST']
                     ]);
 
-                    if (empty(static::$domain)) {
+                    if (empty(Session::$domain)) {
                         Log::warning(ts('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', [
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Request::getDomain(),
@@ -445,7 +445,7 @@ class Session implements SessionInterface
                 default:
                     if (config()->getArrayBoolean('web.domains.whitelabels', false)) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(static::$domain, config()->getArray('web.domains.whitelabels'), true)) {
+                        if (!in_array(Session::$domain, config()->getArray('web.domains.whitelabels'), true)) {
                             Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -457,7 +457,7 @@ class Session implements SessionInterface
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if (static::$domain !== config()->getArrayBoolean('web.domains.whitelabels', false)) {
+                        if (Session::$domain !== config()->getArrayBoolean('web.domains.whitelabels', false)) {
                             Log::warning(ts('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -478,7 +478,7 @@ class Session implements SessionInterface
      */
     public static function getDomain(): string
     {
-        return static::$domain;
+        return Session::$domain;
     }
 
 
@@ -493,9 +493,9 @@ class Session implements SessionInterface
         $supported_domains = config()->get('web.domains');
 
         if (array_key_exists($_SERVER['HTTP_HOST'], $supported_domains)) {
-            static::$domain = $_SERVER['HTTP_HOST'];
+            Session::$domain = $_SERVER['HTTP_HOST'];
 
-            return static::$domain;
+            return Session::$domain;
         }
 
         // No supported domain found, redirect to the primary domain
@@ -594,13 +594,13 @@ class Session implements SessionInterface
                 break;
 
             case 'auto':
-                config()->set('sessions.cookies.domain', static::$domain);
-                ini_set('session.cookie_domain', static::$domain);
+                config()->set('sessions.cookies.domain', Session::$domain);
+                ini_set('session.cookie_domain', Session::$domain);
                 break;
 
             case '.auto':
-                config()->get('web.sessions.cookies.domain', '.' . static::$domain);
-                ini_set('session.cookie_domain', '.' . static::$domain);
+                config()->get('web.sessions.cookies.domain', '.' . Session::$domain);
+                ini_set('session.cookie_domain', '.' . Session::$domain);
                 break;
 
             default:
@@ -616,7 +616,7 @@ class Session implements SessionInterface
                     $test = config()->getStringBoolean('web.sessions.cookies.domain');
                 }
 
-                if (!str_contains(static::$domain, $test)) {
+                if (!str_contains(Session::$domain, $test)) {
                     Notification::new()
                                 ->setUrl(Url::new('reports/security/incidents.html')->makeWww())
                                 ->setMode(EnumDisplayMode::warning)
@@ -626,7 +626,7 @@ class Session implements SessionInterface
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
                                     ':domain'         => Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'),
                                     ':cookie_domain'  => config()->getStringBoolean('web.sessions.cookies.domain'),
-                                    ':current_domain' => static::$domain,
+                                    ':current_domain' => Session::$domain,
                                 ]))
                                 ->send();
                     Response::redirect(PROTOCOL . Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'));
@@ -817,18 +817,18 @@ class Session implements SessionInterface
             ]), 3);
 
             session_start();
-            static::$open = true;
+            Session::$open = true;
 
             Log::success(ts('Started session ":session"', [
                 ':session' => session_id() ?: 'new',
             ]), 2);
 
         } catch (PhpException $e) {
-            static::handleSessionStartException($e);
+            Session::handleSessionStartException($e);
         }
 
-        static::$user              = null;
-        static::$impersonated_user = null;
+        Session::$user              = null;
+        Session::$impersonated_user = null;
     }
 
 
@@ -853,14 +853,14 @@ class Session implements SessionInterface
                     break;
 
                 default:
-                    static::create();
+                    Session::create();
             }
 
         } else {
             // The session has already been initialized!
             Log::success(ts('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
-                ':user'    => static::getUserObject()->getLogId(),
+                ':user'    => Session::getUserObject()->getLogId(),
                 ':ip'      => Session::getIpAddress(),
             ]));
         }
@@ -876,7 +876,7 @@ class Session implements SessionInterface
     {
         // If any flash messages were stored in the $_SESSION, import them into the flash messages object
         if (isset($_SESSION['flash_messages'])) {
-            static::getFlashMessagesObject()->import((array) $_SESSION['flash_messages']);
+            Session::getFlashMessagesObject()->import((array) $_SESSION['flash_messages']);
             unset($_SESSION['flash_messages']);
         }
     }
@@ -905,7 +905,7 @@ class Session implements SessionInterface
      */
     protected static function processSessionDomains(): void
     {
-        if (array_get_safe($_SESSION, 'domain') !== static::$domain) {
+        if (array_get_safe($_SESSION, 'domain') !== Session::$domain) {
             // Domain mismatch? Okay if this is sub domain, but what if its a different domain? Check whitelist domains?
             // TODO Implement
         }
@@ -1130,7 +1130,7 @@ class Session implements SessionInterface
     protected static function autoSignout(int $auto_signout): void
     {
         Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
-            ':user' => static::getUserObject()->getLogId(),
+            ':user' => Session::getUserObject()->getLogId(),
             ':time' => $auto_signout,
         ]));
 
@@ -1195,7 +1195,7 @@ class Session implements SessionInterface
                 // API's do not do cookies at all
                 // For now, hard code that all API calls will be system user
                 // TODO Improve upon this, API's should allow manual login, shared keys for authentication, etc...
-                static::$user = User::newSystem();
+                Session::$user = User::newSystem();
                 break;
 
             case EnumRequestTypes::ajax:
@@ -1247,22 +1247,22 @@ class Session implements SessionInterface
         Log::success(ts('Created new session ":session" for IP ":ip" with user ":user" from HTTP referrer ":referrer"', [
             ':session'  => session_id(),
             ':ip'       => Session::getIpAddress(),
-            ':user'     => static::getUserObject()->getLogId(),
+            ':user'     => Session::getUserObject()->getLogId(),
             ':referrer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
         ]));
 
         // Initialize the session
         $_SESSION['init']         = microtime(true);
-        $_SESSION['first_domain'] = static::$domain;
-        $_SESSION['domain']       = static::$domain;
-        $_SESSION['first_ip']     = static::getIpAddress();
+        $_SESSION['first_domain'] = Session::$domain;
+        $_SESSION['domain']       = Session::$domain;
+        $_SESSION['first_ip']     = Session::getIpAddress();
 
 //        $_SESSION['client']       = Core::readRegister('system', 'session', 'client');
 //        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
         // Register the user session
-        UserSession::newOpen(session_id(), static::getUserObject()->getId(), static::$domain, Request::getRemoteIpAddress(), Request::getRemoteIpAddress());
+        UserSession::newOpen(session_id(), Session::getUserObject()->getId(), Session::$domain, Request::getRemoteIpAddress(), Request::getRemoteIpAddress());
 
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
@@ -1278,7 +1278,7 @@ class Session implements SessionInterface
 
                 Notification::new()
                             ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                                ':user'     => static::getUserObject()->getLogId(),
+                                ':user'     => Session::getUserObject()->getLogId(),
                                 ':timezone' => $_SESSION['user']['timezone'],
                             ]), $e)->makeWarning())
                             ->send();
@@ -1303,11 +1303,65 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns true if the user has SOME of the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public static function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool
+    {
+        if (empty(Session::$user)) {
+            return false;
+        }
+
+        return Session::getUserObject()->hasSomeRights($rights, $always_match);
+    }
+
+
+    /**
+     * Returns true if the user has ALL the specified rights
+     *
+     * @param array|string $rights
+     * @param string|null  $always_match
+     *
+     * @return bool
+     */
+    public static function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
+    {
+        if (empty(Session::$user)) {
+            return false;
+        }
+
+        return Session::getUserObject()->hasAllRights($rights, $always_match);
+    }
+
+
+    /**
+     * Returns the database id for the current session user
+     *
+     * When the session has no user yet, NULL will be returned which, by definition, is the "system" user
+     *
+     * @return int|null
+     */
+    public static function getUsersId(): ?int
+    {
+        if (empty(Session::$user)) {
+            return null;
+        }
+
+        return Session::getUserObject()->getId();
+    }
+
+
+    /**
      * Returns the user for this session
      *
      * @note Executing this method requires that the session data has already been initialized. If this method is called before session data was initialized, a
      *       SessionNotInitializedException will be thrown
      *
+     * @return UserInterface
      * @return UserInterface
      *
      * @throws SessionNotInitializedException Thrown when this method is accessed before the session itself has been initialized
@@ -1329,26 +1383,26 @@ class Session implements SessionInterface
                 // TODO Add support for session users. For now we return the system user
                 if (Request::isRequestType(EnumRequestTypes::api)) {
                     $busy = false;
-                    return static::getSystemUserObject();
+                    return Session::getSystemUserObject();
                 }
 
                 throw new SessionNotInitializedException(tr('Cannot access session data yet, session has not yet been initialized'));
             }
 
-            $return = static::getSystemUserObject();
+            $return = Session::getSystemUserObject();
 
         } elseif (!empty($_SESSION['user']['impersonate_id'])) {
             // We can return impersonated user IF exists
             // Return impersonated user
-            if (empty(static::$impersonated_user)) {
+            if (empty(Session::$impersonated_user)) {
                 // Load impersonated user into cache variable
-                static::$impersonated_user = static::loadUser(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'));
+                Session::$impersonated_user = Session::loadUser(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'));
             }
 
-            $return = static::$impersonated_user;
+            $return = Session::$impersonated_user;
 
         } else {
-            $return = static::getRealUserObject();
+            $return = Session::getRealUserObject();
         }
 
         $busy = false;
@@ -1369,7 +1423,7 @@ class Session implements SessionInterface
             ]));
         }
 
-        static::$user = static::loadUser($_SESSION['user']['id']);
+        Session::$user = Session::loadUser($_SESSION['user']['id']);
     }
 
 
@@ -1450,7 +1504,7 @@ class Session implements SessionInterface
             $_user = $user_class::authenticate(['email' => $user], $password, EnumAuthenticationAction::signin)
                                 ->authenticateDomain(EnumAuthenticationAction::signin, $domain);
 
-            return static::signInWithUserObject($_user);
+            return Session::signInWithUserObject($_user);
 
         } catch (DataEntryNotExistsException $e) {
             if ($e->getDataKey('class')) {
@@ -1493,7 +1547,7 @@ class Session implements SessionInterface
     {
         // Try to redirect the user back where they were. If the email is different (new, different user) do not do
         // this as we would redirect the new user to what the previous user was doing
-        if (empty($email) or (static::getUserObject()->getEmail() === $email)) {
+        if (empty($email) or (Session::getUserObject()->getEmail() === $email)) {
 
             // If auto-signed-out, check if it has been more than 12 hours (in which case do not redirect back to previous page)
             if (Session::getAutoSignedOut()) {
@@ -1542,21 +1596,33 @@ class Session implements SessionInterface
     /**
      * Authenticate a user with the specified password
      *
-     * @param UserInterface $user
+     * @param UserInterface $_user
      *
      * @return UserInterface
      */
-    public static function signInWithUserObject(UserInterface $user): UserInterface
+    public static function signInWithUserObject(UserInterface $_user): UserInterface
     {
         try {
             // Update the users sign-in and last sign-in information
-            static::$user         = $user;
-            static::$user_changed = true;
+            Session::$user         = $_user;
+            Session::$user_changed = true;
             $auto_sign_out_time   = Session::getAutoSignedOut();
 
             Session::clear();
             Session::updateSignInTracking();
             Session::clearSignInKey();
+
+            session_regenerate_id();
+
+            // Open a new user session
+            UserSession::new()
+                       ->setUserObject($_user)
+                       ->setOpened(PhoDateTime::new())
+                       ->setCode(Session::getId())
+                       ->setDomain(Request::getDomain())
+                       ->setRemoteIp(Request::getRemoteIpAddress())
+                       ->setRemoteIpReal(Request::getRemoteIpAddressReal())
+                       ->save();
 
             if ($auto_sign_out_time) {
                 Session::setAutoSignedOut($auto_sign_out_time);
@@ -1565,15 +1631,15 @@ class Session implements SessionInterface
             Incident::new()
                     ->setType(tr('User sign in'))
                     ->setSeverity(EnumSeverity::notice)
-                    ->setTitle(tr('The user ":user" signed in', [':user' => static::$user->getLogId()]))
-                    ->setDetails(['user' => static::$user->getLogId()])
+                    ->setTitle(tr('The user ":user" signed in', [':user' => Session::$user->getLogId()]))
+                    ->setDetails(['user' => Session::$user->getLogId()])
                     ->setLog(8)
                     ->save();
 
             $_SESSION['first_visit'] = 1;
-            $_SESSION['user']['id']  = static::$user->getId();
+            $_SESSION['user']['id']  = Session::$user->getId();
 
-            return static::$user;
+            return Session::$user;
 
         } catch (DataEntryNotExistsException $e) {
             if ($e->getDataKey('class')) {
@@ -1585,10 +1651,10 @@ class Session implements SessionInterface
                                 ->setType('User does not exist')
                                 ->setSeverity(EnumSeverity::low)
                                 ->setTitle(tr('Cannot sign in user ":user", the user does not exist', [
-                                    ':user' => $user
+                                    ':user' => $_user
                                 ]))
                                 ->setDetails([
-                                    'user'               => $user,
+                                    'user'               => $_user,
                                     'remote_ip'          => Session::getIpAddress(),
                                     'original_remote_ip' => Session::getOriginalIpAddress()
                                 ])
@@ -1656,7 +1722,7 @@ class Session implements SessionInterface
                       SET    `last_sign_in`  = NOW(), 
                              `sign_in_count` = `sign_in_count` + 1
                       WHERE  `id`            = :id', [
-            ':id' => static::$user->getId(),
+            ':id' => Session::$user->getId(),
         ]);
     }
 
@@ -1669,17 +1735,17 @@ class Session implements SessionInterface
     public static function exit(): void
     {
         if (PLATFORM_WEB) {
-            if (static::$sign_out_on_exit) {
-                Session::autoSignOut(static::$sign_out_on_exit);
+            if (Session::$sign_out_on_exit) {
+                Session::autoSignOut(Session::$sign_out_on_exit);
             }
 
             // If this page has flash messages that have not yet been displayed, then store them in the session variable so that they can be displayed on the
             // next page load
-            static::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
+            Session::getFlashMessagesObject()->addSource(Response::getFlashMessagesObject());
 
-            if (static::$flash_messages?->getCount()) {
+            if (Session::$flash_messages?->getCount()) {
                 // There are flash messages in this session static object, export them to $_SESSIONS for the next page load
-                $_SESSION['flash_messages'] = static::$flash_messages->export();
+                $_SESSION['flash_messages'] = Session::$flash_messages->export();
             }
         }
 
@@ -1696,25 +1762,25 @@ class Session implements SessionInterface
     public static function getRealUserObject(): UserInterface
     {
         // Return the real user
-        if (empty(static::$user)) {
+        if (empty(Session::$user)) {
             // User object does not yet exist
             if (array_get_safe(array_get_safe($_SESSION, 'user', []), 'id')) {
-                static::$user = static::loadUser($_SESSION['user']['id']);
+                Session::$user = Session::loadUser($_SESSION['user']['id']);
 
             } else {
                 if (PLATFORM_WEB) {
                     // There is no user, this is a guest session
-                    static::$user = User::newGuest();
+                    Session::$user = User::newGuest();
 
                 } else {
                     // There is no user, this is a system session
-                    static::$user = User::newSystem();
+                    Session::$user = User::newSystem();
                 }
             }
         }
 
         // Return from cache
-        return static::$user;
+        return Session::$user;
     }
 
 
@@ -1726,19 +1792,19 @@ class Session implements SessionInterface
     protected static function getSystemUserObject(): UserInterface
     {
         // Return the system user
-        if (static::$user) {
-            if (!static::$user->isSystem()) {
-                static::$user = null;
+        if (Session::$user) {
+            if (!Session::$user->isSystem()) {
+                Session::$user = null;
             }
         }
 
-        if (empty(static::$user)) {
+        if (empty(Session::$user)) {
             // There is no user, this is a system session
-            static::$user = User::newSystem();
+            Session::$user = User::newSystem();
         }
 
         // Return from cache
-        return static::$user;
+        return Session::$user;
     }
 
 
@@ -1789,11 +1855,11 @@ class Session implements SessionInterface
      */
     public static function getLanguage(string $default = 'en'): string
     {
-        if (empty(static::$language)) {
+        if (empty(Session::$language)) {
             Session::setLanguage();
         }
 
-        return static::$language ?? $default;
+        return Session::$language ?? $default;
     }
 
 
@@ -1810,9 +1876,9 @@ class Session implements SessionInterface
 
         foreach ($requested_languages as $requested_language) {
             if (in_array($requested_language['language'], $supported_languages, true)) {
-                static::$language = $requested_language['language'];
+                Session::$language = $requested_language['language'];
 
-                return static::$language;
+                return Session::$language;
             }
         }
 
@@ -1900,7 +1966,7 @@ class Session implements SessionInterface
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-double')
@@ -1914,7 +1980,7 @@ class Session implements SessionInterface
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUserObject()->getLogId(),
+                        'user'                => Session::getUserObject()->getLogId(),
                         'impersonating'       => User::new()->load($_SESSION['user']['impersonate_id'])->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
@@ -1926,7 +1992,7 @@ class Session implements SessionInterface
         if (!$user->canBeImpersonated()) {
             // Impersonation  is not allowed
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('impersonation-not-allowed')
@@ -1937,10 +2003,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
                     ->setBody(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
-                        ':user' => static::getUserObject()->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUserObject()->getLogId(),
+                        'user'                => Session::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -1948,10 +2014,10 @@ class Session implements SessionInterface
                     ->throw();
         }
 
-        if ($user->getId() === static::getUserObject()->getId()) {
+        if ($user->getId() === Session::getUserObject()->getId()) {
             // We cannot impersonate self!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-self')
@@ -1962,10 +2028,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
                     ->setBody(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
-                        ':user' => static::getUserObject()->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUserObject()->getLogId(),
+                        'user'                => Session::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -1976,7 +2042,7 @@ class Session implements SessionInterface
         if ($user->hasAllRights('god')) {
             // Cannot impersonate a god level user!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-god')
@@ -1987,10 +2053,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::severe)
                     ->setBody(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
-                        ':user' => static::getUserObject()->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => static::getUserObject()->getLogId(),
+                        'user'                => Session::getUserObject()->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -1999,14 +2065,14 @@ class Session implements SessionInterface
         }
 
         // Impersonate the user
-        $original_user = static::getUserObject();
+        $original_user = Session::getUserObject();
         $_SESSION['user']['impersonate_id']  = $user->getId();
         $_SESSION['user']['impersonate_url'] = (string) Url::newCurrent();
 
-        static::$user_changed = true;
+        Session::$user_changed = true;
 
         Authentication::new()
-                      ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                      ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                       ->setAction(EnumAuthenticationAction::startimpersonation)
                       ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                       ->save();
@@ -2058,7 +2124,7 @@ class Session implements SessionInterface
      */
     public static function clearSignKey(): void
     {
-        static::$key  = null;
+        Session::$key  = null;
         unset($_SESSION['sign-key']);
 
         Session::setRedirect();
@@ -2074,31 +2140,31 @@ class Session implements SessionInterface
      */
     public static function setSignKey(SignInKeyInterface $key): UserInterface
     {
-        static::$key  = $key;
-        static::$user = $key->getUserObject();
+        Session::$key  = $key;
+        Session::$user = $key->getUserObject();
 
         Session::clear();
 
         // Update the users sign-in and last sign-in information
-        static::updateSignInTracking();
+        Session::updateSignInTracking();
 
         Incident::new()
                 ->setType(tr('User sign in'))
                 ->setSeverity(EnumSeverity::notice)
                 ->setTitle(tr('The user ":user" signed in using UUID key ":key"', [
                     ':key'  => $key->getUuid(),
-                    ':user' => static::$user->getLogId(),
+                    ':user' => Session::$user->getLogId(),
                 ]))
                 ->setDetails([
                     ':key' => $key->getUuid(),
-                    'user' => static::$user->getLogId(),
+                    'user' => Session::$user->getLogId(),
                 ])
                 ->save();
 
-        $_SESSION['user']['id'] = static::$user->getId();
+        $_SESSION['user']['id'] = Session::$user->getId();
         $_SESSION['sign-key']   = $key->getUuid();
 
-        return static::$user;
+        return Session::$user;
     }
 
 
@@ -2119,10 +2185,10 @@ class Session implements SessionInterface
      */
     public static function getSignInKey(): ?SignInKeyInterface
     {
-        if (empty(static::$key)) {
+        if (empty(Session::$key)) {
             if (isset($_SESSION['sign-key'])) {
                 try {
-                    static::$key = SignInKey::new()->load(['uuid' => $_SESSION['sign-key']]);
+                    Session::$key = SignInKey::new()->load(['uuid' => $_SESSION['sign-key']]);
 
                 } catch (DataEntryNotExistsException) {
                     // This session key does not exist, WTF? If it exists in session, it should exist in the DB. Since it
@@ -2146,7 +2212,7 @@ class Session implements SessionInterface
             }
         }
 
-        return static::$key;
+        return Session::$key;
     }
 
 
@@ -2158,7 +2224,7 @@ class Session implements SessionInterface
     public static function clearSignInKey(): void
     {
         unset($_SESSION['sign-key']);
-        static::$key = null;
+        Session::$key = null;
     }
 
 
@@ -2196,10 +2262,10 @@ class Session implements SessionInterface
                     unset($_SESSION['user']['impersonate_id']);
                     unset($_SESSION['user']['impersonate_url']);
 
-                    static::$user_changed = true;
+                    Session::$user_changed = true;
 
                     Authentication::new()
-                                  ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
                                   ->setCreatedBy($users_id)
                                   ->save();
@@ -2237,7 +2303,7 @@ class Session implements SessionInterface
                                 ->save();
 
                     Authentication::new()
-                                  ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
                                   ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                                   ->setStatus('failed')
@@ -2256,7 +2322,7 @@ class Session implements SessionInterface
             }
 
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => static::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::signout)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->save();
@@ -2265,10 +2331,10 @@ class Session implements SessionInterface
                     ->setType('User session')
                     ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The user ":user" signed out', [
-                        ':user' => static::getUserObject()->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user' => static::getUserObject()->getLogId(),
+                        'user' => Session::getUserObject()->getLogId(),
                     ])
                     ->save();
 
@@ -2286,20 +2352,20 @@ class Session implements SessionInterface
                     ->setType('User session')
                     ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The sign out of user ":user" failed', [
-                        ':user' => static::getUserObject()->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                     ]))
                     ->setDetails([
-                        'user' => static::getUserObject()->getLogId(),
+                        'user' => Session::getUserObject()->getLogId(),
                     ])
                     ->save()
                     ->setNotifyRoles('developer');
         }
 
-        // Stop the session
-        UserSession::new()->loadOrNull(static::getId())?->close();
+        // Close the session
+        UserSession::new()->loadNullOrNull(Session::getId())?->close();
 
         // Attempt sign-out
-        static::$user_changed = !static::getUserObject()->isGuest();
+        Session::$user_changed = !Session::getUserObject()->isGuest();
 
         // Destroy all in the session but the flash messages
         // Return the user that signed out
@@ -2325,8 +2391,8 @@ class Session implements SessionInterface
      */
     public static function isGuest(): bool
     {
-        if (static::isInitialized()) {
-            return static::getUserObject()->isGuest();
+        if (Session::isInitialized()) {
+            return Session::getUserObject()->isGuest();
         }
 
         // Session has not yet initialized, always assume guest / system user
@@ -2341,7 +2407,7 @@ class Session implements SessionInterface
      */
     public static function isUser(): bool
     {
-        return !static::isGuest();
+        return !Session::isGuest();
     }
 
 
@@ -2354,7 +2420,7 @@ class Session implements SessionInterface
      */
     public static function iSpecificUser(UserInterface $user): bool
     {
-        return static::getUserObject()->getId(false) === $user->getId(false);
+        return Session::getUserObject()->getId(false) === $user->getId(false);
     }
 
 
@@ -2368,9 +2434,9 @@ class Session implements SessionInterface
      */
     public static function release(): void
     {
-        if (static::$open) {
+        if (Session::$open) {
             session_write_close();
-            static::$open = false;
+            Session::$open = false;
         }
     }
 
@@ -2382,7 +2448,7 @@ class Session implements SessionInterface
      */
     public static function getMultiFactorAuthenticationObject(): MultiFactorAuthenticationInterface
     {
-        return static::getUserObject()->getMultiFactorAuthenticationObject();
+        return Session::getUserObject()->getMultiFactorAuthenticationObject();
     }
 
 
@@ -2393,11 +2459,11 @@ class Session implements SessionInterface
      */
     public static function getUserSession(): UserSessionInterface
     {
-        if (empty(static::$_user_session)) {
-            static::$_user_session = new UserSession(static::getId());
+        if (empty(Session::$_user_session)) {
+            Session::$_user_session = new UserSession(Session::getId());
         }
 
-        return static::$_user_session;
+        return Session::$_user_session;
     }
 
 
@@ -2519,7 +2585,7 @@ class Session implements SessionInterface
                                              ->validate(false);
 
                         if (array_get_safe($post, '__auto_sign_out_submit_code')) {
-                            static::autoSubmit($auto_sign_out, $post);
+                            Session::autoSubmit($auto_sign_out, $post);
                             return;
                         }
                     }
@@ -2612,7 +2678,7 @@ class Session implements SessionInterface
      */
     public static function getAutoSignOutTimeLeft(): ?float
     {
-        return static::getAutoSignOutTimestamp() - time();
+        return Session::getAutoSignOutTimestamp() - time();
     }
 
 
@@ -2686,7 +2752,7 @@ class Session implements SessionInterface
      */
     public static function getSignOutOnExit(): ?int
     {
-        return static::$sign_out_on_exit;
+        return Session::$sign_out_on_exit;
     }
 
 
@@ -2699,7 +2765,7 @@ class Session implements SessionInterface
      */
     public static function setSignOutOnExit(?int $sign_out_on_exit): void
     {
-        static::$sign_out_on_exit = $sign_out_on_exit;
+        Session::$sign_out_on_exit = $sign_out_on_exit;
     }
 
 
@@ -2778,6 +2844,6 @@ class Session implements SessionInterface
      */
     public static function getStateObject(): SessionStateInterface
     {
-        return static::getUserObject()->getSessionStateObject();
+        return Session::getUserObject()->getSessionStateObject();
     }
 }

@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.11.0';
+        return '0.11.1';
     }
 
 
@@ -1467,17 +1467,17 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `created_by` bigint NULL DEFAULT NULL,
-                    `modified_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    `modified_on` timestamp NULL DEFAULT NULL,
                     `modified_by` bigint NULL DEFAULT NULL,
                     `meta_id` bigint NULL DEFAULT NULL,
                     `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
                     `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
-                    `code` varchar(64) NULL DEFAULT NULL,
-                    `domain` varchar(128) NULL DEFAULT NULL,
-                    `users_id` varchar(64) NULL DEFAULT NULL,
+                    `code` varchar(64) NOT NULL,
+                    `domain` varchar(128) NOT NULL,
+                    `users_id` bigint NOT NULL,
                     `remote_ip` varchar(48) NULL DEFAULT NULL,
                     `remote_ip_real` varchar(48) NULL DEFAULT NULL,
-                    `opened` datetime NULL DEFAULT NULL,
+                    `opened` datetime NOT NULL,
                     `closed` datetime NULL DEFAULT NULL,
 
                 ')->setIndices('                
@@ -1496,9 +1496,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
                 ')->setForeignKeys('
                     CONSTRAINT `fk_accounts_user_sessions_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
-                    CONSTRAINT `fk_accounts_user_sessions_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
+                    CONSTRAINT `fk_accounts_user_sessions_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    CONSTRAINT `fk_accounts_user_sessions_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
+        })->addUpdate('0.11.1', function () {
+            // Make sure that the guest email address is a real email address
+            sql()->query('UPDATE `accounts_users` SET email = "guest@phoundation.org" WHERE email = "guest"');
         });
     }
 }

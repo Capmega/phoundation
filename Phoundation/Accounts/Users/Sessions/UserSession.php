@@ -18,7 +18,6 @@ namespace Phoundation\Accounts\Users\Sessions;
 
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
-use Phoundation\Accounts\Users\User;
 use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
@@ -26,9 +25,11 @@ use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedExcepti
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryLastActivity;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
@@ -38,9 +39,12 @@ use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
 
-
 class UserSession extends DataEntry implements UserSessionInterface
 {
+    use TraitDataEntryLastActivity {
+        setLastActivity as protected __setLastActivity;
+    }
+    use TraitDataEntryUser;
     use TraitDataEntryCode;
     use TraitDataEntryStringDomain;
     use TraitDataEntryStringRemoteIp;
@@ -56,7 +60,19 @@ class UserSession extends DataEntry implements UserSessionInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
-        $this->setAllowModify(false);
+
+        $this->setReadonlyColumns([
+                 'opened',
+                 'code',
+                 'domain',
+                 'users_id',
+                 'remote_ip',
+                 'remote_ip_real'
+             ])
+             ->setPermittedColumns([
+                 'data',
+                 'last_activity'
+             ]);
     }
 
 
@@ -224,26 +240,25 @@ class UserSession extends DataEntry implements UserSessionInterface
      * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or DataEntry::getId(), which should return a valid
      *       database id
      *
-     * @param IdentifierInterface|array|string|int|null $identifier              Identifier for the DataEntry object to load. Can be specified with a
-     *                                                                           [column => value] array, though also accepts an integer value which will
-     *                                                                           convert to [id_column => integer_value] or a string value which will convert to
-     *                                                                           [unique_column => string_value]]
+     * @param IdentifierInterface|array|string|int|null $identifier Identifier for the DataEntry object to load. Can be specified with a [column => value]
+     *                                                              array, though also accepts an integer value which will convert to
+     *                                                              [id_column => integer_value] or a string value which will convert to
+     *                                                              [unique_column => string_value]]
      *
-     * @param EnumLoadParameters|null $on_null_identifier                        Specifies how this load method will handle the specified identifier being NULL.
-     *                                                                           Options are: EnumLoadParameters::exception: Throws a
-     *                                                                           DataEntryNoIdentifierSpecifiedException EnumLoadParameters::null: Will return
-     *                                                                           NULL EnumLoadParameters::this: Will return the object as-is, without loading
-     *                                                                           anything).
+     * @param EnumLoadParameters|null $on_null_identifier           Specifies how this load method will handle the specified identifier being NULL. Options are:
+     *                                                              EnumLoadParameters::exception: Throws a DataEntryNoIdentifierSpecifiedException
+     *                                                              EnumLoadParameters::null: Will return NULL
+     *                                                              EnumLoadParameters::this: Will return the object as-is, without loading anything).
      *
-     *                                                                           Defaults to EnumLoadParameters::exception
+     *                                                              Defaults to EnumLoadParameters::exception
      *
-     * @param EnumLoadParameters|null $on_not_exists                             Specifies how this load method will handle the specified identifier not
-     *                                                                           existing in the database. Options are: EnumLoadParameters::exception: Throws a
-     *                                                                           DataEntryNotExistsException. EnumLoadParameters::null: Returns NULL
-     *                                                                           EnumLoadParameters::this Returns this, the object as-is, without loading
-     *                                                                           anything.
+     * @param EnumLoadParameters|null $on_not_exists                Specifies how this load method will handle the specified identifier not existing in the
+     *                                                              database. Options are:
+     *                                                              EnumLoadParameters::exception: Throws a DataEntryNotExistsException.
+     *                                                              EnumLoadParameters::null: Returns NULL
+     *                                                              EnumLoadParameters::this Returns this, the object as-is, without loading anything.
      *
-     *                                                                           Defaults to EnumLoadParameters::exception
+     *                                                              Defaults to EnumLoadParameters::exception
      *
      * @return static|null
      *
@@ -254,19 +269,23 @@ class UserSession extends DataEntry implements UserSessionInterface
      */
     public function load(IdentifierInterface|int|array|string|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static
     {
-        parent::load($identifier, $on_null_identifier, $on_not_exists);
+        $result = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
-        $handler = $handler ?? ini_get('session.save_handler');
-        $data    = match ($handler) {
-            'memcached' => mc('sessions')->get($this->getCode()),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
-            ''          => throw new SessionException(tr('No session save handler configured')),
-            default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
-                ':handler' => $handler,
-            ])),
-        };
+        if ($result) {
+            $handler = $handler ?? ini_get('session.save_handler');
+            $data    = match ($handler) {
+                'memcached' => mc('sessions')->get($this->getCode()),
+                'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
+                ''          => throw new SessionException(tr('No session save handler configured')),
+                default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+                    ':handler' => $handler,
+                ])),
+            };
 
-        return $this->addData($data);
+            return $this->addData($data);
+        }
+
+        return null;
     }
 
 
@@ -499,14 +518,11 @@ class UserSession extends DataEntry implements UserSessionInterface
                 // Decode the  session first
                 $session = $this->unserialize($session);
             }
-showdie($session);
+
             // Ensure the session exists!
-            $this->source['data']          = UserSession::new($session['code'], false)->getSource();
-            $this->source['user']          = User::new()->loadNull(array_get_safe(array_get_safe($session['data'], 'user'), 'id'));
-            $this->source['last_activity'] = array_get_safe($session['data'], 'last_activity') ?? array_get_safe($session, 'closed') ?? array_get_safe($session, 'opened');
+            $this->source['data']          = $session;
+            $this->source['last_activity'] = array_get_safe($session, 'last_activity') ?? array_get_safe($session, 'closed') ?? array_get_safe($session, 'opened');
             $this->source['last_activity'] = PhoDateTime::new($this->source['last_activity']);
-            $this->source['opened']        = PhoDateTime::new($session['opened']);
-            $this->source['closed']        = PhoDateTime::new($session['closed']);
         }
 
         return $this;
@@ -544,14 +560,12 @@ throw new UnderConstructionException();
                      ->add(DefinitionFactory::newDateTime('opened')
                                             ->setReadonly(true)
                                             ->setOptional(true)
-                                            ->setMaxLength(4)
                                             ->setLabel(tr('opened'))
                                             ->setSize(3))
 
                      ->add(DefinitionFactory::newDateTime('closed')
                                             ->setReadonly(true)
-                                             ->setOptional(true)
-                                            ->setMaxLength(4)
+                                            ->setOptional(true)
                                             ->setLabel(tr('Closed'))
                                             ->setSize(3))
 

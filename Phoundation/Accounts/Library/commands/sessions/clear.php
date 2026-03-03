@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()->validate();
 
 
 // Stop all expired sessions
-UserSessions::new()->stopExpired();
+UserSessions::new()->closeExpired();

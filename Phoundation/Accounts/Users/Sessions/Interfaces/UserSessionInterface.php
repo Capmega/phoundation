@@ -2,6 +2,7 @@
 
 namespace Phoundation\Accounts\Users\Sessions\Interfaces;
 
+use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Sessions\UserSession;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -211,4 +212,82 @@ interface UserSessionInterface extends DataEntryInterface
      * @return PhoDateTimeInterface|null
      */
     public function getOpenedObject(): ?PhoDateTimeInterface;
+
+    /**
+     * Sets the session close datetime string or NULL if the session is still open
+     *
+     * @param PhoDateTimeInterface|string|null $close The session close date time
+     *
+     * @return static
+     */
+    public function setOpened(PhoDateTimeInterface|string|null $close = null): static;
+
+    /**
+     * Returns the users_id column
+     *
+     * @return int|null
+     */
+    public function getUsersId(): ?int;
+
+    /**
+     * Sets the users_id column
+     *
+     * @param int|null $id
+     * @return static
+     */
+    public function setUsersId(?int $id): static;
+
+    /**
+     * Returns the users_email column
+     *
+     * @return string|null
+     */
+    public function getUsersEmail(): ?string;
+
+    /**
+     * Sets the users_email column
+     *
+     * @param string|null $email
+     * @return static
+     */
+    public function setUsersEmail(?string $email): static;
+
+    /**
+     * Returns the User Object
+     *
+     * @return UserInterface|null
+     */
+    public function getUserObject(): ?UserInterface;
+
+    /**
+     * Returns the users_id for this user
+     *
+     * @param UserInterface|null $_object
+     *
+     * @return static
+     */
+    public function setUserObject(?UserInterface $_object): static;
+
+    /**
+     * Returns the string containing the last activity
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getLastActivity(): ?string;
+
+    /**
+     * Returns the PhoDateTime object containing the last activity datetime
+     *
+     * @return PhoDateTimeInterface|null
+     */
+    public function getLastActivityObject(): ?PhoDateTimeInterface;
+
+    /**
+     * Sets the string containing the last activity
+     *
+     * @param PhoDateTimeInterface|string|null $last_activity The last_activity value
+     *
+     * @return static
+     */
+    public function setLastActivity(PhoDateTimeInterface|string|null $last_activity): static;
 }

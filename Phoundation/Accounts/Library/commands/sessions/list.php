@@ -46,9 +46,9 @@ OPTIONAL ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-u,--user')->isOptional()->orColumn('users_id,ip')->isEmail()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
-                     ->select('-i,--users-id')->isOptional()->orColumn('user,ip')->isDbId()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
-                     ->select('--ip')->isOptional()->orColumn('user,users_id')->isIpAddress()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
+                     ->select('-u,--user', true)->isOptional()->orColumn('users_id,ip')->isEmail()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
+                     ->select('-i,--users-id', true)->isOptional()->orColumn('user,ip')->isDbId()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
+                     ->select('--ip', true)->isOptional()->orColumn('user,users_id')->isIpAddress()->requiresValueEmpty(ALL, tr('cannot be used in combination with -A,--all'))
                      ->validate();
 
 
@@ -85,6 +85,6 @@ $_sessions->uasort(function ($a, $b) {
 
 
 // Display sessions
-foreach ($_sessions as $identifier => $session) {
-    Log::cli(Strings::size($session['user']?->getLogId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . (array_get_safe($session, 'last_activity')?->setTimezone('user') ?? '-'));
+foreach ($_sessions as $identifier => $_session) {
+    Log::cli(Strings::size($_session->getUsersId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . ($_session->getLastActivityObject()?->setTimezone('user') ?? '-'));
 }

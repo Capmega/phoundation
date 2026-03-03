@@ -11,6 +11,7 @@ use Phoundation\Accounts\Users\Configuration\Interfaces\ConfigurationsInterface;
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
+use Phoundation\Accounts\Users\ProfileImages\ProfileImage;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
@@ -929,4 +930,36 @@ interface UserInterface extends DataEntryInterface
      * @return bool
      */
     public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool;
+
+    /**
+     * Returns the profile image for this user
+     *
+     * @return string|null
+     */
+    public function getProfileImage(): ?string;
+
+    /**
+     * Sets the profile image for this user
+     *
+     * @param string|null $profile_image
+     *
+     * @return static
+     */
+    public function setProfileImage(string|null $profile_image): static;
+
+    /**
+     * Returns the profile_images_id for this user
+     *
+     * @return int|null
+     */
+    public function getProfileImagesId(): ?int;
+
+    /**
+     * Sets the profile_images_id for this user
+     *
+     * @param int|null $profile_images_id
+     *
+     * @return static
+     */
+    public function setProfileImagesId(int|null $profile_images_id): static;
 }
