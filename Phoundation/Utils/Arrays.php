@@ -1253,6 +1253,40 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if the given source array contains the specified column
+     *
+     * A column is either the key in a hash table (the value being the column name) or the value in a numeric array (the keys are just the index number)
+     *
+     * @param IteratorInterface|array $source The source array to test
+     * @param string                  $column The column name to search for
+     *
+     * @return bool
+     */
+    public static function hasColumn(IteratorInterface|array $source, string $column): bool
+    {
+        if (Arrays::isHash($source)) {
+            return array_key_exists($column, $source);
+        }
+
+        return in_array($column, $source);
+    }
+
+
+    /**
+     * Returns true if the specified source array is a hash table, false if it is a normnal array
+     *
+     * @param IteratorInterface|array $source
+     *
+     * @return bool
+     */
+    public static function isHash(IteratorInterface|array $source): bool
+    {
+        $source = Arrays::force($source);
+        return array_keys($source) !== range(0, count($source) - 1);
+    }
+
+
+    /**
      * Prefix all keys in this array with the specified prefix
      *
      * @param array      $source
