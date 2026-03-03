@@ -117,7 +117,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
-            $this->setCreatedBy(Core::getReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
+            $this->setCreatedBy(Session::getUsersId());
         }
 
         if ($identifier instanceof Throwable) {
