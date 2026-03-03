@@ -1631,7 +1631,7 @@ class Url implements UrlInterface
         if (!$redirect->isProjectUrl()) {
             Incident::new()
                     ->setLog(10)
-                    ->setNotifyRoles('developers')
+                    ->setNotifyRoles('developer')
                     ->setType('security')
                     ->setSeverity(EnumSeverity::high)
                     ->setTitle(ts('Encountered redirect to non project page, ignoring'))
@@ -1645,7 +1645,7 @@ class Url implements UrlInterface
         } elseif ($redirect->isRootLevelPage()) {
             Incident::new()
                     ->setLog(10)
-                    ->setNotifyRoles('developers')
+                    ->setNotifyRoles('developer')
                     ->setType('security')
                     ->setSeverity(EnumSeverity::high)
                     ->setTitle(ts('Encountered redirect to root level page, ignoring'))
