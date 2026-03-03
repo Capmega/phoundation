@@ -148,6 +148,7 @@ trait TraitMethodsVirtualColumns {
      * @param DataEntryInterface|null $_object
      *
      * @return static
+     * @todo Update to only set requested keys, not all configured keys (append optional $key in arguments list)
      */
     protected function setVirtualObject(string $table, ?DataEntryInterface $_object = null): static
     {
@@ -161,6 +162,7 @@ trait TraitMethodsVirtualColumns {
         if (empty($_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
+
                 if (empty($identifier)) {
                     // There is no identifier for this object, meaning that all related columns are empty, so the requested object column will be empty also.
                     return $this;
@@ -173,9 +175,9 @@ trait TraitMethodsVirtualColumns {
                 ]), 3);
 
                 $_object = $configuration['class']::new()
-                                                   ->setDebug($this->getDebug())
-                                                   ->setMetaEnabled($this->getMetaEnabled())
-                                                   ->loadNull($identifier);
+                                                  ->setDebug($this->getDebug())
+                                                  ->setMetaEnabled($this->getMetaEnabled())
+                                                  ->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
                 // This means that a column was specified to be checked that does not exist in the Definitions object
@@ -196,7 +198,7 @@ trait TraitMethodsVirtualColumns {
         // Set all configured columns
         foreach ($configuration['columns'] as $column => $table_column) {
             // Only try to load up columns that have definitions or that are permitted!
-            if ($this->getDefinitionsObject()->keyExists($column) or $this->columnIsPermitted($column)) {
+            if ($this->getDefinitionsObject()->keyExists($table_column) or $this->columnIsPermitted($table_column)) {
                 $this->set($_object?->get($column), $table_column);
             }
         }
