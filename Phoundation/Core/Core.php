@@ -83,6 +83,7 @@ use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumRequestActions;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
@@ -651,11 +652,23 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the platform on which Phoundation is running, either "web" or "cli"
+     *
      * @return string
      */
     #[ExpectedValues(values: ['web', 'cli'])] public static function getPlatform(): string
     {
-        return php_sapi_name();
+        static $platform;
+
+        if (empty($platform)) {
+            $platform = php_sapi_name();
+
+            if ($platform !== 'cli') {
+                $platform = 'web';
+            }
+        }
+
+        return $platform;
     }
 
 
@@ -748,7 +761,7 @@ class Core implements CoreInterface
 
                     } catch (Throwable $e) {
                         // Uncaught exception handler for exit
-                        Core::uncaughtExceptionHandler($e);
+                        Core::processUncaughtException($e);
                     }
                 }
 
@@ -1077,41 +1090,37 @@ class Core implements CoreInterface
 
 
     /**
-     * Phoundation uncaught exception handler
-     * *
+     * This method will process uncaught exceptions
+     *
      * This function is called automatically by PHP when an exception was not caught by Phoundation itself.
      *
+     * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
      *
-     * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE WHITE SCREEN, ALWAYS FOLLOW THESE
-     * STEPS:
-     *
-     * When faced with an exception on the web platform, check the DIRECTORY_ROOT/data/log/syslog (or exception log if
-     * you have single_log disabled). In here you can find 99% of the issues. If the syslog file does not give any
-     * information, then try the web server logs as failures that cannot be logged in the syslog will be logged there.
-     * Typically you will find these in /var/log/php and /var/log/apache2 or /var/log/nginx
+     * When faced with an exception on the web platform, check the DIRECTORY_ROOT/data/log/syslog (or exception log if you have single_log disabled). In here
+     * you can find 99% of the issues. If the syslog file does not give any information, then try the web server logs as failures that cannot be logged in the
+     * syslog will be logged there. Typically you will find these in /var/log/php and /var/log/apache2 or /var/log/nginx
      *
      * When facing exceptions on the command line, all exception data will always be printed on the command line itself.
      *
      * If that gives you nothing, then try uncommenting the first line in the method. This will force display the error
      *
-     * The reason that this is normally commented out and that logging or displaying your errors might fail is for
-     * security. Phoundation may not know at the point where your error occurred if it is in a production environment
-     * or not. Either way, you should never need this unless shit somehow really has hit the fan.
+     * The reason that this is normally commented out and that logging or displaying your errors might fail is for security. Phoundation may not know at the
+     * point where your error occurred if it is in a production environment or not. Either way, you should never need this unless shit somehow really has hit
+     * the fan.
      *
      * @param Throwable $e
      *
      * @return never
-     * @note : This function should never be called directly
-     * @todo Refactor uncaught exception handling, its a bloody godawful mess!
+     * @todo Rewrite the uncaught exception handling to log better and display any error (or error page) better. Right now its messy with error displaying and logs are a mess.
      */
-    #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
+    #[NoReturn] public static function processUncaughtException(Throwable $e): never
     {
         // In case of uncaught exceptions, all logging must be turned on
         Log::enable();
 
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
-        Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
+        Core::processUncaughtExceptionAvoidEndlessLoop($e);
 
         // Track state
         $state             = Core::getState();
@@ -1198,7 +1207,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function uncaughtExceptionHandlerAvoidEndlessLoop(Throwable $e): void
+    protected static function processUncaughtExceptionAvoidEndlessLoop(Throwable $e): void
     {
         static $run_executed      = false; // Core::uncaughtExceptionHandler was executed during runtime
         static $shutdown_executed = false; // Core::uncaughtExceptionHandler was executed during runtime
@@ -2837,7 +2846,7 @@ class Core implements CoreInterface
 
         set_exception_handler($enabled ? [
             '\Phoundation\Core\Core',
-            'uncaughtExceptionHandler',
+            'processUncaughtException',
         ] : null);
     }
 
@@ -3120,6 +3129,8 @@ class Core implements CoreInterface
      */
     #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
     {
+        Response::setAction(EnumRequestActions::exception);
+
         // Log full exception data
         Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
             ':class'       => get_class($e),
