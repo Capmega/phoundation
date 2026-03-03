@@ -1479,10 +1479,10 @@ class Session implements SessionInterface
     {
         try {
             if (!Csrf::isEnabled()) {
-                // CSRF generally should be turned on, its a bad idea to have it off!
+                // CSRF generally should be turned on, it is a bad idea to have it off!
                 if (Core::isProductionEnvironment()) {
                     if (Csrf::enabledCheckIncidentIsEnabled()) {
-                        // CSRF is off on production environment, this is a really bad idea!
+                        // CSRF is off on production environment, this is a bad idea!
                         Incident::new()
                                 ->setSeverity(EnumSeverity::high)
                                 ->setType('security')
