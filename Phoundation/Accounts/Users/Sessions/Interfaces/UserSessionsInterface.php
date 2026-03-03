@@ -75,4 +75,11 @@ interface UserSessionsInterface extends DataIteratorInterface
      * @return static
      */
     public function addData(array $sessions_data): static;
+
+    /**
+     * Sorts the entries in this object by last activity
+     *
+     * @return static
+     */
+    public function sortByLastActivity(): static;
 }

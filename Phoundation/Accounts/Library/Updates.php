@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.11.1';
+        return '0.11.2';
     }
 
 
@@ -1485,6 +1485,8 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     UNIQUE KEY `code` (`code`),
                     KEY `created_on` (`created_on`),
                     KEY `created_by` (`created_by`),
+                    KEY `modified_on` (`modified_on`),
+                    KEY `modified_by` (`modified_by`),
                     KEY `status` (`status`),
                     KEY `meta_id` (`meta_id`),
                     KEY `domain` (`domain`),
@@ -1503,6 +1505,17 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.11.1', function () {
             // Make sure that the guest email address is a real email address
             sql()->query('UPDATE `accounts_users` SET email = "guest@phoundation.org" WHERE email = "guest"');
+
+        })->addUpdate('0.11.2', function () {
+            $_table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
+
+            if (!$_table->indexExists('modified_by')) {
+                $_table->alter()->addIndex('KEY `modified_by` (`modified_by`)');
+            }
+
+            if (!$_table->indexExists('modified_on')) {
+                $_table->alter()->addIndex('KEY `modified_on` (`modified_on`)');
+            }
         });
     }
 }

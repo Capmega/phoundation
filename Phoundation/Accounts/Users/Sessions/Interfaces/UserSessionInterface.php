@@ -111,11 +111,11 @@ interface UserSessionInterface extends DataEntryInterface
     /**
      * Adds data to the specified sessions list
      *
-     * @param array|string|null $session
+     * @param array|string|null $data
      *
      * @return static
      */
-    public function addData(array|string|null $session): static;
+    public function addExtraData(array|string|null $data): static;
 
 
     /**
@@ -290,4 +290,20 @@ interface UserSessionInterface extends DataEntryInterface
      * @return static
      */
     public function setLastActivity(PhoDateTimeInterface|string|null $last_activity): static;
+
+    /**
+     * Returns if the specified code is an active session.
+     *
+     * @param string $code The session identifier string to test
+     *
+     * @return bool
+     */
+     public static function isActiveSession(string $code): bool;
+
+    /**
+     * Fetches extra data for this UserSession object from session save handler
+     *
+     * @return array|string|null
+     */
+    public function getExtraData(): array|string|null;
 }

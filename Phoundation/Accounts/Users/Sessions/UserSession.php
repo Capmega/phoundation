@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users\Sessions;
 
+use PDOStatement;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Data\DataEntries\DataEntry;
@@ -23,6 +24,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
+use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryLastActivity;
@@ -31,6 +33,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIp;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringRemoteIpReal;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryUser;
 use Phoundation\Data\Enums\EnumLoadParameters;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Exception\OutOfBoundsException;
@@ -38,6 +41,7 @@ use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Strings;
+use Stringable;
 
 class UserSession extends DataEntry implements UserSessionInterface
 {
@@ -71,7 +75,13 @@ class UserSession extends DataEntry implements UserSessionInterface
              ])
              ->setPermittedColumns([
                  'data',
-                 'last_activity'
+                 'user',
+                 'first_ip',
+                 'first_domain',
+                 'first_domain',
+                 'last_activity',
+                 'previous_page',
+                 'pages_loaded_this_session'
              ]);
     }
 
@@ -227,6 +237,26 @@ class UserSession extends DataEntry implements UserSessionInterface
 
 
     /**
+     * Fetches extra data for this UserSession object from session save handler
+     *
+     * @return array|string|null
+     */
+    public function getExtraData(): array|string|null
+    {
+        $handler = $handler ?? ini_get('session.save_handler');
+
+        return match ($handler) {
+            'memcached' => mc('sessions')->get($this->getCode()),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
+            ''          => throw new SessionException(tr('No session save handler configured')),
+            default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
+                ':handler' => $handler,
+            ])),
+        };
+    }
+
+
+    /**
      * Loads the data for this DataEntry object matching the specified identifier that MUST exist in the database
      *
      * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified object, as long as it exists in the
@@ -272,20 +302,26 @@ class UserSession extends DataEntry implements UserSessionInterface
         $result = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         if ($result) {
-            $handler = $handler ?? ini_get('session.save_handler');
-            $data    = match ($handler) {
-                'memcached' => mc('sessions')->get($this->getCode()),
-                'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
-                ''          => throw new SessionException(tr('No session save handler configured')),
-                default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
-                    ':handler' => $handler,
-                ])),
-            };
-
-            return $this->addData($data);
+            $this->addExtraData($this->getExtraData());
         }
 
         return null;
+    }
+
+
+    /**
+     * Loads the specified data into this DataEntry object
+     *
+     * @param DataEntryInterface|IteratorInterface|PDOStatement|array|string|null $source
+     * @param array|null                                                          $execute
+     * @param bool                                                                $filter_meta
+     *
+     * @return static
+     */
+    public function setSource(DataEntryInterface|IteratorInterface|array|string|PDOStatement|null $source = null, ?array $execute = null, bool $filter_meta = false): static
+    {
+        parent::setSource($source, $execute, $filter_meta);
+        return $this->addExtraData($this->getExtraData());
     }
 
 
@@ -507,22 +543,25 @@ class UserSession extends DataEntry implements UserSessionInterface
     /**
      * Adds data to the specified sessions list
      *
-     * @param array|string|null $session
+     * @param array|string|null $data
      *
      * @return static
      */
-    public function addData(array|string|null $session): static
+    public function addExtraData(array|string|null $data): static
     {
-        if ($session) {
-            if (is_string($session)) {
+        if ($data) {
+            if (is_string($data)) {
                 // Decode the  session first
-                $session = $this->unserialize($session);
+                $data = $this->unserialize($data);
             }
 
             // Ensure the session exists!
-            $this->source['data']          = $session;
-            $this->source['last_activity'] = array_get_safe($session, 'last_activity') ?? array_get_safe($session, 'closed') ?? array_get_safe($session, 'opened');
-            $this->source['last_activity'] = PhoDateTime::new($this->source['last_activity']);
+            $this->source['first_ip']                  = array_get_safe($data, 'first_ip');
+            $this->source['first_domain']              = array_get_safe($data, 'first_domain');
+            $this->source['last_activity']             = array_get_safe($data, 'last_activity') ?? array_get_safe($data, 'closed') ?? array_get_safe($data, 'opened');
+            $this->source['last_activity']             = PhoDateTime::new($this->source['last_activity']);
+            $this->source['previous_page']             = array_get_safe($data, 'previous_page');
+            $this->source['pages_loaded_this_session'] = array_get_safe($data, 'pages_loaded_this_session');
         }
 
         return $this;

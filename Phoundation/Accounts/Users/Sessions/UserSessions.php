@@ -20,6 +20,7 @@ use PDOStatement;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionsInterface;
+use Phoundation\Accounts\Users\User;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -29,6 +30,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Os\Processes\Commands\Find;
+use Phoundation\Utils\Arrays;
 use ReturnTypeWillChange;
 use Stringable;
 
@@ -36,13 +38,13 @@ use Stringable;
 class UserSessions extends DataIterator implements UserSessionsInterface
 {
     /**
-     * UserSessions constructor
+     * UserSession class constructor
      *
      * @param IteratorInterface|array|string|PDOStatement|null $source
      */
-    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null)
-    {
+    public function __construct(IteratorInterface|array|string|PDOStatement|null $source = null) {
         parent::__construct($source);
+        $this->inject_source_directly = false;
     }
 
 
@@ -283,8 +285,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActive(): static
     {
-        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.*
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `closed` IS NULL');
 
@@ -299,8 +300,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAll(): static
     {
-        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.*
                                               FROM   `accounts_user_sessions`');
 
         return $this;
@@ -316,8 +316,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAllForUsersId(int $users_id): static
     {
-        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.*
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `users_id` = :users_id', [
                                                   ':users_id' => $users_id
@@ -336,8 +335,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActiveForUsersId(int $users_id): static
     {
-        $this->source = sql()->setDebug(true)->listKeyValues('SELECT `code` AS `unique`, 
-                                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
+        $this->source = sql()->setDebug(true)->listKeyValues('SELECT `accounts_user_sessions`.*
                                                               FROM   `accounts_user_sessions` 
                                                               WHERE  `users_id` = :users_id 
                                                               AND    `closed` IS NULL', [
@@ -357,8 +355,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadAllForIp(string $ip): static
     {
-        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed` 
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.* 
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `ip` = :ip', [
                                                   ':ip' => $ip
@@ -377,8 +374,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActiveForIp(string $ip): static
     {
-        $this->source = sql()->listKeyValues('SELECT `code` AS `unique`, 
-                                                     `id`, `domain`, `code`, `users_id`, `remote_ip`, `remote_ip_real`, `opened`, `closed`
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.*
                                               FROM   `accounts_user_sessions` 
                                               WHERE  `ip` = :ip 
                                               AND    `closed` IS NULL', [
@@ -435,10 +431,57 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public function addData(array $sessions_data): static
     {
         foreach ($this as $code => $_session) {
-            $this->get($code)->addData(array_get_safe($sessions_data, $code));
+            $this->get($code)->addExtraData(array_get_safe($sessions_data, $code));
         }
 
         return $this;
+    }
+
+
+    /**
+     * Sorts the entries in this object by last activity
+     *
+     * @return static
+     */
+    public function sortByLastActivity(): static
+    {
+        $this->ensureObjects()->uasort(function ($a, $b) {
+            if ($a->getLastActivity() < $b->getLastActivity()) {
+                return 1;
+            }
+
+            if ($a->getLastActivity() > $b->getLastActivity()) {
+                return -1;
+            }
+
+            return 0;
+        });
+
+        return $this;
+    }
+
+
+    /**
+     * Creates and returns a CLI table for the data in this list
+     *
+     * @param array|string|null $columns
+     * @param array             $filters
+     * @param string|null       $id_column
+     *
+     * @return static
+     */
+    public function displayCliTable(array|string|null $columns = null, array $filters = [], ?string $id_column = 'id'): static
+    {
+        $this->ensureObjects();
+
+        if (Arrays::hasColumn($columns, 'user')) {
+            // Add "user" to all objects
+            foreach ($this as $_session) {
+                $_session->set(User::new($_session->getUsersId())->getDisplayId(), 'user');
+            }
+        }
+
+        return parent::displayCliTable($columns, $filters, $id_column);
     }
 
 

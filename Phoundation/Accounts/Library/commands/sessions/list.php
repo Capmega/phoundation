@@ -70,21 +70,12 @@ if (ALL) {
 }
 
 
-// Add user and session data to the list, then order it by last_activity
-$_sessions->uasort(function ($a, $b) {
-    if ($a['last_activity'] < $b['last_activity']) {
-        return 1;
-    }
-
-    if ($a['last_activity'] > $b['last_activity']) {
-        return -1;
-    }
-
-    return 0;
-});
-
-
-// Display sessions
-foreach ($_sessions as $identifier => $_session) {
-    Log::cli(Strings::size($_session->getUsersId() ?? 'guest', 64) . ' ' . Strings::size($identifier, 32) . ' ' . ($_session->getLastActivityObject()?->setTimezone('user') ?? '-'));
-}
+// Order sessions by last_activity and display
+$_sessions->sortByLastActivity()->displayCliTable([
+    'created_on',
+    'domain',
+    'user',
+    'remote_ip',
+    'last_activity',
+    'pages_loaded_this_session',
+]);

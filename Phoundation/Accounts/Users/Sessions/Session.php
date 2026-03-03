@@ -418,17 +418,19 @@ class Session implements SessionInterface
                             ':source' => $_SERVER['HTTP_HOST'],
                             ':target' => Request::getDomain(),
                         ]));
+
                         Response::redirect(PROTOCOL . Request::getDomain());
                     }
+
                     break;
 
                 case 'list':
                     // This domain must be registered in the whitelabels list
                     Session::$domain = sql()->getColumn('SELECT `domain` 
-                                                        FROM   `whitelabels` 
-                                                        WHERE  `domain` = :domain 
-                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
-                                                              ':domain' => $_SERVER['HTTP_HOST']
+                                                         FROM   `whitelabels` 
+                                                         WHERE  `domain` = :domain 
+                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                             ':domain' => $_SERVER['HTTP_HOST']
                     ]);
 
                     if (empty(Session::$domain)) {
@@ -527,7 +529,7 @@ class Session implements SessionInterface
             }
 
             // Sub must either not exist or be an array. Here its neither
-            throw new OutOfBoundsException(tr('Cannot read session key ":key" sub key ":sub-key" because session key is not an array', [
+            throw new OutOfBoundsException(tr('Cannot read session key ":key" sub key ":sub-key" because the session key value is not an array', [
                 ':key'     => $key,
                 ':sub-key' => $sub_key,
             ]));
@@ -1073,7 +1075,7 @@ class Session implements SessionInterface
 
 
     /**
-     * Returns true if there are reasons why the auto sign-out test procedure should be skipped
+     * Returns integer if there are reasons why the auto sign-out test procedure should be skipped, false otherwise
      *
      * Reasons can be:
      *
@@ -1611,6 +1613,7 @@ class Session implements SessionInterface
             Session::clear();
             Session::updateSignInTracking();
             Session::clearSignInKey();
+            Session::updateLastActivityTimestamp();
 
             session_regenerate_id();
 
@@ -2512,12 +2515,12 @@ class Session implements SessionInterface
      */
     public static function getLastActivityTimestamp(): ?float
     {
-        return array_get_safe($_SESSION, 'last_activity');
+        return Session::get('last_activity');
     }
 
 
     /**
-     * Updates last-activity timestamp to the specified amount of seconds ago
+     * Updates last-activity timestamp to the number of seconds ago
      *
      * @param int  $seconds
      * @param bool $force
@@ -2533,7 +2536,7 @@ class Session implements SessionInterface
         }
 
         // Pass auto-sign-out to client too
-        Response::addHeadDataAttribute(Session::get('last_activity'), 'sign-out');
+        Response::addHeadDataAttribute(Session::getLastActivityTimestamp(), 'sign-out');
 
         // Only auto sign-out when last_activity timed out
         Session::tryAutoSignout($auto_sign_out);
