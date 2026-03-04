@@ -453,3 +453,4 @@ interface PhoExceptionInterface extends PoadInterface
      */
     public function hasHints(): bool;
 }
+
