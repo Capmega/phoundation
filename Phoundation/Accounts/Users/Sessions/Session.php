@@ -343,12 +343,31 @@ class Session implements SessionInterface
 
         Log::action(ts('Starting session object'), 1);
 
-        Session::checkDomains();
-        Session::configureCookies();
+        try {
+            Session::checkDomains();
+            Session::configureCookies();
+
+        } catch (PhpException $e) {
+            if (!Session::getConfigIgnoreSessionFail()) {
+                throw $e;
+            }
+        }
+
         Session::resume();
         Session::$has_started_up = true;
 
         Http::setSslDefaultContext();
+    }
+
+
+    /**
+     * Returns true if session failures should be ignored (only possible with debug mode enabled)
+     *
+     * @return bool
+     */
+    public static function getConfigIgnoreSessionFail(): bool
+    {
+        return Debug::isEnabled() and config()->getBoolean('web.sessions.ignore-fail', false);
     }
 
 
