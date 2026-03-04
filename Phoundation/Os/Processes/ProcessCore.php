@@ -69,10 +69,10 @@ abstract class ProcessCore implements ProcessInterface
      */
     public static function newCliScript(?string $command = null, PhoRestrictionsInterface|array|string|null $restrictions = null, ?string $operating_system = null, ?string $packages = null): static
     {
-        $process = static::new('cli', $restrictions, $operating_system, $packages);
-        $process->addArguments(Arrays::force($command, ' '));
+        $_process = static::new('cli', $restrictions, $operating_system, $packages);
+        $_process->appendArguments(Arrays::force($command, ' '));
 
-        return $process;
+        return $_process;
     }
 
 
@@ -84,6 +84,8 @@ abstract class ProcessCore implements ProcessInterface
      * @param callable|null $function
      *
      * @return void
+     *
+     * @throws CommandsException
      */
     protected static function handleException(string $command, Throwable $e, ?callable $function = null): void
     {
@@ -178,7 +180,7 @@ abstract class ProcessCore implements ProcessInterface
         $this->setExecutionMethod(EnumExecuteMethod::returnArray);
 
         if ($this->debug) {
-            Log::printr(Strings::untilReverse($this->getFullCommandLine(), 'exit '));
+            Log::printr($this->getFullCommandLine());
         }
 
         $command = $this->getFullCommandLine();

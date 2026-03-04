@@ -13,12 +13,11 @@ use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImageInterface;
 use Phoundation\Accounts\Users\ProfileImages\Interfaces\ProfileImagesInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
-use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 use Phoundation\Notifications\Interfaces\NotificationInterface;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
-use Stringable;
+
 
 interface UserInterface extends DataEntryInterface
 {
@@ -477,11 +476,11 @@ interface UserInterface extends DataEntryInterface
     /**
      * Sets the redirect for this user
      *
-     * @param UrlInterface|string|null $redirect
+     * @param UrlInterface|string|null $_redirect [null] Sets the redirect URL for this user
      *
      * @return static
      */
-    public function setRedirect(UrlInterface|string|null $redirect ): static;
+    public function setRedirect(UrlInterface|string|null $_redirect = null): static;
 
 
     /**
@@ -604,17 +603,6 @@ interface UserInterface extends DataEntryInterface
      * @return DataEntryFormInterface
      */
     public function getRolesHtmlDataEntryFormObject(string $name = 'roles_id[]'): DataEntryFormInterface;
-
-
-    /**
-     * Save the user to database
-     *
-     * @param bool        $force
-     * @param string|null $comments
-     *
-     * @return static
-     */
-    public function save(bool $force = false, bool $skip_validation = false, ?string $comments = null): static;
 
 
     /**
@@ -780,6 +768,24 @@ interface UserInterface extends DataEntryInterface
      */
     public function getProfileImagesObject(): ProfileImagesInterface;
 
+
+    /**
+     * Returns true if the user has a redirect, or if $_url is specified, if the redirect is the same as the specified URL
+     *
+     * @param UrlInterface|null $_url [null] If specified, will return true if the specified URL matches the current redirect URL for the user. If NULL, will
+     *                                       return true if the User has any redirect at all
+     *
+     * @return bool
+     */
+    public function hasRedirect(?UrlInterface $_url = null): bool;
+
+    /**
+     * Returns the redirect Url object for this user
+     *
+     * @return UrlInterface|null
+     */
+    public function getRedirectObject(): ?UrlInterface;
+
     /**
      * Returns true if this user has the specified password
      *
@@ -885,6 +891,15 @@ interface UserInterface extends DataEntryInterface
     public function sendWelcomeEmail(): static;
 
     /**
+     * Returns true if this user has the specified redirect URL
+     *
+     * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
+     *
+     * @return bool
+     */
+    public function hasSpecifiedRedirect(?UrlInterface $_redirect): bool;
+
+    /**
      * Returns true if the user has SOME of the specified rights
      *
      * @param array|string $rights
@@ -905,18 +920,34 @@ interface UserInterface extends DataEntryInterface
     public function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool;
 
     /**
-     * Returns true if this user has any redirect URL other than NULL
+     * Returns the profile image for this user
      *
-     * @return bool
+     * @return string|null
      */
-    public function hasRedirect(): bool;
+    public function getProfileImage(): ?string;
 
     /**
-     * Returns true if this user has the specified redirect URL
+     * Sets the profile image for this user
      *
-     * @param UrlInterface|null $_redirect [null] The URL that should match the redirect URL for this user
+     * @param string|null $profile_image
      *
-     * @return bool
+     * @return static
      */
-    public function hasSpecifiedRedirect(?UrlInterface $_redirect): bool;
+    public function setProfileImage(string|null $profile_image): static;
+
+    /**
+     * Returns the profile_images_id for this user
+     *
+     * @return int|null
+     */
+    public function getProfileImagesId(): ?int;
+
+    /**
+     * Sets the profile_images_id for this user
+     *
+     * @param int|null $profile_images_id
+     *
+     * @return static
+     */
+    public function setProfileImagesId(int|null $profile_images_id): static;
 }

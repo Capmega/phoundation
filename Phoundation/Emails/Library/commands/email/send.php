@@ -99,10 +99,12 @@ $argv = ArgvValidator::new()
 //    ->send();
 
 
-// Setup PHPMailer
+// Initialize "to"
 $to   = User::new()->load($argv['to']);
-$mail = new PHPMailer();
 
+
+// Initialize PHPMailer object
+$mail          = new PHPMailer();
 $mail->Host    = Email::getDefaultHostname();
 $mail->Port    = Email::getDefaultPort();
 $mail->Subject = $argv['subject'];
@@ -171,5 +173,5 @@ if (!$mail->send()) {
 // Done!
 Log::success(ts('Sent email ":subject" to ":user"', [
     ':subject' => $argv['subject'],
-    ':user'    => $to->getLogId(),
+    ':user'    => $mail->getToAddresses(),
 ]), 10);

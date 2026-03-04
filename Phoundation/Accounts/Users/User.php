@@ -45,9 +45,10 @@ use Phoundation\Accounts\Users\ProfileImages\ProfileImages;
 use Phoundation\Accounts\Users\Sessions\Exception\SessionException;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionInterface;
 use Phoundation\Accounts\Users\Sessions\Interfaces\SessionStateInterface;
+use Phoundation\Accounts\Users\Sessions\Interfaces\UserSessionsInterface;
 use Phoundation\Accounts\Users\Sessions\SessionState;
 use Phoundation\Accounts\Users\Sessions\Session;
-use Phoundation\Accounts\Users\Sessions\Sessions;
+use Phoundation\Accounts\Users\Sessions\UserSessions;
 use Phoundation\Core\Core;
 use Phoundation\Core\Hooks\Hook;
 use Phoundation\Core\Hooks\Interfaces\HookInterface;
@@ -66,7 +67,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryComments;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryData;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
-use Phoundation\Data\DataEntries\Traits\TraitDataEntryDomain;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryStringDomain;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryEmail;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryFirstNames;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryGeo;
@@ -83,7 +84,6 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryUrl;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerificationCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Enums\EnumLoadParameters;
-use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Traits\TraitDataObjectRightsBySeoName;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
@@ -128,7 +128,7 @@ class User extends DataEntry implements UserInterface
     use TraitDataEntryComments;
     use TraitDataEntryData;
     use TraitDataEntryDescription;
-    use TraitDataEntryDomain;
+    use TraitDataEntryStringDomain;
     use TraitDataEntryEmail;
     use TraitDataEntryFirstNames;
     use TraitDataEntryGeo;
@@ -295,7 +295,7 @@ class User extends DataEntry implements UserInterface
      */
     public function isGuest(): bool
     {
-        return array_get_safe($this->source, 'email') === 'guest';
+        return array_get_safe($this->source, 'email') === 'guest@phoundation.org';
     }
 
 
@@ -374,7 +374,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             $user = parent::load($identifier, $on_null_identifier, $on_not_exists);
 
         } catch (DataEntryNotExistsException $e) {
-            if ($this->identifier === ['email' => 'guest']) {
+            if ($this->identifier === ['email' => 'guest@phoundation.org']) {
                 // Keep throwing the exception, the "guest" user will automatically initialize
                 throw $e;
             }
@@ -1292,11 +1292,11 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns an Iterator containing all the sessions for this user
      *
-     * @return IteratorInterface
+     * @return UserSessionsInterface
      */
-    public function getActiveSessions(): IteratorInterface
+    public function getActiveSessions(): UserSessionsInterface
     {
-        return Sessions::getActiveForUsersId($this->getId());
+        return UserSessions::new()->loadActiveForUsersId($this->getId());
     }
 
 
@@ -1326,9 +1326,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function addRoles(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true): static
     {
-        $this->getRolesObject()
-             ->add($value, $key, $skip_null_values);
-
+        $this->getRolesObject()->add($value, $key, $skip_null_values);
         return $this;
     }
 
@@ -1503,7 +1501,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     break;
                 }
 
-                $e = 'guest';
+                $error = 'guest';
                 break;
 
             case 'system':
@@ -1511,16 +1509,18 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     break;
                 }
 
-                $e = 'system';
+                $error = 'system';
                 break;
         }
 
-        if (isset($e)) {
-            // This is a non system user with a reserved name, this is not allowed!
-            throw new ValidationFailedException(tr('The nickname ":name" can only be used for ":e" accounts', [
+        if (isset($error)) {
+            // This is a non-system user with a reserved name, this is not allowed!
+            throw ValidationFailedException::new(tr('The nickname ":name" can only be used for ":e" accounts', [
                 ':name' => $nickname,
-                ':e'    => $e
-            ]));
+                ':e'    => $error
+            ]))->setData([
+                'user' => $this->getSource(),
+            ]);
         }
 
         // GuestUser or SystemUser object in a User object, this is ok
@@ -2043,24 +2043,52 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
 
     /**
+     * Returns true if the user has a redirect, or if $_url is specified, if the redirect is the same as the specified URL
+     *
+     * @param UrlInterface|null $_url [null] If specified, will return true if the specified URL matches the current redirect URL for the user. If NULL, will
+     *                                       return true if the User has any redirect at all
+     *
+     *
+     * @return bool
+     */
+    public function hasRedirect(?UrlInterface $_url = null): bool
+    {
+        if ($_url) {
+            return $_url->makeWww()->getSource() === $this->getRedirectObject()->getSource();
+        }
+
+        return (bool) $this->getRedirect();
+    }
+
+
+    /**
+     * Returns the redirect Url object for this user
+     *
+     * @return UrlInterface|null
+     */
+    public function getRedirectObject(): ?UrlInterface
+    {
+        return Url::newOrNull($this->getRedirect());
+    }
+
+
+    /**
      * Returns the redirect for this user
      *
      * @return string|null
      */
     public function getRedirect(): ?string
     {
-        return $this->getTypesafe('string', 'redirect');
-    }
+        $return = $this->getTypesafe('string', 'redirect');
 
+        if (Session::isInitialized()) {
+            if ($this->getId(false) === Session::getUsersId()) {
+                // We are asking the redirect for the current user, not any random user
+                $return = Session::getRedirectObject()?->getSource() ?? $return;
+            }
+        }
 
-    /**
-     * Returns true if this user has any redirect URL other than NULL
-     *
-     * @return bool
-     */
-    public function hasRedirect(): bool
-    {
-        return (bool) $this->getRedirect();
+        return $return;
     }
 
 
@@ -2080,18 +2108,16 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Sets the redirect for this user
      *
-     * @param UrlInterface|string|null $redirect [null] Sets the redirect URL for this user
+     * @param UrlInterface|string|null $_redirect [null] Sets the redirect URL for this user
      *
      * @return static
      */
-    public function setRedirect(UrlInterface|string|null $redirect = null): static
+    public function setRedirect(UrlInterface|string|null $_redirect = null): static
     {
-        if ($redirect) {
-            // Ensure there is a valid redirect URL
-            $redirect = Url::new($redirect)->makeWww();
-        }
+        $_redirect = Url::newOrNull(get_null($_redirect));
+        $_redirect?->makeWww()->getSource();
 
-        return $this->set(get_null((string) $redirect), 'redirect');
+        return $this->set($_redirect, 'redirect');
     }
 
 
@@ -2742,7 +2768,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         $_user = $this->loadOrThis([
             'status' => 'system',
-            'email'  => 'guest'
+            'email'  => 'guest@phoundation.org',
         ]);
 
         if ($_user !== $this) {
@@ -2751,7 +2777,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         $this->source['redirect'] = null;
-        $this->source['email']    = 'guest';
+        $this->source['email']    = 'guest@phoundation.org';
         $this->source['status']   = 'system';
         $this->source['nickname'] = tr('Guest');
 
@@ -2933,543 +2959,544 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
         $_definitions->get('status')->setNullDisplay(tr('Ok'));
+
         $_definitions->add(Definition::new('remote_id')
                                       ->setOptional(true)
                                       ->setRender(false)
                                       ->setInputType(EnumInputType::number))
 
-                      ->add(Definition::new('last_sign_in')
-                                      ->setOptional(true)
-                                      ->setDisabled(true)
-                                      ->setRender(function() { return !$this->isNew(); })
-                                      ->setInputType(EnumInputType::datetime_local)
-                                      ->setDbNullInputType(EnumInputType::text)
-                                      ->addClasses('text-center')
-                                      ->setSize(3)
-                                      ->setNullDisplay(tr('Never signed yet'))
-                                      ->setLabel('Last sign in'))
+                     ->add(Definition::new('last_sign_in')
+                                     ->setOptional(true)
+                                     ->setDisabled(true)
+                                     ->setRender(function() { return !$this->isNew(); })
+                                     ->setInputType(EnumInputType::datetime_local)
+                                     ->setDbNullInputType(EnumInputType::text)
+                                     ->addClasses('text-center')
+                                     ->setSize(3)
+                                     ->setNullDisplay(tr('Never signed yet'))
+                                     ->setLabel('Last sign in'))
 
-                    ->add(Definition::new('update_password')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->addClasses('text-center')
-                                    ->setSize(2)
-                                    ->setLabel(tr('Password last updated on')))
+                   ->add(Definition::new('update_password')
+                                   ->setOptional(true)
+                                   ->setDisabled(true)
+                                   ->setRender(function() { return !$this->isNew(); })
+                                   ->setInputType(EnumInputType::datetime_local)
+                                   ->addClasses('text-center')
+                                   ->setSize(2)
+                                   ->setLabel(tr('Password last updated on')))
 
-                    ->add(DefinitionFactory::newNumber('sign_in_count')
-                                           ->setOptional(true, 0)
-                                           ->setDisabled(true)
-                                           ->setRender(function() { return !$this->isNew(); })
-                                           ->addClasses('text-center')
-                                           ->setSize(2)
-                                           ->setLabel(tr('Sign in count')))
+                   ->add(DefinitionFactory::newNumber('sign_in_count')
+                                          ->setOptional(true, 0)
+                                          ->setDisabled(true)
+                                          ->setRender(function() { return !$this->isNew(); })
+                                          ->addClasses('text-center')
+                                          ->setSize(2)
+                                          ->setLabel(tr('Sign in count')))
 
-                    ->add(DefinitionFactory::newNumber('authentication_failures')
-                                           ->setOptional(true, 0)
-                                           ->setDisabled(true)
-                                           ->setRender(function() { return !$this->isNew(); })
-                                           ->setMin(0)
-                                           ->addClasses('text-center')
-                                           ->setSize(2)
-                                           ->setLabel(tr('Authentication failures')))
+                   ->add(DefinitionFactory::newNumber('authentication_failures')
+                                          ->setOptional(true, 0)
+                                          ->setDisabled(true)
+                                          ->setRender(function() { return !$this->isNew(); })
+                                          ->setMin(0)
+                                          ->addClasses('text-center')
+                                          ->setSize(2)
+                                          ->setLabel(tr('Authentication failures')))
 
-                    ->add(Definition::new('locked_until')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setRender(function() { return !$this->isNew(); })
-                                    ->setInputType(EnumInputType::datetime_local)
-                                    ->setDbNullInputType(EnumInputType::text)
-                                    ->setNullDisplay(tr('Not locked'))
-                                    ->addClasses('text-center')
-                                    ->setSize(3)
-                                    ->setLabel(tr('Locked until')))
+                   ->add(Definition::new('locked_until')
+                                   ->setOptional(true)
+                                   ->setDisabled(true)
+                                   ->setRender(function() { return !$this->isNew(); })
+                                   ->setInputType(EnumInputType::datetime_local)
+                                   ->setDbNullInputType(EnumInputType::text)
+                                   ->setNullDisplay(tr('Not locked'))
+                                   ->addClasses('text-center')
+                                   ->setSize(3)
+                                   ->setLabel(tr('Locked until')))
 
-                    ->add(DefinitionFactory::newDivider()
-                                           ->setRender(function() {
-                                               return $this->_definitions->getDefinitionRender('last_sign_in')
-                                                  and $this->_definitions->getDefinitionRender('sign_in_count')
-                                                  and $this->_definitions->getDefinitionRender('authentication_failures')
-                                                  and $this->_definitions->getDefinitionRender('locked_until');
+                   ->add(DefinitionFactory::newDivider()
+                                          ->setRender(function() {
+                                              return $this->_definitions->getDefinitionRender('last_sign_in')
+                                                 and $this->_definitions->getDefinitionRender('sign_in_count')
+                                                 and $this->_definitions->getDefinitionRender('authentication_failures')
+                                                 and $this->_definitions->getDefinitionRender('locked_until');
+                                          }))
+
+                   ->add(DefinitionFactory::newEmail()
+                                          ->setOptional(true)
+                                          ->setSize(3)
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              // Email address is optional IF remote_id is specified.
+                                              // Validate the email address.
+                                              $_validator->orColumn('remote_id');
+                                              $_validator->isUnique(tr('already exists as a primary email address'));
+
+                                              $exists = sql()->getRow('SELECT `id` 
+                                                                       FROM   `accounts_emails` 
+                                                                       WHERE  `email` = :email', [
+                                                                           ':email' => $_validator->getSelectedValue(),
+                                              ]);
+
+                                              if ($exists) {
+                                                  $_validator->addSoftFailure(tr('already exists as an additional email address'));
+                                              }
+                                          }))
+
+                   ->add(Definition::new('domain')
+                                   ->setOptional(true)
+                                   ->setMaxLength(128)
+                                   ->setSize(3)
+                                   ->setCliColumn('--domain')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Restrict to domain(s)'))
+                                   ->setHelpText(tr('The domain(s) where this user will be able to sign in'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isDomain();
+                                   }))
+
+                   ->add(Definition::new('username')
+                                   ->setOptional(true)
+                                   ->setSize(3)
+                                   ->setCliColumn('-u,--username')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Username'))
+                                   ->setHelpGroup(tr('Personal information'))
+                                   ->setHelpText(tr('The unique username for this user.'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isName(64);
+                                   }))
+
+                   ->add(DefinitionFactory::newName('nickname')
+                                          ->setOptional(true)
+                                          ->setLabel(tr('Nickname'))
+                                          ->setCliColumn('--nickname NAME')
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The nickname for this user')))
+
+                   ->add(DefinitionFactory::newName('first_names')
+                                          ->setOptional(true)
+                                          ->setCliColumn('-f,--first-names NAMES')
+                                          ->setLabel(tr('First names'))
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The firstnames for this user')))
+
+                   ->add(DefinitionFactory::newName('last_names')
+                                          ->setOptional(true)
+                                          ->setCliColumn('-n,--last-names')
+                                          ->setLabel(tr('Last names'))
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The lastnames / surnames for this user')))
+
+                   ->add(DefinitionFactory::newTitle()
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The title added to this users name')))
+
+                   ->add(Definition::new('gender')
+                                   ->setOptional(true)
+                                   ->setElement(EnumElement::select)
+                                   ->setSize(3)
+                                   ->setCliColumn('-g,--gender')
+                                   ->setSource([
+                                       ''       => tr('Select a gender'),
+                                       'male'   => tr('Male'),
+                                       'female' => tr('Female'),
+                                       'other'  => tr('Other'),
+                                   ])
+                                   ->setCliAutoComplete([
+                                       'word'   => function (string $word) {
+                                           return Arrays::removeMatchingValues([
+                                               tr('Male'),
+                                               tr('Female'),
+                                               tr('Other'),
+                                           ], $word);
+                                       },
+                                       'noword' => function ($word) {
+                                           return [
+                                               tr('Male'),
+                                               tr('Female'),
+                                               tr('Other'),
+                                           ];
+                                       },
+                                   ])
+                                   ->setLabel(tr('Gender'))
+                                   ->setHelpGroup(tr('Personal information'))
+                                   ->setHelpText(tr('The gender for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->hasMaxCharacters(6);
+                                   }))
+
+                   ->add(DefinitionFactory::newUsersEmail('leaders_email')
+                                          ->setCliColumn('--leader USER-EMAIL')
+                                          ->clearValidationFunctions()
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              $_validator->orColumn('leaders_id')
+                                                        ->isEmail()
+                                                        ->setColumnFromQuery('leaders_id', 'SELECT `id` 
+                                                                                            FROM   `accounts_users` 
+                                                                                            WHERE  `email` = :email 
+                                                                                            AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                                ':email' => '$leaders_email'
+                                                        ]);
+                                          }))
+
+                   ->add(DefinitionFactory::newUsersId('leaders_id')
+                                          ->setCliColumn('--leaders-id USERS-DATABASE-ID')
+                                          ->setLabel(tr('Leader'))
+                                          ->setHelpGroup(tr('Hierarchical information'))
+                                          ->setHelpText(tr('The user that is the leader for this user'))
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              $_validator->orColumn('leaders_email')
+                                                        ->isDbId()
+                                                        ->isQueryResult('SELECT `id` 
+                                                                         FROM   `accounts_users` 
+                                                                         WHERE  `id` = :id 
+                                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                             ':id' => '$leaders_id'
+                                                        ]);
+                                          }))
+
+                   ->add(Definition::new('is_leader')
+                                   ->setOptional(true)
+                                   ->setInputType(EnumInputType::checkbox)
+                                   ->setSize(3)
+                                   ->setCliColumn('--is-leader')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Is leader'))
+                                   ->setHelpGroup(tr('Hierarchical information'))
+                                   ->setHelpText(tr('Sets if this user is a leader itself'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isBoolean();
+                                   }))
+
+                   ->add(DefinitionFactory::newCode('code')
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The code associated with this user')))
+
+                   ->add(Definition::new('priority')
+                                   ->setOptional(true)
+                                   ->setInputType(EnumInputType::number)
+                                   ->setSize(3)
+                                   ->setCliColumn('--priority')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Priority'))
+                                   ->setMin(1)
+                                   ->setMax(9)
+                                   ->setHelpText(tr('The priority for this user, between 1 and 9'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isInteger();
+                                   }))
+
+                   ->add(DefinitionFactory::newDateTime('birthdate')
+                                          ->setLabel(tr('Birthdate'))
+                                          ->setCliColumn('-b,--birthdate')
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('The birthdate for this user'))
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              $_validator->sanitizeToDateTime()
+                                                          ->isBefore(PhoDateTime::new(), true)
+                                                          ->sanitizeTransform(function ($value, $source, $_validator) {
+                                                              return $value?->format('Y-m-d');
+                                                          });
+                                          }))
+
+                   ->add(DefinitionFactory::newPhone()
+                                          ->setSize(3)
+                                          ->setHelpGroup(tr('Personal information'))
+                                          ->setHelpText(tr('Main phone number where this user may be contacted'))
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              // Validate the email address
+                                              $_validator->isUnique(tr('already exists as a primary phone number'));
+                                          }))
+
+                   ->add(DefinitionFactory::newLanguagesName()
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The display language for this user')))
+
+                   ->add(DefinitionFactory::newLanguagesCode()
+                                          ->setHelpGroup(tr('Location information')))
+
+                   ->add(DefinitionFactory::newLanguagesId()
+                                          ->setHelpGroup(tr('Location information')))
+
+                   ->add(Definition::new('address')
+                                   ->setOptional(true)
+                                   ->setMaxLength(255)
+                                   ->setSize(3)
+                                   ->setCliColumn('-a,--address')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Address'))
+                                   ->setHelpGroup(tr('Location information'))
+                                   ->setHelpText(tr('The address where this user resides'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isPrintable();
+                                   }))
+
+                   ->add(Definition::new('zipcode')
+                                   ->setOptional(true)
+                                   ->setMinLength(4)
+                                   ->setMaxLength(8)
+                                   ->setSize(1)
+                                   ->setCliColumn('-z,--zipcode')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Zip code'))
+                                   ->setHelpGroup(tr('Location information'))
+                                   ->setHelpText(tr('The zip code (postal code) where this user resides'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isPrintable();
+                                   }))
+
+                   ->add(DefinitionFactory::newCountriesName()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The country where this user resides')))
+
+                   ->add(DefinitionFactory::newCountriesCode()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The country code where this user resides')))
+
+                   ->add(DefinitionFactory::newCountriesId()
+                                          ->setSize(2))
+
+                   ->add(DefinitionFactory::newStatesName()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The state where this user resides')))
+
+                   ->add(DefinitionFactory::newStatesCode()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The state code where this user resides')))
+
+                   ->add(DefinitionFactory::newStatesId()
+                                          ->setSize(2))
+
+                   ->add(DefinitionFactory::newCitiesName()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The city where this user resides')))
+
+                   ->add(DefinitionFactory::newCitiesId()
+                                          ->setSize(2))
+
+                   ->add(DefinitionFactory::newTimezonesName()
+                                          ->setSize(2)
+                                          ->setHelpGroup(tr('Location information'))
+                                          ->setHelpText(tr('The timezone name where this user resides')))
+
+                   ->add(DefinitionFactory::newTimezonesId()
+                                          ->setSize(2))
+
+                   ->add(DefinitionFactory::newLatitude()
+                                          ->setHelpText(tr('The latitude location for this user')))
+
+                   ->add(DefinitionFactory::newLongitude()
+                                          ->setHelpText(tr('The longitude location for this user')))
+
+                   ->add(Definition::new('offset_latitude')
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setInputType(EnumInputType::number)
+                                   ->setSize(3)
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Offset latitude'))
+                                   ->setHelpGroup(tr('Location information'))
+                                   ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
+
+                   ->add(Definition::new('offset_longitude')
+                                   ->setOptional(true)
+                                   ->setReadonly(true)
+                                   ->setInputType(EnumInputType::number)
+                                   ->setSize(3)
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Offset longitude'))
+                                   ->setHelpGroup(tr('Location information'))
+                                   ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
+
+                   ->add(Definition::new('accuracy')
+                                   ->setOptional(true)
+                                   ->setInputType(EnumInputType::number)
+                                   ->setSize(3)
+                                   ->setMin(0)
+                                   ->setMax(10)
+                                   ->setCliColumn('--accuracy')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Accuracy'))
+                                   ->setHelpGroup(tr('Location information'))
+                                   ->setHelpText(tr('The accuracy of this users location'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isFloat();
+                                   }))
+
+                   ->add(Definition::new('type')
+                                   ->setOptional(true)
+                                   ->setMaxLength(16)
+                                   ->setSize(3)
+                                   ->setCliColumn('--type')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Type'))
+                                   ->setHelpGroup(tr(''))
+                                   ->setHelpText(tr('The type classification for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isName();
+                                   }))
+
+                   ->add(Definition::new('keywords')
+                                   ->setOptional(true)
+                                   ->setMaxLength(255)
+                                   ->setSize(3)
+                                   ->setCliColumn('-k,--keywords')
+                                   ->setCliAutoComplete(true)
+                                   ->setLabel(tr('Keywords'))
+                                   ->setHelpGroup(tr('Account information'))
+                                   ->setHelpText(tr('The keywords for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isPrintable();
+                                       //$_validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
+                                   }))
+
+                   ->add(DefinitionFactory::newDivider('redirect-divider'))
+
+                   ->add(DefinitionFactory::newUrl('redirect')
+                                          // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
+                                          ->setSize(4)
+                                          ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
+                                          ->setInputType(EnumInputType::auto_suggest)
+                                          ->setInitialDefault(Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww()->setRenderToNull((bool) $this->getRemoteId()))
+                                          ->setLabel(tr('Redirect URL'))
+                                          ->setHelpGroup(tr('Account information'))
+                                          ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
+                                          ->addPreSaveFunctions(function (DefinitionInterface $_definition, mixed $value) {
+                                              // User redirect URL's must be stored without hostname and language specification!
+                                              $value = trim((string) $value);
+
+                                              if ($value) {
+                                                  $value = Url::new($value);
+
+                                                  if ($value->isProjectUrl()) {
+                                                      return Url::new($value)->getFromHostAndLanguage();
+                                                  }
+                                              }
+
+                                              return $value;
+                                          }))
+
+                   ->add(Definition::new('url')
+                                   ->setSize(4)
+                                   ->setOptional(true)
+                                   ->setMaxLength(2048)
+                                   ->setCliColumn('--url')
+                                   ->setLabel(tr('Website URL'))
+                                   ->setHelpGroup(tr('Account information'))
+                                   ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
+
+                   ->add(DefinitionFactory::newDateTime('verified_on')
+                                          ->setSize(4)
+                                          ->setDisabled(true)
+                                          ->setDbNullInputType(EnumInputType::text)
+                                          ->setNullDisplay(tr('Not verified'))
+                                          ->addClasses('text-center')
+                                          ->setLabel(tr('Account verified on'))
+                                          ->setHelpGroup(tr('Account information'))
+                                          ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
+
+                   ->add(DefinitionFactory::newDescription()
+                                          ->setSize(6)
+                                          ->setHelpGroup(tr('Account information'))
+                                          ->setHelpText(tr('A public description about this user')))
+
+                   ->add(DefinitionFactory::newComments()
+                                          ->setSize(6)
+                                          ->setHelpGroup(tr('Account information'))
+                                          ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
+
+                   ->add(DefinitionFactory::newData('session_state')
+                                          ->setRender(false))
+
+                   ->add(DefinitionFactory::newCode('verification_code')
+                                          ->setOptional(true)
+                                          ->setRender(false)
+                                          ->setReadonly(true))
+
+                   ->add(Definition::new('fingerprint')
+                                   // TODO Implement
+                                   ->setNoValidation(true)
+                                   ->setOptional(true)
+                                   ->setRender(false))
+
+                   ->add(DefinitionFactory::newCode('notifications_hash')
+                                          // This hash is set directly so it will not really be touched by DataEntry
+                                          ->setOptional(true)
+                                          ->setDirectUpdate(true)
+                                          ->setRender(false)
+                                          ->setReadonly(true))
+
+                   ->add(Definition::new('password')
+                                   ->setRender(false)
+                                   ->setReadonly(true)
+                                   ->setOptional(true)
+                                   ->setCliAutoComplete(true)
+                                   ->setInputType(EnumInputType::password)
+                                   ->setMaxLength(64)
+                                   ->setNullDisplay(false)
+                                   ->setHelpText(tr('The password for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isStrongPassword();
+                                   }))
+
+                   ->add(DefinitionFactory::newCode('mfa_code')
+                                   ->setRender(false)
+                                   ->setReadonly(true)
+                                   ->setOptional(true)
+                                   ->setCliAutoComplete(true)
+                                   ->setInputType(EnumInputType::password)
+                                   ->setMaxLength(64)
+                                   ->setHelpText(tr('The MFA code for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isCode(max_characters: 64);
+                                   }))
+
+                   ->add(DefinitionFactory::newNumber('mfa_timeslice')
+                                   ->setRender(false)
+                                   ->setReadonly(true)
+                                   ->setOptional(true)
+                                   ->setCliAutoComplete(true)
+                                   ->setInputType(EnumInputType::positiveInteger)
+                                   ->setHelpText(tr('The MFA timeslice for this user'))
+                                   ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                       $_validator->isInteger()->isPositive();
+                                   }))
+
+                   ->add(DefinitionFactory::newId('profile_images_id')
+                                          ->setOptional(true)
+                                          ->setRender(false)
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              if ($_validator->getSelectedValue()) {
+                                                  $_validator->isTrue(ProfileImage::exists($_validator->getSelectedValue()), 'profile image must exist');
+                                              }
                                            }))
 
-                    ->add(DefinitionFactory::newEmail()
-                                           ->setOptional(true)
-                                           ->setSize(3)
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The email address for this user. This is also the unique identifier for the user'))
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               // Email address is optional IF remote_id is specified.
-                                               // Validate the email address.
-                                               $_validator->orColumn('remote_id');
-                                               $_validator->isUnique(tr('already exists as a primary email address'));
+                   ->add(DefinitionFactory::newFile(null, 'profile_image')
+                                          ->setLabel('Profile image')
+                                          ->setOptional(true)
+                                          ->setRender(false)
+                                          ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                              if ($_validator->getSelectedValue()) {
+                                                  if ($this->isNew()) {
+                                                      // Cannot save a profile image with a user that does not yet exist in the database
+                                                      $_validator->addSoftFailure(tr('requires that the user is saved first'));
 
-                                               $exists = sql()->getRow('SELECT `id` 
-                                                                        FROM   `accounts_emails` 
-                                                                        WHERE  `email` = :email', [
-                                                                            ':email' => $_validator->getSelectedValue(),
-                                               ]);
+                                                  } else {
+                                                      $_validator->isFile(
+                                                          PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                      );
+                                                  }
+                                              }
+                                          }))
 
-                                               if ($exists) {
-                                                   $_validator->addSoftFailure(tr('already exists as an additional email address'));
-                                               }
-                                           }))
-
-                    ->add(Definition::new('domain')
-                                    ->setOptional(true)
-                                    ->setMaxLength(128)
-                                    ->setSize(3)
-                                    ->setCliColumn('--domain')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Restrict to domain(s)'))
-                                    ->setHelpText(tr('The domain(s) where this user will be able to sign in'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDomain();
-                                    }))
-
-                    ->add(Definition::new('username')
-                                    ->setOptional(true)
-                                    ->setSize(3)
-                                    ->setCliColumn('-u,--username')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Username'))
-                                    ->setHelpGroup(tr('Personal information'))
-                                    ->setHelpText(tr('The unique username for this user.'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isName(64);
-                                    }))
-
-                    ->add(DefinitionFactory::newName('nickname')
-                                           ->setOptional(true)
-                                           ->setLabel(tr('Nickname'))
-                                           ->setCliColumn('--nickname NAME')
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The nickname for this user')))
-
-                    ->add(DefinitionFactory::newName('first_names')
-                                           ->setOptional(true)
-                                           ->setCliColumn('-f,--first-names NAMES')
-                                           ->setLabel(tr('First names'))
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The firstnames for this user')))
-
-                    ->add(DefinitionFactory::newName('last_names')
-                                           ->setOptional(true)
-                                           ->setCliColumn('-n,--last-names')
-                                           ->setLabel(tr('Last names'))
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The lastnames / surnames for this user')))
-
-                    ->add(DefinitionFactory::newTitle()
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The title added to this users name')))
-
-                    ->add(Definition::new('gender')
-                                    ->setOptional(true)
-                                    ->setElement(EnumElement::select)
-                                    ->setSize(3)
-                                    ->setCliColumn('-g,--gender')
-                                    ->setSource([
-                                        ''       => tr('Select a gender'),
-                                        'male'   => tr('Male'),
-                                        'female' => tr('Female'),
-                                        'other'  => tr('Other'),
-                                    ])
-                                    ->setCliAutoComplete([
-                                        'word'   => function (string $word) {
-                                            return Arrays::removeMatchingValues([
-                                                tr('Male'),
-                                                tr('Female'),
-                                                tr('Other'),
-                                            ], $word);
-                                        },
-                                        'noword' => function ($word) {
-                                            return [
-                                                tr('Male'),
-                                                tr('Female'),
-                                                tr('Other'),
-                                            ];
-                                        },
-                                    ])
-                                    ->setLabel(tr('Gender'))
-                                    ->setHelpGroup(tr('Personal information'))
-                                    ->setHelpText(tr('The gender for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->hasMaxCharacters(6);
-                                    }))
-
-                    ->add(DefinitionFactory::newUsersEmail('leaders_email')
-                                           ->setCliColumn('--leader USER-EMAIL')
-                                           ->clearValidationFunctions()
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               $_validator->orColumn('leaders_id')
-                                                         ->isEmail()
-                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` 
-                                                                                             FROM   `accounts_users` 
-                                                                                             WHERE  `email` = :email 
-                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
-                                                                                                 ':email' => '$leaders_email'
-                                                         ]);
-                                           }))
-
-                    ->add(DefinitionFactory::newUsersId('leaders_id')
-                                           ->setCliColumn('--leaders-id USERS-DATABASE-ID')
-                                           ->setLabel(tr('Leader'))
-                                           ->setHelpGroup(tr('Hierarchical information'))
-                                           ->setHelpText(tr('The user that is the leader for this user'))
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               $_validator->orColumn('leaders_email')
-                                                         ->isDbId()
-                                                         ->isQueryResult('SELECT `id` 
-                                                                          FROM   `accounts_users` 
-                                                                          WHERE  `id` = :id 
-                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
-                                                                              ':id' => '$leaders_id'
-                                                         ]);
-                                           }))
-
-                    ->add(Definition::new('is_leader')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::checkbox)
-                                    ->setSize(3)
-                                    ->setCliColumn('--is-leader')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Is leader'))
-                                    ->setHelpGroup(tr('Hierarchical information'))
-                                    ->setHelpText(tr('Sets if this user is a leader itself'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isBoolean();
-                                    }))
-
-                    ->add(DefinitionFactory::newCode('code')
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The code associated with this user')))
-
-                    ->add(Definition::new('priority')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setCliColumn('--priority')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Priority'))
-                                    ->setMin(1)
-                                    ->setMax(9)
-                                    ->setHelpText(tr('The priority for this user, between 1 and 9'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isInteger();
-                                    }))
-
-                    ->add(DefinitionFactory::newDateTime('birthdate')
-                                           ->setLabel(tr('Birthdate'))
-                                           ->setCliColumn('-b,--birthdate')
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('The birthdate for this user'))
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               $_validator->sanitizeToDateTime()
-                                                           ->isBefore(PhoDateTime::new(), true)
-                                                           ->sanitizeTransform(function ($value, $source, $_validator) {
-                                                               return $value?->format('Y-m-d');
-                                                           });
-                                           }))
-
-                    ->add(DefinitionFactory::newPhone()
-                                           ->setSize(3)
-                                           ->setHelpGroup(tr('Personal information'))
-                                           ->setHelpText(tr('Main phone number where this user may be contacted'))
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               // Validate the email address
-                                               $_validator->isUnique(tr('already exists as a primary phone number'));
-                                           }))
-
-                    ->add(DefinitionFactory::newLanguagesName()
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The display language for this user')))
-
-                    ->add(DefinitionFactory::newLanguagesCode()
-                                           ->setHelpGroup(tr('Location information')))
-
-                    ->add(DefinitionFactory::newLanguagesId()
-                                           ->setHelpGroup(tr('Location information')))
-
-                    ->add(Definition::new('address')
-                                    ->setOptional(true)
-                                    ->setMaxLength(255)
-                                    ->setSize(3)
-                                    ->setCliColumn('-a,--address')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Address'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The address where this user resides'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isPrintable();
-                                    }))
-
-                    ->add(Definition::new('zipcode')
-                                    ->setOptional(true)
-                                    ->setMinLength(4)
-                                    ->setMaxLength(8)
-                                    ->setSize(1)
-                                    ->setCliColumn('-z,--zipcode')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Zip code'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The zip code (postal code) where this user resides'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isPrintable();
-                                    }))
-
-                    ->add(DefinitionFactory::newCountriesName()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The country where this user resides')))
-
-                    ->add(DefinitionFactory::newCountriesCode()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The country code where this user resides')))
-
-                    ->add(DefinitionFactory::newCountriesId()
-                                           ->setSize(2))
-
-                    ->add(DefinitionFactory::newStatesName()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The state where this user resides')))
-
-                    ->add(DefinitionFactory::newStatesCode()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The state code where this user resides')))
-
-                    ->add(DefinitionFactory::newStatesId()
-                                           ->setSize(2))
-
-                    ->add(DefinitionFactory::newCitiesName()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The city where this user resides')))
-
-                    ->add(DefinitionFactory::newCitiesId()
-                                           ->setSize(2))
-
-                    ->add(DefinitionFactory::newTimezonesName()
-                                           ->setSize(2)
-                                           ->setHelpGroup(tr('Location information'))
-                                           ->setHelpText(tr('The timezone name where this user resides')))
-
-                    ->add(DefinitionFactory::newTimezonesId()
-                                           ->setSize(2))
-
-                    ->add(DefinitionFactory::newLatitude()
-                                           ->setHelpText(tr('The latitude location for this user')))
-
-                    ->add(DefinitionFactory::newLongitude()
-                                           ->setHelpText(tr('The longitude location for this user')))
-
-                    ->add(Definition::new('offset_latitude')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Offset latitude'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The latitude location for this user with a random offset within the configured range')))
-
-                    ->add(Definition::new('offset_longitude')
-                                    ->setOptional(true)
-                                    ->setReadonly(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Offset longitude'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The longitude location for this user with a random offset within the configured range')))
-
-                    ->add(Definition::new('accuracy')
-                                    ->setOptional(true)
-                                    ->setInputType(EnumInputType::number)
-                                    ->setSize(3)
-                                    ->setMin(0)
-                                    ->setMax(10)
-                                    ->setCliColumn('--accuracy')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Accuracy'))
-                                    ->setHelpGroup(tr('Location information'))
-                                    ->setHelpText(tr('The accuracy of this users location'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isFloat();
-                                    }))
-
-                    ->add(Definition::new('type')
-                                    ->setOptional(true)
-                                    ->setMaxLength(16)
-                                    ->setSize(3)
-                                    ->setCliColumn('--type')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Type'))
-                                    ->setHelpGroup(tr(''))
-                                    ->setHelpText(tr('The type classification for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isName();
-                                    }))
-
-                    ->add(Definition::new('keywords')
-                                    ->setOptional(true)
-                                    ->setMaxLength(255)
-                                    ->setSize(3)
-                                    ->setCliColumn('-k,--keywords')
-                                    ->setCliAutoComplete(true)
-                                    ->setLabel(tr('Keywords'))
-                                    ->setHelpGroup(tr('Account information'))
-                                    ->setHelpText(tr('The keywords for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isPrintable();
-                                        //$_validator->sanitizeForceArray(' ')->forEachField()->isWord()->sanitizeForceString()
-                                    }))
-
-                    ->add(DefinitionFactory::newDivider('redirect-divider'))
-
-                    ->add(DefinitionFactory::newUrl('redirect')
-                                           // Normal users always start with "/force-password-update.html" URL because they lack a password, but remote users should already have a password.
-                                           ->setSize(4)
-                                           ->setSource(Url::new('system/accounts/users/redirect/autosuggest.json')->makeAjax())
-                                           ->setInputType(EnumInputType::auto_suggest)
-                                           ->setInitialDefault(Url::new(config()->getString('security.accounts.users.new.defaults.redirect', '/force-password-update.html'))->makeWww()->setRenderToNull((bool) $this->getRemoteId()))
-                                           ->setLabel(tr('Redirect URL'))
-                                           ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('The URL where this user will be forcibly redirected to upon sign in'))
-                                           ->addPreSaveFunctions(function (DefinitionInterface $_definition, mixed $value) {
-                                               // User redirect URL's must be stored without hostname and language specification!
-                                               $value = trim((string) $value);
-
-                                               if ($value) {
-                                                   $value = Url::new($value);
-
-                                                   if ($value->isProjectUrl()) {
-                                                       return Url::new($value)->getFromHostAndLanguage();
-                                                   }
-                                               }
-
-                                               return $value;
-                                           }))
-
-                    ->add(Definition::new('url')
-                                    ->setSize(4)
-                                    ->setOptional(true)
-                                    ->setMaxLength(2048)
-                                    ->setCliColumn('--url')
-                                    ->setLabel(tr('Website URL'))
-                                    ->setHelpGroup(tr('Account information'))
-                                    ->setHelpText(tr('A URL specified by the user, usually containing more information about the user')))
-
-                    ->add(DefinitionFactory::newDateTime('verified_on')
-                                           ->setSize(4)
-                                           ->setDisabled(true)
-                                           ->setDbNullInputType(EnumInputType::text)
-                                           ->setNullDisplay(tr('Not verified'))
-                                           ->addClasses('text-center')
-                                           ->setLabel(tr('Account verified on'))
-                                           ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('The date when this user was email verified. Empty if not yet verified')))
-
-                    ->add(DefinitionFactory::newDescription()
-                                           ->setSize(6)
-                                           ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('A public description about this user')))
-
-                    ->add(DefinitionFactory::newComments()
-                                           ->setSize(6)
-                                           ->setHelpGroup(tr('Account information'))
-                                           ->setHelpText(tr('Comments about this user by leaders or administrators that are not visible to the user')))
-
-                    ->add(DefinitionFactory::newData('session_state')
-                                           ->setRender(false))
-
-                    ->add(DefinitionFactory::newCode('verification_code')
-                                           ->setOptional(true)
-                                           ->setRender(false)
-                                           ->setReadonly(true))
-
-                    ->add(Definition::new('fingerprint')
-                                    // TODO Implement
-                                    ->setNoValidation(true)
-                                    ->setOptional(true)
-                                    ->setRender(false))
-
-                    ->add(DefinitionFactory::newCode('notifications_hash')
-                                    // This hash is set directly so it will not really be touched by DataEntry
-                                    ->setOptional(true)
-                                    ->setDirectUpdate(true)
-                                    ->setRender(false)
-                                    ->setReadonly(true))
-
-                    ->add(Definition::new('password')
-                                    ->setRender(false)
-                                    ->setReadonly(true)
-                                    ->setOptional(true)
-                                    ->setCliAutoComplete(true)
-                                    ->setInputType(EnumInputType::password)
-                                    ->setMaxLength(64)
-                                    ->setNullDisplay(false)
-                                    ->setHelpText(tr('The password for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isStrongPassword();
-                                    }))
-
-                    ->add(DefinitionFactory::newCode('mfa_code')
-                                    ->setRender(false)
-                                    ->setReadonly(true)
-                                    ->setOptional(true)
-                                    ->setCliAutoComplete(true)
-                                    ->setInputType(EnumInputType::password)
-                                    ->setMaxLength(64)
-                                    ->setHelpText(tr('The MFA code for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isCode(max_characters: 64);
-                                    }))
-
-                    ->add(DefinitionFactory::newNumber('mfa_timeslice')
-                                    ->setRender(false)
-                                    ->setReadonly(true)
-                                    ->setOptional(true)
-                                    ->setCliAutoComplete(true)
-                                    ->setInputType(EnumInputType::positiveInteger)
-                                    ->setHelpText(tr('The MFA timeslice for this user'))
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isInteger()->isPositive();
-                                    }))
-
-                    ->add(DefinitionFactory::newId('profile_images_id')
-                                           ->setOptional(true)
-                                           ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               if ($_validator->getSelectedValue()) {
-                                                   $_validator->isTrue(ProfileImage::exists($_validator->getSelectedValue()), 'profile image must exist');
-                                               }
-                                            }))
-
-                    ->add(DefinitionFactory::newFile(null, 'profile_image')
-                                           ->setLabel('Profile image')
-                                           ->setOptional(true)
-                                           ->setRender(false)
-                                           ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               if ($_validator->getSelectedValue()) {
-                                                   if ($this->isNew()) {
-                                                       // Cannot save a profile image with a user that does not yet exist in the database
-                                                       $_validator->addSoftFailure(tr('requires that the user is saved first'));
-
-                                                   } else {
-                                                       $_validator->isFile(
-                                                           PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
-                                                       );
-                                                   }
-                                               }
-                                           }))
-
-                    // ???
-                    ->add(DefinitionFactory::newData('data')
+                   // ???
+                   ->add(DefinitionFactory::newData('data')
 // No validation for now until we can figure out what this column does, and how to validate it
 ->setNoValidation(true));
 

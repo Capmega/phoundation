@@ -1607,4 +1607,18 @@ interface ValidatorInterface extends IteratorBaseInterface
      * @return $this
      */
     public function setDirectMode(?bool $direct_mode): static;
+
+    /**
+     * Returns the currently selected field
+     *
+     * @return mixed
+     */
+    public function getSelectedField(bool $strip_prefix = true): string;
+
+    /**
+     * This method will allow the currently selected key to pass without performing any validation Tests
+     *
+     * @return static
+     */
+    public function doNotValidateContent(): static;
 }

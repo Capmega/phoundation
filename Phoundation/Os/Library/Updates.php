@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.1';
+        return '0.12.0';
     }
 
 
@@ -139,7 +139,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         ->addForeignKey('CONSTRAINT `fk_os_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `os_tasks` (`id`)');
             }
 
-        })->addUpdate('0.8.2', function () {
+        })->addUpdate('0.9.0', function () {
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             if ($_table->columnExists('process_status')) {
@@ -150,7 +150,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 $_table->alter()->addIndex('KEY `process_status` (`process_status`)');
             }
 
-        })->addUpdate('0.9.0', function () {
+        })->addUpdate('0.10.0', function () {
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             // Fix datatype for results to be able to hold binary data
@@ -161,7 +161,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 $_table->alter()->addColumn('`results_encryption_key` varchar(64) NULL DEFAULT NULL', 'AFTER `results`');
             }
 
-        })->addUpdate('0.9.1', function () {
+        })->addUpdate('0.11.0', function () {
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             // Add support for encrypted results (Requires asymmetric encryption)
@@ -171,6 +171,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if ($_table->columnExists('post_exec')) {
                 $_table->alter()->changeColumn('`post_exec`', '`post_execution_hook` varchar(128) NULL DEFAULT NULL');
+            }
+
+        })->addUpdate('0.12.0', function () {
+            // Add session code to the tasks
+            $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
+
+            if ($_table->columnExists('session_code')) {
+                $_table->alter()->modifyColumn('session_code` varchar(64) DEFAULT NULL,', 'AFTER `seo_name`');
+            }
+
+            if ($_table->indexExists('session_code')) {
+                $_table->alter()->addIndex('KEY `session_code` (`session_code`)');
             }
         });
     }

@@ -27,7 +27,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.9.4';
+        return '0.9.5';
     }
 
 
@@ -101,7 +101,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     PRIMARY KEY (`id`),
                     KEY `created_by` (`created_by`),
                     KEY `created_on` (`created_on`),
-                    KEY ` modified_by` (`modified_by`),
+                    KEY `modified_by` (`modified_by`),
                     KEY `modified_on` (`modified_on`),
                     KEY `meta_id` (`meta_id`),
                     KEY `status` (`status`),
@@ -161,6 +161,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
                 $_table->alter()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
+            }
+
+        })->addUpdate('0.9.5', function () {
+            // Fix indices on developer_repositories table
+            $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
+
+            if (!$_table->indexExists(' modified_by')) {
+                $_table->alter()->dropIndex(' modified_by');
+            }
+
+            if (!$_table->indexExists('modified_by')) {
+                $_table->alter()->addIndex('KEY `modified_by` (`modified_by`)');
             }
         });
     }

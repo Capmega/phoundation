@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * Trait TraitDataEntryResponseAction
+ *
+ *
+ *
+ * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @package   Phoundation\Data
+ */
+
+
+declare(strict_types=1);
+
+namespace Phoundation\Data\DataEntries\Traits;
+
+use Phoundation\Web\Requests\Enums\EnumRequestActions;
+
+
+trait TraitDataEntryResponseAction
+{
+    /**
+     * Returns the action for this object
+     *
+     * @return string|null
+     */
+    public function getAction(): ?string
+    {
+        return $this->getTypesafe('string', 'action');
+    }
+
+
+    /**
+     * Sets the action for this object
+     *
+     * @param EnumRequestActions|string|null $action
+     *
+     * @return static
+     */
+    public function setAction(EnumRequestActions|string|null $action): static
+    {
+        if ($action) {
+            if (is_object($action)) {
+                $action = $action->value;
+
+            } else {
+                $action = EnumRequestActions::from($action)->value;
+            }
+        }
+
+        return $this->set(get_null($action), 'action');
+    }
+}

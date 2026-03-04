@@ -3,7 +3,7 @@
 /**
  * Page 409
  *
- * This is the page that will be shown when a users access to a certain resource was prohibited
+ * This is the page that will be shown when a user's access to a certain resource was prohibited
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -29,5 +29,5 @@ JsonPage::new()
         ->addFlashMessageSections(FlashMessage::new()
                                               ->setMode(EnumDisplayMode::error)
                                               ->setTitle(tr('Conflict'))
-                                              ->setMessage(tr('The specified could not be completed due to a conflict with the current state of the target resource')))
+                                              ->setMessage(tr('The specified request could not be completed due to a conflict with the current state of the target resource')))
         ->replyWithHttpCode(409, ['message' => $data ?? tr('conflict')]);

@@ -19,6 +19,7 @@ namespace Phoundation\Web\Requests;
 use JetBrains\PhpStorm\NoReturn;
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\LanguageInterface;
 use Phoundation\Accounts\Users\Locale\Language\Language;
+use Phoundation\Accounts\Users\Sessions\Exception\SessionNotInitializedException;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Cache\Cache;
 use Phoundation\Cache\LocalCache;
@@ -55,8 +56,10 @@ use Phoundation\Web\Http\Exception\HttpException;
 use Phoundation\Web\Http\Interfaces\UrlInterface;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Requests\Enums\EnumHeaderFooterType;
+use Phoundation\Web\Requests\Enums\EnumRequestActions;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\Exception\PageNotFoundException;
+use Phoundation\Web\Requests\Exception\ResponseException;
 use Phoundation\Web\Requests\Exception\ResponseHeadersException;
 use Phoundation\Web\Requests\Exception\ResponseRedirectException;
 use Phoundation\Web\Requests\Interfaces\ResponseInterface;
@@ -241,6 +244,20 @@ class Response implements ResponseInterface
      */
     protected static bool $direct_output_mode = false;
 
+    /**
+     * Tracks the action taken for this response.
+     *
+     * @var EnumRequestActions|null $action
+     */
+    protected static ?EnumRequestActions $action = null;
+
+    /**
+     * Tracks the optional incidents_id in case an incident was registered for the request
+     *
+     * @var int|null $incidents_id
+     */
+    protected static ?int $incidents_id = null;
+
 
     /**
      * Response class constructor
@@ -257,6 +274,60 @@ class Response implements ResponseInterface
         // Add required page headers
         Response::addConfiguredHeadDataAttribute();
         Response::setCharset(Response::getCharset());
+    }
+
+
+    /**
+     * Returns the optional incidents_id in case an incident was registered for the request
+     *
+     * @note IMPORTANT Currently, requests only support a single incident. If multiple incidents have been reported, only the first incident will be registered!
+     *
+     * @return int|null
+     */
+    public static function getIncidentsId(): ?int
+    {
+        return Response::$incidents_id;
+    }
+
+
+    /**
+     * Returns the optional incidents_id in case an incident was registered for the request
+     *
+     * @note IMPORTANT Currently, requests only support a single incident. If multiple incidents have been reported, only the first incident will be registered!
+     *
+     * @param int|null $incidents_id The database id of the incident that was registered, if any
+     *
+     * @return void
+     */
+    public static function setIncidentsId(?int $incidents_id): void
+    {
+        if (empty(Response::$incidents_id)) {
+            Response::$incidents_id = $incidents_id;
+        }
+    }
+
+
+    /**
+     * Returns the Response action for this Request
+     *
+     * @return EnumRequestActions|null
+     */
+    public static function getAction(): ?EnumRequestActions
+    {
+        return Response::$action;
+    }
+
+
+    /**
+     * Returns the Response action for this Request
+     *
+     * @param EnumRequestActions|null $action The action
+     *
+     * @return void
+     */
+    public static function setAction(?EnumRequestActions $action): void
+    {
+        Response::$action = $action;
     }
 
 
@@ -1415,8 +1486,7 @@ class Response implements ResponseInterface
                     if (!Response::skipRedirect()) {
                         // No, it is not, redirect!
                         Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getUserObject()
-                                              ->getLogId(),
+                            ':user' => Session::getUserObject()->getLogId(),
                             ':url'  => $redirect,
                         ]));
 
@@ -1431,8 +1501,7 @@ class Response implements ResponseInterface
                     }
 
                     Log::warning(ts('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
-                        ':user' => Session::getUserObject()
-                                          ->getLogId(),
+                        ':user' => Session::getUserObject()->getLogId(),
                         ':url'  => $redirect,
                     ]));
                 }
@@ -1597,11 +1666,28 @@ class Response implements ResponseInterface
         //            ]));
         //        }
 
+        // Set Response action to redirected
+        Response::setAction(EnumRequestActions::redirected);
+
         // Build URL
-        $target = Url::new($url)->makeWww();
+        $_target = Url::new($url)->makeWww();
+
+        // Make sure this user can redirect and has no forced redirect configured!
+        if (Session::isInitialized()) {
+            if (Session::getUserObject()->hasRedirect()) {
+                if (!Session::getUserObject()->hasRedirect($_target)) {
+                    // Well, THIS is a problem! We want to redirect to B, but user will always redirect back to A, so this redirect will never work
+                    throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", the user has forced redirect ":redirect" configured that would redirect the user away from the current required target', [
+                        ':url'      => $_target,
+                        ':user'     => Session::getUserObject()->getLogId(),
+                        ':redirect' => Session::getUserObject()->getRedirect(),
+                    ]));
+                }
+            }
+        }
 
         // Protect against endless redirecting.
-        if ($target->isCurrent()) {
+        if ($_target->isCurrent()) {
             // POST-requests may target to the same page as the target will change POST to GET
             if (!Request::isPostRequestMethod()) {
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
@@ -1615,25 +1701,26 @@ class Response implements ResponseInterface
                         // no break;
 
                     case 'referer':
-                        $target = Url::newCurrentDomainRootUrl();
+                        $_target = Url::newCurrentDomainRootUrl();
                         break;
 
                     default:
                         if (!Session::userChanged()) {
                             // Redirecting to the same page for the same user may cause an endless redirect loop
-                            throw new OutOfBoundsException(tr('Will NOT redirect to ":url", its the same URL as the current page and the current request method is not POST', [
-                                ':url' => $target,
+                            throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", its the same URL as the current page and the current request method is not POST', [
+                                ':url'  => $_target,
+                                ':user' => Session::getUserObject()->getLogId(),
                             ]));
                         }
 
-                        $target = Url::newCurrentDomainRootUrl();
+                        $_target = Url::newCurrentDomainRootUrl();
                 };
             }
         }
 
         if (isset_get($_GET['target'])) {
             // Add a target back query
-            $target = Url::new($target)->makeWww()->addQueries(['target' => $_GET['target']]);
+            $_target = Url::new($_target)->makeWww()->addQueries(['target' => $_GET['target']]);
         }
 
         /*
@@ -1673,21 +1760,21 @@ class Response implements ResponseInterface
             Log::action(ts('Redirecting with HTTP ":http" and ":time" seconds delay to url ":url"', [
                 ':http' => $http_code,
                 ':time' => $time_delay,
-                ':url'  => $target,
+                ':url'  => $_target,
             ]));
 
             Response::setHttpCode($http_code);
-            header('Refresh: ' . $time_delay . ';' . $target, true, $http_code);
+            header('Refresh: ' . $time_delay . ';' . $_target, true, $http_code);
 
         } else {
             // Redirect immediately
             Log::action(ts('Redirecting with HTTP ":http" to url ":url"', [
                 ':http' => $http_code,
-                ':url'  => $target,
+                ':url'  => $_target,
             ]));
 
             Response::setHttpCode($http_code);
-            header('Location:' . $target, true, $http_code);
+            header('Location:' . $_target, true, $http_code);
         }
 
         exit();
@@ -1871,6 +1958,7 @@ class Response implements ResponseInterface
                 Response::generateHttpHeaders();
                 Response::sendHttpHeaders();
                 Response::sendOutput();
+                Response::setAction(EnumRequestActions::sent_content);
             }
         }
 
@@ -2210,6 +2298,9 @@ class Response implements ResponseInterface
      */
     #[NoReturn] public static function exit(?string $exit_message = null, bool $sig_kill = false): never
     {
+        // Register the request
+        RequestLog::saveCurrent();
+
         // If something went really, really wrong...
         if ($sig_kill) {
             exit($exit_message);

@@ -105,6 +105,8 @@ class Incident extends DataEntryCore implements IncidentInterface
             $this->meta_columns = [
                 'id',
                 'created_on',
+                'modified_on',
+                'modified_by',
                 'meta_id',
                 'status',
                 'meta_state',
@@ -115,7 +117,7 @@ class Incident extends DataEntryCore implements IncidentInterface
 
         if ($this->isNew()) {
             // By default, the object is created by the current user
-            $this->setCreatedBy(Core::getReady() ? Session::getUserObject()->getId() : User::new('system')->getId());
+            $this->setCreatedBy(Session::getUsersId());
         }
 
         if ($identifier instanceof Throwable) {
@@ -583,116 +585,116 @@ class Incident extends DataEntryCore implements IncidentInterface
     {
         $_definitions->removeKeys('meta_divider')
 
-                      ->add(DefinitionFactory::newCreatedBy()
+                     ->add(DefinitionFactory::newCreatedBy()
                                              ->setOptional(true))
 
-                      ->add(DefinitionFactory::newDivider('meta_divider'))
+                     ->add(DefinitionFactory::newDivider('meta_divider'))
 
-                      ->add(Definition::new('type')
-                                      ->setLabel(tr('Incident type'))
-                                      ->setDisabled(true)
-                                      ->setDefault(tr('Unknown'))
-                                      ->setSize(6)
-                                      ->setMaxLength(64))
+                     ->add(Definition::new('type')
+                                     ->setLabel(tr('Incident type'))
+                                     ->setDisabled(true)
+                                     ->setDefault(tr('Unknown'))
+                                     ->setSize(6)
+                                     ->setMaxLength(64))
 
-                    ->add(Definition::new('severity')
-                                    ->setElement(EnumElement::select)
-                                    ->setLabel(tr('Severity'))
-                                    ->setDisabled(true)
-                                    ->setReadonly(true)
-                                    ->setSize(6)
-                                    ->setMaxLength(6)
-                                    ->setSource([
-                                        EnumSeverity::notice->value  => tr('Notice'),
-                                        EnumSeverity::low->value     => tr('Low'),
-                                        EnumSeverity::medium->value  => tr('Medium'),
-                                        EnumSeverity::high->value    => tr('High'),
-                                        EnumSeverity::severe->value  => tr('Severe'),
-                                        EnumSeverity::unknown->value => tr('Unknown'),
-                                    ]))
+                     ->add(Definition::new('severity')
+                                     ->setElement(EnumElement::select)
+                                     ->setLabel(tr('Severity'))
+                                     ->setDisabled(true)
+                                     ->setReadonly(true)
+                                     ->setSize(6)
+                                     ->setMaxLength(6)
+                                     ->setSource([
+                                         EnumSeverity::notice->value  => tr('Notice'),
+                                         EnumSeverity::low->value     => tr('Low'),
+                                         EnumSeverity::medium->value  => tr('Medium'),
+                                         EnumSeverity::high->value    => tr('High'),
+                                         EnumSeverity::severe->value  => tr('Severe'),
+                                         EnumSeverity::unknown->value => tr('Unknown'),
+                                     ]))
 
-                    ->add(Definition::new('title')
-                                    ->setLabel(tr('Title'))
-                                    ->setDisabled(true)
-                                    ->setSize(12)
-                                    ->setMinLength(4)
-                                    ->setMaxLength(255))
+                     ->add(Definition::new('title')
+                                     ->setLabel(tr('Title'))
+                                     ->setDisabled(true)
+                                     ->setSize(12)
+                                     ->setMinLength(4)
+                                     ->setMaxLength(255))
 
-                    ->add(DefinitionFactory::newDescription('body')
-                                    ->setLabel(tr('Body'))
-                                    ->setDisabled(true))
+                     ->add(DefinitionFactory::newDescription('body')
+                                            ->setLabel(tr('Body'))
+                                            ->setDisabled(true))
 
-                    ->add(Definition::new('details')
-                                    ->setElement(EnumElement::textarea)
-                                    ->setLabel(tr('Details'))
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setSize(12)
-                                    ->setRows(15)
-                                    ->setMaxLength(16_777_200)
-                                    ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->sanitizeEncodeJson();
-                                    })
-                                    ->setDisplayCallback(function (mixed $details, array $source) {
-                                        // Since the details almost always have an array encoded in JSON, decode it and
-                                        // display it using print_r
-                                        if (!$details) {
-                                            return null;
-                                        }
+                     ->add(Definition::new('details')
+                                     ->setElement(EnumElement::textarea)
+                                     ->setLabel(tr('Details'))
+                                     ->setOptional(true)
+                                     ->setDisabled(true)
+                                     ->setSize(12)
+                                     ->setRows(15)
+                                     ->setMaxLength(16_777_200)
+                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                         $_validator->sanitizeEncodeJson();
+                                     })
+                                     ->setDisplayCallback(function (mixed $details, array $source) {
+                                         // Since the details almost always have an array encoded in JSON, decode it and
+                                         // display it using print_r
+                                         if (!$details) {
+                                             return null;
+                                         }
 
-                                        try {
-                                            if (is_string($details)) {
-                                                // Details are JSON encoded, decode here
-                                                $details = Json::decode($details);
-                                            }
+                                         try {
+                                             if (is_string($details)) {
+                                                 // Details are JSON encoded, decode here
+                                                 $details = Json::decode($details);
+                                             }
 
-                                            $return  = '';
-                                            $lines   = [];
-                                            $largest = Arrays::getLongestKeyLength($details);
+                                             $return  = '';
+                                             $lines   = [];
+                                             $largest = Arrays::getLongestKeyLength($details);
 
-                                            // Reformat the details into a human-readable table string
-                                            foreach ($details as $key => $value) {
-                                                if (!is_data_scalar($value)) {
-                                                    $value = Strings::log($value);
-                                                }
+                                             // Reformat the details into a human-readable table string
+                                             foreach ($details as $key => $value) {
+                                                 if (!is_data_scalar($value)) {
+                                                     $value = Strings::log($value);
+                                                 }
 
-                                                $lines[] .= Strings::size($key, $largest) . ' : ' . $value;
-                                            }
+                                                 $lines[] .= Strings::size($key, $largest) . ' : ' . $value;
+                                             }
 
-                                            return $return . implode(PHP_EOL, $lines);
+                                             return $return . implode(PHP_EOL, $lines);
 
-                                        } catch (JsonException $e) {
-                                            // We could not decode it! Why? Let's move on, it is not THAT important... yet
-                                            Log::warning($e);
+                                         } catch (JsonException $e) {
+                                             // We could not decode it! Why? Let's move on, it is not THAT important... yet
+                                             Log::warning($e);
 
-                                            return isset_get($value);
-                                        }
-                                    }))
+                                             return isset_get($value);
+                                         }
+                                     }))
 
-                    ->add(Definition::new('url')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setLabel('URL')
-                                    ->setSize(12)
-                                    ->setMaxLength(2048))
+                     ->add(Definition::new('url')
+                                     ->setOptional(true)
+                                     ->setDisabled(true)
+                                     ->setLabel('URL')
+                                     ->setSize(12)
+                                     ->setMaxLength(2048))
 
-                    ->add(DefinitionFactory::newData('exception')
-                                           ->setDisabled(true)
-                                           ->setLabel('Exception')
-                                           ->setRows(15)
-                                           ->setNoValidation(true))
+                     ->add(DefinitionFactory::newData('exception')
+                                            ->setDisabled(true)
+                                            ->setLabel('Exception')
+                                            ->setRows(15)
+                                            ->setNoValidation(true))
 
-                    // This column requires no validation because the content is too complex and unpredictable to
-                    // validate, and the source is trusted because it comes from ourselves
-                    ->add(Definition::new('data')
-                                    ->setOptional(true)
-                                    ->setDisabled(true)
-                                    ->setInputType(EnumInputType::array_json)
-                                    ->setLabel('Data')
-                                    ->setSize(12)
-                                    ->setRows(15)
-                                    ->setMaxLength(16_777_200)
-                                    ->setNoValidation(true));
+                     // This column requires no validation because the content is too complex and unpredictable to
+                     // validate, and the source is trusted because it comes from ourselves
+                     ->add(Definition::new('data')
+                                     ->setOptional(true)
+                                     ->setDisabled(true)
+                                     ->setInputType(EnumInputType::array_json)
+                                     ->setLabel('Data')
+                                     ->setSize(12)
+                                     ->setRows(15)
+                                     ->setMaxLength(16_777_200)
+                                     ->setNoValidation(true));
 
         return $this;
     }

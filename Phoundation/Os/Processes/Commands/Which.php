@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Os\Processes\Commands;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Os\Processes\Commands\Exception\CommandNotFoundException;
 use Phoundation\Os\Processes\Commands\Exception\CommandsException;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -33,28 +34,31 @@ class Which extends Command
     public function which(string $command): string
     {
         static $cache = [];
-        // Do we have this which command in cache?
+        // Do we have this which command in cache somewhere?
         if (array_key_exists($command, $cache)) {
             return $cache[$command];
         }
+
         $this->setCommand('which', false)
              ->appendArgument($command)
              ->setUseRunfile(false)
              ->setTimeout(1);
+
         try {
             $output   = $this->executeReturnArray();
-            $result   = reset($output);
+            $result   = end($output);
             $realpath = realpath($result);
+
             if (!$realpath) {
-                // So which gave us a path that does not exist or that we cannot access
+                // So which gave us a path that does not exist, or that we cannot access?
                 throw new CommandsException(tr('Failed to get realpath for which result ":result" for command  ":command"', [
                     ':command' => $command,
                     ':result'  => $result,
                 ]));
             }
+
             // Cache and return
             $cache[$command] = $realpath;
-
             return $realpath;
 
         } catch (ProcessFailedException $e) {

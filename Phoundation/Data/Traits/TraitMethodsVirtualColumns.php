@@ -161,6 +161,7 @@ trait TraitMethodsVirtualColumns {
         if (empty($_object)) {
             try {
                 $identifier = $this->getVirtualLoadIdentifier($configuration['columns'], array_get_safe($configuration, 'additional_filters'));
+
                 if (empty($identifier)) {
                     // There is no identifier for this object, meaning that all related columns are empty, so the requested object column will be empty also.
                     return $this;
@@ -195,7 +196,14 @@ trait TraitMethodsVirtualColumns {
 
         // Set all configured columns
         foreach ($configuration['columns'] as $column => $table_column) {
-            $this->set($_object?->get($column), $table_column);
+            // Only try to load up columns that have definitions or that are permitted!
+            $this->setFlag('is_resolving_virtual_column');
+
+            if ($this->getDefinitionsObject()->keyExists($column) or $this->columnIsPermitted($column)) {
+                $this->set($_object?->get($column), $table_column);
+            }
+
+            $this->clearFlag('is_resolving_virtual_column');
         }
 
         return $this;

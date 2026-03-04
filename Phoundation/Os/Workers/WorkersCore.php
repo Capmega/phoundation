@@ -40,6 +40,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
     use TraitDataFloatIntMaximumExecutionTime;
 
 
+
     /**
      * The workers that are managed by this class
      *
@@ -112,7 +113,7 @@ class WorkersCore extends ProcessCore implements WorkersCoreInterface
 
 
     /**
-     * Workers constructor
+     * WorkersCore class constructor
      *
      * @param PhoRestrictionsInterface|PhoDirectoryInterface|null $_execution_directory
      */

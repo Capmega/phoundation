@@ -1695,4 +1695,13 @@ interface DefinitionInterface extends BeforeAfterContentInterface
      * @return static
      */
     public function clearPreSaveFunctions($value): static;
+
+    /**
+     * Returns true if this Definition is for the specified column
+     *
+     * @param string|null $column The column name to test
+     *
+     * @return bool
+     */
+    public function hasColumn(?string $column): bool;
 }

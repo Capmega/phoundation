@@ -83,6 +83,7 @@ use Phoundation\Web\Http\Exception\Http405Exception;
 use Phoundation\Web\Http\Exception\Http409Exception;
 use Phoundation\Web\Http\Exception\Http503Exception;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Enums\EnumRequestActions;
 use Phoundation\Web\Requests\Enums\EnumRequestTypes;
 use Phoundation\Web\Requests\JsonPage;
 use Phoundation\Web\Requests\Request;
@@ -651,11 +652,23 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the platform on which Phoundation is running, either "web" or "cli"
+     *
      * @return string
      */
     #[ExpectedValues(values: ['web', 'cli'])] public static function getPlatform(): string
     {
-        return php_sapi_name();
+        static $platform;
+
+        if (empty($platform)) {
+            $platform = php_sapi_name();
+
+            if ($platform !== 'cli') {
+                $platform = 'web';
+            }
+        }
+
+        return $platform;
     }
 
 
@@ -748,7 +761,7 @@ class Core implements CoreInterface
 
                     } catch (Throwable $e) {
                         // Uncaught exception handler for exit
-                        Core::uncaughtExceptionHandler($e);
+                        Core::processUncaughtException($e);
                     }
                 }
 
@@ -1077,41 +1090,37 @@ class Core implements CoreInterface
 
 
     /**
-     * Phoundation uncaught exception handler
-     * *
+     * This method will process uncaught exceptions
+     *
      * This function is called automatically by PHP when an exception was not caught by Phoundation itself.
      *
+     * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
      *
-     * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE WHITE SCREEN, ALWAYS FOLLOW THESE
-     * STEPS:
-     *
-     * When faced with an exception on the web platform, check the DIRECTORY_ROOT/data/log/syslog (or exception log if
-     * you have single_log disabled). In here you can find 99% of the issues. If the syslog file does not give any
-     * information, then try the web server logs as failures that cannot be logged in the syslog will be logged there.
-     * Typically you will find these in /var/log/php and /var/log/apache2 or /var/log/nginx
+     * When faced with an exception on the web platform, check the DIRECTORY_ROOT/data/log/syslog (or exception log if you have single_log disabled). In here
+     * you can find 99% of the issues. If the syslog file does not give any information, then try the web server logs as failures that cannot be logged in the
+     * syslog will be logged there. Typically you will find these in /var/log/php and /var/log/apache2 or /var/log/nginx
      *
      * When facing exceptions on the command line, all exception data will always be printed on the command line itself.
      *
      * If that gives you nothing, then try uncommenting the first line in the method. This will force display the error
      *
-     * The reason that this is normally commented out and that logging or displaying your errors might fail is for
-     * security. Phoundation may not know at the point where your error occurred if it is in a production environment
-     * or not. Either way, you should never need this unless shit somehow really has hit the fan.
+     * The reason that this is normally commented out and that logging or displaying your errors might fail is for security. Phoundation may not know at the
+     * point where your error occurred if it is in a production environment or not. Either way, you should never need this unless shit somehow really has hit
+     * the fan.
      *
      * @param Throwable $e
      *
      * @return never
-     * @note : This function should never be called directly
-     * @todo Refactor uncaught exception handling, its a bloody godawful mess!
+     * @todo Rewrite the uncaught exception handling to log better and display any error (or error page) better. Right now its messy with error displaying and logs are a mess.
      */
-    #[NoReturn] public static function uncaughtExceptionHandler(Throwable $e): never
+    #[NoReturn] public static function processUncaughtException(Throwable $e): never
     {
         // In case of uncaught exceptions, all logging must be turned on
         Log::enable();
 
         // Uncomment the following line in case the exception handler is not working correctly and does not display exceptions
         //if (!headers_sent()) {header_remove('Content-Type'); header('Content-Type: text/html', true);} echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); exit();
-        Core::uncaughtExceptionHandlerAvoidEndlessLoop($e);
+        Core::processUncaughtExceptionAvoidEndlessLoop($e);
 
         // Track state
         $state             = Core::getState();
@@ -1186,7 +1195,7 @@ class Core implements CoreInterface
             exit('exception before platform detection');
 
         } catch (Throwable $g) {
-            Core::uncaughtExceptionHandlerCrash($e, $f, $g);
+            Core::uncaughtExceptionHandlerCrash($e, isset_get($f), $g);
         }
     }
 
@@ -1198,7 +1207,7 @@ class Core implements CoreInterface
      *
      * @return void
      */
-    protected static function uncaughtExceptionHandlerAvoidEndlessLoop(Throwable $e): void
+    protected static function processUncaughtExceptionAvoidEndlessLoop(Throwable $e): void
     {
         static $run_executed      = false; // Core::uncaughtExceptionHandler was executed during runtime
         static $shutdown_executed = false; // Core::uncaughtExceptionHandler was executed during runtime
@@ -1245,13 +1254,13 @@ class Core implements CoreInterface
     /**
      * Handles issues where the uncaughtExceptionHandler itself crashed (yeah, that is a thing too)
      *
-     * @param Throwable $e
-     * @param Throwable $f
-     * @param Throwable $g
+     * @param Throwable      $e
+     * @param Throwable|null $f
+     * @param Throwable      $g
      *
      * @return never
      */
-    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, Throwable $f, Throwable $g): never
+    #[NoReturn] protected static function uncaughtExceptionHandlerCrash(Throwable $e, ?Throwable $f, Throwable $g): never
     {
         // Well, we tried. Here we just give up all together. Just try to log to error_log, then exit the process
         try {
@@ -1261,14 +1270,14 @@ class Core implements CoreInterface
 
                     error_log($g->getMessage());
                     error_log($g->getMessage());
-                    error_log($f->getMessage());
+                    error_log($f?->getMessage());
                     error_log($e->getMessage());
                     break;
 
                 case 'cli':
                     echo 'Fatal error:' . PHP_EOL;
                     echo $g->getMessage() . PHP_EOL;
-                    echo $f->getMessage() . PHP_EOL;
+                    echo $f?->getMessage() . PHP_EOL;
                     echo $e->getMessage() . PHP_EOL;
                     echo PHP_EOL;
 
@@ -1915,6 +1924,8 @@ class Core implements CoreInterface
 //                ]));
 //        }
 //    }
+
+
     /**
      * Implementation of the sleep() method that is process interrupt signal safe.
      *
@@ -1984,10 +1995,10 @@ class Core implements CoreInterface
     {
         if (Core::$usleep) {
             // Ups, we were sleeping, but it got interrupted. Resume
-            usleep(Core::$usleep - (microtime(true) * 1000000) + $offset);
+            usleep(Core::$usleep - (microtime(true) * 1_000_000) + $offset);
 
         } else {
-            Core::$usleep = (microtime(true) * 1000000) + $micro_seconds;
+            Core::$usleep = (microtime(true) * 1_000_000) + $micro_seconds;
             usleep($micro_seconds);
         }
 
@@ -2210,7 +2221,7 @@ class Core implements CoreInterface
 
         if ($maintenance) {
             PhoFile::new(DIRECTORY_SYSTEM . 'maintenance', $restrictions)->delete();
-            Log::warning(ts('System has been relieved from maintenace mode. All web requests will now again be processed, all commands are available'), 10);
+            Log::warning(ts('System has been relieved from maintenance mode. All web requests will now again be processed, all commands are available'), 10);
         }
 
         if ($readonly) {
@@ -2895,7 +2906,7 @@ class Core implements CoreInterface
 
         set_exception_handler($enabled ? [
             '\Phoundation\Core\Core',
-            'uncaughtExceptionHandler',
+            'processUncaughtException',
         ] : null);
     }
 
@@ -3178,6 +3189,8 @@ class Core implements CoreInterface
      */
     #[NoReturn] protected static function processUncaughtWebException(Throwable $e, string $state): never
     {
+        Response::setAction(EnumRequestActions::exception);
+
         // Log full exception data
         Log::error(ts('*** UNCAUGHT EXCEPTION ":class" IN ":type" WEB PAGE ":command" WITH ENVIRONMENT ":environment" DURING CORE STATE ":state" ***', [
             ':class'       => get_class($e),
@@ -3210,16 +3223,16 @@ class Core implements CoreInterface
                 Log::warning($e->getData(), 10);
             }
             // This is just a simple validation warning, show warning messages in the exception data
-            //  Core::executeUncaughtExceptionSystemPage(400, $e, tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
+            //  Core::executeUncaughtExceptionSystemPage(400, $e, log_message: tr('Page did not catch the following "ValidationFailedException" warning. Executing "system/400" instead'));
 
         } catch (AuthenticationException $e) {
-            Core::executeUncaughtExceptionSystemPage(-401, $e, tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
+            Core::executeUncaughtExceptionSystemPage(-401, $e, log_message: tr('Page did not catch the following "AuthenticationException" warning. Executing "system/401" instead'));
 
         } catch (IncidentsException $e) {
             $new_target = $e->getNewTarget();
 
             if (empty($new_target)) {
-                Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
+                Core::executeUncaughtExceptionSystemPage(500, $e, log_message: tr('Page did not catch the following "IncidentsException" warning. Executing "system/500" instead'));
 
             } else {
                 Log::warning(ts('Access denied to target ":target" for user ":user", executing specified new target ":new" instead', [
@@ -3229,26 +3242,26 @@ class Core implements CoreInterface
                 ]));
 
                 // Execute the new system page target instead
-                Core::executeUncaughtExceptionSystemPage($new_target , $e, $e->getMessage());
+                Core::executeUncaughtExceptionSystemPage($new_target , $e, log_message: $e->getMessage());
             }
 
         } catch (AccessDeniedException $e) {
-            Core::executeUncaughtExceptionSystemPage(403, $e, tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
+            Core::executeUncaughtExceptionSystemPage(403, $e, log_message: tr('Page did not catch the following "AccessDeniedException" warning. Executing "system/403" instead'));
 
         } catch (Http404Exception | DataEntryNotExistsException | DataEntryDeletedException | FileNotExistException $e) {
-            Core::executeUncaughtExceptionSystemPage(404, $e, tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
+            Core::executeUncaughtExceptionSystemPage(404, $e, log_message: tr('Page did not catch the following "Http404Exception" "DataEntryNotExistsException" or "DataEntryDeletedException" or "FileNotExistException" warning. Executing "system/404" instead'));
 
         } catch (Http405Exception | DataEntryReadonlyException | RequestMethodRestrictionsException $e) {
-            Core::executeUncaughtExceptionSystemPage(405, $e, tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
+            Core::executeUncaughtExceptionSystemPage(405, $e, log_message: tr('Page did not catch the following "Http405Exception" or "DataEntryReadonlyException" or "RequestMethodRestrictionsException" warning. Executing "system/405" instead'));
 
         } catch (Http409Exception | DataEntryExistsException $e) {
-            Core::executeUncaughtExceptionSystemPage(409, $e, tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
+            Core::executeUncaughtExceptionSystemPage(409, $e, log_message: tr('Page did not catch the following "Http409Exception" warning. Executing "system/409" instead'));
 
         } catch (Http503Exception | CoreReadonlyException $e) {
-            Core::executeUncaughtExceptionSystemPage(503, $e, tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
+            Core::executeUncaughtExceptionSystemPage(503, $e, log_message: tr('Page did not catch the following "Http503Exception" warning. Executing "system/503" instead'));
 
         } catch (PhoException | Throwable $e) {
-            Core::executeUncaughtExceptionSystemPage(500, $e, tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
+            Core::executeUncaughtExceptionSystemPage(500, $e, log_message: tr('Page did not catch the following "PhoException" warning. Executing "system/500" instead'));
         }
 
         // Remove all caching headers
@@ -3542,14 +3555,15 @@ class Core implements CoreInterface
     /**
      * Tries to execute the specified system page on the web platform, returns void if unable to do so due to Debug mode
      *
-     * @param int $page            The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
-     *                             enabled
-     * @param Throwable   $e       The exception that caused this system page to be executed
-     * @param string|null $message The optional message to add to this system page
+     * @param int         $page               The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug
+     *                                        mode is enabled
+     * @param Throwable   $e                  The exception that caused this system page to be executed
+     * @param string|null $message     [null] The optional user-visible message to add to this system page
+     * @param string|null $log_message [null] The optional log-only message to add to this system page
      *
      * @return void
      */
-    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e, ?string $message = null): void
+    protected static function executeUncaughtExceptionSystemPage(int $page, Throwable $e, ?string $message = null, ?string $log_message = null): void
     {
         // Any of these exceptions will be too severe to show a pretty error page
         $classes = [
@@ -3566,7 +3580,7 @@ class Core implements CoreInterface
             }
 
             // Try to show a pretty error page
-            Request::executeSystem($page, $e, $message);
+            Request::executeSystem($page, $e, $message, $log_message);
         }
 
         Response::setHttpCode(abs($page));

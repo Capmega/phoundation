@@ -3,7 +3,7 @@
 /**
  * Page 409 - Conflict
  *
- * This is the page that will be shown when the specified could not be completed due to a conflict with the current
+ * This is the page that will be shown when the specified request could not be completed due to a conflict with the current
  * state of the target resource
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -44,7 +44,7 @@ Response::setHttpCode(409);
 Response::setRenderMainWrapper(false);
 Response::setPageTitle('409 - Conflict');
 Response::setHeaderTitle(tr('409 - Conflict'));
-Response::setDescription(tr('The specified could not be completed due to a conflict with the current state of the target resource'));
+Response::setDescription(tr('The specified request could not be completed due to a conflict with the current state of the target resource'));
 Response::setBreadcrumbs();
 
 
@@ -53,7 +53,7 @@ return Page::new('system/http-error')->addTextsObject([
     ':h2'     => '409',
     ':h3'     => tr('Conflict'),
     ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
-    ':p'      => tr('The specified could not be completed due to a conflict with the current state of the target resource.', [
+    ':p'      => tr('The specified request could not be completed due to a conflict with the current state of the target resource.', [
         ':url' => Request::getReferer(true),
     ]),
     ':type'   => 'warning',

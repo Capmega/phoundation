@@ -40,10 +40,10 @@ class SignInPage extends Page
 
         $this->setSection(Anchor::new(Project::getOwnerUrl())
                                 ->setClass('h1')
-                                ->setContent(Img::new('logos/large.jpg')
-                                                ->setAlt(tr(':owner logo', [':owner' => Project::getOwnerName()])), false)
+                                ->setContent(Img::new('logos/large.jpg')->setAlt(tr(':owner logo', [':owner' => Project::getOwnerName()])), false)
                                 ->setRenderRightsFail(EnumAnchorRenderRightsFail::full), 'card-header')
-             ->setSection(Anchor::new(Url::new('lost-password'))
+
+             ->setSection(Anchor::new(Url::new('lost-password')->makeWww()->addRedirect($this->getGet('redirect'))->addQuery($this->getGet('email'), 'email'))
                                 ->setContent(tr('text-center'))
                                 ->setContent(tr('I forgot my password'))
                                 ->setRenderRightsFail(EnumAnchorRenderRightsFail::full), 'lost-password');
@@ -52,8 +52,7 @@ class SignInPage extends Page
              ->setEnabled(true, 'copyright')
              ->setEnabled(true, 'lost-password');
 
-        $this->setUrl(Url::new('lost-password')->makeWww()->addRedirect($this->getGet('redirect'))->addQuery($this->getGet('email'), 'email'), 'lost-password')
-             ->setUrl(Url::new('backgrounds/signin.jpg')->makeImg()                                                                          , 'image-background');
+        $this->setUrl(Url::new('backgrounds/signin.jpg')->makeImg(), 'image-background');
 
         return parent::render();
     }

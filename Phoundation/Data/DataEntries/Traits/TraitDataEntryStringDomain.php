@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Traits;
 
 
-trait TraitDataEntryDomain
+trait TraitDataEntryStringDomain
 {
     /**
      * Returns the domain for this object

@@ -409,22 +409,22 @@ class Numbers
     /**
      * Returns a random float number between 0 and 1
      *
-     * @param int       $min
-     * @param int|float $max
+     * @param float|int $min The lowest random number
+     * @param float|int $max The highest random number
      *
      * @return float
      */
-    public static function getRandomFloat(int $min = 0, int $max = PHP_FLOAT_MAX): float
+    public static function getRandomFloat(float|int $min = 0, float|int $max = PHP_FLOAT_MAX): float
     {
         try {
-            return random_int($min, $max) / $max;
+            return (float) (random_int($min, $max) / $max);
 
         } catch (Exception $e) {
             // random_int() crashed for ... reasons? Fall back on mt_rand()
             Log::warning(ts('Failed to get result from random_int(), attempting mt_rand()'));
             Log::error($e);
 
-            return mt_rand($min, $max) / $max;
+            return (float) (mt_rand($min, $max) / $max);
         }
     }
 
@@ -432,8 +432,8 @@ class Numbers
     /**
      * Returns a random float number between $min and $max
      *
-     * @param int $min
-     * @param int $max
+     * @param int $min The lowest random number
+     * @param int $max The highest random number
      *
      * @return int
      */

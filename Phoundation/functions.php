@@ -854,26 +854,37 @@ function tr(string $text, ?array $replace = null, bool $clean = true, bool $chec
  * @param Stringable|string|int|float|null $source            The source variable to process
  * @param bool                             $allow_null [true] If true, and the source is NULL, will return NULL. If false, and the source is NULL, will throw an
  *                                                            OutOfBoundsException
+ * @param bool                             $exception  [true] If true, and the specified value is not numeric, will throw an OutOfBoundsException. If false,
+ *                                                            will return the string value (which is not numeric, then).
  *
- * @return int|null
+ * @return string|int|null
  *
  * @throws OutOfBoundsException
  */
-function cast_integer_if_numeric(Stringable|string|int|float|null $source, bool $allow_null = false): ?int
+function cast_integer_if_numeric(Stringable|string|int|float|null $source, bool $allow_null = false, bool $exception = true): string|int|null
 {
     if (($source === null) and $allow_null) {
         return null;
+    }
+
+    if (is_object($source)) {
+        // Make Stringable objects a string
+        $source = (string) $source;
     }
 
     if (is_numeric($source)) {
         return (int) $source;
     }
 
-    throw OutOfBoundsException::new(ts('Cannot cast the specified value ":value" to integer, the value is not numeric', [
-        ':value' => $source,
-    ]))->addData([
-        'value' => $source,
-    ]);
+    if ($exception) {
+        throw OutOfBoundsException::new(ts('Cannot cast the specified value ":value" to integer, the value is not numeric', [
+            ':value' => $source,
+        ]))->addData([
+            'value' => $source,
+        ]);
+    }
+
+    return (string) $source;
 }
 
 

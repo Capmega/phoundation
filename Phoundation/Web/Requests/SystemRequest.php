@@ -64,12 +64,14 @@ class SystemRequest implements SystemRequestInterface
     /**
      * Execute the specified system page
      *
-     * @param array $variables
+     * @param array $variables The variables that will be passed to the requested system page
      *
      * @return never
      */
     protected function executePage(array $variables): never
     {
+        static $retry = false;
+
         switch (Core::getExposePhoundation()) {
             case 'full':
                 $phoundation = '<address>Phoundation ' . Core::PHOUNDATION_VERSION . '</address>';
@@ -80,6 +82,7 @@ class SystemRequest implements SystemRequestInterface
                 break;
 
             case 'fake':
+                // TODO Implement proper fake version for this that won't change with each page reload
                 $phoundation = '<address>Phoundation 4.11.1</address>';
                 break;
 
@@ -88,8 +91,8 @@ class SystemRequest implements SystemRequestInterface
         }
 
         Arrays::default($variables, 'code'   , 500);
-        Arrays::default($variables, 'title'  , 'unspecified');
-        Arrays::default($variables, 'message', 'unspecified');
+        Arrays::default($variables, 'title'  , tr('unspecified'));
+        Arrays::default($variables, 'message', tr('unspecified'));
 
         if ($phoundation) {
             Arrays::default($variables, 'details', $phoundation);
@@ -105,30 +108,45 @@ class SystemRequest implements SystemRequestInterface
         try {
             // Execute the system page request
             Request::setSystem(true);
+            Request::set($variables['message'], 'message');
             Request::executeAndFlush($request_path . 'system/' . $variables['code'] . '.php', true);
             exit();
 
+        } catch (SystemPageNotFoundException $e) {
+            if ($retry) {
+                // We already tried rebuilding, it still does not exist, so fail instead
+                static::displayTemplate($variables, $e);
+
+            } else {
+                // A system page that does not exist? Try rebuilding web-cache and retry, then we can fail
+                $retry = true;
+                static::rebuildWebCacheAndReExecute($variables, $e);
+            }
+
         } catch (Throwable $e) {
-            static::rebuildWebCacheAndReExecute($variables, $e);
             static::displayTemplate($variables, $e);
         }
     }
 
 
     /**
-     * @param int            $http_code
-     * @param Throwable|null $e
-     * @param string|null    $message
+     * Executes the specified request for a system page
+     *
+     * @param int            $http_code          The system page to execute. If specified as a negative number, the page will be executed forcibly, even if
+     *                                           debug mode is enabled
+     * @param Throwable|null $e           [null] The (optional) exception that caused this system page to be executed
+     * @param string|null    $message     [null] The optional user-visible message to add to this system page
+     * @param string|null    $log_message [null] The optional log-only message to add to this system page
      *
      * @return never
      */
-    #[NoReturn] public function execute(int $http_code, ?Throwable $e = null, ?string $message = null): never
+    #[NoReturn] public function execute(int $http_code, ?Throwable $e = null, ?string $message = null, ?string $log_message = null): never
     {
         $method = 'execute' . $http_code;
 
         // Log warning message and exception, if specified
-        if ($message) {
-            Log::error($message);
+        if ($log_message) {
+            Log::error($log_message);
         }
 
         if ($e) {
@@ -210,7 +228,7 @@ class SystemRequest implements SystemRequestInterface
         // https://blog.ircmaxell.com/2014/11/its-all-about-time.html
 
         Numbers::getRandomInt(1, 100000);
-        $this->$method();
+        $this->$method($message);
         exit();
     }
 
@@ -221,31 +239,22 @@ class SystemRequest implements SystemRequestInterface
      * @param array     $variables
      * @param Throwable $e
      *
-     * @return void
+     * @return never
      */
-    protected function rebuildWebCacheAndReExecute(array $variables, Throwable $e): void
+    protected function rebuildWebCacheAndReExecute(array $variables, Throwable $e): never
     {
-        static $rebuild = false;
-        if (($e instanceof SystemPageNotFoundException) and !$rebuild) {
+        if ($e instanceof SystemPageNotFoundException) {
             // A system page does not exist? Has the web cache directory been built? Rebuild it once and try again.
-            $rebuild = true;
-            try {
-                Log::warning(ts('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
-                    ':code' => $variables['code'],
-                ]));
 
-                Web::rebuildCache();
-                static::executePage($variables);
+            Log::warning(ts('The ":code" page does not exist in the web cache directory. Trying to rebuild the web cache ', [
+                ':code' => $variables['code'],
+            ]));
 
-            } catch (Throwable $e) {
-                // Nah, did not solve the issue
-                if (!($e instanceof SystemPageNotFoundException)) {
-                    // A different issue?
-                    Log::error(ts('Rebuilding web cache failed with exception below'));
-                    Log::error($e);
-                }
-            }
+            Web::rebuildCache();
+            static::executePage($variables);
         }
+
+        throw $e;
     }
 
 
@@ -270,19 +279,24 @@ class SystemRequest implements SystemRequestInterface
             Log::error($e);
 
             // Build and return the error page
-            echo Template::new('system/http-error')->getTextsObject()->setSource([
+            $_template = Template::new('system/http-error');
+            $_template->getTextsObject()->setSource([
                 ':h2'     => $variables['code'],
                 ':h3'     => Strings::capitalize($variables['title']),
                 ':p'      => $variables['message'],
                 ':body'   => $variables['details'],
                 ':type'   => 'warning',
                 ':search' => tr('Search'),
+                ':img'    => '',
                 ':action' => Url::new('search/')->makeWww(),
             ]);
+
+            echo $_template;
 
         } catch (Throwable $f) {
             static::displayHardcoded500($e, $f);
         }
+
         exit();
     }
 
@@ -321,18 +335,20 @@ class SystemRequest implements SystemRequestInterface
 
 
     /**
-     * Show the 403 - FORBIDDEN page
+     * Show the 401 - UNAUTHORIZED page (actually will redirect to sign-in page)
+     *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
      *
      * @return never
      * @see Route::exit()
      * @see Route::add()
      */
-    #[NoReturn] protected function execute401(): never
+    #[NoReturn] protected function execute401(?string $message = null): never
     {
         $this->executePage([
             'code'    => 401,
             'title'   => tr('Unauthorized'),
-            'message' => tr('You need to sign-in to be able to access the specified resource'),
+            'message' => $message ?? tr('You need to sign-in to be able to access the specified resource'),
         ]);
     }
 
@@ -340,16 +356,18 @@ class SystemRequest implements SystemRequestInterface
     /**
      * Show the 403 - FORBIDDEN page
      *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
      * @return never
      * @see Route::exit()
      * @see Route::add()
      */
-    #[NoReturn] protected function execute403(): never
+    #[NoReturn] protected function execute403(?string $message = null): never
     {
         $this->executePage([
             'code'    => 403,
             'title'   => tr('Forbidden'),
-            'message' => tr('You do not have access to the requested URL on this server'),
+            'message' => $message ?? tr('You do not have access to the requested URL on this server'),
         ]);
     }
 
@@ -357,11 +375,13 @@ class SystemRequest implements SystemRequestInterface
     /**
      * Show the 404 - NOT FOUND page
      *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
      * @return never
      * @see Route::exit()
      * @see Route::add()
      */
-    #[NoReturn] protected function execute404(): never
+    #[NoReturn] protected function execute404(?string $message = null): never
     {
         Log::warning(ts('Found no applicable routes or webserver called for 404, testing for hacks'));
 
@@ -379,7 +399,26 @@ class SystemRequest implements SystemRequestInterface
         $this->executePage([
             'code'    => 404,
             'title'   => tr('Not found'),
-            'message' => tr('The requested URL does not exist on this server'),
+            'message' => $message ?? tr('The requested URL does not exist on this server'),
+        ]);
+    }
+
+
+    /**
+     * Show the 410 - GONE page
+     *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
+     * @return never
+     * @see Route::exit()
+     * @see Route::add()
+     */
+    #[NoReturn] protected function execute410(?string $message = null): never
+    {
+        $this->executePage([
+            'code'    => 410,
+            'title'   => tr('Forbidden'),
+            'message' => $message ?? tr('The requested resource is no longer available'),
         ]);
     }
 
@@ -387,16 +426,18 @@ class SystemRequest implements SystemRequestInterface
     /**
      * Show the 500 - Internal Server Error page
      *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
      * @return never
      * @see Route::exit()
      * @see Route::add()
      */
-    #[NoReturn] protected function execute500(): never
+    #[NoReturn] protected function execute500(?string $message = null): never
     {
         $this->executePage([
             'code'    => 500,
             'title'   => tr('Internal Server Error'),
-            'message' => tr('The server encountered an unexpected condition that prevented it from fulfilling the request'),
+            'message' => $message ?? tr('The server encountered an unexpected condition that prevented it from fulfilling the request'),
         ]);
     }
 
@@ -404,16 +445,18 @@ class SystemRequest implements SystemRequestInterface
     /**
      * Show the 503 - Service unavailable page
      *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
      * @return never
      * @see Route::exit()
      * @see Route::add()
      */
-    #[NoReturn] protected function execute503(): never
+    #[NoReturn] protected function execute503(?string $message = null): never
     {
         $this->executePage([
             'code'    => 503,
             'title'   => tr('Service unavailable'),
-            'message' => tr('The server is currently unable to handle the request due to a temporary overload or scheduled maintenance'),
+            'message' => $message ?? tr('The server is currently unable to handle the request due to a temporary overload or scheduled maintenance'),
         ]);
     }
 }

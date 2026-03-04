@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace Phoundation\Data\DataEntries\Traits;
 
 
+use Phoundation\Web\Html\Enums\EnumHttpRequestMethod;
+
 trait TraitDataEntryMethod
 {
     /**
@@ -33,12 +35,21 @@ trait TraitDataEntryMethod
     /**
      * Sets the method for this object
      *
-     * @param string|null $method
+     * @param EnumHttpRequestMethod|string|null $method
      *
      * @return static
      */
-    public function setMethod(?string $method): static
+    public function setMethod(EnumHttpRequestMethod|string|null $method): static
     {
+        if ($method) {
+            if (is_object($method)) {
+                $method = $method->value;
+
+            } else {
+                $method = EnumHttpRequestMethod::from($method)->value;
+            }
+        }
+
         return $this->set(get_null($method), 'method');
     }
 }

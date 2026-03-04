@@ -8,16 +8,21 @@ use PDOStatement;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Content\Documents\Interfaces\SpreadSheetInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Core\Meta\Interfaces\MetaInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryCannotBeDeletedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNoIdentifierSpecifiedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Enums\EnumSoftHard;
 use Phoundation\Data\Interfaces\CacheableObjectInterface;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
+use Phoundation\Databases\Connectors\Connector;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Sql\Interfaces\QueryBuilderInterface;
 use Phoundation\Date\Interfaces\PhoDateTimeInterface;
@@ -25,6 +30,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Json;
 use Phoundation\Web\Html\Components\Forms\Interfaces\DataEntryFormInterface;
 use Phoundation\Web\Html\Components\Input\Buttons\Buttons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonsInterface;
@@ -70,53 +76,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return string|null
      */
     public static function getUniqueColumn(): ?string;
-
-    /**
-     * Returns a DataEntry object matching the specified identifier that MUST exist in the database
-     *
-     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified
-     * object, as long as it exists in the database.
-     *
-     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a
-     * configuration entry. This requires DataEntry::$config_path to be set. DataEntries from configuration will be in
-     * readonly mode automatically as they cannot be stored in the database.
-     *
-     * DataEntries from the database will also have their status checked. If the status is "deleted", then a
-     * DataEntryDeletedException will be thrown
-     *
-     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or
-     *       DataEntry::getId(), which should return a valid database id
-     *
-     * @param IdentifierInterface|array|string|int|null $identifier                    Identifier for the DataEntry object to
-     *                                                                                 load. Can be specified with a
-     *                                                                                 [column => value] array, though also
-     *                                                                                 accepts an integer value which will convert
-     *                                                                                 to [id_column => integer_value] or a string
-     *                                                                                 value which will convert to
-     *                                                                                 [unique_column => string_value]]
-     * @param EnumLoadParameters|null                   $on_null_identifier       Specifies how this load method will handle
-     *                                                                                 the specified identifier being NULL.
-     *                                                                                 Options are: EnumLoadParameters::exception
-     *                                                                                 (Throws a
-     *                                                                                 DataEntryNoIdentifierSpecifiedException),
-     *                                                                                 EnumLoadParameters::null (will return NULL)
-     *                                                                                 or EnumLoadParameters::this (Will return
-     *                                                                                 the object as-is, without loading
-     *                                                                                 anything). Defaults to
-     *                                                                                 EnumLoadParameters::exception
-     * @param EnumLoadParameters|null                   $on_not_exists            Specifies how this load method will handle
-     *                                                                                 the specified identifier not existing in
-     *                                                                                 the database. Options are:
-     *                                                                                 EnumLoadParameters::exception (Throws a
-     *                                                                                 DataEntryNotExistsException),
-     *                                                                                 EnumLoadParameters::null (will return NULL)
-     *                                                                                 or EnumLoadParameters::this (Will return
-     *                                                                                 the object as-is, without loading anything)
-     *                                                                                 Defaults to EnumLoadParameters::exception
-     *
-     * @return static|null
-     */
-    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static;
 
     /**
      * Returns if this DataEntry validates data before saving
@@ -1046,4 +1005,170 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      * @return callable
      */
     public function getDefaultButtonHandler(string $button, ?UrlInterface $_url = null): callable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Loads the data for this DataEntry object matching the specified identifier that MUST exist in the database
+     *
+     * This method also accepts DataEntry objects of the same class, in which case it will simply return the specified object, as long as it exists in the
+     * database.
+     *
+     * If the DataEntry does not exist in the database, then this method will check if perhaps it exists as a configuration entry. This requires
+     * DataEntry::$config_path to be set. DataEntries from configuration will be in readonly mode automatically as they cannot be stored in the database.
+     *
+     * DataEntries from the database will also have their status checked. If the status is "deleted", then a DataEntryDeletedException will be thrown
+     *
+     * @note The test to see if a DataEntry object exists in the database can be either DataEntry::isNew() or DataEntry::getId(), which should return a valid
+     *       database id
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier              Identifier for the DataEntry object to load. Can be specified with a
+     *                                                                           [column => value] array, though also accepts an integer value which will
+     *                                                                           convert to [id_column => integer_value] or a string value which will convert to
+     *                                                                           [unique_column => string_value]]
+     *
+     * @param EnumLoadParameters|null $on_null_identifier                        Specifies how this load method will handle the specified identifier being NULL.
+     *                                                                           Options are: EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNoIdentifierSpecifiedException EnumLoadParameters::null: Will return
+     *                                                                           NULL EnumLoadParameters::this: Will return the object as-is, without loading
+     *                                                                           anything).
+     *
+     *                                                                           Defaults to EnumLoadParameters::exception
+     *
+     * @param EnumLoadParameters|null $on_not_exists                             Specifies how this load method will handle the specified identifier not
+     *                                                                           existing in the database. Options are: EnumLoadParameters::exception: Throws a
+     *                                                                           DataEntryNotExistsException. EnumLoadParameters::null: Returns NULL
+     *                                                                           EnumLoadParameters::this Returns this, the object as-is, without loading
+     *                                                                           anything.
+     *
+     *                                                                           Defaults to EnumLoadParameters::exception
+     *
+     * @return static|null
+     *
+     * @throws DataEntryNoIdentifierSpecifiedException Thrown when the specified identifier is empty and $on_null_identifier is set to
+     *                                                 EnumLoadParameters::exception
+     * @throws DataEntryNotExistsException             Thrown when the specified identifier does not exist and $on_not_exists is set to
+     *                                                 EnumLoadParameters::exception
+     */
+    public function load(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or NULL if NULL identifier was specified
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier    The identifier for the data to load
+     * @param EnumLoadParameters|null                   $on_not_exists The action to perform when the specified identifier does not exist; return NULL, return
+     *                                                                 THIS, throw exception
+     *
+     * @return static|null
+     */
+    public function loadNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): ?static;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or THIS if NULL identifier was specified
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier    The identifier for the data to load
+     * @param EnumLoadParameters|null                   $on_not_exists The action to perform when the specified identifier does not exist; return NULL, return
+     *                                                                 THIS, throw exception
+     *
+     * @return static
+     */
+    public function loadThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_not_exists = null): static;
+
+    /**
+     * Returns a DataEntry object matching the specified identifier that MUST exist in the database, or THIS if the specified identifier does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier         The identifier for the data to load
+     * @param EnumLoadParameters|null                   $on_null_identifier The action to perform when the specified identifier is NULL; return NULL, return
+     *                                                                      THIS, throw exception
+     *
+     * @return static|null
+     */
+    public function loadOrThis(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static;
+
+    /**
+     * Loads data into this DataEntry object that matches specified identifier, or NULL if the specified identifier does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier         The identifier for the data to load
+     * @param EnumLoadParameters|null                   $on_null_identifier The action to perform when the specified identifier is NULL; return NULL, return
+     *                                                                      THIS, throw exception
+     *
+     * @return static|null
+     */
+    public function loadOrNull(IdentifierInterface|array|string|int|null $identifier = null, ?EnumLoadParameters $on_null_identifier = null): ?static;
+
+    /**
+     * Loads data into this DataEntry object that matches specified identifier, or THIS if no identifier was specified, or THIS if it does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
+     *
+     * @return static
+     */
+    public function loadThisOrThis(IdentifierInterface|array|string|int|null $identifier = null): static;
+
+    /**
+     * Loads data into this DataEntry object that matches specified identifier, or THIS if no identifier was specified, or NULL if it does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
+     *
+     * @return static|null
+     */
+    public function loadThisOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static;
+
+    /**
+     * Loads data into this DataEntry object that matches specified identifier, or NULL if no identifier was specified, or THIS if it does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
+     *
+     * @return static|null
+     */
+    public function loadNullOrThis(IdentifierInterface|array|string|int|null $identifier = null): ?static;
+
+    /**
+     * Loads data into this DataEntry object that matches specified identifier, or NULL if no identifier was specified, or NULL if it does not exist
+     *
+     * @param IdentifierInterface|array|string|int|null $identifier The identifier for the data to load
+     *
+     * @return static|null
+     */
+    public function loadNullOrNull(IdentifierInterface|array|string|int|null $identifier = null): ?static;
+
+    /**
+     * Returns true if this DataEntry object is currently in the process of loading data
+     *
+     * @return bool
+     */
+    public function isResolvingVirtualColumn(): bool;
+
+    /**
+     * Returns the value for the specified flag
+     *
+     * @param string $flag
+     *
+     * @return bool
+     */
+    public function getFlag(string $flag): bool;
 }

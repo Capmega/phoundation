@@ -1537,14 +1537,16 @@ class Request implements RequestInterface
     /**
      * Executes the specified system page
      *
-     * @param int            $http_code The system page to execute. If specified as a negative number, the page will be executed forcibly, even if debug mode is
-     *                                  enabled
-     * @param Throwable|null $e         The exception that caused this system page to be executed
-     * @param string|null    $message   The optional message to add to this system page
+     * @param int            $http_code          The system page to execute. If specified as a negative number, the page will be executed forcibly, even if
+     *                                           debug mode is enabled
+     * @param Throwable|null $e           [null] The (optional) exception that caused this system page to be executed
+     * @param string|null    $message     [null] The optional user-visible message to add to this system page
+     * @param string|null    $log_message [null] The optional log-only message to add to this system page
      *
      * @return never
+     * @throws RequestException in case the system page failed to execute correctly
      */
-    #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null): never
+    #[NoReturn] public static function executeSystem(int $http_code, ?Throwable $e = null, ?string $message = null, ?string $log_message = null): never
     {
         try {
             if ($e and (Debug::isEnabled() and $http_code > 0)) {
@@ -1560,7 +1562,9 @@ class Request implements RequestInterface
                 Session::start();
             }
 
-            SystemRequest::new()->execute(abs($http_code), $e, $message);
+            Response::checkForceRedirect();
+
+            SystemRequest::new()->execute(abs($http_code), $e, $message, $log_message);
 
         } catch (Throwable $f) {
             throw RequestException::new(tr('Failed to execute system page ":page"', [':page' => $http_code]), $f)
@@ -1762,6 +1766,8 @@ class Request implements RequestInterface
             // Start session here because processing the file not found will need it
             Session::start();
         }
+
+        Response::checkForceRedirect();
 
         if (Request::getSystem()) {
             // This is not a normal request, this is a system request. System pages SHOULD ALWAYS EXIST, but if they
@@ -2129,5 +2135,27 @@ class Request implements RequestInterface
     public static function getUserAgent(): ?string
     {
         return Request::getHeader('User-Agent');
+    }
+
+
+    /**
+     * Returns the remote IP address where this request came from
+     *
+     * @return string|null
+     */
+    public static function getRemoteIpAddress(): ?string
+    {
+        return array_get_safe($_SERVER, 'REMOTE_ADDR');
+    }
+
+
+    /**
+     * Returns an alternative remote IP address where this request came from
+     *
+     * @return string|null
+     */
+    public static function getRemoteIpAddressReal(): ?string
+    {
+        return array_get_safe($_SERVER, 'HTTP_X_REAL_IP');
     }
 }

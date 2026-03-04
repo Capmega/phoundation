@@ -23,11 +23,13 @@ use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntryCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryDescription;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryKey;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryName;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryResults;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryRole;
+use Phoundation\Data\DataEntries\Traits\TraitDataEntrySessionsCode;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntrySpent;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStart;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryStop;
@@ -60,6 +62,7 @@ use Phoundation\Web\Html\Enums\EnumInputType;
 use Phoundation\Web\Http\Url;
 use Stringable;
 
+
 class Task extends DataEntry implements TaskInterface
 {
     use TraitDataEntryDescription;
@@ -75,6 +78,8 @@ class Task extends DataEntry implements TaskInterface
     use TraitDataEntryValues;
     use TraitDataEntryWorkers;
     use TraitDataEntryRestrictions;
+    use TraitDataEntryCode;
+    use TraitDataEntrySessionsCode;
 
 
     /**
@@ -1529,14 +1534,24 @@ class Task extends DataEntry implements TaskInterface
     protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
         $_definitions->add(DefinitionFactory::newCode()
-                                             ->setReadonly(true)
-                                             ->setOptional(true)
-                                             ->setLabel(tr('Code'))
-                                             ->setSize(4)
-                                             ->setMaxLength(36)
-                                             ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               $_validator->isCode();
-                                           }))
+                                            ->setReadonly(true)
+                                            ->setOptional(true)
+                                            ->setLabel(tr('Code'))
+                                            ->setSize(4)
+                                            ->setMaxLength(36)
+                                            ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                $_validator->isCode(max_characters: 36, min_characters: 36);
+                                            }))
+
+                     ->add(DefinitionFactory::newCode('sessions_code')
+                                            ->setReadonly(true)
+                                            ->setOptional(true)
+                                            ->setLabel(tr('Session Code'))
+                                            ->setSize(4)
+                                            ->setMaxLength(64)
+                                            ->addValidationFunction(function (ValidatorInterface $_validator) {
+                                                $_validator->isCode();
+                                            }))
 
                      ->add(DefinitionFactory::newName())
 
@@ -1570,7 +1585,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setInputType(EnumInputType::datetime_local)
                                      ->setLabel('Execution started on')
                                      ->setSize(4)
-                                     ->setMaxLength(21)
+                                     ->setMaxLength(17)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->isDateTime();
                                      }))
@@ -1581,7 +1596,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setInputType(EnumInputType::datetime_local)
                                      ->setLabel('Execution finished on')
                                      ->setSize(4)
-                                     ->setMaxLength(21)
+                                     ->setMaxLength(17)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->isDateTime();
                                      }))
@@ -1628,9 +1643,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->orColumn('servers_id')
                                                    ->isName()
-                                                   ->setColumnFromQuery('servers_id', 'SELECT `id`
-                                                                                       FROM   `servers`
-                                                                                       WHERE  `hostname` = :hostname
+                                                   ->setColumnFromQuery('servers_id', 'SELECT `id` 
+                                                                                       FROM   `servers` 
+                                                                                       WHERE  `hostname` = :hostname 
                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                                            ':hostname' => '$server'
                                                    ]);
@@ -1644,9 +1659,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
                                          $_validator->orColumn('server')
                                                    ->isDbId()
-                                                   ->isQueryResult('SELECT `id`
-                                                                    FROM   `servers`
-                                                                    WHERE  `id` = :id
+                                                   ->isQueryResult('SELECT `id` 
+                                                                    FROM   `servers` 
+                                                                    WHERE  `id` = :id 
                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
                                                                         ':id' => '$servers_id'
                                                    ]);
@@ -1695,8 +1710,8 @@ class Task extends DataEntry implements TaskInterface
                                      ->setCliColumn('[-a,--arguments ARGUMENTS]')
                                      ->setSize(4)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         // TODO Should the validation be skipped entirely for each field?
-                                         $_validator->isPrintable()->skipValidation();
+                                         $_validator->isPrintable();
+                                         $_validator->skipValidation();
                                      }))
 
                      ->add(Definition::new('variables')
@@ -1707,8 +1722,8 @@ class Task extends DataEntry implements TaskInterface
                                      ->setCliColumn('[-v,--variables VARIABLES]')
                                      ->setSize(4)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         // TODO Should the validation be skipped entirely for each field?
-                                         $_validator->isPrintable()->skipValidation();
+                                         $_validator->isPrintable();
+                                         $_validator->skipValidation();
                                      }))
 
                      ->add(Definition::new('environment_variables')
@@ -1800,9 +1815,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->setInputType(EnumInputType::number)
                                      ->setLabel('Minimum workers')
                                      ->setCliColumn('[--minimum-workers AMOUNT]')
-                                     ->setOptional(true, 1)
-                                     ->setMin(1)
-                                     ->setMax(static::getDefaultMaximumWorkers())
+                                     ->setOptional(true, 0)
+                                     ->setMin(0)
+                                     ->setMax(10_000)
                                      ->setSize(4))
 
                      ->add(Definition::new('maximum_workers')
@@ -1810,9 +1825,9 @@ class Task extends DataEntry implements TaskInterface
                                      ->setInputType(EnumInputType::number)
                                      ->setLabel('Maximum workers')
                                      ->setCliColumn('[--maximum-workers AMOUNT]')
-                                     ->setOptional(true, 10)
-                                     ->setMin(1)
-                                     ->setMax(static::getDefaultMaximumWorkers())
+                                     ->setOptional(true, 0)
+                                     ->setMin(0)
+                                     ->setMax(10_000)
                                      ->setSize(4))
 
                      ->add(Definition::new('sudo')
@@ -1859,29 +1874,25 @@ class Task extends DataEntry implements TaskInterface
                                      ->setSize(6)
                                      ->setMaxLength(510))
 
-                     ->add(Definition::new('pre_execution_hook')
+                     ->add(Definition::new('pre_exec')
                                      ->setOptional(true)
-                                     ->setLabel('Pre execution hook')
+                                     ->setLabel('Pre execute')
                                      ->setSize(6)
                                      ->setMaxLength(510))
 
-                     ->add(Definition::new('post_execution_hook')
+                     ->add(Definition::new('post_exec')
                                      ->setOptional(true)
-                                     ->setLabel('Post execution hook')
+                                     ->setLabel('Post execute')
                                      ->setSize(6)
                                      ->setMaxLength(510))
 
                      ->add(Definition::new('accepted_exit_codes')
-                                     ->setOptional(true, '[0]')
+                                     ->setOptional(true, [0])
                                      ->setLabel('Accepted Exit Codes')
                                      ->setElement(EnumElement::textarea)
                                      ->setInputType(EnumInputType::array_json)
                                      ->setSize(6)
-                                     ->setMaxLength(64)
-                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         // TODO Should the validation be skipped entirely for each field?
-                                         $_validator->isPrintable()->skipValidation();
-                                     }))
+                                     ->setMaxLength(64))
 
                      ->add(Definition::new('results')
                                      ->setOptional(true)
@@ -1890,11 +1901,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setElement(EnumElement::textarea)
                                      ->setSize(12)
                                      ->setMaxLength(16_777_215)
-                                     ->setReadonly(true)
-                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         // TODO Should the validation be skipped entirely for each field?
-                                         $_validator->skipValidation();
-                                     }))
+                                     ->setReadonly(true))
 
                      ->add(Definition::new('pid')
                                      ->setOptional(true)
@@ -1931,13 +1938,6 @@ class Task extends DataEntry implements TaskInterface
                                      ->setInputType(EnumInputType::text)
                                      ->setSize(6)
                                      ->setMaxLength(512))
-
-                     ->add(Definition::new('results_encryption_key')
-                                     ->setOptional(true)
-                                     ->setRender(false)
-                                     ->setLabel('Results encryption key')
-                                     ->setInputType(EnumInputType::text)
-                                     ->setMaxLength(64))
 
                      ->add(DefinitionFactory::newComments()
                                             ->setHelpText(tr('A description for this task')));

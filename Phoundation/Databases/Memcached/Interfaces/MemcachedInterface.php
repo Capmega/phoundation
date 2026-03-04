@@ -2,9 +2,13 @@
 
 namespace Phoundation\Databases\Memcached\Interfaces;
 
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Connectors\Interfaces\ConnectorInterface;
 use Phoundation\Databases\Interfaces\DatastoreInterface;
 use Phoundation\Databases\Memcached\Memcached;
+use Phoundation\Security\Incidents\Incident;
+use Phoundation\Utils\Strings;
+use Phoundation\Web\Http\Url;
 use Stringable;
 
 interface MemcachedInterface extends DatastoreInterface
@@ -169,4 +173,18 @@ interface MemcachedInterface extends DatastoreInterface
      * @return bool
      */
     public function exists(string|float|int|null $key, ?callable $cache_callback = null, int $flags = 0): bool;
+
+    /**
+     * Connect to the memcached servers
+     *
+     * @return static
+     */
+    public function connect(): static;
+
+    /**
+     * Returns true if this memcached driver is connected to memcached databases
+     *
+     * @return bool
+     */
+    public function isConnected(): bool;
 }

@@ -210,6 +210,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
             }
 
             // No status other than NULL or "executed" allowed!
+
         } elseif ($this->getStatus()) {
             throw new SignInKeyStatusException(tr('This sign-in key link has status ":status" and can no longer be used', [
                 ':status' => $this->getStatus(),
@@ -224,7 +225,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         // Update meta-history and set the status to "executed"
         $this->setStatus('executed')
              ->addToMetaHistory('executed', tr('The sign in key ":uuid" has been executed', [':uuid' => $this->getUuid()]), [
-            ':ip' => Route::getRemoteIp(),
+                 ':ip' => Route::getRemoteIp(),
         ]);
 
         Session::setSignKey($this);
@@ -234,6 +235,7 @@ class SignInKey extends DataEntry implements SignInKeyInterface
         }
 
         if ($this->getRedirect()) {
+            Session::setRedirectObject($this->getRedirectObject());
             Response::redirect($this->getRedirect());
         }
 

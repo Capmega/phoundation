@@ -1253,6 +1253,40 @@ class Arrays extends Utils
 
 
     /**
+     * Returns true if the given source array contains the specified column
+     *
+     * A column is either the key in a hash table (the value being the column name) or the value in a numeric array (the keys are just the index number)
+     *
+     * @param IteratorInterface|array $source The source array to test
+     * @param string                  $column The column name to search for
+     *
+     * @return bool
+     */
+    public static function hasColumn(IteratorInterface|array $source, string $column): bool
+    {
+        if (Arrays::isHash($source)) {
+            return array_key_exists($column, $source);
+        }
+
+        return in_array($column, $source);
+    }
+
+
+    /**
+     * Returns true if the specified source array is a hash table, false if it is a normnal array
+     *
+     * @param IteratorInterface|array $source
+     *
+     * @return bool
+     */
+    public static function isHash(IteratorInterface|array $source): bool
+    {
+        $source = Arrays::force($source);
+        return array_keys($source) !== range(0, count($source) - 1);
+    }
+
+
+    /**
      * Prefix all keys in this array with the specified prefix
      *
      * @param array      $source
@@ -4853,6 +4887,213 @@ class Arrays extends Utils
         }
 
         return false;
+    }
+
+
+    /**
+     * Returns all permutations for the given source, optionally with sub-sets
+     *
+     * @param IteratorInterface|array|string|null $source   The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets  If true, will for A, B, C not only return ABC, etc. but also sub sets like A, AB, CB, etc.
+     * @param callable                            $callback If specified, will execute the specified callback on each found permutation instead of returning
+     *                                                      them, and will return NULL instead
+     *
+     * @return string|null
+     */
+    public static function findPermutation(IteratorInterface|array|string|null $source, ?bool $subsets, callable $callback): ?string
+    {
+        $source = Arrays::force($source);
+
+        if (count($source) > 20) {
+            throw OutOfBoundsException::new(ts('Cannot find permutation, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => count($source),
+            ]));
+        }
+
+        if (count($source) <= 1) {
+            $results = array_map('strval', $source);
+
+            foreach ($results as $result) {
+                $return = $callback($result);
+
+                if ($return === false) {
+                    return null;
+                }
+
+                return $result;
+            }
+        }
+
+        // Calculate full sets
+        if ($subsets !== true) {
+            // Get the main permutations
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    $return = $callback($item . $permutation);
+
+                    if ($return === false) {
+                        continue;
+                    }
+
+                    return $item . $permutation;
+                }
+            }
+        }
+
+        // Calculate the subsets
+        if ($subsets !== false) {
+            // Single characters
+            foreach ($source as $item) {
+                $return = $callback((string) $item);
+
+                if ($return === false) {
+                    continue;
+                }
+
+                return (string) $item;
+            }
+
+            // Subsets of length 2 to N-1
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, true) as $permutation) {
+                    if (strlen($permutation) < count($source) - 1) {
+                        $return = $callback($item . $permutation);
+
+                        if ($return === false) {
+                            continue;
+                        }
+
+                        return $item . $permutation;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Returns all permutations for the given source, optionally with sub-sets
+     *
+     * @param IteratorInterface|array|string|null $source                  The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets [false] If true, will for A, B, C not only return ABC, etc. but also sub sets like
+     *                                                                     A, AB, CB, etc.
+     * @return array
+     */
+    public static function getPermutations(IteratorInterface|array|string|null $source, ?bool $subsets = false): array
+    {
+        $source = Arrays::force($source);
+
+        if (count($source) > 20) {
+            throw OutOfBoundsException::new(ts('Cannot calculate permutations, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => count($source),
+            ]));
+        }
+
+        $results = [];
+
+        // Calculate full sets
+        if ($subsets !== true) {
+            if (count($source) <= 1) {
+                return array_map('strval', $source);
+            }
+
+            // Get the main permutations
+            foreach ($source as $key => $item) {
+                $remaining = $source;
+                unset($remaining[$key]);
+
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    $results[] = $item . $permutation;
+                }
+            }
+        }
+
+        // Calculate the subsets
+        if ($subsets !== false) {
+            // Single characters
+            if (count($source) > 1) {
+                foreach ($source as $item) {
+                    $results[] = strval($item);
+                }
+
+                // Subsets of length 2 to N-1
+                foreach ($source as $key => $item) {
+                    $remaining = $source;
+                    unset($remaining[$key]);
+
+                    foreach (Arrays::getPermutations($remaining, true) as $permutation) {
+                        if (strlen($permutation) < count($source) - 1) {
+                            $results[] = $item . $permutation;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $results;
+    }
+
+
+    /**
+     * Counts and returns the possible permutations for the specified source array
+     *
+     * @param array     $source          The source array for which the number of permutations should be calculated
+     * @param bool|null $subsets [false] If true, will return only the count for complete sets. If false, will only return the count for sub sets. If null, will
+     *                                   return the count for both complete and sub sets
+     *
+     * @return int
+     */
+    public static function countPermutations(array $source, ?bool $subsets = false): int
+    {
+        $count = count($source);
+
+        if ($count === 0) {
+            return 0;
+        }
+
+        if ($count > 20) {
+            throw OutOfBoundsException::new(ts('Cannot calculate permutations, the specified source array ":count" elements which surpasses the maximum of 20', [
+                ':count' => $count,
+            ]));
+        }
+
+        // Full permutations of n elements = n!
+        $_factorial = function (int $n): int
+        {
+            $return = 1;
+
+            for ($i = 2; $i <= $n; $i++) {
+                $return *= $i;
+            }
+
+            return $return;
+        };
+
+        // Sub-permutations = sum of P(n, k) for k = 1 to n-1 where P(n, k) = n! / (n - k)!
+        $_sub_factorial = function ($count) use ($_factorial) : int
+        {
+            $return = 0;
+
+            for ($k = 1; $k < $count; $k++) {
+                $return += $_factorial($count) / $_factorial($count - $k);
+            }
+
+            return $return;
+        };
+
+        return match ($subsets) {
+            false   => $_factorial($count),                           // Full permutations only
+            true    => $_sub_factorial($count),                       // Sub-permutations only
+            null    => $_factorial($count) + $_sub_factorial($count), // Both combined
+        };
     }
 
 

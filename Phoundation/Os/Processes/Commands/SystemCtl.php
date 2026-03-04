@@ -70,7 +70,7 @@ class SystemCtl extends Command
     {
 //        return $this->getProcessObject()
 //                    ->checkProcessName($command)
-//                    ->addArgument([$command, $this->getOsProcessName()])
+//                    ->appendArgument([$command, $this->getOsProcessName()])
 //                    ->executeNoReturn();
 
         $this->getProcessObject()
