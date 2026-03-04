@@ -2028,13 +2028,13 @@ return 'under construction';
                 Log::warning(ts('Running in TEST mode, various modifications may not be executed!'));
             }
 
-            if (!is_numeric_natural(PAGE)) {
+            if (!is_natural(PAGE)) {
                 throw new CoreException(tr('Specified -P or --page ":page" is not a natural number', [
                     ':page' => PAGE,
                 ]));
             }
 
-            if (!is_numeric_natural(LIMIT)) {
+            if (!is_natural(LIMIT)) {
                 throw new CoreException(tr('Specified --limit":limit" is not a natural number', [
                     ':limit' => LIMIT,
                 ]));

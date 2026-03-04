@@ -1984,7 +1984,7 @@ trait TraitProcessVariables
      */
     public function setWait(?int $wait): static
     {
-        if (!is_numeric_natural($wait, 0)) {
+        if (!is_natural($wait, 0)) {
             if ($wait) {
                 throw new OutOfBoundsException(tr('The specified wait time ":wait" is invalid, it must be a natural number 0 or higher', [
                     ':wait' => $wait,
@@ -2026,7 +2026,7 @@ trait TraitProcessVariables
     public function setSignal(EnumSignal|int $signal): static
     {
         if (is_integer($signal)) {
-            if (!is_numeric_natural($signal, 1)) {
+            if (!is_natural($signal, 1)) {
                 throw new OutOfBoundsException(tr('The specified signal ":signal" is invalid, it must be a natural number 0 or higher', [
                     ':signal' => $signal,
                 ]));

@@ -245,7 +245,7 @@ showdie($cmd);
      */
     protected static function validateRunFile(int $pid, string $file): bool
     {
-        if (is_numeric_natural($pid)) {
+        if (is_natural($pid)) {
             return true;
         }
 

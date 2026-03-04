@@ -122,7 +122,7 @@ class Cli
             $source = $source->getSource();
         }
 
-        if (!is_numeric_natural($column_spacing)) {
+        if (!is_natural($column_spacing)) {
             throw new OutOfBoundsException(tr('Invalid column spacing ":spacing" specified, please ensure it is a natural number, 1 or higher', [
                 ':spacing' => $column_spacing,
             ]));

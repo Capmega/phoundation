@@ -131,7 +131,7 @@ function is_numeric_integer(mixed $source, ?int $higher_or_equal_than = null, ?i
  * @return bool
  * @throws OutOfBoundsException Thrown when the specified $higher_or_equal_than value is higher than $lower_or_equal_than
  */
-function is_numeric_natural(mixed $source, ?int $higher_or_equal_than = 1, ?int $lower_or_equal_than = null): bool
+function is_natural(mixed $source, ?int $higher_or_equal_than = 1, ?int $lower_or_equal_than = null): bool
 {
     return is_numeric_integer($source, $higher_or_equal_than, $lower_or_equal_than);
 }
@@ -1487,7 +1487,7 @@ function make_natural(mixed $source, ?int $higher_or_equal_than = 1, ?int $lower
         ]));
     }
 
-    if (!is_numeric_natural($source, $higher_or_equal_than, $lower_or_equal_than)) {
+    if (!is_natural($source, $higher_or_equal_than, $lower_or_equal_than)) {
         throw OutOfBoundsException::new(ts('Cannot convert value ":value" to integer, the value is not numeric, integer compatible numeric, or not a positive number', [
             ':value' => $source
         ]))->setData(['value' => $source]);

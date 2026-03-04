@@ -1781,7 +1781,7 @@ class Route
     {
         $until = substr($flag, 1);
 
-        if ($until and !is_numeric_natural($until)) {
+        if ($until and !is_natural($until)) {
             $until = null;
 
             Log::warning(ts('Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', [

@@ -85,7 +85,7 @@ class Kubernetes
      */
     public function setStartTimeout(int $timeout): static
     {
-        if (!is_numeric_natural($timeout, 0)) {
+        if (!is_natural($timeout, 0)) {
             throw new OutOfBoundsException(tr('The specified timeout ":timeout" is invalid, it must be a natural number 0 or higher', [
                 ':timeout' => $timeout,
             ]));
