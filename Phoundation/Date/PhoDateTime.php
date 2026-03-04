@@ -480,7 +480,7 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
                                             'iso_datetime',
             EnumDateFormat::mysql_datetime, 'mysql_datetime',
             EnumDateFormat::file          , 'file'            => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide, ' '),
-            default                                           => PhoDateTimeFormats::cleanDateFormat($return, $width),
+            default                                           => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide),
         };
     }
 
