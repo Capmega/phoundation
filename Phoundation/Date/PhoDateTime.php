@@ -477,8 +477,9 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
             EnumDateFormat::iso_datetime  , 'iso_date_time',
                                             'iso_datetime',
             EnumDateFormat::mysql_datetime, 'mysql_datetime',
+                                          , 'mysql',            // TODO Maybe the missing "mysql" here caused the small date issue?
             EnumDateFormat::file          , 'file'            => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide, ' '),
-            default                                           => PhoDateTimeFormats::cleanDateFormat($return, $width),
+            default                                           => PhoDateTimeFormats::cleanDateFormat($return, EnumDateTimeWidth::wide), // TODO FIX THIS! This should be passing $width, but for some undiagnosed reason, default will always be small, which causes small dates evreywhere including for format "mysql"
         };
     }
 
