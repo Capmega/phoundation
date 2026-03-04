@@ -477,8 +477,10 @@ class Authentication extends DataEntry implements AuthenticationInterface
                                              ->setLabel(tr('Used user account'))
                                              ->setOptional(true)
                                              ->setDisabled(true)
-                                             ->setMaxLength(128)
+                                             ->setMaxLength(null)
                                              ->setSize(3)
+// TODO Fix this damned validation!
+->clearValidationFunctions()
                                              ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                  $_validator->sanitizeDecodeJson()->hasField('email')->forEachField()->isEmail();
                                              }))

@@ -5,6 +5,10 @@
  *
  * PHP / JavaScript date format handling
  *
+ * This is a VERY low level library that is used by literally every library and a large amount of methods. Because of this, it is NOT recommended to use the
+ * standard debug functions in this class, like show(), showdie(), show_system(), nor the Log class methods. For debugging this library, only use PHP core
+ * functions
+ *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -19,6 +23,7 @@ declare(strict_types=1);
 namespace Phoundation\Date;
 
 use Phoundation\Accounts\Config\Exception\ConfigurationInvalidException;
+use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -281,6 +286,7 @@ class PhoDateTimeFormats
      *
      * @param string            $date
      * @param EnumDateTimeWidth $width
+     * @param string|null       $separator [null]
      *
      * @return string
      */

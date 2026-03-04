@@ -34,15 +34,15 @@ use Phoundation\Web\Requests\Response;
 
 
 // Build users filter card
-$filters        = FilterForm::new();
+$_filters      = FilterForm::new();
 $_filters_card = Card::new()
                       ->setCollapseSwitch(true)
                       ->setTitle('Incidents filters')
-                      ->setContent($filters);
+                      ->setContent($_filters);
 
 
 // Build the incident table
-$_incidents = Incidents::new()->setFilterFormObject($filters);
+$_incidents = Incidents::new()->setFilterFormObject($_filters);
 $_incidents->getQueryBuilderObject()->addSelect('`security_incidents`.`id`')
                                      ->addSelect('`security_incidents`.`type`')
                                      ->addSelect('`security_incidents`.`created_on`')
@@ -60,7 +60,6 @@ if (Request::isPostRequestMethod()) {
         case tr('Clear incidents'):
 
             // check if tasks exists and is running
-
             Task::new()
                 ->setCommand('./pho')
                 ->setArguments([
@@ -75,21 +74,21 @@ if (Request::isPostRequestMethod()) {
                 ':count' => $_incidents->getCount()
             ]));
 
-            if ($filters->getDateRange()) {
+            if ($_filters->getDateRange()) {
                 $success .= tr(' for date range :date_range', [
-                    ':date_range' => $filters->getDateRange()
+                    ':date_range' => $_filters->getDateRange()
                 ]);
             }
 
-            if ($filters->getSeverities()) {
+            if ($_filters->getSeverities()) {
                 $success .= tr(' with severity ":severity"', [
-                    ':severity' => Strings::force($filters->getSeverities(), '"/"')
+                    ':severity' => Strings::force($_filters->getSeverities(), '"/"')
                 ]);
             }
 
-            if ($filters->getUsersId()) {
+            if ($_filters->getUsersId()) {
                 $success .= tr(' for user ":user"', [
-                    ':user' => User::new()->load($filters->getUsersId())->getDisplayName()
+                    ':user' => User::new()->load($_filters->getUsersId())->getDisplayName()
                 ]);
             }
 
@@ -118,7 +117,7 @@ $_incidents_card = Card::new()
                         ])
                         ->setRowUrls(Url::new('/reports/security/incident+:ROW.html')
                                         ->makeWww()
-                                        ->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : '')))
+                                        ->addQueries($_filters->getDateRange() ? 'date_range=' . $_filters->getDateRange() : '')))
                         ->useForm(true);
 
 
@@ -126,7 +125,7 @@ $_incidents_card = Card::new()
 $_relevant_card = Card::new()
                        ->setMode(EnumDisplayMode::info)
                        ->setTitle(tr('Relevant links'))
-                       ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($filters->getUsersId()   ? 'users_id=' . $filters->getUsersId()  : '')->addQueries($filters->getDateRange() ? 'date_range=' . $filters->getDateRange() : ''), tr('Authentications management')) .
+                       ->setContent(AnchorBlock::new(Url::new('/reports/security/authentications.html')->makeWww()->addQueries($_filters->getUsersId()   ? 'users_id=' . $_filters->getUsersId()  : '')->addQueries($_filters->getDateRange() ? 'date_range=' . $_filters->getDateRange() : ''), tr('Authentications management')) .
                                     hr(AnchorBlock::new(Url::new('/accounts/users.html')->makeWww(), tr('Users management')) .
                                        AnchorBlock::new(Url::new('/accounts/roles.html')->makeWww(), tr('Roles management')) .
                                        AnchorBlock::new(Url::new('/accounts/rights.html')->makeWww(), tr('Rights management'))));

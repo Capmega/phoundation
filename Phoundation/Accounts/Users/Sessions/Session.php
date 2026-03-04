@@ -343,12 +343,31 @@ class Session implements SessionInterface
 
         Log::action(ts('Starting session object'), 1);
 
-        Session::checkDomains();
-        Session::configureCookies();
+        try {
+            Session::checkDomains();
+            Session::configureCookies();
+
+        } catch (PhpException $e) {
+            if (!Session::getConfigIgnoreSessionFail()) {
+                throw $e;
+            }
+        }
+
         Session::resume();
         Session::$has_started_up = true;
 
         Http::setSslDefaultContext();
+    }
+
+
+    /**
+     * Returns true if session failures should be ignored (only possible with debug mode enabled)
+     *
+     * @return bool
+     */
+    public static function getConfigIgnoreSessionFail(): bool
+    {
+        return Debug::isEnabled() and config()->getBoolean('web.sessions.ignore-fail', false);
     }
 
 
@@ -1263,9 +1282,6 @@ class Session implements SessionInterface
 //        $_SESSION['location']     = Core::readRegister('system', 'session', 'location');
 //        $_SESSION['language']     = Core::readRegister('system', 'session', 'language');
 
-        // Register the user session
-        UserSession::newOpen(session_id(), Session::getUserObject()->getId(), Session::$domain, Request::getRemoteIpAddress(), Request::getRemoteIpAddress());
-
         // Set users timezone
         if (empty($_SESSION['user']['timezone'])) {
             $_SESSION['user']['timezone'] = config()->get('timezone.display', 'UTC');
@@ -1481,10 +1497,10 @@ class Session implements SessionInterface
     {
         try {
             if (!Csrf::isEnabled()) {
-                // CSRF generally should be turned on, its a bad idea to have it off!
+                // CSRF generally should be turned on, it is a bad idea to have it off!
                 if (Core::isProductionEnvironment()) {
                     if (Csrf::enabledCheckIncidentIsEnabled()) {
-                        // CSRF is off on production environment, this is a really bad idea!
+                        // CSRF is off on production environment, this is a bad idea!
                         Incident::new()
                                 ->setSeverity(EnumSeverity::high)
                                 ->setType('security')

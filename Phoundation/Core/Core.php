@@ -789,10 +789,7 @@ class Core implements CoreInterface
      */
     public static function isReady(?string $state = null): bool
     {
-        return match ($state) {
-            null, 'setup', 'boot', 'startup', => false,
-            default                           => true
-        };
+        return Core::$ready;
     }
 
 

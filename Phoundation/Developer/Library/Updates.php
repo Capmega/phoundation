@@ -131,7 +131,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 $_table->alter()->dropIndex('name');
             }
 
-            $_table->alter()->addIndex('UNIQUE `name` (`name`)');
+            $_table->alter()->addIndex('UNIQUE KEY `name` (`name`)');
 
         })->addUpdate('0.9.3', function () {
             // Ensure non unique index on developer_repositories.path column, multiple same paths may exist

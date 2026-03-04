@@ -148,6 +148,7 @@ trait TraitMethodsVirtualColumns {
      * @param DataEntryInterface|null $_object
      *
      * @return static
+     * @todo Update to only set requested keys, not all configured keys (append optional $key in arguments list)
      */
     protected function setVirtualObject(string $table, ?DataEntryInterface $_object = null): static
     {
@@ -174,9 +175,9 @@ trait TraitMethodsVirtualColumns {
                 ]), 3);
 
                 $_object = $configuration['class']::new()
-                                                   ->setDebug($this->getDebug())
-                                                   ->setMetaEnabled($this->getMetaEnabled())
-                                                   ->loadNull($identifier);
+                                                  ->setDebug($this->getDebug())
+                                                  ->setMetaEnabled($this->getMetaEnabled())
+                                                  ->loadNull($identifier);
 
             } catch (DataEntryInvalidVirtualConfigurationException $e) {
                 // This means that a column was specified to be checked that does not exist in the Definitions object
@@ -199,7 +200,7 @@ trait TraitMethodsVirtualColumns {
             // Only try to load up columns that have definitions or that are permitted!
             $this->setFlag('is_resolving_virtual_column');
 
-            if ($this->getDefinitionsObject()->keyExists($column) or $this->columnIsPermitted($column)) {
+            if ($this->getDefinitionsObject()->keyExists($table_column) or $this->columnIsPermitted($table_column)) {
                 $this->set($_object?->get($column), $table_column);
             }
 
