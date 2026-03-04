@@ -76,7 +76,7 @@ OPTIONAL ARGUMENTS
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-a,--attachments', true)->isOptional()->sanitizeForceArray()->forEachField()->isFile()
+                     ->select('-a,--attachments', true)->isOptional()->sanitizeForceArray()->forEachField()->sanitizeFile()
                      ->select('-f,--from', true)->isOptional()->isEmail()
                      ->select('-t,--to', true)->isEmail()
                      ->select('-c,--cc', true)->isOptional()->sanitizeForceArray()->forEachField()->isEmail()
