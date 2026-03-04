@@ -42,7 +42,7 @@ trait TraitDataEntryStart
      */
     public function setStart(PhoDateTimeInterface|string|null $start): static
     {
-        return $this->set($start ? new PhoDateTime($start, 'system') : null, 'start');
+        return $this->set(PhoDateTime::newOrNull($start, 'system'), 'start');
     }
 
 
