@@ -57,8 +57,8 @@ class Pdf extends PhoFile implements PdfInterface
     public function addPassword(string $password, ?PhoFile $o_output_file = null): static
     {
         Process::new()->setCommand('qpdf')
-                      ->addArguments(['--password=' . $password])
-                      ->addArguments(['--encrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+                      ->appendArguments(['--password=' . $password])
+                      ->appendArguments(['--encrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
 
         return $this;
     }
@@ -75,8 +75,8 @@ class Pdf extends PhoFile implements PdfInterface
     public function removePassword(string $password, ?PhoFile $o_output_file = null): static
     {
         Process::new()->setCommand('qpdf')
-               ->addArguments(['--password=' . $password])
-               ->addArguments(['--decrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+               ->appendArguments(['--password=' . $password])
+               ->appendArguments(['--decrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
 
         return $this;
     }
@@ -116,7 +116,7 @@ class Pdf extends PhoFile implements PdfInterface
             $data    = [];
             $results = Process::new()
                               ->setCommand('pdfinfo')
-                              ->addArguments($this->source)
+                              ->appendArguments($this->source)
                               ->executeReturnArray();
 
         } catch (ProcessFailedException $e) {
