@@ -49,16 +49,18 @@ class Pdf extends PhoFile implements PdfInterface
     /**
      * Makes this PDF file password protected
      *
-     * @param string       $password      The password to encrypt the file with
-     * @param PhoFile|null $o_output_file The output file. If not specified, this method will encrypt the file itself
+     * @param string       $owner_password        The password to encrypt the file with
+     * @param string       $user_password         The password to encrypt the file with
+     * @param PhoFile|null $o_output_file  [null] The output file. If not specified, this method will encrypt the file itself
      *
      * @return static
      */
-    public function addPassword(string $password, ?PhoFile $o_output_file = null): static
+    public function addPassword(string $owner_password, string $user_password, ?PhoFile $o_output_file = null): static
     {
+        // qpdf --encrypt OWNER_PASSWORD USER_PASSWORD 256 -- input.pdf output.pdf
         Process::new()->setCommand('qpdf')
-                      ->addArguments(['--password=' . $password])
-                      ->addArguments(['--encrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+                      ->appendArguments(['--encrypt', $owner_password, $user_password])
+                      ->appendArguments([$this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
 
         return $this;
     }
@@ -75,8 +77,8 @@ class Pdf extends PhoFile implements PdfInterface
     public function removePassword(string $password, ?PhoFile $o_output_file = null): static
     {
         Process::new()->setCommand('qpdf')
-               ->addArguments(['--password=' . $password])
-               ->addArguments(['--decrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
+                      ->appendArguments(['--password=' . $password])
+                      ->appendArguments(['--decrypt', $this->getSource(), $o_output_file?->getSource() ?? $this->getSource()]);
 
         return $this;
     }
@@ -116,7 +118,7 @@ class Pdf extends PhoFile implements PdfInterface
             $data    = [];
             $results = Process::new()
                               ->setCommand('pdfinfo')
-                              ->addArguments($this->source)
+                              ->appendArguments($this->source)
                               ->executeReturnArray();
 
         } catch (ProcessFailedException $e) {

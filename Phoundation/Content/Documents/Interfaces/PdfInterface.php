@@ -36,12 +36,13 @@ interface PdfInterface
     /**
      * Makes this PDF file password protected
      *
-     * @param string       $password      The password to encrypt the file with
-     * @param PhoFile|null $o_output_file The output file. If not specified, this method will encrypt the file itself
+     * @param string       $owner_password        The password to encrypt the file with
+     * @param string       $user_password         The password to encrypt the file with
+     * @param PhoFile|null $o_output_file  [null] The output file. If not specified, this method will encrypt the file itself
      *
      * @return static
      */
-    public function addPassword(string $password, ?PhoFile $o_output_file = null): static;
+    public function addPassword(string $owner_password, string $user_password, ?PhoFile $o_output_file = null): static;
 
 
     /**
