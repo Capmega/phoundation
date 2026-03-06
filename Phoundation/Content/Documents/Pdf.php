@@ -25,6 +25,7 @@ use Phoundation\Data\Traits\TraitDataPassword;
 use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoFiles;
+use Phoundation\Os\Processes\Commands\PdfTk;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
 use Phoundation\Os\Processes\Process;
 use Phoundation\Utils\Strings;
