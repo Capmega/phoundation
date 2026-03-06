@@ -246,7 +246,7 @@ trait TraitUrlRightsRendering
             if (!$this->hasRequiredRights(cache: $cache)) {
                 if (!Core::isProductionEnvironment()) {
                     Log::warning(tr('User ":user" does not have the required rights ":rights" to render the URL ":url"', [
-                        ':user'   => Session::getUserObject()->getLogId(),
+                        ':user'   => Session::getUsersLogId(),
                         ':rights' => $this->getRights(),
                         ':url'    => $this->getUrlObject()->getSource()
                     ]));

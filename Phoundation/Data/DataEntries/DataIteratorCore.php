@@ -1036,7 +1036,7 @@ throw new ObsoleteException();
                 ->setType('sysop')
                 ->setTitle(ts('Mobile Billing Reset'))
                 ->setBody(ts('User ":user" performed a truncate on table ":table"', [
-                    ':user'  => Session::getUserObject()->getDisplayName(),
+                    ':user'  => Session::getUsersDisplayName(),
                     ':table' => static::getTable()
                 ]))
                 ->setNotifyRoles('developer')

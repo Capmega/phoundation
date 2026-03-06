@@ -2029,7 +2029,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            $directory->ensure()->addPath(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
+            $directory->ensure()->addPath(Session::getUsersEmail() ?? get_current_user())->touch();
 
             Log::warning(ts('System has been placed in maintenance mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 
@@ -2112,7 +2112,7 @@ class Core implements CoreInterface
                 return;
             }
 
-            $directory->ensure()->addPath(Session::getUserObject()->getEmail() ?? get_current_user())->touch();
+            $directory->ensure()->addPath(Session::getUsersEmail() ?? get_current_user())->touch();
 
             Log::warning(ts('System has been placed in readonly mode. All web requests will be blocked, all commands (except those under ./pho project ...) are blocked'));
 
@@ -3672,7 +3672,7 @@ class Core implements CoreInterface
                 'ip'                    => Session::getIpAddress(),
                 'project_version'       => Project::getVersion(),
                 'database_version'      => $connected                    ? Version::getString(Libraries::getMaximumVersion()) : tr('NO SYSTEM DATABASE CONNECTION AVAILABLE'),
-                'user'                  => ($connected and $initialized) ? Session::getUserObject()->getLogId() : 'system',
+                'user'                  => ($connected and $initialized) ? Session::getUsersLogId() : 'system',
                 'command'               => PLATFORM_CLI                  ? CliCommand::getCommandsString()      : null,
                 'url'                   => PLATFORM_WEB                  ? Route::getRequest()                  : null,
                 'method'                => PLATFORM_WEB                  ? Route::getMethod()                   : null,

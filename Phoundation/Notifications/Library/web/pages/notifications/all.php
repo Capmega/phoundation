@@ -50,7 +50,7 @@ $notifications = Notifications::new()->markSeverityColumn();
 $builder       = $notifications->getQueryBuilderObject();
 
 $builder->addSelect('`id`, `id` AS `key`, `title`, `status`, `mode` AS `severity`, `priority`, `created_on`')
-        ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUserObject()->getId()])
+        ->addWhere('`users_id` = :users_id', [':users_id' => Session::getUsersId()])
         ->addOrderBy('`created_by` ASC')
         ->setLimit(1000);
 
@@ -63,7 +63,7 @@ if (Request::isPostRequestMethod()) {
         sql()->query('UPDATE `notifications` 
                       SET    `status`   = "READ" 
                       WHERE  `users_id` = :users_id', [
-                          ':users_id' => Session::getUserObject()->getId()
+                          ':users_id' => Session::getUsersId()
         ]);
 
         Response::getFlashMessagesObject()->addSuccess(tr('All your notifications have been marked as read'));

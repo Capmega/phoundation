@@ -98,7 +98,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -107,7 +107,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -116,7 +116,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -125,7 +125,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -181,7 +181,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -190,7 +190,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -244,7 +244,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -253,7 +253,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -262,7 +262,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -318,7 +318,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -327,7 +327,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -336,7 +336,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -345,7 +345,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -401,7 +401,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -410,7 +410,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -419,7 +419,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -475,7 +475,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -484,7 +484,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -493,7 +493,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -502,7 +502,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -558,7 +558,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -567,7 +567,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -623,7 +623,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -632,7 +632,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -641,7 +641,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>
@@ -697,7 +697,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -706,7 +706,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -715,7 +715,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                             <li class="list-inline-item">
@@ -724,7 +724,7 @@ Response::setBreadcrumbs([
                                                ->getImgObject()
                                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                    ->setClass('table-avatar')
-                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                    ->render() ?>
                             </li>
                         </ul>

@@ -54,7 +54,7 @@ $authentications->getQueryBuilderObject()->addJoin('LEFT JOIN `accounts_users` O
                                    ->addSelect('`accounts_authentications`.`action`')
                                    ->addSelect('`accounts_authentications`.`method`')
                                    ->addWhere('`accounts_authentications`.`created_by` = :user_id', [
-                                       ':user_id' => Session::getUserObject()->getId()
+                                       ':user_id' => Session::getUsersId()
                                    ]);
 
 

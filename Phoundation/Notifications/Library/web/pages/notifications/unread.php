@@ -60,7 +60,7 @@ if (Request::isPostRequestMethod()) {
         sql()->query('UPDATE `notifications`
                       SET    `status`   = "READ"
                       WHERE  `users_id` = :users_id', [
-                          ':users_id' => Session::getUserObject()->getId()
+                          ':users_id' => Session::getUsersId()
         ]);
 
         Response::getFlashMessagesObject()->addSuccess(tr('All your notifications have been marked as read'));

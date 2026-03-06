@@ -467,9 +467,9 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
     /**
      * Returns id for this user entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string
+    public function getLogId(): string|null
     {
         if ($this->hasStatus('system')) {
             // This is a system type user, either system or guest
@@ -843,7 +843,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
         $this->notify()?->setTitle(tr('The multi-factor authentication for your account has been updated'))
                         ->setMessage(tr('The multi-factor authentication for your account :account on the website :website has been updated. If this was not you, please contact the administrator at :email.', [
-                            ':account' => Session::getUserObject()->getEmail(),
+                            ':account' => Session::getUsersEmail(),
                             ':website' => Project::getHumanReadableFullName(),
                             ':email'   => Project::getEmail(),
                         ]))
@@ -1012,7 +1012,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                     ->setType('security')
                     ->setTitle(tr('User created'))
                     ->setBody(tr('The administrator ":admin" created the user ":user"', [
-                        ':admin' => Session::getUserObject()->getLogId(),
+                        ':admin' => Session::getUsersLogId(),
                         ':user'  => $this->getLogId(),
                     ]))
                     ->setDetails(['user' => $this->getLogId()])
@@ -1022,7 +1022,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
             return $this;
         }
 
-        if (Session::getUserObject()->getId() === $this->getId()) {
+        if (Session::getUsersId() === $this->getId()) {
             // A user updated its own account
             Incident::new()
                     ->setSeverity(EnumSeverity::low)
@@ -1045,7 +1045,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 ->setType('security')
                 ->setTitle(tr('User modified'))
                 ->setBody(tr('The administrator ":admin" modified the user ":user", see audit ":meta_id" for more information', [
-                    ':admin'   => Session::getUserObject()->getLogId(),
+                    ':admin'   => Session::getUsersLogId(),
                     ':user'    => $this->getLogId(),
                     ':meta_id' => $this->getMetaId(),
                 ]))
@@ -1080,14 +1080,14 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         }
 
         // Notify user that their account was modified
-        if (Session::getUserObject()->getId() === $this->getId()) {
+        if (Session::getUsersId() === $this->getId()) {
             $message = tr('Your account has been updated by you from IP address :ip. If you did not make this change, please notify your IT department immediately', [
                 ':ip' => Session::getIpAddress(),
             ]);
 
         } else {
             $message = tr('Your account has been updated by :user. If this was unexpected, please contact this person to ensure your account is still safe.', [
-                ':user' => Session::getUserObject()->getDisplayName(),
+                ':user' => Session::getUsersDisplayName(),
             ]);
         }
 
@@ -1118,7 +1118,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
              ->setMessage(tr('<p>An account has been created on :project by :user.</p><p>To enter the system, you can click the link :link or copy/paste the :url in your browser. This will immediately take you to your account where you only have to enter your desired password</p>', [
                  ':url'     => $key->getUrl(),
                  ':link'    => Anchor::new($key->getUrl(), tr('here')),
-                 ':user'    => Session::getUserObject()->getDisplayName(),
+                 ':user'    => Session::getUsersDisplayName(),
                  ':project' => Project::getHumanReadableFullName(),
              ]))
              ->save()
@@ -1278,13 +1278,13 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function getSessionObject(): SessionInterface
     {
-        if ($this->getId(false) === Session::getUserObject()->getId()) {
+        if ($this->getId(false) === Session::getUsersId()) {
             return Session::getInstance();
         }
 
         throw new SessionException(tr('Cannot access session data for user ":user", that user is not the current session user ":session"', [
             ':user'    => $this->getLogId(),
-            ':session' => Session::getUserObject()->getLogId(),
+            ':session' => Session::getUsersLogId(),
         ]));
     }
 
@@ -2522,7 +2522,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                 // We can only impersonate if we have the right to do so
                 if (Session::getUserObject()->hasAllRights('impersonate')) {
                     // We must have the right and we cannot impersonate ourselves
-                    if ($this->getId() !== Session::getUserObject()->getId()) {
+                    if ($this->getId() !== Session::getUsersId()) {
                         // Cannot impersonate god level users
                         if (!$this->isDeleted() and !$this->isLocked()) {
                             if (!$this->hasAllRights('god')) {
@@ -2562,7 +2562,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
         // Cannot change status for new users
         if ($this->isNotNew()) {
             // We cannot status change ourselves
-            if ($this->getId(false) !== Session::getUserObject()->getId()) {
+            if ($this->getId(false) !== Session::getUsersId()) {
                 // Cannot change status for god right users
                 if (!$this->hasAllRights('god')) {
                     // Cannot change status for readonly users (typically guest and system)

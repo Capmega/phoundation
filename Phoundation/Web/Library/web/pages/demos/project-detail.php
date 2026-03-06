@@ -94,7 +94,7 @@ Response::setBreadcrumbs([
                                                    ->getImgObject()
                                                        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
-                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
                                         <?= Anchor::new(Url::new('/demos/profile.html'), 'Sven Olaf Oostenbrink') ?>
@@ -120,7 +120,7 @@ Response::setBreadcrumbs([
                                                    ->getImgObject()
                                                        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
-                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
                       <a href="#">Kate Culter</a>
@@ -144,7 +144,7 @@ Response::setBreadcrumbs([
                                                    ->getImgObject()
                                                        ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                        ->setClass('img-circle img-bordered-sm')
-                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                       ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                        ->render() ?>
                                     <span class="username">
                                         <?=

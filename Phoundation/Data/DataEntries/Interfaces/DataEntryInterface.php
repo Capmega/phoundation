@@ -196,9 +196,9 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     /**
      * Returns id for this database entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string;
+    public function getLogId(): string|null;
 
     /**
      * Returns true if this DataEntry has the specified status

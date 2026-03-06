@@ -371,7 +371,7 @@ class Config implements ConfigInterface
         if ($allow_user_configuration) {
             if (Core::getReady()) {
                 $data = sql()->getColumn('SELECT `value` FROM `accounts_configurations` WHERE `users_id` = :users_id AND `path` = :path', [
-                    ':users_id' => Session::getUserObject()->getId(),
+                    ':users_id' => Session::getUsersId(),
                     ':path'     => $path,
                 ]);
 
@@ -388,13 +388,13 @@ class Config implements ConfigInterface
                             ->setTitle(tr('Invalid user configuration data'))
                             ->setBody(tr('Configuration path ":path" for user ":user" contains invalid value ":value". The configuration value will be ignored and has been removed from the database', [
                                 ':path'  => $path,
-                                ':user'  => Session::getUserObject()->getLogId(),
+                                ':user'  => Session::getUsersLogId(),
                                 ':value' => $data,
                             ]))
                             ->setData([
                                 'path'  => $path,
                                 'value' => $data,
-                                'user'  => Session::getUserObject()->getLogId(),
+                                'user'  => Session::getUsersLogId(),
                             ])
                             ->setLog(9)
                             ->setNotifyRoles('developer')
@@ -1474,7 +1474,7 @@ class Config implements ConfigInterface
     public function deleteUserPath(string $path, ?int $users_id = null): static
     {
         sql()->delete('accounts_configurations', [
-            'users_id' => $users_id ?? Session::getUserObject()->getid(),
+            'users_id' => $users_id ?? Session::getUsersId(),
             'path'     => $path
         ]);
 
@@ -1500,7 +1500,7 @@ class Config implements ConfigInterface
         }
 
         sql()->insert('accounts_configurations', [
-            'users_id'    => $users_id ?? Session::getUserObject()->getid(),
+            'users_id'    => $users_id ?? Session::getUsersId(),
             'value'       => $value,
             'path'        => $path,
         ], [

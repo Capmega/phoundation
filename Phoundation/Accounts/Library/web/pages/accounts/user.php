@@ -64,7 +64,7 @@ $_user->getDefinitionsObject()->setRenderMeta(!$_user->isNew())
 
 
 // Users cannot modify themselves unless they have the "god" right
-if (Session::getUserObject()->getId() === $get['id']) {
+if (Session::getUsersId() === $get['id']) {
     if (!$_user->hasAllRights('god')) {
         $_user->setReadonly(true);
     }

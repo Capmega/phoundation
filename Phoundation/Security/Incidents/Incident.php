@@ -323,7 +323,7 @@ class Incident extends DataEntryCore implements IncidentInterface
             // Cannot save incidents when Core is in readonly mode!
             Log::warning(ts('Cannot save Incident object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session'  => Session::getId(),
-                ':user'     => Session::getUserObject()->getLogId(),
+                ':user'     => Session::getUsersLogId(),
                 ':ip'       => Session::getIpAddress(),
             ]));
 

@@ -166,7 +166,7 @@ class Notification extends DataEntry implements NotificationInterface
         if ($this->isNew()) {
             if (Session::isInitialized()) {
                 // By default, the object is created by the current user
-                $this->setCreatedBy(Session::getUserObject()->getId())
+                $this->setCreatedBy(Session::getUsersId())
                      ->ready();
             }
         }
@@ -225,9 +225,9 @@ class Notification extends DataEntry implements NotificationInterface
     /**
      * Returns id for this database entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string
+    public function getLogId(): string|null
     {
         return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . $this->getTitle();
     }

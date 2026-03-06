@@ -161,7 +161,7 @@ class Get extends Curl
             ]);
 
             sql()->insert('network_curl_cache', [
-                'created_by' => Session::getUserObject()->getId(),
+                'created_by' => Session::getUsersId(),
                 'url'        => $this->_url,
                 'data'       => Json::encode($this->result_data),
                 'headers'    => Json::encode($this->response_headers),
