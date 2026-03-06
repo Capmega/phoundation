@@ -32,7 +32,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.11.2';
+        return '0.11.3';
     }
 
 
@@ -1515,6 +1515,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             if (!$_table->indexExists('modified_on')) {
                 $_table->alter()->addIndex('KEY `modified_on` (`modified_on`)');
+            }
+
+        })->addUpdate('0.11.3', function () {
+            // Fix guest user email account to fix validation issues
+            $exists = sql()->getColumn('SELECT `email` FROM `accounts_users` WHERE `email` = "guest"');
+
+            if ($exists) {
+                sql()->getColumn('UPDATE `accounts_users` SET `email` = "guest@phoundation.org" WHERE `email` = "guest"');
             }
         });
     }
