@@ -36,11 +36,11 @@ class ApacheVirtualHost extends Virtualhost
         $domain  = Strings::until($domain, '/');
         $secure  = !str_ends_with($domain, '.local');
         $domain .= $secure ? '-le-ssl' : null;
-        $link    = PhoFile::new('/etc/apache2/sites-available/' . $domain . '.conf', PhoRestrictions::newWritableObject([
+        $link    = PhoFile::new('/etc/apache2/sites-available/' . $domain . '.conf', PhoRestrictions::newWritable([
             '/etc/apache2/sites-available/',
             '/etc/httpd/'
         ]));
-        $file    = PhoFile::new(DIRECTORY_ROOT . 'config/webservers/apache/' . $domain . '.conf', PhoRestrictions::newWritableObject([
+        $file    = PhoFile::new(DIRECTORY_ROOT . 'config/webservers/apache/' . $domain . '.conf', PhoRestrictions::newWritable([
             DIRECTORY_ROOT . 'config/webservers/apache/',
         ]));
 

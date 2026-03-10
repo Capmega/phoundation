@@ -40,7 +40,7 @@ $argv = ArgvValidator::new()
                      ->select('-m,--method', true)->isOptional('scale')->isName()
                      ->select('-x,--width', true)->isInteger()
                      ->select('-y,--height', true)->isInteger()
-                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRootObject())
+                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRoot())
                      ->validate();
 
 

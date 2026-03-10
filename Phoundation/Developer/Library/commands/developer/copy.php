@@ -57,7 +57,7 @@ ARGUMENTS
 $argv = ArgvValidator::new()
                      ->select('-a,--allow-changes')->isOptional(false)->isBoolean()
                      ->select('-b,--branch', true)->isOptional()->isVariableName()
-                     ->selectAll('files')->isOptional()->forEachField()->sanitizePath(PhoDirectory::newRootObject(false))
+                     ->selectAll('files')->isOptional()->forEachField()->sanitizePath(PhoDirectory::newRoot(false))
                      ->validate();
 
 

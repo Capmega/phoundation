@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete(User::getAutoComplete([
         '-p,--port'     => true,
         '-m,--message'  => true,
         '-f,--file' => [
-            'word'   => function ($word) { return PhoDirectory::newDataSourcesProjectObject()->scan($word . '*.txt'); },
-            'noword' => function ()      { return PhoDirectory::newDataSourcesProjectObject()->scan('*.txt'); },
+            'word'   => function ($word) { return PhoDirectory::newDataSourcesProject()->scan($word . '*.txt'); },
+            'noword' => function ()      { return PhoDirectory::newDataSourcesProject()->scan('*.txt'); },
         ],
         '-r,--repeat'   => true,
         '-i,--interval' => true,
@@ -77,7 +77,7 @@ $argv = ArgvValidator::new()
                      ->select('-h,--host', true)->isDomain()
                      ->select('-p,--port', true)->isInteger()->isBetween(1, 65536)
                      ->select('-m,--message', true)->isOptional()->hasMaxCharacters(8192)->isPrintable()
-                     ->select('-f,--file', true)->isOptional()->isFile(PhoDirectory::newDataSourcesObject(false, 'medinet/'))
+                     ->select('-f,--file', true)->isOptional()->isFile(PhoDirectory::newDataSources(false, 'medinet/'))
                      ->select('-r,--repeat', true)->isOptional(1)->isInteger()->isBetween(0, 1_000_000)
                      ->select('-i,--interval', true)->isOptional(1000)->isInteger()->isBetween(0, 86_400_000)
                      ->validate();

@@ -24,8 +24,8 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
-            'noword' => function ($word) { return PhoDirectory::newRootObject(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
+            'word'   => function ($word) { return PhoDirectory::newRoot(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
+            'noword' => function ($word) { return PhoDirectory::newRoot(false, 'config/deploy/')->scan($word, '/.*?\.yaml$/'); },
         ],
     ],
     'arguments' => [

@@ -57,7 +57,7 @@ ARGUMENTS
 
 
 $argv = ArgvValidator::new()
-                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->sanitizeDirectory(PhoDirectory::newDataObject())
+                     ->select('-t,--target_path', true)->isOptional(DIRECTORY_DATA . 'sources/geo')->sanitizeDirectory(PhoDirectory::newData())
                      ->select('-l,--no-download')->isOptional(false)->isBoolean()
                      ->select('-i,--no-import')->isOptional(false)->isBoolean()
                      ->select('--ignore-sha-fail')->isOptional(false)->isBoolean()

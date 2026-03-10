@@ -21,7 +21,7 @@ use Phoundation\Filesystem\PhoPath;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newWritableObject('/');
+$restrictions = PhoRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -30,8 +30,8 @@ CliDocumentation::setAutoComplete([
     ],
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);
@@ -63,7 +63,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get the arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->sanitizeFile(PhoDirectory::newFilesystemRootObject(true))
+                     ->select('path')->sanitizeFile(PhoDirectory::newFilesystemRoot(true))
                      ->select('-r,--randomized')->isOptional(false)->isBoolean()
                      ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(100, 1_073_741_824)
                      ->select('-d,--data', true)->isString()->hasMinCharacters(1)->hasMaxCharacters(1_073_741_824)
@@ -71,5 +71,5 @@ $argv = ArgvValidator::new()
 
 
 // Initialize the specified file
-PhoPath::newExisting($argv['path'], PhoRestrictions::newWritableObject('/'))
+PhoPath::newExisting($argv['path'], PhoRestrictions::newWritable('/'))
       ->initialize($argv['data'], $argv['block_size'], $argv['randomized']);

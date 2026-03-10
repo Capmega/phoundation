@@ -738,7 +738,7 @@ class Url implements UrlInterface
      */
     public function makeCss(): static
     {
-        return $this->renderCdn('css');
+        return $this->renderCdn('css', 'templates');
     }
 
 
@@ -749,21 +749,19 @@ class Url implements UrlInterface
      */
     public function makeJs(): static
     {
-        return $this->renderCdn('js');
+        return $this->renderCdn('js', 'templates');
     }
 
 
     /**
      * Returns an image URL
      *
+     * @param string|null $section [null] The section in which this image is located. If empty, the project name will be used instead
+     *
      * @return static
      */
-    public function makeImg(): static
+    public function makeImg(?string $section = null): static
     {
-        if ($this->isValid()) {
-            return $this;
-        }
-
         if (!$this->canMakeAbsolute()) {
             // This URL cannot be made into something else
             return $this;
@@ -789,7 +787,7 @@ class Url implements UrlInterface
         $this->source = Strings::ensureBeginsNotWith($this->source, 'data/content/cdn/');
         $this->source = Strings::ensureBeginsWith($this->source, 'img/');
 
-        return $this->renderCdn();
+        return $this->renderCdn(Strings::fromReverse($this->source, '.'), $section);
     }
 
 
@@ -1309,7 +1307,7 @@ class Url implements UrlInterface
      *
      * @return static
      */
-    protected function renderCdn(?string $extension = null): static
+    protected function renderCdn(?string $extension = null, ?string $section = null): static
     {
         $url = $this->source;
 
@@ -1330,13 +1328,7 @@ class Url implements UrlInterface
         // Apply predefined / configured URL words
         // Apply special variables
         // Form the CDN URL
-        if (!$extension) {
-            $url  = Strings::ensureBeginsWith($url, Project::getSeoFullName() . '/');
-
-        } else {
-            $url  = Strings::ensureBeginsWith($url, 'templates' . '/');
-        }
-
+        $url  = Strings::ensureBeginsWith($url, ($section ?? Project::getSeoFullName()) . '/');
         $url  = static::applyPredefined($url);
         $url  = static::applyVariables($url);
         $base = Url::newPrimaryCdnDomainRootUrl();
@@ -1426,6 +1418,10 @@ class Url implements UrlInterface
             return $url;
         }
 
+        if (config()->get('web.cdn.resources.versioning', true)) {
+            $version = '.' . Core::getLastModifiedTime();
+        }
+
         if (config()->get('web.cdn.resources.minified', true)) {
             $extension = '.min.' . $extension;
 
@@ -1434,10 +1430,10 @@ class Url implements UrlInterface
         }
 
         if (str_ends_with($url, $extension)) {
-            return $url;
+            $url = Strings::until($url, $extension);
         }
 
-        return $url . $extension;
+        return $url . isset_get($version) . $extension;
     }
 
 

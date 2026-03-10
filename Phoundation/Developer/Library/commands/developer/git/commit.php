@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->commit($argv['message'], $argv['signed']);
+Git::new(PhoDirectory::newRoot())->commit($argv['message'], $argv['signed']);

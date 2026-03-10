@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(Git::new(PhoDirectory::newRootObject())->getDiff($argv['files']));
+Log::cli(Git::new(PhoDirectory::newRoot())->getDiff($argv['files']));

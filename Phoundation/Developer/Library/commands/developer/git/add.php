@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->add($argv['files']);
+Git::new(PhoDirectory::newRoot())->add($argv['files']);

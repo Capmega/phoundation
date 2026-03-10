@@ -220,7 +220,7 @@ abstract class ProcessCore implements ProcessInterface
             // commands should all have 750. Check for this, and if not, make it 750 and retry.
             $file = PhoFile::new(
                 $this->command,
-                PhoRestrictions::newWritableObject(dirname($this->command))
+                PhoRestrictions::newWritable(dirname($this->command))
             );
 
             if ($file->getParentDirectoryObject()->getSource() === DIRECTORY_DATA . 'bin/') {
@@ -664,7 +664,7 @@ abstract class ProcessCore implements ProcessInterface
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = PhoFile::newTemporaryObject(false)->getSource();
+        $output_file = PhoFile::newTemporary(false)->getSource();
         $command     = $this->getFullCommandLine();
         $command     = Strings::ensureEndsNotWith($command, ';');
 

@@ -458,4 +458,13 @@ interface UrlInterface
      * @return static
      */
     public function replace(array $replace, bool $regex = false): static;
+
+    /**
+     * Returns an image URL
+     *
+     * @param string|null $section [null] The section in which this image is located. If empty, the project name will be used instead
+     *
+     * @return static
+     */
+    public function makeImg(?string $section = null): static;
 }

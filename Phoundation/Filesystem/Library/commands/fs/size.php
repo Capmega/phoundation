@@ -23,13 +23,13 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Utils\Numbers;
 
 
-$restrictions = PhoRestrictions::newReadonlyObject('/');
+$restrictions = PhoRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);
@@ -52,7 +52,7 @@ PATH                                    The path of which the size needs to be c
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRoot())
     ->select('-h,--human-readable')->isOptional(false)->isBoolean()
     ->validate();
 

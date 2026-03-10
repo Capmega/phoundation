@@ -34,7 +34,7 @@ class PhoFiles extends PhoFilesCore implements PhoFilesInterface
     {
         $this->_parent_directory  = $_parent_path;
         $this->accepted_data_types = [PhoPathInterface::class];
-        $this->_restrictions      = $_parent_path?->getRestrictionsObject()->addRestrictions($_restrictions) ?? PhoRestrictions::newFilesystemRootObject();
+        $this->_restrictions      = $_parent_path?->getRestrictionsObject()->addRestrictions($_restrictions) ?? PhoRestrictions::newFilesystemRoot();
 
         if ($source) {
             $this->setSource($source);

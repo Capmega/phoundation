@@ -21,7 +21,7 @@ use Phoundation\Filesystem\Filesystems\Btrfs\BtrfsDevice;
 use Phoundation\Filesystem\PhoDirectory;
 
 
-$directory = PhoDirectory::newFilesystemRootObject();
+$directory = PhoDirectory::newFilesystemRoot();
 
 CliDocumentation::setUsage('./pho filesystem btrfs device scan
 ./pho filesystem btrfs device scan -a');

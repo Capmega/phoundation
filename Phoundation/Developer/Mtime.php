@@ -74,6 +74,7 @@ class Mtime
     protected static function read(string $class): ?int
     {
         static::getInstance();
+
         if (file_exists(static::$directory . $class)) {
             return filemtime(static::$directory . $class);
         }

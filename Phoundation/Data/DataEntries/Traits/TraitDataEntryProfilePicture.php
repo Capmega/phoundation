@@ -32,7 +32,7 @@ trait TraitDataEntryProfilePicture
      */
     public function getProfilePicture(): ImageInterface
     {
-        return get_null($this->getTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png', PhoRestrictions::newReadonlyObject('img/profiles'));
+        return get_null($this->getTypesafe('string', 'picture')) ?? new Image('img/profiles/default.png', PhoRestrictions::newReadonly('img/profiles'));
     }
 
 
@@ -46,7 +46,7 @@ trait TraitDataEntryProfilePicture
     public function setProfilePicture(ImageInterface|string|null $picture): static
     {
         // Make sure we have an Image object or NULL
-        $picture = get_null($picture) ?? Image::new($picture, PhoRestrictions::newReadonlyObject('img/profiles'));
+        $picture = get_null($picture) ?? Image::new($picture, PhoRestrictions::newReadonly('img/profiles'));
         $picture->setDescription(tr('Profile picture for :name', [
             ':name' => $this->getName()
         ]));

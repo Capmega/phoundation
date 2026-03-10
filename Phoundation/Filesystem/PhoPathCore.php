@@ -3991,7 +3991,7 @@ class PhoPathCore implements PhoPathInterface
         if ($this->exists()) {
             // Move the old out of the way, push the new in, delete the current
             $new = clone $this;
-            $this->rename(PhoDirectory::newTemporaryObject());
+            $this->rename(PhoDirectory::newTemporary());
             $_target->rename($new);
             $this->delete(use_run_file: false);
 
@@ -4831,7 +4831,7 @@ class PhoPathCore implements PhoPathInterface
         }
 
         if (is_string($directory)) {
-            $directory = PhoDirectory::new($directory, PhoRestrictions::newReadonlyObject($directory));
+            $directory = PhoDirectory::new($directory, PhoRestrictions::newReadonly($directory));
         }
 
         return str_starts_with($this->getRealPath(), $directory->getRealPath());

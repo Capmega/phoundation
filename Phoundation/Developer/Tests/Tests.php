@@ -43,7 +43,7 @@ class Tests
 
         try {
             Process::new(DIRECTORY_ROOT . 'vendor/bin/phpunit')
-                   ->setExecutionDirectory(PhoDirectory::newRootObject())
+                   ->setExecutionDirectory(PhoDirectory::newRoot())
                    ->appendArguments(['--display-phpunit-deprecations'])
                    ->execute(EnumExecuteMethod::passthru);
 

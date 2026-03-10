@@ -133,7 +133,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newWritableObject(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
+    public static function newWritable(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
     {
         return new static($paths, true, $label);
     }
@@ -147,7 +147,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newReadonlyObject(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
+    public static function newReadonly(PhoPathInterface|string|array|null $paths = null, ?string $label = null): static
     {
         return new static($paths, false, $label);
     }
@@ -161,7 +161,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newRootObject(bool $write = false, ?string $sub_path = null): static
+    public static function newRoot(bool $write = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_ROOT . $sub_path, $write);
     }
@@ -175,7 +175,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newFilesystemRootObject(bool $write = false, ?string $sub_path = null): static
+    public static function newFilesystemRoot(bool $write = false, ?string $sub_path = null): static
     {
         return new static('/' . $sub_path, $write);
     }
@@ -189,7 +189,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newDataObject(bool $write = false, ?string $sub_path = null): static
+    public static function newData(bool $write = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_DATA . $sub_path, $write);
     }
@@ -203,7 +203,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newDataSourcesObject(bool $write = false, ?string $sub_path = null): static
+    public static function newDataSources(bool $write = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_DATA . 'sources/' . $sub_path, $write);
     }
@@ -217,7 +217,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newDataProjectObject(bool $writable = false, ?string $sub_path = null): static
+    public static function newDataProject(bool $writable = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $sub_path, $writable);
     }
@@ -231,7 +231,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newPluginsObject(bool $writable = false, ?string $sub_path = null): static
+    public static function newPlugins(bool $writable = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_ROOT . 'Plugins/' . $sub_path, $writable);
     }
@@ -245,7 +245,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newDataSourcesProjectObject(bool $writable = false, ?string $sub_path = null): static
+    public static function newDataSourcesProject(bool $writable = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_DATA . 'sources/' . strtolower(str_replace('_', '-', PROJECT)) . '/' . $sub_path, $writable);
     }
@@ -347,7 +347,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      */
     public static function newHooks(bool $write = false, ?string $sub_path = null): static
     {
-        return PhoRestrictions::newFilesystemRootObject(write: $write);
+        return PhoRestrictions::newFilesystemRoot(write: $write);
     }
 
 
@@ -387,7 +387,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newUserFilesObject(bool $write = false, ?string $sub_path = null): static
+    public static function newUserFiles(bool $write = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_DATA . 'files/' . $sub_path, $write);
     }
@@ -400,7 +400,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function getRestrictionsOrDefaultObject(PhoRestrictionsInterface|null ...$restrictions): static
+    public static function getRestrictionsOrDefault(PhoRestrictionsInterface|null ...$restrictions): static
     {
         // Find the first restrictions object
         foreach ($restrictions as $restriction) {

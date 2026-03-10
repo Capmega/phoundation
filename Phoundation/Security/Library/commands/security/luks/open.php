@@ -52,7 +52,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile(PhoDirectory::newFilesystemRootObject(true))
+                     ->select('-f,--file', true)->sanitizeFile(PhoDirectory::newFilesystemRoot(true))
                      ->select('-d,--device', true)->isVariable()
                      ->select('-k,--key-file', true)->isOptional()->or('password')->sanitizeFile()
                      ->validate();

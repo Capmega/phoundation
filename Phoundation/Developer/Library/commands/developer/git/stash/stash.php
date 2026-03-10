@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->getStashObject()->stash();
+Git::new(PhoDirectory::newRoot())->getStashObject()->stash();

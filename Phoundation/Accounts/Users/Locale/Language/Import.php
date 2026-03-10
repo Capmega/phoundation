@@ -54,7 +54,7 @@ class Import extends \Phoundation\Developer\Project\Import
 
         $file  = PhoFile::new(
             DIRECTORY_DATA . 'sources/languages/languages',
-            PhoRestrictions::newReadonlyObject(DIRECTORY_DATA)
+            PhoRestrictions::newReadonly(DIRECTORY_DATA)
         )->open(EnumFileOpenMode::readOnly);
 
         $table = sql()->getSchemaObject()->getTableObject('core_languages');

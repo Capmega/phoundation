@@ -53,7 +53,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      */
     public function __construct(IdentifierInterface|array|string|int|false|null $identifier = false)
     {
-        $this->_restrictions = PhoRestrictions::newFilesystemRootObject();
+        $this->_restrictions = PhoRestrictions::newFilesystemRoot();
         parent::__construct($identifier);
     }
 
@@ -159,7 +159,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
 
             if (array_key_exists('file', $this->source)) {
                 if ($this->source['file']) {
-                    $this->source['ssh_key'] = PhoFile::new($this->source['file'], PhoRestrictions::newFilesystemRootObject())->getContentsAsString();
+                    $this->source['ssh_key'] = PhoFile::new($this->source['file'], PhoRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }
@@ -204,7 +204,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
                                            ->setCliColumn(tr('-i,--ssh-key-file FILE'))
                                            ->setHelpText(tr('The SSH key file for this account'))
                                            ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                               $_validator->isFile(PhoDirectory::newFilesystemRootObject());
+                                               $_validator->isFile(PhoDirectory::newFilesystemRoot());
                                            }))
 
                     ->add(Definition::new('ssh_key')

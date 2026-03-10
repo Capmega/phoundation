@@ -496,7 +496,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setLabel(tr('Source'))
                                     ->setHelpText(tr('The source file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isFile([PhoDirectory::newFilesystemRootObject(), PhoDirectory::newDomainObject('*')]);
+                                        $_validator->isFile([PhoDirectory::newFilesystemRoot(), PhoDirectory::newDomain('*')]);
                                     }))
 
                     ->add(Definition::new('target_path')
@@ -506,7 +506,7 @@ class PhoMount extends DataEntry implements PhoMountInterface
                                     ->setLabel(tr('Target'))
                                     ->setHelpText(tr('The target file for this mount'))
                                     ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                        $_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                        $_validator->isDirectory(PhoDirectory::newFilesystemRoot());
                                     }))
 
                     ->add(Definition::new('filesystem')

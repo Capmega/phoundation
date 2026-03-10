@@ -27,7 +27,7 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
+            return PhoDirectory::newRoot()->scan($word);
         }
     ]
 ]);
@@ -46,4 +46,4 @@ $argv = ArgvValidator::new()
 
 
 // Display repository status
-Git::new(PhoDirectory::newRootObject())->getStatusFilesObject($argv['path'])->displayCliTable();
+Git::new(PhoDirectory::newRoot())->getStatusFilesObject($argv['path'])->displayCliTable();

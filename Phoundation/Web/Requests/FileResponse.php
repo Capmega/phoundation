@@ -427,7 +427,7 @@ class FileResponse extends PhoFile
     public function download(string $url, ?callable $callback = null): PhoFileInterface|null
     {
         // Set temp file and download data
-        $file = FileResponse::newTemporaryObject()->getSource();
+        $file = FileResponse::newTemporary()->getSource();
         $data = file_get_contents($url);
 
         // Write data to the temp file
