@@ -34,7 +34,7 @@ class Crypt
      */
     public static function createString(int $size = 32): string
     {
-        return PhoFile::new('/dev/urandom', PhoRestrictions::newReadonlyObject('/dev/'))
+        return PhoFile::new('/dev/urandom', PhoRestrictions::newReadonly('/dev/'))
                       ->readBytes($size);
     }
 
@@ -56,7 +56,7 @@ class Crypt
             ]));
         }
 
-        $bytes = PhoFile::new('/dev/urandom', PhoRestrictions::newReadonlyObject('/dev/'))
+        $bytes = PhoFile::new('/dev/urandom', PhoRestrictions::newReadonly('/dev/'))
                         ->readBytes($size);
 
         return $file->putContents($bytes);

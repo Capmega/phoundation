@@ -54,8 +54,8 @@ ARGUMENTS
 CliDocumentation::setAutoComplete([
     'arguments' => [
         '--file'         => [
-            'word'   => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
-            'noword' => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+            'word'   => function ($word) { return PhoDirectory::newDataSources()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+            'noword' => function ($word) { return PhoDirectory::newDataSources()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
         ],
         '-c,--connector' => function ($word) {
             return Connectors::new()
@@ -80,7 +80,7 @@ CliDocumentation::setAutoComplete([
 
 // Validate arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile([PhoDirectory::newDataSourcesObject(), PhoDirectory::newDataTmpObject()])
+                     ->select('-f,--file', true)->sanitizeFile([PhoDirectory::newDataSources(), PhoDirectory::newDataTmp()])
                      ->select('-b,--database', true)->isOptional()->isVariable()
                      ->select('--comments', true)->isOptional()->isPrintable()
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, false, true)->getAllRowsSingleColumn('name'))

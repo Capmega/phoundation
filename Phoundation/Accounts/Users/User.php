@@ -3489,7 +3489,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
 
                                                   } else {
                                                       $_validator->isFile(
-                                                          PhoDirectory::newCdnObject(true, '/img/files/profile/' . $this->getId() . '/'),
+                                                          PhoDirectory::newCdn(true, '/img/files/profile/' . $this->getId() . '/'),
                                                       );
                                                   }
                                               }

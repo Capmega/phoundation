@@ -253,7 +253,7 @@ class CliCommand
             return null;
         }
 
-        return new PhoFile(CliCommand::$command_file, PhoRestrictions::newRootObject());
+        return new PhoFile(CliCommand::$command_file, PhoRestrictions::newRoot());
     }
 
 
@@ -323,7 +323,7 @@ class CliCommand
             CliCommand::setProcessTitle();
             Core::setScriptState();
 
-            Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
+            Request::setRestrictionsObject(PhoRestrictions::newFilesystemRoot());
             Request::execute(CliCommand::$command_file . '.php');
 
         } catch (SqlNoTimezonesException $e) {
@@ -384,7 +384,7 @@ class CliCommand
      */
     protected static function hasSystemDConfigure(): bool
     {
-        $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+        $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
                           ->grep(['SystemDService::configure('], 100);
 
         return !empty($results);
@@ -506,7 +506,7 @@ class CliCommand
      */
     protected static function checkPhoNotWorldExecutable(): void
     {
-        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRootObject())->isWorldExecutable()) {
+        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRoot())->isWorldExecutable()) {
             if (config()->getBoolean('security.commandline.pho.permit.execute.world', false)) {
                 throw new CliCommandException(tr('Refusing to start, the "pho" command is world executable which is a security risk. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
             }
@@ -1412,7 +1412,7 @@ For usage examples, try ./pho -U, or ./pho command [... command] -U'));
         global $argv;
 
         if ($argv['usage']) {
-            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
                               ->grep(['CliDocumentation::setUsage('], 100);
 
             if (empty($results)) {
@@ -1453,7 +1453,7 @@ return 'under construction';
         global $argv;
 
         if ($argv['help']) {
-            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRootObject())
+            $results = PhoFile::new(CliCommand::$command_file . '.php', PhoRestrictions::newFilesystemRoot())
                               ->grep(['CliDocumentation::setHelp('], 100);
 
             if (empty($results)) {

@@ -153,7 +153,7 @@ class Pdf extends PhoFile implements PdfInterface
      */
     public function split(?string $file_pattern = 'page_%05d.pdf'): static
     {
-        $_file = $this->copy(PhoDirectory::newDataTmpObject());
+        $_file = $this->copy(PhoDirectory::newDataTmp());
 
         return PdfTk::new()
                     ->setPdfFileObject($_file)

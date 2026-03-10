@@ -649,7 +649,7 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
+                $_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonly(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
                 $_url  = Url::newFromPath($_file)->makeImg();
                 $url    = $_url->getSource();
 
@@ -2105,7 +2105,7 @@ class Response implements ResponseInterface
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
-                $headers[] = 'Last-Modified: ' . PhoDate::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                $headers[] = 'Last-Modified: ' . PhoDate::convert(Core::getLastModifiedTime(), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
             } else {
                 $headers[] = 'Last-Modified: ' . PhoDate::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';

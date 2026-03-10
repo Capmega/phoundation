@@ -96,7 +96,7 @@ class Project implements ProjectInterface
     {
         if (!$_directory) {
             // Default to the directory of this project
-            $_directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT));
+            $_directory = new PhoDirectory(DIRECTORY_ROOT, PhoRestrictions::newWritable(DIRECTORY_ROOT));
         }
 
         $this->___construct($_directory);
@@ -118,7 +118,7 @@ class Project implements ProjectInterface
                 throw new OutOfBoundsException(tr('Project file "config/project/name" already exist'));
             }
 
-            PhoFile::new(DIRECTORY_ROOT . 'config/project/name', PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
+            PhoFile::new(DIRECTORY_ROOT . 'config/project/name', PhoRestrictions::newWritable(DIRECTORY_ROOT))
                   ->delete();
         }
 
@@ -499,7 +499,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
      */
     public static function fixFileModes(): void
     {
-        $directory = PhoDirectory::newRootObject(true, 'Project::fixFileModes');
+        $directory = PhoDirectory::newRoot(true, 'Project::fixFileModes');
 
         // Do not check for root user, check sudo access to these commands individually, perhaps the user has it?
         Command::checkSudoAvailable('chown,chmod,mkdir,touch,rm', PhoRestrictions::new('/bin,/usr/bin'), true);
@@ -1246,7 +1246,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
         while (true) {
             try {
                 StatusFiles::new()
-                           ->setParentDirectoryObject(PhoDirectory::newRootObject(false, $section))
+                           ->setParentDirectoryObject(PhoDirectory::newRoot(false, $section))
                            ->patch($this->getDirectoryObject($section));
 
                 // All okay!
@@ -1256,7 +1256,7 @@ throw new NoLongerSupportedException('Project::import() is no longer supported a
                 // Fork me, the patch failed on one or multiple files. Stash those files and try again to patch
                 // the rest of the files that do apply
                 $files = $e->getDataKey('files');
-                $git   = Git::new(PhoDirectory::newRootObject());
+                $git   = Git::new(PhoDirectory::newRoot());
 
                 if ($files) {
                     Log::warning(ts('Trying to fix by stashing ":count" problematic file(s) ":files"', [

@@ -28,7 +28,7 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'arguments' => [
         '-p,--path' => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
+            return PhoDirectory::newRoot()->scan($word);
         },
         '-d,--delete-gone'  => false,
         '-a,--auto-disable' => false
@@ -56,13 +56,13 @@ OPTIONAL ARGUMENTS
 [-a, --no-auto-disable]                 If specified, any repository has a backup directory path part will automatically be disabled
 
 [-d, --no-delete-gone]                  If specified, any repository that was registered before but not found in the current scan, will be deleted', [
-    ':path' => PhoDirectory::newRootObject()->getParentDirectoryObject()->getParentDirectoryObject()
+    ':path' => PhoDirectory::newRoot()->getParentDirectoryObject()->getParentDirectoryObject()
 ]));
 
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('-p,--path', true)->isOptional(PhoDirectory::newRootObject()->getParentDirectoryObject()->getParentDirectoryObject())->isPath()
+                     ->select('-p,--path', true)->isOptional(PhoDirectory::newRoot()->getParentDirectoryObject()->getParentDirectoryObject())->isPath()
                      ->select('-d,--no-delete-gone')->isOptional()->isBoolean()
                      ->select('-a,--no-auto-disable')->isOptional()->isBoolean()
                      ->validate();

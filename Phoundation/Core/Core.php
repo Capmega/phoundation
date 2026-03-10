@@ -1683,6 +1683,41 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the last-modified time for the entire project
+     *
+     * @return int
+     */
+    public static function getLastModifiedTime(): int
+    {
+        static $return = false;
+        static $busy   = false;
+
+        if (empty($return)) {
+            try {
+                $return = filemtime(DIRECTORY_DATA . 'system/.modified');
+                $busy   = false;
+
+            } catch (PhpException $e) {
+                if ($busy) {
+                    // Failed twice in a row now!
+                    throw $e;
+                }
+
+                $busy = true;
+
+                // The modified file is not available, automatically create it so we'll have a modified time.
+                PhoFile::newData('system/.modified', true)->touch();
+
+                // Try again!
+                return Core::getLastModifiedTime();
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
      * Ensures that the timeout is the specified amount, or more
      *
      * @param int $timeout

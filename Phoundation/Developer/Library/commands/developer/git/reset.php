@@ -25,10 +25,10 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
+            return PhoDirectory::newRoot()->scan($word);
         },
         1 => function ($word) {
-            return PhoDirectory::newRootObject()->scan($word);
+            return PhoDirectory::newRoot()->scan($word);
         }
     ],
     'arguments' => [
@@ -50,4 +50,4 @@ $argv = ArgvValidator::new()
                      ->select('--hard')->isOptional()->isBoolean()
                      ->validate();
 
-Git::new(PhoDirectory::newRootObject())->reset($argv['branch'], get_null($argv['files']));
+Git::new(PhoDirectory::newRoot())->reset($argv['branch'], get_null($argv['files']));

@@ -50,11 +50,11 @@ $like = $argv['like'] ? '*' : null;
 // Search and initialize results iterator
 $results     = new Iterator();
 
-$files       = Find::new(PhoDirectory::newCommandsObject())
+$files       = Find::new(PhoDirectory::newCommands())
                    ->setName($like . $argv['command'] . '.php' . $like)
                    ->executeReturnIterator();
 
-$directories = Find::new(PhoDirectory::newCommandsObject())
+$directories = Find::new(PhoDirectory::newCommands())
                    ->setName($like . $argv['command'] . $like)
                    ->setType('d')
                    ->executeReturnIterator();
@@ -71,7 +71,7 @@ if ($files->getCount()) {
         $result    = Strings::from($path, DIRECTORY_COMMANDS);
         $result    = Strings::until($result, '.php');
         $result    = str_replace('/', ' ', $result);
-        $path      = PhoFile::new($path, PhoRestrictions::newReadonlyObject(DIRECTORY_COMMANDS));
+        $path      = PhoFile::new($path, PhoRestrictions::newReadonly(DIRECTORY_COMMANDS));
         $real_path = ($path->isLink() ? $path->getLinkTarget()->getRootname() : ('*** ' . $path->getRootname()));
         $path      = $path->getRootname();
 

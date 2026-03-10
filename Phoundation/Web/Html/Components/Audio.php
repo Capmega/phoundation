@@ -19,6 +19,7 @@ namespace Phoundation\Web\Html\Components;
 use Phoundation\Developer\Project\Project;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoFileInterface;
+use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumAudioPreload;
 use Phoundation\Web\Http\Url;
 
@@ -99,8 +100,10 @@ class Audio extends Element
     public function render(): ?string
     {
         // For the moment generate the HTML directly
+        $url = (string) $this->_attributes->get('src', exception: false) ?? $this->content;
+
         return '<audio class="' . $this->getClass() . '" preload="auto">
-                    <source src="' . Url::new((string) $this->_attributes->get('src', exception: false) ?? $this->content)->makeCdn() . '" type="audio/mpeg">
+                    <source src="' . Url::new($url)->makeCdn(Strings::fromReverse($url, '.')) . '" type="audio/mpeg">
                 </audio>';
     }
 }

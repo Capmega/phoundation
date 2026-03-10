@@ -432,7 +432,7 @@ class Route
 
         // Get routing parameters and find the correct web page file for this route
         $parameters = static::getParametersObject()->select(static::$url);
-        $_file     = new PhoFile(static::$page, PhoRestrictions::newReadonlyObject(DIRECTORY_WEB));
+        $_file     = new PhoFile(static::$page, PhoRestrictions::newReadonly(DIRECTORY_WEB));
 
         if ($_file->hasExtension('php')) {
             // Set up the request object, send parameters, attachment configuration and if this is a system request
@@ -526,7 +526,7 @@ class Route
      */
     protected static function init(): void
     {
-        Request::setRestrictionsObject(PhoRestrictions::newFilesystemRootObject());
+        Request::setRestrictionsObject(PhoRestrictions::newFilesystemRoot());
         Response::initialize();
 
         if (Core::getMaintenanceMode()) {

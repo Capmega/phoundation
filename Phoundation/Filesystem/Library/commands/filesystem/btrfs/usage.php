@@ -22,7 +22,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 CliDocumentation::setAutoComplete([
     'positions' => [
-        0 => function($word) { return PhoDirectory::newFilesystemRootObject(false)->scan($word, '/.*/')->addEmpty(); },
+        0 => function($word) { return PhoDirectory::newFilesystemRoot(false)->scan($word, '/.*/')->addEmpty(); },
     ],
     'arguments' => [
         '-d,--device' => false,

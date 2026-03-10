@@ -55,7 +55,7 @@ class PhoMimetypesInit
 
         $types = PhoFile::new(
             DIRECTORY_ROOT . 'Phoundation/Filesystem/Library/data/sources/filesystem/mimetypes.txt',
-            PhoRestrictions::newRootObject(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
+            PhoRestrictions::newRoot(false, 'Phoundation/Filesystem/Library/data/sources/filesystem')
         )->getContentsAsString();
 
         $types = Arrays::force($types, PHP_EOL);

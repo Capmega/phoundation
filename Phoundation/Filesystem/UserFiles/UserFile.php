@@ -69,7 +69,7 @@ class UserFile extends DataEntry
      */
     protected function setDefinitionsObject(DefinitionsInterface $_definitions): static
     {
-        $_definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject())
+        $_definitions->add(DefinitionFactory::newFile(PhoDirectory::newUserFiles())
                                              ->setOptional(false)
                                              ->setSize(12)
                                              ->setHelpText(tr('Filename'))
@@ -77,7 +77,7 @@ class UserFile extends DataEntry
                             $_validator->isUnique();
                         }))
 
-                      ->add(DefinitionFactory::newFile(PhoDirectory::newUserFilesObject(), 'seo_file')
+                      ->add(DefinitionFactory::newFile(PhoDirectory::newUserFiles(), 'seo_file')
                         ->setOptional(false)
                         ->setRender(false)
                         ->setSize(12)

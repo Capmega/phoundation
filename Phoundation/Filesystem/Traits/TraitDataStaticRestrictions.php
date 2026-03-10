@@ -41,7 +41,7 @@ trait TraitDataStaticRestrictions
             return static::$_restrictions;
         }
 
-        return PhoRestrictions::getRestrictionsOrDefaultObject();
+        return PhoRestrictions::getRestrictionsOrDefault();
     }
 
 
@@ -78,9 +78,9 @@ trait TraitDataStaticRestrictions
     public static function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface
     {
         if (static::$_restrictions) {
-            return PhoRestrictions::getRestrictionsOrDefaultObject($_restrictions, static::$_restrictions);
+            return PhoRestrictions::getRestrictionsOrDefault($_restrictions, static::$_restrictions);
         }
 
-        return PhoRestrictions::getRestrictionsOrDefaultObject($_restrictions);
+        return PhoRestrictions::getRestrictionsOrDefault($_restrictions);
     }
 }

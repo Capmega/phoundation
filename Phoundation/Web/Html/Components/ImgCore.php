@@ -279,6 +279,7 @@ class ImgCore extends SpanCore implements ImgInterface
         }
 
         return parent::render();
+
 //// :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
 //        if (!is_array($params)) {
 //            /*

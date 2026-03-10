@@ -52,7 +52,7 @@ $argv = ArgvValidator::new()
                      ->select('--test')->isOptional(false)->isBoolean()
                      ->select('--no-mtime')->isOptional(false)->isBoolean()
                      ->select('--cache-mtime', true)->isOptional()->isDateTime()
-                     ->select('file')->sanitizeFile(PhoDirectory::newRootObject(true))
+                     ->select('file')->sanitizeFile(PhoDirectory::newRoot(true))
                      ->validate();
 
 

@@ -133,7 +133,7 @@ abstract class Updates implements UpdatesInterface
             ]));
         }
 
-        $this->file         = PhoDirectory::newRootObject()->addPath(str_replace('\\', '/', static::class) . '.php');
+        $this->file         = PhoDirectory::newRoot()->addPath(str_replace('\\', '/', static::class) . '.php');
         $this->vendor       = $vendor;
         $this->library      = $library;
         $this->code_version = $code_version;

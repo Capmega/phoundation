@@ -34,12 +34,12 @@ class Tmp
         Log::action(ts('Clearing all temporary files'), 3);
 
         // Delete all private temporary files
-        PhoDirectory::new(DIRECTORY_TMP, PhoRestrictions::newWritableObject(DIRECTORY_TMP))
+        PhoDirectory::new(DIRECTORY_TMP, PhoRestrictions::newWritable(DIRECTORY_TMP))
                    ->delete()
                    ->ensure();
 
         // Delete all public temporary files
-        PhoDirectory::new(DIRECTORY_PUBTMP, PhoRestrictions::newWritableObject(DIRECTORY_PUBTMP))
+        PhoDirectory::new(DIRECTORY_PUBTMP, PhoRestrictions::newWritable(DIRECTORY_PUBTMP))
                    ->delete()
                    ->ensure();
 

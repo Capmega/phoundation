@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->push($argv['branch'], $argv['repository']);
+Git::new(PhoDirectory::newRoot())->push($argv['branch'], $argv['repository']);

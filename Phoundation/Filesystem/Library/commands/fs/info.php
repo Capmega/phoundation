@@ -20,13 +20,13 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newReadonlyObject('/');
+$restrictions = PhoRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);
@@ -44,7 +44,7 @@ PATH                                    The path for which information should be
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->sanitizePath(PhoDirectory::newFilesystemRootObject())
+                     ->select('path')->sanitizePath(PhoDirectory::newFilesystemRoot())
                      ->select('-h,--human-readable')->isOptional(false)->isBoolean()
                      ->validate();
 

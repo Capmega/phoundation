@@ -106,7 +106,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
-        $this->setRestrictionsObject(PhoRestrictions::newRootObject());
+        $this->setRestrictionsObject(PhoRestrictions::newRoot());
     }
 
 
@@ -1686,7 +1686,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setCliColumn('[-d,--execution-directory PATH]')
                                      ->setSize(4)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         $_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                         $_validator->isDirectory(PhoDirectory::newFilesystemRoot());
                                      }))
 
                      ->add(Definition::new('command')

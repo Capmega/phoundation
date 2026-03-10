@@ -37,7 +37,7 @@ ARGUMENTS
 
 // Get command line arguments
 $argv = ArgvValidator::new()
-                     ->select('path')->isOptional()->sanitizeFile(PhoDirectory::newDataTmpObject(true))
+                     ->select('path')->isOptional()->sanitizeFile(PhoDirectory::newDataTmp(true))
                      ->select('-p,--public')->isOptional()->isBoolean()
                      ->validate();
 
@@ -49,5 +49,5 @@ $argv['path'] = Strings::from($argv['path'], ($argv['public'] ? DIRECTORY_PUBTMP
 // Clear the specified temporary directory and we are done
 PhoFile::new(
     ($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP) . $argv['path'],
-    PhoRestrictions::newWritableObject($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
+    PhoRestrictions::newWritable($argv['public'] ? DIRECTORY_PUBTMP : DIRECTORY_TMP)
 )->delete();

@@ -76,6 +76,6 @@ trait TraitDataRestrictions
      */
     public function ensureRestrictionsObject(?PhoRestrictionsInterface $_restrictions): PhoRestrictionsInterface
     {
-        return PhoRestrictions::getRestrictionsOrDefaultObject($_restrictions, $this->_restrictions);
+        return PhoRestrictions::getRestrictionsOrDefault($_restrictions, $this->_restrictions);
     }
 }

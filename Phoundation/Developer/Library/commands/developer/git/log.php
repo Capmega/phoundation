@@ -35,4 +35,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Log::cli(Git::new(PhoDirectory::newRootObject())->getLog());
+Log::cli(Git::new(PhoDirectory::newRoot())->getLog());

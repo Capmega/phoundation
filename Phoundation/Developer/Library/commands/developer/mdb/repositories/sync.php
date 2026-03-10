@@ -52,8 +52,8 @@ $target_restrictions = PhoRestrictions::new('~', true);
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->sanitizeFile(PhoDirectory::newDataSourcesObject())
-                     ->select('-t,--target')->isOptional('~/projects/mdb')->sanitizeDirectory(PhoDirectory::new('~/projects/mdb', PhoRestrictions::newReadonlyObject('~/projects/mdb')))
+                     ->select('-s,--source')->isOptional('data/sources/mdb/repositories')->sanitizeFile(PhoDirectory::newDataSources())
+                     ->select('-t,--target')->isOptional('~/projects/mdb')->sanitizeDirectory(PhoDirectory::new('~/projects/mdb', PhoRestrictions::newReadonly('~/projects/mdb')))
                      ->validate();
 
 
