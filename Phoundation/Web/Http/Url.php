@@ -1407,6 +1407,12 @@ class Url implements UrlInterface
     /**
      * Returns the extension for the URL
      *
+     * This method will also automatically add the timestamp of the specified file as a versioning string, if this is enabled by configuration
+     *
+     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by updated versions of the files
+     *
+     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
+     *
      * @param string      $url
      * @param string|null $extension
      *
@@ -1418,11 +1424,11 @@ class Url implements UrlInterface
             return $url;
         }
 
-        if (config()->get('web.cdn.resources.versioning', true)) {
+        if (config()->getBoolean('web.cdn.resources.versioning', true)) {
             $version = '.' . Core::getLastModifiedTime();
         }
 
-        if (config()->get('web.cdn.resources.minified', true)) {
+        if (config()->getBoolean('web.cdn.resources.minified', true)) {
             $extension = '.min.' . $extension;
 
         } else {

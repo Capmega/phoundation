@@ -139,17 +139,6 @@ class Project implements ProjectInterface
 
 
     /**
-     * Returns if the version file exists
-     *
-     * @return bool
-     */
-    public static function versionFileExists(): bool
-    {
-        return file_exists(DIRECTORY_ROOT . 'config/file');
-    }
-
-
-    /**
      * Returns if the production configuration file exists
      *
      * @return bool
