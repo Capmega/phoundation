@@ -102,7 +102,7 @@ class Country extends DataEntry implements CountryInterface
                           ->setSourceQuery('SELECT   `id`, `name` 
                                             FROM     `geo_states` 
                                             WHERE    `countries_id` = :countries_id 
-                                            AND     (`status` IS NULL OR `status` != "deleted")
+                                            AND     (`status` IS NULL OR `status` NOT LIKE "deleted%")
                                             ORDER BY `name`', [
                                                 ':countries_id' => $this->getId(false),
                           ])

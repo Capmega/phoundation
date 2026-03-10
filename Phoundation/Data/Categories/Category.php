@@ -156,7 +156,7 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->isQueryResult('SELECT `id` 
                                                                    FROM   `categories` 
                                                                    WHERE  `id` = :id 
-                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                        ':id' => '$parents_id'
                                                   ]);
                                     }))
@@ -182,7 +182,7 @@ class Category extends DataEntry implements CategoryInterface
                                                   ->setColumnFromQuery('parents_id', 'SELECT `id` 
                                                                                       FROM   `categories` 
                                                                                       WHERE  `name` = :name 
-                                                                                      AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                      AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                           ':name' => '$parent'
                                                   ]);
                                     }))

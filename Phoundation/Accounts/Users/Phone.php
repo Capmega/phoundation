@@ -119,18 +119,18 @@ class Phone extends DataEntry implements PhoneInterface
      * @param array|Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
      *                                                     the seo_email, or seo_name
      * @param int|null                    $not_id
-     * @param bool                        $throw_exception If the entry does not exist, instead of returning false will throw
+     * @param bool                        $exception If the entry does not exist, instead of returning false will throw
      *                                                     a DataEntryNotExistsException
      *
      * @return bool
      */
-    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $exception = false): bool
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        return parent::notExists($identifier, $not_id, $throw_exception);
+        return parent::notExists($identifier, $not_id, $exception);
     }
 
 
@@ -141,18 +141,18 @@ class Phone extends DataEntry implements PhoneInterface
      *                                                     the seo_email, or seo_name
      * @param int|null                    $id              If specified, will ignore the found entry if it has this ID as it
      *                                                     will be THIS object
-     * @param bool                        $throw_exception If the entry exists (and does not match id, if specified), instead
+     * @param bool                        $exception If the entry exists (and does not match id, if specified), instead
      *                                                     of returning false will throw a DataEntryNotExistsException
      *
      * @return bool
      */
-    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $exception = false): bool
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        return parent::notExists($identifier, $id, $throw_exception);
+        return parent::notExists($identifier, $id, $exception);
     }
 
 

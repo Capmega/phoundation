@@ -29,7 +29,7 @@ class SlowProcesses extends Incidents
         $this->setQuery('SELECT   `id`, `created_on`, `status`, `title` 
                          FROM     `processes_slow` 
                          WHERE    `type` = "slow_page" 
-                         AND     (`status` IS NULL OR `status` != "deleted") 
+                         AND     (`status` IS NULL OR `status` NOT LIKE "deleted%") 
                          ORDER BY `created_on`');
         parent::__construct();
     }

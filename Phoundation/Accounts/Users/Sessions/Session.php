@@ -448,7 +448,7 @@ class Session implements SessionInterface
                     Session::$domain = sql()->getColumn('SELECT `domain` 
                                                          FROM   `whitelabels` 
                                                          WHERE  `domain` = :domain 
-                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                         AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                              ':domain' => $_SERVER['HTTP_HOST']
                     ]);
 

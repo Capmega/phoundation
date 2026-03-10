@@ -872,7 +872,7 @@ FILES variables:
                                                       ->isQueryResult('SELECT `id`
                                                                        FROM   `accounts_users`
                                                                        WHERE  `id` = :id
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':id' => '$users_id'
                                                       ]);
                                     }))

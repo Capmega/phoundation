@@ -802,6 +802,7 @@ class QueryBuilder extends QueryObject implements QueryBuilderInterface
      * @param string                      $glue
      *
      * @return string
+     * @deprecated
      */
     public static function is(string $column, array|string|int|float|null $values, ?string $label = null, ?array &$execute = null, string $glue = 'AND'): string
     {

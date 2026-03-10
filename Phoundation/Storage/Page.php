@@ -106,7 +106,7 @@ class Page extends DataEntry implements PageInterface
                                                          ->isQueryResult('SELECT `id` 
                                                                           FROM   `pages` 
                                                                           WHERE  `id` = :id 
-                                                                          AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                          AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                               ':id' => '$parents_id'
                                                          ]);
                                            }))
@@ -129,7 +129,7 @@ class Page extends DataEntry implements PageInterface
                                                          ->setColumnFromQuery('parents_id', 'SELECT `id` 
                                                                                              FROM   `pages` 
                                                                                              WHERE  `name` = :name 
-                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                             AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                                  ':id' => '$parents_name'
                                                          ]);
                                            }))

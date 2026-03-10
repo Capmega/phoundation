@@ -55,7 +55,7 @@ $users = Users::new()->setQueryBuilderObject(QueryBuilder::new()
 
 // Apply status filter
 if ($argv['delete']) {
-    Users::new()->getQueryBuilderObject()->addWhere('`accounts_users`.`status` ' . QueryBuilder::is('deleted', 'status'));
+    Users::new()->getQueryBuilderObject()->addWhere('`accounts_users`.`status` ' . QueryBuilder::is('deleted%', 'status'));
 }
 
 

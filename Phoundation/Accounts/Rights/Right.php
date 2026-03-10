@@ -161,7 +161,7 @@ class Right extends DataEntry implements RightInterface
     {
         // Update all accounts_users_rights too
         if ($this->getId(false)) {
-            sql()->query('UPDATE `accounts_users_rights` SET status = "deleted" WHERE `rights_id` = :rights_id', [
+            sql()->query('UPDATE `accounts_users_rights` SET status = "' . static::generateStatus('deleted') . '" WHERE `rights_id` = :rights_id', [
                 ':rights_id' => $this->getId(),
             ]);
         }

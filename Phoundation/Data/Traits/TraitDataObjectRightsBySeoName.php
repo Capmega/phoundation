@@ -44,7 +44,7 @@ trait TraitDataObjectRightsBySeoName
         }
 
         if (empty($this->_rights) or $reload) {
-            $this->_rights = RightsBySeoName::new()
+            $this->_rights = RightsBySeoName::new()->setDebug(true)
                                              ->setParentObject($this)
                                              ->load($order ? ['$order' => ['right' => 'asc']] : null);
         }

@@ -1417,6 +1417,18 @@ class FilterForm extends DataEntryForm implements FilterFormInterface
 
 
     /**
+     * Returns true if the status filter value is the specified value
+     *
+     * @param string|false|null $status
+     * @return bool
+     */
+    public function hasStatus(string|false|null $status): bool
+    {
+        return (bool) $this->getStatus() === $status;
+    }
+
+
+    /**
      * Selects and returns the Validator object required for the current request method
      *
      * @return ValidatorInterface

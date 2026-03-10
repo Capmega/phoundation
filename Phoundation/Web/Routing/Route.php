@@ -1507,7 +1507,7 @@ class Route
                 $exists = sql()->getRow('SELECT   `id`, `url`, `regex`, `route`, `flags`
                                          FROM     `routes_static` 
                                          WHERE    `ip` = :ip 
-                                         AND     (`status` IS NULL OR `status` != "deleted")
+                                         AND     (`status` IS NULL OR `status` NOT LIKE "deleted%")
                                          AND      `expiredon` >= NOW() 
                                          ORDER BY `created_on` DESC 
                                          LIMIT 1', [

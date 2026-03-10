@@ -64,7 +64,7 @@ class Roles extends DataIterator implements RolesInterface
                                                  ON   `accounts_roles_rights`.`roles_id` = `accounts_roles`.`id`')
                                       ->addJoin('JOIN `accounts_rights`
                                                  ON   `accounts_rights`.`id`             = `accounts_roles_rights`.`rights_id`')
-                                      ->addWhere('(`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted")')
+                                      ->addWhere('(`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` NOT LIKE "deleted%")')
                                       ->addGroupBy('`accounts_roles`.`id`')
                                       ->addOrderBy('`accounts_roles`.`name`');
     }

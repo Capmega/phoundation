@@ -66,8 +66,8 @@ class Rights extends DataIterator implements RightsInterface
                                                         ON  `accounts_roles_rights`.`rights_id` = `accounts_rights`.`id`')
                                       ->addJoin('LEFT JOIN  `accounts_roles`
                                                         ON  `accounts_roles`.`id` = `accounts_roles_rights`.`roles_id`
-                                                       AND (`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` != "deleted")')
-                                      ->addWhere('(`accounts_rights`.`status` IS NULL OR `accounts_rights`.`status` != "deleted")')
+                                                       AND (`accounts_roles`.`status` IS NULL OR `accounts_roles`.`status` NOT LIKE "deleted%")')
+                                      ->addWhere('(`accounts_rights`.`status` IS NULL OR `accounts_rights`.`status` NOT LIKE "deleted%")')
                                       ->addGroupBy('`accounts_rights`.`name`')
                                       ->addOrderBy('`accounts_rights`.`name`');
     }
@@ -127,7 +127,7 @@ class Rights extends DataIterator implements RightsInterface
      * @todo Make this more efficient by storing up all the rights that failed, and then with one query checking which exists and which do not
      * @return bool
      */
-    public function ensureRightsExist(array|string $rights): bool
+    public function ensureExist(array|string $rights): bool
     {
         if (!$this->auto_create) {
             return false;
@@ -318,7 +318,7 @@ class Rights extends DataIterator implements RightsInterface
                 $value = Right::new()->load($value);
 
             } catch (DataEntryNotExistsException $e) {
-                if (!$this->ensureRightsExist($value)) {
+                if (!$this->ensureExist($value)) {
                     // The specified right does not exist
                     throw $e;
                 }
@@ -651,7 +651,7 @@ class Rights extends DataIterator implements RightsInterface
 
         if (!$contains) {
             if ($this->getCount()) {
-                $this->ensureRightsExist($this->getMissing($rights));
+                $this->ensureExist($this->getMissing($rights));
 
             } elseif (PLATFORM_CLI and ($this->getParentObject() instanceof UserInterface) and $this->getParentObject()->isSystem()) {
                 // System user has all rights
@@ -687,7 +687,7 @@ class Rights extends DataIterator implements RightsInterface
         if (!$contains) {
             if ($this->getCount()) {
                 $this->setAutoCreate(true)
-                     ->ensureRightsExist($this->getMissing($rights));
+                     ->ensureExist($this->getMissing($rights));
 
             } elseif (PLATFORM_CLI and ($this->getParentObject() instanceof UserInterface) and $this->getParentObject()->isSystem()) {
                 // System user has all rights

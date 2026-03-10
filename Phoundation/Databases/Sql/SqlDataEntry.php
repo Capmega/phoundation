@@ -233,14 +233,14 @@ class SqlDataEntry implements SqlDataEntryInterface
             // Duplicate ID, try with a different random number
             if (isset($insert)) {
                 Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry ":row_id" encountered for insert in table ":table", retrying', [
-                        ':row_id' => $insert[$this->id_column],
-                        ':table'  => $this->table,
-                    ]));
+                    ':row_id' => $insert[$this->id_column],
+                    ':table'  => $this->table,
+                ]));
 
             } else {
                 Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry encountered for insert in table ":table", retrying', [
-                        ':table' => $this->table,
-                    ]));
+                    ':table' => $this->table,
+                ]));
             }
 
             return;
