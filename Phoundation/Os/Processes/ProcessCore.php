@@ -220,7 +220,7 @@ abstract class ProcessCore implements ProcessInterface
             // commands should all have 750. Check for this, and if not, make it 750 and retry.
             $file = PhoFile::new(
                 $this->command,
-                PhoRestrictions::newWritableObject(dirname($this->command))
+                PhoRestrictions::newWritable(dirname($this->command))
             );
 
             if ($file->getParentDirectoryObject()->getSource() === DIRECTORY_DATA . 'bin/') {

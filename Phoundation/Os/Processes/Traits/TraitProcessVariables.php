@@ -873,7 +873,7 @@ trait TraitProcessVariables
      */
     public function setExecutionDirectoryToTemp(bool $public = false): static
     {
-        return $this->setExecutionDirectory(PhoDirectory::newTemporaryObject($public));
+        return $this->setExecutionDirectory(PhoDirectory::newTemporary($public));
     }
 
 

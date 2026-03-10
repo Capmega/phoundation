@@ -34,4 +34,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->merge($argv['branch']);
+Git::new(PhoDirectory::newRoot())->merge($argv['branch']);

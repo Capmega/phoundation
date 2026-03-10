@@ -40,4 +40,4 @@ $argv = ArgvValidator::new()
 
 
 // Get persistent temporary directory and we are done
-Log::cli(PhoDirectory::newTemporaryObject($argv['public'], true)->getSource());
+Log::cli(PhoDirectory::newTemporary($argv['public'], true)->getSource());

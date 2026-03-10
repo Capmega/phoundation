@@ -144,7 +144,7 @@ class Get extends Curl
         if ($this->close) {
             // Close this cURL session
             if (!empty($this->cookie_file)) {
-                PhoFile::new($this->cookie_file, PhoRestrictions::newWritableObject(DIRECTORY_DATA . 'curl/'))
+                PhoFile::new($this->cookie_file, PhoRestrictions::newWritable(DIRECTORY_DATA . 'curl/'))
                       ->delete();
             }
 

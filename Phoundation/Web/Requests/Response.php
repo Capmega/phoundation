@@ -649,7 +649,7 @@ class Response implements ResponseInterface
     {
         try {
             if (empty($url)) {
-                $_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
+                $_file = PhoPath::new('img/favicons/project.png', PhoRestrictions::newReadonly(DIRECTORY_PROJECT_CDN), DIRECTORY_PROJECT_CDN);
                 $_url  = Url::newFromPath($_file)->makeImg();
                 $url    = $_url->getSource();
 

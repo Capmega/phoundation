@@ -125,7 +125,7 @@ class SshAccounts extends DataIterator
 
             if (array_key_exists('file', $entry)) {
                 if ($entry['file']) {
-                    $entry['ssh_key'] = PhoFile::new($entry['file'], PhoRestrictions::newFilesystemRootObject())->getContentsAsString();
+                    $entry['ssh_key'] = PhoFile::new($entry['file'], PhoRestrictions::newFilesystemRoot())->getContentsAsString();
                 }
             }
         }

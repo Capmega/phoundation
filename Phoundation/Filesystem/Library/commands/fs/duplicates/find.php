@@ -22,13 +22,13 @@ use Phoundation\Filesystem\PhoDirectory;
 use Phoundation\Filesystem\PhoRestrictions;
 
 
-$restrictions = PhoRestrictions::newReadonlyObject('/');
+$restrictions = PhoRestrictions::newReadonly('/');
 
 CliDocumentation::setAutoComplete([
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);
@@ -57,7 +57,7 @@ PATH                                    The path that should be scanned
 
 // Get arguments
 $argv = ArgvValidator::new()
-    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRootObject())
+    ->select('path')->sanitizeDirectory(PhoDirectory::newFilesystemRoot())
     ->select('-r,--recursive', true)->isOptional(0)->isInteger()->isPositive()
     ->select('-m,--max-size', true)->isOptional(1_073_741_824)->sanitizeBytes()
     ->validate();

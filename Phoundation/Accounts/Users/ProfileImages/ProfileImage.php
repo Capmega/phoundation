@@ -221,12 +221,12 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
         if ($_file) {
             // This profile image object has a file set, process it
             $this->setReadonly(false)
-                 ->setRestrictionsObject(PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]));
+                 ->setRestrictionsObject(PhoRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]));
 
             $_file->setRestrictionsObject($this->getRestrictionsObject());
 
             if ($_user) {
-                $cdn_directory = PhoDirectory::newCdnObject(true, 'img/files/profile/' . $_user->getId())
+                $cdn_directory = PhoDirectory::newCdn(true, 'img/files/profile/' . $_user->getId())
                                              ->ensure();
 
                 Log::action(ts('Adding image ":file" to profile images for user ":user"', [
@@ -251,7 +251,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                 if ($_current) {
                     // This profile image is currently assigned to a user and, as such, in its user directory. Move the file
                     // to a generic profile image directory
-                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/' . $_current->getId())
+                    $cdn_directory = PhoDirectory::newCdn(true, '/img/files/profile/' . $_current->getId())
                                                  ->ensure();
 
                     if (!$_file->isInDirectory($cdn_directory)) {
@@ -262,7 +262,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                         ]));
                     }
 
-                    $cdn_directory = PhoDirectory::newCdnObject(true, '/img/files/profile/0')
+                    $cdn_directory = PhoDirectory::newCdn(true, '/img/files/profile/0')
                                                  ->ensure();
 
                     Log::action(ts('Moving file ":file" to general users profile image directory ":directory"', [
@@ -291,7 +291,7 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     public function setFileObject(PhoFileInterface|null $file): static
     {
         if ($file) {
-            $_directory = PhoDirectory::newCdnObject();
+            $_directory = PhoDirectory::newCdn();
 
             if ($file->isInDirectory($_directory)) {
                 $file = $file->getFrom($_directory);
@@ -343,12 +343,12 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
     protected function ensureFile(): static
     {
         if ($this->getFile()) {
-            $this->_restrictions = PhoRestrictions::newWritableObject([DIRECTORY_TMP, DIRECTORY_CDN]);
+            $this->_restrictions = PhoRestrictions::newWritable([DIRECTORY_TMP, DIRECTORY_CDN]);
 
         } else {
             // This profile image has no file, assign the default profile image file
             $this->setReadonly(true)
-                 ->setRestrictionsObject(PhoRestrictions::newReadonlyObject(DIRECTORY_PROJECT_CDN))
+                 ->setRestrictionsObject(PhoRestrictions::newReadonly(DIRECTORY_PROJECT_CDN))
                  ->setFile(DIRECTORY_PROJECT_CDN . 'img/profiles/default.png');
         }
 
@@ -374,8 +374,8 @@ class ProfileImage extends DataEntry implements ProfileImageInterface
                                            ->setRender(false)
                                            ->addValidationFunction(function (ValidatorInterface $_validator) {
                                                $_validator->isFile([
-                                                   PhoDirectory::newDataTmpObject(),
-                                                   ($this->getUserObject() ? PhoDirectory::newCdnObject(true, 'img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
+                                                   PhoDirectory::newDataTmp(),
+                                                   ($this->getUserObject() ? PhoDirectory::newCdn(true, 'img/files/profile/' . $this->getUserObject()?->getId() . '/') : null)
                                                ]);
                                            }))
 

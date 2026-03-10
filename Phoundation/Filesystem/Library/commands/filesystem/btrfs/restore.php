@@ -23,7 +23,7 @@ use Phoundation\Filesystem\PhoDirectory;
 
 
 throw new UnderConstructionException();
-$directory = PhoDirectory::newFilesystemRootObject();
+$directory = PhoDirectory::newFilesystemRoot();
 
 CliDocumentation::setUsage('./pho tools os filesystem btrfs subvolumes create PATH');
 

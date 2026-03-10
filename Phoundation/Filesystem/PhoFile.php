@@ -59,7 +59,7 @@ class PhoFile extends PhoFileCore
     {
         return static::new(
             DIRECTORY_DATA . $file,
-            $restrictions ?? PhoRestrictions::newDataObject()
+            $restrictions ?? PhoRestrictions::newData()
         );
     }
 
@@ -76,7 +76,7 @@ class PhoFile extends PhoFileCore
     {
         return static::new(
             DIRECTORY_DATA . 'sources/' . $file,
-            $restrictions ?? PhoRestrictions::newDataSourcesObject()
+            $restrictions ?? PhoRestrictions::newDataSources()
         );
     }
 
@@ -93,7 +93,7 @@ class PhoFile extends PhoFileCore
     {
         return static::new(
             DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $file,
-            $restrictions ?? PhoRestrictions::newDataSourcesProjectObject()
+            $restrictions ?? PhoRestrictions::newDataSourcesProject()
         );
     }
 
@@ -110,7 +110,7 @@ class PhoFile extends PhoFileCore
     {
         $path = DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $file;
 
-        return static::new($path, $restrictions ?? PhoRestrictions::newDataProjectObject());
+        return static::new($path, $restrictions ?? PhoRestrictions::newDataProject());
     }
 
 
@@ -126,9 +126,9 @@ class PhoFile extends PhoFileCore
      */
     public static function newTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
-        $directory = PhoDirectory::newTemporaryObject($public, $persist);
+        $directory = PhoDirectory::newTemporary($public, $persist);
         $name      = ($name ?? Strings::getUuid());
-        $file      = static::new($directory->getSource() . $name, PhoRestrictions::newWritableObject($directory->getSource() . $name));
+        $file      = static::new($directory->getSource() . $name, PhoRestrictions::newWritable($directory->getSource() . $name));
 
         if ($create) {
             $file->create();

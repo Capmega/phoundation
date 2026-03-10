@@ -143,7 +143,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
                     ':age' => $age_in_minutes,
                 ]));
 
-                Find::new(PhoDirectory::newTemporaryObject())
+                Find::new(PhoDirectory::newTemporary())
                     ->setAtime('-' . $age_in_minutes)
                     ->setExec('rf {} -rf')
                     ->executeNoReturn();

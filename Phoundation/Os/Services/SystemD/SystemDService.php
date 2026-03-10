@@ -370,7 +370,7 @@ WantedBy=multi-user.target');
             // Initialize the service_script object for the current process
             $this->service_script = PhoFile::newDataObject(
                 'system/systemd/' . $this->getOsProcessName() . '.service',
-                PhoRestrictions::newDataObject(true, 'system/systemd/')
+                PhoRestrictions::newData(true, 'system/systemd/')
             );
         }
 
@@ -389,7 +389,7 @@ WantedBy=multi-user.target');
             // Initialize the target_script object for the current process
             $this->target_script = PhoFile::new(
                 '/etc/systemd/system/' . $this->getOsProcessName() . '.service',
-                PhoRestrictions::newWritableObject('/etc/systemd/system')
+                PhoRestrictions::newWritable('/etc/systemd/system')
             );
         }
 

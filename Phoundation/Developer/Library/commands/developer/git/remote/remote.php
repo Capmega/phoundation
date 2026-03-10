@@ -33,4 +33,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->getRepositoriesObject()->displayCliTable();
+Git::new(PhoDirectory::newRoot())->getRepositoriesObject()->displayCliTable();

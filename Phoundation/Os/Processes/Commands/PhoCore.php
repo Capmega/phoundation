@@ -65,7 +65,7 @@ class PhoCore extends WorkersCore implements PhoInterface
         }
 
         // Ensure that the run files directory is available
-        PhoDirectory::new(DIRECTORY_SYSTEM . 'run/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'run'))
+        PhoDirectory::new(DIRECTORY_SYSTEM . 'run/', PhoRestrictions::newWritable(DIRECTORY_SYSTEM . 'run'))
                    ->ensure();
 
         // Generate the process
@@ -75,7 +75,7 @@ class PhoCore extends WorkersCore implements PhoInterface
         // --no-audio        is always added to avoid sub commands pinging differently from the main command, causing confusion
         // --ignore-readonly is always added if the current process is also ignoring the readonly mode file
         // --no-warnings     is always added because all pho commands should NEVER cause warning type exceptions.
-        $this->setExecutionDirectory(PhoDirectory::newRootObject())
+        $this->setExecutionDirectory(PhoDirectory::newRoot())
              ->setCommand($pho->getSource(), false)
              ->appendArguments(['--no-audio', '--no-warnings'])
              ->appendArguments(Core::getIgnoreReadonly() || Core::inInitState() ? '--ignore-readonly' : null)

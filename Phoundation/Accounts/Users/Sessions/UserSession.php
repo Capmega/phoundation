@@ -222,7 +222,7 @@ class UserSession extends DataEntry implements UserSessionInterface
 
             case 'files':
                 // Remove the session from files
-                PhoFile::new(ini_get('session.save_path') . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))
+                PhoFile::new(ini_get('session.save_path') . $this->getCode(), PhoRestrictions::newWritable(dirname(ini_get('session.save_path'))))
                        ->delete();
                 break;
 
@@ -247,7 +247,7 @@ class UserSession extends DataEntry implements UserSessionInterface
 
         return match ($handler) {
             'memcached' => mc('sessions')->get($this->getCode()),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->getContentsAsString(),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritable(dirname(ini_get('session.save_path'))))->getContentsAsString(),
             ''          => throw new SessionException(tr('No session save handler configured')),
             default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,
@@ -341,7 +341,7 @@ class UserSession extends DataEntry implements UserSessionInterface
 
         match ($handler) {
             'memcached' => mc('sessions')->set($data, $this->getCode()),
-            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritableObject(dirname(ini_get('session.save_path'))))->putContents($data),
+            'files'     => PhoFile::new(Strings::slash(ini_get('session.save_path')) . 'sess_' . $this->getCode(), PhoRestrictions::newWritable(dirname(ini_get('session.save_path'))))->putContents($data),
             ''          => throw new SessionException(tr('No session save handler configured')),
             default     => throw new SessionException(tr('Unknown or unsupported session save handler ":handler" encountered', [
                 ':handler' => $handler,

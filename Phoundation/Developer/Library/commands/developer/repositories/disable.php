@@ -26,7 +26,7 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => function ($word) {
-            return PhoDirectory::newFilesystemRootObject()->scan()->keepMatchingAutocompleteValues($word);
+            return PhoDirectory::newFilesystemRoot()->scan()->keepMatchingAutocompleteValues($word);
         }
     ]
 ]);

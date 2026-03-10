@@ -23,8 +23,8 @@ use Phoundation\Filesystem\PhoDirectory;
 CliDocumentation::setAutoComplete([
     'positions' => [
         0 => [
-            'word'   => function($word) { return PhoDirectory::newFilesystemRootObject(false)->scan($word, '/.*?\.mp3$/')->addEmpty(); },
-            'noword' => function($word) { return PhoDirectory::newFilesystemRootObject(false)->scan($word, '/.*?\.mp3$/')->addEmpty(); },
+            'word'   => function($word) { return PhoDirectory::newFilesystemRoot(false)->scan($word, '/.*?\.mp3$/')->addEmpty(); },
+            'noword' => function($word) { return PhoDirectory::newFilesystemRoot(false)->scan($word, '/.*?\.mp3$/')->addEmpty(); },
         ]
     ]
 ]);
@@ -47,7 +47,7 @@ PATH/FILE                               The file to play directly
 
 
 $argv = ArgvValidator::new()
-                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRootObject())
+                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRoot())
                      ->select('-b,--background')->isOptional()->isBoolean()
                      ->validate();
 

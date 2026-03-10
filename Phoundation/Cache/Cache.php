@@ -421,7 +421,7 @@ class Cache extends Database implements CacheInterface
 
         Log::action(ts('Clearing all file caches'), 3);
 
-        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritableObject(DIRECTORY_SYSTEM . 'cache/files/'))
+        PhoPath::new(DIRECTORY_SYSTEM . 'cache/files/', PhoRestrictions::newWritable(DIRECTORY_SYSTEM . 'cache/files/'))
                ->delete();
 
         Log::success(ts('Cleared all caches'));

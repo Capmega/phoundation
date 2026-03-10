@@ -1686,7 +1686,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setCliColumn('[-d,--execution-directory PATH]')
                                      ->setSize(4)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
-                                         $_validator->isDirectory(PhoDirectory::newFilesystemRootObject());
+                                         $_validator->isDirectory(PhoDirectory::newFilesystemRoot());
                                      }))
 
                      ->add(Definition::new('command')

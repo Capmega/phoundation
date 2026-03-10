@@ -50,8 +50,8 @@ CliDocumentation::setAutoComplete([
           '-t,--timeout'   => true,
           '-g,--gzip'      => false,
           '--file'         => [
-              'word'   => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
-              'noword' => function ($word) { return PhoDirectory::newDataSourcesObject()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+              'word'   => function ($word) { return PhoDirectory::newDataSources()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
+              'noword' => function ($word) { return PhoDirectory::newDataSources()->scan('/^' . $word . '.*?[.sql|.gz]$/'); },
           ],
           '-c,--connector' => [
               'word'   => function ($word) {
@@ -81,7 +81,7 @@ CliDocumentation::setAutoComplete([
 $argv = ArgvValidator::new()
                      ->select('-g,--gzip')->isOptional(false)->isBoolean()
                      ->select('--timeout', true)->isOptional(3600)->isInteger()->isMoreThan(0)
-                     ->select('-f,--file', true)->isOptional()->sanitizeFile([PhoDirectory::newDataSourcesObject(), PhoDirectory::newTemporaryObject()])
+                     ->select('-f,--file', true)->isOptional()->sanitizeFile([PhoDirectory::newDataSources(), PhoDirectory::newTemporary()])
                      ->select('-c,--connector', true)->isOptional('system')->sanitizeLowercase()->isInArray(Connectors::new()->load(null, true, true)->getAllRowsSingleColumn('name'))
                      ->select('-b,--database', true)->isOptional()->isVariable()
                      ->validate();
@@ -93,7 +93,7 @@ Export::new()
       ->setDatabase($argv['database'])
       ->setTimeout($argv['timeout'])
       ->setGzip($argv['gzip'])
-      ->dump(PhoFile::new($argv['file'], PhoRestrictions::newWritableObject([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP])));
+      ->dump(PhoFile::new($argv['file'], PhoRestrictions::newWritable([DIRECTORY_DATA . 'sources/', DIRECTORY_TMP])));
 
 
 // Done!

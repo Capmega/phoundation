@@ -45,8 +45,8 @@ ARGUMENTS
 
 $argv = ArgvValidator::new()
                      ->select('-p,--provider', true)->isOptional()->hasMaxCharacters(24)->isInArray(['maxmind', 'ip2location'])
-                     ->select('-s,--source-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newDataObject())
-                     ->select('-t,--target-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newDataObject())
+                     ->select('-s,--source-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newData())
+                     ->select('-t,--target-path', true)->isOptional()->sanitizeDirectory(PhoDirectory::newData())
                      ->validate();
 
 

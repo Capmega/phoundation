@@ -24,7 +24,7 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Security\Luks\Device;
 
 
-$restrictions = PhoRestrictions::newWritableObject('/');
+$restrictions = PhoRestrictions::newWritable('/');
 
 CliDocumentation::setAutoComplete([
     'arguments' => [
@@ -35,8 +35,8 @@ CliDocumentation::setAutoComplete([
     ],
     'positions' => [
         '0' => [
-            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+            'word'   => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+            'noword' => function ($word) use ($restrictions) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
         ],
     ]
 ]);
@@ -70,7 +70,7 @@ FILE                                    The file to be created
 
 // Get the arguments
 $argv = ArgvValidator::new()
-                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRootObject(), (FORCE ? null : false))
+                     ->select('file')->sanitizeFile(PhoDirectory::newFilesystemRoot(), (FORCE ? null : false))
                      ->select('-s,--size', true)->isOptional(false)->sanitizeBytes()
                      ->select('-i,--initialize')->isOptional(false)->isBoolean()
                      ->select('-b,--block-size', true)->isOptional(4096)->sanitizeBytes()->isBetween(1024, 1_073_741_824)

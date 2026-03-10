@@ -282,7 +282,7 @@ class Repository extends DataEntry implements RepositoryInterface
             $this->_restrictions = PhoRestrictions::new($this->getPath(), true);
 
         } else {
-            $this->_restrictions = PhoRestrictions::newFilesystemRootObject(true);
+            $this->_restrictions = PhoRestrictions::newFilesystemRoot(true);
         }
 
         if (!$this->isLoading()) {

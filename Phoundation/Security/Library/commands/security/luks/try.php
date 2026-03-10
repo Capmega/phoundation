@@ -46,8 +46,8 @@ ARGUMENTS
 CliDocumentation::setAutoComplete([
       '-f,--file' => [
           'arguments' => [
-              'word'   => function ($word) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
-              'noword' => function ($word) { return PhoDirectory::newFilesystemRootObject()->scan($word, '/.*?$/'); },
+              'word'   => function ($word) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
+              'noword' => function ($word) { return PhoDirectory::newFilesystemRoot()->scan($word, '/.*?$/'); },
           ],
       ],
 ]);
@@ -55,7 +55,7 @@ CliDocumentation::setAutoComplete([
 
 // Get arguments
 $argv = ArgvValidator::new()
-                     ->select('-f,--file', true)->sanitizeFile(PhoDirectory::newFilesystemRootObject())
+                     ->select('-f,--file', true)->sanitizeFile(PhoDirectory::newFilesystemRoot())
                      ->validate();
 
 
@@ -65,7 +65,7 @@ $argv['sections'] = explode(' ', $argv['sections']);
 
 
 // Open the LUKS file
-$device = Device::new($argv['file'], PhoRestrictions::newWritableObject($argv['file']));
+$device = Device::new($argv['file'], PhoRestrictions::newWritable($argv['file']));
 
 if (FORCE) {
     $device->luksClose(true);

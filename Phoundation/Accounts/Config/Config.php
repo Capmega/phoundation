@@ -1345,7 +1345,7 @@ class Config implements ConfigInterface
         $store = [];
 
         // Scan all files for config()->get() and config()->set() calls
-        PhoDirectory::new(DIRECTORY_ROOT, PhoRestrictions::newWritableObject(DIRECTORY_ROOT))
+        PhoDirectory::new(DIRECTORY_ROOT, PhoRestrictions::newWritable(DIRECTORY_ROOT))
                  ->execute()
                  ->addSkipDirectories([
                      DIRECTORY_DATA,
@@ -1355,7 +1355,7 @@ class Config implements ConfigInterface
                  ->setRecurse(true)
                  ->setRestrictionsObject(new PhoRestrictions(DIRECTORY_ROOT))
                  ->onFiles(function (string $file) use (&$store) {
-                     $files = PhoFile::new($file, PhoRestrictions::newReadonlyObject(DIRECTORY_ROOT))
+                     $files = PhoFile::new($file, PhoRestrictions::newReadonly(DIRECTORY_ROOT))
                                      ->grep([
                                       'config()->get(\'',
                                       'config()->set(\'',

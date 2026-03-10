@@ -43,4 +43,4 @@ $argv = ArgvValidator::new()
                      ->validate();
 
 
-Git::new(PhoDirectory::newRootObject())->rebase($argv['branch']);
+Git::new(PhoDirectory::newRoot())->rebase($argv['branch']);
