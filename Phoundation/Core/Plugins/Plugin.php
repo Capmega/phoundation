@@ -196,7 +196,7 @@ class Plugin extends DataEntry implements PluginInterface
             return true;
         }
 
-        return $this->getTypesafe('string', 'status') === null;
+        return $this->hasStatus(null);
     }
 
 

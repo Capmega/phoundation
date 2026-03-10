@@ -2548,7 +2548,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function isLocked(): bool
     {
-        return $this->isStatus('locked');
+        return $this->hasStatus('locked');
     }
 
 

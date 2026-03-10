@@ -1928,20 +1928,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function isDeleted(): bool
     {
-        return $this->isStatus('deleted');
-    }
-
-
-    /**
-     * Returns true if this DataEntry has the specified status
-     *
-     * @param string|null $status
-     *
-     * @return bool
-     */
-    public function isStatus(?string $status): bool
-    {
-        return $this->getTypesafe('string', 'status') === $status;
+        return $this->hasStatus('deleted');
     }
 
 
@@ -2002,7 +1989,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getStatus(): ?string
     {
-        return $this->getTypesafe('string', 'status');
+        $status = $this->getTypesafe('string', 'status');
+        $status = Strings::until($status, '-');
+        $status = str_replace('_', '-', $status);
+
+        return $status;
     }
 
 
@@ -4416,22 +4407,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns true if this object has the specified status
      *
-     * @param array|string|null $status
-     * @param bool              $strict
+     * @param array|string|null $status The status to test
+     * @param bool              $strict [true] If true, will perform strict comparisons (===). If false, will perform loose comparison (==)
      *
      * @return bool
      */
     public function hasStatus(array|string|null $status, bool $strict = true): bool
     {
         if (is_array($status)) {
-            return in_array($this->getTypesafe('string', 'status'), $status, $strict);
+            return in_array($this->getStatus(), $status, $strict);
         }
 
         if ($strict) {
-            return $status === $this->getTypesafe('string', 'status');
+            return $status === $this->getStatus();
         }
 
-        return $status == $this->getTypesafe('string', 'status');
+        return $status == $this->getStatus();
     }
 
 
@@ -4534,14 +4525,19 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * Status "deleted" requires a random string attached to it for unique indexing reasons
      *
-     * @param string|null $status
+     * @param string|null $status The status that needs to be normalized
+     *
      * @return string|null
      */
-    public static function generateStatus(?string $status): ?string
+    public static function normalizeStatus(?string $status): ?string
     {
+        if ($status) {
+            $status = str_replace('-', '_', $status);
+        }
+
         return match ($status) {
             null      => null,
-            'deleted' => 'deleted-' . Strings::getRAndom(8),
+            'deleted' => $status . '-' . Strings::getRAndom(8),
             default   => $status
         };
     }
@@ -4569,40 +4565,40 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     ]));
                 }
 
-                while ($attempt++ <= 5) {
-                    try {
-                        $this->checkReadonly('set-status "' . $status . '"')
-                             ->set(static::generateStatus($status), 'status')
-                             ->saveToLocalCache($this->getCacheKey())
-                             ->saveToGlobalCache($this->getCacheKey());
-
-                    } catch (SqlException $e) {
-                        if ($e->getCode() !== 1062) {
-                            // Some different error, keep throwing
-                            throw $e;
-                        }
-
-                        // We encountered a double SQL UNIQUE KEY for this entry, retry with a different "status" random value
-                        Incident::new()
-                                ->setSeverity(EnumSeverity::medium)
-                                ->setType(ts('duplicate'))
-                                ->setTitle(ts('Encountered duplicate unique column / status column value'))
-                                ->setBody(ts('Encountered duplicate row for DataEntry class ":class" table ":table" unique value ":unique" and status value ":status" on attempt ":attempt", retrying...', [
-                                    ':class'   => static::class,
-                                    ':table'   => static::getTable(),
-                                    ':unique'  => $this->getUniqueColumnValue(),
-                                    ':status'  => $status,
-                                    ':attempt' => $attempt,
-                                ]))
-                                ->save();
-                    }
+                $this->checkReadonly('set-status "' . $status . '"')
+                     ->set(static::normalizeStatus($status), 'status')
+                     ->saveToLocalCache($this->getCacheKey())
+                     ->saveToGlobalCache($this->getCacheKey());
                 }
 
                 $this->changes[] = 'status';
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
-                    sql()->setStatus($this->getId(false), $status, static::getTable());
+                    while ($attempt++ <= 5) {
+                        try {
+                            sql()->setStatus($this->getId(false), static::normalizeStatus($status), static::getTable());
+
+                        } catch (SqlException $e) {
+                            if ($e->getCode() !== 1062) {
+                                // Some different error, keep throwing
+                                throw $e;
+                            }
+
+                            // We encountered a double SQL UNIQUE KEY for this entry, retry with a different "status" random value
+                            Incident::new()
+                                    ->setSeverity(EnumSeverity::medium)
+                                    ->setType(ts('duplicate'))
+                                    ->setTitle(ts('Encountered duplicate unique column / status column value'))
+                                    ->setBody(ts('Encountered duplicate row for DataEntry class ":class" table ":table" unique value ":unique" and status value ":status" on attempt ":attempt", retrying...', [
+                                        ':class'   => static::class,
+                                        ':table'   => static::getTable(),
+                                        ':unique'  => $this->getUniqueColumnValue(),
+                                        ':status'  => $status,
+                                        ':attempt' => $attempt,
+                                    ]))
+                                    ->save();
+                        }
                 }
             }
         }
