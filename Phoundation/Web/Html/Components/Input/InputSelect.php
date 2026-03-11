@@ -383,7 +383,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Enables auto select
      *
      * @return static
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function enableAutoSelect(): static
     {
@@ -397,7 +397,7 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Disables auto select
      *
      * @return static
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::setAutoSelect()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::setAutoSelect()
      */
     public function disableAutoSelect(): static
     {
@@ -686,8 +686,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -717,8 +717,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      * Return the body HTML for a <select> list
      *
      * @return string|null
-     * @see    \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see    \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see    \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::render()
+     * @see    \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see    ResourceElement::renderBody()
      * @see    ElementInterface::render()
      */
@@ -775,8 +775,8 @@ class InputSelect extends ResourceElement implements InputSelectInterface, Input
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
      *
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::render()
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Input\TemplateInputSelect::renderHeaders()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::render()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Input\TemplateInputSelect::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */

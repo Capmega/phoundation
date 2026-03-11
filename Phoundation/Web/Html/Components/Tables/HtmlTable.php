@@ -698,8 +698,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * This will return all HTML FROM the <tbody> tags around it
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Tables\TemplateHtmlTable::render()
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Tables\TemplateHtmlTable::render()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */
@@ -1298,8 +1298,8 @@ class HtmlTable extends ResourceElement implements HtmlTableInterface
      * This will return all HTML FROM the <tbody> tags around it
      *
      * @return string|null The body HTML (all <option> tags) for a <select> tag
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Tables\TemplateHtmlTable::render()
-     * @see \Templates\Phoundation\AdminLte\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Tables\TemplateHtmlTable::render()
+     * @see \Templates\Phoundation\AdminLteV3\Html\Components\Tables\TemplateHtmlTable::renderHeaders()
      * @see ResourceElement::renderBody()
      * @see ElementInterface::render()
      */

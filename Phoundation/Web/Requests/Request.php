@@ -73,7 +73,7 @@ use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
-use Templates\Phoundation\AdminLte\AdminLte;
+use Templates\Phoundation\AdminLteV3\AdminLteV3;
 use Throwable;
 
 
@@ -265,8 +265,8 @@ class Request implements RequestInterface
     public static function getTemplateObject(): TemplateInterface
     {
         if (empty(static::$template)) {
-            // Default template is AdminLte
-            static::$template = new AdminLte();
+            // Default template is AdminLteV3
+            static::$template = new AdminLteV3();
         }
 
         return static::$template;

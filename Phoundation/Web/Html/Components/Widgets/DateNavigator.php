@@ -218,7 +218,7 @@ class DateNavigator extends ElementsBlock
      *       Phoundation library, or in a Plugins library. The path of the component, starting from Html/ is the path
      *       that this method will search for in the Template. If the same path section is found then that file will
      *       render the HTML for the component. For example: Plugins\Example\Section\Html\Components\Input\InputText
-     *       with Template AdminLte will be rendered by Templates\AdminLte\Html\Components\Input\InputText
+     *       with Template AdminLteV3 will be rendered by Templates\AdminLteV3\Html\Components\Input\InputText
      *
      * @return string|null
      * @see  ElementInterface::render()

@@ -24,7 +24,7 @@ use Phoundation\Web\Html\Template\Interfaces\TemplateInterface;
 use Phoundation\Web\Http\Domains;
 use Phoundation\Web\Http\Url;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
-use Templates\Phoundation\AdminLte\AdminLte;
+use Templates\Phoundation\AdminLteV3\AdminLteV3;
 
 
 class RoutingParameters implements RoutingParametersInterface
@@ -127,8 +127,8 @@ class RoutingParameters implements RoutingParametersInterface
     public function getTemplate(): string
     {
         if (!isset($this->template)) {
-            // The default template is AdminLte
-            $this->template = AdminLte::class;
+            // The default template is AdminLteV3
+            $this->template = AdminLteV3::class;
         }
 
         return $this->template;
