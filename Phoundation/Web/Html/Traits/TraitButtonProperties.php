@@ -156,13 +156,28 @@ trait TraitButtonProperties
 
 
     /**
+     * Returns system wide disable-after-click setting
+     *
+     * Returns true if disable-after-click is enabled
+     *
+     * Returns false if disable-after-click is disabled and should not be available
+     *
+     * @return bool
+     */
+    public function getConfigDisableAfterClick(): bool
+    {
+        return config()->getBoolean('web.controls.buttons.disable-after-click', true);
+    }
+
+
+    /**
      * Returns if the button is disabled after a mouse click, or not
      *
      * @return bool
      */
     public function getDisableAfterClick(): bool
     {
-        return $this->disable_after_click;
+        return $this->getConfigDisableAfterClick() and $this->disable_after_click;
     }
 
 
