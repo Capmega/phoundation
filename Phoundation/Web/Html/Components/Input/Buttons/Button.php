@@ -25,6 +25,7 @@ use Phoundation\Web\Html\Components\Icons\Icons;
 use Phoundation\Web\Html\Components\Input\Buttons\Interfaces\ButtonInterface;
 use Phoundation\Web\Html\Components\Input\Input;
 use Phoundation\Web\Html\Components\Interfaces\RenderInterface;
+use Phoundation\Web\Html\Components\Interfaces\ScriptInterface;
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumButtonType;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
@@ -202,27 +203,7 @@ class Button extends Input implements ButtonInterface
                     $selector = '#' . $this->getId();
                 }
 
-                $script .= Script::new('
-                    window.phoundation.addModifierkeyDownCallback("' . $this->getRequireKeysToEnableString() . '", function () {
-                        $("' . $selector . '.button-require-modifiers").each(function (index, button) {
-                            $button = $(button);
-    
-                            $(button).prop("title", $button.data("title") || "")
-                                     .prop("disabled", false)
-                                     .removeClass("disabled");
-                        });
-                    });
-                    
-                    window.phoundation.addModifierkeyUpCallback("' . $this->getRequireKeysToEnableString() . '", function () {
-                        $("' . $selector . '.button-require-modifiers").each(function (index, button) {
-                            $button = $(button);
-    
-                            $(button).prop("title", $button.data("require-keys-title") || "")
-                                     .prop("disabled", true)
-                                     .addClass("disabled");
-                        });
-                    });            
-                ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
+                $script .= $this->getRequireKeyScript($selector, $this->getRequireKeysToEnableString())->setJavascriptWrapper(EnumJavascriptWrappers::window);
             }
         }
 
@@ -286,5 +267,38 @@ class Button extends Input implements ButtonInterface
         }
 
         return $this->__render() . $script;
+    }
+
+
+    /**
+     * Returns the script object to require keys to activate buttons
+     *
+     * @param string $selector
+     * @param string $require_keys
+     *
+     * @return ScriptInterface
+     */
+    public function getRequireKeyScript(string $selector, string $require_keys): ScriptInterface
+    {
+        return Script::new('window.phoundation.addModifierkeyDownCallback("' . $require_keys . '", function () {
+                                $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                                    $button = $(button);
+            
+                                    $(button).prop("title", $button.data("title") || "")
+                                             .prop("disabled", false)
+                                             .removeClass("disabled");
+                                });
+                            });
+                            
+                            window.phoundation.addModifierkeyUpCallback("' . $require_keys . '", function () {
+                                $("' . $selector . '.button-require-modifiers").each(function (index, button) {
+                                    $button = $(button);
+            
+                                    $(button).prop("title", $button.data("require-keys-title") || "")
+                                             .prop("disabled", true)
+                                             .addClass("disabled");
+                                });
+                            });            
+                        ');
     }
 }
