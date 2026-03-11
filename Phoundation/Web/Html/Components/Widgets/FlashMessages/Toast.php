@@ -117,7 +117,10 @@ class Toast extends WidgetCore implements ToastInterface
 
                 break;
 
-            case 'adminlte':
+            case 'adminltev3':
+                // no break
+
+            case 'adminltev4':
                 $return = [
                     'class'    => 'bg-' . $_message->getMode()->value,
                     'title'    => Html::safe($_message->getTitle()),

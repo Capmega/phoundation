@@ -151,14 +151,28 @@ class Button extends Input implements ButtonInterface
     {
         $script = null;
 
+
+
         if ($this->isEnabled()) {
             if ($this->getDisableAfterClick()) {
                 // This button will disable itself after having been clicked
                 $this->addClass('button-disable-click');
-                $script .= Script::new('$(".button-disable-click").on("click", function (e) {
-                    // Disable this button and submit
-                    $(e.target).addClass("disabled").prop("readonly", true);
-                })');
+                $script .= Script::new('$("form").submit(function(e) {
+                                            var $form   = $(this);
+                                            var $button = $form.find(\'[name="\' + $(document.activeElement).attr("name") + \'"]\');
+
+                                            $(this).append(\'<input type="hidden" name="\' + $button.attr("name") + \'" value="\' + $button.attr("value") + \'">\');                                    
+                                            
+                                            if (isFunction($form.valid)) {
+                                                if ($form.valid()) {
+                                                    $("button").prop("disabled", true);
+                                                    $("input, select, textarea").prop("readonly", true).addClass("disabled");
+                                                }
+                                            } else {
+                                                $("button").prop("disabled", true);
+                                                $("input, select, textarea").prop("readonly", true).addClass("disabled");
+                                            }                        
+                                        });');
             }
 
             if ($this->getRequireKeysToEnable()) {
