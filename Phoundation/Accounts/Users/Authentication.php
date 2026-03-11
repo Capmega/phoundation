@@ -284,7 +284,7 @@ class Authentication extends DataEntry implements AuthenticationInterface
             // Core is readonly we cannot write to the database!
             Log::warning(ts('Cannot save Authentication object for Session ":session" for user ":user" from IP ":ip", core is readonly', [
                 ':session' => Session::getId(),
-                ':user'    => Session::getUserObject()->getLogId(),
+                ':user'    => Session::getUsersLogId(),
                 ':ip'      => Session::getIpAddress(),
             ]));
 

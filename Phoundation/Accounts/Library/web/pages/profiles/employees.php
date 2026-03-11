@@ -77,7 +77,7 @@ foreach ($users as $user) {
                       ->getHtmlImgObject()
                           ->setClass('img-circle img-fluid')
                           ->setAlt(tr('Profile image for :user', [
-                              ':user' => Html::safe(Session::getUserObject()->getDisplayName())
+                              ':user' => Html::safe(Session::getUsersDisplayName())
                           ]));
 
 

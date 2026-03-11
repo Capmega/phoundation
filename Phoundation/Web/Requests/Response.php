@@ -1517,7 +1517,7 @@ class Response implements ResponseInterface
                     if (!Response::skipRedirect()) {
                         // No, it is not, redirect!
                         Log::action(ts('User ":user" has a redirect to ":url", redirecting there instead', [
-                            ':user' => Session::getUserObject()->getLogId(),
+                            ':user' => Session::getUsersLogId(),
                             ':url'  => $redirect,
                         ]));
 
@@ -1532,7 +1532,7 @@ class Response implements ResponseInterface
                     }
 
                     Log::warning(ts('User ":user" has a redirect to ":url" which MAY NOT redirected to, ignoring redirect', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                         ':url'  => $redirect,
                     ]));
                 }
@@ -1710,7 +1710,7 @@ class Response implements ResponseInterface
                     // Well, THIS is a problem! We want to redirect to B, but user will always redirect back to A, so this redirect will never work
                     throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", the user has forced redirect ":redirect" configured that would redirect the user away from the current required target', [
                         ':url'      => $_target,
-                        ':user'     => Session::getUserObject()->getLogId(),
+                        ':user'     => Session::getUsersLogId(),
                         ':redirect' => Session::getUserObject()->getRedirect(),
                     ]));
                 }
@@ -1740,7 +1740,7 @@ class Response implements ResponseInterface
                             // Redirecting to the same page for the same user may cause an endless redirect loop
                             throw new ResponseRedirectException(tr('Will NOT redirect user ":user" to ":url", its the same URL as the current page and the current request method is not POST', [
                                 ':url'  => $_target,
-                                ':user' => Session::getUserObject()->getLogId(),
+                                ':user' => Session::getUsersLogId(),
                             ]));
                         }
 

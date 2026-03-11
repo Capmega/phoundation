@@ -22,9 +22,9 @@ trait TraitDataStaticArrayBackup
     /**
      * Internal backup array, containing the original values
      *
-     * @var array|null $backup
+     * @var array|null $_backup
      */
-    protected static ?array $backup = null;
+    protected static ?array $_backup = null;
 
 
     /**
@@ -34,6 +34,6 @@ trait TraitDataStaticArrayBackup
      */
     public static function getBackup(): ?array
     {
-        return static::$backup;
+        return static::$_backup;
     }
 }

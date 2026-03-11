@@ -52,7 +52,7 @@ Response::setBreadcrumbs([
                                            ->getImgObject()
                                                ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                ->setClass('profile-user-img img-fluid img-circle')
-                                               ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                               ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                ->render() ?>
                         </div>
 
@@ -143,7 +143,7 @@ Response::setBreadcrumbs([
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
-                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                            ->render() ?>
                                         <span class="username">
                       <a href="#">Corey Henrichsen</a>
@@ -184,7 +184,7 @@ Response::setBreadcrumbs([
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
-                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                            ->render() ?>
                                         <span class="username">
                       <a href="#">Kate Culter</a>
@@ -220,7 +220,7 @@ Response::setBreadcrumbs([
                                                        ->getImgObject()
                                                            ->setSrc(Url::new('img/profiles/default.png')->makeImg())
                                                            ->setClass('img-circle img-bordered-sm')
-                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                                           ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                                            ->render() ?>
                                         <span class="username">
                       <a href="#">Doug Poulin</a>

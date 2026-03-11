@@ -57,7 +57,7 @@ Response::setRenderMainWrapper(false);
                                ->getImgObject()
                                    ->addClasses('rounded-circle')
                                    ->setSrc(Url::new('img/fingerprint-256x192.png')->makeImg())
-                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                    ->render() ?>
             </div>
         </div>

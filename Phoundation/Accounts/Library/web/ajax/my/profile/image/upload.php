@@ -65,7 +65,7 @@ try {
                                                                                                ->setId('profile-picture')
                                                                                                ->addClasses('w100')
                                                                                                ->setAlt(tr('Profile picture for :name', [
-                                                                                                   ':name' => Session::getUserObject()->getDisplayName()
+                                                                                                   ':name' => Session::getUsersDisplayName()
                                                                                                ]))))
 
                                                          ->add(JsonHtmlSection::new('#menu-profile-image')
@@ -76,7 +76,7 @@ try {
                                                                                                ->setId('menu-profile-image')
                                                                                                ->addClasses('img-circle elevation-2')
                                                                                                ->setAlt(tr('Profile picture for :name', [
-                                                                                                   ':name' => Session::getUserObject()->getDisplayName()
+                                                                                                   ':name' => Session::getUsersDisplayName()
                                                                                                ])))));
 
                    $_json_page->reply();

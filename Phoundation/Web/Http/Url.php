@@ -1224,7 +1224,7 @@ class Url implements UrlInterface
             $cloak = Strings::getRandom(32);
 
             sql()->insert('url_cloaks', [
-                'created_by' => Session::getUserObject()->getId(),
+                'created_by' => Session::getUsersId(),
                 'cloak'      => $cloak,
                 'url'        => $this->source,
             ]);

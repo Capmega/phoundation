@@ -1024,9 +1024,9 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns id for this database entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string
+    public function getLogId(): string|null
     {
         return ($this->getId(false) ?? ts('N/A')) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string|int', static::getUniqueColumn()) : '-');
     }
@@ -1817,6 +1817,45 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 $this->setTableState();
             }
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Resets the object to its initial stage
+     *
+     * @return static
+     */
+    public function reset(): static
+    {
+        $this->source                    = [];
+        $this->list                      = null;
+        $this->diff                      = null;
+        $this->allow_create              = true;
+        $this->allow_modify              = true;
+        $this->is_initialized            = false;
+        $this->is_loading                = false;
+        $this->is_loaded                 = false;
+        $this->is_modified               = false;
+        $this->is_applying               = false;
+        $this->is_saved                  = false;
+        $this->is_validated              = false;
+        $this->query_builder             = null;
+        $this->validate                  = true;
+        $this->changes                   = [];
+        $this->previous_id               = null;
+        $this->is_created                = false;
+        $this->id_lower_limit            = 1;
+        $this->id_upper_limit            = PHP_INT_MAX;
+        $this->allow_modified_destruct   = null;
+        $this->on_null_identifier        = EnumLoadParameters::exception;
+        $this->on_not_exists             = EnumLoadParameters::exception;
+        $this->state_mismatch_handling   = EnumStateMismatchHandling::ignore;
+        $this->permitted_columns         = null;
+        $this->allow_unpermitted_columns = true;
+        $this->flags                     = [];
+        $this->unique_value              = null;
 
         return $this;
     }

@@ -72,8 +72,8 @@ class GetValidator extends Validator
         global $_GET;
 
         // Copy GET data and reset both GET and REQUEST
-        static::$get    = $_GET;
-        static::$backup = $_GET;
+        static::$get     = $_GET;
+        static::$_backup = $_GET;
 
         // ???
         foreach (static::$get as $key => &$value) {

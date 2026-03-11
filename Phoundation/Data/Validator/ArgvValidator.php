@@ -169,8 +169,8 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
         $argv = static::expandSingleDashMultipleLetters($argv);
 
         // Copy $argv data and reset the global $argv
-        static::$argv   = $argv;
-        static::$backup = $argv;
+        static::$argv    = $argv;
+        static::$_backup = $argv;
 
         $argv = null;
     }
@@ -212,7 +212,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
      */
     public static function recoverBackupSource(): void
     {
-        static::$argv = static::$backup;
+        static::$argv = static::$_backup;
     }
 
 
@@ -1064,7 +1064,7 @@ class ArgvValidator extends Validator implements ArgvValidatorInterface
     public function addStdInStreamAsKey(string $key): static
     {
         if (CliCommand::hasStdInStream()) {
-            if (in_array($key, static::$backup)) {
+            if (in_array($key, static::$_backup)) {
                 throw new ValidationFailedException(tr('Cannot add STDIN stream as key ":key", the key was also specified on the command line', [
                     ':key' => $key,
                 ]));

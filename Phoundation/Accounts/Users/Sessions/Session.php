@@ -881,7 +881,7 @@ class Session implements SessionInterface
             // The session has already been initialized!
             Log::success(ts('Resumed session ":session" for user ":user" from IP ":ip"', [
                 ':session' => session_id(),
-                ':user'    => Session::getUserObject()->getLogId(),
+                ':user'    => Session::getUsersLogId(),
                 ':ip'      => Session::getIpAddress(),
             ]));
         }
@@ -1151,7 +1151,7 @@ class Session implements SessionInterface
     protected static function autoSignout(int $auto_signout): void
     {
         Log::warning(tr('Automatically signing out user ":user" because their session surpassed the auto sign-out time of ":time" seconds', [
-            ':user' => Session::getUserObject()->getLogId(),
+            ':user' => Session::getUsersLogId(),
             ':time' => $auto_signout,
         ]));
 
@@ -1268,7 +1268,7 @@ class Session implements SessionInterface
         Log::success(ts('Created new session ":session" for IP ":ip" with user ":user" from HTTP referrer ":referrer"', [
             ':session'  => session_id(),
             ':ip'       => Session::getIpAddress(),
-            ':user'     => Session::getUserObject()->getLogId(),
+            ':user'     => Session::getUsersLogId(),
             ':referrer' => array_get_safe($_SERVER, 'HTTP_REFERER'),
         ]));
 
@@ -1296,7 +1296,7 @@ class Session implements SessionInterface
 
                 Notification::new()
                             ->setException(SessionException::new(tr('Reset timezone for user ":user" to ":timezone"', [
-                                ':user'     => Session::getUserObject()->getLogId(),
+                                ':user'     => Session::getUsersLogId(),
                                 ':timezone' => $_SESSION['user']['timezone'],
                             ]), $e)->makeWarning())
                             ->send();
@@ -1370,6 +1370,51 @@ class Session implements SessionInterface
         }
 
         return Session::getUserObject()->getId();
+    }
+
+
+    /**
+     * Returns the human readable log id for the session user
+     *
+     * @return string|null
+     */
+    public static function getUsersLogId(): ?string
+    {
+        if (empty(Session::$user)) {
+            return null;
+        }
+
+        return Session::getUserObject()->getLogId();
+    }
+
+
+    /**
+     * Returns the email for the session user
+     *
+     * @return string|null
+     */
+    public static function getUsersEmail(): ?string
+    {
+        if (empty(Session::$user)) {
+            return null;
+        }
+
+        return Session::getUserObject()->getEmail();
+    }
+
+
+    /**
+     * Returns the display name for this object
+     *
+     * @return string|null
+     */
+    public static function getUsersDisplayName(): ?string
+    {
+        if (empty(Session::$user)) {
+            return null;
+        }
+
+        return Session::getUserObject()->getDisplayName();
     }
 
 
@@ -1565,7 +1610,7 @@ class Session implements SessionInterface
     {
         // Try to redirect the user back where they were. If the email is different (new, different user) do not do
         // this as we would redirect the new user to what the previous user was doing
-        if (empty($email) or (Session::getUserObject()->getEmail() === $email)) {
+        if (empty($email) or (Session::getUsersEmail() === $email)) {
 
             // If auto-signed-out, check if it has been more than 12 hours (in which case do not redirect back to previous page)
             if (Session::getAutoSignedOut()) {
@@ -1985,7 +2030,7 @@ class Session implements SessionInterface
         if (isset($_SESSION['user']['impersonate_id'])) {
             // We are already impersonating a user!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-double')
@@ -1999,7 +2044,7 @@ class Session implements SessionInterface
                         ':user' => $user->getLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => Session::getUserObject()->getLogId(),
+                        'user'                => Session::getUsersLogId(),
                         'impersonating'       => User::new()->load($_SESSION['user']['impersonate_id'])->getLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
@@ -2011,7 +2056,7 @@ class Session implements SessionInterface
         if (!$user->canBeImpersonated()) {
             // Impersonation  is not allowed
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('impersonation-not-allowed')
@@ -2022,10 +2067,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
                     ->setBody(tr('Cannot impersonate user ":user", this user account is not able or allowed to be impersonated', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => Session::getUserObject()->getLogId(),
+                        'user'                => Session::getUsersLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -2033,10 +2078,10 @@ class Session implements SessionInterface
                     ->throw();
         }
 
-        if ($user->getId() === Session::getUserObject()->getId()) {
+        if ($user->getId() === Session::getUsersId()) {
             // We cannot impersonate self!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-self')
@@ -2047,10 +2092,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::high)
                     ->setBody(tr('Cannot impersonate user ":user", the user to impersonate is this user itself', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => Session::getUserObject()->getLogId(),
+                        'user'                => Session::getUsersLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -2061,7 +2106,7 @@ class Session implements SessionInterface
         if ($user->hasAllRights('god')) {
             // Cannot impersonate a god level user!
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::startimpersonation)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->setStatus('cannot-impersonate-god')
@@ -2072,10 +2117,10 @@ class Session implements SessionInterface
                     ->setTitle('User impersonation failed')
                     ->setSeverity(EnumSeverity::severe)
                     ->setBody(tr('Cannot impersonate user ":user", the user to impersonate has the "god" role', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                     ]))
                     ->setDetails([
-                        'user'                => Session::getUserObject()->getLogId(),
+                        'user'                => Session::getUsersLogId(),
                         'want_to_impersonate' => $user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
@@ -2091,7 +2136,7 @@ class Session implements SessionInterface
         Session::$user_changed = true;
 
         Authentication::new()
-                      ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                      ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                       ->setAction(EnumAuthenticationAction::startimpersonation)
                       ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                       ->save();
@@ -2284,7 +2329,7 @@ class Session implements SessionInterface
                     Session::$user_changed = true;
 
                     Authentication::new()
-                                  ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
                                   ->setCreatedBy($users_id)
                                   ->save();
@@ -2322,7 +2367,7 @@ class Session implements SessionInterface
                                 ->save();
 
                     Authentication::new()
-                                  ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                                  ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                                   ->setAction(EnumAuthenticationAction::stopimpersonation)
                                   ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                                   ->setStatus('failed')
@@ -2341,7 +2386,7 @@ class Session implements SessionInterface
             }
 
             Authentication::new()
-                          ->setAccount(Json::encode(['email' => Session::getUserObject()->getEmail()], JSON_OBJECT_AS_ARRAY))
+                          ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
                           ->setAction(EnumAuthenticationAction::signout)
                           ->setCreatedBy(array_get_safe(array_get_safe($_SESSION, 'user', []), 'id'))
                           ->save();
@@ -2350,10 +2395,10 @@ class Session implements SessionInterface
                     ->setType('User session')
                     ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The user ":user" signed out', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                     ]))
                     ->setDetails([
-                        'user' => Session::getUserObject()->getLogId(),
+                        'user' => Session::getUsersLogId(),
                     ])
                     ->save();
 
@@ -2371,10 +2416,10 @@ class Session implements SessionInterface
                     ->setType('User session')
                     ->setSeverity(EnumSeverity::notice)
                     ->setTitle(tr('The sign out of user ":user" failed', [
-                        ':user' => Session::getUserObject()->getLogId(),
+                        ':user' => Session::getUsersLogId(),
                     ]))
                     ->setDetails([
-                        'user' => Session::getUserObject()->getLogId(),
+                        'user' => Session::getUsersLogId(),
                     ])
                     ->save()
                     ->setNotifyRoles('developer');

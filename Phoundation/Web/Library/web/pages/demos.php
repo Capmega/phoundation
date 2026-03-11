@@ -55,7 +55,7 @@ Script::new()
 // Set page meta-data
 Response::setPageTitle(tr('Demo dashboard'));
 Response::setHeaderTitle(tr('Dashboard'));
-Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUserObject()->getDisplayName()]));
+Response::setHeaderSubTitle(tr('(:user)', [':user' => Session::getUsersDisplayName()]));
 Response::setDescription(tr(''));
 Response::setBreadcrumbs([
     Breadcrumb::new('/', tr('Home')),

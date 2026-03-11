@@ -2089,7 +2089,7 @@ class DefinitionFactory
                                         return InputText::new()
                                                         ->setDisabled(true)
                                                         ->addClasses('text-center')
-                                                        ->setValue(Session::getUserObject()->getDisplayName());
+                                                        ->setValue(Session::getUsersDisplayName());
                                     }
 
                                     // This is created by a user or by the system user
@@ -2154,7 +2154,7 @@ class DefinitionFactory
                                         return InputText::new()
                                                         ->setDisabled(true)
                                                         ->addClasses('text-center')
-                                                        ->setValue(Session::getUserObject()->getDisplayName());
+                                                        ->setValue(Session::getUsersDisplayName());
                                     }
 
                                     // This is modified by a user or by the system user

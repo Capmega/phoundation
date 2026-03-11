@@ -69,7 +69,7 @@ class CookieValidator extends Validator
         // Copy COOKIE data and reset both COOKIE and REQUEST
 
         static::$cookies = $_COOKIE;
-        static::$backup  = $_COOKIE;
+        static::$_backup = $_COOKIE;
 
         $_COOKIE = [];
     }

@@ -116,8 +116,8 @@ class PostValidator extends Validator
         }
 
         // Copy POST data and reset both POST and REQUEST
-        static::$post   = $_POST;
-        static::$backup = $_POST;
+        static::$post    = $_POST;
+        static::$_backup = $_POST;
 
         $_POST    = null;
         $_REQUEST = null;

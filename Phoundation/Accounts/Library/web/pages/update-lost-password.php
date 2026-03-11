@@ -88,15 +88,15 @@ if (isset($updated)) {
             ->setSeverity(EnumSeverity::medium)
             ->setType(tr('User lost password update'))
             ->setTitle(tr('User ":user" updated their lost password', [
-                ':user' => Session::getUserObject()->getLogId(),
+                ':user' => Session::getUsersLogId(),
             ]))
             ->setBody(tr('The user ":user" updated their lost password using UUID key ":key"', [
                 ':key'  => Session::getSignInKey(),
-                ':user' => Session::getUserObject()->getLogId(),
+                ':user' => Session::getUsersLogId(),
             ]))
             ->setDetails([
                 ':key'  => Session::getSignInKey(),
-                ':user' => Session::getUserObject()->getLogId(),
+                ':user' => Session::getUsersLogId(),
             ])
             ->save();
 
@@ -108,7 +108,7 @@ if (isset($updated)) {
 
     // Render the page
     return LostPasswordUpdatedPage::new()->setGetData([
-        'email' => Session::getUserObject()->getEmail(),
+        'email' => Session::getUsersEmail(),
     ]);
 
 } else {
@@ -117,6 +117,6 @@ if (isset($updated)) {
 
     // Render the page
     return UpdateLostPasswordPage::new()->setGetData([
-        'email' => Session::getUserObject()->getEmail(),
+        'email' => Session::getUsersEmail(),
     ]);
 }

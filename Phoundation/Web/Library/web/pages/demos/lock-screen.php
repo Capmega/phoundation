@@ -64,7 +64,7 @@ Response::setRenderMainWrapper(false);
                            ->getProfilePictureFileObject()
                                ->getImgObject()
                                    ->setSrc(Url::new('img/profiles/default.png')->makeImg())
-                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUserObject()->getDisplayName())]))
+                                   ->setAlt(tr('Profile picture for :user', [':user' => Html::safe(Session::getUsersDisplayName())]))
                                    ->render()
                 ?>
             </div>

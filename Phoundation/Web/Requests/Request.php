@@ -1354,7 +1354,7 @@ class Request implements RequestInterface
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'           => Session::getUserObject()->getLogId(),
+                        'user'           => Session::getUsersLogId(),
                         'uri'            => Request::getUri(),
                         'target'         => static::$_target->getSource('web'),
                         'real_target'    => static::$main_target->getSource('web'),
@@ -1371,18 +1371,18 @@ class Request implements RequestInterface
                     ->setType('403 - Forbidden')
                     ->setSeverity(in_array('admin', Session::getUserObject()->getRightsObject()->getMissing($rights)) ? EnumSeverity::high : EnumSeverity::medium)
                     ->setTitle(tr('User ":user" does not have the required rights ":rights"', [
-                        ':user'        => Session::getUserObject()->getLogId(),
+                        ':user'        => Session::getUsersLogId(),
                         ':rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                     ]))
                     ->setBody(tr('User ":user" does not have the required rights ":rights" for target page ":target" (real target ":real_target"). Executing "system/:redirect" instead', [
-                        ':user'        => Session::getUserObject()->getLogId(),
+                        ':user'        => Session::getUsersLogId(),
                         ':rights'      => Session::getUserObject()->getRightsObject()->getMissing($rights),
                         ':target'      => static::$_target->getSource('web'),
                         ':real_target' => static::$main_target->getSource('web'),
                         ':redirect'    => $rights_redirect,
                     ]))
                     ->setDetails([
-                        'user'        => Session::getUserObject()->getLogId(),
+                        'user'        => Session::getUsersLogId(),
                         'uri'         => Request::getUri(),
                         'target'      => static::$_target->getSource('web'),
                         'real_target' => static::$main_target->getSource('web'),

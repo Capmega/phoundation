@@ -353,9 +353,9 @@ class Connector extends DataEntry implements ConnectorInterface
     /**
      * Returns id for this database entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string
+    public function getLogId(): string|null
     {
         return $this->getName() . '[' . $this->getDriver() . ']:' . $this->getUsername() . '@' . $this->getHostname() . '/' . $this->getDatabase();
     }

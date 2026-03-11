@@ -75,5 +75,5 @@ Response::setPageTitle(tr('Please update your password before continuing...'));
 
 // Render the page
 return ForcePasswordUpdatePage::new()->setGetdata([
-    'email' => Session::getUserObject()->getEmail()
+    'email' => Session::getUsersEmail()
 ]);

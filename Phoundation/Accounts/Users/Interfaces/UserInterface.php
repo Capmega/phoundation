@@ -24,9 +24,9 @@ interface UserInterface extends DataEntryInterface
     /**
      * Returns id for this user entry that can be used in logs
      *
-     * @return string
+     * @return string|null
      */
-    public function getLogId(): string;
+    public function getLogId(): string|null;
 
 
     /**

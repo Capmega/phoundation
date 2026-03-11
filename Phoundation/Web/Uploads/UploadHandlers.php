@@ -58,30 +58,30 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     /**
      * Tracks the uploaded files
      *
-     * @var PhoFilesInterface $files
+     * @var PhoFilesInterface $_files
      */
-    protected static PhoFilesInterface $files;
+    protected static PhoFilesInterface $_files;
 
     /**
      * Tracks the uploaded files by mime groups
      *
-     * @var IteratorInterface $mimetypes_groups
+     * @var IteratorInterface $_mimetypes_groups
      */
-    protected static IteratorInterface $mimetypes_groups;
+    protected static IteratorInterface $_mimetypes_groups;
 
     /**
      * Tracks the processed files
      *
-     * @var PhoFilesInterface $processed
+     * @var PhoFilesInterface $_processed
      */
-    protected static PhoFilesInterface $processed;
+    protected static PhoFilesInterface $_processed;
 
     /**
      * Tracks the rejected files
      *
-     * @var PhoFilesInterface $rejected
+     * @var PhoFilesInterface $_rejected
      */
-    protected static PhoFilesInterface $rejected;
+    protected static PhoFilesInterface $_rejected;
 
     /**
      * Tracks if upload failures should be fatal (exception) or just leave log warnings
@@ -127,11 +127,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     public static function getFiles(): PhoFilesInterface
     {
-        if (empty(static::$files)) {
+        if (empty(static::$_files)) {
             throw new OutOfBoundsException(tr('Cannot get files from UploadHandlers object, the $_FILES data has not yet been processed with UploadHandlers::hideData()'));
         }
 
-        return static::$files;
+        return static::$_files;
     }
 
 
@@ -142,11 +142,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     public static function getGroupedFiles(): IteratorInterface
     {
-        if (empty(static::$mimetypes_groups)) {
+        if (empty(static::$_mimetypes_groups)) {
             throw new OutOfBoundsException(tr('Cannot get mimetype groups from UploadHandlers object, the $_FILES data has not yet been processed with UploadHandlers::hideData()'));
         }
 
-        return static::$mimetypes_groups;
+        return static::$_mimetypes_groups;
     }
 
 
@@ -157,18 +157,18 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     protected static function groupFiles(): void
     {
-        if (isset(static::$files)) {
-            if (static::$files->getCount()) {
-                $files                    = clone static::$files;
-                static::$mimetypes_groups = Iterator::new()->setAcceptedDataTypes([PhoFile::class, PhoFiles::class]);
+        if (isset(static::$_files)) {
+            if (static::$_files->getCount()) {
+                $_files                     = clone static::$_files;
+                static::$_mimetypes_groups = Iterator::new()->setAcceptedDataTypes([PhoFile::class, PhoFiles::class]);
 
-                while ($files->getCount()) {
+                while ($_files->getCount()) {
                     // Get the mimetype of the first available file, yoink all files with that mimetype out of the list
                     // Redo for each mimetype until no file is left
-                    $file      = $files->getFirstValue();
-                    $extracted = $files->getFilesWithMimetype($file->getMimetype(), true);
+                    $_file     = $_files->getFirstValue();
+                    $extracted = $_files->getFilesWithMimetype($_file->getMimetype(), true);
 
-                    static::$mimetypes_groups->add($extracted, $file->getMimetype());
+                    static::$_mimetypes_groups->add($extracted, $_file->getMimetype());
                 }
             }
         }
@@ -184,7 +184,7 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     {
         global $_FILES;
 
-        static::$backup = $_FILES;
+        static::$_backup = $_FILES;
 
         // Check if we get the weird subarrays in name. If so, restructure that mess
         if (count($_FILES)) {
@@ -198,14 +198,14 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
 
             } else {
                 if (is_array($_FILES['file']['name'])) {
-                    static::$files = static::restructureMultipleFiles($_FILES);
+                    static::$_files = static::restructureMultipleFiles($_FILES);
 
                 } else {
-                    static::$files = static::restructureSingleFile($_FILES);
+                    static::$_files = static::restructureSingleFile($_FILES);
                 }
 
                 Log::notice(ts('Found ":count" uploaded files', [
-                    ':count' => static::$files->getCount()
+                    ':count' => static::$_files->getCount()
                 ]), 5);
             }
         }
@@ -224,13 +224,13 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     protected static function restructureSingleFile(array $php_files): PhoFilesInterface
     {
         // Register the uploaded file
-        $file = Upload::newFromSource($php_files['file'])->save();
-        $file = new PhoUploadedFile($file);
+        $_file = Upload::newFromSource($php_files['file'])->save();
+        $_file = new PhoUploadedFile($_file);
 
         // Return a new files object
         return PhoFiles::new()
                        ->setAcceptedDataTypes(PhoFile::class)
-                       ->setSource([0 => $file]);
+                       ->setSource([0 => $_file]);
     }
 
 
@@ -312,28 +312,28 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 throw new FileUploadHandlerException(tr('Cannot process uploaded files, no upload handlers have been defined'));
             }
 
-            if (isset(static::$mimetypes_groups)) {
+            if (isset(static::$_mimetypes_groups)) {
                 // Fix the mimetype groups store to match the handlers, validate the files before processing
                 $this->fixMimetypeGroups();
                 $this->validate();
 
                 Log::action(ts('Processing ":count" uploaded files with ":handlers" out of ":max" handlers', [
-                    ':count'    => static::$files->getCount(),
+                    ':count'    => static::$_files->getCount(),
                     ':max'      => $this->getCount(),
-                    ':handlers' => static::$mimetypes_groups->getCount(),
+                    ':handlers' => static::$_mimetypes_groups->getCount(),
                 ]));
 
-                foreach (static::$mimetypes_groups as $mimetype => $files) {
-                    $handler = $this->getHandlerForMimetype($mimetype, $files);
+                foreach (static::$_mimetypes_groups as $mimetype => $_files) {
+                    $_handler = $this->getHandlerForMimetype($mimetype, $_files);
 
-                    foreach ($files as $file) {
+                    foreach ($_files as $_file) {
                         try {
                             Log::action(ts('Processing uploaded file ":file" with mimetype handler ":handler"', [
-                                ':file'    => $file->getBasename(),
-                                ':handler' => get_class($handler)
+                                ':file'    => $_file->getBasename(),
+                                ':handler' => get_class($_handler)
                             ]), 4);
 
-                            $handler->process($file);
+                            $_handler->process($_file);
 
                         } catch (FileUploadException $e) {
                             if ($this->exception) {
@@ -341,27 +341,27 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                             }
 
                             // Register the incident in text & developer incidents log
-                            $incident = Incident::new()
-                                                ->setType('File upload processing failed')
-                                                ->setSeverity(EnumSeverity::low)
-                                                ->setTitle($e->getMessage())
-                                                ->setDetails([
-                                                    'file'      => $file,
-                                                    'exception' => $e
-                                                ])
-                                                ->save();
+                            $_incident = Incident::new()
+                                                 ->setType('File upload processing failed')
+                                                 ->setSeverity(EnumSeverity::low)
+                                                 ->setTitle($e->getMessage())
+                                                 ->setDetails([
+                                                     'file'      => $_file,
+                                                     'exception' => $e
+                                                 ])
+                                                 ->save();
                         }
                     }
 
-                    if ($handler->getFinishedCallback()) {
-                        $handler->getFinishedCallback()();
+                    if ($_handler->getFinishedCallback()) {
+                        $_handler->getFinishedCallback()();
                     }
 
                 }
 
-                if (isset($incident)) {
+                if (isset($_incident)) {
                     // One or more of the files failed! Throw an exception for the last one
-                    $incident->throw(FileUploadException::class);
+                    $_incident->throw(FileUploadException::class);
                 }
             }
         }
@@ -383,11 +383,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     protected function fixMimetypeGroups(): void
     {
-        foreach (static::$mimetypes_groups as $mimetype => $group) {
-            $handler_mimetype = $this->getHandlerKeyForMimetype($mimetype, $group);
+        foreach (static::$_mimetypes_groups as $mimetype => $_group) {
+            $handler_mimetype = $this->getHandlerKeyForMimetype($mimetype, $_group);
 
             if ($handler_mimetype !== $mimetype) {
-                static::$mimetypes_groups->renameKey($mimetype, $handler_mimetype);
+                static::$_mimetypes_groups->renameKey($mimetype, $handler_mimetype);
             }
         }
     }
@@ -400,11 +400,11 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
      */
     protected function validate(): static
     {
-        $mimetype_restrictions = $this->getMimetypeRestrictions();
+        $_mimetype_restrictions = $this->getMimetypeRestrictions();
 
         // Ensure we do not have too many files uploaded per mimetype
-        foreach ($mimetype_restrictions as $mimetypes => $restrictions) {
-            if (!static::$mimetypes_groups->keyExists($mimetypes)) {
+        foreach ($_mimetype_restrictions as $mimetypes => $restrictions) {
+            if (!static::$_mimetypes_groups->keyExists($mimetypes)) {
                 // No file with this mimetype was uploaded
                 if ($restrictions['min_files']) {
                     throw new ValidationFailedException(tr('No files uploaded with the mimetype ":mimetype", while at least ":min" file(s) are required', [
@@ -414,18 +414,18 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
                 }
             }
 
-            if (static::$mimetypes_groups->get($mimetypes)->getCount() < $restrictions['min_files']) {
+            if (static::$_mimetypes_groups->get($mimetypes)->getCount() < $restrictions['min_files']) {
                 throw new ValidationFailedException(tr('Too few files ":count" uploaded with the mimetype ":mimetype", at least ":min" file(s) are required', [
                     ':mimetype' => $mimetypes,
-                    ':count'    => static::$mimetypes_groups->get($mimetypes)->getCount(),
+                    ':count'    => static::$_mimetypes_groups->get($mimetypes)->getCount(),
                     ':min'      => $restrictions['min_files']
                 ]));
             }
 
-            if (static::$mimetypes_groups->get($mimetypes)->getCount() > $restrictions['max_files']) {
+            if (static::$_mimetypes_groups->get($mimetypes)->getCount() > $restrictions['max_files']) {
                 throw new ValidationFailedException(tr('Too many files ":count" uploaded with the mimetype ":mimetype", only ":max" file(s) are allowed', [
                     ':mimetype' => $mimetypes,
-                    ':count'    => static::$mimetypes_groups->get($mimetypes)->getCount(),
+                    ':count'    => static::$_mimetypes_groups->get($mimetypes)->getCount(),
                     ':max'      => $restrictions['max_files']
                 ]));
             }
@@ -444,14 +444,14 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
     {
         $return = [];
 
-        foreach (static::$mimetypes_groups as $mimetype => $group) {
-            $handler_mimetype = $this->getHandlerKeyForMimetype($mimetype, $group);
+        foreach (static::$_mimetypes_groups as $mimetype => $_group) {
+            $handler_mimetype = $this->getHandlerKeyForMimetype($mimetype, $_group);
 
             if (array_key_exists($handler_mimetype, $return)) {
-                $return[$handler_mimetype]->addSource($group);
+                $return[$handler_mimetype]->addSource($_group);
 
             } else {
-                $return[$handler_mimetype] = $group;
+                $return[$handler_mimetype] = $_group;
             }
         }
 
@@ -470,10 +470,10 @@ class UploadHandlers extends Iterator implements UploadHandlersInterface
         $failures  = [];
 
         Log::action(ts('Validating ":count" uploaded files', [
-            ':count' => static::$files->getCount()
+            ':count' => static::$_files->getCount()
         ]), 4);
 
-        foreach (static::$mimetypes_groups as $mimetype => $files) {
+        foreach (static::$_mimetypes_groups as $mimetype => $files) {
             try {
                 $handler = $this->getHandlerForMimetype($mimetype, $files);
 
@@ -498,12 +498,12 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
             // Validation failed! Gather all failure data and throw it in one exception
             $data = [];
 
-            foreach ($failures as $failure) {
-                $data[] = $failure->getDataKey('failures');
+            foreach ($failures as $_failure) {
+                $data[] = $_failure->getDataKey('failures');
             }
 
             throw ValidationFailedException::new(tr('Validation of ":count" uploaded files failed', [
-                ':count' => count(static::$files)
+                ':count' => count(static::$_files)
             ]))->setData($data);
         }
 
@@ -521,12 +521,12 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
         $return = [];
 
         foreach ($this->source as $mimetype => $handler) {
-            $dropzone = $handler->getDropzoneObject();
+            $_dropzone = $handler->getDropzoneObject();
 
             $return[$mimetype] = [
-                'min_files' => $dropzone->getMinFiles(),
-                'max_files' => $dropzone->getMaxFiles(),
-                'max_size'  => $dropzone->getMaxFileSize()
+                'min_files' => $_dropzone->getMinFiles(),
+                'max_files' => $_dropzone->getMaxFiles(),
+                'max_size'  => $_dropzone->getMaxFileSize()
             ];
         }
 
@@ -544,15 +544,15 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     protected function getHandlerForMimetype(string $mimetype, PhoFilesInterface $files): UploadHandlerInterface
     {
-        foreach ($this->source as $source_mimetype => $handler) {
+        foreach ($this->source as $source_mimetype => $_handler) {
             if (str_starts_with($mimetype, $source_mimetype)) {
                 break;
             }
 
-            unset($handler);
+            unset($_handler);
         }
 
-        if (empty($handler)) {
+        if (empty($_handler)) {
             throw ValidationFailedException::new(tr('No handler found for files ":files" with mimetype ":mimetype"', [
                 ':mimetype' => $mimetype,
                 ':files'    => Strings::force($files->getBasenames(), ', ')
@@ -561,7 +561,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
             ]);
         }
 
-        return $handler;
+        return $_handler;
     }
 
 
@@ -611,8 +611,8 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
 
         $render = null;
 
-        foreach ($this->source as $handler) {
-            $render .= $handler->render();
+        foreach ($this->source as $_handler) {
+            $render .= $_handler->render();
         }
 
         return $render;
@@ -633,6 +633,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      * @param bool                       $exception
      *
      * @return static
+     * @todo Add $value datatype / class tests, we just assume its an object!
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
@@ -688,7 +689,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function getUploadedFiles(): IteratorInterface
     {
-        return new Iterator(static::$files);
+        return new Iterator(static::$_files);
     }
 
 
@@ -699,7 +700,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function getProcessedFiles(): PhoFilesInterface
     {
-        return static::$processed;
+        return static::$_processed;
     }
 
 
@@ -710,7 +711,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function getRejectedFiles(): IteratorInterface
     {
-        return new Iterator(static::$rejected);
+        return new Iterator(static::$_rejected);
     }
 
 
@@ -721,11 +722,11 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function hasUploadedFiles(): bool
     {
-        if (empty(static::$files)) {
+        if (empty(static::$_files)) {
             return false;
         }
 
-        return static::$files->isNotEmpty();
+        return static::$_files->isNotEmpty();
     }
 
 
@@ -736,11 +737,11 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function hasProcessedFiles(): bool
     {
-        if (empty(static::$processed)) {
+        if (empty(static::$_processed)) {
             return false;
         }
 
-        return static::$processed->isNotEmpty();
+        return static::$_processed->isNotEmpty();
     }
 
 
@@ -751,7 +752,7 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function hasRejectedFiles(): bool
     {
-        return static::$rejected->isNotEmpty();
+        return static::$_rejected->isNotEmpty();
     }
 
 
@@ -762,12 +763,12 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     protected function quarantineAllUploadedFiles(): static
     {
-        $directory = new PhoDirectory(DIRECTORY_DATA . 'quarantine', PhoRestrictions::newData());
-        $directory = $directory->addDirectory(Session::getUserObject()->getId());
-        $directory = $directory->addDirectory(PhoDateTime::new()->format(EnumDateFormat::file));
+        $_directory = new PhoDirectory(DIRECTORY_DATA . 'quarantine', PhoRestrictions::newData());
+        $_directory = $_directory->addDirectory(Session::getUsersId());
+        $_directory = $_directory->addDirectory(PhoDateTime::new()->format(EnumDateFormat::file));
 
-        foreach (static::$files as $file) {
-            $file->move($directory);
+        foreach (static::$_files as $_file) {
+            $_file->move($_directory);
         }
 
         return $this;

@@ -1742,7 +1742,7 @@ class Route
 
         if (!Session::getUserObject()->hasAllRights($right)) {
             Log::warning(ts('Denied user ":user" access to resource because of missing right ":right"', [
-                ':user'  => Session::getUserObject()->getLogId(),
+                ':user'  => Session::getUsersLogId(),
                 ':right' => $right,
             ]));
 
