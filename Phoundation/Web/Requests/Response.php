@@ -1101,6 +1101,8 @@ class Response implements ResponseInterface
 
         // Convert the given URL (parts) to real URLs and add it to the "scripts" list
         foreach (Arrays::force($urls, ',') as $url) {
+            $url = Response::normalizeCdnUrl($url);
+
             if (!Url::isValidUrl($url)) {
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.js');
@@ -1134,10 +1136,13 @@ class Response implements ResponseInterface
      */
     public static function loadCss(UrlInterface|array|string $urls, bool $prefix = false): void
     {
+        // Get the base directory for the template that we're using
         $scripts = [];
 
         // Convert the given URL (parts) to real URLs
         foreach (Arrays::force($urls, '') as $url) {
+            $url = Response::normalizeCdnUrl($url);
+
             if (!Url::isValidUrl($url)) {
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.css');
@@ -1152,6 +1157,31 @@ class Response implements ResponseInterface
         }
 
         Response::addPageHeaders(EnumHeaderFooterType::link, $scripts, $prefix);
+    }
+
+
+    /**
+     * Normalizes relative (local) URLS by ensuring the template base path is added
+     *
+     * Note: This method will only work on relative URLs (so automatically only URLs on THIS server) and it detects those by checking if the URL starts with
+     *       http:// or https://. If the URL does not start with either, the method will assume it is a relative URL and prefix ith with the template base
+     *       directory. This means it is VERY important that absolute URLs also contain the PROTOCOL:// prefix!
+     *
+     * @param UrlInterface|array|string $url The URL that should be normalized
+     *
+     * @return string
+     */
+    protected static function normalizeCdnUrl(UrlInterface|array|string $url): string
+    {
+        static $base = null;
+
+        $url = (string) $url;
+
+        if (!str_starts_with($url, 'http://') and !str_starts_with($url, 'https://')) {
+            $url  = ($base ?? Request::getTemplateObject()->getBaseDirectory()) . $url;
+        }
+
+        return $url;
     }
 
 

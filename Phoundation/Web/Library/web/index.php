@@ -89,7 +89,7 @@ use Phoundation\Web\Routing\Map;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\Phoundation\AdminLte\AdminLte;
-
+use Templates\Phoundation\AdminLteV3\AdminLteV3;
 
 // Load the class autoloader
 require(substr($_SERVER['DOCUMENT_ROOT'], 0, -4) . 'vendor/autoload.php');
@@ -116,12 +116,12 @@ Route::getParametersObject()
                             ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/'))
 
      ->add(RoutingParameters::new('/^\w{2}\//') // Routing parameters for most pages
-                            ->setTemplate(AdminLte::class)                  // TODO Move this one to Route::try()
+                            ->setTemplate(AdminLteV3::class)                // TODO Move this one to Route::try()
                             ->setRootUrl(':PROTOCOL://:DOMAIN/:LANGUAGE/')) // TODO Is root URL still needed? Unsure about this as maybe maybe not all web sites want language? Maybe have a configurable root URL in configuration? ROOT URL also must be available in CLI!
 
      ->add(RoutingParameters::new() // Routing parameters for default english system pages
                             ->setSystemPagesOnly(true)     // TODO Move this one to a flag in Route::try()
-                            ->setTemplate(AdminLte::class)
+                            ->setTemplate(AdminLteV3::class)
                             ->setRootDirectory('pages/')); // TODO Is root directory definition still necessary? HTML pages are ALWAYS in web/pages/...
 
 

@@ -78,6 +78,14 @@ abstract class Template implements TemplateInterface
 
 
     /**
+     * Returns the base directory for this template
+     *
+     * @return string
+     */
+    abstract static public function getBaseDirectory(): string;
+
+
+    /**
      * Returns the name for this template
      *
      * @return string
