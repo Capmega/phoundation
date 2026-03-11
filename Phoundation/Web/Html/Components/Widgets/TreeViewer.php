@@ -92,7 +92,7 @@ class TreeViewer extends Widget implements TreeViewerInterface
             throw new OutOfBoundsException(tr('Cannot render tree viewer, no HTML id specified'));
         }
 
-        Response::loadJavaScript('mdb/js/plugins/treeview.min');
+        Response::loadJavaScript('js/plugins/treeview.min');
 
         if ($this->render_method === EnumWebRenderMethods::html) {
             // Render the tree-view using pure HTML

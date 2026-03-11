@@ -1176,8 +1176,9 @@ class Response implements ResponseInterface
         static $base = null;
 
         $url = (string) $url;
+        $url = Strings::ensureBeginsNotWith($url, '/');
 
-        if (!str_starts_with($url, 'http://') and !str_starts_with($url, 'https://')) {
+        if (!str_starts_with($url, 'http://') and !str_starts_with($url, 'https://') and !str_starts_with($url, 'phoundation/')) {
             $url  = ($base ?? Request::getTemplateObject()->getBaseDirectory()) . $url;
         }
 

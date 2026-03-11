@@ -607,7 +607,8 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      */
     public function render(): ?string
     {
-        Response::loadJavaScript('vendor/dropzone/dropzone');
+        Response::loadJavaScript('plugins/dropzone/dropzone');
+
         $render = null;
 
         foreach ($this->source as $handler) {
