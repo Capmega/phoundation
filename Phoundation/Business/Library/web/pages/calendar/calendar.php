@@ -16,15 +16,16 @@ declare(strict_types=1);
 
 use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
 // Load required CSS
-Response::loadCss('adminlte/plugins/fullcalendar/main');
+Response::loadCss('plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavaScript('adminlte/plugins/moment/moment');
-Response::loadJavaScript('adminlte/plugins/fullcalendar/main');
+Response::loadJavaScript('plugins/moment/moment');
+Response::loadJavaScript('plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)

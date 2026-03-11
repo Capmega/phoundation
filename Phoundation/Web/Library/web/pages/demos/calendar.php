@@ -35,11 +35,11 @@ Response::setBreadcrumbs([
 ]);
 
 // Load required CSS
-Response::loadCss('adminlte/plugins/fullcalendar/main');
+Response::loadCss('plugins/fullcalendar/main');
 
 // Load required Javascript
-Response::loadJavaScript('adminlte/plugins/moment/moment');
-Response::loadJavaScript('adminlte/plugins/fullcalendar/main');
+Response::loadJavaScript('plugins/moment/moment');
+Response::loadJavaScript('plugins/fullcalendar/main');
 
 Script::new()
       ->setJavascriptWrapper(EnumJavascriptWrappers::window)

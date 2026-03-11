@@ -34,9 +34,9 @@ Response::setBreadcrumbs([
 
 
 // Load required CSS and JavaScript
-Response::loadCss('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavaScript('/adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavaScript('/adminlte/plugins/filterizr/jquery.filterizr');
+Response::loadCss('/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('/plugins/filterizr/jquery.filterizr');
 
 
 // The content wrapper class for this page is slightly different

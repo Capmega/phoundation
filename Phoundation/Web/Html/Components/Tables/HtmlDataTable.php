@@ -36,6 +36,7 @@ use Phoundation\Web\Html\Components\Tables\Interfaces\HtmlDataTableInterface;
 use Phoundation\Web\Html\Enums\EnumPagingType;
 use Phoundation\Web\Html\Enums\EnumTableRowType;
 use Phoundation\Web\Html\Html;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -1225,23 +1226,23 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             // TODO Load many of these javascripts conditionally and only if their functions are enabled (button is there, functionality is required, etc)
             Response::loadJavaScript([
-                'adminlte/plugins/datatables/jquery.dataTables',
-                'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4',
-                'adminlte/plugins/datatables-responsive/js/dataTables.responsive',
-                'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4',
-                'adminlte/plugins/datatables-buttons/js/dataTables.buttons',
-                'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4',
-                'adminlte/plugins/jszip/jszip',
-                'adminlte/plugins/pdfmake/pdfmake',
-                'adminlte/plugins/pdfmake/vfs_fonts',
-                'adminlte/plugins/datatables-buttons/js/buttons.html5',
-                'adminlte/plugins/datatables-buttons/js/buttons.print',
-                'adminlte/plugins/datatables-buttons/js/buttons.colVis',
+                'plugins/datatables/jquery.dataTables',
+                'plugins/datatables-bs4/js/dataTables.bootstrap4',
+                'plugins/datatables-responsive/js/dataTables.responsive',
+                'plugins/datatables-responsive/js/responsive.bootstrap4',
+                'plugins/datatables-buttons/js/dataTables.buttons',
+                'plugins/datatables-buttons/js/buttons.bootstrap4',
+                'plugins/jszip/jszip',
+                'plugins/pdfmake/pdfmake',
+                'plugins/pdfmake/vfs_fonts',
+                'plugins/datatables-buttons/js/buttons.html5',
+                'plugins/datatables-buttons/js/buttons.print',
+                'plugins/datatables-buttons/js/buttons.colVis',
             ]);
 
-            Response::loadCss('adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4');
-            Response::loadCss('adminlte/plugins/datatables-responsive/css/responsive.bootstrap4');
-            Response::loadCss('adminlte/plugins/datatables-buttons/css/buttons.bootstrap4');
+            Response::loadCss('plugins/datatables-bs4/css/dataTables.bootstrap4');
+            Response::loadCss('plugins/datatables-responsive/css/responsive.bootstrap4');
+            Response::loadCss('plugins/datatables-buttons/css/buttons.bootstrap4');
 
             // Build options
             $options = [];
@@ -1341,9 +1342,9 @@ class HtmlDataTable extends HtmlTable implements HtmlDataTableInterface
 
             if ($this->js_date_format) {
                 Response::loadJavaScript([
-                    'adminlte/plugins/moment/moment',
-                    'adminlte/plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
-                    'adminlte/plugins/datatables-sorting/datetime-moment',
+                    'plugins/moment/moment',
+                    'plugins/datatables-DateTime-1.5.1/js/dataTables.dateTime',
+                    'plugins/datatables-sorting/datetime-moment',
                 ]);
 
                 $content .= 'DataTable.moment("' . $this->js_date_format . '");' . PHP_EOL;

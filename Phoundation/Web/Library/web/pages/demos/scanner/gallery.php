@@ -20,6 +20,7 @@ use Phoundation\Web\Html\Components\Script;
 use Phoundation\Web\Html\Components\Widgets\Breadcrumbs\Breadcrumb;
 use Phoundation\Web\Html\Enums\EnumJavascriptWrappers;
 use Phoundation\Web\Http\Url;
+use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -28,9 +29,9 @@ GetValidator::new()->validate();
 
 
 // Load required JavaScript & CSS libraries
-Response::loadJavaScript('adminlte/plugins/ekko-lightbox/ekko-lightbox');
-Response::loadJavaScript('adminlte/plugins/filterizr/jquery.filterizr');
-Response::loadCss('adminlte/plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('plugins/ekko-lightbox/ekko-lightbox');
+Response::loadJavaScript('plugins/filterizr/jquery.filterizr');
+Response::loadCss('plugins/ekko-lightbox/ekko-lightbox');
 
 Response::setHeaderTitle(tr('Scanner gallery'));
 Response::setHeaderSubTitle(tr('Demo'));
