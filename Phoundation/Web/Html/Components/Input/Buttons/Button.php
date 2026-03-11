@@ -161,17 +161,21 @@ class Button extends Input implements ButtonInterface
                                             var $form   = $(this);
                                             var $button = $form.find(\'[name="\' + $(document.activeElement).attr("name") + \'"]\');
 
-                                            $(this).append(\'<input type="hidden" name="\' + $button.attr("name") + \'" value="\' + $button.attr("value") + \'">\');                                    
-                                            
-                                            if (isFunction($form.valid)) {
-                                                if ($form.valid()) {
+                                            if ($button.hasClass("button-disable-click")) {
+                                                $(this).append(\'<input type="hidden" name="\' + $button.attr("name") + \'" value="\' + $button.attr("value") + \'">\');                                    
+                                                
+                                                if (isFunction($form.valid)) {
+                                                    if ($form.valid()) {
+                                                        $("button").prop("disabled", true);
+                                                        $("select").on("mousedown keydown keypress", function(e) { e.preventDefault(); });
+                                                        $("input, textarea").prop("readonly", true).addClass("disabled");
+                                                    }
+                                                } else {
                                                     $("button").prop("disabled", true);
-                                                    $("input, select, textarea").prop("readonly", true).addClass("disabled");
-                                                }
-                                            } else {
-                                                $("button").prop("disabled", true);
-                                                $("input, select, textarea").prop("readonly", true).addClass("disabled");
-                                            }                        
+                                                    $("select").on("mousedown keydown keypress", function(e) { e.preventDefault(); });
+                                                    $("input, textarea").prop("readonly", true).addClass("disabled");
+                                                }                        
+                                            }
                                         });');
             }
 
