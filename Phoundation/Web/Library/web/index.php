@@ -85,11 +85,10 @@
 
 declare(strict_types=1);
 
-use Phoundation\Web\Routing\Map;
 use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Routing\RoutingParameters;
 use Templates\Phoundation\AdminLteV3\AdminLteV3;
-use Templates\Phoundation\AdminLteV3\AdminLteV3;
+
 
 // Load the class autoloader
 require(substr($_SERVER['DOCUMENT_ROOT'], 0, -4) . 'vendor/autoload.php');
