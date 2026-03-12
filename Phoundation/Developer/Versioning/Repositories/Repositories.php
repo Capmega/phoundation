@@ -1914,6 +1914,22 @@ showdie('YAY!');
 
 
     /**
+     * Ensures that all branches in this repository have a tracking repository setup
+     *
+     * @param string|null $repository The remote repository to use. Use NULL to use the configured repository
+     * @return static
+     */
+    public function ensureAllBranchesTracking(?string $repository = null): static
+    {
+        foreach ($this as $_repository) {
+            $_repository->ensureAllBranchesTracking($repository);
+        }
+
+        return $this;
+    }
+
+
+    /**
      * Updates all suffixed version branches for the specified version, and update them from the base version, in all repositories
      *
      * @param string $version

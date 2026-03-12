@@ -1465,6 +1465,31 @@ showdie();
 
 
     /**
+     * Ensures that all branches in this repository have a tracking repository setup
+     *
+     * @param string|null $repository The remote repository to use. Use NULL to use the configured repository
+     * @return static
+     */
+    public function ensureAllBranchesTracking(?string $repository = null): static
+    {
+        $current = $this->getSelectedBranch();
+
+        foreach ($this->_git->getBranchesNonTracking() as $branch) {
+            $tracking = ($repository ?? $this->getConfigRemoteRepository()) . '/' . $branch;
+
+            Log::action(ts('Branch ":branch" has no tracking branch configured, setting tracking to ":tracking"', [
+                ':branch'   => $branch,
+                ':tracking' => $tracking
+            ]));
+
+            $this->_git->checkout($branch)->setTracking($tracking);
+        }
+
+        return $this->selectBranch($current);
+    }
+
+
+    /**
      * Sets the available data keys for this entry
      *
      * @param DefinitionsInterface $_definitions

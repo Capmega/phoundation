@@ -612,6 +612,25 @@ class Git extends Versioning implements GitInterface
 
 
     /**
+     * Sets the specified tracking branch for the currently selected branch
+     *
+     * @param string $tracking The remote repository/branch that will be the tracking branch
+     *
+     * @return static
+     */
+    public function setTracking(string $tracking): static
+    {
+        $output = $this->_process->clearArguments()
+                                 ->appendArgument('branch')
+                                 ->appendArgument('--set-upstream-to=' . $tracking)
+                                 ->executeReturnArray();
+
+        Log::notice($output, 1, false);
+        return $this;
+    }
+
+
+    /**
      * Deletes the specified GIT tag for this directory
      *
      * @param string $tag

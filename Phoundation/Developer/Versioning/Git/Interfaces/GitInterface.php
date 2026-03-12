@@ -434,4 +434,13 @@ interface GitInterface
      * @return array
      */
     public function getBranchesBehindTracking(): array;
+
+    /**
+     * Sets the specified tracking branch for the currently selected branch
+     *
+     * @param string $tracking The remote repository/branch that will be the tracking branch
+     *
+     * @return static
+     */
+    public function setTracking(string $tracking): static;
 }
