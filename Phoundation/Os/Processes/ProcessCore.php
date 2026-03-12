@@ -664,7 +664,7 @@ abstract class ProcessCore implements ProcessInterface
     {
         $this->setExecutionMethod(EnumExecuteMethod::passthru);
 
-        $output_file = PhoFile::newTemporaryObject(false)->getSource();
+        $output_file = PhoFile::newTemporary(false)->getSource();
         $command     = $this->getFullCommandLine();
         $command     = Strings::ensureEndsNotWith($command, ';');
 

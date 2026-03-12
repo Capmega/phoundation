@@ -46,7 +46,7 @@ if (ALL) {
     Log::cli(sql()->getColumn('SELECT COUNT(*) AS `count` FROM `accounts_rights`'));
 
 } else {
-    Log::cli(sql()->getColumn('SELECT COUNT(*) AS `count` FROM `accounts_rights` WHERE `status` IS NULL OR `status` != "deleted"'));
+    Log::cli(sql()->getColumn('SELECT COUNT(*) AS `count` FROM `accounts_rights` WHERE `status` IS NULL OR `status` NOT LIKE "deleted%"'));
 }
 
 

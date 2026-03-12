@@ -661,7 +661,7 @@ class Response implements ResponseInterface
 
             } else {
                 $_url = Url::new($url)->makeImg();
-                $_url = $_url->setSource(Response::versionFile($url, 'img'));
+                $_url = $_url->setSource($url);
                 $url   = $_url->getSource();
 
                 // Unknown (likely remote?) link
@@ -729,46 +729,6 @@ class Response implements ResponseInterface
                 ], 'apple-touch-icon-' . $size . '-precomposed.png');
             }
         }
-    }
-
-
-    /**
-     * Will automatically add the timestamp of the specified file as a versioning string
-     *
-     * This is done for efficient caching where you can pretty much set cache to 10 years as changes are picked up by
-     * updated versions of the files
-     *
-     * @see http://particletree.com/notebook/automatically-version-your-css-and-javascript-files/
-     *
-     * @todo Move this to the URL class, and be probably used somewhere in the ->makeCdn() call?
-     * @param string $url
-     * @param string $type
-     *
-     * @return string
-     */
-    public static function versionFile(string $url, string $type): string
-    {
-        static $minified = null;
-
-        // Ensure the extension is stripped.
-        // Ensure anything before templates/ is stripped.
-        $url = Strings::untilReverse($url, '.' . $type);
-        $url = Strings::until($url, '.min');
-        $url = Strings::from($url, 'templates/');
-
-        if ($minified === null) {
-            // All files are minified or none are
-            $minified = (config()->get('web.cdn.resources.minified', true) ? '.min' : '');
-        }
-
-        // Return URL with timestamp injected into the given file
-        if (config()->getBoolean('web.cdn.resources.versioning', true)) {
-            // Determine the absolute file path
-            return $url . '-v' . filectime(DIRECTORY_DATA . 'content/cdn/' . LANGUAGE . '/templates/' . $url . $minified . '.' . $type) . $minified . '.' . $type;
-        }
-
-        // Return URL without an injected timestamp
-        return $url . $minified . '.' . $type;
     }
 
 
@@ -1107,7 +1067,6 @@ class Response implements ResponseInterface
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.js');
                 $url = Strings::ensureEndsNotWith($url, '.min');
-                $url = Response::versionFile($url, 'js');
             }
 
             $scripts[$url] = [
@@ -1147,7 +1106,6 @@ class Response implements ResponseInterface
                 // Pre-process local URL's
                 $url = Strings::ensureEndsNotWith($url, '.css');
                 $url = Strings::ensureEndsNotWith($url, '.min');
-                $url = Response::versionFile($url, 'css');
             }
 
             $scripts[$url] = [
@@ -2136,7 +2094,7 @@ class Response implements ResponseInterface
 
         if (static::$http_code == 200) {
             if (empty($params['last_modified'])) {
-                $headers[] = 'Last-Modified: ' . PhoDate::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                $headers[] = 'Last-Modified: ' . PhoDate::convert(Core::getLastModifiedTime(), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
             } else {
                 $headers[] = 'Last-Modified: ' . PhoDate::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';

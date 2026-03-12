@@ -252,11 +252,11 @@ class Role extends DataEntry implements RoleInterface
     {
         if ($this->getId(false)) {
             // Update all accounts_users_roles and accounts_roles_rights too
-            sql()->query('UPDATE `accounts_users_roles` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+            sql()->query('UPDATE `accounts_users_roles` SET status = "' . static::normalizeStatus('deleted') . '" WHERE `roles_id` = :roles_id', [
                 ':roles_id' => $this->getId(),
             ]);
 
-            sql()->query('UPDATE `accounts_roles_rights` SET status = "deleted" WHERE `roles_id` = :roles_id', [
+            sql()->query('UPDATE `accounts_roles_rights` SET status = "' . static::normalizeStatus('deleted') . '" WHERE `roles_id` = :roles_id', [
                 ':roles_id' => $this->getId(),
             ]);
         }

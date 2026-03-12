@@ -106,7 +106,7 @@ class Task extends DataEntry implements TaskInterface
      */
     public function __construct(IdentifierInterface|false|array|int|string|null $identifier = false, ?EnumLoadParameters $on_null_identifier = null, ?EnumLoadParameters $on_not_exists = null) {
         parent::__construct($identifier, $on_null_identifier, $on_not_exists);
-        $this->setRestrictionsObject(PhoRestrictions::newRootObject());
+        $this->setRestrictionsObject(PhoRestrictions::newRoot());
     }
 
 
@@ -1561,7 +1561,7 @@ class Task extends DataEntry implements TaskInterface
                                      ->setOptional(true)
                                      ->setInputType(EnumInputType::select)
                                      ->setLabel('Parent task')
-                                     ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT IN ("deleted"))')
+                                     ->setSource('SELECT `id` FROM `os_tasks` WHERE (`status` IS NULL OR `status` NOT LIKE "deleted%")')
                                      ->setSize(4)
                                      ->setMaxLength(17)
                                      ->addValidationFunction(function (ValidatorInterface $_validator) {
@@ -1646,7 +1646,7 @@ class Task extends DataEntry implements TaskInterface
                                                    ->setColumnFromQuery('servers_id', 'SELECT `id` 
                                                                                        FROM   `servers` 
                                                                                        WHERE  `hostname` = :hostname 
-                                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                            ':hostname' => '$server'
                                                    ]);
                                      }))
@@ -1662,7 +1662,7 @@ class Task extends DataEntry implements TaskInterface
                                                    ->isQueryResult('SELECT `id` 
                                                                     FROM   `servers` 
                                                                     WHERE  `id` = :id 
-                                                                    AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                    AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                         ':id' => '$servers_id'
                                                    ]);
                                      }))

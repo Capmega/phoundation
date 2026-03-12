@@ -2548,7 +2548,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      */
     public function isLocked(): bool
     {
-        return $this->isStatus('locked');
+        return $this->hasStatus('locked');
     }
 
 
@@ -3135,7 +3135,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                         ->setColumnFromQuery('leaders_id', 'SELECT `id` 
                                                                                             FROM   `accounts_users` 
                                                                                             WHERE  `email` = :email 
-                                                                                            AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                            AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                                 ':email' => '$leaders_email'
                                                         ]);
                                           }))
@@ -3151,7 +3151,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
                                                         ->isQueryResult('SELECT `id` 
                                                                          FROM   `accounts_users` 
                                                                          WHERE  `id` = :id 
-                                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                         AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                              ':id' => '$leaders_id'
                                                         ]);
                                           }))

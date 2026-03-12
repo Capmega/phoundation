@@ -93,7 +93,7 @@ class Library implements LibraryInterface
     public function __construct(PhoDirectoryInterface|string $directory)
     {
         // Extract vendor and library names
-        $this->directory = new PhoDirectory($directory, PhoRestrictions::newRootObject());
+        $this->directory = new PhoDirectory($directory, PhoRestrictions::newRoot());
 
         $directory     = Strings::slash($directory);
         $this->library = Strings::fromReverse(Strings::unslash($directory), '/');

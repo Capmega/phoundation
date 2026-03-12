@@ -524,7 +524,7 @@ class Repositories extends DataIteratorCore implements RepositoriesInterface
         if ($delete_gone) {
             $db_repositories = sql()->listKeyValue('SELECT `name` 
                                                     FROM   `developer_repositories` 
-                                                    WHERE  `status` IS NULL OR `status` != "deleted"');
+                                                    WHERE  `status` IS NULL OR `status` NOT LIKE "deleted%"');
 
             $this->deleted = array_diff($db_repositories, $this->getSourceKeys());
 

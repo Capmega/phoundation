@@ -161,7 +161,7 @@ class PhoRestrictions implements PhoRestrictionsInterface
      *
      * @return static
      */
-    public static function newRootObject(bool $write = false, ?string $sub_path = null): static
+    public static function newRoot(bool $write = false, ?string $sub_path = null): static
     {
         return new static(DIRECTORY_ROOT . $sub_path, $write);
     }

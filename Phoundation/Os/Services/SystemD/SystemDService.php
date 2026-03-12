@@ -368,7 +368,7 @@ WantedBy=multi-user.target');
     {
         if (empty($this->service_script)) {
             // Initialize the service_script object for the current process
-            $this->service_script = PhoFile::newDataObject(
+            $this->service_script = PhoFile::newData(
                 'system/systemd/' . $this->getOsProcessName() . '.service',
                 PhoRestrictions::newData(true, 'system/systemd/')
             );

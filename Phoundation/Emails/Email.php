@@ -238,7 +238,7 @@ class Email extends DataEntry
                                                   ->isQueryResult('SELECT `id` 
                                                                    FROM   `emails`
                                                                    WHERE  `id` = :id
-                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                        ':id' => '$parents_id',
                                                   ]);
                                     }))
@@ -260,7 +260,7 @@ class Email extends DataEntry
                                                   ->isQueryResult('SELECT `id`
                                                                    FROM   `categories` 
                                                                    WHERE  `id` = :id
-                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                        ':id' => '$categories',
                                                   ]);
                                     }))
@@ -275,7 +275,7 @@ class Email extends DataEntry
                                                                    FROM   `storage_pages` 
                                                                    WHERE  `id` = :id 
                                                                    AND    `template` = 1
-                                                                   AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                   AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                        ':id' => '$templates_id',
                                                   ]);
                                     }))

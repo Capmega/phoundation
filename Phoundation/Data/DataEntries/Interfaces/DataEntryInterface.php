@@ -200,14 +200,16 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      */
     public function getLogId(): string|null;
 
+
     /**
-     * Returns true if this DataEntry has the specified status
+     * Returns true if this object has the specified status
      *
-     * @param string|null $status
+     * @param array|string|null $status The status to test
+     * @param bool              $strict [true] If true, will perform strict comparisons (===). If false, will perform loose comparison (==)
      *
      * @return bool
      */
-    public function isStatus(?string $status): bool;
+    public function hasStatus(array|string|null $status, bool $strict = true): bool;
 
     /**
      * Returns status for this database entry
@@ -437,16 +439,6 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      */
     public function getDefinitionsObject(): ?DefinitionsInterface;
 
-
-    /**
-     * Returns true if this object has the specified status
-     *
-     * @param array|string|null $status
-     * @param bool              $strict
-     *
-     * @return bool
-     */
-    public function hasStatus(array|string|null $status, bool $strict = true): bool;
 
     /**
      * Returns the name for this object that can be displayed

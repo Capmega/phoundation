@@ -514,7 +514,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('categories_id', 'SELECT `id` 
                                                                                          FROM   `categories` 
                                                                                          WHERE  `name` = :name 
-                                                                                         AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                         AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                              ':name' => '$categories_name'
                                                   ]);
                                     }))
@@ -532,7 +532,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('providers_id', 'SELECT `id` 
                                                                                         FROM `business_providers`
                                                                                         WHERE `name` = :name 
-                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                        AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                             ':name' => '$providers_name'
                                                   ]);
                                     }))
@@ -550,7 +550,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('customers_id', 'SELECT `id` 
                                                                                         FROM   `business_customers` 
                                                                                         WHERE  `name` = :name 
-                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                        AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                             ':name' => '$customers_name'
                                                   ]);
                                     }))
@@ -570,7 +570,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('countries_id', 'SELECT `id` 
                                                                                         FROM   `geo_countries` 
                                                                                         WHERE  `name` = :name 
-                                                                                        AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                        AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                             ':name' => '$countries_name'
                                                   ]);
                                     }))
@@ -590,7 +590,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('states_id', 'SELECT `id` 
                                                                                      FROM   `geo_states` 
                                                                                      WHERE  `name` = :name 
-                                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                     AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                          ':name' => '$states_name'
                                                   ]);
                                     }))
@@ -610,7 +610,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->setColumnFromQuery('cities_id', 'SELECT `id` 
                                                                                      FROM   `geo_cities` 
                                                                                      WHERE  `name` = :name 
-                                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                     AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                          ':name' => '$cities_name'
                                                   ]);
                                     }))
@@ -651,7 +651,7 @@ class Server extends DataEntry implements ServerInterface
                                                     ->setColumnFromQuery('ssh_accounts_id', 'SELECT `id` 
                                                                                              FROM   `ssh_accounts` 
                                                                                              WHERE  `name` = :name 
-                                                                                             AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                                             AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                                                  ':name' => '$ssh_account'
                                                     ]);
                                     }))
@@ -666,7 +666,7 @@ class Server extends DataEntry implements ServerInterface
                                         $_validator->isQueryResult('SELECT `id` 
                                                                      FROM   `ssh_accounts` 
                                                                      WHERE  `id` = :id 
-                                                                     AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                     AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                          ':id' => '$ssh_accounts_id'
                                         ]);
                                     }))
@@ -753,7 +753,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `categories` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$categories_id'
                                                   ]);
                                     }))
@@ -775,7 +775,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `business_providers` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$providers_id'
                                                   ]);
                                     }))
@@ -797,7 +797,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `business_customers` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$customers_id'
                                                   ]);
                                     }))
@@ -820,7 +820,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `geo_countries` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$countries_id'
                                                   ]);
                                     }))
@@ -843,7 +843,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `geo_states` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$states_id'
                                                   ]);
                                     }))
@@ -864,7 +864,7 @@ class Server extends DataEntry implements ServerInterface
                                                   ->isColumnFromQuery('SELECT `id` 
                                                                        FROM   `geo_cities` 
                                                                        WHERE  `id` = :id 
-                                                                       AND   (`status` IS NULL OR `status` != "deleted")', [
+                                                                       AND   (`status` IS NULL OR `status` NOT LIKE "deleted%")', [
                                                                            ':name' => '$cities_id'
                                                   ]);
                                     }))

@@ -253,7 +253,7 @@ class CliCommand
             return null;
         }
 
-        return new PhoFile(CliCommand::$command_file, PhoRestrictions::newRootObject());
+        return new PhoFile(CliCommand::$command_file, PhoRestrictions::newRoot());
     }
 
 
@@ -506,7 +506,7 @@ class CliCommand
      */
     protected static function checkPhoNotWorldExecutable(): void
     {
-        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRootObject())->isWorldExecutable()) {
+        if (PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRoot())->isWorldExecutable()) {
             if (config()->getBoolean('security.commandline.pho.permit.execute.world', false)) {
                 throw new CliCommandException(tr('Refusing to start, the "pho" command is world executable which is a security risk. Please fix this first by running "chmod o-rwx ./pho" in your projects root directory.'));
             }

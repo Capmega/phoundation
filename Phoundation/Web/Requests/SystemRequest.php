@@ -405,6 +405,25 @@ class SystemRequest implements SystemRequestInterface
 
 
     /**
+     * Show the 409 - CONFLICT page
+     *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
+     * @return never
+     * @see Route::exit()
+     * @see Route::add()
+     */
+    #[NoReturn] protected function execute409(?string $message = null): never
+    {
+        $this->executePage([
+            'code'    => 409,
+            'title'   => tr('Conflict'),
+            'message' => $message ?? tr('The specified request could not be completed due to a conflict with the current state of the target resource'),
+        ]);
+    }
+
+
+    /**
      * Show the 410 - GONE page
      *
      * @param string|null $message The optional message to use, or a default message will be displayed instead

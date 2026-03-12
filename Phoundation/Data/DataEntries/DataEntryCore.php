@@ -87,6 +87,7 @@ use Phoundation\Data\Traits\TraitDataPermitValidationFailures;
 use Phoundation\Data\Traits\TraitDataRandomId;
 use Phoundation\Data\Traits\TraitDataReadonly;
 use Phoundation\Data\Traits\TraitDataReadonlyColumns;
+use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Data\Traits\TraitMethodBuildManualQuery;
 use Phoundation\Data\Traits\TraitMethodsGetTypesafe;
@@ -112,6 +113,8 @@ use Phoundation\Exception\PhoException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Exception\ReadOnlyModeException;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
@@ -661,7 +664,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     if (array_key_exists('status', $this->identifier)) {
                         // TODO See the @todo comments. This function needs to look for LIKE "deleted%" instead, and must be able to handle multiple results!
                         $identifier = $this->identifier;
-                        $identifier['status'] = 'deleted';
+                        $identifier['status'] = '?deleted%';
                         $this->loadFromDatabase($identifier);
 
                         if (!$this->isNew()) {
@@ -1964,20 +1967,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function isDeleted(): bool
     {
-        return $this->isStatus('deleted');
-    }
-
-
-    /**
-     * Returns true if this DataEntry has the specified status
-     *
-     * @param string|null $status
-     *
-     * @return bool
-     */
-    public function isStatus(?string $status): bool
-    {
-        return $this->getTypesafe('string', 'status') === $status;
+        return $this->hasStatus('deleted');
     }
 
 
@@ -2005,7 +1995,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return tr('[NEW]');
         }
 
-        if ($this->getStatus() === 'deleted') {
+        if ($this->hasStatus('deleted')) {
             return $real_name . ' ' . tr('[DELETED]');
         }
 
@@ -2038,7 +2028,11 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function getStatus(): ?string
     {
-        return $this->getTypesafe('string', 'status');
+        $status = $this->getTypesafe('string', 'status');
+        $status = Strings::until($status, '-');
+        $status = str_replace('_', '-', $status);
+
+        return $status;
     }
 
 
@@ -3873,35 +3867,42 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             $execute[':id'] = $not_id;
         }
 
-        return sql(static::getDefaultConnector())->getRow('SELECT `id`, `status`
-                                                           FROM   `' . static::getTable() . '`
-                                                           WHERE  ' . $where . '
-                                           ' . ($not_id ? '  AND  `id` != :id' : '') . '
-                                                           LIMIT  1', $execute);
+        return sql(static::getDefaultConnector())->listKeyValues('SELECT `id`, `status`
+                                                                  FROM   `' . static::getTable() . '`
+                                                                  WHERE  ' . $where . '
+                                                ' . ($not_id ? '  AND    `id` != :id' : ''), $execute);
     }
 
 
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param array|Stringable|string|int $identifier The unique identifier, but typically not the database id, usually
-     *                                                the seo_email, or seo_name. If specified as an array, it should
-     *                                                contain an assoc array with
-     *                                                column > value, column > value, column !value
-     * @param int|null              $not_id
-     * @param bool                  $throw_exception If the entry does not exist, instead of returning false will throw
-     *                                               a DataEntryNotExistsException
+     * @param array|Stringable|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
+     *                                                        specified as an array, it should contain an assoc array with column > value, column > value,
+     *                                                        column !value
+     * @param int|null              $not_id           [null]  If specified, the found entries should NOT have the specified ID
+     * @param bool                  $exception        [false] If the entry does not exist, instead of returning false will throw a DataEntryNotExistsException
      *
-     * @return bool
+     * @return int|false
      * @throws OutOfBoundsException | DataEntryNotExistsException | DataEntryDeletedException
      */
-    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $throw_exception = false): bool
+    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $exception = false): int|false
     {
         $exists = static::findExists($identifier, $not_id);
 
+        if ($exists) {
+            // Filter out deleted entries
+            foreach ($exists as $id => $exist) {
+                // Entry exists!
+                if (str_starts_with((string) $exist['status'], 'deleted')) {
+                    unset($exists[$id]);
+                }
+            }
+        }
+
         if (!$exists) {
-            // Entry does not exist!
-            if ($throw_exception) {
+            // No entries exist for the specified identifier!
+            if ($exception) {
                 throw DataEntryNotExistsException::new(tr('The ":type" type data entry with identifier ":id" does not exist', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier,
@@ -3911,61 +3912,50 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return false;
         }
 
-        // Entry exists!
-        if ($exists['status'] === 'deleted') {
-            // But it is deleted...
-            if ($throw_exception) {
-                throw DataEntryDeletedException::new(tr('The ":type" type data entry with identifier ":id" exists but is deleted', [
-                    ':type' => static::getClassName(),
-                    ':id'   => $identifier,
-                ]));
-            }
-
-            // This entry is deleted, act as if it does not exist
-            return false;
-        }
-
         // Entry exists and is not deleted, success!
-        return true;
+        return count($exists);
     }
 
 
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param array|Stringable|string|int $identifier The unique identifier, but typically not the database id, usually
-     *                                                the seo_email, or seo_name. If specified as an array, it should
-     *                                                contain an assoc array with
-     *                                                column > value, column > value, column !value
-     * @param int|null              $id               If specified, will ignore the found entry if it has this ID as it
-     *                                                will be THIS object
-     * @param bool                  $throw_exception  If the entry exists (and does not match id, if specified), instead
-     *                                                of returning false will throw a DataEntryNotExistsException
+     * @param array|Stringable|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
+     *                                                        specified as an array, it should contain an assoc array with column > value, column > value,
+     *                                                        column !value
+     * @param int|null              $id               [null]  If specified, will ignore the found entry if it has this ID as it will be THIS object
+     * @param bool                  $exception        [false] If the entry exists (and does not match id, if specified), instead of returning false will throw
+     *                                                        a DataEntryNotExistsException
      *
      * @return bool
      *
      * @throws OutOfBoundsException|DataEntryExistsException
      */
-    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $throw_exception = false): bool
+    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $exception = false): bool
     {
         $exists = static::findExists($identifier, $id);
 
         if ($exists) {
-            // Entry exists
-            if ($exists['status'] === 'deleted') {
-                // But is deleted, so act as if it does not
-                return true;
+            // Filter out any deleted entries
+            foreach ($exists as $id => $exist) {
+                // Entry exists
+                if (str_starts_with((string) $exist['status'], 'deleted')) {
+                    // But is deleted, so act as if it does not
+                    unset($exists[$id]);
+                }
             }
+        }
 
+        if ($exists) {
             // Exists and is not deleted
-            if ($throw_exception) {
+            if ($exception) {
                 throw DataEntryExistsException::new(tr('The ":type" type data entry with identifier ":id" already exists', [
                     ':type' => static::getClassName(),
                     ':id'   => $identifier,
                 ]));
             }
 
-            // The entry exists!
+            // One or more entries exist!
             return false;
         }
 
@@ -3978,7 +3968,6 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      * Returns a human-readable and pretty version of the specified status
      *
      * @param string|null $status
-     *1
      *
      * @return string
      */
@@ -3988,6 +3977,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return tr('Ok');
         }
 
+        $status = Strings::until('-', $status);
         $status = str_replace(['_', '-'], ' ', $status);
 
         return Strings::capitalize($status);
@@ -4456,22 +4446,22 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns true if this object has the specified status
      *
-     * @param array|string|null $status
-     * @param bool              $strict
+     * @param array|string|null $status The status to test
+     * @param bool              $strict [true] If true, will perform strict comparisons (===). If false, will perform loose comparison (==)
      *
      * @return bool
      */
     public function hasStatus(array|string|null $status, bool $strict = true): bool
     {
         if (is_array($status)) {
-            return in_array($this->getTypesafe('string', 'status'), $status, $strict);
+            return in_array($this->getStatus(), $status, $strict);
         }
 
         if ($strict) {
-            return $status === $this->getTypesafe('string', 'status');
+            return $status === $this->getStatus();
         }
 
-        return $status == $this->getTypesafe('string', 'status');
+        return $status == $this->getStatus();
     }
 
 
@@ -4570,6 +4560,29 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns a correct status string with optional random data if the status string requires this
+     *
+     * Status "deleted" requires a random string attached to it for unique indexing reasons
+     *
+     * @param string|null $status The status that needs to be normalized
+     *
+     * @return string|null
+     */
+    public static function normalizeStatus(?string $status): ?string
+    {
+        if ($status) {
+            $status = str_replace('-', '_', $status);
+        }
+
+        return match ($status) {
+            null      => null,
+            'deleted' => $status . '-' . Strings::getRAndom(8),
+            default   => $status
+        };
+    }
+
+
+    /**
      * Set the status for this database entry
      *
      * @param string|null $status
@@ -4580,6 +4593,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      */
     public function setStatus(?string $status, ?string $comments = null, bool $auto_save = true): static
     {
+        static $attempt = 0;
+
         if (!$this->is_loading) {
             if ($this->hasMetaColumn('status')) {
                 if ($status and (strlen($status) > 32)) {
@@ -4590,15 +4605,39 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                 }
 
                 $this->checkReadonly('set-status "' . $status . '"')
-                     ->set($status, 'status')
+                     ->set(static::normalizeStatus($status), 'status')
                      ->saveToLocalCache($this->getCacheKey())
                      ->saveToGlobalCache($this->getCacheKey());
+                }
 
                 $this->changes[] = 'status';
                 $this->setTableState();
 
                 if ($auto_save and $this->isNotNew()) {
-                    sql()->setStatus($this->getId(false), $status, static::getTable());
+                    while ($attempt++ <= 5) {
+                        try {
+                            sql()->setStatus($this->getId(false), static::normalizeStatus($status), static::getTable());
+
+                        } catch (SqlException $e) {
+                            if ($e->getCode() !== 1062) {
+                                // Some different error, keep throwing
+                                throw $e;
+                            }
+
+                            // We encountered a double SQL UNIQUE KEY for this entry, retry with a different "status" random value
+                            Incident::new()
+                                    ->setSeverity(EnumSeverity::medium)
+                                    ->setType(ts('duplicate'))
+                                    ->setTitle(ts('Encountered duplicate unique column / status column value'))
+                                    ->setBody(ts('Encountered duplicate row for DataEntry class ":class" table ":table" unique value ":unique" and status value ":status" on attempt ":attempt", retrying...', [
+                                        ':class'   => static::class,
+                                        ':table'   => static::getTable(),
+                                        ':unique'  => $this->getUniqueColumnValue(),
+                                        ':status'  => $status,
+                                        ':attempt' => $attempt,
+                                    ]))
+                                    ->save();
+                        }
                 }
             }
         }

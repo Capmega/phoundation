@@ -61,7 +61,7 @@ class PhoCore extends WorkersCore implements PhoInterface
         }
 
         if (!$pho) {
-            $pho = PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRootObject());
+            $pho = PhoFile::new(DIRECTORY_ROOT . 'pho', PhoRestrictions::newRoot());
         }
 
         // Ensure that the run files directory is available

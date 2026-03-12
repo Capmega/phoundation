@@ -505,11 +505,11 @@ class DataEntryTest extends TestCase
     {
         $test_entry = TestDataEntry::new();
         $this->assertNull($test_entry->getStatus());
-        $this->assertTrue($test_entry->isStatus(null));
+        $this->assertTrue($test_entry->hasStatus(null));
 
         $test_entry->setStatus('test');
         $this->assertEquals('test', $test_entry->getStatus());
-        $this->assertTrue($test_entry->isStatus('test'));
+        $this->assertTrue($test_entry->hasStatus('test'));
     }
 
 

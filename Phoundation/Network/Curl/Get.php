@@ -254,7 +254,7 @@ class Get extends Curl
         // Use cookies?
         if (isset_get($this->cookies)) {
             if (!isset_get($this->cookie_file)) {
-                $this->cookie_file = PhoFile::newTemporaryObject()
+                $this->cookie_file = PhoFile::newTemporary()
                                             ->getSource();
             }
 

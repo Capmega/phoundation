@@ -50,13 +50,17 @@ class PhoFile extends PhoFileCore
     /**
      * Returns a new file object for a file in data/...
      *
-     * @param string                        $file
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string                             $file
+     * @param PhoRestrictionsInterface|bool|null $restrictions
      *
      * @return PhoFileInterface
      */
-    public static function newDataObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    public static function newData(string $file, PhoRestrictionsInterface|bool|null $restrictions = null): PhoFileInterface
     {
+        if (is_bool($restrictions)) {
+            $restrictions = PhoRestrictions::newData($restrictions, Strings::untilReverse(DIRECTORY_DATA . $file, '/'));
+        }
+
         return static::new(
             DIRECTORY_DATA . $file,
             $restrictions ?? PhoRestrictions::newData()
@@ -65,15 +69,40 @@ class PhoFile extends PhoFileCore
 
 
     /**
-     * Returns a new file object for a file in data/sources/...
+     * Returns a new file object for a file in config/...
      *
-     * @param string                        $file
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string                             $file
+     * @param PhoRestrictionsInterface|bool|null $restrictions
      *
      * @return PhoFileInterface
      */
-    public static function newDataSourcesObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    public static function newConfig(string $file, PhoRestrictionsInterface|bool|null $restrictions = null): PhoFileInterface
     {
+        if (is_bool($restrictions)) {
+            $restrictions = PhoRestrictions::newData($restrictions, Strings::untilReverse(DIRECTORY_ROOT . 'config/' . $file, '/'));
+        }
+
+        return static::new(
+            DIRECTORY_ROOT . 'config/' . $file,
+            $restrictions ?? PhoRestrictions::newConfig()
+        );
+    }
+
+
+    /**
+     * Returns a new file object for a file in data/sources/...
+     *
+     * @param string                             $file
+     * @param PhoRestrictionsInterface|bool|null $restrictions
+     *
+     * @return PhoFileInterface
+     */
+    public static function newDataSources(string $file, PhoRestrictionsInterface|bool|null $restrictions = null): PhoFileInterface
+    {
+        if (is_bool($restrictions)) {
+            $restrictions = PhoRestrictions::newData($restrictions, Strings::untilReverse(DIRECTORY_DATA . 'sources/' . $file, '/'));
+        }
+
         return static::new(
             DIRECTORY_DATA . 'sources/' . $file,
             $restrictions ?? PhoRestrictions::newDataSources()
@@ -84,13 +113,17 @@ class PhoFile extends PhoFileCore
     /**
      * Returns a new file object for a file in data/sources/...
      *
-     * @param string                        $file
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string                             $file
+     * @param PhoRestrictionsInterface|bool|null $restrictions
      *
      * @return PhoFileInterface
      */
-    public static function newDataSourcesProjectObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    public static function newDataSourcesProject(string $file, PhoRestrictionsInterface|bool|null $restrictions = null): PhoFileInterface
     {
+        if (is_bool($restrictions)) {
+            $restrictions = PhoRestrictions::newData($restrictions, Strings::untilReverse(DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $file, '/'));
+        }
+
         return static::new(
             DIRECTORY_DATA . 'sources/' . PROJECT . '/' . $file,
             $restrictions ?? PhoRestrictions::newDataSourcesProject()
@@ -101,13 +134,17 @@ class PhoFile extends PhoFileCore
     /**
      * Returns a new file object for a file in data/sources/...
      *
-     * @param string                        $file
-     * @param PhoRestrictionsInterface|null $restrictions
+     * @param string                             $file
+     * @param PhoRestrictionsInterface|bool|null $restrictions
      *
      * @return PhoFileInterface
      */
-    public static function newDataProjectObject(string $file, ?PhoRestrictionsInterface $restrictions = null): PhoFileInterface
+    public static function newDataProject(string $file, PhoRestrictionsInterface|bool|null $restrictions = null): PhoFileInterface
     {
+        if (is_bool($restrictions)) {
+            $restrictions = PhoRestrictions::newData($restrictions, Strings::untilReverse(DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $file, '/'));
+        }
+
         $path = DIRECTORY_DATA . 'projects/' . PROJECT . '/' . $file;
 
         return static::new($path, $restrictions ?? PhoRestrictions::newDataProject());
@@ -124,7 +161,7 @@ class PhoFile extends PhoFileCore
      *
      * @return static
      */
-    public static function newTemporaryObject(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
+    public static function newTemporary(bool $public = false, ?string $name = null, bool $create = true, bool $persist = false): static
     {
         $directory = PhoDirectory::newTemporary($public, $persist);
         $name      = ($name ?? Strings::getUuid());

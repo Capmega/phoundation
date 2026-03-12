@@ -114,7 +114,7 @@ class State extends DataEntry implements StateInterface
                           ->setSourceQuery('SELECT   `id`, `name` 
                                             FROM     `geo_cities` 
                                             WHERE    `states_id` = :states_id 
-                                            AND     (`status` IS NULL OR `status` != "deleted")
+                                            AND     (`status` IS NULL OR `status` NOT LIKE "deleted%")
                                             ORDER BY `name`', [
                                                 ':states_id' => $this->getId(false),
                           ])

@@ -562,7 +562,7 @@ class Libraries
             $library->rebuildCommandsCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'commands', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -620,7 +620,7 @@ class Libraries
             $library->rebuildHooksCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'hooks', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -809,7 +809,7 @@ class Libraries
             $library->rebuildWebCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'web', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -861,7 +861,7 @@ return;
             $library->rebuildDataCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'data', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'data', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -917,7 +917,7 @@ return;
             $library->rebuildConfigCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'config', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'config', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -971,7 +971,7 @@ return;
             $library->rebuildCronCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'cron', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
@@ -1025,7 +1025,7 @@ return;
             $library->rebuildTestsCache($_cache, $_temporary);
         }
 
-        $_target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRootObject(true))->delete();
+        $_target = PhoFile::new(DIRECTORY_ROOT . 'Tests', PhoRestrictions::newRoot(true))->delete();
 
         // Move the old out of the way, push the new in and ensure we have a root directory link
         $_cache->replaceWithPath($_temporary)
