@@ -530,7 +530,7 @@ class Git extends Versioning implements GitInterface
             throw new OutOfBoundsException(ts('Cannot use both filters $all and $contains at the same time'));
         }
 
-        $source  = [];
+        $return  = [];
         $results = $this->_process->clearArguments()
                                   ->appendArgument('branch')
                                   ->appendArgument('--quiet')
@@ -541,14 +541,73 @@ class Git extends Versioning implements GitInterface
 
         foreach ($results as $line) {
             if (str_starts_with($line, '*')) {
-                $source[substr($line, 2)] = true;
+                $return[substr($line, 2)] = true;
 
             } else {
-                $source[substr($line, 2)] = false;
+                $return[substr($line, 2)] = false;
             }
         }
 
-        return $source;
+        return $return;
+    }
+
+
+    /**
+     * Returns a list of available git branches that do not have a tracking branch configured
+     *
+     * @return array
+     */
+    public function getBranchesNonTracking(): array
+    {
+        $return  = [];
+        $results = $this->_process->clearArguments()
+                                  ->appendArgument('branch')
+                                  ->appendArgument('--quiet')
+                                  ->appendArgument('--no-color')
+                                  ->appendArgument("--format='%(refname:short)$$$%(upstream)'", false, false)
+                                  ->executeReturnArray();
+
+        foreach ($results as $line) {
+            $line   = trim($line);
+            $remote = Strings::from($line, '$$$', needle_required: true);
+            $branch = Strings::until($line, '$$$', needle_required: true);
+
+            if (empty($remote)) {
+                $return[$branch] = $branch;
+            }
+        }
+
+        return $return;
+    }
+
+
+    /**
+     * Returns a list of available git branches that are behind their tracking branch
+     *
+     * @return array
+     */
+    public function getBranchesBehindTracking(): array
+    {
+        $this->fetchAll();
+
+        $return  = [];
+        $results = $this->_process->clearArguments()
+                                  ->appendArgument('branch')
+                                  ->appendArgument('--quiet')
+                                  ->appendArgument('--no-color')
+                                  ->appendArgument('-v')
+                                  ->executeReturnArray();
+
+        foreach ($results as $line) {
+            if (str_contains($line, 'behind')) {
+                $line   = trim($line);
+                $branch = Strings::until($line, ' ');
+
+                $return[$branch] = $branch;
+            }
+        }
+
+        return $return;
     }
 
 

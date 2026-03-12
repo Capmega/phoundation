@@ -420,4 +420,18 @@ interface GitInterface
      * @return array
      */
     public function getBranchesContainingRevision(string $revision): array;
+
+    /**
+     * Returns a list of available git branches that do not have a tracking branch configured
+     *
+     * @return array
+     */
+    public function getBranchesNonTracking(): array;
+
+    /**
+     * Returns a list of available git branches that are behind their tracking branch
+     *
+     * @return array
+     */
+    public function getBranchesBehindTracking(): array;
 }
