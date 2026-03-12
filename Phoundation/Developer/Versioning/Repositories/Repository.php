@@ -346,7 +346,7 @@ class Repository extends DataEntry implements RepositoryInterface
     {
         $remote = $this->selectRemoteRepository($remote);
 
-        Log::action(ts('Pushing branch ":branch" on ":type" type repository ":repository" to remote ":remote"', [
+        Log::action(ts('Pushing repository ":repository" branch ":branch" on ":type" type repository ":repository" to remote ":remote"', [
             ':repository' => $this->getName(),
             ':type'       => $this->getType(),
             ':branch'     => $branch,
@@ -1512,15 +1512,17 @@ showdie();
         $current = $this->getSelectedBranch();
 
         foreach ($this->_git->getBranchesBehindTracking() as $branch) {
-            Log::action(ts('Pulling branch ":branch" to ensure it is current', [
-                ':branch' => $branch,
+            Log::action(ts('Pulling repository ":repository" branch ":branch" to ensure it is current', [
+                ':repository' => $this->getName(),
+                ':branch'     => $branch,
             ]));
 
             $this->_git->checkout($branch)->pull();
 
             if ($push) {
-                Log::action(ts('Pushing branch ":branch" to ensure its changes are on the tracking repository', [
-                    ':branch' => $branch,
+                Log::action(ts('Pushing repository ":repository" branch ":branch" to ensure its changes are on the tracking repository', [
+                    ':repository' => $this->getName(),
+                    ':branch'     => $branch,
                 ]));
 
                 $this->_git->push();
