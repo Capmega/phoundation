@@ -1470,7 +1470,7 @@ showdie();
      * @param string|null $repository The remote repository to use. Use NULL to use the configured repository
      * @return static
      */
-    public function ensureAllBranchesTracking(?string $repository = null): static
+    public function ensureAllBranchesHaveTracking(?string $repository = null): static
     {
         $current = $this->getSelectedBranch();
 
@@ -1483,6 +1483,40 @@ showdie();
             ]));
 
             $this->_git->checkout($branch)->setTracking($tracking);
+        }
+
+        return $this->selectBranch($current);
+    }
+
+
+    /**
+     * Ensures that all branches in this repository are current with their remote repository
+     *
+     * @param string|null $repository [null] Optionally, the remote repository, if the branch has no tracking repository setup yet
+     * @param bool        $push       [true] If true, the repository will also push all its changes to the tracking branch
+     *
+     * @return static
+     */
+    public function ensureAllBranchesAreCurrent(?string $repository = null, bool $push = true): static
+    {
+        $this->ensureAllBranchesHaveTracking($repository);
+
+        $current = $this->getSelectedBranch();
+
+        foreach ($this->_git->getBranchesBehindTracking() as $branch) {
+            Log::action(ts('Pulling branch ":branch" to ensure it is current', [
+                ':branch' => $branch,
+            ]));
+
+            $this->_git->checkout($branch)->pull();
+
+            if ($push) {
+                Log::action(ts('Pushing branch ":branch" to ensure its changes are on the tracking repository', [
+                    ':branch' => $branch,
+                ]));
+
+                $this->_git->push();
+            }
         }
 
         return $this->selectBranch($current);

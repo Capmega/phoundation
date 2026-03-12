@@ -443,4 +443,14 @@ interface GitInterface
      * @return static
      */
     public function setTracking(string $tracking): static;
+
+    /**
+     * Pull the remote changes from the remote repository / branch
+     *
+     * @param string|null $repository
+     * @param string|null $branch
+     *
+     * @return static
+     */
+    public function pull(?string $repository = null, ?string $branch = null): static;
 }

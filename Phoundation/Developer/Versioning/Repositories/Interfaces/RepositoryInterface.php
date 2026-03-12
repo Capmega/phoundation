@@ -587,5 +587,15 @@ interface RepositoryInterface extends DataEntryInterface
      * @param string|null $repository The remote repository to use. Use NULL to use the configured repository
      * @return static
      */
-    public function ensureAllBranchesTracking(?string $repository = null): static;
+    public function ensureAllBranchesHaveTracking(?string $repository = null): static;
+
+    /**
+     * Ensures that all branches in this repository are current with their remote repository
+     *
+     * @param string|null $repository [null] Optionally, the remote repository, if the branch has no tracking repository setup yet
+     * @param bool        $push       [true] If true, the repository will also push all its changes to the tracking branch
+     *
+     * @return static
+     */
+    public function ensureAllBranchesAreCurrent(?string $repository = null, bool $push = true): static;
 }

@@ -1294,7 +1294,7 @@ class Git extends Versioning implements GitInterface
      *
      * @return static
      */
-    public function pull(?string $repository, ?string $branch): static
+    public function pull(?string $repository = null, ?string $branch = null): static
     {
         $this->verifyBranch($branch);
 

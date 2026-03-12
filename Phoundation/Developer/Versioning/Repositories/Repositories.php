@@ -1919,10 +1919,28 @@ showdie('YAY!');
      * @param string|null $repository The remote repository to use. Use NULL to use the configured repository
      * @return static
      */
-    public function ensureAllBranchesTracking(?string $repository = null): static
+    public function ensureAllBranchesHaveTracking(?string $repository = null): static
     {
         foreach ($this as $_repository) {
-            $_repository->ensureAllBranchesTracking($repository);
+            $_repository->ensureAllBranchesHaveTracking($repository);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Ensures that all branches in all repositories are current with their remote repository
+     *
+     * @param string|null $repository [null] Optionally, the remote repository, if the branch has no tracking repository setup yet
+     * @param bool        $push       [true] If true, the repository will also push all its changes to the tracking branch
+     *
+     * @return static
+     */
+    public function ensureAllBranchesAreCurrent(?string $repository = null, bool $push = true): static
+    {
+        foreach ($this as $_repository) {
+            $_repository->ensureAllBranchesAreCurrent($repository, $push);
         }
 
         return $this;
