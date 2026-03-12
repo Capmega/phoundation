@@ -1474,6 +1474,10 @@ showdie();
     {
         $current = $this->getSelectedBranch();
 
+        Log::action(ts('Ensuring all branches on repository ":repository" have tracking branches', [
+            ':repository' => $this->getName(),
+        ]));
+
         foreach ($this->_git->getBranchesNonTracking() as $branch) {
             $tracking = ($repository ?? $this->getConfigRemoteRepository()) . '/' . $branch;
 
@@ -1500,6 +1504,10 @@ showdie();
     public function ensureAllBranchesAreCurrent(?string $repository = null, bool $push = true): static
     {
         $this->ensureAllBranchesHaveTracking($repository);
+
+        Log::action(ts('Ensuring all branches on repository ":repository" are current', [
+            ':repository' => $this->getName(),
+        ]));
 
         $current = $this->getSelectedBranch();
 
