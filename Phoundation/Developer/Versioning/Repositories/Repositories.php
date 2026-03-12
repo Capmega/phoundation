@@ -1921,6 +1921,8 @@ showdie('YAY!');
      */
     public function ensureAllBranchesHaveTracking(?string $repository = null): static
     {
+        $this->checkNoneHaveChanges(ts('ensure all branches are current'));
+
         foreach ($this as $_repository) {
             $_repository->ensureAllBranchesHaveTracking($repository);
         }
@@ -1939,6 +1941,8 @@ showdie('YAY!');
      */
     public function ensureAllBranchesAreCurrent(?string $repository = null, bool $push = true): static
     {
+        $this->checkNoneHaveChanges(ts('ensure all branches are current'));
+
         foreach ($this as $_repository) {
             $_repository->ensureAllBranchesAreCurrent($repository, $push);
         }
