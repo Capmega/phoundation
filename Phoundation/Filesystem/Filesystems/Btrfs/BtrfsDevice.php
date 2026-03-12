@@ -18,7 +18,7 @@ namespace Phoundation\Filesystem\Filesystems\Btrfs;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
-use Phoundation\Filesystem\Filesystems\Btrfs\Exception\FilesystemBtrfsException;
+use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsDeviceInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Strings;
@@ -34,7 +34,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
     public function __construct(?PhoPathInterface $_path = null)
     {
         if (empty($_path)) {
-            throw new FilesystemBtrfsException(tr('No directory specified for BtrfsDevice class'));
+            throw new BtrfsException(tr('No directory specified for BtrfsDevice class'));
         }
 
         parent::__construct($_path);
@@ -95,7 +95,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
      * Throws an FilesystemBtrfsException if the current source directory for this object is not a BTRFS device
      *
      * @return static
-     * @throws FilesystemBtrfsException
+     * @throws BtrfsException
      */
     public function checkDevice(): static
     {
@@ -103,7 +103,7 @@ class BtrfsDevice extends Btrfs implements BtrfsDeviceInterface
             return $this;
         }
 
-        throw new FilesystemBtrfsException(tr('Specified path ":path" is not a BTRFS device.', [
+        throw new BtrfsException(tr('Specified path ":path" is not a BTRFS device.', [
             ':path' => $this->_path,
         ]));
     }

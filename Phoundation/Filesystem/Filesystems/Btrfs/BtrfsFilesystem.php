@@ -19,7 +19,7 @@ namespace Phoundation\Filesystem\Filesystems\Btrfs;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Exception\UnderConstructionException;
-use Phoundation\Filesystem\Filesystems\Btrfs\Exception\FilesystemBtrfsException;
+use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsDeviceInterface;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsFilesystemInterface;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsSubVolumeInterface;
@@ -190,7 +190,7 @@ class BtrfsFilesystem extends Btrfs implements BtrfsFilesystemInterface
 
         // Do some sanity checks
         if (substr_count($data, "\n") !== 2) {
-            throw FilesystemBtrfsException::new(tr('Cannot parse filesystem data, it should contain 3 \n characters but has ":count" instead', [
+            throw BtrfsException::new(tr('Cannot parse filesystem data, it should contain 3 \n characters but has ":count" instead', [
                 ':count' => substr_count($data, "\n"),
             ]))->addData([
                 'data' => $data,

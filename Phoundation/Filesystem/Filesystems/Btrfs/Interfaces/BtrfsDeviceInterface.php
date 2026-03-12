@@ -3,7 +3,7 @@
 namespace Phoundation\Filesystem\Filesystems\Btrfs\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Filesystems\Btrfs\Exception\FilesystemBtrfsException;
+use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 
 interface BtrfsDeviceInterface
 {
@@ -31,7 +31,7 @@ interface BtrfsDeviceInterface
      * Throws an FilesystemBtrfsException if the current source directory for this object is not a BTRFS device
      *
      * @return static
-     * @throws FilesystemBtrfsException
+     * @throws BtrfsException
      */
     public function checkDevice(): static;
 

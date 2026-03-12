@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Filesystems\Btrfs;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Filesystems\Btrfs\Exception\FilesystemBtrfsException;
+use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsFilesystemInterface;
 use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsSubVolumeInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
@@ -171,7 +171,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
      * Throws an FilesystemBtrfsException if the current source directory for this object is not a BTRFS device
      *
      * @return static
-     * @throws FilesystemBtrfsException
+     * @throws BtrfsException
      */
     public function checkSubvolume(): static
     {
@@ -179,7 +179,7 @@ class BtrfsSubvolume extends Btrfs implements BtrfsSubVolumeInterface
             return $this;
         }
 
-        throw new FilesystemBtrfsException(tr('Specified path ":path" is not a BTRFS subvolume.', [
+        throw new BtrfsException(tr('Specified path ":path" is not a BTRFS subvolume.', [
             ':path' => $this->_path,
         ]));
     }

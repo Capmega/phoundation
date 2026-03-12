@@ -3,9 +3,9 @@
 /**
  * Class Btrfs
  *
- * This is the core BTRFS management class.
+ * This is the core BTRFS filesystem management class.
  *
- * This class wrapes the "btrfs" cli command and allows easy execution of processes.
+ * This class wraps the "btrfs" cli command and allows easy execution of processes.
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

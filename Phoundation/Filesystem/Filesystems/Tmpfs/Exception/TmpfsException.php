@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class FilesystemBtrfsException
+ * Class TmpfsException
  *
  *
  *
@@ -14,11 +14,11 @@
 
 declare(strict_types=1);
 
-namespace Phoundation\Filesystem\Filesystems\Btrfs\Exception;
+namespace Phoundation\Filesystem\Filesystems\Tmpfs\Exception;
 
 use Phoundation\Filesystem\Exception\FilesystemException;
 
 
-class FilesystemBtrfsException extends FilesystemException
+class TmpfsException extends FilesystemException
 {
 }
