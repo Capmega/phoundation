@@ -22,6 +22,7 @@ use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Filesystem\Exception\NotADirectoryException;
 use Phoundation\Filesystem\Traits\TraitDataRestrictions;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhoException;
@@ -1574,6 +1575,29 @@ class PhoDirectoryCore extends PhoPathCore implements PhoDirectoryInterface
         }
 
         return PhoFile::new($path, $this->_restrictions)
+                      ->setAutoMount($this->auto_mount);
+    }
+
+
+    /**
+     * Returns the specified file added to this directory
+     *
+     * @param PhoPathInterface|string $file
+     *
+     * @return PhoFileInterface
+     */
+    public function addFile(PhoPathInterface|string $file): PhoFileInterface
+    {
+        $file = $this->getSource() . Strings::ensureBeginsNotWith((string) $file, '/');
+
+        if (is_dir($file)) {
+            throw NotADirectoryException::new(ts('Cannot add file ":file" to directory ":directory", the resulting path is not a file but a directory', [
+                ':file'      => $file,
+                ':directory' => $this->source,
+            ]));
+        }
+
+        return PhoFile::new($file, $this->_restrictions)
                       ->setAutoMount($this->auto_mount);
     }
 

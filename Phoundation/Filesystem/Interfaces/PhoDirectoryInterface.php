@@ -429,4 +429,13 @@ interface PhoDirectoryInterface extends PhoPathInterface
      * @return bool
      */
     public function containsVideoFiles(bool $recursive = false): bool;
+
+    /**
+     * Returns the specified file added to this directory
+     *
+     * @param PhoPathInterface|string $file
+     *
+     * @return PhoFileInterface
+     */
+    public function addFile(PhoPathInterface|string $file): PhoFileInterface;
 }
