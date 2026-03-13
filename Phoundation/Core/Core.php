@@ -1393,51 +1393,6 @@ class Core implements CoreInterface
 
 
     /**
-     * Returns the language indicated in the URL, unless it is a non supported language, in which case the default language will be returned
-     *
-     * @param string|null $locale
-     *
-     * @return string
-     */
-    protected static function getLanguageFromUrl(?string $locale = null): string
-    {
-        $default   = config()->getString('locale.languages.default', 'en');
-        $supported = config()->getArray('locale.languages.supported', [
-            'en',
-            'es',
-        ]);
-
-        if (empty($supported)) {
-            $supported = [not_empty(Strings::until(Strings::until($locale, '_'), '-'), $default)];
-        }
-
-        // Language is defined by the www/LANGUAGE dir that is used.
-        $url       = $_SERVER['REQUEST_URI'];
-        $url       = Strings::ensureBeginsNotWith($url, '/');
-        $language  = Strings::until($url, '/');
-        $supported = array_unique($supported);
-
-        if (!in_array($language, $supported, true)) {
-            Incident::new()
-                    ->setType('Language')
-                    ->setTitle('Unknown / unsupported language')
-                    ->setUrl(Request::getUrl())
-                    ->setBody(ts('The requested language ":language" is unsupported, falling back onto the default language ":default"', [
-                        ':language' => $language,
-                        ':default'  => $default,
-                    ]))
-                    ->setNotifyRoles('security')
-                    ->setLog(7)
-                    ->save();
-
-            $language = $default;
-        }
-
-        return $language;
-    }
-
-
-    /**
      * Apply the specified or configured locale
      *
      * @param string|null $locale
@@ -1454,7 +1409,7 @@ class Core implements CoreInterface
         try {
             // Get requested language
             if (PLATFORM_WEB) {
-                $language = Core::getLanguageFromUrl($locale);
+                $language = Request::getLanguageFromUrl($locale);
 
             } else {
                 $language = not_empty(Strings::until(Strings::until($locale, '_'), '-'), config()->getString('locale.languages.default', 'en'));

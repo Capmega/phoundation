@@ -97,6 +97,13 @@ class Url implements UrlInterface
      */
     protected ?bool $is_absolute = null;
 
+    /**
+     * Cache for the specified user having rights to access this URL
+     *
+     * @var UserInterface|null $has_required_rights
+     */
+    protected ?UserInterface $has_required_rights = null;
+
 
     /**
      * Url class constructor
@@ -2257,7 +2264,7 @@ class Url implements UrlInterface
      *
      * @return array
      */
-    public function getMimimumRights(): array
+    public static function getMinimumRights(): array
     {
         return config()->getArray('security.web.pages.rights.minimum', []);
     }
@@ -2305,7 +2312,7 @@ class Url implements UrlInterface
                     }
 
                     // Is this an internal / configured host? If not, this is not ours to check and no rights will be required
-                    $this->_rights->setSource(array_merge($this->getMimimumRights(),
+                    $this->_rights->setSource(array_merge($this->getMinimumRights(),
                                                            $parsed,
                                                            $this->_rights?->getSourceKeys() ?? []));
                 }
@@ -2457,5 +2464,36 @@ class Url implements UrlInterface
     public function getAnchorObject(?string $content = null, ?EnumAnchorTarget $_target = null): AnchorInterface
     {
         return Anchor::new($this, $content)->setTargetObject($_target);
+    }
+
+
+    /**
+     * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
+     *
+     * @param UserInterface|null $_user The user that should have the required rights to access this URL
+     * @param bool               $cache If true, will try to return the results from cache
+     *
+     * @return bool
+     */
+    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = true): bool
+    {
+        $_user = $_user ?? Session::getUserObject();
+
+        if ($cache and ($this->has_required_rights->getId() === $_user->getId())) {
+            //  We already know this user has access to the required rights, return cached response
+            return true;
+        }
+
+        $this->ensureAbsolute();
+
+        $has_required_rights = $_user->getRightsObject()->hasAll($this->getRights());
+
+        if ($has_required_rights) {
+            $this->has_required_rights = $_user;
+            return true;
+        }
+
+        $this->has_required_rights = null;
+        return false;
     }
 }

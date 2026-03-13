@@ -89,37 +89,6 @@ trait TraitUrlRightsRendering
 
 
     /**
-     * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
-     *
-     * @param UserInterface|null $_user
-     * @param bool               $cache
-     *
-     * @return bool
-     */
-    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = true): bool
-    {
-        $_user = $_user ?? Session::getUserObject();
-
-        if ($cache and ($this->has_required_rights === $_user)) {
-            //  We already know this user has access to the required rights, return cached response
-            return true;
-        }
-
-        $this->_url->ensureAbsolute();
-
-        $has_required_rights = $_user->getRightsObject()->hasAll($this->getRights());
-
-        if ($has_required_rights) {
-            $this->has_required_rights = $_user;
-            return true;
-        }
-
-        $this->has_required_rights = false;
-        return false;
-    }
-
-
-    /**
      * Returns the manually specified required rights to render this Anchor object
      *
      * @param bool $use_cache
@@ -234,6 +203,22 @@ trait TraitUrlRightsRendering
     public function getRights(bool $use_cache = true): array
     {
         return $this->getUrlObject()->getRights($use_cache);
+    }
+
+
+    /**
+     * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
+     *
+     * NOTE: If the URL for this object has not yet been set, this method will always return false
+     *
+     * @param UserInterface|null $_user The user that should have the required rights to access this URL
+     * @param bool               $cache If true, will try to return the results from cache
+     *
+     * @return bool
+     */
+    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = true): bool
+    {
+        return (bool) $this->_url?->hasRequiredRights($_user, $cache);
     }
 
 

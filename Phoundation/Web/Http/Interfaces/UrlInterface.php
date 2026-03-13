@@ -467,4 +467,14 @@ interface UrlInterface
      * @return static
      */
     public function makeImg(?string $section = null): static;
+
+    /**
+     * Returns true if the specified user (or if empty, the current Session User) has all the rights required to render this A object
+     *
+     * @param UserInterface|null $_user The user that should have the required rights to access this URL
+     * @param bool               $cache If true, will try to return the results from cache
+     *
+     * @return bool
+     */
+    public function hasRequiredRights(?UserInterface $_user = null, bool $cache = true): bool;
 }
