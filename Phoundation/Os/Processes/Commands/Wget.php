@@ -29,6 +29,7 @@ class Wget extends Command
     use TraitDataTarget;
     use TraitDataBindAddress;
 
+
     /**
      * Execute the rsync operation and return the PID (background) or -1
      *

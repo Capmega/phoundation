@@ -1223,14 +1223,16 @@ trait TraitProcessVariables
     /**
      * Set the command to be executed for this process
      *
-     * @param string|null $command
-     * @param bool        $which_command
-     * @param bool        $clear_arguments
+     * @param PhoFileInterface|string|null $command                The command to execute. Can either be a command name, or a command file
+     * @param bool                         $which_command   [true] If true, will execute "which $command" to execute the command file instead of the command
+     * @param bool                         $clear_arguments [true] If true will execute the internal set arguments when this method is called
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = true, bool $clear_arguments = true): static
+    public function setCommand(PhoFileInterface|string|null $command, bool $which_command = true, bool $clear_arguments = true): static
     {
+        $command = (string) $command;
+
         if ($command) {
             // Make sure we have a clean command
             $command = trim($command);
@@ -1247,7 +1249,7 @@ trait TraitProcessVariables
             return $this;
         }
 
-        if ($which_command) {
+        if (!str_starts_with($command, '/') and $which_command) {
             // Get the real location for the command to ensure it exists. Do NOT use this for shell internal commands!
             try {
                 $real_command = Which::new($this->execution_directory)->which($command);

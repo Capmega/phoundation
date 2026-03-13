@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Phoundation\Os\Processes\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
+use Phoundation\Filesystem\Interfaces\PhoFileInterface;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Servers\Interfaces\ServerInterface;
 use Phoundation\Utils\Arrays;
@@ -150,13 +151,13 @@ interface ProcessInterface extends ProcessVariablesInterface
     /**
      * Set the command to be executed for this process
      *
-     * @param string|null $command
-     * @param bool        $which_command
-     * @param bool        $clear_arguments
+     * @param PhoFileInterface|string|null $command                The command to execute. Can either be a command name, or a command file
+     * @param bool                         $which_command   [true] If true, will execute "which $command" to execute the command file instead of the command
+     * @param bool                         $clear_arguments [true] If true will execute the internal set arguments when this method is called
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setCommand(?string $command, bool $which_command = true, bool $clear_arguments = true): static;
+    public function setCommand(PhoFileInterface|string|null $command, bool $which_command = true, bool $clear_arguments = true): static;
 
     /**
      * Returns true if the process can execute the current command with sudo privileges
