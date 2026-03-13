@@ -335,11 +335,11 @@ class UserSessions extends DataIterator implements UserSessionsInterface
      */
     public function loadActiveForUsersId(int $users_id): static
     {
-        $this->source = sql()->setDebug(true)->listKeyValues('SELECT `accounts_user_sessions`.*
-                                                              FROM   `accounts_user_sessions` 
-                                                              WHERE  `users_id` = :users_id 
-                                                              AND    `closed` IS NULL', [
-                                                                  ':users_id' => $users_id
+        $this->source = sql()->listKeyValues('SELECT `accounts_user_sessions`.*
+                                              FROM   `accounts_user_sessions` 
+                                              WHERE  `users_id` = :users_id 
+                                              AND    `closed` IS NULL', [
+                                                  ':users_id' => $users_id
         ]);
 
         return $this;

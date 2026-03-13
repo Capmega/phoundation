@@ -1211,17 +1211,16 @@ class Session implements SessionInterface
      */
     protected static function initializeUser(): void
     {
-        switch (Request::getRequestType()) {
-            case EnumRequestTypes::api:
-                // API's do not do cookies at all
-                // For now, hard code that all API calls will be system user
-                // TODO Improve upon this, API's should allow manual login, shared keys for authentication, etc...
+        switch (PLATFORM) {
+            case 'cli':
                 Session::$user = User::newSystem();
                 break;
 
-            case EnumRequestTypes::ajax:
-                // TODO Implement
-
+            case 'web':
+                Session::$user = match (Request::getRequestType()) {
+                    EnumRequestTypes::api => User::newSystem(),
+                    default               => User::newGuest(),
+                };
         }
     }
 
@@ -1374,7 +1373,7 @@ class Session implements SessionInterface
 
 
     /**
-     * Returns the human readable log id for the session user
+     * Returns the human-readable log id for the session user
      *
      * @return string|null
      */
