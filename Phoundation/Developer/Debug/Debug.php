@@ -49,6 +49,7 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Throwable;
 
+
 class Debug
 {
     /**
