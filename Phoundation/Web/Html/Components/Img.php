@@ -64,7 +64,7 @@ class Img extends ImgCore
         $this->setSrc($src)
              ->setAlt($alt)
              ->setElement('img')
-             ->setLazyLoad(config()->get('web.images.lazy-load', true))
+             ->setLazyLoad(config()->get('platforms.web.images.lazy-load', true))
              ->requires_closing_tag = false;
     }
 

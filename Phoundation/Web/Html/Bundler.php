@@ -114,7 +114,7 @@ class Bundler
     protected function bundle(array $files, string $extension): ?string
     {
 // :TODO: Add support for individual bundles that require async loading
-        if (!config()->get('web.bundle', true)) {
+        if (!config()->get('platforms.web.bundle', true)) {
             // Bundler has been disabled
             return null;
         }
@@ -131,12 +131,12 @@ class Bundler
         if ($this->count) {
             // Purge the file from duplicate content
             if ($this->extension === 'css') {
-                if (config()->get('web.css.purge', true)) {
+                if (config()->get('platforms.web.css.purge', true)) {
                     $this->bundle_file = $this->purgeCss();
                 }
             }
             // Send the file to the CDN
-            if (!config()->get('web.cdn.enabled', true)) {
+            if (!config()->get('platforms.web.cdn.enabled', true)) {
                 $this->bundle_file = Cdn::addFiles($this->bundle_file);
             }
             // Add the bundle file to the page
@@ -160,7 +160,7 @@ class Bundler
      */
     protected function newBundle(array $files, string $extension): void
     {
-        $this->extension   = (config()->get('web.cdn.resources.minified', true) ? '.min.' . $extension : '.' . $extension);
+        $this->extension   = (config()->get('platforms.web.cdn.resources.minified', true) ? '.min.' . $extension : '.' . $extension);
         $this->directory   = DIRECTORY_WEB . LANGUAGE . '/' . $admin_path . 'pub/' . $extension . '/';
         $this->bundle_file = Strings::force($files);
         $this->bundle_file = substr(sha1($this->bundle . Core::PHOUNDATION_VERSION), 1, 32);
@@ -247,11 +247,11 @@ class Bundler
                          }
                          if (Debug::isEnabled()) {
                              PhoFile::new($this->bundle_file, $this->_restrictions)
-                                 ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (config()->get('web.cdn.resources.minified', true) ? '' : "\n"));
+                                 ->append("\n/* *** BUNDLER FILE \"" . $org_file . "\" *** */\n" . $data . (config()->get('platforms.web.cdn.resources.minified', true) ? '' : "\n"));
 
                          } else {
                              PhoFile::new($this->bundle_file, $this->_restrictions)
-                                 ->append($data . (config()->get('web.cdn.resources.minified', true) ? '' : "\n"));
+                                 ->append($data . (config()->get('platforms.web.cdn.resources.minified', true) ? '' : "\n"));
                          }
                          if ($this->count) {
                              chmod($this->bundle_file, config()->get('filesystem.mode.files', 0640));

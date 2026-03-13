@@ -110,7 +110,7 @@ class FileResponse extends PhoFile
         throw new UnderConstructionException(tr('Rebuild the Web\Http\File class, now extending Filesystem\File'));
 
         parent::__construct($source, $restrictions, $absolute_prefix);
-        $this->compression = config()->get('web.http.download.compression', 'auto');
+        $this->compression = config()->get('platforms.web.http.download.compression', 'auto');
     }
 
 

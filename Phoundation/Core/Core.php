@@ -1593,11 +1593,11 @@ class Core implements CoreInterface
             if ($timeout === null) {
                 if (PLATFORM_WEB) {
                     // Default timeout to either system configuration web.timeout, or environment variable TIMEOUT
-                    $timeout = config()->get('web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
+                    $timeout = config()->get('platforms.web.timeout', get_null(getenv('TIMEOUT')) ?? 5);
 
                 } else {
                     // Default timeout to either system configuration cli.timeout, or environment variable TIMEOUT
-                    $timeout = config()->get('cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
+                    $timeout = config()->get('platforms.cli.timeout', get_null(getenv('TIMEOUT')) ?? 30);
                 }
             }
 
@@ -3068,7 +3068,7 @@ class Core implements CoreInterface
             'ORDERBY'    => get_null(getenv('ORDERBY'))    ?? null,
             'OUTPUT'     => 'normal',
             'PAGE'       => 1,
-            'PROTOCOL'   => config()->get('web.protocol', 'https://'),
+            'PROTOCOL'   => config()->get('platforms.web.protocol', 'https://'),
             'PWD'        => Strings::slash(isset_get($_SERVER['PWD'])),
             'STATUS'     => get_null(getenv('STATUS'))   ?? null,
             'TEST'       => get_null(getenv('TEST'))     ?? false,

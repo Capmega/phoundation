@@ -370,17 +370,17 @@ class Url implements UrlInterface
     {
         $url        = (string) $url;
         $configured = match (Strings::until($url, '.html')) {
-            'index'        , 'dashboard' => config()->getString('web.pages.index'        , '/index'),
-            'sign-in'      , 'signin'    => config()->getString('web.pages.sign-in'      , '/sign-in'),
-            'sign-up'      , 'signup'    => config()->getString('web.pages.sign-up'      , '/sign-up'),
-            'sign-out'     , 'signout'   => config()->getString('web.pages.sign-out'     , '/sign-out'),
-            'sign-key'     , 'signkey'   => config()->getString('web.pages.sign-key'     , '/sign-key+:key'),
-            'profile'                    => config()->getString('web.pages.profile'      , '/my/profile'),
-            'settings'                   => config()->getString('web.pages.settings'     , '/my/settings'),
-            'mfa-create'                 => config()->getString('web.pages.mfa.create'   , '/mfa/create'),
-            'mfa-verify'                 => config()->getString('web.pages.mfa.verify'   , '/mfa/verify'),
-            'lost-password'              => config()->getString('web.pages.password.lost', '/lost-password'),
-            default                      => config()->getString('web.pages.' . $url      , '')
+            'index'        , 'dashboard' => config()->getString('platforms.web.pages.index'        , '/index'),
+            'sign-in'      , 'signin'    => config()->getString('platforms.web.pages.sign-in'      , '/sign-in'),
+            'sign-up'      , 'signup'    => config()->getString('platforms.web.pages.sign-up'      , '/sign-up'),
+            'sign-out'     , 'signout'   => config()->getString('platforms.web.pages.sign-out'     , '/sign-out'),
+            'sign-key'     , 'signkey'   => config()->getString('platforms.web.pages.sign-key'     , '/sign-key+:key'),
+            'profile'                    => config()->getString('platforms.web.pages.profile'      , '/my/profile'),
+            'settings'                   => config()->getString('platforms.web.pages.settings'     , '/my/settings'),
+            'mfa-create'                 => config()->getString('platforms.web.pages.mfa.create'   , '/mfa/create'),
+            'mfa-verify'                 => config()->getString('platforms.web.pages.mfa.verify'   , '/mfa/verify'),
+            'lost-password'              => config()->getString('platforms.web.pages.password.lost', '/lost-password'),
+            default                      => config()->getString('platforms.web.pages.' . $url      , '')
         };
 
         if ($configured) {
@@ -459,7 +459,7 @@ class Url implements UrlInterface
             $language = Session::getLanguage();
         }
 
-        $return = config()->getString('web.domains.primary.cdn');
+        $return = config()->getString('platforms.web.domains.primary.cdn');
         $return = str_replace(':LANGUAGE', $language, $return);
 
         return $return;
@@ -484,7 +484,7 @@ class Url implements UrlInterface
      */
     public static function newPrimaryDomainRootUrl(): static
     {
-        return Url::new(config()->getString('web.domains.primary.web'))->makeWww();
+        return Url::new(config()->getString('platforms.web.domains.primary.web'))->makeWww();
     }
 
 
@@ -648,7 +648,7 @@ class Url implements UrlInterface
         }
 
         // Use configured page extension
-        $extension = config()->getString('web.pages.extension', 'html');
+        $extension = config()->getString('platforms.web.pages.extension', 'html');
 
         if (is_numeric($this->source)) {
             $this->source = 'system/' . $this->source . $extension;
@@ -1431,11 +1431,11 @@ class Url implements UrlInterface
             return $url;
         }
 
-        if (config()->getBoolean('web.cdn.resources.versioning', true)) {
+        if (config()->getBoolean('platforms.web.cdn.resources.versioning', true)) {
             $version = '.' . Core::getLastModifiedTime();
         }
 
-        if (config()->getBoolean('web.cdn.resources.minified', true)) {
+        if (config()->getBoolean('platforms.web.cdn.resources.minified', true)) {
             $extension = '.min.' . $extension;
 
         } else {
@@ -1464,7 +1464,7 @@ class Url implements UrlInterface
         Log::notice(ts('Cleaning up `url_cloaks` table'));
 
         $r = sql()->query('DELETE FROM `url_cloaks` 
-                           WHERE       `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('web.url.cloaking.expires', 86400) . ' SECOND);');
+                           WHERE       `created_on` < DATE_SUB(NOW(), INTERVAL ' . config()->get('platforms.web.url.cloaking.expires', 86400) . ' SECOND);');
 
         Log::success(ts('Removed ":count" expired entries from the `url_cloaks` table', [
             ':count' => $r->rowCount(),
@@ -2017,7 +2017,7 @@ class Url implements UrlInterface
     {
         // Get all domain names and check if its primary or subdomain of those.
         $url_domain = $this->getHost();
-        $domains    = config()->get('web.domains');
+        $domains    = config()->get('platforms.web.domains');
 
         foreach ($domains as $domain) {
             // Get CDN and WWW domains

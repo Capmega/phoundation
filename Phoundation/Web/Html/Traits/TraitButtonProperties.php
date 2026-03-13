@@ -166,7 +166,7 @@ trait TraitButtonProperties
      */
     public function getConfigDisableAfterClick(): bool
     {
-        return config()->getBoolean('web.controls.buttons.disable-after-click', true);
+        return config()->getBoolean('platforms.web.controls.buttons.disable-after-click', true);
     }
 
 
@@ -285,7 +285,7 @@ trait TraitButtonProperties
      */
     public function getDefaultRequireKeysToEnable(): array
     {
-        return config()->getArray('web.html.components.buttons.default.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('platforms.web.html.components.buttons.default.modifier-keys', ['ctrl', 'alt']);
     }
 
 
@@ -296,7 +296,7 @@ trait TraitButtonProperties
      */
     public function getDefaultRequireKeysToEnableClass(): string
     {
-        return config()->getString('web.html.components.buttons.default.class', 'button-lock');
+        return config()->getString('platforms.web.html.components.buttons.default.class', 'button-lock');
     }
 
 

@@ -81,7 +81,7 @@ class Html
      */
     public static function minify(string $html, bool $force = false): string
     {
-        if ($force or config()->getBoolean('web.cdn.resources.minified', false)) {
+        if ($force or config()->getBoolean('platforms.web.cdn.resources.minified', false)) {
             return Minifier::html($html);
         }
 

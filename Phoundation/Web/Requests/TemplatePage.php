@@ -73,13 +73,13 @@ abstract class TemplatePage implements TemplatePageInterface
             return null;
         }
 
-        if (!config()->getBoolean('web.warnings.environments.enabled', true)) {
+        if (!config()->getBoolean('platforms.web.warnings.environments.enabled', true)) {
             return null;
         }
 
-        $mode    = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.background', 'warning');
-        $title   = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.title'     , tr('Notice!'));
-        $message = config()->getString('web.warnings.environments.' . ENVIRONMENT . '.message'   , tr('You are currently navigating the ":environment" environment of this system. All data presented is artificially generated and the database can be reset upon request. Any data you enter into this system may be purged at any moment without prior notice!', [':environment' => ENVIRONMENT]));
+        $mode    = config()->getString('platforms.web.warnings.environments.' . ENVIRONMENT . '.background', 'warning');
+        $title   = config()->getString('platforms.web.warnings.environments.' . ENVIRONMENT . '.title'     , tr('Notice!'));
+        $message = config()->getString('platforms.web.warnings.environments.' . ENVIRONMENT . '.message'   , tr('You are currently navigating the ":environment" environment of this system. All data presented is artificially generated and the database can be reset upon request. Any data you enter into this system may be purged at any moment without prior notice!', [':environment' => ENVIRONMENT]));
 
         return $this->getRenderedEnvironmentWarning($mode, $title, $message);
     }

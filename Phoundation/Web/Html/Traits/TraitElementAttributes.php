@@ -1160,7 +1160,7 @@ trait TraitElementAttributes
         }
 
         $this->disabled = $disabled;
-        $set_readonly   = $set_readonly ?? config()->getBoolean('web.elements.readonly.auto.disabled', false);
+        $set_readonly   = $set_readonly ?? config()->getBoolean('platforms.web.elements.readonly.auto.disabled', false);
 
         if ($set_readonly ) {
             return $this->setReadonly($disabled, false);
@@ -1200,7 +1200,7 @@ trait TraitElementAttributes
         }
 
         $this->readonly = $readonly;
-        $set_disabled   = $set_disabled ?? config()->getBoolean('web.elements.readonly.auto.disabled', false);
+        $set_disabled   = $set_disabled ?? config()->getBoolean('platforms.web.elements.readonly.auto.disabled', false);
 
         if ($set_disabled) {
             return $this->setDisabled($readonly, false);

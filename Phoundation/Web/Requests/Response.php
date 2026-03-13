@@ -269,7 +269,7 @@ class Response implements ResponseInterface
 
         // Add required HTTP headers
         // TODO Add support for "vary" header
-        Response::addHttpHeaders(config()->get('web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
+        Response::addHttpHeaders(config()->get('platforms.web.headers.accept-ch', ['Sec-CH-UA, Device-Memory, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Viewport-Width, Width, Sec-CH-Prefers-Color-Scheme']), 'Accept-CH');
 
         // Add required page headers
         Response::addConfiguredHeadDataAttribute();
@@ -634,7 +634,7 @@ class Response implements ResponseInterface
      */
     public static function setViewport(?string $viewport): void
     {
-        Response::addMetaToPageHeaders($viewport ?? config()->get('web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'viewport');
+        Response::addMetaToPageHeaders($viewport ?? config()->get('platforms.web.viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no'), 'viewport');
     }
 
 
@@ -691,7 +691,7 @@ class Response implements ResponseInterface
     protected static function setAppleIcons(string $url): void
     {
         // Do we even want to add these apple touch icons?
-        if (!config()->getBoolean('web.icons.apple.enable', false)) {
+        if (!config()->getBoolean('platforms.web.icons.apple.enable', false)) {
             return;
         }
 
@@ -719,7 +719,7 @@ class Response implements ResponseInterface
                 'type'  => 'image/png', // Require these files to always be PNG as we do not want to do a mimetype lookup because apple likes being a ...
             ], 'apple-touch-icon-' . $size . '.png');
 
-            if (config()->getBoolean('web.icons.apple.precomposed', true)) {
+            if (config()->getBoolean('platforms.web.icons.apple.precomposed', true)) {
                 // Because of course, lets add an entire other set too just for apple, why not?
                 Response::addLinkToPageHeaders([
                     'rel'   => 'apple-touch-icon-precomposed',
@@ -1048,7 +1048,7 @@ class Response implements ResponseInterface
     public static function loadJavaScript(string|array $urls, ?bool $header = null, bool $prefix = false): void
     {
         if ($header === null) {
-            $header = !config()->getBoolean('web.javascript.delay', true);
+            $header = !config()->getBoolean('platforms.web.javascript.delay', true);
         }
 
         if ($header and static::$html_headers_sent) {
@@ -1308,7 +1308,7 @@ class Response implements ResponseInterface
      */
     protected static function addConfiguredHeadDataAttribute(): void
     {
-        foreach (config()->getArray('web.headers.meta.default', ['robots' => 'noindex,nofollow']) as $key => $value) {
+        foreach (config()->getArray('platforms.web.headers.meta.default', ['robots' => 'noindex,nofollow']) as $key => $value) {
             Response::addMetaToPageHeaders($value, $key);
         }
     }
@@ -1592,7 +1592,7 @@ class Response implements ResponseInterface
         }
 
         // Get a redirect URL and sign the user out
-        if (config()->getBoolean('web.sign-out.redirect-back', true)) {
+        if (config()->getBoolean('platforms.web.sign-out.redirect-back', true)) {
             $previous = Url::new($session_redirect);
             $test     = clone $previous;
 
@@ -1773,7 +1773,7 @@ class Response implements ResponseInterface
     protected static function cacheTest($etag = null): bool
     {
         static::$etag = sha1(PROJECT . $_SERVER['SCRIPT_FILENAME'] . filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
-        if (!config()->get('web.cache.enabled', 'auto')) {
+        if (!config()->get('platforms.web.cache.enabled', 'auto')) {
             return false;
         }
         if (Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
@@ -2103,7 +2103,7 @@ class Response implements ResponseInterface
 
         // Add noindex, nofollow and nosnipped headers for non-production environments and non-normal HTTP pages.
         // These pages should NEVER be indexed
-        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->getBoolean('web.noindex', false)) {
+        if (!Core::isProductionEnvironment() or !Request::isRequestType(EnumRequestTypes::html) or config()->getBoolean('platforms.web.noindex', false)) {
             $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
         }
 
@@ -2111,7 +2111,7 @@ class Response implements ResponseInterface
         if (config()->getBoolean('security.web.cors', true) or static::$cors) {
             // Add CORS / Access-Control-Allow-.... headers
             // TODO This will cause issues if configured web.cors is not an array!
-            static::$cors = array_merge(Arrays::force(config()->get('web.cors', [])), static::$cors);
+            static::$cors = array_merge(Arrays::force(config()->get('platforms.web.cors', [])), static::$cors);
 
             foreach (static::$cors as $key => $value) {
                 switch ($key) {
@@ -2158,7 +2158,7 @@ class Response implements ResponseInterface
     protected static function cacheEtag(): bool
     {
         // ETAG requires HTTP caching enabled. Ajax and API calls do not use ETAG
-        if (!config()->get('web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
+        if (!config()->get('platforms.web.cache.enabled', 'auto') or Request::isRequestType(EnumRequestTypes::ajax) or Request::isRequestType(EnumRequestTypes::api)) {
             static::$etag = null;
 
             return false;
@@ -2199,14 +2199,14 @@ class Response implements ResponseInterface
      */
     protected static function addHttpCacheHeaders(array $headers): array
     {
-        if (config()->get('web.cache.enabled', 'auto') === 'auto') {
+        if (config()->get('platforms.web.cache.enabled', 'auto') === 'auto') {
             // PHP will take care of the cache headers
             return $headers;
         }
 
-        if (config()->get('web.cache.enabled', 'auto') === true) {
+        if (config()->get('platforms.web.cache.enabled', 'auto') === true) {
             // Place headers using phoundation algorithms
-            if (!config()->get('web.cache.enabled', 'auto') or (static::$http_code != 200)) {
+            if (!config()->get('platforms.web.cache.enabled', 'auto') or (static::$http_code != 200)) {
                 // Non HTTP 200 / 304 pages should NOT have cache enabled! For example, 404, 503 etc...
                 $headers[]    = 'Cache-Control: no-store, max-age=0';
                 static::$etag = null;
@@ -2223,10 +2223,10 @@ class Response implements ResponseInterface
                     default:
                         // Session pages for specific users should not be stored on proxy servers either
                         if (!empty($_SESSION['user']['id'])) {
-                            config()->get('web.cache.cacheability', 'private');
+                            config()->get('platforms.web.cache.cacheability', 'private');
                         }
 
-                        $headers[] = 'Cache-Control: ' . config()->get('web.cache.cacheability', 'private') . ', ' . config()->get('web.cache.expiration', 'max-age=604800') . ', ' . config()->get('web.cache.revalidation', 'must-revalidate') . config()->get('web.cache.other', 'no-transform');
+                        $headers[] = 'Cache-Control: ' . config()->get('platforms.web.cache.cacheability', 'private') . ', ' . config()->get('platforms.web.cache.expiration', 'max-age=604800') . ', ' . config()->get('platforms.web.cache.revalidation', 'must-revalidate') . config()->get('platforms.web.cache.other', 'no-transform');
 
                         if (!empty(static::$etag)) {
                             $headers[] = 'ETag: "' . static::$etag . '"';

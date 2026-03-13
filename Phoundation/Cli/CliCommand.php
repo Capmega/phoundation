@@ -1847,7 +1847,7 @@ return 'under construction';
             define('NOWARNINGS', $argv['no_warnings']);
             define('OUTPUT'    , $argv['json_output'] ? 'json' : 'normal');
             define('PAGE'      , $argv['page']);
-            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PROTOCOL'  , config()->get('platforms.web.protocol', 'https://'));
             define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
             define('STATUS'    , $argv['status']);
             define('TEST'      , $argv['test']);

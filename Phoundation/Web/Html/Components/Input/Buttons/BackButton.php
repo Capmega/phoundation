@@ -47,7 +47,7 @@ class BackButton extends Button
      */
     public function getConfiguredModifierKeysToEnableBackButton(): array
     {
-        return config()->getArray('web.html.components.buttons.back.modifier-keys', []);
+        return config()->getArray('platforms.web.html.components.buttons.back.modifier-keys', []);
     }
 
 
@@ -58,7 +58,7 @@ class BackButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.back.outlined', true);
+        return config()->getBoolean('platforms.web.html.components.buttons.back.outlined', true);
     }
 
 
@@ -69,6 +69,6 @@ class BackButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.back.mode', 'secondary'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.back.mode', 'secondary'));
     }
 }

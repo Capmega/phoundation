@@ -854,7 +854,7 @@ trait TraitDataDate
     public function renderOptionsArray(): ?array
     {
         $options = [
-            'animations'      => config()->getBoolean('web.display.animations.date', true),
+            'animations'      => config()->getBoolean('platforms.web.display.animations.date', true),
             'cancelBtnLabel'  => tr('Cancel'),
             'cancelBtnText'   => tr('Cancel'),
             'removeCancelBtn' => false,

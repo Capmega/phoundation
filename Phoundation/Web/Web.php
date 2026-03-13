@@ -81,7 +81,7 @@ class Web
 //
 //        // Use url_prefix, for URL's like domain.com/en/admin/page.html, where "/admin/" is the prefix
 //        if ($prefix === null) {
-//            $prefix = config()->get('web.url.prefix', '');
+//            $prefix = config()->get('platforms.web.url.prefix', '');
 //        }
 //
 //        $prefix   = Strings::startsNotWith(Strings::endsWith($prefix, '/'), '/');
@@ -156,7 +156,7 @@ class Web
 //            $return = Strings::until($return, '?');
 //        }
 //
-//        if ($allow_cloak and config()->getBoolean('web.url.cloaking.enabled', false)) {
+//        if ($allow_cloak and config()->getBoolean('platforms.web.url.cloaking.enabled', false)) {
 //            // Cloak the URL before returning it
 //            $return = Url::cloak($return);
 //        }

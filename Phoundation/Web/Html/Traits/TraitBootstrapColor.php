@@ -40,7 +40,7 @@ trait TraitBootstrapColor
     public function getBootstrapForegroundColor(): EnumBootstrapColor
     {
         if (empty($this->foreground_color)) {
-            $this->foreground_color = EnumBootstrapColor::from(config()->get('web.bootstrap.theme.colors.foreground', EnumBootstrapColor::light->value, true));
+            $this->foreground_color = EnumBootstrapColor::from(config()->get('platforms.web.bootstrap.theme.colors.foreground', EnumBootstrapColor::light->value, true));
         }
 
         return $this->foreground_color;
@@ -57,7 +57,7 @@ trait TraitBootstrapColor
     public function setBootstrapForegroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
-        $this->foreground_color = EnumBootstrapColor::from(config()->get('web.bootstrap.theme.colors.' . $color->value, $color->value, true));
+        $this->foreground_color = EnumBootstrapColor::from(config()->get('platforms.web.bootstrap.theme.colors.' . $color->value, $color->value, true));
 
         return $this;
     }
@@ -71,7 +71,7 @@ trait TraitBootstrapColor
     public function getBootstrapBackgroundColor(): EnumBootstrapColor
     {
         if (empty($this->background_color)) {
-            $this->background_color = EnumBootstrapColor::from(config()->get('web.bootstrap.theme.colors.background', EnumBootstrapColor::dark->value, true));
+            $this->background_color = EnumBootstrapColor::from(config()->get('platforms.web.bootstrap.theme.colors.background', EnumBootstrapColor::dark->value, true));
         }
 
         return $this->background_color;
@@ -88,7 +88,7 @@ trait TraitBootstrapColor
     public function setBootstrapBackgroundColor(EnumBootstrapColor $color): static
     {
         // Configurable theming allows colors to be remapped from configuration
-        $this->background_color = EnumBootstrapColor::from(config()->get('web.bootstrap.theme.colors.' . $color->value, $color->value, true));
+        $this->background_color = EnumBootstrapColor::from(config()->get('platforms.web.bootstrap.theme.colors.' . $color->value, $color->value, true));
 
         return $this;
     }

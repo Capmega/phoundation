@@ -208,7 +208,7 @@ class Http
 //
 //            if (!$url or ($url == $_SERVER['REQUEST_URI'])) {
 //                // Do not redirect to the same page! If the referrer was this page, then drop back to the index page
-//                $url = config()->get('web.redirects.index', '/');
+//                $url = config()->get('platforms.web.redirects.index', '/');
 //            }
 //
 //        } elseif ($url === false) {
@@ -217,7 +217,7 @@ class Http
 //
 //        } elseif (!$url) {
 //            // No target specified, redirect to index page
-//            $url = config()->get('web.redirects.index', '/');
+//            $url = config()->get('platforms.web.redirects.index', '/');
 //        }
 //
 //        if (empty($http_code)) {
@@ -268,7 +268,7 @@ class Http
 //        }
 //
 //        if ((!str_starts_with($url, '/')) and (!str_starts_with($url, 'http://')) and (!str_starts_with($url, 'https://'))) {
-//            $url = config()->get('web.url.prefix', '') . $url;
+//            $url = config()->get('platforms.web.url.prefix', '') . $url;
 //        }
 //
 //        $url = Response::redirect($url);

@@ -46,7 +46,7 @@ class AuditButton extends Button
      */
     public function getConfiguredModifierKeysToEnableAuditButton(): array
     {
-        return config()->getArray('web.html.components.buttons.audit.modifier-keys', []);
+        return config()->getArray('platforms.web.html.components.buttons.audit.modifier-keys', []);
     }
 
 
@@ -57,7 +57,7 @@ class AuditButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.audit.outlined', false);
+        return config()->getBoolean('platforms.web.html.components.buttons.audit.outlined', false);
     }
 
 
@@ -68,6 +68,6 @@ class AuditButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.audit.mode', 'information'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.audit.mode', 'information'));
     }
 }

@@ -48,7 +48,7 @@ class CreateButton extends Button
      */
     public function getConfiguredModifierKeysToEnableCreateButton(): array
     {
-        return config()->getArray('web.html.components.buttons.create.modifier-keys', []);
+        return config()->getArray('platforms.web.html.components.buttons.create.modifier-keys', []);
     }
 
 
@@ -59,7 +59,7 @@ class CreateButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.create.outlined', false);
+        return config()->getBoolean('platforms.web.html.components.buttons.create.outlined', false);
     }
 
 
@@ -70,6 +70,6 @@ class CreateButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.create.mode', 'primary'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.create.mode', 'primary'));
     }
 }

@@ -250,7 +250,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
                                                  ->addProperty('getString'       , 'configuration_method')
-                                                 ->addProperty('web.display.mode', 'configuration_path')
+                                                 ->addProperty('platforms.web.display.mode', 'configuration_path')
                                                  ->setLabel(tr('Display mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be in dark mode, light mode, or use whatever your system uses'))
                                                  ->setSource([
@@ -264,7 +264,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
                                                  ->addProperty('getBoolean'         , 'configuration_method')
-                                                 ->addProperty('web.display.compact', 'configuration_path')
+                                                 ->addProperty('platforms.web.display.compact', 'configuration_path')
                                                  ->setLabel(tr('Compact mode'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user interface to be more compact, or not. If the user interface is more compact, you will scroll less, but it may be harder to click correctly'))
                                                  ->setSource([
@@ -280,7 +280,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
                                                  ->addProperty('getBoolean'                  , 'configuration_method')
-                                                 ->addProperty('web.interface.user.menu.open', 'configuration_path')
+                                                 ->addProperty('platforms.web.interface.user.menu.open', 'configuration_path')
                                                  ->setLabel(tr('Open menu after sign-in'))
                                                  ->setHelpText(tr('Here you can specify if you wish the user menu to be open or not when you sign in'))
                                                  ->setSource([
@@ -296,7 +296,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setInputType(EnumInputType::select)
                                                  ->setSize(6)
                                                  ->addProperty('getBoolean'                       , 'configuration_method')
-                                                 ->addProperty('web.interface.accordion.auto.open', 'configuration_path')
+                                                 ->addProperty('platforms.web.interface.accordion.auto.open', 'configuration_path')
                                                  ->setLabel(tr('Auto open roster accordion'))
                                                  ->setHelpText(tr('Here you can specify if you wish the patient roster accordion to automatically open the first entry, or not'))
                                                  ->setSource([
@@ -315,7 +315,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                         ->setOptional(true, '')
                                                         ->setSize(12)
                                                         ->addProperty('getString'        , 'configuration_method')
-                                                        ->addProperty('web.pages.default', 'configuration_path')
+                                                        ->addProperty('platforms.web.pages.default', 'configuration_path')
                                                         ->setLabel(tr('Default page'))
                                                         ->setHelpText(tr('Here you can specify the default page you wish to see when you sign in'))
                                                         ->addScriptObjectCallback(function () {

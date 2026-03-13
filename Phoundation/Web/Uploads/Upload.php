@@ -284,7 +284,7 @@ class Upload extends DataEntry implements UploadInterface
      */
     protected function generateHash(): static
     {
-        $configured = config()->getString('web.uploads.hash.max-filesize', ini_get('upload_max_filesize'));
+        $configured = config()->getString('platforms.web.uploads.hash.max-filesize', ini_get('upload_max_filesize'));
         $max_size   = Numbers::fromBytes($configured);
 
         if ($this->getSize() < $max_size) {

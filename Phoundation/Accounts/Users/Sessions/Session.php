@@ -367,7 +367,7 @@ class Session implements SessionInterface
      */
     public static function getConfigIgnoreSessionFail(): bool
     {
-        return Debug::isEnabled() and config()->getBoolean('web.sessions.ignore-fail', false);
+        return Debug::isEnabled() and config()->getBoolean('platforms.web.sessions.ignore-fail', false);
     }
 
 
@@ -416,7 +416,7 @@ class Session implements SessionInterface
 
         } else {
             // This is not the registered domain!
-            switch (config()->getBoolean('web.domains.whitelabels', false)) {
+            switch (config()->getBoolean('platforms.web.domains.whitelabels', false)) {
                 case '':
                     // White label domains are disabled, so the requested domain MUST match the configured domain
                     Log::warning(ts('White labels are disabled, redirecting domain ":source" to ":target"', [
@@ -464,9 +464,9 @@ class Session implements SessionInterface
                     break;
 
                 default:
-                    if (config()->getArrayBoolean('web.domains.whitelabels', false)) {
+                    if (config()->getArrayBoolean('platforms.web.domains.whitelabels', false)) {
                         // Domain must be specified in one of the array entries
-                        if (!in_array(Session::$domain, config()->getArray('web.domains.whitelabels'), true)) {
+                        if (!in_array(Session::$domain, config()->getArray('platforms.web.domains.whitelabels'), true)) {
                             Log::warning(ts('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -478,7 +478,7 @@ class Session implements SessionInterface
                     } else {
                         // The domain must match either domain configuration or the domain specified in configuration
                         // "whitelabels.enabled"
-                        if (Session::$domain !== config()->getArrayBoolean('web.domains.whitelabels', false)) {
+                        if (Session::$domain !== config()->getArrayBoolean('platforms.web.domains.whitelabels', false)) {
                             Log::warning(ts('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', [
                                 ':source' => $_SERVER['HTTP_HOST'],
                                 ':target' => Request::getDomain(),
@@ -511,7 +511,7 @@ class Session implements SessionInterface
     protected static function setDomain(): string
     {
         // Check what domains are accepted by the client (in order of importance) and see if we support any of those
-        $supported_domains = config()->get('web.domains');
+        $supported_domains = config()->get('platforms.web.domains');
 
         if (array_key_exists($_SERVER['HTTP_HOST'], $supported_domains)) {
             Session::$domain = $_SERVER['HTTP_HOST'];
@@ -609,7 +609,7 @@ class Session implements SessionInterface
 
         // Check the cookie domain configuration to see if its valid.
         // NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain] must be one of "auto" or ".auto"
-        switch (config()->getStringBoolean('web.sessions.cookies.domain', '.auto')) {
+        switch (config()->getStringBoolean('platforms.web.sessions.cookies.domain', '.auto')) {
             case false:
                 // This domain has no cookies
                 break;
@@ -620,7 +620,7 @@ class Session implements SessionInterface
                 break;
 
             case '.auto':
-                config()->get('web.sessions.cookies.domain', '.' . Session::$domain);
+                config()->get('platforms.web.sessions.cookies.domain', '.' . Session::$domain);
                 ini_set('session.cookie_domain', '.' . Session::$domain);
                 break;
 
@@ -630,11 +630,11 @@ class Session implements SessionInterface
                 // If the configured cookie domain is different from the current domain then all cookie will
                 // inexplicably fail without warning, so this must be detected to avoid lots of hair pulling and
                 // throwing arturo off the balcony incidents :)
-                if (config()->getStringBoolean('web.sessions.cookies.domain')[0] == '.') {
-                    $test = substr(config()->get('web.sessions.cookies.domain'), 1);
+                if (config()->getStringBoolean('platforms.web.sessions.cookies.domain')[0] == '.') {
+                    $test = substr(config()->get('platforms.web.sessions.cookies.domain'), 1);
 
                 } else {
-                    $test = config()->getStringBoolean('web.sessions.cookies.domain');
+                    $test = config()->getStringBoolean('platforms.web.sessions.cookies.domain');
                 }
 
                 if (!str_contains(Session::$domain, $test)) {
@@ -645,15 +645,15 @@ class Session implements SessionInterface
                                 ->setRoles('developer')
                                 ->setTitle(tr('Invalid cookie domain'))
                                 ->setMessage(tr('Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', [
-                                    ':domain'         => Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'),
-                                    ':cookie_domain'  => config()->getStringBoolean('web.sessions.cookies.domain'),
+                                    ':domain'         => Strings::ensureBeginsNotWith(config()->getStringBoolean('platforms.web.sessions.cookies.domain'), '.'),
+                                    ':cookie_domain'  => config()->getStringBoolean('platforms.web.sessions.cookies.domain'),
                                     ':current_domain' => Session::$domain,
                                 ]))
                                 ->send();
-                    Response::redirect(PROTOCOL . Strings::ensureBeginsNotWith(config()->getStringBoolean('web.sessions.cookies.domain'), '.'));
+                    Response::redirect(PROTOCOL . Strings::ensureBeginsNotWith(config()->getStringBoolean('platforms.web.sessions.cookies.domain'), '.'));
                 }
 
-                ini_set('session.cookie_domain', config()->getStringBoolean('web.sessions.cookies.domain'));
+                ini_set('session.cookie_domain', config()->getStringBoolean('platforms.web.sessions.cookies.domain'));
 
                 unset($test);
                 unset($length);
@@ -661,7 +661,7 @@ class Session implements SessionInterface
 
         // Set session and cookie parameters
         try {
-            if (config()->getBoolean('web.sessions.enabled', true)) {
+            if (config()->getBoolean('platforms.web.sessions.enabled', true)) {
                 Session::initializePhpIni();
             }
 
@@ -697,15 +697,15 @@ class Session implements SessionInterface
 
         // Force session cookie configuration
         ini_set('session.serialize_handler', 'php_serialize');
-        ini_set('session.gc_maxlifetime'   , config()->getInteger('web.sessions.timeout'            , 86400));
-        ini_set('session.cookie_lifetime'  , config()->getInteger('web.sessions.cookies.lifetime'   , 0));
-        ini_set('session.use_strict_mode'  , config()->getBoolean('web.sessions.cookies.strict_mode', true));
-        ini_set('session.name'             , config()->getString('web.sessions.cookies.name'        , 'phoundation'));
-        ini_set('session.cookie_httponly'  , config()->getBoolean('web.sessions.cookies.http-only'  , true));
-        ini_set('session.cookie_secure'    , config()->getBoolean('web.sessions.cookies.secure'     , true));
-        ini_set('session.cookie_samesite'  , config()->getBoolean('web.sessions.cookies.same-site'  , true));
+        ini_set('session.gc_maxlifetime'   , config()->getInteger('platforms.web.sessions.timeout'            , 86400));
+        ini_set('session.cookie_lifetime'  , config()->getInteger('platforms.web.sessions.cookies.lifetime'   , 0));
+        ini_set('session.use_strict_mode'  , config()->getBoolean('platforms.web.sessions.cookies.strict_mode', true));
+        ini_set('session.name'             , config()->getString('platforms.web.sessions.cookies.name'        , 'phoundation'));
+        ini_set('session.cookie_httponly'  , config()->getBoolean('platforms.web.sessions.cookies.http-only'  , true));
+        ini_set('session.cookie_secure'    , config()->getBoolean('platforms.web.sessions.cookies.secure'     , true));
+        ini_set('session.cookie_samesite'  , config()->getBoolean('platforms.web.sessions.cookies.same-site'  , true));
         ini_set('session.save_handler'     , $handler);
-        ini_set('session.save_path'        , Strings::force(config()->getArrayString('web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
+        ini_set('session.save_path'        , Strings::force(config()->getArrayString('platforms.web.sessions.save-path', DIRECTORY_SYSTEM . 'sessions/'), ';'));
 
         // Sanity check
         if (ini_get('session.cookie_secure')) {
@@ -720,9 +720,9 @@ class Session implements SessionInterface
 
             // Remove the memcached session prefix, we do not want or need people to know we use memcached
             ini_set('memcached.sess_prefix'       , '');
-            ini_set('memcached.sess_lock_retries' , config()->getPositiveInteger('web.sessions.memcached.lock-retries' , 10));
-            ini_set('memcached.sess_lock_wait_min', config()->getPositiveInteger('web.sessions.memcached.lock-wait-min', 1000));
-            ini_set('memcached.sess_lock_wait_max', config()->getPositiveInteger('web.sessions.memcached.lock-wait-max', 2000));
+            ini_set('memcached.sess_lock_retries' , config()->getPositiveInteger('platforms.web.sessions.memcached.lock-retries' , 10));
+            ini_set('memcached.sess_lock_wait_min', config()->getPositiveInteger('platforms.web.sessions.memcached.lock-wait-min', 1000));
+            ini_set('memcached.sess_lock_wait_max', config()->getPositiveInteger('platforms.web.sessions.memcached.lock-wait-max', 2000));
 
             // Is memcached enabled?
             if (!Memcached::getEnabled()) {
@@ -753,7 +753,7 @@ class Session implements SessionInterface
             return false;
         }
 
-        if (!config()->get('web.sessions.enabled', true)) {
+        if (!config()->get('platforms.web.sessions.enabled', true)) {
             return false;
         }
 
@@ -812,7 +812,7 @@ class Session implements SessionInterface
         switch (UserSessions::getHandler()) {
             case 'files':
                 $directory = PhoDirectory::new(
-                    config()->getString('web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
+                    config()->getString('platforms.web.sessions.path', DIRECTORY_SYSTEM . 'sessions/'),
                     PhoRestrictions::new([
                                              DIRECTORY_DATA,
                                              '/var/lib/php/sessions/',
@@ -971,7 +971,7 @@ class Session implements SessionInterface
     protected static function processEuroCookie(): bool
     {
         // Euro cookie check, can we do cookies at all?
-        if (config()->getBoolean('web.sessions.cookies.europe', true) and !config()->getString('web.sessions.cookies.name', 'phoundation')) {
+        if (config()->getBoolean('platforms.web.sessions.cookies.europe', true) and !config()->getString('platforms.web.sessions.cookies.name', 'phoundation')) {
             if (GeoIp::new()->isEuropean()) {
                 // All first visits to european countries require cookie permissions given!
                 $_SESSION['euro_cookie'] = true;
@@ -992,7 +992,7 @@ class Session implements SessionInterface
     protected static function processCookieRefresh(): void
     {
         // Check cookie refresh
-        $cookie_sign_out = config()->getPositiveInteger('web.sessions.cookies.lifetime', 3600);
+        $cookie_sign_out = config()->getPositiveInteger('platforms.web.sessions.cookies.lifetime', 3600);
 
         if ($cookie_sign_out) {
             // Session cookie timed out?
@@ -1014,7 +1014,7 @@ class Session implements SessionInterface
     {
 // TODO Implement!
 //        // Check cookie refresh
-//        $cookie_sign_out = config()->getPositiveInteger('web.sessions.cookies.lifetime', 0);
+//        $cookie_sign_out = config()->getPositiveInteger('platforms.web.sessions.cookies.lifetime', 0);
 //
 //        if ($cookie_sign_out) {
 //            // Session cookie timed out?
@@ -2752,7 +2752,7 @@ class Session implements SessionInterface
      */
     public static function getAutoShowMenu(): bool
     {
-        return config()->getBoolean('web.interface.user.menu.open', false, true) and Session::isFirstPage();
+        return config()->getBoolean('platforms.web.interface.user.menu.open', false, true) and Session::isFirstPage();
     }
 
 
@@ -2775,7 +2775,7 @@ class Session implements SessionInterface
     public static function getDefaultPage(): ?string
     {
         if (Session::isFirstPage()) {
-            $page = config()->getString('web.pages.default', '', true);
+            $page = config()->getString('platforms.web.pages.default', '', true);
 
             if ($page) {
                 return $page;
@@ -2793,7 +2793,7 @@ class Session implements SessionInterface
      */
     public static function getDisplayMode(): string
     {
-        return Session::get('display', 'display_mode') ?? config()->getString('web.display.mode', 'light', true);
+        return Session::get('display', 'display_mode') ?? config()->getString('platforms.web.display.mode', 'light', true);
     }
 
 
@@ -2804,7 +2804,7 @@ class Session implements SessionInterface
      */
     public static function getCompactMode(): bool
     {
-        return Session::get('display', 'compact_mode') ?? config()->getBoolean('web.display.compact', false, true);
+        return Session::get('display', 'compact_mode') ?? config()->getBoolean('platforms.web.display.compact', false, true);
     }
 
 

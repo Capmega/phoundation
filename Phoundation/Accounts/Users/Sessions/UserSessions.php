@@ -95,7 +95,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
             return $handler;
         }
 
-        $handler = config()->getString('web.sessions.handler', 'files');
+        $handler = config()->getString('platforms.web.sessions.handler', 'files');
 
         switch ($handler) {
             case 'redis':
@@ -134,7 +134,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     public static function clean(?int $age_in_minutes): void
     {
         if (!$age_in_minutes) {
-            $age_in_minutes = config()->getInteger('web.sessions.clean.age', 1440);
+            $age_in_minutes = config()->getInteger('platforms.web.sessions.clean.age', 1440);
         }
 
         switch (Sessions::getHandler()) {
@@ -233,7 +233,7 @@ class UserSessions extends DataIterator implements UserSessionsInterface
     {
         $count       = 0;
         $sessions    = sql()->query('SELECT `session` FROM `accounts_user_sessions` WHERE `closed` IS NULL');
-        $max_seconds = $max_seconds ?? config()->getInteger('web.sessions.cookies.lifetime', 0);
+        $max_seconds = $max_seconds ?? config()->getInteger('platforms.web.sessions.cookies.lifetime', 0);
 
         while ($session = $sessions->fetch()) {
             $_session = UserSession::new($session, false);

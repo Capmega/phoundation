@@ -49,7 +49,7 @@ class LockButton extends Button
      */
     public function getConfiguredModifierKeysToEnableLockButton(): array
     {
-        return config()->getArray('web.html.components.buttons.lock.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('platforms.web.html.components.buttons.lock.modifier-keys', ['ctrl', 'alt']);
     }
 
 
@@ -60,7 +60,7 @@ class LockButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.lock.outlined', false);
+        return config()->getBoolean('platforms.web.html.components.buttons.lock.outlined', false);
     }
 
 
@@ -71,6 +71,6 @@ class LockButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.lock.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.lock.mode', 'warning'));
     }
 }

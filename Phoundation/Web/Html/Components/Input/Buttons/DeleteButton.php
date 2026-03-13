@@ -49,7 +49,7 @@ class DeleteButton extends Button
      */
     public function getConfiguredModifierKeysToEnableDeleteButton(): array
     {
-        return config()->getArray('web.html.components.buttons.delete.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('platforms.web.html.components.buttons.delete.modifier-keys', ['ctrl', 'alt']);
     }
 
 
@@ -60,7 +60,7 @@ class DeleteButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.delete.outlined', true);
+        return config()->getBoolean('platforms.web.html.components.buttons.delete.outlined', true);
     }
 
 
@@ -71,6 +71,6 @@ class DeleteButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.delete.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.delete.mode', 'warning'));
     }
 }

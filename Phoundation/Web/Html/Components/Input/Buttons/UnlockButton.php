@@ -49,7 +49,7 @@ class UnlockButton extends Button
      */
     public function getConfiguredModifierKeysToEnableUnlockButton(): array
     {
-        return config()->getArray('web.html.components.buttons.unlock.modifier-keys', ['ctrl', 'alt']);
+        return config()->getArray('platforms.web.html.components.buttons.unlock.modifier-keys', ['ctrl', 'alt']);
     }
 
 
@@ -60,7 +60,7 @@ class UnlockButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.unlock.outlined', false);
+        return config()->getBoolean('platforms.web.html.components.buttons.unlock.outlined', false);
     }
 
 
@@ -71,6 +71,6 @@ class UnlockButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.unlock.mode', 'warning'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.unlock.mode', 'warning'));
     }
 }

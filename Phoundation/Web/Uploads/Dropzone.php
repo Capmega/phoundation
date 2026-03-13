@@ -342,7 +342,7 @@ class Dropzone implements DropzoneInterface
      */
     public function getMaxFilesDefault(): ?int
     {
-        return config()->getInteger('web.uploads.max.uploads', Core::getIniInteger('max_file_uploads'));
+        return config()->getInteger('platforms.web.uploads.max.uploads', Core::getIniInteger('max_file_uploads'));
     }
 
 
@@ -353,7 +353,7 @@ class Dropzone implements DropzoneInterface
      */
     public function getMaxFilesizeDefault(): ?int
     {
-        return config()->getInteger('web.uploads.max.size', Core::getIniInteger('max_file_size'));
+        return config()->getInteger('platforms.web.uploads.max.size', Core::getIniInteger('max_file_size'));
     }
 
 

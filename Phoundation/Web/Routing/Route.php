@@ -280,12 +280,6 @@ class Route
     }
 
 
-    public static function getConfigRequestTypeWebEnabled(): bool
-    {
-        return config()->getBoolean('web.enabled.', true);
-    }
-
-
     /**
      * Detects favicon requests and returns true if the current request is a favicon request
      *
@@ -352,7 +346,7 @@ class Route
             define('ORDERBY'   , get_null(getenv('ORDERBY'))    ?? '');
             define('OUTPUT'    , 'normal');
             define('PAGE'      , $_GET['page'] ?? 1);
-            define('PROTOCOL'  , config()->get('web.protocol', 'https://'));
+            define('PROTOCOL'  , config()->get('platforms.web.protocol', 'https://'));
             define('PWD'       , Strings::slash(isset_get($_SERVER['PWD'])));
             define('STATUS'    , get_null(getenv('STATUS'))     ?? '');
             define('TEST'      , get_null(getenv('TEST'))       ?? false);
@@ -1507,7 +1501,7 @@ class Route
      */
     protected static function applyStaticRoutes(): void
     {
-        if ((static::$rule_count === 1) and config()->getBoolean('web.route.static', false)) {
+        if ((static::$rule_count === 1) and config()->getBoolean('platforms.web.route.static', false)) {
             if (static::$apply_static_routes) {
                 // Check if remote IP is registered for special routing
                 $exists = sql()->getRow('SELECT   `id`, `url`, `regex`, `route`, `flags`

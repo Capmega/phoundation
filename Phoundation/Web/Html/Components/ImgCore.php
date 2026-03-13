@@ -84,7 +84,7 @@ class ImgCore extends SpanCore implements ImgInterface
         parent::__construct($content);
         parent::setElement('img');
 
-        $this->setLazyLoad(config()->get('web.images.lazy-load', true));
+        $this->setLazyLoad(config()->get('platforms.web.images.lazy-load', true));
         $this->requires_closing_tag = false;
     }
 
@@ -110,7 +110,7 @@ class ImgCore extends SpanCore implements ImgInterface
     public function setLazyLoad(?bool $lazy_load): static
     {
         if ($lazy_load === null) {
-            $lazy_load = config()->get('web.images.lazy-load', true);
+            $lazy_load = config()->get('platforms.web.images.lazy-load', true);
         }
 
         if ($lazy_load) {

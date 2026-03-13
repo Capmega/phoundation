@@ -386,10 +386,10 @@ class SystemRequest implements SystemRequestInterface
         Log::warning(ts('Found no applicable routes or webserver called for 404, testing for hacks'));
 
         // Test the URI for known hacks. If so, apply configured response
-        if (config()->getArrayBoolean('web.route.known-hacks', false)) {
+        if (config()->getArrayBoolean('platforms.web.route.known-hacks', false)) {
             Log::warning(ts('Applying known hacking rules'));
 
-            foreach (config()->getArray('web.route.known-hacks') as $hacks) {
+            foreach (config()->getArray('platforms.web.route.known-hacks') as $hacks) {
                 // TODO Fix this. This is old code and the specified method does not even exist anymore
                 static::try($hacks['regex'], array_get_safe($hacks, 'url'), array_get_safe($hacks, 'flags'));
             }

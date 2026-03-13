@@ -589,10 +589,10 @@ class Request implements RequestInterface
             return (int) $_SERVER['SERVER_PORT'];
         }
         // We are on a command line
-        $config = config()->getArray('web.domains.primary');
+        $config = config()->getArray('platforms.web.domains.primary');
         if (array_key_exists('port', $config)) {
             // Return configured WWW port
-            return config()->getInteger('web.domains.primary.port');
+            return config()->getInteger('platforms.web.domains.primary.port');
         }
         if (substr($config['web'], 4, 1) === 's') {
             // Return default HTTPS port
@@ -660,7 +660,7 @@ class Request implements RequestInterface
             return $_SERVER['REQUEST_SCHEME'];
         }
 
-        return Strings::until(config()->getString('web.domains.primary.web'), '://');
+        return Strings::until(config()->getString('platforms.web.domains.primary.web'), '://');
     }
 
 
@@ -682,7 +682,7 @@ class Request implements RequestInterface
 
                 } else {
                     // This is a command line process, things like the request scheme are not available!
-                    $url_noqueries = config()->getString('web.domains.primary.web');
+                    $url_noqueries = config()->getString('platforms.web.domains.primary.web');
                     $url_noqueries = str_replace(':LANGUAGE', Session::getLanguage(), $url_noqueries);
                 }
             }
@@ -696,7 +696,7 @@ class Request implements RequestInterface
 
             } else {
                 // This is a command line process, things like the request scheme are not available!
-                $url_queries = config()->getString('web.domains.primary.web');
+                $url_queries = config()->getString('platforms.web.domains.primary.web');
                 $url_queries = str_replace(':LANGUAGE', Session::getLanguage(), $url_queries);
             }
         }

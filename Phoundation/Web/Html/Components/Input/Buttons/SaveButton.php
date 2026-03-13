@@ -48,7 +48,7 @@ class SaveButton extends Button
      */
     public function getConfiguredModifierKeysToEnableDeleteButton(): array
     {
-        return config()->getArray('web.html.components.buttons.save.modifier-keys', []);
+        return config()->getArray('platforms.web.html.components.buttons.save.modifier-keys', []);
     }
 
 
@@ -59,7 +59,7 @@ class SaveButton extends Button
      */
     public function getConfiguredOutline(): bool
     {
-        return config()->getBoolean('web.html.components.buttons.save.outlined', false);
+        return config()->getBoolean('platforms.web.html.components.buttons.save.outlined', false);
     }
 
 
@@ -70,6 +70,6 @@ class SaveButton extends Button
      */
     public function getConfiguredMode(): EnumDisplayMode
     {
-        return EnumDisplayMode::tryFrom(config()->getString('web.html.components.buttons.save.mode', 'primary'));
+        return EnumDisplayMode::tryFrom(config()->getString('platforms.web.html.components.buttons.save.mode', 'primary'));
     }
 }
