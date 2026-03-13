@@ -281,6 +281,17 @@ class Route
 
 
     /**
+     * Returns true if the web platform is enabled by configuration
+     *
+     * @return bool
+     */
+    public static function getConfigRequestTypeWebEnabled(): bool
+    {
+        return config()->getBoolean('platforms.web.enabled', true);
+    }
+
+
+    /**
      * Detects favicon requests and returns true if the current request is a favicon request
      *
      * @return bool
@@ -1834,22 +1845,8 @@ class Route
             Session::start();
         }
 
-        $_url = Url::new(static::$route)->makeWww();
-
-        if (!$_url->hasRequiredRights()) {
-            // Wherever the user is being redirected to, they do NOT have the required rights to go there!
-            if (Session::isGuest()) {
-                // Doh, the guest user (typically) doesn't have access to anything but the sign-in page. Redirect there instead.
-                $_url = Url::new('sign-in');
-
-            } else {
-                // Okay, this is a registered user, but they don't have access. Redirect them to the index page instead as everybody should have access there.
-                $_url = Url::new('index');
-            }
-        }
-
         Request::setRoutingParameters(static::getParametersObject()->select(static::$url));
-        Response::redirect($_url->addQueries($_GET), (int) $http_code);
+        Response::redirect(Url::new(static::$route)->makeWww()->addQueries($_GET), (int) $http_code);
     }
 
 

@@ -43,6 +43,8 @@ use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Filesystem\Traits\TraitDataStaticRestrictions;
 use Phoundation\Notifications\Notification;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Numbers;
 use Phoundation\Utils\Strings;
@@ -1631,7 +1633,7 @@ class Response implements ResponseInterface
      *
      * @note If no URL is specified, the current URL will be used
      *
-     * @param UrlInterface|string|bool|null $url
+     * @param UrlInterface|string|bool|null $_url
      * @param int                           $http_code
      * @param int|null                      $time_delay
      * @param string|null                   $reason_warning
@@ -1640,11 +1642,44 @@ class Response implements ResponseInterface
      * @see  Url
      * @see  Url::addQueries()
      */
-    #[NoReturn] public static function redirect(UrlInterface|string|bool|null $url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
+    #[NoReturn] public static function redirect(UrlInterface|string|bool|null $_url = null, int $http_code = 302, ?int $time_delay = null, ?string $reason_warning = null): never
     {
         if (!PLATFORM_WEB) {
             throw new ResponseRedirectException(tr('Response->redirect() can only be called on web sessions'));
         }
+
+        $_url = Url::new($_url)->makeWww();
+
+        if (!$_url->hasRequiredRights()) {
+            // Wherever the user is being redirected to, they do NOT have the required rights to go there!
+            if (Session::isGuest()) {
+                // Doh, the guest user (typically) doesn't have access to anything but the sign-in page. Redirect there instead.
+                Log::warning(ts('Cannot redirect user ":user" to URL ":url" as that URL requires a registered user. Redirecting user to ":alternative" instead', [
+                    ':user'        => Session::getUsersLogId(),
+                    ':url'         => $_url,
+                    ':alternative' => Url::new('sign-in'),
+                ]));
+
+                $_url = Url::new('sign-in')->makeWww()->addQueries($_url->getQueries());
+
+            } else {
+                // Okay, this is a registered user, but they don't have access. Redirect them to the index page instead as everybody should have access there.
+                Incident::new()
+                        ->setSeverity(EnumSeverity::medium)
+                        ->setType(ts('invalid-redirect'))
+                        ->setTitle(ts('Cannot redirect user to URL'))
+                        ->setBody(ts('Cannot redirect user ":user" to URL ":url" as that URL requires the rights ":rights" which the user does not have. Redirecting user to ":alternative" instead', [
+                            ':user'        => Session::getUsersLogId(),
+                            ':url'         => $_url,
+                            ':alternative' => Url::new('index'),
+                            ':rights'      => Url::new('index'),
+                        ]))
+                        ->save();
+
+                $_url = Url::new('index')->makeWww()->addQueries($_url->getQueries());
+            }
+        }
+
 
         //        if (Session::getSignInKey()?->getAllowNavigation()) {
         //            // This session was opened using a sign-in key that does not allow navigation, we cannot target away!
@@ -1659,7 +1694,7 @@ class Response implements ResponseInterface
         Response::setAction(EnumRequestActions::redirected);
 
         // Build URL
-        $_target = Url::new($url)->makeWww();
+        $_target = Url::new($_url)->makeWww();
 
         // Make sure this user can redirect and has no forced redirect configured!
         if (Session::isInitialized()) {
@@ -1682,7 +1717,7 @@ class Response implements ResponseInterface
                 // If the specified target URL was a short code like "prev" or "referer", then it was not hard coded
                 // and the system could not know that the short code is the same as the current URL. Redirect to domain
                 // root instead
-                switch ($url) {
+                switch ($_url) {
                     case 'prev':
                         // no break;
 
