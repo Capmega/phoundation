@@ -70,6 +70,7 @@ use Phoundation\Web\Requests\Restrictions\Interfaces\RequestMethodRestrictionsIn
 use Phoundation\Web\Requests\Restrictions\RequestMethodRestrictions;
 use Phoundation\Web\Requests\Traits\TraitDataStaticRouteParameters;
 use Phoundation\Web\Routing\Interfaces\RoutingParametersInterface;
+use Phoundation\Web\Routing\Route;
 use Phoundation\Web\Uploads\Interfaces\UploadHandlersInterface;
 use Phoundation\Web\Uploads\UploadHandlers;
 use Stringable;
@@ -1512,13 +1513,36 @@ class Request implements RequestInterface
         }
 
         static::$request_type = $request_type;
+        static::checkRequestTypeEnabled();
+    }
 
+
+    /**
+     * Returns true if the current request type is enabled, false if not
+     *
+     * @param bool $default [true] Sets the default value that will be returned if the configuration path does not exist
+     * @return bool
+     */
+    protected static function getConfigRequestTypeEnabled(bool $default = true): bool
+    {
+        return config()->getBoolean('platforms.web.request-types.' . static::$request_type->value . '.enabled', $default);
+    }
+
+
+    /**
+     * Checks if the specified request type is enabled per configuration
+     *
+     * @return void
+     */
+    protected static function checkRequestTypeEnabled(): void
+    {
         // Set up the response object for this request
-        switch ($request_type) {
+        switch (static::$request_type) {
             case EnumRequestTypes::api:
                 // Manually startup session for API requests
                 // TODO Implement support for API requests and sessions, user access, etc
                 //Session::start();
+                $enabled = static::getConfigRequestTypeEnabled(false); // API calls by default are disabled
                 break;
 
             case EnumRequestTypes::unsupported:
@@ -1530,6 +1554,25 @@ class Request implements RequestInterface
                 throw new OutOfBoundsException(tr('Unknown web request type ":type" encountered', [
                     ':type' => Request::getRequestType(),
                 ]));
+
+            default:
+                $enabled = static::getConfigRequestTypeEnabled();
+        }
+
+        if (!$enabled) {
+            // Whoopsie, this is not allowed!
+            Incident::new()
+                    ->setSeverity(EnumSeverity::high)
+                    ->setType(ts('request-type-disabled'))
+                    ->setTitle(ts('Received web request type which is disabled by configuration'))
+                    ->setBody(ts('Received web ":type" type request ":url" from IP address ":ip" on the web platform which is disabled by configuration', [
+                        ':type' => static::$request_type->value,
+                        ':url'  => Route::getRequest(),
+                        ':ip'   => $_SERVER['REMOTE_ADDR'],
+                    ]))
+                    ->setNotifyRoles('security')
+                    ->save()
+                    ->throw(AccessDeniedException::class);
         }
     }
 

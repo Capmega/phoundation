@@ -2479,7 +2479,7 @@ class Url implements UrlInterface
     {
         $_user = $_user ?? Session::getUserObject();
 
-        if ($cache and ($this->has_required_rights->getId() === $_user->getId())) {
+        if ($cache and ($this->has_required_rights?->getId() === $_user->getId())) {
             //  We already know this user has access to the required rights, return cached response
             return true;
         }
