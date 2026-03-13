@@ -19,6 +19,7 @@ namespace Phoundation\Data\Traits;
 use Phoundation\Accounts\Exception\AccountsException;
 use Phoundation\Accounts\Rights\Interfaces\RightsInterface;
 use Phoundation\Accounts\Rights\RightsBySeoName;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
 
 
@@ -44,7 +45,7 @@ trait TraitDataObjectRightsBySeoName
         }
 
         if (empty($this->_rights) or $reload) {
-            $this->_rights = RightsBySeoName::new()->setDebug(true)
+            $this->_rights = RightsBySeoName::new()
                                              ->setParentObject($this)
                                              ->load($order ? ['$order' => ['right' => 'asc']] : null);
         }
