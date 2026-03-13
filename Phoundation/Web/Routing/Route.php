@@ -33,6 +33,7 @@ use Phoundation\Data\Validator\PostValidator;
 use Phoundation\Databases\Sql\Exception\SqlException;
 use Phoundation\Date\PhoDateTime;
 use Phoundation\Developer\Debug\Debug;
+use Phoundation\Exception\AccessDeniedException;
 use Phoundation\Exception\EnvironmentNotDefinedException;
 use Phoundation\Exception\EnvironmentNotExistsException;
 use Phoundation\Exception\OutOfBoundsException;
@@ -43,6 +44,8 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Notifications\Notification;
+use Phoundation\Security\Incidents\EnumSeverity;
+use Phoundation\Security\Incidents\Incident;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Exception\RouteException;
@@ -244,6 +247,7 @@ class Route
         }
 
         Core::setReady();
+        Route::checkPlatformWebEnabled();
 
         // Start web request logging with initial request information
         static::$method = $_SERVER['REQUEST_METHOD'];
@@ -285,9 +289,32 @@ class Route
      *
      * @return bool
      */
-    public static function getConfigRequestTypeWebEnabled(): bool
+    public static function getConfigPlatformWebEnabled(): bool
     {
         return config()->getBoolean('platforms.web.enabled', true);
+    }
+
+
+    /**
+     * Checks if the web platform is enabled, throws
+     *
+     * @return void
+     */
+    public static function checkPlatformWebEnabled(): void
+    {
+        if (!Route::getConfigPlatformWebEnabled()) {
+            Incident::new()
+                    ->setSeverity(EnumSeverity::high)
+                    ->setType(ts('platform-disabled'))
+                    ->setTitle(ts('Received web request on disabled web platform'))
+                    ->setBody(ts('Received web request ":url" from IP address ":ip" on the web platform which is disabled by configuration', [
+                        ':url' => Route::getRequest(),
+                        ':ip'  => $_SERVER['REMOTE_ADDR'],
+                    ]))
+                    ->setNotifyRoles('security')
+                    ->save()
+                    ->throw(AccessDeniedException::class);
+        }
     }
 
 
