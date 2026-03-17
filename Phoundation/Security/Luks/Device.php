@@ -434,6 +434,8 @@ class Device extends PhoFile
         Arrays::findPermutation($keys, null, function ($permutation) use (&$return, $device) {
             static $count = 0;
 
+            Log::dot();
+
             try {
                 Log::action(ts('Trying key ":id"', [':id' => $count++]), 3, echo_newline: false);
 
