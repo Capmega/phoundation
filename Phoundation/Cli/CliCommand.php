@@ -603,13 +603,15 @@ class CliCommand
     /**
      * Restarts this command as the specified user
      *
-     * @param string $user
+     * @param string|null $user
      * @return never
      */
-    #[NoReturn] public static function restartAsUser(string $user): never
+    #[NoReturn] public static function restartAsUser(?string $user): never
     {
         // From here we will restart the process using SUDO with the correct user
         // Start building the argument list
+        $user      = ($user === 'root') ? null : $user;
+        $user      = $user ? ('u ' . escapeshellarg($user)) : null;
         $command   = escapeshellcmd(DIRECTORY_ROOT . 'pho');
         $arguments = ArgvValidator::getBackup();
 
@@ -624,15 +626,34 @@ class CliCommand
             // Ensure all arguments are properly escaped
             if ($arguments) {
                 foreach ($arguments as &$argument) {
+                    switch ($argument) {
+                        case '-E':
+                        case '--env':
+                        case '--environment':
+                            $environment = true;
+                            break;
+                    }
                     $argument = escapeshellarg($argument);
+                    $argument = trim($argument, "'");
+                    $argument = str_replace('\'', '\'\\\'\'', $argument);
                 }
             }
         }
 
         unset($argument);
 
+        if (!isset_get($environment)) {
+            // This command didn't have the environment specified yet. Add it now
+            $arguments[] = '$1';
+            $arguments[] = '$2';
+            $arguments[] = "'\''-E'\''";
+            $arguments[] = "'\''" . ENVIRONMENT . "'''" . "\''";
+        }
+
+
+        // TODO Somehow sudo will always pick up on -E unless -E is passed as a parameter AFTER _ ???? Check on how to improve upon this (See the _ below)
         // As what user should we execute this? Build the sudo command to be executed
-        $command = 'sudo -Esu ' . escapeshellarg($user) . ' ' . $command . ' ' . Strings::force($arguments, ' ');
+        $command = 'sudo -s' . $user . ' sh -c \'cd ' . getcwd() . '; ' . $command . ' ' . Strings::force($arguments, ' ') . '\'';
 
         if (!CliAutoComplete::isActive() and Log::getVerbose()) {
             if (Log::getVerbose()) {
@@ -2197,12 +2218,13 @@ return 'under construction';
 
 
     /**
-     * Returns all options for readline <TAB> autocomplete
+     * Returns auto complete options for when on readline mode
      *
      * @param string $input
      * @param int    $index
      *
      * @return array
+     * @todo IMPLEMENT THIS
      */
     protected static function completeReadline(string $input, int $index): array
     {
