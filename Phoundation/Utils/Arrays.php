@@ -4929,13 +4929,13 @@ class Arrays extends Utils
         }
 
         // Calculate full sets
-        if ($subsets !== false) {
+        if ($subsets !== true) {
             // Get the main permutations
             foreach ($source as $key => $item) {
                 $remaining = $source;
                 unset($remaining[$key]);
 
-                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                foreach (Arrays::getPermutations($remaining, true) as $permutation) {
                     Log::dot();
                     $return = $callback($item . $permutation);
 
@@ -4949,7 +4949,7 @@ class Arrays extends Utils
         }
 
         // Calculate the subsets
-        if ($subsets !== true) {
+        if ($subsets !== false) {
             // Single items
             foreach ($source as $permutation) {
                 Log::dot();
@@ -4967,17 +4967,15 @@ class Arrays extends Utils
                 $remaining = $source;
                 unset($remaining[$key]);
 
-                foreach (Arrays::getPermutations($remaining, true) as $permutation) {
-                    if (strlen($permutation) < count($source) - 1) {
-                        Log::dot();
-                        $return = $callback($item . $permutation);
+                foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    Log::dot();
+                    $return = $callback($item . $permutation);
 
-                        if ($return === false) {
-                            continue;
-                        }
-
-                        return $item . $permutation;
+                    if ($return === false) {
+                        continue;
                     }
+
+                    return $item . $permutation;
                 }
             }
         }
