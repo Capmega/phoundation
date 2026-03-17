@@ -4962,15 +4962,13 @@ class Arrays extends Utils
                 unset($remaining[$key]);
 
                 foreach (Arrays::getPermutations($remaining, true) as $permutation) {
-                    if (strlen($permutation) < count($source) - 1) {
-                        $return = $callback($item . $permutation);
+                    $return = $callback($item . $permutation);
 
-                        if ($return === false) {
-                            continue;
-                        }
-
-                        return $item . $permutation;
+                    if ($return === false) {
+                        continue;
                     }
+
+                    return $item . $permutation;
                 }
             }
         }
@@ -5030,9 +5028,7 @@ class Arrays extends Utils
                     unset($remaining[$key]);
 
                     foreach (Arrays::getPermutations($remaining, true) as $permutation) {
-                        if (strlen($permutation) < count($source) - 1) {
-                            $results[] = $item . $permutation;
-                        }
+                        $results[] = $item . $permutation;
                     }
                 }
             }
