@@ -22,6 +22,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\Traits\TraitDataLogThreshold;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Filesystem\Interfaces\PhoRestrictionsInterface;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\PhoRestrictions;
@@ -293,7 +294,7 @@ abstract class ProcessCore implements ProcessInterface
         if ($this->execute_bash) {
             // TODO This does NOT add any of the other options like sudo, timeout, wait, etc, that are added below?!!? Check this and document if there is a reason for this
             // Execute command as an internal BaSH command
-            $this->cached_command_line = 'bash -c "' . $this->cached_command_line . '"';
+            $this->cached_command_line = 'bash -c \'' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '\'';
 
             return $this->cached_command_line;
         }
@@ -340,9 +341,6 @@ abstract class ProcessCore implements ProcessInterface
                 $this->cached_command_line = 'export ' . $key . '=' . $value . '; ' . $this->cached_command_line;
             }
         }
-
-        // Escape command line string
-        $this->cached_command_line = str_replace("'", "'\\''", $this->cached_command_line);
 
         // Pipe the output through to the next command
         if ($this->pipe) {
@@ -402,26 +400,27 @@ abstract class ProcessCore implements ProcessInterface
 
         // Background commands get some extra options around
         if ($pipe) {
+throw new UnderConstructionException();
 // TODO Something is missing here and there isn't even a comment on what is missing?
         } else {
             if ($this->use_run_file) {
                 // Create command line with a run-file
                 if ($background) {
-                    $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$! >&3) 3> " . ($this->getRunFile() ?? '/dev/null');
+                    $this->cached_command_line = '(' . $nohup . 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $! >&3) 3> ' . ($this->getRunFile() ?? '/dev/null');
 
                 } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
-                    $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?'; EXIT=\$?; echo \$\$ > " . ($this->getRunFile() ?? '/dev/null') . "; exit \$EXIT;";
+                    $this->cached_command_line = 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\'; EXIT=$?; echo $$ > ' . ($this->getRunFile() ?? '/dev/null') . '; exit $EXIT;';
                 }
 
             } else {
                 // Create command line without a run-file
                 if ($background) {
-                    $this->cached_command_line = '(' . $nohup . "bash -c 'set -o pipefail; " . $this->cached_command_line . " ; EXIT=\$?; echo \$\$; exit \$EXIT' > " . ($this->getLogFile() ?? '/dev/null') . " 2>&1 & echo \$!)";
+                    $this->cached_command_line = '(' . $nohup . 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $!)';
 
                 } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
-                    $this->cached_command_line = "bash -c 'set -o pipefail; " . $this->cached_command_line . "; exit \$?';";
+                    $this->cached_command_line = 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\';';
                 }
             }
         }

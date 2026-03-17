@@ -1099,12 +1099,14 @@ trait TraitProcessVariables
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool|null $sudo
-     * @param string|null      $user
+     * @param string|bool|null $sudo                         If false, no sudo will be used. If true, the default "sudo -s" will be used. If a string, it should
+     *                                                       contain the required sudo command
+     * @param string|null      $user                 [null]  If specified, will sudo not to root, but to the specified user instead
+     * @param bool             $preserve_environment [false] If true, will add the -E flag to the sudo command
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool|null $sudo, ?string $user = null): static
+    public function setSudo(string|bool|null $sudo, ?string $user = null, bool $preserve_environment = false): static
     {
         $this->clearFullCommandLineCache();
 
@@ -1113,16 +1115,20 @@ trait TraitProcessVariables
 
         } else {
             if ($sudo === true) {
-                $sudo = 'sudo -Es';
+                $sudo = 'sudo -s';
 
                 if ($user) {
-                    // Sudo specifically to a non root user
+                    // Sudo specifically to a non-root user
                     $sudo .= 'u ' . escapeshellarg($user);
                 }
             }
 
 // TODO Validate that $sudo contains ONLY alphanumeric characters!
             $this->sudo = $sudo;
+
+            if ($preserve_environment) {
+                $this->sudo .= ' -E';
+            }
         }
 
         return $this;

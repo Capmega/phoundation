@@ -237,11 +237,14 @@ interface ProcessVariablesInterface extends Stringable
      * If $sudo is NULL or FALSE, the command will not execute with sudo. If a string is specified, the command will
      * execute as that user. If TRUE is specified, the command will execute as root (This is basically just a shortcut)
      *
-     * @param string|bool|null $sudo
+     * @param string|bool|null $sudo                         If false, no sudo will be used. If true, the default "sudo -s" will be used. If a string, it should
+     *                                                       contain the required sudo command
+     * @param string|null      $user                 [null]  If specified, will sudo not to root, but to the specified user instead
+     * @param bool             $preserve_environment [false] If true, will add the -E flag to the sudo command
      *
      * @return static This process so that multiple methods can be chained
      */
-    public function setSudo(string|bool|null $sudo): static;
+    public function setSudo(string|bool|null $sudo, ?string $user = null, bool $preserve_environment = false): static;
 
 
     /**
