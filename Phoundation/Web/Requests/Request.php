@@ -1607,6 +1607,11 @@ class Request implements RequestInterface
 
             Response::checkForceRedirect();
 
+            if (abs($http_code) === 404) {
+                // TODO Improve handling of 404 pages, right now there seem to be 3-4 different main code paths for this, there should only be one
+                Route::checkRequest();
+            }
+
             SystemRequest::new()->execute(abs($http_code), $e, $message, $log_message);
 
         } catch (Throwable $f) {
@@ -1832,6 +1837,9 @@ class Request implements RequestInterface
         Log::warning(ts('Main target ":target" does not exist, displaying 404 page instead', [
             ':target' => $target,
         ]));
+
+        // TODO Improve handling of 404 pages, right now there seem to be 3-4 different main code paths for this, there should only be one
+        Route::checkRequest();
 
         throw Http404Exception::new(tr('The requested page ":page" does not exist', [
             ':page' => $target,

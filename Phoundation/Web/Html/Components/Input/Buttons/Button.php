@@ -160,7 +160,7 @@ class Button extends Input implements ButtonInterface
                 $this->addClass('button-disable-click');
                 $script .= Script::new('$("form").submit(function(e) {
                                             var $form   = $(this);
-                                            var $button = $form.find(\'[name="\' + $(document.activeElement).attr("name") + \'"]\');
+                                            var $button = $(document.activeElement);
 
                                             if ($button.hasClass("button-disable-click")) {
                                                 $(this).append(\'<input type="hidden" name="\' + $button.attr("name") + \'" value="\' + $button.attr("value") + \'">\');                                    

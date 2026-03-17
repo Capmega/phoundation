@@ -84,7 +84,7 @@ class RequestLog extends DataEntry implements RequestLogInterface
      */
     public static function getEntryName(): string
     {
-        return tr('Web Request Log');
+        return tr('Web request log entry');
     }
 
 
@@ -127,6 +127,7 @@ class RequestLog extends DataEntry implements RequestLogInterface
                      ->setComments($comments)
                      ->save();
     }
+
 
     /**
      * Sets the available data keys for this entry

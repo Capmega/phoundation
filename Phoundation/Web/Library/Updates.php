@@ -18,6 +18,8 @@ declare(strict_types=1);
 namespace Phoundation\Web\Library;
 
 
+use Phoundation\Core\Meta\Meta;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -27,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.10.0';
+        return '0.11.0';
     }
 
 
@@ -230,6 +232,50 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         CONSTRAINT `fk_web_requests_logs_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                         CONSTRAINT `fk_web_requests_logs_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     ')->create();
+
+        })->addUpdate('0.11.0', function () {
+            // Add the web_requests_logs
+            sql()->getSchemaObject()
+                 ->getTableObject('web_attack_rules')
+                 ->drop()
+                 ->define()
+                     ->setColumns('
+                        `id` bigint NOT NULL AUTO_INCREMENT,
+                        `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        `created_by` bigint DEFAULT NULL,
+                        `modified_on` timestamp NULL DEFAULT NULL,
+                        `modified_by` bigint NULL DEFAULT NULL,
+                        `meta_id` bigint NOT NULL,
+                        `meta_state` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `status` varchar(16) CHARACTER SET latin1 DEFAULT NULL,
+                        `expression` varchar(255) NULL DEFAULT NULL,
+                        `exempt` varchar(255) NULL DEFAULT NULL,
+                        `action` enum("block", "ignore", "deny-access", "not-found") NULL DEFAULT NULL,
+                        `seconds` int NULL DEFAULT NULL,
+                        `comments` text NULL DEFAULT NULL,                       
+
+                    ')->setIndices('
+                        PRIMARY KEY (`id`),
+                        KEY `created_on` (`created_on`),
+                        KEY `created_by` (`created_by`),
+                        KEY `modified_on` (`modified_on`),
+                        KEY `modified_by` (`modified_by`),
+                        KEY `status` (`status`),
+                        KEY `meta_id` (`meta_id`),
+                        KEY `action` (`action`),
+                        
+                    ')->setForeignKeys('
+                        CONSTRAINT `fk_web_attack_rules_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
+                        CONSTRAINT `fk_web_attack_rules_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                        CONSTRAINT `fk_web_attack_rules_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
+                    ')->create();
+
+            sql()->query('INSERT INTO `web_attack_rules` (`meta_id`, `expression`, `exempt`, `action`) VALUES (:meta_id, :expression, :exempt, :action)', [
+                ':expression' => '/\.php$/',
+                ':exempt'     => '/^127.0.0.1$/',
+                ':action'     => 'block',
+                ':meta_id'    => Meta::init('Default rule')->getId()
+            ]);
         });
     }
 }
