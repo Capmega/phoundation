@@ -295,12 +295,12 @@ interface PhoDateTimeInterface
      *
      * @param DateTimeInterface $targetObject
      * @param bool $absolute
-     * @param bool $roundup
+     * @param bool $round_up
      *
      * @return PhoDateInterval
      * @throws DateIntervalException
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval;
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $round_up = true): PhoDateInterval;
 
     /**
      * Returns a new DateTime object for the first day of the previous monthly period
@@ -1057,4 +1057,35 @@ interface PhoDateTimeInterface
      * @return DateTimeInterface
      */
     public function getDateTimeObject(): DateTimeInterface;
+
+    /**
+     * Subtracts a number of days, months, years, hours, minutes and seconds from a DateTime object
+     *
+     * @link https://secure.php.net/manual/en/datetime.sub.php
+     *
+     * @param DateInterval $interval          The Interval object that should be subtracted from this object
+     * @param bool         $return_new [true] If true will not modify this object but return a new object instead
+     *
+     * @return static
+     */
+    public function subtract(DateInterval $interval, bool $return_new = true): static;
+
+    /**
+     * Adds the specified amount of seconds to this PhoDateTime object
+     *
+     * @param int  $seconds           The amount of seconds to add to this PhoDateTime object
+     * @param bool $return_new [true] If true will not modify this object but return a new object instead
+     * @return static
+     */
+    public function addSeconds(int $seconds, bool $return_new = true): static;
+
+    /**
+     * Adds the specified amount of seconds to this PhoDateTime object
+     *
+     * @param int  $seconds           The amount of seconds to add to this PhoDateTime object
+     * @param bool $return_new [true] If true will not modify this object but return a new object instead
+     *
+     * @return static
+     */
+    public function subtractSeconds(int $seconds, bool $return_new = true): static;
 }

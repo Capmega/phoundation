@@ -24,6 +24,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use Phoundation\Accounts\Users\Sessions\Session;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
+use Phoundation\Data\Validator\Validate;
 use Phoundation\Date\Enums\EnumDateFormat;
 use Phoundation\Date\Enums\EnumDateTimeSegment;
 use Phoundation\Date\Enums\EnumDateTimeWidth;
@@ -687,8 +688,8 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
      *
      * @link https://secure.php.net/manual/en/datetime.add.php
      *
-     * @param DateInterval $interval
-     * @param bool         $return_new
+     * @param DateInterval $interval          The amount of seconds to add to this PhoDateTime object
+     * @param bool         $return_new [true] If true will not modify this object but return a new object instead
      *
      * @return static
      */
@@ -704,16 +705,30 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 
 
     /**
+     * Adds the specified amount of seconds to this PhoDateTime object
+     *
+     * @param int  $seconds           The amount of seconds to add to this PhoDateTime object
+     * @param bool $return_new [true] If true will not modify this object but return a new object instead
+     * @return static
+     */
+    public function addSeconds(int $seconds, bool $return_new = true): static
+    {
+        Validate::new($seconds)->isPositive(true);
+        return $this->add(new DateInterval('PT' . $seconds . 'S'), $return_new);
+    }
+
+
+    /**
      * Subtracts a number of days, months, years, hours, minutes and seconds from a DateTime object
      *
      * @link https://secure.php.net/manual/en/datetime.sub.php
      *
-     * @param DateInterval $interval
-     * @param bool         $return_new
+     * @param DateInterval $interval          The Interval object that should be subtracted from this object
+     * @param bool         $return_new [true] If true will not modify this object but return a new object instead
      *
      * @return static
      */
-    public function sub(DateInterval $interval, bool $return_new = true): static
+    public function subtract(DateInterval $interval, bool $return_new = true): static
     {
         if ($return_new) {
             $return = clone $this;
@@ -725,21 +740,52 @@ class PhoDateTime extends DateTime implements Stringable, PhoDateTimeInterface
 
 
     /**
+     * Subtracts a number of days, months, years, hours, minutes and seconds from a DateTime object
+     *
+     * @link https://secure.php.net/manual/en/datetime.sub.php
+     *
+     * @param DateInterval $interval          The Interval object that should be subtracted from this object
+     * @param bool         $return_new [true] If true will not modify this object but return a new object instead
+     *
+     * @return static
+     */
+    public function sub(DateInterval $interval, bool $return_new = true): static
+    {
+        return $this->subtract($interval, $return_new);
+    }
+
+
+    /**
+     * Adds the specified amount of seconds to this PhoDateTime object
+     *
+     * @param int  $seconds           The amount of seconds to add to this PhoDateTime object
+     * @param bool $return_new [true] If true will not modify this object but return a new object instead
+     *
+     * @return static
+     */
+    public function subtractSeconds(int $seconds, bool $return_new = true): static
+    {
+        Validate::new($seconds)->isPositive(true);
+        return $this->sub(new DateInterval('PT' . $seconds . 'S'), $return_new);
+    }
+
+
+    /**
      * Returns the difference between two DateTime objects
      *
      * @link https://secure.php.net/manual/en/datetime.diff.php
      *
      * @param DateTimeInterface $targetObject
      * @param bool              $absolute
-     * @param bool              $roundup
+     * @param bool              $round_up
      *
      * @return PhoDateInterval
      * @throws DateIntervalException
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $round_up = true): PhoDateInterval
     {
         // DateInterval does not calculate milliseconds / microseconds, do that manually
-        $diff    = new PhoDateInterval(parent::diff($targetObject, $absolute), $roundup);
+        $diff    = new PhoDateInterval(parent::diff($targetObject, $absolute), $round_up);
         $diff->u = (int) $this->format('u') - (int) $targetObject->format('u');
 
         if ($diff->u < 0) {

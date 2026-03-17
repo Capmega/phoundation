@@ -133,11 +133,11 @@ class PhoDateTimeImmutable extends \DateTimeImmutable implements Stringable, Int
      *
      * @param \DateTimeInterface $targetObject
      * @param bool               $absolute
-     * @param bool               $roundup
+     * @param bool               $round_up
      *
      * @return PhoDateInterval
      */
-    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $roundup = true): PhoDateInterval
+    public function diff(DateTimeInterface $targetObject, bool $absolute = false, bool $round_up = true): PhoDateInterval
     {
         return new PhoDateInterval(parent::diff($targetObject, $absolute));
     }
