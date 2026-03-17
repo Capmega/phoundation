@@ -2741,6 +2741,29 @@ class Core implements CoreInterface
 
 
     /**
+     * Returns the value for the configuration path "security.cli.restart.root"
+     *
+     * @return bool
+     */
+    public static function getConfigAutoRestartAsRoot(): bool
+    {
+        if (PLATFORM_CLI) {
+            return config()->getBoolean('security.cli.restart.root', false);
+        }
+
+        Incident::new()
+                ->setSeverity(EnumSeverity::high)
+                ->setType('invalid-platform')
+                ->setTitle(ts('Invalid platform'))
+                ->setBody(ts('The method Core->getConfigAutoRestartAsRoot() can only be called from the CLI platform'))
+                ->setNotifyRoles('security')
+                ->save();
+
+        return false;
+    }
+
+
+    /**
      * Checks if the current process is running as root, or throws a ProcessRequiresRootException
      *
      * @return void
@@ -2750,8 +2773,13 @@ class Core implements CoreInterface
     {
         // This class requires running with root privileges
         if (!Core::processIsRoot()) {
-            throw ProcessRequiresRootException::new(tr('This process requires root privileges to execute correctly.'))
-                                              ->setWarning(!Core::inBootState());
+            if (!Core::getConfigAutoRestartAsRoot()) {
+                throw ProcessRequiresRootException::new(tr('This process requires root privileges to execute correctly.'))
+                                                  ->setWarning(!Core::inBootState());
+            }
+
+            // Restart the process as root
+            CliCommand::restartAsRoot();
         }
     }
 
