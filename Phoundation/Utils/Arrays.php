@@ -21,6 +21,7 @@ use JetBrains\PhpStorm\ExpectedValues;
 use PDOStatement;
 use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Core\Interfaces\IntegerableInterface;
+use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
@@ -4894,7 +4895,9 @@ class Arrays extends Utils
      * Returns all permutations for the given source, optionally with sub-sets
      *
      * @param IteratorInterface|array|string|null $source   The source array for which all permutations should be calculated
-     * @param bool|null                           $subsets  If true, will for A, B, C not only return ABC, etc. but also sub sets like A, AB, CB, etc.
+     * @param bool|null                           $subsets  If true, only do the full permutations (For A B C, all combinations with the three letters).
+     *                                                      If false, will only do the sub permutations (For A B C, only 2 letters or fewer combinations).
+     *                                                      If null, will do both
      * @param callable                            $callback If specified, will execute the specified callback on each found permutation instead of returning
      *                                                      them, and will return NULL instead
      *
@@ -4913,25 +4916,27 @@ class Arrays extends Utils
         if (count($source) <= 1) {
             $results = array_map('strval', $source);
 
-            foreach ($results as $result) {
-                $return = $callback($result);
+            foreach ($results as $permutation) {
+                Log::dot();
+                $return = $callback($permutation);
 
                 if ($return === false) {
                     return null;
                 }
 
-                return $result;
+                return $permutation;
             }
         }
 
         // Calculate full sets
-        if ($subsets !== true) {
+        if ($subsets !== false) {
             // Get the main permutations
             foreach ($source as $key => $item) {
                 $remaining = $source;
                 unset($remaining[$key]);
 
                 foreach (Arrays::getPermutations($remaining, false) as $permutation) {
+                    Log::dot();
                     $return = $callback($item . $permutation);
 
                     if ($return === false) {
@@ -4944,16 +4949,17 @@ class Arrays extends Utils
         }
 
         // Calculate the subsets
-        if ($subsets !== false) {
-            // Single characters
-            foreach ($source as $item) {
-                $return = $callback((string) $item);
+        if ($subsets !== true) {
+            // Single items
+            foreach ($source as $permutation) {
+                Log::dot();
+                $return = $callback((string) $permutation);
 
                 if ($return === false) {
                     continue;
                 }
 
-                return (string) $item;
+                return (string) $permutation;
             }
 
             // Subsets of length 2 to N-1
@@ -4963,6 +4969,7 @@ class Arrays extends Utils
 
                 foreach (Arrays::getPermutations($remaining, true) as $permutation) {
                     if (strlen($permutation) < count($source) - 1) {
+                        Log::dot();
                         $return = $callback($item . $permutation);
 
                         if ($return === false) {
@@ -4982,9 +4989,11 @@ class Arrays extends Utils
     /**
      * Returns all permutations for the given source, optionally with sub-sets
      *
-     * @param IteratorInterface|array|string|null $source                  The source array for which all permutations should be calculated
-     * @param bool|null                           $subsets [false] If true, will for A, B, C not only return ABC, etc. but also sub sets like
-     *                                                                     A, AB, CB, etc.
+     * @param IteratorInterface|array|string|null $source          The source array for which all permutations should be calculated
+     * @param bool|null                           $subsets [false] If true, only do the full permutations (For A B C, all combinations with the three letters).
+     *                                                             If false, will only do the sub permutations (For A B C, only 2 letters or fewer combinations).
+     *                                                             If null, will do both
+     *
      * @return array
      */
     public static function getPermutations(IteratorInterface|array|string|null $source, ?bool $subsets = false): array
@@ -5030,9 +5039,7 @@ class Arrays extends Utils
                     unset($remaining[$key]);
 
                     foreach (Arrays::getPermutations($remaining, true) as $permutation) {
-                        if (strlen($permutation) < count($source) - 1) {
-                            $results[] = $item . $permutation;
-                        }
+                        $results[] = $item . $permutation;
                     }
                 }
             }
