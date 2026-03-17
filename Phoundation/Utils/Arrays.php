@@ -4917,7 +4917,6 @@ class Arrays extends Utils
             $results = array_map('strval', $source);
 
             foreach ($results as $permutation) {
-                Log::dot();
                 $return = $callback($permutation);
 
                 if ($return === false) {
@@ -4936,7 +4935,6 @@ class Arrays extends Utils
                 unset($remaining[$key]);
 
                 foreach (Arrays::getPermutations($remaining, true) as $permutation) {
-                    Log::dot();
                     $return = $callback($item . $permutation);
 
                     if ($return === false) {
@@ -4952,7 +4950,6 @@ class Arrays extends Utils
         if ($subsets !== false) {
             // Single items
             foreach ($source as $permutation) {
-                Log::dot();
                 $return = $callback((string) $permutation);
 
                 if ($return === false) {
@@ -4968,7 +4965,6 @@ class Arrays extends Utils
                 unset($remaining[$key]);
 
                 foreach (Arrays::getPermutations($remaining, false) as $permutation) {
-                    Log::dot();
                     $return = $callback($item . $permutation);
 
                     if ($return === false) {
