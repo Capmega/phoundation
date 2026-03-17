@@ -26,6 +26,7 @@ use Phoundation\Filesystem\Exception\FileNotExistException;
 use Phoundation\Filesystem\Exception\FileWriteAccessDeniedException;
 use Phoundation\Filesystem\PhoFile;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
+use Phoundation\Filesystem\PhoRestrictions;
 use Phoundation\Os\Processes\Commands\Lsof;
 use Phoundation\Os\Processes\Enum\EnumExecuteMethod;
 use Phoundation\Os\Processes\Exception\ProcessFailedException;
@@ -324,7 +325,7 @@ class Device extends PhoFile
         }
 
         $this->code        = $passphrase;
-        $this->device_name = new PhoFile('/dev/mapper/' . $device_name);
+        $this->device_name = new PhoFile('/dev/mapper/' . $device_name, PhoRestrictions::newFilesystemRoot(true, '/dev/mapper/'));
 
         Log::success(ts('Opened LUKS file ":file" and mapped it to device ":device"', [
             ':file'   => $this->source,
