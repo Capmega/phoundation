@@ -80,7 +80,63 @@ class Validate
     public function isInteger(): static
     {
         if (!is_integer($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be integer'));
+            throw new ValidationFailedException(ts('The specified value ":value" must be integer', [
+                ':value' => $this->source
+            ]));
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a positive number
+     *
+     * @param bool $allow_zero
+     * @return static
+     */
+    public function isPositive(bool $allow_zero = false): static
+    {
+        if ($allow_zero) {
+            if ($this->source < 0) {
+                throw new ValidationFailedException(ts('The specified value ":value" must be a positive number higher than 0', [
+                    ':value' => $this->source
+                ]));
+            }
+
+        } else {
+            if ($this->source <= 0) {
+                throw new ValidationFailedException(ts('The specified value ":value" must be a positive number 0 or higher', [
+                    ':value' => $this->source
+                ]));
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Validates if the selected field is a negative number
+     *
+     * @param bool $allow_zero
+     * @return static
+     */
+    public function isNegative(bool $allow_zero = false): static
+    {
+        if ($allow_zero) {
+            if ($this->source > 0) {
+                throw new ValidationFailedException(ts('The specified value ":value" must be a negative number lower than 0', [
+                    ':value' => $this->source
+                ]));
+            }
+
+        } else {
+            if ($this->source >= 0) {
+                throw new ValidationFailedException(ts('The specified value ":value" must be a negative number 0 or lower', [
+                    ':value' => $this->source
+                ]));
+            }
         }
 
         return $this;
@@ -95,7 +151,7 @@ class Validate
     public function isFloat(): static
     {
         if (!is_float($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be a float'));
+            throw new ValidationFailedException(ts('The specified value must be a float'));
         }
 
         return $this;
@@ -110,7 +166,7 @@ class Validate
     public function isArray(): static
     {
         if (!is_array($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be an array'));
+            throw new ValidationFailedException(ts('The specified value must be an array'));
         }
 
         return $this;
@@ -132,7 +188,7 @@ class Validate
             $failed = !in_array($this->source, $compare);
         }
         if ($failed) {
-            throw new ValidationFailedException(tr('The specified value must be one of ":list"', [
+            throw new ValidationFailedException(ts('The specified value must be one of ":list"', [
                 ':list' => $compare,
             ]));
         }
@@ -152,7 +208,7 @@ class Validate
     {
         $this->isString();
         if (strlen($this->source) != $characters) {
-            throw new ValidationFailedException(tr('The specified valuemust have exactly ":count" characters', [
+            throw new ValidationFailedException(ts('The specified valuemust have exactly ":count" characters', [
                 ':count' => $characters,
             ]));
         }
@@ -169,7 +225,7 @@ class Validate
     public function isString(): static
     {
         if (!is_string($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be a string'));
+            throw new ValidationFailedException(ts('The specified value must be a string'));
         }
 
         return $this;
@@ -206,11 +262,11 @@ class Validate
             return $this;
         }
         if ($equal) {
-            throw new ValidationFailedException(tr('The specified value must be less than or equal to ":amount"', [
+            throw new ValidationFailedException(ts('The specified value must be less than or equal to ":amount"', [
                 ':amount' => $amount,
             ]));
         }
-        throw new ValidationFailedException(tr('The specified value must be less than ":amount"', [
+        throw new ValidationFailedException(ts('The specified value must be less than ":amount"', [
             ':amount' => $amount,
         ]));
     }
@@ -233,11 +289,11 @@ class Validate
             return $this;
         }
         if ($equal) {
-            throw new ValidationFailedException(tr('The specified value must be more than or equal to ":amount"', [
+            throw new ValidationFailedException(ts('The specified value must be more than or equal to ":amount"', [
                 ':amount' => $amount,
             ]));
         }
-        throw new ValidationFailedException(tr('The specified value must be more than ":amount"', [
+        throw new ValidationFailedException(ts('The specified value must be more than ":amount"', [
             ':amount' => $amount,
         ]));
     }
@@ -251,7 +307,7 @@ class Validate
     public function isNumeric(): static
     {
         if (!is_numeric($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be numeric'));
+            throw new ValidationFailedException(ts('The specified value must be numeric'));
         }
 
         return $this;
@@ -277,7 +333,7 @@ class Validate
         $this->hasMaxCharacters($characters);
 
         if (!Strings::isVersion($this->source, $phoundation_versions, $short_version)) {
-            throw new ValidationFailedException(tr('The specified value must contain a valid version number'));
+            throw new ValidationFailedException(ts('The specified value must contain a valid version number'));
         }
 
         return $this;
@@ -299,7 +355,7 @@ class Validate
         $characters = $this->getMaxStringSize($characters);
 
         if (strlen($this->source) > $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or less', [
+            throw new ValidationFailedException(ts('The specified value must have ":count" characters or less', [
                 ':count' => $characters,
             ]));
         }
@@ -319,7 +375,7 @@ class Validate
     {
         $this->hasMaxCharacters($characters);
         if (!filter_var($this->source, FILTER_VALIDATE_EMAIL)) {
-            throw new ValidationFailedException(tr('The specified value must contain a valid email address'));
+            throw new ValidationFailedException(ts('The specified value must contain a valid email address'));
         }
 
         return $this;
@@ -374,14 +430,14 @@ class Validate
 
         if ($regex) {
             if (!preg_match($string, $this->source)) {
-                throw new ValidationFailedException(tr('The specified value must match pattern ":value"', [
+                throw new ValidationFailedException(ts('The specified value must match pattern ":value"', [
                     ':value' => $string,
                 ]));
             }
 
         } else {
             if (!str_contains($this->source, $string)) {
-                throw new ValidationFailedException(tr('The specified value must contain ":value"', [
+                throw new ValidationFailedException(ts('The specified value must contain ":value"', [
                     ':value' => $string,
                 ]));
             }
@@ -399,7 +455,7 @@ class Validate
     public function isScalar(): static
     {
         if (!is_scalar($this->source)) {
-            throw new ValidationFailedException(tr('The specified value must be a scalar'));
+            throw new ValidationFailedException(ts('The specified value must be a scalar'));
         }
 
         return $this;
@@ -418,7 +474,7 @@ class Validate
         $this->isString();
 
         if (strlen($this->source) < $characters) {
-            throw new ValidationFailedException(tr('The specified value must have ":count" characters or more', [
+            throw new ValidationFailedException(ts('The specified value must have ":count" characters or more', [
                 ':count' => $characters,
             ]));
         }
@@ -433,7 +489,7 @@ class Validate
     public function isPassword(string $validation_password): static
     {
         if ($this->source !== $validation_password) {
-            throw new ValidationFailedException(tr('The specified password must match the validation password'));
+            throw new ValidationFailedException(ts('The specified password must match the validation password'));
         }
         $this->source = Password::testSecurity($this->source);
 
