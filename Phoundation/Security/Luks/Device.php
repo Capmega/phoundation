@@ -431,7 +431,7 @@ class Device extends PhoFile
             ':count' => $count
         ]));
 
-        Arrays::findPermutation($keys, false, function ($permutation) use (&$return, $device) {
+        Arrays::findPermutation($keys, null, function ($permutation) use (&$return, $device) {
             static $count = 0;
 
             try {
