@@ -280,8 +280,12 @@ class Device extends PhoFile
                 ]));
             }
 
+            Log::action(ts('Trying to open luks device file ":file" wit the specified passphrase', [
+                ':file'   => $this->source,
+            ]));
+
             Process::new('cryptsetup', $this->_restrictions)
-                   ->appendArguments(['luksOpen', $this->source, $device_name])
+                   ->appendArguments(['luksOpen', $this->source, $device_name], false, false)
                    ->setSudo(true)
                    ->setPipeFrom($passphrase)
                    ->execute($method);
@@ -406,9 +410,9 @@ class Device extends PhoFile
      *
      * @param IteratorInterface|array|string $keys The keys to try
      *
-     * @return string|null
+     * @return IteratorInterface
      */
-    public function luksTryPasswordSections(IteratorInterface|array|string $keys): ?string
+    public function luksTryPasswordSections(IteratorInterface|array|string $keys): IteratorInterface
     {
         // Try opening a UUID named device to ensure we will not try opening a device name that already exists
         $return       = null;
@@ -427,7 +431,7 @@ class Device extends PhoFile
             ':count' => $count
         ]));
 
-        Arrays::findPermutation($keys, null, function ($permutation) use (&$return, $device) {
+        Arrays::findPermutation($keys, false, function ($permutation) use (&$return, $device) {
             static $count = 0;
 
             try {
