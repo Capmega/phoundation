@@ -159,8 +159,10 @@ try {
 
 
 // Add the attachments
-foreach ($argv['attachments'] as $_attachment) {
-    $mail->addAttachment($_attachment->getSource());
+if ($argv['attachments']) {
+    foreach ($argv['attachments'] as $_attachment) {
+        $mail->addAttachment($_attachment->getSource());
+    }
 }
 
 
