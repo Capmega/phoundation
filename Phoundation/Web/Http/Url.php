@@ -2253,8 +2253,14 @@ class Url implements UrlInterface
      */
     public function getRights(bool $use_cache = true): array
     {
-        return $this->ensureAbsolute()
-                    ->getRightsObject($use_cache)
+        $this->ensureAbsolute();
+
+        if (Request::isMyPage($this->getPath())) {
+            // My pages do not require rights at all
+            return [];
+        }
+
+        return $this->getRightsObject($use_cache)
                    ?->getSource() ?? [];
     }
 
