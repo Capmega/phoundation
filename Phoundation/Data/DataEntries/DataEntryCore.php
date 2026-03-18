@@ -916,8 +916,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     break;
 
                 case 'status':
-                    $_definitions->add(DefinitionFactory::newStatus()
-                                                       ->setNullDisplay(tr('Ok')));
+                    $_definitions->add(DefinitionFactory::newStatus()->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
