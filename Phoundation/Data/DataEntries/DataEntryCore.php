@@ -4575,7 +4575,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return match ($status) {
-            null      => null,
+            null, ''  => null,
             'deleted' => $status . '-' . Strings::getRAndom(8),
             default   => $status
         };
