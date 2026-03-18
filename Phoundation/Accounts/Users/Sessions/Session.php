@@ -1380,6 +1380,57 @@ class Session implements SessionInterface
 
 
     /**
+     * Returns the human-readable log id for the session user
+     *
+     * @return string|null
+     */
+    public static function getUsersLogId(): ?string
+    {
+        if (empty(Session::$user)) {
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
+        }
+
+        return Session::getUserObject()->getLogId();
+    }
+
+
+    /**
+     * Returns the email for the session user
+     *
+     * @return string|null
+     */
+    public static function getUsersEmail(): ?string
+    {
+        if (empty(Session::$user)) {
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
+        }
+
+        return Session::getUserObject()->getEmail();
+    }
+
+
+    /**
+     * Returns the display name for this object
+     *
+     * @return string|null
+     */
+    public static function getUsersDisplayName(): ?string
+    {
+        if (empty(Session::$user)) {
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
+        }
+
+        return Session::getUserObject()->getDisplayName();
+    }
+
+
+    /**
      * Returns the user for this session
      *
      * @note Executing this method requires that the session data has already been initialized. If this method is called before session data was initialized, a
