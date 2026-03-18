@@ -1331,7 +1331,9 @@ class Session implements SessionInterface
     public static function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (empty(Session::$user)) {
-            return false;
+            if (empty(Session::$impersonated_user)) {
+                return false;
+            }
         }
 
         return Session::getUserObject()->hasSomeRights($rights, $always_match);
@@ -1349,7 +1351,9 @@ class Session implements SessionInterface
     public static function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (empty(Session::$user)) {
-            return false;
+            if (empty(Session::$impersonated_user)) {
+                return false;
+            }
         }
 
         return Session::getUserObject()->hasAllRights($rights, $always_match);
@@ -1366,7 +1370,9 @@ class Session implements SessionInterface
     public static function getUsersId(): ?int
     {
         if (empty(Session::$user)) {
-            return null;
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
         }
 
         return Session::getUserObject()->getId();
