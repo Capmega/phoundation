@@ -270,6 +270,26 @@ interface UrlInterface
 
 
     /**
+     * Returns true if the page for this URL a root level page and one of the system pages
+     *
+     * The system pages are one of:
+     *
+     * sign-in
+     * sign-out
+     * sign-key
+     * sign-up
+     * lost-password
+     * update-lost-password
+     * force-password-update
+     * auto-sign-out
+     * index
+     *
+     * @return bool
+     * @todo Add support for sites that do not start at root!
+     */
+    public function isSystemPage(): bool;
+
+    /**
      * Throws an AccessDeniedException if the current session user (or the specified one) does not have access to this URL
      *
      * @param UserInterface|null $_user
