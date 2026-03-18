@@ -1311,10 +1311,16 @@ class Session implements SessionInterface
     /**
      * Returns the PhoLocale object for this session
      *
-     * @return PhoLocaleInterface
+     * @return ?PhoLocaleInterface
      */
-    public static function getLocaleObject(): PhoLocaleInterface
+    public static function getLocaleObject(): ?PhoLocaleInterface
     {
+        if (empty(Session::$user)) {
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
+        }
+
         return Session::getUserObject()->getLocaleObject();
     }
 
@@ -1330,7 +1336,9 @@ class Session implements SessionInterface
     public static function hasSomeRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (empty(Session::$user)) {
-            return false;
+            if (empty(Session::$impersonated_user)) {
+                return false;
+            }
         }
 
         return Session::getUserObject()->hasSomeRights($rights, $always_match);
@@ -1348,7 +1356,9 @@ class Session implements SessionInterface
     public static function hasAllRights(array|string $rights, ?string $always_match = 'god'): bool
     {
         if (empty(Session::$user)) {
-            return false;
+            if (empty(Session::$impersonated_user)) {
+                return false;
+            }
         }
 
         return Session::getUserObject()->hasAllRights($rights, $always_match);
@@ -1365,7 +1375,9 @@ class Session implements SessionInterface
     public static function getUsersId(): ?int
     {
         if (empty(Session::$user)) {
-            return null;
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
         }
 
         return Session::getUserObject()->getId();
@@ -1380,7 +1392,9 @@ class Session implements SessionInterface
     public static function getUsersLogId(): ?string
     {
         if (empty(Session::$user)) {
-            return null;
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
         }
 
         return Session::getUserObject()->getLogId();
@@ -1395,7 +1409,9 @@ class Session implements SessionInterface
     public static function getUsersEmail(): ?string
     {
         if (empty(Session::$user)) {
-            return null;
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
         }
 
         return Session::getUserObject()->getEmail();
@@ -1410,7 +1426,9 @@ class Session implements SessionInterface
     public static function getUsersDisplayName(): ?string
     {
         if (empty(Session::$user)) {
-            return null;
+            if (empty(Session::$impersonated_user)) {
+                return null;
+            }
         }
 
         return Session::getUserObject()->getDisplayName();
