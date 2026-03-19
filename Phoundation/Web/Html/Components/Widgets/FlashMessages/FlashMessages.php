@@ -171,6 +171,8 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                     if (empty($title)) {
                         $title = tr('Error');
                     }
+
+                    return $this->addException($message->getMessage(), $title);
                 }
 
             } else {
