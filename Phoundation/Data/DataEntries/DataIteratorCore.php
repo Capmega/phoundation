@@ -31,8 +31,6 @@ use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Exception\IteratorDataTypeNotAcceptedException;
-use Phoundation\Data\Exception\IteratorKeyExistsException;
-use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Exception\IteratorValidatorFailedException;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -1919,14 +1917,11 @@ throw new ObsoleteException();
 
         // Apply will first validate, so we know ALL has been validated before we are saving
         foreach ($source as $data_entry_id => $data_entry_source) {
-            $this->get($data_entry_id, $require_clean_source)?->apply(true, $data_entry_source);
+            $this->get($data_entry_id)?->apply(true, $data_entry_source);
         }
 
         // Require clean source
-        if ($require_clean_source) {
-            $_validator->validate($require_clean_source);
-        }
-
+        $_validator->validate($require_clean_source);
         return $this;
     }
 
