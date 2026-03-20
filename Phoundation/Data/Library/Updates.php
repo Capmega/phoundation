@@ -19,6 +19,8 @@ namespace Phoundation\Data\Library;
 
 
 
+use Phoundation\Core\Log\Log;
+
 class Updates extends \Phoundation\Core\Libraries\Updates
 {
     /**
@@ -28,7 +30,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.8.0';
+        return '0.9.0';
     }
 
 
@@ -203,6 +205,17 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 'entities',
                 'test_dataentries',
             ]);
+
+        })->addUpdate('0.9.0', function () {
+            // The previous release of the Data library may have left some "status" columns in some tables with "" instead of NULL. Fix this.
+            $tables = sql()->getSchemaObject()->getDatabaseObject()->getTablesWithColumnObject('status');
+
+            foreach ($tables as $table) {
+                Log::dot();
+                sql()->query('UPDATE `' . $table . '` SET `status` = NULL WHERE `status` = ""');
+            }
+
+            Log::success('Done!');
         });
     }
 }
