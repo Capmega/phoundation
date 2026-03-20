@@ -753,7 +753,7 @@ class Dropzone implements DropzoneInterface
 //            'renameFile'            => $this->rename_file,
 //            'forceFallback'         => $this->force_fallback,
 
-        return Script::new('var myFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); 
+        return Script::new('window.PhoFileUploadDropZone = new Dropzone("' . $this->selector . '", ' . $options . '); 
                             phoundation.log("Setup dropzone with selector \"' . $this->selector . '\" and target \"' . $this->_url . '\"")')
                      ->setJavascriptWrapper(EnumJavascriptWrappers::window)
                      ->render();

@@ -627,38 +627,40 @@ throw new UnderConstructionException(tr('IMPLEMENT FILE VALIDATIONS'));
      *       UploadHandler
      *
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      * @todo Add $value datatype / class tests, we just assume its an object!
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         if (empty($key)) {
             $key = $value->getDropzoneObject()->getMimetypes();
             $key = Strings::force($key);
         }
 
-        return parent::append($value, $key, $skip_null_values, $exception);
+        return parent::append($value, $key, $skip_null_values, $exception, $auto_save);
     }
 
 
     /**
-     * Add the specified value to the iterator array using an optional key
+     * Add the specified data entry to the beginning of this Iterator
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         if (empty($key)) {
             $key = $value->getDropzoneObject()->getMimetypes();

@@ -340,10 +340,10 @@ interface ElementAttributesInterface extends ContentObjectInterface
      * Set if the button is right aligned or not
      *
      * @param bool|null $right If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default alignment
-     *
+     * @param bool $reset_block
      * @return static
      */
-    public function setFloatRight(?bool $right): static;
+    public function setFloatRight(?bool $right, bool $reset_block = true): static;
 
     /**
      * Returns if the button is right aligned or not

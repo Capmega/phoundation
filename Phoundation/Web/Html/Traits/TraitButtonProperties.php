@@ -386,13 +386,19 @@ trait TraitButtonProperties
     /**
      * Set if the button is block or not
      *
-     * @param bool $block
+     * @param bool $block                    The value for block mode for the button. True will enable block mode, false will disable it
+     * @param bool $reset_float_right [true] If true, will reset the "float right" property to false, as these two are mutually exclusive
      *
      * @return Button
      */
-    public function setBlock(bool $block): static
+    public function setBlock(bool $block, bool $reset_float_right = true): static
     {
         $this->block = $block;
+
+        if ($block and $reset_float_right) {
+            return $this->setFloatRight(false, false);
+        }
+
         return $this;
     }
 
@@ -479,8 +485,7 @@ trait TraitButtonProperties
      */
     public function render(): ?string
     {
-        $this->resetButtonClasses()
-             ->_attributes->set($this->button_type?->value, 'type');
+        $this->resetButtonClasses()->_attributes->set($this->button_type?->value, 'type');
 
         if ($this->_url) {
             // Use an <a> anchor button

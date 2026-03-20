@@ -984,14 +984,20 @@ trait TraitElementAttributes
     /**
      * Set if the button is right aligned or not
      *
-     * @param bool|null $right If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default alignment
+     * @param bool|null $right              If true, button will be right aligned, if false, button will be left aligned, if NULL, button will have default
+     *                                      alignment
+     * @param bool      $reset_block [true] If true, will reset the "float right" property to false, as these two are mutually exclusive
      *
      * @return static
      */
-    public function setFloatRight(?bool $right): static
+    public function setFloatRight(?bool $right, bool $reset_block = true): static
     {
         if ($right) {
             $this->addClass('float-right');
+
+            if ($reset_block) {
+                $this->setBlock(false, false);
+            }
 
         } elseif ($right !== null) {
             $this->removeClass('float-right');
@@ -1217,14 +1223,16 @@ trait TraitElementAttributes
      */
     protected function updateReadonlyDisabledName(): static
     {
-        if ($this->getReadonly() or $this->getDisabled()) {
-            $this->setId($this->getName(), false)
-                 ->setName(null, false);
+        if (!$this instanceof ButtonInterface) {
+            if ($this->getReadonly() or $this->getDisabled()) {
+                $this->setId($this->getName(), false)
+                     ->setName(null, false);
 
-        } else {
-            // In reverse, when not readonly or disabled and  name is empty, update name with id
-            if (empty($this->getName())) {
-                $this->setId($this->getId(), false);
+            } else {
+                // In reverse, when not readonly or disabled and  name is empty, update name with id
+                if (empty($this->getName())) {
+                    $this->setId($this->getId(), false);
+                }
             }
         }
 

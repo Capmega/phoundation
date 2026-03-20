@@ -152,8 +152,6 @@ class Button extends Input implements ButtonInterface
     {
         $script = null;
 
-
-
         if ($this->isEnabled()) {
             if ($this->getDisableAfterClick()) {
                 // This button will disable itself after having been clicked
@@ -278,7 +276,7 @@ class Button extends Input implements ButtonInterface
      *
      * @return ScriptInterface
      */
-    public function getRequireKeyScript(string $selector, string $require_keys): ScriptInterface
+    public static function getRequireKeyScript(string $selector, string $require_keys): ScriptInterface
     {
         return Script::new('window.phoundation.addModifierkeyDownCallback("' . $require_keys . '", function () {
                                 $("' . $selector . '.button-require-modifiers").each(function (index, button) {
@@ -299,6 +297,6 @@ class Button extends Input implements ButtonInterface
                                              .addClass("disabled");
                                 });
                             });            
-                        ');
+                        ')->setJavascriptWrapper(EnumJavascriptWrappers::window);
     }
 }
