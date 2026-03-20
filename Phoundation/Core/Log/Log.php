@@ -26,6 +26,7 @@ use Phoundation\Core\Libraries\Library;
 use Phoundation\Core\Log\Exception\LogException;
 use Phoundation\Core\Log\Interfaces\LogInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\Traits\TraitDataStaticBoolQuiet;
 use Phoundation\Data\Traits\TraitDataStaticBoolVerbose;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
@@ -2057,8 +2058,21 @@ class Log implements LogInterface
                 }
             }
 
+        } elseif (($messages instanceof DataEntryInterface) or ($messages instanceof DataIteratorInterface)) {
+            // Make sure log message is not DataEntry type object
+            $messages = $messages->getLogData();
+
         } elseif (is_array($messages)) {
             ksort($messages);
+
+            // Make sure array contents are not DataEntry type objects
+            foreach ($messages as &$message) {
+                if (($message instanceof DataEntryInterface) or ($message instanceof DataIteratorInterface)) {
+                    $message = $message->getLogData();
+                }
+            }
+
+            unset($message);
         }
 
         return Log::write(print_r($messages, true), 'debug', $threshold, false, echo_prefix: $echo_prefix, echo_screen: $echo_screen);

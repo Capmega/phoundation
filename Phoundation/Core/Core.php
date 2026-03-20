@@ -3347,11 +3347,13 @@ class Core implements CoreInterface
                 showdie($e);
 
             case EnumRequestTypes::ajax:
+                $warning = (($e instanceof PhoException) and $e->getWarning());
+
                 if ($e instanceof AccessDeniedException) {
                     $e->setWarning(true);
                     $message = tr('You do not have the required rights to access to the requested background resource. Please contact your system administrator to fix this');
 
-                } elseif ($e->getWarning()) {
+                } elseif ($warning) {
                     if ($e instanceof ValidationFailedException) {
                         $message = Strings::force($e->getFailures(), ', ');
 
@@ -3365,7 +3367,7 @@ class Core implements CoreInterface
 
                 JsonPage::new()
                         ->addFlashMessageSections(FlashMessage::new()
-                            ->setMode($e->getWarning() ? EnumDisplayMode::warning : EnumDisplayMode::error)
+                            ->setMode($warning ? EnumDisplayMode::warning : EnumDisplayMode::error)
                             ->setTitle(tr('Error!'))
                             ->setMessage(get_null(trim($message)) ?? tr('Something went wrong on the server, please notify your IT department and try again later')))
                         ->reply();
