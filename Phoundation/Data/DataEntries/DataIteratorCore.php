@@ -31,6 +31,8 @@ use Phoundation\Data\DataEntries\Interfaces\DataIteratorInterface;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Interfaces\ListOperationsInterface;
 use Phoundation\Data\Exception\IteratorDataTypeNotAcceptedException;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
+use Phoundation\Data\Exception\IteratorKeyNotExistsException;
 use Phoundation\Data\Exception\IteratorValidatorFailedException;
 use Phoundation\Data\Interfaces\EntryInterface;
 use Phoundation\Data\Interfaces\IteratorInterface;
@@ -1011,11 +1013,11 @@ throw new ObsoleteException();
 
 
     /**
-     * Deletes ALL entries in this table!
+     * Erase (as in SQL DELETE) ALL entries from in this table, also erasing their meta data
      *
      * This method reads in $size entries at the time, erases them, and continues onto the next until all are erased
      *
-     * @param int $chunk_size
+     * @param int $chunk_size [10] The amount of entries that will be erased for each chunk
      *
      * @return void
      */
@@ -1091,6 +1093,25 @@ throw new ObsoleteException();
      *
      * @return static
      */
+    public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
+    {
+        return $this->append($value, $key, $skip_null_values, $exception, $auto_save);
+    }
+
+
+    /**
+     * Appends the specified data entry to the end of the source list
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         // Skip NULL values?
@@ -1102,12 +1123,12 @@ throw new ObsoleteException();
 
         $key = $this->prepareKey($value, $key, $auto_save);
 
-        return parent::append($value, $key, $skip_null_values, $exception, $auto_save);
+        return parent::append($value, $key, $skip_null_values, $exception);
     }
 
 
     /**
-     * Add the specified data entry to the beginning of the source list
+     * Prepends the specified data entry to the beginning of the source list
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
@@ -1131,6 +1152,126 @@ throw new ObsoleteException();
         $key = $this->prepareKey($value, $key, $auto_save);
 
         return parent::prepend($value, $key, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Prepends the specified value to the Iterator source using an optional key BEFORE the specified "$before" key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $before           [null] The key before which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $key = $this->prepareKey($value, $key, $auto_save);
+
+        return parent::prependBeforeKey($value, $key, $before, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Appends the specified value to the Iterator source using an optional key AFTER the specified "$after" key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $after            [null] The key after which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $key = $this->prepareKey($value, $key, $auto_save);
+
+        return parent::appendAfterKey($value, $key, $after, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Prepends the specified value to the Iterator source using an optional key BEFORE the specified "$before" value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null]  The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $before           [null]  The value before which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $strict           [false] If true, the $before value must match with strict (===) comparison. If false, must
+     *                                                                   match a loose comparison (==)
+     * @param bool                             $skip_null_values [true]  If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true]  If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true]  If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $key = $this->prepareKey($value, $key, $auto_save);
+
+        return parent::prependBeforeValue($value, $key, $before, $strict, $skip_null_values, $exception);
+    }
+
+
+    /**
+     * Appends the specified value to the Iterator source using an optional key AFTER the specified "$after" value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null]  The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $after            [null]  The value after which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $strict           [false] If true, the $before value must match with strict (===) comparison. If false, must
+     *                                                                   match a loose comparison (==)
+     * @param bool                             $skip_null_values [true]  If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true]  If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true]  If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                return $this;
+            }
+        }
+
+        $key = $this->prepareKey($value, $key, $auto_save);
+
+        return parent::appendAfterValue($value, $key, $after, $strict, $skip_null_values, $exception);
     }
 
 

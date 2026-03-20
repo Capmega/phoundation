@@ -387,12 +387,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Wrapper for Iterator::append()
+     * Add the specified data entry to the end of the source list
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
      *
      * @return static
      */
@@ -403,7 +405,7 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
      /**
-      * Add the specified value to the iterator array using an optional key
+      * Appends the specified value to the Iterator source using an optional key
       *
       * @note if no key was specified, the entry will be assigned as-if a new array entry
       *
@@ -446,6 +448,251 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
             $this->source[$key] = $value;
         }
+
+        return $this;
+    }
+
+
+    /**
+     * Prepends the specified data entry to the beginning of this Iterator
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     *
+     * @return static
+     */
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                unset($this->source[$key]);
+                return $this;
+            }
+        }
+
+        $value = $this->checkDataTypeAndContent($value, $key);
+
+        // NULL keys will be added as numerical "first" entries
+        if ($key === null) {
+            array_unshift($this->source, $value);
+
+        } else {
+            if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
+                throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
+                    ':key'   => $key,
+                    ':class' => static::class,
+                ]));
+            }
+
+            $this->source = array_merge([$key => $value], $this->source);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Prepends the specified value to the Iterator source using an optional key BEFORE the specified "$before" key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $before           [null] The key before which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     *
+     * @return static
+     */
+    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                unset($this->source[$key]);
+                return $this;
+            }
+        }
+
+        $value = $this->checkDataTypeAndContent($value, $key);
+
+        // Ensure the before key exists
+        if (!array_key_exists($before, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => static::class,
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => static::class,
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Appends the specified value to the Iterator source using an optional key AFTER the specified "$after" key
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $after            [null] The key after which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     *
+     * @return static
+     */
+    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                unset($this->source[$key]);
+                return $this;
+            }
+        }
+
+        $value = $this->checkDataTypeAndContent($value, $key);
+
+        // Ensure the after key exists
+        if (!array_key_exists($after, $this->source)) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => static::class,
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => static::class,
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
+        return $this;
+    }
+
+
+    /**
+     * Prepends the specified value to the Iterator source using an optional key BEFORE the specified "$before" value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null]  The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $before           [null]  The value before which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $strict           [false] If true, the $before value must match with strict (===) comparison. If false, must
+     *                                                                   match a loose comparison (==)
+     * @param bool                             $skip_null_values [true]  If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true]  If true, will throw an exception if the DataEntry object already exists in this list
+     *
+     * @return static
+     */
+    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                unset($this->source[$key]);
+                return $this;
+            }
+        }
+
+        $value = $this->checkDataTypeAndContent($value, $key);
+
+        // Ensure the before key exists
+        $before_key = array_search($before, $this->source, $strict);
+
+        if ($before_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => static::class,
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
+                ':key'    => $key,
+                ':before' => $before,
+                ':class'  => static::class,
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
+        return $this;
+    }
+
+
+    /**
+     * Appends the specified value to the Iterator source using an optional key AFTER the specified "$after" value
+     *
+     * @note if no key was specified, the entry will be assigned as-if a new array entry
+     *
+     * @param mixed                            $value            The value to add
+     * @param Stringable|string|float|int|null $key              [null]  The key under which to store the value. If NULL, the key is determined automatically
+     * @param Stringable|string|int|null       $after            [null]  The value after which this new value must be inserted. TODO If null, then what happens?
+     * @param bool                             $strict           [false] If true, the $before value must match with strict (===) comparison. If false, must
+     *                                                                   match a loose comparison (==)
+     * @param bool                             $skip_null_values [true]  If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true]  If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true]  If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     */
+    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
+    {
+        // Skip NULL values?
+        if ($value === null) {
+            if ($skip_null_values) {
+                unset($this->source[$key]);
+                return $this;
+            }
+        }
+
+        $value = $this->checkDataTypeAndContent($value, $key);
+
+        // Ensure the after value exists
+        $after_key = array_search($after, $this->source, $strict);
+
+        if ($after_key === false) {
+            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => static::class,
+            ]));
+        }
+
+        // NULL keys will be added as numerical "next" entries
+        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
+            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
+                ':key'   => $key,
+                ':after' => $after,
+                ':class' => static::class,
+            ]));
+        }
+
+        Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
 
         return $this;
     }
@@ -590,249 +837,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
                 ':key' => $key,
             ]), $e);
         }
-
-        return $this;
-    }
-
-
-    /**
-     * Add the specified data entry to the beginning of this Iterator
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                            $value                   The value to add
-     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
-     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
-     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
-     *
-     * @return static
-     */
-    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
-    {
-        // Skip NULL values?
-        if ($value === null) {
-            if ($skip_null_values) {
-                unset($this->source[$key]);
-                return $this;
-            }
-        }
-
-        $value = $this->checkDataTypeAndContent($value, $key);
-
-        // NULL keys will be added as numerical "first" entries
-        if ($key === null) {
-            array_unshift($this->source, $value);
-
-        } else {
-            if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
-                throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object because the key already exists', [
-                    ':key'   => $key,
-                    ':class' => static::class,
-                ]));
-            }
-
-            $this->source = array_merge([$key => $value], $this->source);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_key
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|int|null $before
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
-     *
-     * @return static
-     */
-    public function prependBeforeKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $before = null, bool $skip_null_values = true, bool $exception = true): static
-    {
-        // Skip NULL values?
-        if ($value === null) {
-            if ($skip_null_values) {
-                unset($this->source[$key]);
-                return $this;
-            }
-        }
-
-        $value = $this->checkDataTypeAndContent($value, $key);
-
-        // Ensure the before key exists
-        if (!array_key_exists($before, $this->source)) {
-            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the before key ":before" does not exist', [
-                ':key'    => $key,
-                ':before' => $before,
-                ':class'  => static::class,
-            ]));
-        }
-
-        // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
-            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
-                ':key'    => $key,
-                ':before' => $before,
-                ':class'  => static::class,
-            ]));
-        }
-
-        Arrays::spliceByKey($this->source, $before, 0, [$key => $value], false);
-
-        return $this;
-    }
-
-
-    /**
-     * Add the specified value to the iterator array using an optional key AFTER the specified $after_key
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param Stringable|string|int|null $after
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
-     *
-     * @return static
-     */
-    public function appendAfterKey(mixed $value, Stringable|string|float|int|null $key = null, Stringable|string|int|null $after = null, bool $skip_null_values = true, bool $exception = true): static
-    {
-        // Skip NULL values?
-        if ($value === null) {
-            if ($skip_null_values) {
-                unset($this->source[$key]);
-                return $this;
-            }
-        }
-
-        $value = $this->checkDataTypeAndContent($value, $key);
-
-        // Ensure the after key exists
-        if (!array_key_exists($after, $this->source)) {
-            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the after key ":after" does not exist', [
-                ':key'   => $key,
-                ':after' => $after,
-                ':class' => static::class,
-            ]));
-        }
-
-        // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
-            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
-                ':key'   => $key,
-                ':after' => $after,
-                ':class' => static::class,
-            ]));
-        }
-
-        Arrays::spliceByKey($this->source, $after, 0, [$key => $value], true);
-        return $this;
-    }
-
-
-    /**
-     * Add the specified value to the iterator array using an optional key BEFORE the specified $before_value
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param mixed                      $before
-     * @param bool                       $strict
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
-     *
-     * @return static
-     */
-    public function prependBeforeValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $before = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
-    {
-        // Skip NULL values?
-        if ($value === null) {
-            if ($skip_null_values) {
-                unset($this->source[$key]);
-                return $this;
-            }
-        }
-
-        $value = $this->checkDataTypeAndContent($value, $key);
-
-        // Ensure the before key exists
-        $before_key = array_search($before, $this->source, $strict);
-
-        if ($before_key === false) {
-            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before value ":before" because the before value ":before" does not exist', [
-                ':key'    => $key,
-                ':before' => $before,
-                ':class'  => static::class,
-            ]));
-        }
-
-        // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
-            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object before key ":before" because the key ":key" already exists', [
-                ':key'    => $key,
-                ':before' => $before,
-                ':class'  => static::class,
-            ]));
-        }
-
-        Arrays::spliceByKey($this->source, $before_key, 0, [$key => $value], false);
-        return $this;
-    }
-
-
-    /**
-     * Add the specified value to the iterator array using an optional key AFTER the specified $after_value
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param mixed                      $after
-     * @param bool                       $strict
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
-     *
-     * @return static
-     */
-    public function appendAfterValue(mixed $value, Stringable|string|float|int|null $key = null, mixed $after = null, bool $strict = false, bool $skip_null_values = true, bool $exception = true): static
-    {
-        // Skip NULL values?
-        if ($value === null) {
-            if ($skip_null_values) {
-                unset($this->source[$key]);
-                return $this;
-            }
-        }
-
-        $value = $this->checkDataTypeAndContent($value, $key);
-
-        // Ensure the after value exists
-        $after_key = array_search($after, $this->source, $strict);
-
-        if ($after_key === false) {
-            throw new IteratorKeyNotExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after value ":after" because the after value ":after" does not exist', [
-                ':key'   => $key,
-                ':after' => $after,
-                ':class' => static::class,
-            ]));
-        }
-
-        // NULL keys will be added as numerical "next" entries
-        if (array_key_exists($key, $this->source) and ($exception ?? $this->exception_on_get)) {
-            throw new IteratorKeyExistsException(tr('Cannot add key ":key" to Iterator class ":class" object after key ":after" because the key ":key" already exists', [
-                ':key'   => $key,
-                ':after' => $after,
-                ':class' => static::class,
-            ]));
-        }
-
-        Arrays::spliceByKey($this->source, $after_key, 0, [$key => $value], true);
 
         return $this;
     }
