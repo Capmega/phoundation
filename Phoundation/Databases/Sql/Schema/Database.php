@@ -287,19 +287,19 @@ class Database extends SchemaAbstract implements DatabaseInterface
 
 
     /**
-     * Returns a list with all tables in this database that have the specified column
+     * Returns an array with all tables in this database that have the specified column
      *
      * @param string $column
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public function getTablesWithColumnObject(string $column): IteratorInterface
+    public function getTablesWithColumnObject(string $column): array
     {
-        return sql()->listDataIterator('SELECT `TABLE_NAME` 
-                                        FROM   `INFORMATION_SCHEMA`.`COLUMNS` 
-                                        WHERE  `COLUMN_NAME` = :column
-                                        AND    `TABLE_SCHEMA` = DATABASE()', [
-                                            ':column' => $column,
+        return sql()->listKeyValue('SELECT `TABLE_NAME` 
+                                    FROM   `INFORMATION_SCHEMA`.`COLUMNS` 
+                                    WHERE  `COLUMN_NAME` = :column
+                                    AND    `TABLE_SCHEMA` = DATABASE()', [
+                                        ':column' => $column,
         ]);
     }
 }

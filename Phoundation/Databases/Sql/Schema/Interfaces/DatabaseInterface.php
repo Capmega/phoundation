@@ -100,11 +100,11 @@ interface DatabaseInterface extends SchemaAbstractInterface
     public function copy(string $database_name): static;
 
     /**
-     * Returns a list with all tables in this database that have the specified column
+     * Returns an array with all tables in this database that have the specified column
      *
      * @param string $column
      *
-     * @return IteratorInterface
+     * @return array
      */
-    public function getTablesWithColumnObject(string $column): IteratorInterface;
+    public function getTablesWithColumnObject(string $column): array;
 }
