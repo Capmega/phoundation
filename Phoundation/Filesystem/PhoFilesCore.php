@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem;
 
 use PDOStatement;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Data\IteratorCore;
@@ -447,10 +448,22 @@ throw new UnderConstructionException();
     }
 
 
-    /**
-     * @inheritDoc
+     /**
+      * Add the specified value to this PhoFiles Iterator using an optional key
+      *
+      * @note if no key was specified, the entry will be assigned as-if a new array entry
+      *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
+     *
+     * @return static
+     *
+     * @throws IteratorKeyExistsException
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         // Skip NULL values?
         if ($value === null) {

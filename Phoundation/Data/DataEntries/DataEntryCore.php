@@ -2921,6 +2921,26 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
 
 
     /**
+     * Returns an array with the DataEntry source and flags, used for logging
+     *
+     * @return array
+     */
+    public function getLogData(): array
+    {
+        $return = [
+            'datatype' => static::class,
+            'source'   => $this->getSource(),
+            'flags'    => $this->getFlags(),
+        ];
+
+        ksort($return['flags']);
+        ksort($return['source']);
+
+        return $return;
+    }
+
+
+    /**
      * Will attempt to copy permitted keys to this DataEntry's source
      *
      * @param array $source
@@ -5239,6 +5259,17 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     public function isResolvingVirtualColumn(): bool
     {
         return array_get_safe($this->flags, 'is_resolving_virtual_column', false);
+    }
+
+
+    /**
+     * Returns all internal flags
+     *
+     * @return array
+     */
+    public function getFlags(): array
+    {
+        return $this->flags;
     }
 
 

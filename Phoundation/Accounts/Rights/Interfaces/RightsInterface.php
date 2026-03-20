@@ -24,14 +24,15 @@ interface RightsInterface extends DataIteratorInterface
     /**
      * Appends the specified data entry to the data list
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null_values
-     * @param bool                             $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static;
 
     /**
      * Remove all rights for this role

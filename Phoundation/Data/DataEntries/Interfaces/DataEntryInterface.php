@@ -1156,6 +1156,20 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
     public function isResolvingVirtualColumn(): bool;
 
     /**
+     * Returns an array with all DataEntry objects as loggable arrays
+     *
+     * @return array
+     */
+    public function getLogData(): array;
+
+    /**
+     * Returns all internal flags
+     *
+     * @return array
+     */
+    public function getFlags(): array;
+
+    /**
      * Returns the value for the specified flag
      *
      * @param string $flag

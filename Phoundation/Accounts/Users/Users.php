@@ -169,17 +169,18 @@ class Users extends DataIterator implements UsersInterface
 
 
     /**
-     * Add the specified user to the data list
+     * Appends the specified user to the data list
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null_values
-     * @param bool                             $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      * @todo Move saving part to ->save(). ->add() should NOT immediately save to database!
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         $this->checkParent(tr('add Role entry to parent ":parent"', [
             ':parent' => $this->_parent ? get_class($this->_parent) : 'NULL'
@@ -233,7 +234,7 @@ class Users extends DataIterator implements UsersInterface
         }
 
         // Add right to the internal list
-        return parent::append($value, $key, $skip_null_values, $exception);
+        return parent::append($value, $key, $skip_null_values, $exception, $auto_save);
     }
 
 

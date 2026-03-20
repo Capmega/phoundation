@@ -402,19 +402,21 @@ class IteratorCore extends IteratorBase implements IteratorInterface
     }
 
 
-    /**
-     * Add the specified value to the iterator array using an optional key
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null_values
-     * @param bool                             $exception
+     /**
+      * Add the specified value to the iterator array using an optional key
+      *
+      * @note if no key was specified, the entry will be assigned as-if a new array entry
+      *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
      *
      * @return static
+     *
+     * @throws IteratorKeyExistsException
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+   public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -594,14 +596,14 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Add the specified value to the iterator array using an optional key
+     * Add the specified data entry to the beginning of this Iterator
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
      *
      * @return static
      */
@@ -2316,22 +2318,6 @@ class IteratorCore extends IteratorBase implements IteratorInterface
 
 
     /**
-     * Ensures that all iterator entries are arrays
-     *
-     * @return static
-     */
-    public function ensureObjects(): static
-    {
-        foreach ($this->source as $key => &$value) {
-            $value = $this->ensureObject($key, true);
-        }
-
-        unset($value);
-        return $this;
-    }
-
-
-    /**
      * Executes the callback function on each entry in this Iterator
      *
      * Note: When setup to automatically ensure objects, all
@@ -2354,6 +2340,22 @@ class IteratorCore extends IteratorBase implements IteratorInterface
             }
         }
 
+        return $this;
+    }
+
+
+    /**
+     * Ensures that all iterator entries are arrays
+     *
+     * @return static
+     */
+    public function ensureObjects(): static
+    {
+        foreach ($this->source as $key => &$value) {
+            $value = $this->ensureObject($key, true);
+        }
+
+        unset($value);
         return $this;
     }
 

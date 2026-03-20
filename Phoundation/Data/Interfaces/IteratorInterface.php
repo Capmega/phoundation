@@ -10,6 +10,7 @@ use Phoundation\Core\Interfaces\ArrayableInterface;
 use Phoundation\Data\DataEntries\DataIterator;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Interfaces\DataEntryInterface;
+use Phoundation\Data\Exception\IteratorKeyExistsException;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Utils\Utils;
@@ -67,29 +68,31 @@ interface IteratorInterface extends IteratorBaseInterface
      */
     public function add(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
-    /**
-     * Add the specified value to the iterator array using an optional key
-     *
-     * @note if no key was specified, the entry will be assigned as-if a new array entry
-     *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     /**
+      * Add the specified value to the iterator array using an optional key
+      *
+      * @note if no key was specified, the entry will be assigned as-if a new array entry
+      *
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
      *
      * @return static
+     *
+     * @throws IteratorKeyExistsException
      */
     public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static;
 
     /**
-     * Add the specified value to the iterator array using an optional key
+     * Add the specified data entry to the beginning of this Iterator
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
      *
      * @return static
      */

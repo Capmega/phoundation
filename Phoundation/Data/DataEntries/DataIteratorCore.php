@@ -1083,14 +1083,15 @@ throw new ObsoleteException();
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                             $skip_null_values
-     * @param bool                             $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      */
-    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function append(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -1099,9 +1100,9 @@ throw new ObsoleteException();
             }
         }
 
-        $key = $this->prepareKey($value, $key);
+        $key = $this->prepareKey($value, $key, $auto_save);
 
-        return parent::append($value, $key, $skip_null_values, $exception);
+        return parent::append($value, $key, $skip_null_values, $exception, $auto_save);
     }
 
 
@@ -1110,14 +1111,15 @@ throw new ObsoleteException();
      *
      * @note if no key was specified, the entry will be assigned as-if a new array entry
      *
-     * @param mixed                      $value
-     * @param Stringable|string|float|int|null $key
-     * @param bool                       $skip_null_values
-     * @param bool                       $exception
+     * @param mixed                            $value                   The value to add
+     * @param Stringable|string|float|int|null $key              [null] The key under which to store the value. If NULL, the key is determined automatically
+     * @param bool                             $skip_null_values [true] If true, will skipp adding the value if it is NULL
+     * @param bool                             $exception        [true] If true, will throw an exception if the DataEntry object already exists in this list
+     * @param bool                             $auto_save        [true] If true, will ensure the DataEntry object $value is saved before adding it to the list
      *
      * @return static
      */
-    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true): static
+    public function prepend(mixed $value, Stringable|string|float|int|null $key = null, bool $skip_null_values = true, bool $exception = true, bool $auto_save = true): static
     {
         // Skip NULL values?
         if ($value === null) {
@@ -1126,7 +1128,7 @@ throw new ObsoleteException();
             }
         }
 
-        $key = $this->prepareKey($value, $key);
+        $key = $this->prepareKey($value, $key, $auto_save);
 
         return parent::prepend($value, $key, $skip_null_values, $exception);
     }
@@ -1135,17 +1137,22 @@ throw new ObsoleteException();
     /**
      * Prepares the value to be added to the source
      *
-     * @param mixed                            $value
-     * @param Stringable|string|float|int|null $key
+     * @param mixed                            $value            The value to use to prepare the key
+     * @param Stringable|string|float|int|null $key       [null] The optional key that should be used. If not specified, a key is determined automatically
+     * @param bool                             $auto_save [true] If true, will ensure the DataEntry is saved before continuing
      *
      * @return string|int
+     * @throws DataEntryNotExistsException
+     * @throws OutOfBoundsException
      */
-    protected function prepareKey(mixed $value, Stringable|string|float|int|null $key = null): string|int
+    protected function prepareKey(mixed $value, Stringable|string|float|int|null $key = null, bool $auto_save = true): string|int
     {
         // If the value is a DataEntry object, make sure its saved
         if ($value instanceof DataEntryInterface) {
             // If this DataEntry object is NOT modified, DataEntry::save() will automatically not save, this is ok
-            $value->save();
+            if ($auto_save) {
+                $value->save();
+            }
 
         } else {
             // Value might be NULL if we skip NULLs?
@@ -1308,6 +1315,50 @@ throw new ObsoleteException();
                                            ->setRestrictionsObject($this->getRestrictionsObject())
                                            ->setConnectorObject($this->getConnectorObject())
                                            ->loadOrThis($identifier);
+    }
+
+
+    /**
+     * Returns an array with all DataEntry objects as loggable arrays
+     *
+     * @return array
+     */
+    public function getLogData(): array
+    {
+        $return = [
+            'datatype' => static::class,
+            'source'   => []
+        ];
+
+        foreach ($this->source as $key => &$value) {
+            if ($value instanceof DataEntryInterface) {
+                $return['source'][$key] = $value->getLogData();
+
+            } else {
+                $return['source'][$key] = $value;
+            }
+        }
+
+        unset($value);
+        return $return;
+    }
+
+
+    /**
+     * Ensures that all iterator entries are arrays
+     *
+     * @return static
+     */
+    public function ensureArrays(): static
+    {
+        foreach ($this->source as $key => &$value) {
+            if ($value instanceof DataEntryInterface) {
+                $value = $value->getSource();
+            }
+        }
+
+        unset($value);
+        return $this;
     }
 
 
