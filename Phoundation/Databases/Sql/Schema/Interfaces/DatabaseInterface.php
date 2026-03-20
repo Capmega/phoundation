@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema\Interfaces;
 
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Sql\Schema\Database;
 use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
@@ -97,4 +98,13 @@ interface DatabaseInterface extends SchemaAbstractInterface
      * @see https://www.atlassian.com/data/admin/how-to-rename-a-database-in-mysql
      */
     public function copy(string $database_name): static;
+
+    /**
+     * Returns a list with all tables in this database that have the specified column
+     *
+     * @param string $column
+     *
+     * @return IteratorInterface
+     */
+    public function getTablesWithColumnObject(string $column): IteratorInterface;
 }

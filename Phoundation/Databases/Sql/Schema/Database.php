@@ -18,6 +18,7 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
+use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Export;
 use Phoundation\Databases\Import;
 use Phoundation\Databases\Sql\Exception\SqlException;
@@ -282,5 +283,23 @@ class Database extends SchemaAbstract implements DatabaseInterface
               ->import();
 
         return $this;
+    }
+
+
+    /**
+     * Returns a list with all tables in this database that have the specified column
+     *
+     * @param string $column
+     *
+     * @return IteratorInterface
+     */
+    public function getTablesWithColumnObject(string $column): IteratorInterface
+    {
+        return sql()->listDataIterator('SELECT `TABLE_NAME` 
+                                        FROM   `INFORMATION_SCHEMA`.`COLUMNS` 
+                                        WHERE  `COLUMN_NAME` = :column
+                                        AND    `TABLE_SCHEMA` = DATABASE()', [
+                                            ':column' => $column,
+        ]);
     }
 }
