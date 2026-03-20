@@ -1327,7 +1327,7 @@ class PhoPathCore implements PhoPathInterface
 
         // Delete all specified patterns
         // Execute the rm command
-        Process::new('rm', $this->_restrictions)
+        Process::new('rm', $this->_restrictions, which_command: false)
                ->setSudo($sudo)
                ->setUseRunFile($use_run_file)
                ->setTimeout(10)

@@ -916,8 +916,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     break;
 
                 case 'status':
-                    $_definitions->add(DefinitionFactory::newStatus()
-                                                       ->setNullDisplay(tr('Ok')));
+                    $_definitions->add(DefinitionFactory::newStatus()->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
@@ -4595,7 +4594,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return match ($status) {
-            null      => null,
+            null, ''  => null,
             'deleted' => $status . '-' . Strings::getRAndom(8),
             default   => $status
         };
