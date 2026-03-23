@@ -274,7 +274,7 @@ class Notifications extends DataIterator implements NotificationsInterface
                                         });
                                     }
 
-                                    setInterval(function(){ checkNotifications(true); }, ' . (config()->getNatural('notifications.ping.interval', 60) * 1000) . ');')
+                                    window.phoundation.addInterval(setInterval(function(){ checkNotifications(true); }, ' . (config()->getNatural('notifications.ping.interval', 60) * 1000) . '), "notifications");')
               ->render();
 
         return $this;
