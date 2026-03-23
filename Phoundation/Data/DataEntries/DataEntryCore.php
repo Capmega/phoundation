@@ -3940,18 +3940,18 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param array|Stringable|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
+     * @param Stringable|array|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
      *                                                        specified as an array, it should contain an assoc array with column > value, column > value,
      *                                                        column !value
-     * @param int|null              $id               [null]  If specified, will ignore the found entry if it has this ID as it will be THIS object
-     * @param bool                  $exception        [false] If the entry exists (and does not match id, if specified), instead of returning false will throw
+     * @param int|null                    $id         [null]  If specified, will ignore the found entry if it has this ID as it will be THIS object
+     * @param bool                        $exception  [false] If the entry exists (and does not match id, if specified), instead of returning false will throw
      *                                                        a DataEntryNotExistsException
      *
      * @return bool
      *
      * @throws OutOfBoundsException|DataEntryExistsException
      */
-    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $exception = false): bool
+    public static function notExists(Stringable|array|string|int $identifier, ?int $id = null, bool $exception = false): bool
     {
         $exists = static::findExists($identifier, $id);
 

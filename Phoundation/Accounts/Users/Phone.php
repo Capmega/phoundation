@@ -25,6 +25,7 @@ use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionInterface;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
 use Phoundation\Data\DataEntries\Exception\DataEntryDeletedException;
+use Phoundation\Data\DataEntries\Exception\DataEntryExistsException;
 use Phoundation\Data\DataEntries\Exception\DataEntryNotExistsException;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\DataEntries\Traits\TraitDataEntryAccountType;
@@ -36,6 +37,7 @@ use Phoundation\Data\DataEntries\Traits\TraitDataEntryVerifiedOn;
 use Phoundation\Data\Enums\EnumLoadParameters;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Sanitize;
+use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Web\Html\Components\Input\Buttons\Button;
 use Phoundation\Web\Html\Components\Input\Buttons\DeleteButton;
@@ -116,37 +118,40 @@ class Phone extends DataEntry implements PhoneInterface
     /**
      * Returns true if an entry with the specified identifier exists
      *
-     * @param array|Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
-     *                                                     the seo_email, or seo_name
-     * @param int|null                    $not_id
-     * @param bool                        $exception If the entry does not exist, instead of returning false will throw
-     *                                                     a DataEntryNotExistsException
+     * @param array|Stringable|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
+     *                                                        specified as an array, it should contain an assoc array with column > value, column > value,
+     *                                                        column !value
+     * @param int|null              $not_id           [null]  If specified, the found entries should NOT have the specified ID
+     * @param bool                  $exception        [false] If the entry does not exist, instead of returning false will throw a DataEntryNotExistsException
      *
-     * @return bool
+     * @return int|false
+     * @throws OutOfBoundsException | DataEntryNotExistsException | DataEntryDeletedException
      */
-    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $exception = false): bool
+    public static function exists(array|Stringable|string|int $identifier, ?int $not_id = null, bool $exception = false): int|false
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
                               ->getSource();
 
-        return parent::notExists($identifier, $not_id, $exception);
+        return parent::exists($identifier, $not_id, $exception);
     }
 
 
     /**
      * Returns true if an entry with the specified identifier does not exist
      *
-     * @param array|Stringable|string|int $identifier      The unique identifier, but typically not the database id, usually
-     *                                                     the seo_email, or seo_name
-     * @param int|null                    $id              If specified, will ignore the found entry if it has this ID as it
-     *                                                     will be THIS object
-     * @param bool                        $exception If the entry exists (and does not match id, if specified), instead
-     *                                                     of returning false will throw a DataEntryNotExistsException
+     * @param Stringable|array|string|int $identifier         The unique identifier, but typically not the database id, usually the seo_email, or seo_name. If
+     *                                                        specified as an array, it should contain an assoc array with column > value, column > value,
+     *                                                        column !value
+     * @param int|null                    $id         [null]  If specified, will ignore the found entry if it has this ID as it will be THIS object
+     * @param bool                        $exception  [false] If the entry exists (and does not match id, if specified), instead of returning false will throw
+     *                                                        a DataEntryNotExistsException
      *
      * @return bool
+     *
+     * @throws OutOfBoundsException|DataEntryExistsException
      */
-    public static function notExists(array|Stringable|string|int $identifier, ?int $id = null, bool $exception = false): bool
+    public static function notExists(Stringable|array|string|int $identifier, ?int $id = null, bool $exception = false): bool
     {
         $identifier = Sanitize::new($identifier)
                               ->phoneNumber()
