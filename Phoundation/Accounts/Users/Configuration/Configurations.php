@@ -242,7 +242,7 @@ class Configurations extends IteratorCore implements ConfigurationsInterface
                                                  ->setLabel(tr('Automatically sign-out'))
                                                  ->setHelpText(tr('Here you can specify if you wish the system to sign you out automatically after X amount of seconds. Specify 0 to never automatically sign out'))
                                                  ->setSource(Arrays::convertToTimeDifference(config()->getArray('security.web.sessions.auto.sign-out.list', [
-                                                     0, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
+                                                     0, 60, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 43200, 86400,
                                                  ]), tr('Off'))))
 
                                  ->add(Definition::new('display_mode')

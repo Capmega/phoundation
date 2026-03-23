@@ -76,7 +76,7 @@ class PdfTk extends Command
         $this->clearArguments()
              ->setExecutionDirectory($this->o_file->getParentDirectoryObject())
              ->setCommand('pdftk')
-             ->addArguments(['burst', $this->o_file, 'output', $o_directory . $file_pattern])
+             ->appendArguments(['burst', $this->o_file, 'output', $o_directory . $file_pattern])
              ->execute($background ? EnumExecuteMethod::background : EnumExecuteMethod::noReturn);
 
         return $o_directory;
