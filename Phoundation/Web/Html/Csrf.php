@@ -43,24 +43,77 @@ class Csrf
 
 
     /**
-     * Returns true if CSRF is enabled
+     * Returns true if configured CSRF is enabled
+     *
+     * Returns the setting for configuration path "security.web.csrf.enabled"
+     *
+     * Defaults to true
      *
      * @return bool
      */
-    public static function isEnabled(): bool
+    public static function getConfigEnabled(): bool
     {
         return config()->getBoolean('security.web.csrf.enabled', true);
     }
 
 
     /**
-     * Returns true if CSRF is enabled
+     * Returns true if configured CSRF incident logging is enabled
+     *
+     * Returns the setting for configuration path "security.web.csrf.incident"
+     *
+     * Defaults to true
      *
      * @return bool
      */
-    public static function enabledCheckIncidentIsEnabled(): bool
+    public static function getConfigIncidentEnabled(): bool
     {
         return config()->getBoolean('security.web.csrf.incident', true);
+    }
+
+
+    /**
+     * Returns true if configured strict CSRF checking is enabled
+     *
+     * Returns the setting for configuration path "security.web.csrf.strict"
+     *
+     * Defaults to true
+     *
+     * @return bool
+     */
+    public static function getConfigStrict(): bool
+    {
+        return config()->getBoolean('security.web.csrf.strict', true);
+    }
+
+
+    /**
+     * Returns the configured number of seconds for a CSRF protected request to timeout
+     *
+     * Returns the setting for configuration path "security.web.csrf.timeout"
+     *
+     * Defaults to 3600
+     *
+     * @return int
+     */
+    public static function getConfigTimeout(): int
+    {
+        return config()->getPositiveInteger('security.web.csrf.timeout', 3600);
+    }
+
+
+    /**
+     * Returns the configured CSRF maximum buffer size
+     *
+     * Returns the setting for configuration path "security.web.csrf.buffer.size"
+     *
+     * Defaults to 50
+     *
+     * @return int
+     */
+    public static function getConfigBufferSize(): int
+    {
+        return config()->getPositiveInteger('security.web.csrf.buffer.size', 50);
     }
 
 
@@ -76,7 +129,7 @@ class Csrf
     public static function getHiddenElement(string $method = 'post'): ?string
     {
         if ($method === 'post') {
-            if (Csrf::isEnabled()) {
+            if (Csrf::getConfigEnabled()) {
                 return '<input type="hidden" name="__csrf" value="' . Csrf::get() . '">';
             }
         }
@@ -94,7 +147,7 @@ class Csrf
     public static function init(?string $prefix = null): string
     {
         // Generate CSRF code and cache it
-        if (config()->getBoolean('security.web.csrf.strict', true)) {
+        if (Csrf::getConfigStrict()) {
             static::validateBuffer();
 
             $csrf = $prefix . Strings::unique('sha256');
@@ -130,7 +183,7 @@ class Csrf
 
 
     /**
-     * Returns a process wide cached CSRF code that is stored in the Session object
+     * Returns a process wide cached CSRF code stored in the Session object
      *
      * @param string|null $prefix
      *
@@ -155,7 +208,8 @@ class Csrf
      */
     protected static function setStaticCsrf(?string $prefix): string
     {
-        $_SESSION['csrf'] = $prefix . Strings::unique('sha256');
+        $_SESSION['csrf']             = $prefix . Strings::unique('sha256');
+        $_SESSION['csrf_static_test'] = $_SESSION['csrf'];
 
         Log::warning(ts('Set static CSRF code ":code" for session', [':code' => $_SESSION['csrf']]));
 
@@ -188,7 +242,7 @@ class Csrf
             }
 
             // Execute the CSRF check
-            if (config()->getBoolean('security.web.csrf.strict', true)) {
+            if (Csrf::getConfigStrict()) {
                 // Execute a strict CSRF check
                 return static::checkStrict($csrf);
             }
@@ -274,8 +328,8 @@ class Csrf
         unset($_SESSION['csrf'][$csrf]);
 
         // Code timed out?
-        if (config()->get('security.web.csrf.timeout', 3600)) {
-            if (($timestamp + config()->get('security.web.csrf.timeout')) < $now->getTimestamp()) {
+        if (Csrf::getConfigTimeout()) {
+            if (($timestamp + Csrf::getConfigTimeout()) < $now->getTimestamp()) {
                 throw CsrfValidationFailedException::new(tr('Specified CSRF ":code" timed out, removed it from session buffer', [
                     ':code' => $csrf,
                 ]))->makeWarning();
@@ -299,13 +353,13 @@ class Csrf
      */
     protected static function validateCsrf(?string $csrf): bool
     {
-        if (!config()->get('security.web.csrf.enabled', true)) {
+        if (!Csrf::getConfigEnabled()) {
             // CSRF check system has been disabled
             return false;
         }
 
         if (!Request::isRequestType(EnumRequestTypes::html)) {
-            // CSRF only works for HTML request type
+            // CSRF only works for HTML request types
             return false;
         }
 
@@ -315,13 +369,11 @@ class Csrf
         }
 
         if (!$csrf) {
-            throw CsrfValidationFailedException::new(tr('No CSRF code specified'))
-                                               ->makeWarning();
+            throw CsrfValidationFailedException::new(tr('No CSRF code specified'))->makeWarning();
         }
 
         if (strlen($csrf) > 4096) {
-            throw CsrfValidationFailedException::new(tr('Invalid CSRF code specified'))
-                                               ->makeWarning();
+            throw CsrfValidationFailedException::new(tr('Invalid CSRF code specified'))->makeWarning();
         }
 
         return true;
@@ -336,7 +388,7 @@ class Csrf
     protected static function validateBuffer(): void
     {
         // Avoid people messing around
-        $max_count = config()->get('security.web.csrf.buffer.size', 50);
+        $max_count = Csrf::getConfigBufferSize();
 
         if (isset($_SESSION['csrf'])) {
             if (!is_array($_SESSION['csrf'])) {
