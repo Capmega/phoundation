@@ -1651,7 +1651,7 @@ class Url implements UrlInterface
 
             $redirect = null;
 
-        } elseif ($redirect->isRootLevelPage()) {
+        } elseif ($redirect->isRootLevelPage() and !$redirect->isSystemPage()) {
             Incident::new()
                     ->setLog(10)
                     ->setNotifyRoles('developer')
@@ -1683,7 +1683,41 @@ class Url implements UrlInterface
      */
     public function isRootLevelPage(): bool
     {
-        return $this->isProjectUrl() and preg_match('/^https?:\/\/[^\/]+\/\w{2}\/[^\/]+\.html(\?.*)?$/', $this->getSource());
+        return $this->isProjectUrl() and preg_match('/^\/\w{2}\/[^\/]+\.html(\?.*)?$/', $this->getPath());
+    }
+
+
+    /**
+     * Returns true if the page for this URL a root level page and one of the system pages
+     *
+     * The system pages are one of:
+     *
+     * sign-in
+     * sign-out
+     * sign-key
+     * sign-up
+     * lost-password
+     * update-lost-password
+     * force-password-update
+     * auto-sign-out
+     * index
+     *
+     * @return bool
+     * @todo Add support for sites that do not start at root!
+     */
+    public function isSystemPage(): bool
+    {
+        return $this->isRootLevelPage() and in_array($this->getFile(), [
+            'sign-in.html',
+            'sign-out.html',
+            'sign-key.html',
+            'sign-up.html',
+            'lost-password.html',
+            'update-lost-password.html',
+            'force-password-update.html',
+            'auto-sign-out.html',
+            'index.html'
+        ]);
     }
 
 
@@ -2253,8 +2287,14 @@ class Url implements UrlInterface
      */
     public function getRights(bool $use_cache = true): array
     {
-        return $this->ensureAbsolute()
-                    ->getRightsObject($use_cache)
+        $this->ensureAbsolute();
+
+        if (Request::isMyPage($this->getPath())) {
+            // My pages do not require rights at all
+            return [];
+        }
+
+        return $this->getRightsObject($use_cache)
                    ?->getSource() ?? [];
     }
 

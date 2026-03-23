@@ -166,14 +166,13 @@ class FlashMessages extends ElementsBlock implements FlashMessagesInterface
                     }
 
                     return $this->addWarning($message->getMessage(), $title);
-
-                } else {
-                    if (empty($title)) {
-                        $title = tr('Error');
-                    }
-
-                    return $this->addException($message->getMessage(), $title);
                 }
+
+                if (empty($title)) {
+                    $title = tr('Error');
+                }
+
+                return $this->addException($message->getMessage(), $title);
 
             } else {
                 // These are full on error exceptions or PHP exceptions

@@ -916,8 +916,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
                     break;
 
                 case 'status':
-                    $_definitions->add(DefinitionFactory::newStatus()
-                                                       ->setNullDisplay(tr('Ok')));
+                    $_definitions->add(DefinitionFactory::newStatus()->setNullDisplay(tr('Ok')));
                     break;
 
                 case 'meta_state':
@@ -2030,7 +2029,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
     {
         $status = $this->getTypesafe('string', 'status');
         $status = Strings::until($status, '-');
-        $status = str_replace('_', '-', $status);
+        $status = get_null(str_replace('_', '-', $status));
 
         return $status;
     }
@@ -2755,15 +2754,15 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             return false;
         }
 
-        if ($this->debug) {
-            Log::dump(ts('TRY COPYING VALUE FOR ":key" TO SOURCE', [
-                ':key' => $key,
-            ]), echo_header: false);
-        }
-
         // Meta-keys cannot be set through DataEntry::setData()
         if ($_definition->isMeta()) {
             return false;
+        }
+
+        if ($this->debug) {
+            Log::dump(ts('TRY COPYING VALUE FOR COLUMN ":key" TO SOURCE', [
+                ':key' => $key,
+            ]), echo_header: false);
         }
 
         if ($this->is_applying and !$force) {
@@ -3127,6 +3126,12 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
             // Reset meta columns
             try {
                 foreach ($this->meta_columns as $column) {
+                    if ($this->debug) {
+                        Log::dump(ts('TRY COPYING VALUE FOR META COLUMN ":key" TO SOURCE', [
+                            ':key' => $column,
+                        ]), echo_header: false);
+                    }
+
                     $this->setColumnValueWithObjectSetter(array_get_safe($source, $column), $column, $directly, $this->getDefinitionsObject()->get($column));
                 }
 
@@ -4595,8 +4600,8 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
         }
 
         return match ($status) {
-            null      => null,
-            'deleted' => $status . '-' . Strings::getRAndom(8),
+            null, ''  => null,
+            'deleted' => $status . '-' . Strings::getRandom(8),
             default   => $status
         };
     }

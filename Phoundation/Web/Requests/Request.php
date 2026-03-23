@@ -1756,16 +1756,18 @@ class Request implements RequestInterface
     /**
      * Returns true if the current request is for a "my" page, a page starting with /my/
      *
+     * @param UrlInterface|string|null $path
      * @return bool
      */
-    public static function isMyPage(): bool
+    public static function isMyPage(UrlInterface|string|null $path = null): bool
     {
         if (Session::getUserObject()->isGuest()) {
             // Guest users do not have access to /my/ pages
             return false;
         }
 
-        $path = Request::getUrlObject()->getPath();
+        $path = get_null((string) $path);
+        $path = $path ?? Request::getUrlObject()->getPath();
         $path = Strings::from($path, '/', instance: 2);
 
         return str_starts_with($path, 'my/');
@@ -1878,8 +1880,8 @@ class Request implements RequestInterface
     /**
      * Returns the value for the specified submit button for POST requests
      *
-     * This method will search for and -if found- return the value for the specified HTTP POST key. By default it will
-     * search for the POST name "submit". If can scan in prefix mode, where it will search for HTTP POST keys that start
+     * This method will search for and, if found, return the value for the specified HTTP POST key. By default, it will
+     * search for the POST name "submit". If we can scan in prefix mode, where it will search for HTTP POST keys that start
      * with the specified POST key. If it finds a matching entry, that first entry will be returned.
      *
      * This method will not (and cannot) return if ANY button was pressed as it cannot see the difference between a

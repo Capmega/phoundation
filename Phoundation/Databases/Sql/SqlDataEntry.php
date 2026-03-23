@@ -278,6 +278,7 @@ class SqlDataEntry implements SqlDataEntryInterface
         if ($this->insert_update) {
             // THIS OBJECT ALWAYS INSERT / UPDATES. Init the random table ID
             if ($this->random_id) {
+                // TODO What does this code segment do? $random_id is never used here, so why do we create it? And we only create it if $this->random_id already exists? It seems to me we can delete all this without problem, but INVESTIGATE FIRST
                 $random_id = Numbers::getRandomInt($this->_data_entry->getIdLowerLimit(), $this->_data_entry->getIdUpperLimit());
             }
 
