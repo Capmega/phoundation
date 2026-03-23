@@ -251,6 +251,11 @@ class Notifications extends DataIterator implements NotificationsInterface
      */
     public function autoUpdate(): static
     {
+        if (Session::isGuest()) {
+            // Guest users do have notifications, nothing here for us to render
+            return $this;
+        }
+
         Ping::new()->playRemote('notification');
 
         Script::new()
