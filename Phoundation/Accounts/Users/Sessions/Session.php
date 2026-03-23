@@ -1558,10 +1558,10 @@ class Session implements SessionInterface
     public static function signIn(string $user, string $password, string $user_class = User::class, ?string $domain = null): UserInterface
     {
         try {
-            if (!Csrf::isEnabled()) {
+            if (!Csrf::getConfigEnabled()) {
                 // CSRF generally should be turned on, it is a bad idea to have it off!
                 if (Core::isProductionEnvironment()) {
-                    if (Csrf::enabledCheckIncidentIsEnabled()) {
+                    if (Csrf::getConfigIncidentEnabled()) {
                         // CSRF is off on production environment, this is a bad idea!
                         Incident::new()
                                 ->setSeverity(EnumSeverity::high)
