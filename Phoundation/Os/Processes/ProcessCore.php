@@ -406,21 +406,21 @@ throw new UnderConstructionException();
             if ($this->use_run_file) {
                 // Create command line with a run-file
                 if ($background) {
-                    $this->cached_command_line = '(' . $nohup . 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $! >&3) 3> ' . ($this->getRunFile() ?? '/dev/null');
+                    $this->cached_command_line = '(' . $nohup . 'bash -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $! >&3) 3> ' . ($this->getRunFile() ?? '/dev/null');
 
                 } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
-                    $this->cached_command_line = 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\'; EXIT=$?; echo $$ > ' . ($this->getRunFile() ?? '/dev/null') . '; exit $EXIT;';
+                    $this->cached_command_line = 'bash -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\'; EXIT=$?; echo $$ > ' . ($this->getRunFile() ?? '/dev/null') . '; exit $EXIT;';
                 }
 
             } else {
                 // Create command line without a run-file
                 if ($background) {
-                    $this->cached_command_line = '(' . $nohup . 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $!)';
+                    $this->cached_command_line = '(' . $nohup . 'bash -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . ' ; EXIT=$?; echo $$; exit $EXIT\' > ' . ($this->getLogFile() ?? '/dev/null') . ' 2>&1 & echo $!)';
 
                 } elseif ($this->register_run_file) {
                     // Make sure the PID will be registered in the run file
-                    $this->cached_command_line = 'sh -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\';';
+                    $this->cached_command_line = 'bash -c \'set -o pipefail; ' . str_replace('\'', '\'\\\'\'', $this->cached_command_line) . '; exit $?\';';
                 }
             }
         }
