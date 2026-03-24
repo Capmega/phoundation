@@ -227,7 +227,7 @@ class Notification extends DataEntry implements NotificationInterface
      *
      * @return string|null
      */
-    public function getLogId(): string|null
+    public function getLogId(): ?string
     {
         return $this->getTypesafe('int', static::getIdColumn()) . ' / ' . $this->getTitle();
     }

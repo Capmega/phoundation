@@ -96,7 +96,7 @@ class SshAccount extends DataEntry implements SshAccountInterface
      *
      * @return string|null
      */
-    public function getLogId(): string|null
+    public function getLogId(): ?string
     {
         return $this->getTypesafe('int', 'id') . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string', static::getUniqueColumn()) : '-') . '(' . $this->getUsername() . ')';
     }

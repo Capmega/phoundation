@@ -198,7 +198,7 @@ interface DataEntryInterface extends EntryInterface, IntegerableInterface, Cache
      *
      * @return string|null
      */
-    public function getLogId(): string|null;
+    public function getLogId(): ?string;
 
 
     /**

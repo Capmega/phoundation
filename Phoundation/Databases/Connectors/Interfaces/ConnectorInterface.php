@@ -228,7 +228,7 @@ interface ConnectorInterface extends DataEntryInterface
      *
      * @return string|null
      */
-    public function getLogId(): string|null;
+    public function getLogId(): ?string;
 
     /**
      * Returns the type for this connector

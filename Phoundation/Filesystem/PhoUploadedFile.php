@@ -65,6 +65,7 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
 
         // Process errors
         if ($source->getError()) {
+
             throw new FileUploadException(tr('Upload of file ":file" failed because ":e"', [
                 ':e'    => $source->getUploadErrorMessage(),
                 ':file' => $source->getError()

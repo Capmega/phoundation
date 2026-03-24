@@ -469,7 +469,7 @@ throw new UnderConstructionException('User::newForRole(): This would VERY likely
      *
      * @return string|null
      */
-    public function getLogId(): string|null
+    public function getLogId(): ?string
     {
         if ($this->hasStatus('system')) {
             // This is a system type user, either system or guest

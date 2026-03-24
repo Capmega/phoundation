@@ -1028,7 +1028,7 @@ class DataEntryCore extends EntryCore implements DataEntryInterface, IdentifierI
      *
      * @return string|null
      */
-    public function getLogId(): string|null
+    public function getLogId(): ?string
     {
         return ($this->getId(false) ?? ts('N/A')) . ' / ' . (static::getUniqueColumn() ? $this->getTypesafe('string|int', static::getUniqueColumn()) : '-');
     }
