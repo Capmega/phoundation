@@ -791,8 +791,10 @@ class Url implements UrlInterface
 //            return $directory;
 //        }
 
-        $this->source = Strings::ensureBeginsNotWith($this->source, 'data/content/cdn/');
-        $this->source = Strings::ensureBeginsWith($this->source, 'img/');
+        if (!$this->isAbsolute()) {
+            $this->source = Strings::ensureBeginsNotWith($this->source, 'data/content/cdn/');
+            $this->source = Strings::ensureBeginsWith($this->source, 'img/');
+        }
 
         return $this->renderCdn(Strings::fromReverse($this->source, '.'), $section);
     }

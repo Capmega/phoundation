@@ -2,8 +2,6 @@
 
 namespace Phoundation\Web\Uploads\Interfaces;
 
-use Phoundation\Web\Uploads\Upload;
-
 
 interface UploadInterface
 {

@@ -182,5 +182,3 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
         return $this->real_name;
     }
 }
-
-
