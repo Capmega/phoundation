@@ -1648,6 +1648,11 @@ class Response implements ResponseInterface
             throw new ResponseRedirectException(tr('Response->redirect() can only be called on web sessions'));
         }
 
+        if (!Session::hasStartedUp()) {
+            // Start session here because processing the file not found will need it
+            Session::start();
+        }
+
         $_url = Url::new($_url)->makeWww();
 
         if (!$_url->hasRequiredRights()) {

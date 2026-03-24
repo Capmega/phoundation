@@ -44,6 +44,7 @@ class SystemRequest implements SystemRequestInterface
 {
     use TraitStaticMethodNew;
 
+
     /**
      * Show the 400 - BAD REQUEST page
      *
@@ -405,7 +406,26 @@ class SystemRequest implements SystemRequestInterface
 
 
     /**
-     * Show the 409 - CONFLICT page
+     * Show the 405 - Method Not Allowed
+     *
+     * @param string|null $message The optional message to use, or a default message will be displayed instead
+     *
+     * @return never
+     * @see Route::exit()
+     * @see Route::add()
+     */
+    #[NoReturn] protected function execute405(?string $message = null): never
+    {
+        $this->executePage([
+            'code'    => 405,
+            'title'   => tr('Method Not Allowed'),
+            'message' => $message ?? tr('The specified request method is not allowed for this resource'),
+        ]);
+    }
+
+
+    /**
+     * Show the 409 - Conflict page
      *
      * @param string|null $message The optional message to use, or a default message will be displayed instead
      *
@@ -424,7 +444,7 @@ class SystemRequest implements SystemRequestInterface
 
 
     /**
-     * Show the 410 - GONE page
+     * Show the 410 - Gone page
      *
      * @param string|null $message The optional message to use, or a default message will be displayed instead
      *
@@ -438,6 +458,23 @@ class SystemRequest implements SystemRequestInterface
             'code'    => 410,
             'title'   => tr('Forbidden'),
             'message' => $message ?? tr('The requested resource is no longer available'),
+        ]);
+    }
+
+
+    /**
+     * Show the 422 - Unprocessable Content page
+     *
+     * @return never
+     * @see Route::exit()
+     * @see Route::add()
+     */
+    #[NoReturn] protected function execute422(): never
+    {
+        $this->executePage([
+            'code'    => 400,
+            'title'   => tr('Unprocessable Content'),
+            'message' => tr('Server cannot or will not process the request because of incorrect information sent by client'),
         ]);
     }
 

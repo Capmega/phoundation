@@ -1,10 +1,9 @@
 <?php
 
 /**
- * Page 400
+ * Page 422
  *
- * This is the page that will be shown when a user sent incorrect information (typically caused by a non-caught
- * validation exception)
+ * This is the page that will be shown when a user request cannot be processed
  *
  * @author    Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -18,9 +17,6 @@ declare(strict_types=1);
 use Phoundation\Core\Core;
 use Phoundation\Web\Html\Pages\Page;
 use Phoundation\Web\Http\Url;
-use Phoundation\Web\Requests\Enums\EnumRequestTypes;
-use Phoundation\Web\Requests\JsonPage;
-use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 
 
@@ -29,18 +25,18 @@ $e = Core::readRegister('e');
 
 
 // Set page meta-data
-Response::setHttpCode(400);
+Response::setHttpCode(422);
 Response::setRenderMainWrapper(false);
-Response::setPageTitle('400 - Bad Request');
-Response::setHeaderTitle(tr('400 - Error'));
+Response::setPageTitle('422 - Unprocessable Content');
+Response::setHeaderTitle(tr('422 - Unprocessable Content'));
 Response::setDescription(tr('You sent incorrect or invalid information and your request was denied'));
 Response::setBreadcrumbs();
 
 
 // Render and return the system page
 return Page::new('system/http-error')->addTextsObject([
-    ':h2'     => '400',
-    ':h3'     => tr('Bad Request'),
+    ':h2'     => '422',
+    ':h3'     => tr('Unprocessable Content'),
     ':img'    => Url::new('backgrounds/404/large.jpg')->makeImg(),
     ':p'      => tr('You sent incorrect or invalid information and your request was denied. If you think this was in error, please contact the system administrator'),
     ':type'   => 'warning',
