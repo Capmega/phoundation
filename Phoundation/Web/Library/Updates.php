@@ -29,7 +29,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
      */
     public function version(): string
     {
-        return '0.11.0';
+        return '0.11.1';
     }
 
 
@@ -270,12 +270,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                         CONSTRAINT `fk_web_attack_rules_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                     ')->create();
 
+        })->addUpdate('0.11.1', function () {
+            // Add more web attack rules
             sql()->query('INSERT INTO `web_attack_rules` (`meta_id`, `expression`, `exempt`, `action`) VALUES (:meta_id, :expression, :exempt, :action)', [
-                ':expression' => '/\.php$/',
+                ':expression' => '/\.well-known\//',
                 ':exempt'     => '/^127.0.0.1$/',
                 ':action'     => 'block',
                 ':meta_id'    => Meta::init('Default rule')->getId()
             ]);
+
+            sql()->query('INSERT INTO `web_attack_rules` (`meta_id`, `expression`, `exempt`, `action`) VALUES (:meta_id, :expression, :exempt, :action)', [
+                ':expression' => '/acme-challenge\//',
+                ':exempt'     => '/^127.0.0.1$/',
+                ':action'     => 'block',
+                ':meta_id'    => Meta::init('Default rule')->getId()
+            ]);
+
         });
     }
 }
