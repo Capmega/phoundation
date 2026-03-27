@@ -17,12 +17,13 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Databases\Sql\Exception\SqlDefinitionNotExistsException;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableAlterInterface;
 use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
 
-class TableAlter extends SchemaAbstract
+class TableAlter extends SchemaAbstract implements TableAlterInterface
 {
     /**
      * Sets the table name
@@ -99,7 +100,7 @@ class TableAlter extends SchemaAbstract
         $column = Strings::ensureEndsNotWith($column, ',');
 
         $this->_sql->query('ALTER TABLE `' . $this->name . '` 
-                           ADD COLUMN ' . $column . ' ' . $before_after);
+                            ADD COLUMN   ' . $column     . ' ' . $before_after);
 
         return $this;
     }
@@ -258,7 +259,7 @@ class TableAlter extends SchemaAbstract
      */
     public function getDefinitions(): array
     {
-        return explode(PHP_EOL, $this->_sql->getColumn('SHOW CREATE TABLE ' . $this->name, column: 'create table'));
+        return explode(PHP_EOL, $this->_sql->getColumn('SHOW CREATE TABLE `' . $this->name . '`', column: 'create table'));
     }
 
 
@@ -308,8 +309,8 @@ class TableAlter extends SchemaAbstract
         $_definition = str_replace($from_name  , $to_name    , $_definition);
         $_definition = str_replace('##########', $to_name    , $_definition);
 
-        $this->_sql->query('ALTER TABLE ' . $this->name . ' DROP KEY `' . $from_name . '`');
-        $this->_sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $_definition);
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` DROP KEY `' . $from_name . '`');
+        $this->_sql->query('ALTER TABLE `' . $this->name . '` ADD ' . $_definition);
 
         return $this;
     }
@@ -336,8 +337,8 @@ class TableAlter extends SchemaAbstract
             $index = trim($index);
             $index = Strings::ensureEndsNotWith($index, ',');
 
-            $this->_sql->query('ALTER TABLE ' . $this->name . ' 
-                               ADD         ' . $index);
+            $this->_sql->query('ALTER TABLE `' . $this->name . '` 
+                               ADD           ' . $index);
         }
 
         return $this;
@@ -405,7 +406,7 @@ class TableAlter extends SchemaAbstract
             $foreign_key = trim($foreign_key);
             $foreign_key = Strings::ensureEndsNotWith($foreign_key, ',');
 
-            $this->_sql->query('ALTER TABLE ' . $this->name . ' ADD ' . $foreign_key);
+            $this->_sql->query('ALTER TABLE `' . $this->name . '` ADD ' . $foreign_key);
         }
 
         return $this;
@@ -430,7 +431,8 @@ class TableAlter extends SchemaAbstract
         }
 
         if ($foreign_key) {
-            $this->_sql->query('ALTER TABLE ' . $this->name . ' DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', needles_required: false) . '`');
+            $this->_sql->query('ALTER TABLE `' . $this->name . '` 
+                                DROP FOREIGN KEY `' . Strings::cut($foreign_key, '`', '`', needles_required: false) . '`');
         }
 
         return $this;

@@ -44,7 +44,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('processes_tasks')->drop();
 
             // Create the users_roles table.
-            sql()->getSchemaObject()->getTableObject('os_tasks')->define()
+            sql()->getSchemaObject()->getTableObject('os_tasks')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -130,11 +130,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             if ($_table->columnExists('parents_id')) {
-                $_table->alter()->modifyColumn('`parents_id`', 'bigint DEFAULT NULL,');
+                $_table->getAlterObject()->modifyColumn('`parents_id`', 'bigint DEFAULT NULL,');
             }
 
             if ($_table->foreignKeyExists('fk_os_tasks_parents_id')) {
-                $_table->alter()
+                $_table->getAlterObject()
                         ->dropForeignKey('fk_os_tasks_parents_id')
                         ->addForeignKey('CONSTRAINT `fk_os_tasks_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `os_tasks` (`id`)');
             }
@@ -143,22 +143,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             if ($_table->columnExists('process_status')) {
-                $_table->alter()->addColumn('`process_status` int NULL DEFAULT NULL,', 'AFTER `status`');
+                $_table->getAlterObject()->addColumn('`process_status` int NULL DEFAULT NULL,', 'AFTER `status`');
             }
 
             if ($_table->indexExists('process_status')) {
-                $_table->alter()->addIndex('KEY `process_status` (`process_status`)');
+                $_table->getAlterObject()->addIndex('KEY `process_status` (`process_status`)');
             }
 
         })->addUpdate('0.10.0', function () {
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             // Fix datatype for results to be able to hold binary data
-            $_table->alter()->changeColumn('`results`', '`results` mediumblob NULL DEFAULT NULL');
+            $_table->getAlterObject()->changeColumn('`results`', '`results` mediumblob NULL DEFAULT NULL');
 
             // Add support for encrypted results (Requires asymmetric encryption)
             if (!$_table->columnExists('results_encryption_key')) {
-                $_table->alter()->addColumn('`results_encryption_key` varchar(64) NULL DEFAULT NULL', 'AFTER `results`');
+                $_table->getAlterObject()->addColumn('`results_encryption_key` varchar(64) NULL DEFAULT NULL', 'AFTER `results`');
             }
 
         })->addUpdate('0.11.0', function () {
@@ -166,11 +166,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Add support for encrypted results (Requires asymmetric encryption)
             if ($_table->columnExists('pre_exec')) {
-                $_table->alter()->changeColumn('`pre_exec`', '`pre_execution_hook` varchar(128) NULL DEFAULT NULL');
+                $_table->getAlterObject()->changeColumn('`pre_exec`', '`pre_execution_hook` varchar(128) NULL DEFAULT NULL');
             }
 
             if ($_table->columnExists('post_exec')) {
-                $_table->alter()->changeColumn('`post_exec`', '`post_execution_hook` varchar(128) NULL DEFAULT NULL');
+                $_table->getAlterObject()->changeColumn('`post_exec`', '`post_execution_hook` varchar(128) NULL DEFAULT NULL');
             }
 
         })->addUpdate('0.12.0', function () {
@@ -178,11 +178,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('os_tasks');
 
             if ($_table->columnExists('session_code')) {
-                $_table->alter()->modifyColumn('session_code` varchar(64) DEFAULT NULL,', 'AFTER `seo_name`');
+                $_table->getAlterObject()->modifyColumn('session_code` varchar(64) DEFAULT NULL,', 'AFTER `seo_name`');
             }
 
             if ($_table->indexExists('session_code')) {
-                $_table->alter()->addIndex('KEY `session_code` (`session_code`)');
+                $_table->getAlterObject()->addIndex('KEY `session_code` (`session_code`)');
             }
         });
     }

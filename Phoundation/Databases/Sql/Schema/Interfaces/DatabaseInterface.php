@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Phoundation\Databases\Sql\Schema\Interfaces;
 
-use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Databases\Sql\Schema\Database;
-use Phoundation\Databases\Sql\Schema\Table;
 use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 
 interface DatabaseInterface extends SchemaAbstractInterface
@@ -87,6 +84,13 @@ interface DatabaseInterface extends SchemaAbstractInterface
      * @return static
      */
     public function rename(string $database_name): static;
+
+    /**
+     * Returns all the tables for this database
+     *
+     * @return array
+     */
+    public function getTables(): array;
 
     /**
      * Will copy the current database to the new name

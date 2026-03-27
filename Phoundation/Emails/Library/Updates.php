@@ -52,7 +52,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('emails')->drop();
 
             // Add table for emails
-            sql()->getSchemaObject()->getTableObject('emails')->define()
+            sql()->getSchemaObject()->getTableObject('emails')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -88,7 +88,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for emails
-            sql()->getSchemaObject()->getTableObject('emails_labels')->define()
+            sql()->getSchemaObject()->getTableObject('emails_labels')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -119,7 +119,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for emails
-            sql()->getSchemaObject()->getTableObject('emails_labels_links')->define()
+            sql()->getSchemaObject()->getTableObject('emails_labels_links')->getDefineObject()
                  ->setColumns('
                     `emails_id` bigint NOT NULL,    /* Email */
                     `labels_id` bigint DEFAULT NULL /* Label */
@@ -133,7 +133,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for email accounts
-            sql()->getSchemaObject()->getTableObject('emails_accounts')->define()
+            sql()->getSchemaObject()->getTableObject('emails_accounts')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -165,7 +165,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for to, cc, bcc, from
-            sql()->getSchemaObject()->getTableObject('emails_addresses')->define()
+            sql()->getSchemaObject()->getTableObject('emails_addresses')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `users_id` bigint DEFAULT NULL,     /* Optionally, the local user to which this address belongs */
@@ -189,7 +189,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for to, cc, bcc, from
-            sql()->getSchemaObject()->getTableObject('emails_addresses_linked')->define()
+            sql()->getSchemaObject()->getTableObject('emails_addresses_linked')->getDefineObject()
                  ->setColumns('
                     `emails_id` bigint NOT NULL AUTO_INCREMENT,
                     `address_id` bigint DEFAULT NULL,                /* The email to which this TO / CC / BCC, FROM entry belongs */
@@ -208,7 +208,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for attachments
-            sql()->getSchemaObject()->getTableObject('emails_attachments')->define()
+            sql()->getSchemaObject()->getTableObject('emails_attachments')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -240,7 +240,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.17', function () {
             sql()->getSchemaObject()->getTableObject('emails_attachments')
-                 ->alter()
+                 ->getAlterObject()
                  ->changeColumn('local_path', '`local_directory` varchar(128) NOT NULL')
                  ->dropIndex('local_path')
                  ->addIndex('UNIQUE KEY local_path (`local_directory`)');

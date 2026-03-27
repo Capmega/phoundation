@@ -40,7 +40,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.8', function () {
             // Add network_curl_cache table
-            sql()->getSchemaObject()->getTableObject('network_curl_cache')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('network_curl_cache')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,7 +58,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->create();
 
         })->addUpdate('0.1.0', function () {
-            sql()->getSchemaObject()->getTableObject('network_meta')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('network_meta')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -85,7 +85,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->create();
 
         })->addUpdate('0.2.0', function () {
-            sql()->getSchemaObject()->getTableObject('network_test_meta')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('network_test_meta')->drop()->getDefineObject()
                  ->setColumns('
                         `id` bigint NOT NULL AUTO_INCREMENT,
                         `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -128,86 +128,86 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('network_tests');
 
             if ($table->indexExists('duration')) {
-                $table->alter()->dropIndex('duration');
+                $table->getAlterObject()->dropIndex('duration');
             }
 
             if ($table->indexExists('key')) {
-                $table->alter()->dropIndex('key');
+                $table->getAlterObject()->dropIndex('key');
             }
 
             if ($table->indexExists('success')) {
-                $table->alter()->dropIndex('success');
+                $table->getAlterObject()->dropIndex('success');
             }
 
             if ($table->indexExists('database_connector')) {
-                $table->alter()->dropIndex('database_connector');
+                $table->getAlterObject()->dropIndex('database_connector');
             }
 
             if ($table->indexExists('database_selector')) {
-                $table->alter()->dropIndex('database_selector');
+                $table->getAlterObject()->dropIndex('database_selector');
             }
 
             if ($table->columnExists('database_connector')) {
-                $table->alter()->renameColumn('database_connector', 'connector_name');
+                $table->getAlterObject()->renameColumn('database_connector', 'connector_name');
             }
 
             if ($table->columnExists('connector')) {
-                $table->alter()->renameColumn('connector', 'connector_name');
+                $table->getAlterObject()->renameColumn('connector', 'connector_name');
             }
 
             if ($table->columnExists('database')) {
-                $table->alter()->renameColumn('database', 'database_name');
+                $table->getAlterObject()->renameColumn('database', 'database_name');
             }
 
             if ($table->columnExists('database_selector')) {
-                $table->alter()->renameColumn('database_selector' , 'database_name');
+                $table->getAlterObject()->renameColumn('database_selector' , 'database_name');
             }
 
             if ($table->columnExists('selector')) {
-                $table->alter()->renameColumn('selector' , 'database_name');
+                $table->getAlterObject()->renameColumn('selector' , 'database_name');
             }
 
             if (!$table->columnExists('connector_name', false)) {
-                $table->alter()->addColumn('`connector_name` varchar(64) NULL DEFAULT NULL', 'AFTER `network_meta_id`');
+                $table->getAlterObject()->addColumn('`connector_name` varchar(64) NULL DEFAULT NULL', 'AFTER `network_meta_id`');
             }
 
             if (!$table->columnExists('database_name', false)) {
-                $table->alter()->addColumn('`database_name` varchar(64) NULL DEFAULT NULL', 'AFTER `connector_name`');
+                $table->getAlterObject()->addColumn('`database_name` varchar(64) NULL DEFAULT NULL', 'AFTER `connector_name`');
             }
 
-            $table->alter()->changeColumn('key'           , '`key`            varchar(64)   NULL DEFAULT NULL');
-            $table->alter()->changeColumn('database_name' , '`database_name`  varchar(64)   NULL DEFAULT NULL');
-            $table->alter()->changeColumn('connector_name', '`connector_name` varchar(64)   NULL DEFAULT NULL');
-            $table->alter()->changeColumn('duration'      , '`duration`       double(10, 6) NULL DEFAULT NULL');
+            $table->getAlterObject()->changeColumn('key'           , '`key`            varchar(64)   NULL DEFAULT NULL');
+            $table->getAlterObject()->changeColumn('database_name' , '`database_name`  varchar(64)   NULL DEFAULT NULL');
+            $table->getAlterObject()->changeColumn('connector_name', '`connector_name` varchar(64)   NULL DEFAULT NULL');
+            $table->getAlterObject()->changeColumn('duration'      , '`duration`       double(10, 6) NULL DEFAULT NULL');
 
             if ($table->columnExists('success')) {
-                $table->alter()->dropColumn('success');
+                $table->getAlterObject()->dropColumn('success');
             }
 
             if (!$table->indexExists('database_name')) {
-                $table->alter()->addIndex('KEY `database_name` (`database_name`)');
+                $table->getAlterObject()->addIndex('KEY `database_name` (`database_name`)');
             }
 
             if (!$table->indexExists('connector_name')) {
-                $table->alter()->addIndex('KEY `connector_name` (`connector_name`)');
+                $table->getAlterObject()->addIndex('KEY `connector_name` (`connector_name`)');
             }
 
             if (!$table->indexExists('duration')) {
-                $table->alter()->addIndex('KEY `duration` (`duration`)');
+                $table->getAlterObject()->addIndex('KEY `duration` (`duration`)');
             }
 
             if ($table->foreignKeyExists('fk_network_test_meta_created_by')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_created_by')
+                $table->getAlterObject()->dropForeignKey('fk_network_test_meta_created_by')
                                ->addForeignKey('CONSTRAINT `fk_network_tests_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
             }
 
             if ($table->foreignKeyExists('fk_network_test_meta_network_meta_id')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_network_meta_id')
+                $table->getAlterObject()->dropForeignKey('fk_network_test_meta_network_meta_id')
                                ->addForeignKey('CONSTRAINT `fk_network_tests_network_meta_id` FOREIGN KEY (`network_meta_id`) REFERENCES `network_meta` (`id`) ON DELETE RESTRICT');
             }
 
             if ($table->foreignKeyExists('fk_network_test_meta_meta_id')) {
-                $table->alter()->dropForeignKey('fk_network_test_meta_meta_id')
+                $table->getAlterObject()->dropForeignKey('fk_network_test_meta_meta_id')
                               ->addForeignKey('CONSTRAINT `fk_network_tests_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE RESTRICT');
             }
 

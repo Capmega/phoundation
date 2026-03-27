@@ -635,25 +635,25 @@ abstract class Updates implements UpdatesInterface
 
             if ($_table->columnExists('created_on') and $_table->columnExists('created_by')) {
                 if (!$_table->columnExists('modified_on')) {
-                    $_table->alter()->addColumn('`modified_on` datetime NULL DEFAULT NULL,', 'AFTER `created_by`');
+                    $_table->getAlterObject()->addColumn('`modified_on` datetime NULL DEFAULT NULL,', 'AFTER `created_by`');
                 }
 
                 if (!$_table->indexExists('modified_on')) {
-                    $_table->alter()->addIndex('KEY `modified_on` (`modified_on`)');
+                    $_table->getAlterObject()->addIndex('KEY `modified_on` (`modified_on`)');
                 }
 
                 if (!$_table->columnExists('modified_by')) {
-                    $_table->alter()
+                    $_table->getAlterObject()
                             ->addColumn('`modified_by` bigint NULL DEFAULT NULL,', 'AFTER `modified_on`');
                 }
 
                 if (!$_table->indexExists('modified_by')) {
-                    $_table->alter()
+                    $_table->getAlterObject()
                             ->addIndex('KEY `modified_by` (`modified_by`)');
                 }
 
                 if (!$_table->foreignKeyExists('fk_' . $table . '_modified_by')) {
-                    $_table->alter()
+                    $_table->getAlterObject()
                             ->addForeignKey('CONSTRAINT `fk_' . $table . '_modified_by` FOREIGN KEY (`modified_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
                 }
             }

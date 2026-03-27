@@ -45,7 +45,7 @@ class Updates extends Libraries\Updates
     {
         $this->addUpdate('0.0.1', function () {
             // Add table for version control itself
-            sql()->getSchemaObject()->getTableObject('core_versions')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('core_versions')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -72,10 +72,10 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('meta')->drop();
 
             // Add tables for the "meta" library
-            sql()->getSchemaObject()->getTableObject('meta')->define()
+            sql()->getSchemaObject()->getTableObject('meta')->getDefineObject()
                  ->setColumns('`id` bigint NOT NULL AUTO_INCREMENT')->setIndices('PRIMARY KEY (`id`)')->create();
 
-            sql()->getSchemaObject()->getTableObject('meta_history')->define()
+            sql()->getSchemaObject()->getTableObject('meta_history')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -102,7 +102,7 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('sessions_extended')->drop();
 
             // Modify the core_versions and meta_history tables to have a foreign key to the (now existing) accounts_users table
-            sql()->getSchemaObject()->getTableObject('meta_history')->alter()
+            sql()->getSchemaObject()->getTableObject('meta_history')->getAlterObject()
                  ->addForeignKey('
                     CONSTRAINT `fk_meta_history_created_by` 
                         FOREIGN KEY (`created_by`) 
@@ -110,7 +110,7 @@ class Updates extends Libraries\Updates
                         ON DELETE RESTRICT
             ');
 
-            sql()->getSchemaObject()->getTableObject('core_versions')->alter()
+            sql()->getSchemaObject()->getTableObject('core_versions')->getAlterObject()
                  ->addForeignKey('
                 CONSTRAINT `fk_core_versions_created_by` 
                     FOREIGN KEY (`created_by`) 
@@ -119,7 +119,7 @@ class Updates extends Libraries\Updates
             ');
 
             // Add tables for session management
-            sql()->getSchemaObject()->getTableObject('sessions_extended')->define()
+            sql()->getSchemaObject()->getTableObject('sessions_extended')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -145,7 +145,7 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('url_cloaks')->drop();
 
             // Add tables for URL cloaking
-            sql()->getSchemaObject()->getTableObject('url_cloaks')->define()
+            sql()->getSchemaObject()->getTableObject('url_cloaks')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -171,7 +171,7 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('key_value_store')->drop();
 
             // Add tables for generic key-value store
-            sql()->getSchemaObject()->getTableObject('key_value_store')->define()
+            sql()->getSchemaObject()->getTableObject('key_value_store')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -202,7 +202,7 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.0.8', function () {
             sql()->getSchemaObject()->getTableObject('core_languages')->drop();
 
-            sql()->getSchemaObject()->getTableObject('core_languages')->define()
+            sql()->getSchemaObject()->getTableObject('core_languages')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -246,7 +246,7 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('core_plugins')->drop();
 
             // Add table for core plugin registration
-            sql()->getSchemaObject()->getTableObject('core_plugins')->define()
+            sql()->getSchemaObject()->getTableObject('core_plugins')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -279,7 +279,7 @@ class Updates extends Libraries\Updates
                 ')->create();
 
             // Add table for template registration
-            sql()->getSchemaObject()->getTableObject('core_templates')->define()
+            sql()->getSchemaObject()->getTableObject('core_templates')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -313,7 +313,7 @@ class Updates extends Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.11', function () {
-            sql()->getSchemaObject()->getTableObject('core_templates')->alter()
+            sql()->getSchemaObject()->getTableObject('core_templates')->getAlterObject()
                  ->changeColumn('file', '`directory` varchar(128) NOT NULL');
 
         })->addUpdate('0.0.15', function () {
@@ -343,7 +343,7 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.1.0', function () {
             // Add table support in meta-system
             if (!sql()->getSchemaObject()->getTableObject('meta')->getColumns()->keyExists('table')) {
-                sql()->getSchemaObject()->getTableObject('meta')->alter()
+                sql()->getSchemaObject()->getTableObject('meta')->getAlterObject()
                      ->addColumn('`table` varchar(64) NULL DEFAULT NULL', 'AFTER `id`')
                      ->addIndex('KEY `table` (`table`)');
             }
@@ -351,7 +351,7 @@ class Updates extends Libraries\Updates
             sql()->getSchemaObject()->getTableObject('meta_users')->drop();
 
             // Add users meta-tracking table
-            sql()->getSchemaObject()->getTableObject('meta_users')->define()
+            sql()->getSchemaObject()->getTableObject('meta_users')->getDefineObject()
                  ->setColumns('
                 `users_id` bigint NOT NULL,
                 `histories_id` bigint NOT NULL,
@@ -370,37 +370,37 @@ class Updates extends Libraries\Updates
             ')->create();
 
         })->addUpdate('0.2.5', function () {
-            sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+            sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                  ->addColumn('`menu_priority` int NOT NULL DEFAULT 50', 'AFTER `priority`')
                  ->addColumn('`menu_enabled` tinyint NOT NULL', 'AFTER `menu_priority`');
 
         })->addUpdate('0.2.6', function () {
-            sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+            sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                  ->addColumn('`commands_enabled` tinyint NOT NULL', 'AFTER `menu_enabled`');
 
         })->addUpdate('0.2.7', function () {
-            sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+            sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                  ->dropIndex('enabled-status')
                  ->addIndex('INDEX `enabled_status` (`enabled`, `status`)')
                  ->changeColumn('priority', '`priority` int NOT NULL DEFAULT 50');
 
         })->addUpdate('0.2.8', function () {
             if (!sql()->getSchemaObject()->getTableObject('core_plugins')->getColumns()->keyExists('vendor')) {
-                sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+                sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                      ->addColumn('`vendor` varchar(128) NOT NULL', 'AFTER `commands_enabled`')
                      ->addIndex('KEY `vendor` (`vendor`)');
             }
 
         })->addUpdate('0.2.9', function () {
             if (!sql()->getSchemaObject()->getTableObject('core_plugins')->getColumns(false)->keyExists('web_enabled')) {
-                sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+                sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                      ->changeColumn('enabled', 'web_enabled tinyint NOT NULL');
 
                 $column = sql()->getSchemaObject()->getTableObject('core_plugins')->getColumns(false)->get('web_enabled');
 
                 if ($column['key'] === 'UNI') {
                     // this key should NOT be unique
-                    sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+                    sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                          ->dropIndex('web_enabled')
                          ->addIndex('KEY `web_enabled` (`web_enabled`)');
                 }
@@ -409,7 +409,7 @@ class Updates extends Libraries\Updates
         })->addUpdate('0.2.10', function () {
             // Fix in case this table still has a "path" column instead of a "directory" column
             if (sql()->getSchemaObject()->getTableObject('core_plugins')->columnExists('path')) {
-                sql()->getSchemaObject()->getTableObject('core_plugins')->alter()
+                sql()->getSchemaObject()->getTableObject('core_plugins')->getAlterObject()
                      ->changeColumn('path', 'directory varchar(255) NOT NULL');
             }
 
@@ -419,7 +419,7 @@ class Updates extends Libraries\Updates
 
             sql()->getSchemaObject()
                      ->getTableObject('meta_history')
-                         ->alter()
+                         ->getAlterObject()
                              ->changeColumn('comments', '`comments` varchar(2048) NULL DEFAULT NULL');
 
             Log::action(ts('Fixing meta table content, this may take a second...'));
@@ -430,10 +430,10 @@ class Updates extends Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('core_plugins');
 
             if (!$table->columnExists('can_startup')) {
-                $table->alter()->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
+                $table->getAlterObject()->addColumn('`can_startup` tinyint NOT NULL', 'AFTER `status`');
 
                 if (!$table->indexExists('can_startup')) {
-                    $table->alter()->addIndex('KEY `can_startup` (`can_startup`)');
+                    $table->getAlterObject()->addIndex('KEY `can_startup` (`can_startup`)');
                 }
             }
 
@@ -444,14 +444,14 @@ class Updates extends Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('core_versions');
 
             if (!$table->columnExists('vendor')) {
-                $table->alter()->addColumn('`vendor` varchar(64) NOT NULL', 'AFTER `status`');
+                $table->getAlterObject()->addColumn('`vendor` varchar(64) NOT NULL', 'AFTER `status`');
 
                 if (!$table->indexExists('vendor')) {
-                    $table->alter()->addIndex('KEY `vendor` (`vendor`)');
+                    $table->getAlterObject()->addIndex('KEY `vendor` (`vendor`)');
                 }
 
                 // The unique key should now be vendor - library - version
-                $table->alter()->dropIndex('`library_version`')
+                $table->getAlterObject()->dropIndex('`library_version`')
                                ->addIndex('UNIQUE KEY `library_version` (`vendor`, `library`, `version`)');
             }
 
@@ -493,19 +493,19 @@ class Updates extends Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('core_versions');
 
             if (!$_table->columnExists('phoundation_version')) {
-                $_table->alter()->addColumn('`phoundation_version` bigint NULL', 'AFTER `version`');
+                $_table->getAlterObject()->addColumn('`phoundation_version` bigint NULL', 'AFTER `version`');
             }
 
             if (!$_table->indexExists('phoundation_version')) {
-                $_table->alter()->addIndex('KEY `phoundation_version` (`phoundation_version`)');
+                $_table->getAlterObject()->addIndex('KEY `phoundation_version` (`phoundation_version`)');
             }
 
             if (!$_table->columnExists('project_version')) {
-                $_table->alter()->addColumn('`project_version` bigint NULL', 'AFTER `version`');
+                $_table->getAlterObject()->addColumn('`project_version` bigint NULL', 'AFTER `version`');
             }
 
             if (!$_table->indexExists('project_version')) {
-                $_table->alter()->addIndex('KEY `project_version` (`project_version`)');
+                $_table->getAlterObject()->addIndex('KEY `project_version` (`project_version`)');
             }
 
         })->addUpdate('0.9.1', function () {
@@ -523,10 +523,10 @@ class Updates extends Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->dropIndex('class_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)')
                                 ->addIndex('UNIQUE KEY `class_status` (`class`, `status`)');

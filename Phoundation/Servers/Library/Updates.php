@@ -44,7 +44,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('servers')->drop();
 
             // Create the sshaccounts table.
-            sql()->getSchemaObject()->getTableObject('ssh_accounts')->define()
+            sql()->getSchemaObject()->getTableObject('ssh_accounts')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -71,7 +71,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the servers table.
-            sql()->getSchemaObject()->getTableObject('servers')->define()
+            sql()->getSchemaObject()->getTableObject('servers')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -139,12 +139,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Add support for server name / seo_name
             sql()->getSchemaObject()
                  ->getTableObject('ssh_accounts')
-                 ->alter()
+                 ->getAlterObject()
                  ->addColumn('`file` VARCHAR(255) NULL DEFAULT NULL', 'AFTER `description`');
 
             sql()->getSchemaObject()
                  ->getTableObject('servers')
-                 ->alter()
+                 ->getAlterObject()
                  ->addColumn('`name` varchar(128) NOT NULL,', 'AFTER `code`')
                  ->addColumn('`seo_name` varchar(128) NOT NULL,', 'AFTER `name`')
                  ->addIndex('UNIQUE KEY `name` (`name`)')
@@ -152,7 +152,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.16', function () {
             // name and seo_name must be nullable, fix
-            sql()->getSchemaObject()->getTableObject('servers')->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+            sql()->getSchemaObject()->getTableObject('servers')->getAlterObject()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
                                                                         ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
 
         })->addUpdate('0.8.0', function () {
@@ -175,10 +175,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
 
@@ -194,10 +194,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('hostname_status', true)
+                $_table->getAlterObject()->dropIndex('hostname_status', true)
                                 ->addIndex('UNIQUE KEY `hostname_status` (`hostname`, `status`)');
             }
         });

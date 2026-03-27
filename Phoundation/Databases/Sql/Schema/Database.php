@@ -22,6 +22,7 @@ use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Databases\Export;
 use Phoundation\Databases\Import;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Exception\SqlTableDoesNotExistException;
 use Phoundation\Databases\Sql\Schema\Interfaces\DatabaseInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Exception\OutOfBoundsException;
@@ -60,7 +61,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     public function getName(): ?string
     {
-        return $this->_sql->getDatabase();
+        return $this->getName();
     }
 
 
@@ -92,23 +93,23 @@ class Database extends SchemaAbstract implements DatabaseInterface
     {
         if ($this->exists()) {
             throw new SqlException(tr('Cannot create database ":name", it already exists', [
-                ':name' => $this->_sql->getDatabase(),
+                ':name' => $this->getName(),
             ]));
         }
 
         Log::action(ts('Creating database ":database" on SQL instance ":instance"', [
-            ':instance' => $this->_sql->getConnector(),
-            ':database' => $this->_sql->getDatabase()
+            ':instance' => $this->getSqlObject()->getConnector(),
+            ':database' => $this->getName()
         ]));
 
         // This query can only partially use bound variables!
-        $this->_sql->query('CREATE DATABASE `' . $this->_sql->getDatabase() . '` DEFAULT CHARSET=:character_set COLLATE=:collate', [
+        $this->getSqlObject()->query('CREATE DATABASE `' . $this->getName() . '` DEFAULT CHARSET=:character_set COLLATE=:collate', [
             ':character_set' => $this->configuration['character_set'],
             ':collate'       => $this->configuration['collate'],
         ]);
 
         if ($use) {
-            $this->_sql->use($this->_sql->getDatabase());
+            $this->use($this->getName());
         }
 
         return $this;
@@ -123,7 +124,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function exists(): bool
     {
         // If this query returns nothing, the database does not exist. If it returns anything, it does exist.
-        return (bool) $this->_sql->getRow('SHOW DATABASES LIKE :name', [':name' => $this->_sql->getDatabase()]);
+        return (bool) $this->getSqlObject()->getRow('SHOW DATABASES LIKE :name', [':name' => $this->getName()]);
     }
 
 
@@ -136,8 +137,7 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     protected function use(string $name): static
     {
-        $this->_sql->use($name);
-
+        $this->getSqlObject()->use($name);
         return $this;
     }
 
@@ -151,11 +151,11 @@ class Database extends SchemaAbstract implements DatabaseInterface
     {
         // This query cannot use bound variables!
         Log::warning(ts('Dropping database ":database" on SQL instance ":instance"', [
-            ':instance' => $this->_sql->getConnector(),
-            ':database' => $this->_sql->getDatabase(),
+            ':instance' => $this->getSqlObject()->getConnector(),
+            ':database' => $this->getName(),
         ]), 5);
-        $this->_sql->query('DROP DATABASE IF EXISTS `' . $this->_sql->getDatabase() . '`');
 
+        $this->getSqlObject()->query('DROP DATABASE IF EXISTS `' . $this->getName() . '`');
         return $this;
     }
 
@@ -163,18 +163,21 @@ class Database extends SchemaAbstract implements DatabaseInterface
     /**
      * Access a new Table object for the currently selected database
      *
-     * @param string $name
+     * @param string $name The name of the table for which the Table object will be returned
      *
      * @return TableInterface
      */
     public function getTableObject(string $name): TableInterface
     {
         // If we do not have this table yet, create it now
-        if (!array_key_exists($name, $this->tables)) {
-            $this->tables[$name] = new Table($name, $this->_sql, $this);
+        if (!array_key_exists($name, $this->getTables())) {
+            throw new SqlTableDoesNotExistException(ts('Cannot return Table object for table ":table", that table does not exist in database ":database"', [
+                ':table'    => $name,
+                ':database' => $this->getName()
+            ]));
         }
 
-        return $this->tables[$name];
+        return new Table($name, $this->getSqlObject(), $this);
     }
 
 
@@ -204,8 +207,8 @@ class Database extends SchemaAbstract implements DatabaseInterface
      */
     public function rename(string $database_name): static
     {
-        $tables = $this->tables();
-        $target = Database::new($database_name, $this->_sql, $this->_parent);
+        $tables = $this->getTables();
+        $target = Database::new($database_name, $this->getSqlObject(), $this->_parent);
 
         if ($target->exists()) {
             // Target already exists
@@ -249,40 +252,60 @@ class Database extends SchemaAbstract implements DatabaseInterface
     public function copy(string $database_name, int $timeout = 3600): static
     {
         // Export current database
-        $file   = PhoFile::newTemporary();
-        $target = Database::new($database_name, $this->_sql, $this->_parent);
+        $_file      = PhoFile::newTemporary();
+        $_target    = Database::new($database_name, $this->getSqlObject(), $this->_parent);
+        $_connector = $this->getSqlObject()->getConnectorObject();
 
-        if ($target->exists()) {
+        if ($_target->exists()) {
             // Target already exists
             if (!FORCE) {
-                throw new OutOfBoundsException(tr('Cannot copy database ":from" to ":to", the target database ":database" already exists', [
-                    ':from'     => $this->getName(),
-                    ':to'       => $database_name,
-                    ':database' => $database_name,
+                throw new OutOfBoundsException(tr('Cannot copy database ":from" to ":to", the target database already exists', [
+                    ':from' => $this->getName(),
+                    ':to'   => $database_name,
                 ]));
             }
 
-            $target->drop();
+            $_target->drop();
         }
 
-        $target->create();
+        $_target->create();
 
         // Export the current database
         Export::new()
-              ->setConnectorObject($this->_sql->getConnectorObject())
+              ->setConnectorObject($_connector)
               ->setDatabase($this->getName())
               ->setTimeout($timeout)
-              ->dump($file);
+              ->dump($_file);
 
         // Import dump into new database
         Import::new()
-              ->setConnectorObject($this->_sql->getConnectorObject())
+              ->setConnectorObject($_connector)
               ->setDatabase($database_name)
-              ->setFileObject($file)
+              ->setFileObject($_file)
               ->setTimeout($timeout)
               ->import();
 
         return $this;
+    }
+
+
+    /**
+     * Returns all the tables for this database
+     *
+     * @return array
+     */
+    public function getTables(): array
+    {
+        if (empty($this->tables)) {
+            $this->tables = sql()->listKeyValue('SELECT   `TABLE_NAME` 
+                                                 FROM     `COLUMNS` 
+                                                 WHERE    `TABLE_SCHEMA` = :database 
+                                                 GROUP BY `TABLE_NAME`', [
+                                                     ':database' => $this->name,
+            ]);
+        }
+
+        return $this->tables;
     }
 
 

@@ -5,27 +5,23 @@ declare(strict_types=1);
 namespace Phoundation\Databases\Sql\Schema\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Data\Iterator;
-use Phoundation\Databases\Sql\Schema\TableAlter;
-use Phoundation\Databases\Sql\Schema\TableDefine;
-use Phoundation\Utils\Strings;
 
 
 interface TableInterface extends SchemaAbstractInterface
 {
-/**
+    /**
      * Define and create the table
      *
-     * @return TableDefine
+     * @return TableDefineInterface
      */
-    public function define(): TableDefine;
+    public function getDefineObject(): TableDefineInterface;
 
     /**
      * Define and create the table
      *
-     * @return TableAlter
+     * @return TableAlterInterface
      */
-    public function alter(): TableAlter;
+    public function getAlterObject(): TableAlterInterface;
 
     /**
      * Renames this table

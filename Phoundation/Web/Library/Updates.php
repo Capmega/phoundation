@@ -43,7 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         $this->addUpdate('0.0.15', function () {
             sql()->getSchemaObject()->getTableObject('web_non200_urls')->drop();
 
-            sql()->getSchemaObject()->getTableObject('web_non200_urls')->define()
+            sql()->getSchemaObject()->getTableObject('web_non200_urls')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -80,7 +80,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.20', function () {
             sql()->getSchemaObject()->getTableObject('web_routing_iplists')->drop();
 
-            sql()->getSchemaObject()->getTableObject('web_routing_iplists')->define()
+            sql()->getSchemaObject()->getTableObject('web_routing_iplists')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -106,7 +106,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.30', function () {
-            sql()->getSchemaObject()->getTableObject('web_uploads')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('web_uploads')->drop()->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -143,25 +143,25 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('web_non200_urls');
 
             if ($table->indexExists('ip_address_human')) {
-                $table->alter()->dropIndex('`ip_address`')
+                $table->getAlterObject()->dropIndex('`ip_address`')
                                ->dropIndex('`ip_address_human`');
             }
 
             if ($table->columnExists('ip_address_human')) {
-                $table->alter()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
+                $table->getAlterObject()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
                                ->changeColumn('`ip_address_human`', '`ip_address`        varchar(48) NULL DEFAULT NULL,');
             }
 
             if (!$table->indexExists('ip_address')) {
-                $table->alter()->addIndex('KEY `ip_address` (`ip_address`)');
+                $table->getAlterObject()->addIndex('KEY `ip_address` (`ip_address`)');
             }
 
             if (!$table->indexExists('ip_address_binary')) {
-                $table->alter()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
+                $table->getAlterObject()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
             }
 
         })->addUpdate('0.0.41', function () {
-            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`error`', '`error` int(11) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->getAlterObject()->changeColumn('`error`', '`error` int(11) NULL DEFAULT NULL');
 
         })->addUpdate('0.8.0', function () {
             // Add support for modified_on and modified_by
@@ -172,10 +172,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ]);
 
         })->addUpdate('0.8.1', function () {
-            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`tmp_name`', '`tmp_name` varchar(255) NULL DEFAULT NULL');
-            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`type`'    , '`type`     varchar(128) NULL DEFAULT NULL');
-            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`size`'    , '`size`     bigint       NULL DEFAULT NULL');
-            sql()->getSchemaObject()->getTableObject('web_uploads')->alter()->changeColumn('`hash`'    , '`hash`     varchar(128) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->getAlterObject()->changeColumn('`tmp_name`', '`tmp_name` varchar(255) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->getAlterObject()->changeColumn('`type`'    , '`type`     varchar(128) NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->getAlterObject()->changeColumn('`size`'    , '`size`     bigint       NULL DEFAULT NULL');
+            sql()->getSchemaObject()->getTableObject('web_uploads')->getAlterObject()->changeColumn('`hash`'    , '`hash`     varchar(128) NULL DEFAULT NULL');
 
         })->addUpdate('0.9.0', function () {
             sql()->getSchemaObject()->getTableObject('web_non200_urls')->drop();
@@ -185,7 +185,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()
                  ->getTableObject('web_requests_logs')
                  ->drop()
-                 ->define()
+                 ->getDefineObject()
                      ->setColumns('
                         `id` bigint NOT NULL AUTO_INCREMENT,
                         `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -238,7 +238,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()
                  ->getTableObject('web_attack_rules')
                  ->drop()
-                 ->define()
+                 ->getDefineObject()
                      ->setColumns('
                         `id` bigint NOT NULL AUTO_INCREMENT,
                         `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

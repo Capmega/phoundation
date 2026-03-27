@@ -49,7 +49,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('business_customers')->drop();
 
             // Add table for customers
-            sql()->getSchemaObject()->getTableObject('business_customers')->define()
+            sql()->getSchemaObject()->getTableObject('business_customers')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -99,7 +99,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for providers
-            sql()->getSchemaObject()->getTableObject('business_providers')->define()
+            sql()->getSchemaObject()->getTableObject('business_providers')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -141,7 +141,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for companies
-            sql()->getSchemaObject()->getTableObject('business_companies')->define()
+            sql()->getSchemaObject()->getTableObject('business_companies')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -175,7 +175,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for branches
-            sql()->getSchemaObject()->getTableObject('business_branches')->define()
+            sql()->getSchemaObject()->getTableObject('business_branches')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -203,7 +203,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for departments
-            sql()->getSchemaObject()->getTableObject('business_departments')->define()
+            sql()->getSchemaObject()->getTableObject('business_departments')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -234,7 +234,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for employees
-            sql()->getSchemaObject()->getTableObject('business_employees')->define()
+            sql()->getSchemaObject()->getTableObject('business_employees')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -272,7 +272,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('business_invoices')->drop();
 
             // Add table for invoices
-            sql()->getSchemaObject()->getTableObject('business_invoices')->define()
+            sql()->getSchemaObject()->getTableObject('business_invoices')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -309,7 +309,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_business_invoices_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE,
                 ')->create();
             // Add table for invoices
-            sql()->getSchemaObject()->getTableObject('business_invoices_items')->define()
+            sql()->getSchemaObject()->getTableObject('business_invoices_items')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -362,10 +362,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('categories_id_name_status', true)
+                $_table->getAlterObject()->dropIndex('categories_id_name_status', true)
                                 ->addIndex('UNIQUE KEY `categories_id_name_status` (`categories_id`, `name`, `status`)');
             }
 
@@ -381,10 +381,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('companies_id_name_status', true)
+                $_table->getAlterObject()->dropIndex('companies_id_name_status', true)
                                 ->addIndex('UNIQUE KEY `companies_id_name_status` (`companies_id`, `name`, `status`)');
             }
 
@@ -395,10 +395,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($indices as $index) {
-                $_table->alter()->dropIndex($index, true);
+                $_table->getAlterObject()->dropIndex($index, true);
             }
 
-            $_table->alter()->dropIndex('companies_id_branches_id_name_status', true)
+            $_table->getAlterObject()->dropIndex('companies_id_branches_id_name_status', true)
                             ->addIndex('UNIQUE KEY `companies_id_branches_id_name_status` (`companies_id`, `branches_id`, `name`, `status`)');
 
             // Fix business_invoices
@@ -408,10 +408,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($indices as $index) {
-                $_table->alter()->dropIndex($index, true);
+                $_table->getAlterObject()->dropIndex($index, true);
             }
 
-            $_table->alter()->dropIndex('invoice_number_status', true)
+            $_table->getAlterObject()->dropIndex('invoice_number_status', true)
                             ->addIndex('UNIQUE KEY `invoice_number_status` (`invoice_number`, `status`)');
 
         });

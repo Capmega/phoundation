@@ -49,7 +49,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('geo_cities')->drop();
 
             // Create the geo_timezones table.
-            sql()->getSchemaObject()->getTableObject('geo_timezones')->define()
+            sql()->getSchemaObject()->getTableObject('geo_timezones')->getDefineObject()
                  ->setColumns('  
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -82,7 +82,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_continents table.
-            sql()->getSchemaObject()->getTableObject('geo_continents')->define()
+            sql()->getSchemaObject()->getTableObject('geo_continents')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -117,7 +117,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_countries table.
-            sql()->getSchemaObject()->getTableObject('geo_countries')->define()
+            sql()->getSchemaObject()->getTableObject('geo_countries')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -187,7 +187,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_states table.
-            sql()->getSchemaObject()->getTableObject('geo_states')->define()
+            sql()->getSchemaObject()->getTableObject('geo_states')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -240,7 +240,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_counties table.
-            sql()->getSchemaObject()->getTableObject('geo_counties')->define()
+            sql()->getSchemaObject()->getTableObject('geo_counties')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -290,7 +290,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_features table.
-            sql()->getSchemaObject()->getTableObject('geo_features')->define()
+            sql()->getSchemaObject()->getTableObject('geo_features')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -314,7 +314,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the geo_cities table.
-            sql()->getSchemaObject()->getTableObject('geo_cities')->define()
+            sql()->getSchemaObject()->getTableObject('geo_cities')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -391,7 +391,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($tables as $table) {
-                sql()->getSchemaObject()->getTableObject($table)->alter()->addForeignKey('
+                sql()->getSchemaObject()->getTableObject($table)->getAlterObject()->addForeignKey('
                     CONSTRAINT `fk_' . $table . '_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ');
             }
@@ -408,11 +408,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($tables as $table) {
-                sql()->getSchemaObject()->getTableObject($table)->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+                sql()->getSchemaObject()->getTableObject($table)->getAlterObject()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
                                                                          ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
             }
 
-            sql()->getSchemaObject()->getTableObject('geo_features')->alter()->changeColumn('name', '`name` varchar(128) NULL DEFAULT NULL,')
+            sql()->getSchemaObject()->getTableObject('geo_features')->getAlterObject()->changeColumn('name', '`name` varchar(128) NULL DEFAULT NULL,')
                                                                              ->addColumn('`seo_name` varchar(128) NULL DEFAULT NULL,', 'AFTER `name`')
                                                                              ->addIndex('UNIQUE KEY `seo_name` (`seo_name`)');
 
@@ -447,10 +447,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
         });

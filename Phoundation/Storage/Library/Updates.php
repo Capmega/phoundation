@@ -54,7 +54,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('storage_collections')->drop();
 
             // Add table for storage collections
-            sql()->getSchemaObject()->getTableObject('storage_collections')->define()
+            sql()->getSchemaObject()->getTableObject('storage_collections')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -90,7 +90,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage books
-            sql()->getSchemaObject()->getTableObject('storage_books')->define()
+            sql()->getSchemaObject()->getTableObject('storage_books')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -130,7 +130,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage chapters
-            sql()->getSchemaObject()->getTableObject('storage_chapters')->define()
+            sql()->getSchemaObject()->getTableObject('storage_chapters')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -172,7 +172,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage pages
-            sql()->getSchemaObject()->getTableObject('storage_pages')->define()
+            sql()->getSchemaObject()->getTableObject('storage_pages')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -223,7 +223,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage comments
-            sql()->getSchemaObject()->getTableObject('storage_comments')->define()
+            sql()->getSchemaObject()->getTableObject('storage_comments')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -256,7 +256,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage keywords
-            sql()->getSchemaObject()->getTableObject('storage_keywords')->define()
+            sql()->getSchemaObject()->getTableObject('storage_keywords')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -290,7 +290,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage ratings
-            sql()->getSchemaObject()->getTableObject('storage_ratings')->define()
+            sql()->getSchemaObject()->getTableObject('storage_ratings')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -324,7 +324,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage keywords
-            sql()->getSchemaObject()->getTableObject('storage_key_values')->define()
+            sql()->getSchemaObject()->getTableObject('storage_key_values')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -363,7 +363,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage keywords
-            sql()->getSchemaObject()->getTableObject('storage_file_limits')->define()
+            sql()->getSchemaObject()->getTableObject('storage_file_limits')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -404,7 +404,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for storage files
-            sql()->getSchemaObject()->getTableObject('storage_files')->define()
+            sql()->getSchemaObject()->getTableObject('storage_files')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -451,7 +451,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for resources
-            sql()->getSchemaObject()->getTableObject('storage_resources')->define()
+            sql()->getSchemaObject()->getTableObject('storage_resources')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -475,7 +475,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Add table for page resources
-            sql()->getSchemaObject()->getTableObject('storage_page_resources')->define()
+            sql()->getSchemaObject()->getTableObject('storage_page_resources')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

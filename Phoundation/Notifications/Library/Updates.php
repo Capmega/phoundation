@@ -44,7 +44,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ->getSchemaObject()
                 ->getTableObject('notifications')
                 ->drop()
-                ->define()
+                ->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -86,12 +86,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.1.0', function () {
             sql()->getSchemaObject()
                  ->getTableObject('notifications')
-                 ->alter()->modifyColumn('message', 'mediumtext NOT NULL')
+                 ->getAlterObject()->modifyColumn('message', 'mediumtext NOT NULL')
                           ->modifyColumn('details', 'mediumtext NOT NULL');
 
         })->addUpdate('0.1.1', function () {
             // Fix notifications table details column
-            sql()->getSchemaObject()->getTableObject('notifications')->alter()->modifyColumn('details', 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+            sql()->getSchemaObject()->getTableObject('notifications')->getAlterObject()->modifyColumn('details', 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
 
         })->addUpdate('0.8.0', function () {
             // Add support for modified_on and modified_by

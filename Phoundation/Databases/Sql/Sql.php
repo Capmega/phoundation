@@ -2312,22 +2312,22 @@ class Sql implements SqlInterface
                 $_source = sql()->getSchemaObject()->getTableObject($_entry->get('source_table'));
 
                 if ($_source->foreignKeyExists($_entry->get('foreign_key_name'))) {
-                    $_source->alter()->dropForeignKey($_entry->get('foreign_key_name'));
+                    $_source->getAlterObject()->dropForeignKey($_entry->get('foreign_key_name'));
                 }
             });
 
             // Now remove the faulty index if it exists
             if ($_target->indexExists($data['target_column'])) {
-                $_target->alter()->dropIndex($data['target_column']);
+                $_target->getAlterObject()->dropIndex($data['target_column']);
             }
 
             // Add the correct unique index
-            $_target->alter()->addIndex('UNIQUE KEY ' . $data['target_column'] . '(' . $data['target_column'] . ')');
+            $_target->getAlterObject()->addIndex('UNIQUE KEY ' . $data['target_column'] . '(' . $data['target_column'] . ')');
 
             // Reapply the foreign key from the source to the target
             $_foreign_keys->forEachField(function ($_entry) use ($data) {
                 sql()->getSchemaObject()->getTableObject($_entry->get('source_table'))
-                                        ->alter()
+                                        ->getAlterObject()
                                         ->addForeignKey('CONSTRAINT `' . $_entry->get('foreign_key_name') . '` FOREIGN KEY (`' . $_entry->get('source_column') . '`) REFERENCES `' . $_entry->get('target_table') . '` (`' . $_entry->get('target_column') . '`) ON DELETE RESTRICT');
             });
         }

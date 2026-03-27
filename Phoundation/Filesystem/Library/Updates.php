@@ -45,7 +45,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('filesystem_mounts')->drop();
 
             // Create the filesystem_mounts table.
-            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -78,7 +78,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.21', function () {
             // Create the filesystem_requirements table.
-            sql()->getSchemaObject()->getTableObject('filesystem_requirements')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_requirements')->drop()->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -105,12 +105,12 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.24', function () {
-            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->alter()
+            sql()->getSchemaObject()->getTableObject('filesystem_mounts')->getAlterObject()
                 ->addColumn('`timeout` int NULL DEFAULT NULL', 'AFTER `auto_unmount`');
 
         })->addUpdate('0.0.30', function () {
             // Create the filesystem_requirements table.
-            sql()->getSchemaObject()->getTableObject('filesystem_mimetypes')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_mimetypes')->drop()->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -145,7 +145,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.4.0', function () {
             // Create the filesystem_user_files table.
-            sql()->getSchemaObject()->getTableObject('filesystem_user_files')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('filesystem_user_files')->drop()->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -236,10 +236,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
 
@@ -255,10 +255,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('file_status', true)
+                $_table->getAlterObject()->dropIndex('file_status', true)
                                 ->addIndex('UNIQUE KEY `file_status` (`file` (128), `status`)');
             }
         });

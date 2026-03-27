@@ -226,7 +226,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('accounts_users')->drop();
 
             // Create the users table.
-            sql()->getSchemaObject()->getTableObject('accounts_users')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -314,7 +314,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_rights table.
-            sql()->getSchemaObject()->getTableObject('accounts_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -341,7 +341,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles table.
-            sql()->getSchemaObject()->getTableObject('accounts_roles')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -368,7 +368,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_groups table.
-            sql()->getSchemaObject()->getTableObject('accounts_groups')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_groups')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -395,7 +395,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_rights_links table.
-            sql()->getSchemaObject()->getTableObject('accounts_users_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users_rights')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -422,7 +422,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles_links table.
-            sql()->getSchemaObject()->getTableObject('accounts_users_roles')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_users_roles')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -445,7 +445,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
             // Create the users_roles_rights_links table.
-            sql()->getSchemaObject()->getTableObject('accounts_roles_rights')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_roles_rights')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -475,7 +475,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('accounts_authentications')->drop();
 
             // Create additional user tables.
-            sql()->getSchemaObject()->getTableObject('accounts_authentications')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_authentications')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -508,7 +508,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_authentications_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE CASCADE,
                 ')->create();
 
-            sql()->getSchemaObject()->getTableObject('accounts_password_resets')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_password_resets')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -527,7 +527,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_users_password_resets_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-            sql()->getSchemaObject()->getTableObject('accounts_old_passwords')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_old_passwords')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -543,7 +543,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_old_passwords_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-            sql()->getSchemaObject()->getTableObject('accounts_compromised_passwords')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_compromised_passwords')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -563,7 +563,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Drop the tables to be sure we have a clean slate
             sql()->getSchemaObject()->getTableObject('accounts_signins')->drop();
 
-            sql()->getSchemaObject()->getTableObject('accounts_signins')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_signins')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -607,7 +607,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             // Drop the tables to be sure we have a clean slate
             sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->drop();
 
-            sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_authentication_failures')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -649,7 +649,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.12', function () {
             // Add "password_update" column
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()->addColumn('`update_password` datetime DEFAULT NULL', 'AFTER `password`');
 
         })->addUpdate('0.0.13', function () {
             // Fix minor db issues
@@ -662,14 +662,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.17', function () {
             // Add support for notifications_hash
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()->addColumn('`notifications_hash` varchar(40) NULL DEFAULT NULL', 'AFTER `fingerprint`');
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()->addColumn('`notifications_hash` varchar(40) NULL DEFAULT NULL', 'AFTER `fingerprint`');
 
         })->addUpdate('0.0.18', function () {
             // Add support for multiple emails and phones per account
             sql()->getSchemaObject()->getTableObject('accounts_emails')->drop();
             sql()->getSchemaObject()->getTableObject('accounts_phones')->drop();
 
-            sql()->getSchemaObject()->getTableObject('accounts_emails')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_emails')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -700,7 +700,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT,
                 ')->create();
 
-            sql()->getSchemaObject()->getTableObject('accounts_phones')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_phones')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -732,13 +732,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.19', function () {
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                  ->changeColumn('phones', '`phone` varchar(15) CHARACTER SET latin1 DEFAULT NULL')
                  ->dropIndex('phones')
                  ->addIndex('KEY `phone` (`phone`)');
 
         })->addUpdate('0.0.20', function () {
-            sql()->getSchemaObject()->getTableObject('accounts_phones')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_phones')->getAlterObject()
                  ->dropForeignKey('fk_accounts_phones_users_id')
                  ->changeColumn('phone', '`phone` varchar(24) CHARACTER SET latin1 DEFAULT NULL')
                  ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
@@ -746,7 +746,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                  ->dropIndex('phone')
                  ->addIndex('KEY `phone` (`phone`)');
 
-            sql()->getSchemaObject()->getTableObject('accounts_emails')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_emails')->getAlterObject()
                  ->dropForeignKey('fk_accounts_emails_users_id')
                  ->changeColumn('users_id', '`users_id` BIGINT NOT NULL')
                  ->addForeignKey('CONSTRAINT `fk_accounts_emails_users_id` FOREIGN KEY (`users_id`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
@@ -762,7 +762,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.0.24', function () {
             sql()->getSchemaObject()->getTableObject('accounts_settings')->drop();
 
-            sql()->getSchemaObject()->getTableObject('accounts_settings')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_settings')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -794,7 +794,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.1.0', function () {
             sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->drop();
 
-            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -824,7 +824,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.1.1', function () {
-            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_signin_keys')->getAlterObject()
                  ->addColumn('`once` tinyint(1) NULL DEFAULT NULL', 'AFTER `allow_navigation`')
                  ->changeColumn('force_redirect', 'redirect VARCHAR(2048) NULL DEFAULT NULL');
 
@@ -833,11 +833,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->query('UPDATE `accounts_users` SET `sign_in_count` = 0, `last_sign_in` = NULL');
 
         })->addUpdate('0.1.3', function () {
-            sql()->getSchemaObject()->getTableObject('accounts_rights')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->getAlterObject()
                  ->dropIndex('name')
                  ->addIndex('UNIQUE KEY `name` (`name`)');
 
-            sql()->getSchemaObject()->getTableObject('accounts_roles')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->getAlterObject()
                  ->dropIndex('name')
                  ->addIndex('UNIQUE KEY `name` (`name`)');
 
@@ -880,7 +880,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.2.0', function () {
             // Add parents_id to roles table
-            sql()->getSchemaObject()->getTableObject('accounts_roles')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_roles')->getAlterObject()
                  ->addColumn('`parents_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
                  ->addIndex('KEY `parents_id` (`parents_id`)')
                  ->addForeignKey('CONSTRAINT `fk_accounts_roles_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `accounts_roles` (`id`) ON DELETE RESTRICT');
@@ -888,25 +888,25 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.2.2', function () {
             // Data is a general storage of JSON data
             if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('data')) {
-                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+                sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                      ->addColumn('`data` mediumtext NULL DEFAULT NULL', 'AFTER `description`');
             }
 
             // Remote id is the ID of the user in a different table and or database
             if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('remote_id')) {
-                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+                sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                      ->addColumn('`remote_id` bigint NULL DEFAULT NULL', 'AFTER `meta_state`')
                      ->addIndex('UNIQUE KEY `remote_id` (`remote_id`)');
             }
 
         })->addUpdate('0.2.3', function () {
             // Codes can be UUID (36 characters) or much larger, so make it 64 characters
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                  ->modifyColumn('`code`', ' varchar(64) CHARACTER SET latin1 DEFAULT NULL');
 
             // The default page will send the user to that page right after signing in
             if (!sql()->getSchemaObject()->getTableObject('accounts_users')->getColumns()->keyExists('default_page')) {
-                sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+                sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                      ->addColumn('`default_page` varchar(2048) NULL DEFAULT NULL', 'AFTER `url`');
             }
 
@@ -916,7 +916,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.3.0', function () {
             // Create the accounts_push_notifications table.
-            sql()->getSchemaObject()->getTableObject('accounts_push_notifications')->define()
+            sql()->getSchemaObject()->getTableObject('accounts_push_notifications')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -948,19 +948,19 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if ($table->foreignKeyExists('fk_accounts_users_profile_images_id')) {
-                $table->alter()->dropForeignKey('fk_accounts_users_profile_images_id');
+                $table->getAlterObject()->dropForeignKey('fk_accounts_users_profile_images_id');
             }
 
             if ($table->indexExists('profile_images_id')) {
-                $table->alter()->dropIndex('profile_images_id');
+                $table->getAlterObject()->dropIndex('profile_images_id');
             }
 
             if ($table->columnExists('profile_images_id')) {
-                $table->alter()->dropColumn('profile_images_id');
+                $table->getAlterObject()->dropColumn('profile_images_id');
             }
 
             // Create the accounts_profile_images table.
-            sql()->getSchemaObject()->getTableObject('accounts_profile_images')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('accounts_profile_images')->drop()->getDefineObject()
                 ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -989,7 +989,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                     CONSTRAINT `fk_accounts_profile_images_uploads_id` FOREIGN KEY (`uploads_id`) REFERENCES `web_uploads` (`id`) ON DELETE RESTRICT
                 ')->create();
 
-            sql()->getSchemaObject()->getTableObject('accounts_users')->alter()
+            sql()->getSchemaObject()->getTableObject('accounts_users')->getAlterObject()
                 ->addColumn('`profile_images_id` bigint NULL DEFAULT NULL', 'AFTER `status`')
                 ->addIndex('KEY `profile_images_id` (`profile_images_id`)')
                 ->addForeignKey('CONSTRAINT `fk_accounts_users_profile_images_id` FOREIGN KEY (`profile_images_id`) REFERENCES `accounts_profile_images` (`id`) ON DELETE RESTRICT');
@@ -1002,18 +1002,18 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
             // Fix the mess with picture column may or may not exist as picture, or profile_image, or not at all?
             if ($table->columnExists('picture')) {
-                $table->alter()->changeColumn('`picture`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
+                $table->getAlterObject()->changeColumn('`picture`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
 
             } elseif ($table->columnExists('profile_image')) {
-                $table->alter()->changeColumn('`profile_image`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
+                $table->getAlterObject()->changeColumn('`profile_image`', '`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL');
 
             } else {
-                $table->alter()->addColumn('`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL', 'AFTER `nickname`');
+                $table->getAlterObject()->addColumn('`profile_image` varchar(2048) CHARACTER SET latin1 DEFAULT NULL', 'AFTER `nickname`');
             }
 
         })->addUpdate('0.4.11', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_authentication_failures');
-            $alter = $table->alter();
+            $alter = $table->getAlterObject();
 
             if (!$table->columnExists('matched_users_id')) {
                 $alter->addColumn('`matched_users_id` bigint NULL DEFAULT NULL', 'AFTER `status`');
@@ -1043,159 +1043,159 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('accounts_authentications');
 
             if ($table->foreignKeyExists('fk_accounts_authentications_users_id')) {
-                $table->alter()->dropForeignKey('`fk_accounts_authentications_users_id`');
+                $table->getAlterObject()->dropForeignKey('`fk_accounts_authentications_users_id`');
             }
 
             if ($table->indexExists('users_id')) {
-                $table->alter()->dropIndex('`users_id`');
+                $table->getAlterObject()->dropIndex('`users_id`');
             }
 
             if ($table->columnExists('users_id')) {
-                $table->alter()->dropColumn('`users_id`');
+                $table->getAlterObject()->dropColumn('`users_id`');
             }
 
             if ($table->columnExists('ip')) {
-                $table->alter()->dropColumn('`ip`');
+                $table->getAlterObject()->dropColumn('`ip`');
             }
 
             if ($table->columnExists('username')) {
-                $table->alter()->dropColumn('`username`');
+                $table->getAlterObject()->dropColumn('`username`');
             }
 
             if (!$table->columnExists('account')) {
-                $table->alter()->addColumn('`account` varchar(128) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
+                $table->getAlterObject()->addColumn('`account` varchar(128) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
             }
 
             if (!$table->columnExists('platform')) {
-                $table->alter()->addColumn('`platform` ENUM("html", "ajax", "api", "cli", "other") NOT NULL,', 'AFTER `account`');
+                $table->getAlterObject()->addColumn('`platform` ENUM("html", "ajax", "api", "cli", "other") NOT NULL,', 'AFTER `account`');
             }
 
             if (!$table->columnExists('method')) {
-                $table->alter()->addColumn('`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT "password",', 'AFTER `platform`');
+                $table->getAlterObject()->addColumn('`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT "password",', 'AFTER `platform`');
             }
 
             if (!$table->columnExists('ip_address')) {
-                $table->alter()->addColumn('`ip_address` varchar(48) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
+                $table->getAlterObject()->addColumn('`ip_address` varchar(48) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `method`');
             }
 
             if (!$table->columnExists('ip_address_binary')) {
-                $table->alter()->addColumn('`ip_address_binary` binary(16) NULL DEFAULT NULL,', 'AFTER `ip_address`');
+                $table->getAlterObject()->addColumn('`ip_address_binary` binary(16) NULL DEFAULT NULL,', 'AFTER `ip_address`');
             }
 
             if (!$table->columnExists('net_len')) {
-                $table->alter()->addColumn('`net_len` int NOT NULL DEFAULT 0,', 'AFTER `ip_address_binary`');
+                $table->getAlterObject()->addColumn('`net_len` int NOT NULL DEFAULT 0,', 'AFTER `ip_address_binary`');
             }
 
             if (!$table->columnExists('user_agent')) {
-                $table->alter()->addColumn('`user_agent` varchar(2040) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `net_len`');
+                $table->getAlterObject()->addColumn('`user_agent` varchar(2040) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `net_len`');
             }
 
             if (!$table->columnExists('latitude')) {
-                $table->alter()->addColumn('`latitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `user_agent`');
+                $table->getAlterObject()->addColumn('`latitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `user_agent`');
             }
 
             if (!$table->columnExists('longitude')) {
-                $table->alter()->addColumn('`longitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `latitude`');
+                $table->getAlterObject()->addColumn('`longitude` decimal(10,7) NULL DEFAULT NULL,', 'AFTER `latitude`');
             }
 
             if (!$table->columnExists('timezones_id')) {
-                $table->alter()->addColumn('`timezones_id` bigint NULL DEFAULT NULL,', 'AFTER `longitude`');
+                $table->getAlterObject()->addColumn('`timezones_id` bigint NULL DEFAULT NULL,', 'AFTER `longitude`');
             }
 
             if (!$table->columnExists('countries_id')) {
-                $table->alter()->addColumn('`countries_id` bigint NULL DEFAULT NULL,', 'AFTER `timezones_id`');
+                $table->getAlterObject()->addColumn('`countries_id` bigint NULL DEFAULT NULL,', 'AFTER `timezones_id`');
             }
 
             if (!$table->columnExists('states_id')) {
-                $table->alter()->addColumn('`states_id` bigint NULL DEFAULT NULL,', 'AFTER `countries_id`');
+                $table->getAlterObject()->addColumn('`states_id` bigint NULL DEFAULT NULL,', 'AFTER `countries_id`');
             }
 
             if (!$table->columnExists('cities_id')) {
-                $table->alter()->addColumn('`cities_id` bigint NULL DEFAULT NULL,', 'AFTER `states_id`');
+                $table->getAlterObject()->addColumn('`cities_id` bigint NULL DEFAULT NULL,', 'AFTER `states_id`');
             }
 
-            $table->alter()->changeColumn('`action`'       , '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
-            $table->alter()->changeColumn('`method`'       , '`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
-            $table->alter()->changeColumn('`failed_reason`', '`failed_reason` varchar(4090) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
+            $table->getAlterObject()->changeColumn('`action`'       , '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+            $table->getAlterObject()->changeColumn('`method`'       , '`method` enum("password", "magic", "sso", "google", "facebook", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+            $table->getAlterObject()->changeColumn('`failed_reason`', '`failed_reason` varchar(4090) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
 
             if (!$table->indexExists('account')) {
-                $table->alter()->addIndex('KEY `account` (`account`)');
+                $table->getAlterObject()->addIndex('KEY `account` (`account`)');
             }
 
             if (!$table->indexExists('platform')) {
-                $table->alter()->addIndex('KEY `platform` (`platform`)');
+                $table->getAlterObject()->addIndex('KEY `platform` (`platform`)');
             }
 
             if (!$table->indexExists('method')) {
-                $table->alter()->addIndex('KEY `method` (`method`)');
+                $table->getAlterObject()->addIndex('KEY `method` (`method`)');
             }
 
             if (!$table->indexExists('user_agent')) {
-                $table->alter()->addIndex('KEY `user_agent` (`user_agent` (32))');
+                $table->getAlterObject()->addIndex('KEY `user_agent` (`user_agent` (32))');
             }
 
             if (!$table->indexExists('latitude')) {
-                $table->alter()->addIndex('KEY `latitude` (`latitude`)');
+                $table->getAlterObject()->addIndex('KEY `latitude` (`latitude`)');
             }
 
             if (!$table->indexExists('longitude')) {
-                $table->alter()->addIndex('KEY `longitude` (`longitude`)');
+                $table->getAlterObject()->addIndex('KEY `longitude` (`longitude`)');
             }
 
             if (!$table->indexExists('timezones_id')) {
-                $table->alter()->addIndex('KEY `timezones_id` (`timezones_id`)');
+                $table->getAlterObject()->addIndex('KEY `timezones_id` (`timezones_id`)');
             }
 
             if (!$table->indexExists('countries_id')) {
-                $table->alter()->addIndex('KEY `countries_id` (`countries_id`)');
+                $table->getAlterObject()->addIndex('KEY `countries_id` (`countries_id`)');
             }
 
             if (!$table->indexExists('states_id')) {
-                $table->alter()->addIndex('KEY `states_id` (`states_id`)');
+                $table->getAlterObject()->addIndex('KEY `states_id` (`states_id`)');
             }
 
             if (!$table->indexExists('cities_id')) {
-                $table->alter()->addIndex('KEY `cities_id` (`cities_id`)');
+                $table->getAlterObject()->addIndex('KEY `cities_id` (`cities_id`)');
             }
 
             if (!$table->foreignKeyExists('fk_accounts_authentications_timezones_id')) {
-                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT');
+                $table->getAlterObject()->addForeignKey('CONSTRAINT `fk_accounts_authentications_timezones_id` FOREIGN KEY (`timezones_id`) REFERENCES `geo_timezones` (`id`) ON DELETE RESTRICT');
             }
 
             if (!$table->foreignKeyExists('fk_accounts_authentications_countries_id')) {
-                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT');
+                $table->getAlterObject()->addForeignKey('CONSTRAINT `fk_accounts_authentications_countries_id` FOREIGN KEY (`countries_id`) REFERENCES `geo_countries` (`id`) ON DELETE RESTRICT');
             }
 
             if (!$table->foreignKeyExists('fk_accounts_authentications_states_id')) {
-                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT');
+                $table->getAlterObject()->addForeignKey('CONSTRAINT `fk_accounts_authentications_states_id` FOREIGN KEY (`states_id`) REFERENCES `geo_states` (`id`) ON DELETE RESTRICT');
             }
 
             if (!$table->foreignKeyExists('fk_accounts_authentications_cities_id')) {
-                $table->alter()->addForeignKey('CONSTRAINT `fk_accounts_authentications_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT');
+                $table->getAlterObject()->addForeignKey('CONSTRAINT `fk_accounts_authentications_cities_id` FOREIGN KEY (`cities_id`) REFERENCES `geo_cities` (`id`) ON DELETE RESTRICT');
             }
 
             if ($table->indexExists('ip_address_human')) {
-                $table->alter()->dropIndex('`ip_address`')
+                $table->getAlterObject()->dropIndex('`ip_address`')
                                ->dropIndex('`ip_address_human`');
             }
 
             if ($table->columnExists('ip_address_human')) {
-                $table->alter()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
+                $table->getAlterObject()->changeColumn('`ip_address`'      , '`ip_address_binary` binary(16) NULL DEFAULT NULL,')
                                ->changeColumn('`ip_address_human`', '`ip_address`        varchar(48) NULL DEFAULT NULL,');
             }
 
             if (!$table->indexExists('ip_address')) {
-                $table->alter()->addIndex('KEY `ip_address` (`ip_address`)');
+                $table->getAlterObject()->addIndex('KEY `ip_address` (`ip_address`)');
             }
 
             if (!$table->indexExists('ip_address_binary')) {
-                $table->alter()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
+                $table->getAlterObject()->addIndex('KEY `ip_address_binary` (`ip_address_binary`)');
             }
 
             sql()->getSchemaObject()->getTableObject('accounts_signins')->drop();
 
         })->addUpdate('0.5.1', function () {
-            sql()->getSchemaObject()->getTableObject('accounts_authentications')->alter()->modifyColumn('`status`', 'varchar(32) CHARACTER SET latin1 NULL DEFAULT NULL,');
+            sql()->getSchemaObject()->getTableObject('accounts_authentications')->getAlterObject()->modifyColumn('`status`', 'varchar(32) CHARACTER SET latin1 NULL DEFAULT NULL,');
 
         })->addUpdate('0.5.2', function () {
             // Fix nullable datetime column issues
@@ -1206,13 +1206,13 @@ class Updates extends \Phoundation\Core\Libraries\Updates
         })->addUpdate('0.5.3', function () {
             sql()->getSchemaObject()
                  ->getTableObject('accounts_authentications')
-                    ->alter()->changeColumn('`action`', '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "test", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
+                 ->getAlterObject()->changeColumn('`action`', '`action` enum("authentication", "signin", "signout", "startimpersonation", "stopimpersonation", "test", "other") CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,');
 
         })->addUpdate('0.6.0', function () {
             // Create the users_roles table.
             sql()->getSchemaObject()->getTableObject('accounts_configurations')
                                     ->drop()
-                                    ->define()
+                                    ->getDefineObject()
                                     ->setColumns('  
                                         `id` bigint NOT NULL AUTO_INCREMENT,
                                         `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1241,7 +1241,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.6.1', function () {
             // name and seo_name must be nullable, fix
-            sql()->getSchemaObject()->getTableObject('accounts_rights')->alter()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
+            sql()->getSchemaObject()->getTableObject('accounts_rights')->getAlterObject()->changeColumn('name'    , '`name`     varchar(128) NULL DEFAULT NULL,')
                                                                                 ->changeColumn('seo_name', '`seo_name` varchar(128) NULL DEFAULT NULL,');
 
         })->addUpdate('0.6.2', function () {
@@ -1253,14 +1253,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($tables as $table) {
-                sql()->getSchemaObject()->getTableObject($table)->alter()->addColumn('`status` varchar(16) NULL DEFAULT NULL,', 'AFTER `created_by`');
+                sql()->getSchemaObject()->getTableObject($table)->getAlterObject()->addColumn('`status` varchar(16) NULL DEFAULT NULL,', 'AFTER `created_by`');
             }
 
         })->addUpdate('0.7.0', function () {
             // Create the users_roles table.
             sql()->getSchemaObject()->getTableObject('accounts_user_sessions')
                  ->drop()
-                 ->define()
+                 ->getDefineObject()
                  ->setColumns('  
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `domain` varchar(128) CHARACTER SET latin1 DEFAULT NULL,
@@ -1289,14 +1289,14 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             if ($table->exists()) {
                 $table->rename('accounts_user_sessions');
                 if ($table->columnExists('session')) {
-                    $table->alter()->renameColumn('session', 'identifier');
+                    $table->getAlterObject()->renameColumn('session', 'identifier');
                 }
 
             } else {
                 $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
                 if ($table->exists()) {
                     if ($table->columnExists('session')) {
-                        $table->alter()->renameColumn('session', 'identifier');
+                        $table->getAlterObject()->renameColumn('session', 'identifier');
                     }
                 }
             }
@@ -1312,11 +1312,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if (!$table->columnExists('mfa_code')) {
-                $table->alter()->addColumn('`mfa_code` VARCHAR(64) NULL DEFAULT NULL', 'AFTER `password`');
+                $table->getAlterObject()->addColumn('`mfa_code` VARCHAR(64) NULL DEFAULT NULL', 'AFTER `password`');
             }
 
             if (!$table->columnExists('mfa_timeslice')) {
-                $table->alter()->addColumn('`mfa_timeslice` bigint NULL DEFAULT NULL', 'AFTER `mfa_code`');
+                $table->getAlterObject()->addColumn('`mfa_timeslice` bigint NULL DEFAULT NULL', 'AFTER `mfa_code`');
             }
 
         })->addUpdate('0.8.1', function () {
@@ -1324,7 +1324,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('accounts_configurations');
 
             if (!$table->indexExists('users_id_path')) {
-                $table->alter()->addIndex('UNIQUE `users_id_path` (`users_id`, `path`)');
+                $table->getAlterObject()->addIndex('UNIQUE `users_id_path` (`users_id`, `path`)');
             }
 
         })->addUpdate('0.9.0', function () {
@@ -1332,25 +1332,25 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if ($table->columnExists('default_page')) {
-                $table->alter()->dropColumn('default_page');
+                $table->getAlterObject()->dropColumn('default_page');
             }
 
         })->addUpdate('0.9.1', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
 
             if ($table->columnExists('users_id')) {
-                $table->alter()->changeColumn('`users_id`', '`users_id` bigint NULL DEFAULT NULL,');
+                $table->getAlterObject()->changeColumn('`users_id`', '`users_id` bigint NULL DEFAULT NULL,');
             }
 
         })->addUpdate('0.9.2', function () {
             $table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if (!$table->columnExists('update_password')) {
-                $table->alter()->addColumn('`update_password` datetime NULL DEFAULT NULL,', 'AFTER `password`');
+                $table->getAlterObject()->addColumn('`update_password` datetime NULL DEFAULT NULL,', 'AFTER `password`');
             }
 
             if (!$table->indexExists('update_password')) {
-                $table->alter()->addIndex('KEY `update_password` (`update_password`)');
+                $table->getAlterObject()->addIndex('KEY `update_password` (`update_password`)');
             }
 
         })->addUpdate('0.10.0', function () {
@@ -1358,7 +1358,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('accounts_users');
 
             if (!$_table->columnExists('session_state')) {
-                $_table->alter()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
+                $_table->getAlterObject()->addColumn('`session_state` text NULL DEFAULT NULL,', 'AFTER `url`');
             }
 
             // Add support for modified_on and modified_by
@@ -1392,10 +1392,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             ];
 
             foreach ($indices as $index) {
-                $_table->alter()->dropIndex($index, true);
+                $_table->getAlterObject()->dropIndex($index, true);
             }
 
-            $_table->alter()->dropIndex('email_status', true)
+            $_table->getAlterObject()->dropIndex('email_status', true)
                             ->addIndex('UNIQUE KEY `email_status` (`email`, `status`)');
 
         })->addUpdate('0.10.2', function () {
@@ -1413,10 +1413,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
 
@@ -1428,10 +1428,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('email_status', true)
+                $_table->getAlterObject()->dropIndex('email_status', true)
                                 ->addIndex('UNIQUE KEY `email_status` (`email`, `status`)');
 
                 // Fix table accounts_phones
@@ -1441,10 +1441,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('phone_status', true)
+                $_table->getAlterObject()->dropIndex('phone_status', true)
                                 ->addIndex('UNIQUE KEY `phone_status` (`phone`, `status`)');
 
                 // Fix table accounts_settings
@@ -1454,15 +1454,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('users_id_hash_status', true)
+                $_table->getAlterObject()->dropIndex('users_id_hash_status', true)
                                 ->addIndex('UNIQUE KEY `users_id_hash_status` (`users_id`, `hash`, `status`)');
 
         })->addUpdate('0.11.0', function () {
             // Fix accounts_user_sessions table
-            sql()->getSchemaObject()->getTableObject('accounts_user_sessions')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('accounts_user_sessions')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1510,11 +1510,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('accounts_user_sessions');
 
             if (!$_table->indexExists('modified_by')) {
-                $_table->alter()->addIndex('KEY `modified_by` (`modified_by`)');
+                $_table->getAlterObject()->addIndex('KEY `modified_by` (`modified_by`)');
             }
 
             if (!$_table->indexExists('modified_on')) {
-                $_table->alter()->addIndex('KEY `modified_on` (`modified_on`)');
+                $_table->getAlterObject()->addIndex('KEY `modified_on` (`modified_on`)');
             }
 
         })->addUpdate('0.11.3', function () {

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Table class
+ * Class Table
  *
  *
  *
@@ -20,6 +20,10 @@ use Phoundation\Core\Log\Log;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Data\Iterator;
 use Phoundation\Databases\Sql\Interfaces\SqlInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaAbstractInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\SchemaInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableAlterInterface;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableDefineInterface;
 use Phoundation\Databases\Sql\Schema\Interfaces\TableInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
@@ -60,11 +64,11 @@ class Table extends SchemaAbstract implements TableInterface
     /**
      * Table constructor
      *
-     * @param string                $name
-     * @param SqlInterface          $_sql
-     * @param SchemaAbstract|Schema $_parent
+     * @param string                                  $name
+     * @param SqlInterface                            $_sql
+     * @param SchemaAbstractInterface|SchemaInterface $_parent
      */
-    public function __construct(string $name, SqlInterface $_sql, SchemaAbstract|Schema $_parent)
+    public function __construct(string $name, SqlInterface $_sql, SchemaAbstractInterface|SchemaInterface $_parent)
     {
         parent::__construct($name, $_sql, $_parent);
 
@@ -90,22 +94,22 @@ class Table extends SchemaAbstract implements TableInterface
     /**
      * Define and create the table
      *
-     * @return TableDefine
+     * @return TableDefineInterface
      */
-    public function define(): TableDefine
+    public function getDefineObject(): TableDefineInterface
     {
-        return new TableDefine($this->name, $this->_sql, $this);
+        return new TableDefine($this->name, $this->getSqlObject(), $this);
     }
 
 
     /**
      * Define and create the table
      *
-     * @return TableAlter
+     * @return TableAlterInterface
      */
-    public function alter(): TableAlter
+    public function getAlterObject(): TableAlterInterface
     {
-        return new TableAlter($this->name, $this->_sql, $this);
+        return new TableAlter($this->name, $this->getSqlObject(), $this);
     }
 
 
@@ -143,8 +147,8 @@ class Table extends SchemaAbstract implements TableInterface
     {
         Log::warning(ts('Dropping table ":table" in database ":database" for SQL instance ":instance"', [
             ":table"    => $this->name,
-            ":instance" => $this->_sql->getConnector(),
-            ":database" => $this->_sql->getDatabase(),
+            ":instance" => $this->getSqlObject()->getConnector(),
+            ":database" => $this->getName(),
         ]), 3);
 
         sql()->query("DROP TABLES IF EXISTS `" . $this->name . "`");
@@ -252,19 +256,19 @@ class Table extends SchemaAbstract implements TableInterface
      */
     public function getForeignKeysToColumn(string $column): IteratorInterface
     {
-        return sql()->listDataIterator('SELECT   CONCAT(`kcu`.`TABLE_SCHEMA`, " / ", `kcu`.`TABLE_NAME`, " / ", `kcu`.`COLUMN_NAME`) AS `identifier`,                                                                                                              
-                                                 `kcu`.`TABLE_SCHEMA`                                                                AS `source_database`,     
-                                                 `kcu`.`TABLE_NAME`                                                                  AS `source_table`,     
-                                                 `kcu`.`COLUMN_NAME`                                                                 AS `source_column`,     
-                                                 `kcu`.`CONSTRAINT_NAME`                                                             AS `foreign_key_name`,     
-                                                 `kcu`.`REFERENCED_TABLE_NAME`                                                       AS `target_table`,     
-                                                 `kcu`.`REFERENCED_COLUMN_NAME`                                                      AS `target_column` 
-                                        FROM     `information_schema`.`KEY_COLUMN_USAGE`                                             AS `kcu` 
-                                        WHERE    `kcu`.`REFERENCED_TABLE_SCHEMA` = :schema 
-                                        AND      `kcu`.`REFERENCED_TABLE_NAME`   = :table     
-                                        AND      `kcu`.`REFERENCED_COLUMN_NAME`  = :column 
-                                        ORDER BY `kcu`.`TABLE_NAME`, `kcu`.`COLUMN_NAME`', [
-            ':schema' => $this->_sql->getCurrentDatabase(),
+        return sql()->listDataIterator('SELECT   CONCAT(`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`, " / ", `KEY_COLUMN_USAGE`.`TABLE_NAME`, " / ", `KEY_COLUMN_USAGE`.`COLUMN_NAME`) AS `identifier`,                                                                                                              
+                                                 `KEY_COLUMN_USAGE`.`TABLE_SCHEMA`                                                                                          AS `source_database`,     
+                                                 `KEY_COLUMN_USAGE`.`TABLE_NAME`                                                                                            AS `source_table`,     
+                                                 `KEY_COLUMN_USAGE`.`COLUMN_NAME`                                                                                           AS `source_column`,     
+                                                 `KEY_COLUMN_USAGE`.`CONSTRAINT_NAME`                                                                                       AS `foreign_key_name`,     
+                                                 `KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`                                                                                 AS `target_table`,     
+                                                 `KEY_COLUMN_USAGE`.`REFERENCED_COLUMN_NAME`                                                                                AS `target_column` 
+                                        FROM     `information_schema`.`KEY_COLUMN_USAGE`                                         
+                                        WHERE    `KEY_COLUMN_USAGE`.`REFERENCED_TABLE_SCHEMA` = :schema 
+                                        AND      `KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`   = :table     
+                                        AND      `KEY_COLUMN_USAGE`.`REFERENCED_COLUMN_NAME`  = :column 
+                                        ORDER BY `KEY_COLUMN_USAGE`.`TABLE_NAME`, `KEY_COLUMN_USAGE`.`COLUMN_NAME`', [
+            ':schema' => $this->getName(),
             ':table'  => $this->name,
             ':column' => $column,
         ]);
@@ -285,7 +289,7 @@ class Table extends SchemaAbstract implements TableInterface
         }
 
         if (empty($this->foreign_keys)) {
-            $results = sql()->listKeyValues("SHOW CREATE TABLE `" . $this->name . "`");
+            $results = sql()->listKeyValues('SHOW CREATE TABLE `' . $this->name . '`');
             $results = $results[$this->name]["create table"];
 
             // Parse all foreign keys from the resulting query

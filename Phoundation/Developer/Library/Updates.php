@@ -44,7 +44,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('developer_incidents')->drop();
 
             // Drop and create the developer_unittests table
-            sql()->getSchemaObject()->getTableObject('developer_unittests')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('developer_unittests')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -79,7 +79,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.9.0', function () {
             // Drop and create the developer_unittests table
-            sql()->getSchemaObject()->getTableObject('developer_repositories')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('developer_repositories')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -128,20 +128,20 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
 
             if ($_table->indexExists('name')) {
-                $_table->alter()->dropIndex('name');
+                $_table->getAlterObject()->dropIndex('name');
             }
 
-            $_table->alter()->addIndex('UNIQUE KEY `name` (`name`)');
+            $_table->getAlterObject()->addIndex('UNIQUE KEY `name` (`name`)');
 
         })->addUpdate('0.9.3', function () {
             // Ensure non unique index on developer_repositories.path column, multiple same paths may exist
             $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
 
             if ($_table->indexExists('path')) {
-                $_table->alter()->dropIndex('path');
+                $_table->getAlterObject()->dropIndex('path');
             }
 
-            $_table->alter()->addIndex('KEY `path` (`path`)');
+            $_table->getAlterObject()->addIndex('KEY `path` (`path`)');
 
         })->addUpdate('0.9.4', function () {
             // Fix indices to include `status` for developer_repositories
@@ -156,10 +156,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
 
@@ -168,11 +168,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('developer_repositories');
 
             if (!$_table->indexExists(' modified_by')) {
-                $_table->alter()->dropIndex(' modified_by');
+                $_table->getAlterObject()->dropIndex(' modified_by');
             }
 
             if (!$_table->indexExists('modified_by')) {
-                $_table->alter()->addIndex('KEY `modified_by` (`modified_by`)');
+                $_table->getAlterObject()->addIndex('KEY `modified_by` (`modified_by`)');
             }
         });
     }

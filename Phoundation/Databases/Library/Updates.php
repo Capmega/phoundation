@@ -43,7 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('databases_connectors')->drop();
 
             // Create the database_mounts table.
-            sql()->getSchemaObject()->getTableObject('databases_connectors')->define()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -93,11 +93,11 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.0.24', function () {
-            sql()->getSchemaObject()->getTableObject('databases_connectors')->alter()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->getAlterObject()
                  ->addColumn('`sync` tinyint DEFAULT 0 NOT NULL', 'AFTER `statistics`');
 
         })->addUpdate('0.0.25', function () {
-            sql()->getSchemaObject()->getTableObject('databases_connectors')->alter()
+            sql()->getSchemaObject()->getTableObject('databases_connectors')->getAlterObject()
                  ->addColumn('`environment` varchar(32) NULL DEFAULT NULL', 'AFTER `seo_name`')
                  ->addIndex('KEY `environment` (`environment`)');
 
@@ -105,22 +105,22 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('databases_connectors');
 
             if (!$table->columnExists('servers')) {
-                $table->alter()->addColumn('`servers` varchar(1020) NULL DEFAULT NULL', 'AFTER `hostname`');
+                $table->getAlterObject()->addColumn('`servers` varchar(1020) NULL DEFAULT NULL', 'AFTER `hostname`');
             }
 
         })->addUpdate('0.2.0', function () {
             $table = sql()->getSchemaObject()->getTableObject('databases_connectors');
 
             if (!$table->columnExists('pdo_attributes')) {
-                $table->alter()->modifyColumn('`pdo_attributes`', '`attributes` varchar(2040) NULL DEFAULT NULL,');
+                $table->getAlterObject()->modifyColumn('`pdo_attributes`', '`attributes` varchar(2040) NULL DEFAULT NULL,');
             }
 
             if (!$table->columnExists('connect_timeout')) {
-                $table->alter()->addColumn('`connect_timeout` int NOT NULL DEFAULT 3', 'AFTER `database`');
+                $table->getAlterObject()->addColumn('`connect_timeout` int NOT NULL DEFAULT 3', 'AFTER `database`');
             }
 
             if (!$table->columnExists('query_timeout')) {
-                $table->alter()->addColumn('`query_timeout` int NOT NULL DEFAULT 30', 'AFTER `connect_timeout`');
+                $table->getAlterObject()->addColumn('`query_timeout` int NOT NULL DEFAULT 30', 'AFTER `connect_timeout`');
             }
 
         })->addUpdate('0.8.0', function () {
@@ -142,10 +142,10 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ];
 
                 foreach ($indices as $index) {
-                    $_table->alter()->dropIndex($index, true);
+                    $_table->getAlterObject()->dropIndex($index, true);
                 }
 
-                $_table->alter()->dropIndex('name_status', true)
+                $_table->getAlterObject()->dropIndex('name_status', true)
                                 ->addIndex('UNIQUE KEY `name_status` (`name`, `status`)');
             }
         });

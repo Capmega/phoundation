@@ -43,7 +43,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.3', function () {
             // Create the "categories" table.
-            sql()->getSchemaObject()->getTableObject('categories')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('categories')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.5', function () {
             // Modify the "categories" table.
-            sql()->getSchemaObject()->getTableObject('categories')->alter()
+            sql()->getSchemaObject()->getTableObject('categories')->getAlterObject()
                  ->addColumn('
                     `created_by` bigint DEFAULT NULL', 'AFTER `created_on`
                 ')
@@ -82,7 +82,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.12', function () {
             // Create the "entities" table.
-            sql()->getSchemaObject()->getTableObject('entities')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('entities')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -148,7 +148,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
                 ')->create();
 
         })->addUpdate('0.1.0', function () {
-            sql()->getSchemaObject()->getTableObject('test_dataentries')->drop()->define()
+            sql()->getSchemaObject()->getTableObject('test_dataentries')->drop()->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -178,7 +178,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $_table = sql()->getSchemaObject()->getTableObject('categories');
 
             if ($_table->indexExists('parent_name')) {
-                $_table->alter()->dropIndex('parent_name')
+                $_table->getAlterObject()->dropIndex('parent_name')
                                  ->addIndex('UNIQUE KEY `parents_id_name` (`parents_id`,`name`)');
             }
 
@@ -187,15 +187,15 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             $table = sql()->getSchemaObject()->getTableObject('test_dataentries');
 
             if (!$table->columnExists('created_by')) {
-                $table->alter()->addColumn('`created_by` bigint DEFAULT NULL', 'AFTER `created_on`');
+                $table->getAlterObject()->addColumn('`created_by` bigint DEFAULT NULL', 'AFTER `created_on`');
             }
 
             if (!$table->indexExists('created_by')) {
-                $table->alter()->addIndices('KEY `created_by` (`created_by`)');
+                $table->getAlterObject()->addIndices('KEY `created_by` (`created_by`)');
             }
 
             if (!$table->foreignKeyExists('fk_test_dataentries_created_by')) {
-                $table->alter()->addForeignKeys('CONSTRAINT `fk_test_dataentries_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
+                $table->getAlterObject()->addForeignKeys('CONSTRAINT `fk_test_dataentries_created_by` FOREIGN KEY (`created_by`) REFERENCES `accounts_users` (`id`) ON DELETE RESTRICT');
             }
 
         })->addUpdate('0.8.0', function () {

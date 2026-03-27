@@ -40,7 +40,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
     {
         $this->addUpdate('0.0.5', function () {
             // Add security incidents table
-            sql()->getSchemaObject()->getTableObject('security_incidents')->define()
+            sql()->getSchemaObject()->getTableObject('security_incidents')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -68,7 +68,7 @@ class Updates extends \Phoundation\Core\Libraries\Updates
             sql()->getSchemaObject()->getTableObject('security_puks_keys')->drop();
 
             // Add PUKS keys table
-            sql()->getSchemaObject()->getTableObject('security_puks_keys')->define()
+            sql()->getSchemaObject()->getTableObject('security_puks_keys')->getDefineObject()
                  ->setColumns('
                     `id` bigint NOT NULL AUTO_INCREMENT,
                     `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -91,36 +91,36 @@ class Updates extends \Phoundation\Core\Libraries\Updates
 
         })->addUpdate('0.0.15', function () {
             sql()->getSchemaObject()
-                 ->getTableObject('security_incidents')->alter()
+                 ->getTableObject('security_incidents')->getAlterObject()
                  ->changeColumn('`severity`', '`severity` ENUM("notice", "low", "medium", "high", "severe") NULL');
 
         })->addUpdate('0.0.20', function () {
             sql()->getSchemaObject()
-                 ->getTableObject('security_incidents')->alter()
+                 ->getTableObject('security_incidents')->getAlterObject()
                  ->addColumn('`body` text NOT NULL', 'AFTER `title`');
 
         })->addUpdate('0.1.0', function () {
             $table = sql()->getSchemaObject()->getTableObject('security_incidents');
 
             if (!$table->columnExists('url')) {
-                $table->alter()->addColumn('`url` varchar(2048) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `details`');
+                $table->getAlterObject()->addColumn('`url` varchar(2048) COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `details`');
             }
 
             if (!$table->columnExists('exception')) {
-                $table->alter()->addColumn('`exception` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `url`');
+                $table->getAlterObject()->addColumn('`exception` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `url`');
             }
 
             if (!$table->columnExists('data')) {
-                $table->alter()->addColumn('`data` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `exception`');
+                $table->getAlterObject()->addColumn('`data` mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,', 'AFTER `exception`');
             }
 
         })->addUpdate('0.1.1', function () {
-            sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
+            sql()->getSchemaObject()->getTableObject('security_incidents')->getAlterObject()
                  ->modifyColumn('`body`'   , 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,')
                  ->modifyColumn('`details`', 'text COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
 
         })->addUpdate('0.1.2', function () {
-            sql()->getSchemaObject()->getTableObject('security_incidents')->alter()
+            sql()->getSchemaObject()->getTableObject('security_incidents')->getAlterObject()
                  ->modifyColumn('`details`'   , 'mediumtext COLLATE utf8mb4_general_ci NULL DEFAULT NULL,');
 
         })->addUpdate('0.8.0', function () {

@@ -18,12 +18,13 @@ namespace Phoundation\Databases\Sql\Schema;
 
 use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Sql\Exception\SqlException;
+use Phoundation\Databases\Sql\Schema\Interfaces\TableDefineInterface;
 use Phoundation\Databases\Sql\Sql;
 use Phoundation\Utils\Arrays;
 use Phoundation\Utils\Strings;
 
 
-class TableDefine extends SchemaAbstract
+class TableDefine extends SchemaAbstract implements TableDefineInterface
 {
     /**
      * The SQL interface
