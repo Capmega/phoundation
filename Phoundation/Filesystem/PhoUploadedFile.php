@@ -84,9 +84,10 @@ class PhoUploadedFile extends PhoFileCore implements PhoUploadedFileInterface
         if ($this->getMimetype() != $source->getType()) {
             // Fix the mimetype. If the new filetype is not supported, it will be ignored anyway
             Incident::new()
-                    ->setType('Specified mimetype invalid')
+                    ->setType('mimetype')
                     ->setSeverity(EnumSeverity::medium)
-                    ->setTitle(tr('Uploaded file ":file" was specified as mimetype ":indicated" but has mimetype ":detected", correcting mimetype to what was detected', [
+                    ->setTitle(ts('Invalid MIME type detected'))
+                    ->setBody(ts('Uploaded file ":file" was specified as mimetype ":indicated" but has mimetype ":detected", correcting mimetype to what was detected', [
                         ':file'      => $source->getName(),
                         ':indicated' => $source->getType(),
                         ':detected'  => $this->getMimetype()
