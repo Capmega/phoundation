@@ -119,7 +119,7 @@ $mail->addAddress(Email::getOverrideEmail() ?? $to->getEmail(), $to->getDisplayN
 // Optionally, add CC fields (But ONLY if emails are not overridden)
 if ($argv['cc']) {
     foreach ($argv['cc'] as $cc) {
-        $_cc = User::new($cc);
+        $_cc = User::new()->loadOrThis($cc);
 
         // If an override email is set, adding them as CC only sends duplicate mails to the override email.
         if (empty(Email::getOverrideEmail($_cc))) {
@@ -130,9 +130,9 @@ if ($argv['cc']) {
 
 
 // Optionally, add BCC fields (But ONLY if emails are not overridden)
-if ($argv['cc']) {
-    foreach ($argv['cc'] as $bcc) {
-        $_bcc = User::new($bcc);
+if ($argv['bcc']) {
+    foreach ($argv['bcc'] as $bcc) {
+        $_bcc = User::new()->loadOrThis($bcc);
 
         // If an override email is set, adding them as BCC only sends duplicate mails to the override email.
         if (empty(Email::getOverrideEmail($_bcc))) {
@@ -142,7 +142,7 @@ if ($argv['cc']) {
 }
 
 
-// Set the FROM field
+// Set the "FROM" field
 try {
     if ($argv['from']) {
         $_from = User::new()->load($argv['from']);

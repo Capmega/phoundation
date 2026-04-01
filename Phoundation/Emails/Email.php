@@ -87,7 +87,7 @@ class Email extends DataEntry
     {
         $_user = $_user ?? Session::getUserObject();
 
-        if ($_user->hasAllRights('force-email')) {
+        if (!$_user->isNew() and $_user->hasAllRights('force-email')) {
             // The user has the "force-email" right, which cancels email overrides
             return null;
         }
