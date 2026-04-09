@@ -188,14 +188,13 @@ class SqlDataEntry implements SqlDataEntryInterface
     public function write(?string $comments): array
     {
         // New entry, insert
-        $retry     = 0;
-        $random_id = null;
+        $retry = 0;
 
         while ($retry++ < $this->max_id_retries) {
             try {
                 return $this->writeEntry($comments);
 
-            } catch (SqlException $e) {
+            } catch (SqlContstraintDuplicateEntryException $e) {
                 $this->handleWriteException($e);
                 continue;
             }
@@ -211,17 +210,14 @@ class SqlDataEntry implements SqlDataEntryInterface
     /**
      * Handles all SQL exceptions from the attempt to write the DataEntry to the database
      *
-     * @param SqlException $e
+     * @param SqlContstraintDuplicateEntryException $e
      *
      * @return void
      * @throws Exception
      */
-    protected function handleWriteException(SqlException $e): void
+    protected function handleWriteException(SqlContstraintDuplicateEntryException $e): void
     {
-        if ($e->getCode() !== 1062) {
-            // Some different error, keep throwing
-            throw $e;
-        }
+        static $process_retries = 0;
 
         // Duplicate entry, which?
         $column = $e->getMessage();
@@ -240,6 +236,13 @@ class SqlDataEntry implements SqlDataEntryInterface
             } else {
                 Log::warning($this->sql->getConnectorLogPrefix() . tr('Wow! Duplicate ID entry encountered for insert in table ":table", retrying', [
                     ':table' => $this->table,
+                ]));
+            }
+
+            if (++$process_retries > ($this->max_id_retries * 2)) {
+                // If the randomly selected ID already exists, try again
+                throw new SqlContstraintDuplicateEntryException(tr('Process encountered more than ":retries" attempts to find a free ID, check if there are any extremely full tables', [
+                    ':retries' => $this->max_id_retries,
                 ]));
             }
 
