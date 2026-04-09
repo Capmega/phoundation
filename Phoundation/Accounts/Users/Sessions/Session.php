@@ -30,6 +30,7 @@ namespace Phoundation\Accounts\Users\Sessions;
 use DateTimeZone;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use Phoundation\Accounts\Config\Exception\ConfigDisabledFeatureException;
 use Phoundation\Accounts\Enums\EnumAuthenticationAction;
 use Phoundation\Accounts\Users\Authentication;
 use Phoundation\Accounts\Users\Exception\AuthenticationException;
@@ -81,7 +82,6 @@ use Phoundation\Web\Requests\Request;
 use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
-
 
 class Session implements SessionInterface
 {
@@ -368,6 +368,19 @@ class Session implements SessionInterface
     public static function getConfigIgnoreSessionFail(): bool
     {
         return Debug::isEnabled() and config()->getBoolean('platforms.web.sessions.ignore-fail', false);
+    }
+
+
+    /**
+     * Returns true if session user impersonation is enabled (Defaults to true)
+     *
+     * Returns the value for the configuration path "platforms.web.sessions.impersonation.enabled" or true if not defined
+     *
+     * @return bool
+     */
+    public static function getConfigImpersonationEnabled(): bool
+    {
+        return Debug::isEnabled() and config()->getBoolean('platforms.web.sessions.impersonation.enabled', true);
     }
 
 
@@ -2031,16 +2044,23 @@ class Session implements SessionInterface
     /**
      * Update this session so that it impersonates this person
      *
-     * @param User $user
+     * @param User $_user
      *
      * @return void
      */
-    public static function impersonate(User $user): void
+    public static function impersonate(User $_user): void
     {
+        // Is impersonation enabled to begin with? If not, we will not do it!
+        if (!Session::getConfigImpersonationEnabled()) {
+            throw new ConfigDisabledFeatureException(ts('Cannot impersonate user ":user", the impersonation feature has been disabled by configuration', [
+                ':user' => $_user->getUsername(),
+            ]));
+        }
+
         // Just an extra check, this SHOULD never happen
-        if (!$user->getEmail()) {
+        if (!$_user->getEmail()) {
             throw new OutOfBoundsException(tr('Cannot impersonate user ":user", it has no email address', [
-                ':user' => $user->getLogId(),
+                ':user' => $_user->getLogId(),
             ]));
         }
 
@@ -2058,19 +2078,19 @@ class Session implements SessionInterface
                     ->setSeverity(EnumSeverity::high)
                     ->setTitle('User impersonation failed')
                     ->setBody(tr('Cannot impersonate user ":user", we are already impersonating', [
-                        ':user' => $user->getLogId(),
+                        ':user' => $_user->getLogId(),
                     ]))
                     ->setDetails([
                         'user'                => Session::getUsersLogId(),
                         'impersonating'       => User::new()->load($_SESSION['user']['impersonate_id'])->getLogId(),
-                        'want_to_impersonate' => $user->getLogId(),
+                        'want_to_impersonate' => $_user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
 
-        if (!$user->canBeImpersonated()) {
+        if (!$_user->canBeImpersonated()) {
             // Impersonation  is not allowed
             Authentication::new()
                           ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
@@ -2088,14 +2108,14 @@ class Session implements SessionInterface
                     ]))
                     ->setDetails([
                         'user'                => Session::getUsersLogId(),
-                        'want_to_impersonate' => $user->getLogId(),
+                        'want_to_impersonate' => $_user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
 
-        if ($user->getId() === Session::getUsersId()) {
+        if ($_user->getId() === Session::getUsersId()) {
             // We cannot impersonate self!
             Authentication::new()
                           ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
@@ -2113,14 +2133,14 @@ class Session implements SessionInterface
                     ]))
                     ->setDetails([
                         'user'                => Session::getUsersLogId(),
-                        'want_to_impersonate' => $user->getLogId(),
+                        'want_to_impersonate' => $_user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
                     ->save()
                     ->throw();
         }
 
-        if ($user->hasAllRights('god')) {
+        if ($_user->hasAllRights('god')) {
             // Cannot impersonate a god level user!
             Authentication::new()
                           ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
@@ -2138,7 +2158,7 @@ class Session implements SessionInterface
                     ]))
                     ->setDetails([
                         'user'                => Session::getUsersLogId(),
-                        'want_to_impersonate' => $user->getLogId(),
+                        'want_to_impersonate' => $_user->getLogId(),
                     ])
                     ->setNotifyRoles('security')
                     ->save()
@@ -2146,11 +2166,11 @@ class Session implements SessionInterface
         }
 
         // Impersonate the user
-        $original_user = Session::getUserObject();
-        $_SESSION['user']['impersonate_id']  = $user->getId();
-        $_SESSION['user']['impersonate_url'] = (string) Url::newCurrent();
-
+        $_original_user = Session::getUserObject();
         Session::$user_changed = true;
+
+        $_SESSION['user']['impersonate_id']  = $_user->getId();
+        $_SESSION['user']['impersonate_url'] = (string) Url::newCurrent();
 
         Authentication::new()
                       ->setAccount(Json::encode(['email' => Session::getUsersEmail()], JSON_OBJECT_AS_ARRAY))
@@ -2164,24 +2184,24 @@ class Session implements SessionInterface
                 ->setSeverity(EnumSeverity::medium)
                 ->setTitle('User impersonation started')
                 ->setBody(tr('The user ":user" started impersonating user ":impersonate"', [
-                    ':user'        => $original_user->getLogId(),
-                    ':impersonate' => $user->getLogId(),
+                    ':user'        => $_original_user->getLogId(),
+                    ':impersonate' => $_user->getLogId(),
                 ]))
                 ->setDetails([
-                    'user'        => $original_user->getLogId(),
-                    'impersonate' => $user->getLogId(),
+                    'user'        => $_original_user->getLogId(),
+                    'impersonate' => $_user->getLogId(),
                 ])
                 ->setNotifyRoles('security')
                 ->save();
 
         // Notify the target user
         Notification::new()
-                    ->setUrl(Url::new('profiles/profile+' . $original_user->getId() . '.html')->makeWww())
+                    ->setUrl(Url::new('profiles/profile+' . $_original_user->getId() . '.html')->makeWww())
                     ->setMode(EnumDisplayMode::warning)
                     ->setUsersId(array_get_safe(array_get_safe($_SESSION, 'user', []), 'impersonate_id'))
                     ->setTitle(tr('Your account was impersonated'))
                     ->setMessage(tr('Your account was impersonated by the user ":user". For questions or more information about this, please contact the user', [
-                        ':user' => $original_user->getLogId(),
+                        ':user' => $_original_user->getLogId(),
                     ]))
                     ->send();
     }
