@@ -31,6 +31,7 @@ use Phoundation\Exception\OutOfBoundsException;
 use Phoundation\Exception\PhpModuleNotAvailableException;
 use Phoundation\Exception\UnderConstructionException;
 use Phoundation\Notifications\Notification;
+use Phoundation\Utils\Enums\EnumTitleCaseStyles;
 use StephenHill\Base58;
 use Stringable;
 use Throwable;
@@ -279,6 +280,32 @@ class Strings extends Utils
         }
 
         return mb_substr($source, 0, $position) . mb_strtoupper(mb_substr($source, $position, 1)) . mb_substr($source, $position + 1);
+    }
+
+
+    /**
+     * Return the source string with title-case applied
+     *
+     * @see https://en.wikipedia.org/wiki/Title_case
+     *
+     * @param Stringable|string        $source                 The source string to process
+     * @param EnumTitleCaseStyles|null $style                  The title case style to apply
+     * @param int                      $position        [0]    The position from where to start with the style, starting from string position 0
+     * @param bool                     $force_lowercase [true] If true, will force the entire text of the string to lowercase before proceeding
+     *
+     * @return string
+     */
+    public static function titleCase(Stringable|string $source, ?EnumTitleCaseStyles $style = null, int $position = 0, bool $force_lowercase = true): string
+    {
+throw new UnderConstructionException();
+        return match ($style) {
+            EnumTitleCaseStyles::ApaStyle                                                   => Strings::titleCaseApaStyle($source, $position, $force_lowercase),
+            EnumTitleCaseStyles::ApStylebook                                                => Strings::titleCaseApStylebook($source, $position, $force_lowercase),
+            EnumTitleCaseStyles::BlueBook                                                   => Strings::titleCaseBlueBook($source, $position, $force_lowercase),
+            EnumTitleCaseStyles::ChicagoManualOfStyle                                       => Strings::titleCaseChicagoManualOfStyle($source, $position, $force_lowercase),
+            EnumTitleCaseStyles::ModernLanguageAssociationHandbook                          => Strings::titleCaseModernLanguageAssociationHandbook($source, $position, $force_lowercase),
+            EnumTitleCaseStyles::AmericanMedicalAssociationManualOfStyleCapitalizationRules => Strings::titleCaseAmericanMedicalAssociationManualOfStyleCapitalizationRules($source, $position, $force_lowercase),
+        };
     }
 
 
