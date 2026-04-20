@@ -3,6 +3,9 @@
  namespace Phoundation\Accounts\Users\Locale\Language\Interfaces;
 
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
+use Phoundation\Date\PhoDateTimeZone;
 
 interface PhoLocaleInterface
 {
@@ -57,4 +60,18 @@ interface PhoLocaleInterface
      * @return string|null
      */
     public function formatPhoneNumber(string|int|null $phone_number, bool $international = true): ?string;
+
+    /**
+     * Returns the timezone that is used for each page load during the session for this user
+     *
+     * @return PhoDateTimeZoneInterface
+     */
+    public function getSessionTimezoneObject(): PhoDateTimeZoneInterface;
+
+    /**
+     * Returns the timezone that is used for the current page
+     *
+     * @return PhoDateTimeZoneInterface
+     */
+    public function getPageTimezoneObject(): PhoDateTimeZoneInterface;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class PasswordFailedException
+ * Class PasswordHashException
  *
  *
  *
@@ -18,12 +18,6 @@ namespace Phoundation\Accounts\Users\Exception;
 
 use Throwable;
 
-
-class PasswordFailedException extends PasswordException
+class PasswordHashException extends PasswordException
 {
-    public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
-    {
-        parent::__construct($messages, $previous);
-        $this->makeWarning();
-    }
 }

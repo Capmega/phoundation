@@ -19,8 +19,10 @@ namespace Phoundation\Accounts\Users\Locale;
 use Locale;
 use Phoundation\Accounts\Users\Interfaces\UserInterface;
 use Phoundation\Accounts\Users\Locale\Language\Interfaces\PhoLocaleInterface;
+use Phoundation\Accounts\Users\Sessions\Session;
+use Phoundation\Date\Interfaces\PhoDateTimeZoneInterface;
 use Phoundation\Date\PhoDateTimeFormats;
-
+use Phoundation\Date\PhoDateTimeZone;
 
 class PhoLocale extends Locale implements PhoLocaleInterface
 {
@@ -62,6 +64,28 @@ class PhoLocale extends Locale implements PhoLocaleInterface
     public function getLocale(): string
     {
         return 'en-CA';
+    }
+
+
+    /**
+     * Returns the timezone that is used for each page load during the session for this user
+     *
+     * @return PhoDateTimeZoneInterface
+     */
+    public function getSessionTimezoneObject(): PhoDateTimeZoneInterface
+    {
+        return PhoDateTimezone::new(Session::getTimezone());
+    }
+
+
+    /**
+     * Returns the timezone that is used for the current page
+     *
+     * @return PhoDateTimeZoneInterface
+     */
+    public function getPageTimezoneObject(): PhoDateTimeZoneInterface
+    {
+        return PhoDateTimezone::new(Session::getTimezoneForPage());
     }
 
 

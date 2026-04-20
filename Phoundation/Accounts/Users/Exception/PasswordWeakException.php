@@ -19,7 +19,7 @@ namespace Phoundation\Accounts\Users\Exception;
 use Throwable;
 
 
-class PasswordWeakException extends UsersException
+class PasswordWeakException extends PasswordException
 {
     public function __construct(Throwable|array|string|null $messages, ?Throwable $previous = null)
     {

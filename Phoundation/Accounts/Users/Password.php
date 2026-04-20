@@ -13,6 +13,7 @@
  * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright © 2025 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @package   Phoundation\Accounts
+ * @todo      Change static methods to normal methods, internal $password property should be avoided, always use $this->getPassword()
  */
 
 
@@ -20,6 +21,7 @@ declare(strict_types=1);
 
 namespace Phoundation\Accounts\Users;
 
+use Phoundation\Accounts\Users\Exception\PasswordHashException;
 use Phoundation\Accounts\Users\Interfaces\PasswordInterface;
 use Phoundation\Core\Core;
 use Phoundation\Core\Log\Log;
@@ -27,7 +29,6 @@ use Phoundation\Data\DataEntries\DataEntry;
 use Phoundation\Data\DataEntries\Definitions\Definition;
 use Phoundation\Data\DataEntries\Definitions\DefinitionFactory;
 use Phoundation\Data\DataEntries\Definitions\Interfaces\DefinitionsInterface;
-use Phoundation\Data\DataEntries\Interfaces\IdentifierInterface;
 use Phoundation\Data\Validator\Exception\ValidationFailedException;
 use Phoundation\Data\Validator\Interfaces\ValidatorInterface;
 use Phoundation\Data\Validator\Validator;
@@ -36,6 +37,8 @@ use Phoundation\Security\Passwords\Exception\NoPasswordSpecifiedException;
 use Phoundation\Security\Passwords\Exception\PasswordTooShortException;
 use Phoundation\Security\Passwords\Exception\PasswordWeakException;
 use Phoundation\Utils\Arrays;
+use Phoundation\Utils\Exception\JsonException;
+use Phoundation\Utils\Json;
 use Phoundation\Utils\Strings;
 use Phoundation\Web\Html\Enums\EnumInputType;
 
@@ -359,20 +362,101 @@ class Password extends DataEntry implements PasswordInterface
     /**
      * Returns the hashed version of the password
      *
-     * @param int    $id
-     * @param string $password
+     * @param string      $password
+     *
+     * @param int         $id
+     * @param string|null $algorithm
      *
      * @return string
+     * @todo Change PASSWORD_BCRYPT to PASSWORD_ARGON2ID
      */
-    public static function hash(string $password, int $id): string
+    public static function hash(string $password, int $id, string $algorithm = null): string
     {
         if (!$password) {
             throw new OutOfBoundsException(tr('No password specified'));
         }
 
-        return password_hash(static::seed($id, $password), PASSWORD_BCRYPT, [
+        $algorithm = $algorithm ?? Password::getConfigSecurityPasswordAlgorithm();
+
+        return password_hash(static::seed($id, $password), Password::checkIsValidHashAlgorithm($algorithm), [
             'cost' => config()->get('security.passwords.cost', 10),
         ]);
+    }
+
+
+    /**
+     * Returns the hash used for the specified password
+     *
+     * "old" style passwords were stored as-is
+     *
+     * "new" style passwords are stored as a JSON string, which contains an array with the keys "password" and "algorithm".
+     *
+     * @param string|null $password
+     *
+     * @return string|null
+     */
+    public static function detectAlgorithm(?string $password): ?string
+    {
+        if (empty($password)) {
+            return null;
+        }
+
+        try {
+            $password = Json::decode($password);
+
+        } catch (JsonException) {
+            return PASSWORD_BCRYPT;
+        }
+
+        // The JSON string should contain at least a section called "algorithm". If not, default to PASSWORD_BCRYPT
+        return array_get_safe($password, 'algorithm', PASSWORD_BCRYPT);
+    }
+
+
+    /**
+     * Returns the configured password algorithm
+     *
+     * Returns the configuration path "security.password.hash.algorithm" [PASSWORD_BCRYPT]
+     *
+     * @return string
+     * @todo Make default PASSWORD_ARGON2ID
+     */
+    public static function getConfigSecurityPasswordAlgorithm(): string
+    {
+        return config()->getString('security.password.hash.algorithm', PASSWORD_BCRYPT);
+    }
+
+
+    /**
+     * Returns the hashed version of the password
+     *
+     * @param string $algorithm
+     *
+     * @return bool
+     */
+    public static function isValidHashAlgorithm(string $algorithm): bool
+    {
+        return match ($algorithm) {
+            '2y', 'argon2i', 'argon2id' => true,
+            default                     => false
+        };
+    }
+
+
+    /**
+     * Returns the hashed version of the password
+     *
+     * @param string $algorithm
+     *
+     * @return string
+     */
+    public static function checkIsValidHashAlgorithm(string $algorithm): string
+    {
+        if (static::isValidHashAlgorithm($algorithm)) {
+            return $algorithm;
+        }
+
+        throw new PasswordHashException(ts('The specified algorithm ":algorithm" is not supported', [':algorithm' => $algorithm]));
     }
 
 
@@ -395,19 +479,24 @@ class Password extends DataEntry implements PasswordInterface
         $time  = config()->get('security.password.time', 50) / 1000;
         $costs = [];
         $try   = 0;
+
         while (++$try < $tries) {
             $cost = 3;
+
             do {
                 $cost++;
                 $start = microtime(true);
                 password_hash('test', PASSWORD_BCRYPT, ['cost' => $cost]);
+
                 $end = microtime(true);
                 Log::dot();
+
             } while (($end - $start) < $time);
+
             $costs[] = $cost;
         }
-        Log::cli();
 
+        Log::cli();
         return (int) Arrays::average($costs);
     }
 

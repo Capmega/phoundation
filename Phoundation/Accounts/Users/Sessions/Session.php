@@ -83,6 +83,7 @@ use Phoundation\Web\Requests\Response;
 use Plugins\Phoundation\MultiFactorAuthentication\Interfaces\MultiFactorAuthenticationInterface;
 use Throwable;
 
+
 class Session implements SessionInterface
 {
     use TraitDataStaticFlashMessages;
@@ -2946,5 +2947,52 @@ class Session implements SessionInterface
     public static function getStateObject(): SessionStateInterface
     {
         return Session::getUserObject()->getSessionStateObject();
+    }
+
+
+    /**
+     * Returns the user timezone
+     *
+     * @return string|null
+     */
+    public static function getTimezone(): ?string
+    {
+        return Session::getUserObject()->getTimezonesName();
+    }
+
+
+    /**
+     * Sets the user timezone
+     *
+     * @param string|null $name
+     *
+     * @return static
+     */
+    public static function setTimezone(?string $name): static
+    {
+        return Session::getUserObject()->setTimezonesName($name);
+    }
+
+
+    /**
+     * Returns the user timezone for this page
+     *
+     * @return string|null
+     */
+    public static function getTimezoneForPage(): ?string
+    {
+        return Session::get('timezone_for_page') ?? Session::getTimezone() ?? 'PDT';
+    }
+
+
+    /**
+     * Sets the user timezone used for this page
+     *
+     * @param string|null $name
+     * @return void
+     */
+    public static function setTimezoneForPage(?string $name): void
+    {
+        Session::set($name, 'timezone_for_page');
     }
 }
