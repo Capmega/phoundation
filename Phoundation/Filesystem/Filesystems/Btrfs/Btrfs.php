@@ -21,11 +21,13 @@ namespace Phoundation\Filesystem\Filesystems\Btrfs;
 use Phoundation\Data\Traits\TraitDataObjectPath;
 use Phoundation\Data\Traits\TraitDataObjectProcess;
 use Phoundation\Exception\OutOfBoundsException;
+use Phoundation\Filesystem\Filesystems\Btrfs\Interfaces\BtrfsInterface;
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
 use Phoundation\Os\Processes\Process;
+use Phoundation\Utils\Strings;
 
 
-class Btrfs
+class Btrfs implements BtrfsInterface
 {
     use TraitDataObjectProcess;
     use TraitDataObjectPath {
@@ -54,6 +56,34 @@ class Btrfs
         return $this->__setPathObject($_path)
                     ->setProcessObject(Process::new('btrfs', $_path?->getDirectoryObject())
                                               ->setSudo(true));
+    }
+
+
+    /**
+     * Returns the version of the btrfs-progs
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        $return = $this->getProcessObject()->clearArguments()->appendArgument('version');
+        $return = Strings::fromReverse($return, ' v');
+
+        return $return;
+    }
+
+
+    /**
+     * Formats the current path with a BTRFS filesystem
+     *
+     * @return static
+     */
+    public function format(): static
+    {
+        Process::new('mkfs.btrfs')
+               ->appendArguments(['-y', $this->getPathObject()->getSource()]);
+
+        return $this;
     }
 
 

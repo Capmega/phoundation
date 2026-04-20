@@ -86,10 +86,10 @@ class PhoDate extends PhoDateTime implements PhoDateInterface
      * @param null|PhoDateTime $min
      * @param null|PhoDateTime $max
      *
-     * @return PhoDateTime
+     * @return PhoDate
      * @throws Exception
      */
-    public static function random(?DateTime $min = null, ?DateTime $max = null): DateTime
+    public static function random(?DateTime $min = null, ?DateTime $max = null): PhoDate
     {
         if ($min) {
             $min = new DateTime(PhoDate::convert($min, 'y-m-d'));

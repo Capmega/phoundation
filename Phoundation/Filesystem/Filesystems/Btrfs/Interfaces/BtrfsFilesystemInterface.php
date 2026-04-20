@@ -4,7 +4,7 @@ namespace Phoundation\Filesystem\Filesystems\Btrfs\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
 
-interface BtrfsFilesystemInterface
+interface BtrfsFilesystemInterface extends BtrfsInterface
 {
     /**
      * Returns a key/value Iterator containing usage information for this filesystem

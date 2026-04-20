@@ -3,10 +3,10 @@
 namespace Phoundation\Filesystem\Filesystems\Btrfs\Interfaces;
 
 use Phoundation\Data\Interfaces\IteratorInterface;
-use Phoundation\Filesystem\Filesystems\Btrfs\BtrfsSubvolume;
 use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 
-interface BtrfsSubVolumeInterface
+
+interface BtrfsSubVolumeInterface extends BtrfsInterface
 {
     /**
      * Generates a new subvolume

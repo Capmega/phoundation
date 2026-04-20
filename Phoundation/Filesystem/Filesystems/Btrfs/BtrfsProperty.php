@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace Phoundation\Filesystem\Filesystems\Btrfs;
 
 use Phoundation\Filesystem\Interfaces\PhoPathInterface;
-use Phoundation\Filesystem\PhoPath;
 
 
-class BtrfsProperty extends Btrfs {
+class BtrfsProperty extends Btrfs
+{
     /**
      * Returns new static object
      *

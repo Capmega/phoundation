@@ -5,7 +5,7 @@ namespace Phoundation\Filesystem\Filesystems\Btrfs\Interfaces;
 use Phoundation\Data\Interfaces\IteratorInterface;
 use Phoundation\Filesystem\Filesystems\Btrfs\Exception\BtrfsException;
 
-interface BtrfsDeviceInterface
+interface BtrfsDeviceInterface extends BtrfsInterface
 {
     /**
      * Scan or forget (unregister) devices of btrfs filesystems
