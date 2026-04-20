@@ -460,7 +460,7 @@ class Device extends PhoFile
             throw OutOfBoundsException::new(tr('No permutation found'))->makeWarning();
         }
 
-        return $return;
+        return new Iterator([$return]);
     }
 
 
